@@ -9,8 +9,8 @@
   "generatedHouseholds": {
     "$comment": "Companion households. The Cast fills the main campus, so it gets none.",
     "perCampus": {
-      "peoria": 50,
-      "gilbert": 50
+      "peoria": 75,
+      "gilbert": 75
     }
   },
   "photos": {

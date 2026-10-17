@@ -58,6 +58,8 @@
     "gender": "male",
     "minimumAge": 18,
     "statuses": [ "Engaged", "Leading" ],
+    "$fallbackComment": "A campus with too few possible leaders for its groups (Core 3's small companion campuses) also takes leaders from these statuses, in order.",
+    "fallbackStatuses": [ "Connected", "Known" ],
     "becomeStatus": "Leading"
   },
   "members": {

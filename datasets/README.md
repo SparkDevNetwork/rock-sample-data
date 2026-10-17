@@ -5,7 +5,7 @@ One manifest per dataset: [core-1.json](core-1.json), [core-3.json](core-3.json)
 | Dataset | People | Campuses | Photos ([decision 30](../docs/decisions.md)) | Check images |
 |---|---|---|---|---|
 | Core 1 | Cast | 1 | Every Cast person | Every check |
-| Core 3 | Cast plus 50 companion households each at Peoria and Gilbert | 3 | Cast, plus about half of companions | Every check |
+| Core 3 | Cast plus 75 companion households each at Peoria and Gilbert | 3 | Cast, plus about half of companions | Every check |
 | Full 7 | Cast plus Crowd (about 25,000) | 7 | Cast only | Last 12 months |
 
 ## Manifest settings

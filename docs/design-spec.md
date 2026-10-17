@@ -243,7 +243,7 @@ Campuses are named by city only, with no "Campus" suffix. The main campus is Roc
 | Dataset | Campuses |
 |---|---|
 | Core 1 | Phoenix |
-| Core 3 | Adds Peoria and Gilbert, with 50 generated companion households each |
+| Core 3 | Adds Peoria and Gilbert, with 75 generated companion households each |
 | Full 7 | Adds Scottsdale, Chandler, Goodyear, and Tempe (the urban, young-adult campus, chosen over downtown Phoenix so every name is a city) |
 
 ### Photos

@@ -86,6 +86,7 @@ namespace RockSampleData.Loader.Generation
             private readonly Dictionary<Guid, DateTime> _adultSince = new Dictionary<Guid, DateTime>();
             private readonly Dictionary<Guid, List<(DateTime From, DateTime To)>> _busy = new Dictionary<Guid, List<(DateTime From, DateTime To)>>();
             private readonly HashSet<Guid> _pending = new HashSet<Guid>();
+            private readonly List<string> _leaderStatuses;
 
             public CampusContext( SmallGroupPlanner planner, CampusPlanRequest request )
             {
@@ -93,6 +94,7 @@ namespace RockSampleData.Loader.Generation
                 _request = request;
                 _rules = planner._rules;
                 _clock = planner._clock;
+                _leaderStatuses = new List<string>( _rules.Leaders.Statuses );
             }
 
             private SeededRandom Stream( string purpose ) => new SeededRandom( $"{_planner._seed}:small-groups:{purpose}:{_request.Campus}" );
@@ -228,6 +230,7 @@ namespace RockSampleData.Loader.Generation
                 }
 
                 var joiners = new List<Unit>();
+                var waiting = new List<(Unit Unit, double Closeness)>();
                 foreach ( var household in _current.GroupBy( u => u.Household ) )
                 {
                     var random = new SeededRandom( $"{_planner._seed}:small-groups:join:{household.Key.Guid}" );
@@ -244,11 +247,90 @@ namespace RockSampleData.Loader.Generation
                         {
                             joiners.Add( unit );
                         }
+                        else if ( percent > 0 )
+                        {
+                            waiting.Add( (unit, roll / percent) );
+                        }
                     }
                 }
 
+                WidenLeaderStatuses();
+                TopUpJoiners( joiners, waiting.OrderBy( w => w.Closeness ).Select( w => w.Unit ).ToList() );
                 return joiners;
             }
+
+            /*
+                10/16/26 - CLAUDE
+
+                A small campus (one of Core 3's companion campuses) can be too small to fill the groups it needs:
+                one ordinary group beside each active test case, plus its inactive and archived test
+                groups. It may have too few men with a leader status, and too few joiners. So it first
+                takes leaders from the fallback statuses, in order, until it has enough. Then units that
+                came closest to joining are added, first enough possible leaders, then enough people for
+                groups of the minimum size. A campus that already has enough is left exactly as it rolled.
+
+                Reason: Every campus gets its Group Finder test groups, however few households it has.
+            */
+
+            /// <summary>
+            /// Lets people with the fallback statuses lead, one status at a time, while the campus has too few possible leaders.
+            /// </summary>
+            private void WidenLeaderStatuses()
+            {
+                var activePool = _couldJoin.SelectMany( u => u.People ).ToList();
+                var formerPool = _formerOnly.SelectMany( u => u.People ).ToList();
+                var formerNeeded = _request.TestCases.Inactive + _request.TestCases.Archived;                foreach ( var status in _rules.Leaders.FallbackStatuses )
+                {
+                    var activeLeaders = activePool.Count( CanLead );
+                    var hasEnough = activeLeaders >= MinimumActiveGroups && activeLeaders + formerPool.Count( CanLead ) >= MinimumActiveGroups + formerNeeded;
+                    if ( hasEnough )
+                    {
+                        return;
+                    }
+
+                    _leaderStatuses.Add( status );
+                }
+            }
+
+            /// <summary>
+            /// Adds waiting units, closest to joining first, until the campus can fill its minimum active groups.
+            /// </summary>
+            private void TopUpJoiners( List<Unit> joiners, List<Unit> waiting )
+            {
+                var needed = MinimumActiveGroups;
+                var peopleNeeded = needed * _rules.Size.Min;
+                var leaders = joiners.Sum( u => u.People.Count( CanLead ) );
+                var people = joiners.Sum( u => u.People.Count );
+
+                foreach ( var unit in waiting.Where( u => u.People.Any( CanLead ) ).ToList() )
+                {
+                    if ( leaders >= needed )
+                    {
+                        break;
+                    }
+
+                    joiners.Add( unit );
+                    waiting.Remove( unit );
+                    leaders += unit.People.Count( CanLead );
+                    people += unit.People.Count;
+                }
+
+                foreach ( var unit in waiting )
+                {
+                    if ( people >= peopleNeeded )
+                    {
+                        break;
+                    }
+
+                    joiners.Add( unit );
+                    people += unit.People.Count;
+                }
+            }
+
+            /// <summary>
+            /// The fewest active groups the campus plans: one ordinary group beside its active test cases, and every legacy group.
+            /// </summary>
+            private int MinimumActiveGroups => Math.Max( _request.TestCases.ActiveCount > 0 ? _request.TestCases.ActiveCount + 1 : 0, _request.Legacy.Count );
 
             #endregion Units
 
@@ -263,14 +345,7 @@ namespace RockSampleData.Loader.Generation
                 var people = joiners.Sum( u => u.People.Count );
                 var candidates = LeaderCandidates( joiners.SelectMany( u => u.People ) );
 
-                var count = ( int ) Math.Round( ( double ) people / size.Target );
-                if ( _request.TestCases.ActiveCount > 0 )
-                {
-                    // Every campus keeps at least one ordinary group beside its test cases.
-                    count = Math.Max( count, _request.TestCases.ActiveCount + 1 );
-                }
-
-                count = Math.Max( count, _request.Legacy.Count );
+                var count = Math.Max( ( int ) Math.Round( ( double ) people / size.Target ), MinimumActiveGroups );
                 count = Math.Min( count, people / size.Min );
                 count = Math.Min( count, candidates.Count );
 
@@ -322,13 +397,21 @@ namespace RockSampleData.Loader.Generation
             /// </summary>
             private List<CastPerson> LeaderCandidates( IEnumerable<CastPerson> people )
             {
-                var leaders = _rules.Leaders;
                 var pinned = _request.Legacy.Where( l => l.LeaderGuid.HasValue ).Select( l => l.LeaderGuid.Value ).ToList();
                 return people
-                    .Where( p => p.Gender == leaders.Gender && p.Birth.Age >= leaders.MinimumAge && leaders.Statuses.Contains( p.ConnectionStatus ) )
+                    .Where( CanLead )
                     .OrderBy( p => pinned.Contains( p.Guid ) ? pinned.IndexOf( p.Guid ) : int.MaxValue )
                     .ThenBy( p => new SeededRandom( $"{_planner._seed}:small-groups:leader:{p.Guid}" ).Between( 0.0, 1.0 ) )
                     .ToList();
+            }
+
+            /// <summary>
+            /// Whether the leader rules allow this person to lead a group.
+            /// </summary>
+            private bool CanLead( CastPerson person )
+            {
+                var leaders = _rules.Leaders;
+                return person.Gender == leaders.Gender && person.Birth.Age >= leaders.MinimumAge && _leaderStatuses.Contains( person.ConnectionStatus );
             }
 
             /// <summary>

@@ -5,7 +5,7 @@ How small groups look in the sample data, and why. Every number here lives in [c
 ## What a group looks like
 
 - **Size.** About 12 members, never fewer than 6 or more than 18. Capacity is 18.
-- **Leader.** One leader, a man who is at least 18 and already Engaged or Leading. Leading a group makes him Leading.
+- **Leader.** One leader, a man who is at least 18 and already Engaged or Leading. Leading a group makes him Leading. A campus with too few such men for its groups also takes Connected men, then Known men.
 - **Members.** Adults only, 18 and older. Spouses join together.
 - **Host.** In 60% of groups the leader's spouse is the host. In the rest, another member hosts, and the group meets at that member's home.
 - **Name.** The leader's last name plus "Group", for example "Decker Group." When two leaders share a last name, the first name is added: "Ben Jones Group."
@@ -49,7 +49,7 @@ Each dataset includes groups made for testing Group Finder and group history.
 ## How many people are in groups
 
 - **The Cast** joins at high rates so Core datasets have plenty of full, lively groups: about 95% of Leading, 85% of Engaged, 80% of Connected, and 30% of Known adults, and a few Prospects and Participants. That gives Core 1 about 8 active groups.
-- **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower.
+- **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower. A campus too small to fill its test groups at that rate adds the households that came closest to joining, until each group can reach the minimum size. Core 3 gets 6 groups at each companion campus, 24 in all.
 
 ## The Cast's groups
 

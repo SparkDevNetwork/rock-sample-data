@@ -237,6 +237,11 @@ namespace RockSampleData.Loader.Model
 
         public List<string> Statuses { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Statuses a campus with too few possible leaders also takes leaders from, in this order.
+        /// </summary>
+        public List<string> FallbackStatuses { get; set; } = new List<string>();
+
         public string BecomeStatus { get; set; }
     }
 
