@@ -56,4 +56,4 @@ It rewrites every small group file and marks each new leader Leading in the hous
 - A person's `bio` is a short backstory for documentation and test writers. Featured families have one for each person. Bios are never written to Rock.
 - The `photo` block holds `ethnicity` (adults; children inherit), `isOmitted` (no photo on purpose), and `seed`. See [Photos](../photos/README.md).
 
-To add a household, follow [Contributing](../docs/contributing.md).
+To add a household, follow [Maintaining](../docs/maintaining.md).
