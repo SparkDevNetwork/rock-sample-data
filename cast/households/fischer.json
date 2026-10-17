@@ -1,0 +1,128 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "fischer",
+  "guid": "483D3DF8-EB9F-4EC6-AA73-0747EFD71976",
+  "name": "Fischer Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a sophomore who comes to the student service and the midweek student night.",
+  "testPurposes": [
+    "High school students, including a senior about to graduate.",
+    "Monthly scheduled giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "5089 W Davis Rd",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85306",
+    "latitude": 33.631281,
+    "longitude": -112.167427
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 58,
+    "started": {
+      "yearsAgo": 6,
+      "month": 10,
+      "day": 28
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "mark",
+      "funds": {
+        "General Fund": 250
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 27
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "mark",
+      "guid": "C0C87060-A64E-43F6-97AC-855873C83E5E",
+      "firstName": "Mark",
+      "lastName": "Fischer",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 3,
+        "day": 27
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "mark.fischer@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550154"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "julie",
+      "guid": "CED31D85-2D3F-430A-ACC0-34E436220044",
+      "firstName": "Julie",
+      "lastName": "Fischer",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 45,
+        "month": 7,
+        "day": 27
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "ethan",
+      "guid": "CF0746E8-28B2-4C26-96DA-D754EE474061",
+      "firstName": "Ethan",
+      "lastName": "Fischer",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 17,
+        "month": 11,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "ethan.fischer@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550183"
+      }
+    },
+    {
+      "key": "grace",
+      "guid": "E32DD15D-52BA-4979-9653-F88AEBF6F49A",
+      "firstName": "Grace",
+      "lastName": "Fischer",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 15,
+        "month": 9,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

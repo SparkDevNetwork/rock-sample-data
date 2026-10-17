@@ -1,0 +1,125 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "hughes-group",
+  "guid": "26DBF36F-E673-4356-B31B-4F7958B33462",
+  "name": "Hughes Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Sermon Discussion",
+  "description": "We dig into Sunday's message together and talk about how it plays out in everyday life.",
+  "schedule": {
+    "day": "Thursday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "hughes"
+  },
+  "childCareProvided": false,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": true,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Inactive",
+    "started": {
+      "yearsAgo": 4,
+      "month": 9,
+      "day": 13
+    },
+    "ended": {
+      "yearsAgo": 3,
+      "month": 10,
+      "day": 6
+    },
+    "reason": "Group ended"
+  },
+  "testCase": "Inactive",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "name": "Patty Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
+      "name": "Ricardo Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 2,
+        "day": 14
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "name": "Larry Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 2,
+        "day": 14
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 19
+      },
+      "attendancePercent": 53
+    }
+  ]
+}

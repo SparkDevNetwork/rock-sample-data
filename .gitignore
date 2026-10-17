@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+.vs/
+*.user
+
+# Node
+node_modules/
+
+# Local-only data is ignored by the .gitignore inside each folder:
+# calibration/raw/ and addresses/raw/
+
+# Dataset packages the builder writes (only at the root: loader/packages/ is source code)
+/packages/

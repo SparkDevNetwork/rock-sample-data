@@ -1,0 +1,76 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "song",
+  "guid": "D31EE9E4-4DC0-4152-80D8-AAC7EE736781",
+  "name": "Song",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Allie Song invited her neighbor Phil Coffee to Easter. She was baptized the same day he was.",
+  "testPurposes": [
+    "The inviting friend in an invitation story.",
+    "Gender recorded as unknown."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3728 W Shangri la Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.586865,
+    "longitude": -112.138789
+  },
+  "members": [
+    {
+      "key": "allie",
+      "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
+      "firstName": "Allison",
+      "nickName": "Allie",
+      "lastName": "Song",
+      "bio": "Allie is a bank teller who invited her neighbor Phil Coffee to Easter. She was baptized the same day he was, and she is in the Greggs small group.",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 9,
+        "day": 27
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "asong@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550102",
+        "mobile": "6235550117"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Baptized": "Yes",
+        "BaptismDate": {
+          "yearsAgo": 9,
+          "month": 11,
+          "day": 1
+        },
+        "Employer": "First Bank of Union",
+        "Position": "Bank Teller",
+        "FirstVisit": {
+          "yearsAgo": 10,
+          "month": 12,
+          "day": 25
+        },
+        "SecondVisit": {
+          "yearsAgo": 9,
+          "month": 4,
+          "day": 1
+        }
+      },
+      "logins": [
+        "asong"
+      ]
+    }
+  ]
+}

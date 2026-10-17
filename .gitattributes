@@ -1,0 +1,9 @@
+# Store text with LF line endings in the repository, whatever each person's git settings are.
+* text=auto
+
+# Binary files: never convert line endings or show text diffs.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.ttf binary
+*.xlsx binary

@@ -1,0 +1,46 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "smith-john-duplicate-a",
+  "guid": "AC39935F-E7D4-454F-AA9A-617C5D7C2C75",
+  "name": "Smith Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "duplicateOf": "smith-jon",
+  "story": "A duplicate of Jon Smith, entered as John, with his home phone saved as a mobile number.",
+  "testPurposes": [
+    "Duplicate detection: same email and address, phone stored as a different type."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "8194 W Lynwood St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85043",
+    "latitude": 33.464704,
+    "longitude": -112.234605
+  },
+  "members": [
+    {
+      "key": "john",
+      "guid": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE",
+      "firstName": "John",
+      "lastName": "Smith",
+      "gender": "male",
+      "familyRole": "adult",
+      "maritalStatus": "single",
+      "recordStatus": "pending",
+      "connectionStatus": "Prospect",
+      "email": "jon.smith@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550102"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino",
+        "isOmitted": true
+      }
+    }
+  ]
+}

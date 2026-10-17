@@ -1,0 +1,96 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "carter",
+  "guid": "9B274A00-8F7E-4C52-B18C-2F400A18EF64",
+  "name": "Carter Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Margaret Carter has attended for thirty years. Her husband, Walter, passed away three years ago. She sits in the same row at the 9:00 service and writes a check every month.",
+  "testPurposes": [
+    "Widow living alone, age 78.",
+    "Monthly check giver with a year-end gift, with check images.",
+    "Pastoral care note about her husband's passing."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "16426 N 114th Dr",
+    "city": "Surprise",
+    "state": "AZ",
+    "postalCode": "85378",
+    "latitude": 33.63331,
+    "longitude": -112.306178
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 90,
+    "percentPrimaryService": 95,
+    "started": {
+      "yearsAgo": 30,
+      "month": 11,
+      "day": 15
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "currency": "check",
+      "person": "margaret",
+      "funds": {
+        "General Fund": 150,
+        "Mission Fund": 25
+      },
+      "percentOfPeriodsGiven": 100,
+      "specialGiftPercent": 60,
+      "started": {
+        "yearsAgo": 25,
+        "month": 10,
+        "day": 2
+      },
+      "expect": {
+        "frequency": "monthly",
+        "journeyStage": "consistent"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "margaret",
+      "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "firstName": "Margaret",
+      "nickName": "Peggy",
+      "lastName": "Carter",
+      "bio": "Peggy has attended for thirty years and always sits in the same row at the 9:00 service. Her husband Walter died three years ago, and a staff note asks for a call around that anniversary. She mails a check every month and gives at year end.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 78,
+        "month": 1,
+        "day": 20
+      },
+      "maritalStatus": "widowed",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "peggy.carter@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550151"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Peggy's husband, Walter, passed away three years ago this spring. She appreciates a call around the anniversary.",
+          "date": {
+            "yearsAgo": 3,
+            "month": 4,
+            "day": 20
+          }
+        }
+      ]
+    }
+  ]
+}

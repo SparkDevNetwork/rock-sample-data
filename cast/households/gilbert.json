@@ -1,0 +1,120 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "gilbert",
+  "guid": "E167CDB7-06FF-40EF-A731-498FE7410829",
+  "name": "Gilbert",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Brian and Wendy Gilbert host a small group in their home and both asked to serve together as greeters.",
+  "testPurposes": [
+    "Couple with matching connection requests to serve together.",
+    "Small group that meets in their home."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11020 N 35th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.586101,
+    "longitude": -112.134906
+  },
+  "members": [
+    {
+      "key": "brian",
+      "guid": "92D04619-3F97-4EFF-932E-61DA56441995",
+      "firstName": "Brian",
+      "lastName": "Gilbert",
+      "bio": "Brian works at the Valley Water District. He and his wife Wendy host a small group and have both asked to serve together as greeters.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 48,
+        "month": 7,
+        "day": 11
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 26,
+        "month": 5,
+        "day": 13
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "bgilbert@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550107",
+        "mobile": "6235550118"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Valley Water District",
+        "Position": "Office Clerk"
+      },
+      "connectionRequests": [
+        {
+          "type": "Involvement",
+          "opportunity": "Greeter",
+          "comment": "Me and my wife would like to serve together on the greeters team.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 10,
+            "day": 1
+          }
+        }
+      ]
+    },
+    {
+      "key": "wendy",
+      "guid": "D35B865D-BF50-4A7D-848F-6C0ED7A2AE67",
+      "firstName": "Wendy",
+      "lastName": "Gilbert",
+      "bio": "Wendy is a district manager at the Valley Water District, Brian's employer as well. Her connection request to serve matches Brian's, so the couple tests paired requests.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 6,
+        "day": 21
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 26,
+        "month": 5,
+        "day": 13
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "wgilbert@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550107",
+        "mobile": "6025550102"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Valley Water District",
+        "Position": "District Manager"
+      },
+      "connectionRequests": [
+        {
+          "type": "Involvement",
+          "opportunity": "Greeter",
+          "comment": "Me and my husband would like to serve together on the greeters team.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 10,
+            "day": 1
+          }
+        }
+      ]
+    }
+  ]
+}

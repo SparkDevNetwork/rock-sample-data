@@ -1,0 +1,111 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "watson",
+  "guid": "E2B5230F-B017-4F77-B97E-7AABB5F03BDF",
+  "name": "Watson Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Brandon and Kristen Watson come about once a month and give once a year, in December.",
+  "testPurposes": [
+    "Year-end-only giver.",
+    "Occasional attenders with Known status."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "7062 W Irma Ln",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85308",
+    "latitude": 33.671535,
+    "longitude": -112.211351
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 28,
+    "started": {
+      "yearsAgo": 2,
+      "month": 7,
+      "day": 2
+    }
+  },
+  "giving": [
+    {
+      "persona": "year-end",
+      "person": "kristen",
+      "funds": {
+        "General Fund": 500
+      },
+      "percentOfPeriodsGiven": 100,
+      "started": {
+        "yearsAgo": 2,
+        "month": 10,
+        "day": 13
+      },
+      "expect": {
+        "journeyStage": "former"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "brandon",
+      "guid": "21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA",
+      "firstName": "Brandon",
+      "lastName": "Watson",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 31,
+        "month": 9,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 2,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "brandon.watson@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550110"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      }
+    },
+    {
+      "key": "kristen",
+      "guid": "67F595E1-9066-4BB0-B7CD-4D1A8BC529DE",
+      "firstName": "Kristen",
+      "lastName": "Watson",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 30,
+        "month": 12,
+        "day": 8
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 2,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "kristen.watson@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550146"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

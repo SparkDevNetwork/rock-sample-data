@@ -1,0 +1,252 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "gilbert-group",
+  "guid": "3F61D174-D271-4F96-B5E1-CA98FAAC60BB",
+  "name": "Wright Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Prayer",
+  "description": "We spend most of our time praying for each other, our church, and our city.",
+  "schedule": {
+    "day": "Thursday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "gilbert"
+  },
+  "childCareProvided": false,
+  "capacity": 18,
+  "isPublic": false,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 2,
+      "month": 1,
+      "day": 9
+    }
+  },
+  "testCase": "Closed",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "92D04619-3F97-4EFF-932E-61DA56441995",
+      "name": "Brian Gilbert",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "D35B865D-BF50-4A7D-848F-6C0ED7A2AE67",
+      "name": "Wendy Gilbert",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "CED31D85-2D3F-430A-ACC0-34E436220044",
+      "name": "Julie Fischer",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Active",
+      "guid": "C0C87060-A64E-43F6-97AC-855873C83E5E",
+      "name": "Mark Fischer",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
+      "name": "Joan Ross",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
+      "name": "Dick Ross",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "name": "Dot Wright",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 9
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "D7CE30DF-58F8-4268-BA19-56FDF17D3890",
+      "name": "Paul Smith",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 11
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Inactive",
+      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 28
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 22
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Inactive",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "name": "Rob Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 14
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 10,
+        "day": 27
+      },
+      "attendancePercent": 67
+    },
+    {
+      "state": "Inactive",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 14
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 10,
+        "day": 27
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Inactive",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 11,
+        "day": 19
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 2
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Inactive",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "name": "Larry Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 11,
+        "day": 19
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 2
+      },
+      "attendancePercent": 61
+    }
+  ]
+}

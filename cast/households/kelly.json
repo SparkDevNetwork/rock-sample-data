@@ -1,0 +1,93 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "kelly",
+  "guid": "A209E06A-CBC0-4DE2-8288-2DCA1CA2E1FC",
+  "name": "Kelly Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Ashley Kelly is a single mom of two. She asked the benevolence team for help with rent last winter and comes when work allows.",
+  "testPurposes": [
+    "Benevolence request (Phase 1).",
+    "Single mom with preschool and Grades 2-3 check-in.",
+    "Known status, no giving."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "14198 N 146th Ln",
+    "city": "Surprise",
+    "state": "AZ",
+    "postalCode": "85379",
+    "latitude": 33.613017,
+    "longitude": -112.375964
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 30,
+    "started": {
+      "yearsAgo": 1,
+      "month": 7,
+      "day": 2
+    }
+  },
+  "members": [
+    {
+      "key": "ashley",
+      "guid": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "firstName": "Ashley",
+      "lastName": "Kelly",
+      "bio": "Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 33,
+        "month": 2,
+        "day": 28
+      },
+      "maritalStatus": "divorced",
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "ashley.kelly@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550139"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "mason",
+      "guid": "CF641196-EDF3-40D0-AA66-93029C8CC727",
+      "firstName": "Mason",
+      "lastName": "Kelly",
+      "bio": "Mason is seven and in the Grades 2-3 room.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 7,
+        "month": 2,
+        "day": 21
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known"
+    },
+    {
+      "key": "chloe",
+      "guid": "38F28DF7-D7D9-4C7C-8012-8685CAB61226",
+      "firstName": "Chloe",
+      "lastName": "Kelly",
+      "bio": "Chloe is four and in the preschool room.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 4,
+        "month": 7,
+        "day": 19
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known"
+    }
+  ]
+}

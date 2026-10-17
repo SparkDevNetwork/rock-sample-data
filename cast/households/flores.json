@@ -1,0 +1,104 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "flores",
+  "guid": "5BBED00D-8B62-4FB4-A1B5-AB50F606D705",
+  "name": "Flores Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Monica Flores has never married and is raising two kids on her own.",
+  "testPurposes": [
+    "Never-married single parent.",
+    "Irregular giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4222 N 9th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85013",
+    "latitude": 33.497566,
+    "longitude": -112.084827
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 40,
+    "started": {
+      "yearsAgo": 3,
+      "month": 11,
+      "day": 9
+    }
+  },
+  "giving": [
+    {
+      "persona": "irregular",
+      "person": "monica",
+      "funds": {
+        "General Fund": 25
+      },
+      "percentOfPeriodsGiven": 70,
+      "started": {
+        "yearsAgo": 2,
+        "month": 7,
+        "day": 18
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "monica",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "firstName": "Monica",
+      "lastName": "Flores",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 38,
+        "month": 12,
+        "day": 17
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "monica.flores@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550191"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "sebastian",
+      "guid": "FCA2E326-9DE4-4168-BE9E-036895BA0526",
+      "firstName": "Sebastian",
+      "lastName": "Flores",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 1,
+        "day": 24
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "lucia",
+      "guid": "DC62F135-5F33-46CA-AC33-181E6AB84EEE",
+      "firstName": "Lucia",
+      "lastName": "Flores",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 5,
+        "month": 1,
+        "day": 26
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "jones-ben",
+  "guid": "3BE313A1-51B1-4B03-B396-CEB9C3D9B919",
+  "name": "Jones Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Ben and Sarah Jones attended rarely and divorced. Ben now shares custody of their son Brian. Sarah later married Jim Simmons, and Brian lives mostly with them.",
+  "testPurposes": [
+    "Divorced parent with joint custody; the child belongs to two families.",
+    "Lapsed attender (stopped after the divorce).",
+    "Step-parent relationship from the other side."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10603 N 32nd Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.582033,
+    "longitude": -112.128503
+  },
+  "attendance": {
+    "persona": "lapsed",
+    "percentAttended": 20,
+    "percentPrimaryService": 50,
+    "started": {
+      "yearsAgo": 11,
+      "month": 10,
+      "day": 15
+    },
+    "ended": {
+      "yearsAgo": 10,
+      "month": 8,
+      "day": 15
+    }
+  },
+  "members": [
+    {
+      "key": "ben",
+      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
+      "firstName": "Benjamin",
+      "nickName": "Ben",
+      "lastName": "Jones",
+      "bio": "Ben attended rarely before his divorce from Sarah, now Sarah Simmons. He shares custody of their son Brian and comes mostly on weekends when Brian is with him.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 7,
+        "day": 10
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "ben.jones@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6235550123"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "relationships": [
+        {
+          "type": "step-child",
+          "with": "3D7F6605-3666-4AB5-9F4E-D7FEBF93278E"
+        }
+      ]
+    },
+    {
+      "key": "brian",
+      "guid": "3D7F6605-3666-4AB5-9F4E-D7FEBF93278E",
+      "firstName": "Brian",
+      "lastName": "Jones",
+      "bio": "Brian is six and belongs to two families: his dad Ben's and his mom Sarah's (the Simmons). He is the record to use for shared custody and for a child who appears in two households.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 6,
+        "month": 6,
+        "day": 9
+      },
+      "grade": 1,
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "brian.jones@example.org",
+      "emailIsActive": true,
+      "relationships": [
+        {
+          "type": "step-parent",
+          "with": "3C402382-3BD2-4337-A996-9E62F1BAB09D"
+        }
+      ]
+    }
+  ]
+}

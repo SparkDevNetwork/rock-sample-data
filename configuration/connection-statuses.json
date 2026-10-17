@@ -1,0 +1,56 @@
+{
+  "$comment": "Rock code refers to system statuses by Guid, so system values are renamed, never deleted.",
+  "statuses": [
+    {
+      "key": "prospect",
+      "name": "Prospect",
+      "guid": "368DD475-242C-49C4-A42C-7278BE690CC2",
+      "rockDefault": true,
+      "order": 0,
+      "description": "Created from a web or mobile form. Contact details only."
+    },
+    {
+      "key": "participant",
+      "name": "Participant",
+      "guid": "8EBC0CEB-474D-4C1B-A6BA-734C3A9AB061",
+      "rockDefault": true,
+      "order": 1,
+      "description": "Took part in one thing in person. Not really known yet."
+    },
+    {
+      "key": "known",
+      "name": "Known",
+      "guid": "B91BA046-BC1E-400C-B85D-638C1F4E0CE2",
+      "rockDefault": true,
+      "renamedFrom": "Visitor",
+      "order": 2,
+      "description": "Has visited. We know who they are."
+    },
+    {
+      "key": "connected",
+      "name": "Connected",
+      "guid": "39F491C5-D6AC-4A9B-8AC0-C431CB17D588",
+      "rockDefault": true,
+      "renamedFrom": "Attendee",
+      "order": 3,
+      "description": "Attends regularly."
+    },
+    {
+      "key": "engaged",
+      "name": "Engaged",
+      "guid": "41540783-D9EF-4C70-8F1D-C9E83D91ED5F",
+      "rockDefault": true,
+      "renamedFrom": "Member",
+      "order": 4,
+      "description": "In a group, serving, or giving."
+    },
+    {
+      "key": "leading",
+      "name": "Leading",
+      "guid": "377B6513-5671-4B8B-A520-BFDA739AFCA6",
+      "rockDefault": false,
+      "order": 5,
+      "description": "Leads a group or a team."
+    }
+  ]
+}

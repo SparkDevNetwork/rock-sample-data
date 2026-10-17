@@ -1,0 +1,177 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "russell-group",
+  "guid": "B2D75495-2A3A-4946-B570-688019039C62",
+  "name": "Russell Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Book of John",
+  "description": "We read through the Gospel of John a chapter at a time. No background needed.",
+  "schedule": {
+    "day": "Tuesday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "greggs"
+  },
+  "childCareProvided": false,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Archived",
+    "started": {
+      "yearsAgo": 8,
+      "month": 4,
+      "day": 27
+    },
+    "ended": {
+      "yearsAgo": 5,
+      "month": 4,
+      "day": 19
+    },
+    "archived": {
+      "yearsAgo": 5,
+      "month": 10,
+      "day": 9
+    }
+  },
+  "testCase": "Archived",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
+      "name": "Bob Greggs",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "name": "Daniel Peak",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 53
+    },
+    {
+      "state": "Active",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 27
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "name": "Dennis Perry",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 8,
+        "month": 8,
+        "day": 18
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Active",
+      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "name": "Patty Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 4,
+        "day": 19
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
+      "name": "Ricardo Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 4,
+        "day": 19
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
+      "name": "Jim Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 9,
+        "day": 9
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
+      "name": "Sarah Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 9,
+        "day": 9
+      },
+      "attendancePercent": 60
+    }
+  ]
+}

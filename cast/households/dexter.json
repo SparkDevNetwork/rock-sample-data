@@ -1,0 +1,140 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "dexter",
+  "guid": "A4F835F5-B956-4581-96BF-C79D7B9457F8",
+  "name": "Dexter Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Frank Dexter is a long-time member. After his divorce he was convicted of a misdemeanor, so his recent background check failed and needs review before he can serve.",
+  "testPurposes": [
+    "Failed background check that needs review.",
+    "Divorced adult living alone.",
+    "Monthly giver across two funds."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10621 N 18th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.582272,
+    "longitude": -112.098505
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 70,
+    "percentPrimaryService": 70,
+    "started": {
+      "yearsAgo": 15,
+      "month": 12,
+      "day": 25
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "frank",
+      "funds": {
+        "General Fund": 50,
+        "Building Fund": 10
+      },
+      "percentOfPeriodsGiven": 70,
+      "growth": {
+        "percent": 5,
+        "everyWeeks": 52
+      },
+      "specialGiftPercent": 50,
+      "started": {
+        "yearsAgo": 10,
+        "month": 1,
+        "day": 6
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "frank",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "firstName": "Francis",
+      "nickName": "Frank",
+      "lastName": "Dexter",
+      "bio": "Frank is a long-time member. After his divorce he was convicted of a misdemeanor, so his latest background check failed and needs review before he can serve.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 42,
+        "month": 4,
+        "day": 1
+      },
+      "graduation": {
+        "yearsAgo": 31,
+        "month": 1,
+        "day": 1
+      },
+      "maritalStatus": "divorced",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "frank@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550104",
+        "mobile": "6235550129"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "BaptismDate": {
+          "yearsAgo": 14,
+          "month": 2,
+          "day": 11
+        },
+        "FirstVisit": {
+          "yearsAgo": 15,
+          "month": 12,
+          "day": 24
+        },
+        "Employer": "First Bank of Main",
+        "Position": "Analyst",
+        "BackgroundCheckDate": {
+          "yearsAgo": 8,
+          "month": 10,
+          "day": 4
+        },
+        "BackgroundCheckResult": "Fail",
+        "AdaptiveD": "92",
+        "AdaptiveI": "34",
+        "AdaptiveS": "31",
+        "AdaptiveC": "12",
+        "NaturalD": "84",
+        "NaturalI": "10",
+        "NaturalS": "3",
+        "NaturalC": "1",
+        "LastSaveDate": {
+          "yearsAgo": 8,
+          "month": 2,
+          "day": 2
+        },
+        "PersonalityType": "D"
+      },
+      "logins": [
+        "fdexter"
+      ],
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Talked to Frank about his misdemeanor to determine if he can serve.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 5,
+            "day": 3,
+            "time": "18:03"
+          },
+          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23"
+        }
+      ]
+    }
+  ]
+}

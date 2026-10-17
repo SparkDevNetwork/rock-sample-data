@@ -1,0 +1,68 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "greggs-jenny",
+  "guid": "0E0EDC8F-CB8F-4457-88D4-651DE3904550",
+  "name": "Greggs",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "This family holds the record for Jenny Greggs, who died at age three. Her parents are linked to her by relationship.",
+  "testPurposes": [
+    "Deceased child record kept in its own family.",
+    "Parent relationships that point into another family."
+  ],
+  "reviewNotes": [
+    "Legacy connection status was 'inactive', which is not a real status. Set to Known; review whether a deceased child should carry a status at all."
+  ],
+  "members": [
+    {
+      "key": "jenny",
+      "guid": "146B2103-FB28-49C6-B1A4-218C397B739E",
+      "firstName": "Jenny",
+      "lastName": "Greggs",
+      "bio": "Jenny died when she was three. Her record is kept in its own family and linked to her parents, Bob and Lorraine, by relationship. Use it to test how Rock handles deceased children.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 15,
+        "month": 8,
+        "day": 1
+      },
+      "maritalStatus": "unknown",
+      "recordStatus": "inactive",
+      "recordStatusReason": "Deceased",
+      "isDeceased": true,
+      "connectionStatus": "Known",
+      "email": "jgreggs@example.org",
+      "emailIsActive": true,
+      "relationships": [
+        {
+          "type": "parent",
+          "with": "28C4F2C0-0691-468F-B40E-550BD2976B9E"
+        },
+        {
+          "type": "parent",
+          "with": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718"
+        }
+      ],
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Jenny went to be with the Lord yesterday. She was three years old.",
+          "date": {
+            "yearsAgo": 12,
+            "month": 9,
+            "day": 12,
+            "time": "09:02"
+          },
+          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+          "isAlert": true
+        }
+      ],
+      "photo": {
+        "isOmitted": true
+      }
+    }
+  ]
+}

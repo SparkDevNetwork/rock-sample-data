@@ -1,0 +1,3 @@
+# Downloaded source data (Census TIGER/Line, county address points). Never commit it.
+*
+!.gitignore

@@ -1,0 +1,4 @@
+# Raw calibration exports come from real churches. Never commit them.
+*
+!.gitignore
+!README.md

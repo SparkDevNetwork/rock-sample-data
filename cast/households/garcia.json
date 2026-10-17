@@ -1,0 +1,148 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "garcia",
+  "guid": "587C180B-CFB4-486E-88D0-CFEEEC434894",
+  "name": "Garcia Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Daniel and Maria Garcia have twin girls in first grade and a two-year-old son.",
+  "testPurposes": [
+    "Twins with the same birthday.",
+    "Toddler and K-1 check-in in one visit.",
+    "Monthly giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "15260 N 43rd St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85032",
+    "latitude": 33.624195,
+    "longitude": -111.98875
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 80,
+    "started": {
+      "yearsAgo": 5,
+      "month": 10,
+      "day": 8
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "maria",
+      "funds": {
+        "General Fund": 200
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 2
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "daniel",
+      "guid": "83DAAFFE-41B0-4439-A958-F854589887E6",
+      "firstName": "Daniel",
+      "lastName": "Garcia",
+      "bio": "Daniel and his wife Maria have twin girls in first grade and a two-year-old son.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 4,
+        "day": 28
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "phones": {
+        "mobile": "6235550197"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      }
+    },
+    {
+      "key": "maria",
+      "guid": "1AD452EF-23CE-4250-A1B1-34836452DEFB",
+      "firstName": "Maria",
+      "lastName": "Garcia",
+      "bio": "Maria gives monthly. She checks in all three kids every Sunday.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 34,
+        "month": 3,
+        "day": 21
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "maria.garcia@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550134"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      }
+    },
+    {
+      "key": "olivia",
+      "guid": "5E430E12-97F9-4AE9-8232-76C331313B38",
+      "firstName": "Olivia",
+      "lastName": "Garcia",
+      "bio": "Olivia is one of the six-year-old twins. She and her sister share a birthday, which makes them useful for testing check-in search and duplicate-looking records.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 6,
+        "month": 2,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "isabella",
+      "guid": "0A5BAA4D-CD82-4F68-8272-99922074EE11",
+      "firstName": "Isabella",
+      "nickName": "Bella",
+      "lastName": "Garcia",
+      "bio": "Isabella (Bella) is Olivia's twin.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 6,
+        "month": 2,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "leo",
+      "guid": "4BA2873B-25CC-4757-9ED3-037E631EDD95",
+      "firstName": "Leo",
+      "lastName": "Garcia",
+      "bio": "Leo is two and checks in to the toddler room.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 2,
+        "month": 9,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

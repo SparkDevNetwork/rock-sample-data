@@ -1,0 +1,243 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "marble-group",
+  "guid": "90B2CEDA-AE3A-4C10-A2E1-B987020379AD",
+  "name": "Marble Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Sermon Discussion",
+  "description": "A relaxed evening of talking through the weekend sermon, with good questions and good snacks.",
+  "schedule": {
+    "day": "Monday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "coffee"
+  },
+  "childCareProvided": false,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 1,
+      "month": 9,
+      "day": 6
+    }
+  },
+  "testCase": "Pending",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "1EA811BB-3118-42D1-B020-32A82BC8081A",
+      "name": "Bill Marble",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 28
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "name": "Linda Hayes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "name": "Bob Hayes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Active",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Active",
+      "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Ty McClintock",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "name": "Daniel Peak",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
+      "name": "Jim Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
+      "name": "Sarah Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
+      "name": "Allie Song",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Pending",
+      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
+      "name": "Sean Hansen",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 6
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Pending",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 4
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Pending",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 4
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Inactive",
+      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+      "name": "Hannah Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 23
+      },
+      "attendancePercent": 64
+    },
+    {
+      "state": "Inactive",
+      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 23
+      },
+      "attendancePercent": 57
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "gray",
+  "guid": "6AB44E7A-FBB2-49EE-A371-AA7F20F54631",
+  "name": "Gray Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Emily Gray is an ER nurse whose shifts change every week, so she attends whichever service fits. Her scheduled card gift stopped seven months ago when her card expired, and she has not set it up again.",
+  "testPurposes": [
+    "Attends many different services (low primary-service share).",
+    "Lapsed giver who still attends: her scheduled card gift stopped seven months ago when her card expired."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3608 W Willow Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.606617,
+    "longitude": -112.136686
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 50,
+    "percentPrimaryService": 35,
+    "started": {
+      "yearsAgo": 6,
+      "month": 6,
+      "day": 17
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "currency": "card",
+      "person": "emily",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 85,
+      "started": {
+        "yearsAgo": 5,
+        "month": 4,
+        "day": 28
+      },
+      "ended": {
+        "daysAgo": 210
+      },
+      "expect": {
+        "journeyStage": "lapsed",
+        "alerts": [
+          "late-gift"
+        ]
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "emily",
+      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "firstName": "Emily",
+      "lastName": "Gray",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 45,
+        "month": 4,
+        "day": 19
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "emily.gray@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550149"
+      },
+      "photo": {
+        "ethnicity": "native-american"
+      }
+    }
+  ]
+}

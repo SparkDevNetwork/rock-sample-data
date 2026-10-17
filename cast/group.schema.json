@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "group.schema.json",
+  "title": "Cast Group",
+  "description": "A group the Cast belongs to. Group membership lives here only, never on the person. Small groups in the pattern are plans written by the builder's --plan-cast-groups mode; see docs/small-groups.md.",
+  "type": "object",
+  "required": [ "schemaVersion", "key", "guid", "name", "type", "members" ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "guid": { "$ref": "household.schema.json#/$defs/guid" },
+    "name": { "type": "string" },
+    "type": { "enum": [ "small-group", "serving", "general" ] }
+  },
+  "if": { "properties": { "type": { "const": "small-group" } } },
+  "then": { "oneOf": [ { "$ref": "#/$defs/smallGroupPlan" }, { "$ref": "#/$defs/smallGroupNotInPattern" } ] },
+  "else": { "$ref": "#/$defs/otherGroup" },
+  "unevaluatedProperties": false,
+  "$defs": {
+    "smallGroupPlan": {
+      "description": "A small group in the pattern. The builder writes these files; edit configuration/small-groups.json and rerun --plan-cast-groups instead of editing them by hand.",
+      "required": [ "campus", "topic", "description", "schedule", "meetingStyle", "childCareProvided", "capacity", "isPublic", "meetsInSummer", "attendanceHabit", "lifecycle", "testCase", "members" ],
+      "properties": {
+        "campus": { "type": "string", "description": "A campus key, or main for the main campus." },
+        "topic": { "type": "string", "description": "A topic value from configuration/small-groups.json." },
+        "description": { "type": "string" },
+        "schedule": {
+          "type": "object",
+          "required": [ "day", "time" ],
+          "additionalProperties": false,
+          "properties": {
+            "day": { "enum": [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ] },
+            "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" }
+          }
+        },
+        "meetingStyle": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [ "style", "hostHousehold" ],
+              "additionalProperties": false,
+              "properties": { "style": { "const": "InPerson" }, "hostHousehold": { "type": "string", "description": "Household key whose home is the meeting place." } }
+            },
+            {
+              "type": "object",
+              "required": [ "style", "link" ],
+              "additionalProperties": false,
+              "properties": { "style": { "const": "Online" }, "link": { "type": "string" } }
+            }
+          ]
+        },
+        "childCareProvided": { "type": "boolean" },
+        "capacity": { "type": "integer", "minimum": 0 },
+        "isPublic": { "type": "boolean", "description": "False hides the group from Group Finder (the Closed test case)." },
+        "meetsInSummer": { "type": "boolean" },
+        "attendanceHabit": { "enum": [ "EveryWeek", "Spotty" ] },
+        "lifecycle": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [ "state", "started" ],
+              "additionalProperties": false,
+              "properties": { "state": { "const": "Active" }, "started": { "$ref": "household.schema.json#/$defs/relativeDate" } }
+            },
+            {
+              "type": "object",
+              "required": [ "state", "started", "ended", "reason" ],
+              "additionalProperties": false,
+              "properties": {
+                "state": { "const": "Inactive" },
+                "started": { "$ref": "household.schema.json#/$defs/relativeDate" },
+                "ended": { "$ref": "household.schema.json#/$defs/relativeDate" },
+                "reason": { "type": "string", "description": "An inactive reason value from configuration/small-groups.json." }
+              }
+            },
+            {
+              "type": "object",
+              "required": [ "state", "started", "ended", "archived" ],
+              "additionalProperties": false,
+              "properties": {
+                "state": { "const": "Archived" },
+                "started": { "$ref": "household.schema.json#/$defs/relativeDate" },
+                "ended": { "$ref": "household.schema.json#/$defs/relativeDate" },
+                "archived": { "$ref": "household.schema.json#/$defs/relativeDate" }
+              }
+            }
+          ]
+        },
+        "testCase": { "enum": [ "None", "Full", "Closed", "Pending", "Inactive", "Archived" ] },
+        "members": { "type": "array", "items": { "$ref": "#/$defs/smallGroupMember" } }
+      }
+    },
+    "smallGroupMember": {
+      "type": "object",
+      "required": [ "state", "guid", "role", "joined", "attendancePercent" ],
+      "additionalProperties": false,
+      "properties": {
+        "state": { "enum": [ "Active", "Inactive", "Archived", "Pending" ], "description": "Inactive and Archived members left; Pending is a request to join." },
+        "guid": { "$ref": "household.schema.json#/$defs/guid" },
+        "name": { "type": "string", "description": "For readability only." },
+        "role": { "enum": [ "Leader", "Host", "Member" ] },
+        "joined": { "$ref": "household.schema.json#/$defs/relativeDate", "description": "When they joined, or when a pending member asked to join." },
+        "left": { "$ref": "household.schema.json#/$defs/relativeDate" },
+        "attendancePercent": { "type": "integer", "minimum": 0, "maximum": 100 }
+      },
+      "if": { "properties": { "state": { "enum": [ "Inactive", "Archived" ] } } },
+      "then": { "required": [ "left" ] },
+      "else": { "not": { "required": [ "left" ] } }
+    },
+    "smallGroupNotInPattern": {
+      "description": "A small group that configuration/small-groups.json lists in cast.notInPattern. It keeps its legacy shape until its own pattern exists, and is not loaded.",
+      "required": [ "meeting" ],
+      "not": { "required": [ "lifecycle" ] },
+      "properties": {
+        "parentGroupGuid": { "$ref": "household.schema.json#/$defs/guid" },
+        "description": { "type": "string" },
+        "studyTopic": { "type": "string" },
+        "meeting": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "frequency": { "enum": [ "weekly" ] },
+            "dayOfWeek": { "enum": [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ] },
+            "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+            "atHousehold": { "type": "string", "description": "Household key whose home address is the meeting place." }
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "guid" ],
+            "additionalProperties": false,
+            "properties": {
+              "guid": { "$ref": "household.schema.json#/$defs/guid" },
+              "name": { "type": "string", "description": "For readability only." },
+              "role": { "enum": [ "Leader", "Host", "Member" ] }
+            }
+          }
+        }
+      }
+    },
+    "otherGroup": {
+      "description": "A serving team or general group.",
+      "properties": {
+        "parentGroupGuid": { "$ref": "household.schema.json#/$defs/guid" },
+        "description": { "type": "string" },
+        "capacity": { "type": "integer", "minimum": 0 },
+        "scheduling": {
+          "type": "array",
+          "description": "Serving team schedules with capacity, by location.",
+          "items": {
+            "type": "object",
+            "required": [ "locationGuid", "schedules" ],
+            "additionalProperties": false,
+            "properties": {
+              "locationGuid": { "$ref": "household.schema.json#/$defs/guid" },
+              "schedules": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [ "scheduleGuid" ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "scheduleGuid": { "$ref": "household.schema.json#/$defs/guid" },
+                    "minimum": { "type": "integer" },
+                    "desired": { "type": "integer" },
+                    "maximum": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "guid" ],
+            "additionalProperties": false,
+            "properties": {
+              "guid": { "$ref": "household.schema.json#/$defs/guid" },
+              "name": { "type": "string", "description": "For readability only." },
+              "isLeader": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "murphy",
+  "guid": "FE480884-2803-472B-80F2-CCC7E1C22681",
+  "name": "Murphy Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Patrick and Erin Murphy attended for eight years, then moved to Ohio two years ago. Their record is inactive, but their history remains.",
+  "testPurposes": [
+    "Inactive record with the Moved reason.",
+    "Attendance and giving history that stops two years ago."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4897 W Cinnabar Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85302",
+    "latitude": 33.577488,
+    "longitude": -112.164474
+  },
+  "attendance": {
+    "persona": "lapsed",
+    "percentAttended": 70,
+    "started": {
+      "yearsAgo": 10,
+      "month": 12,
+      "day": 21
+    },
+    "ended": {
+      "yearsAgo": 2,
+      "month": 6,
+      "day": 15
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "patrick",
+      "funds": {
+        "General Fund": 175
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 9,
+        "month": 9,
+        "day": 16
+      },
+      "ended": {
+        "yearsAgo": 2,
+        "month": 6,
+        "day": 1
+      },
+      "expect": {
+        "journeyStage": "former"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "patrick",
+      "guid": "7434664A-E5DB-4AD4-945B-625FF574E2EC",
+      "firstName": "Patrick",
+      "lastName": "Murphy",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 10,
+        "day": 11
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "Moved",
+      "connectionStatus": "Engaged",
+      "email": "patrick.murphy@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550155"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "erin",
+      "guid": "8AF84CC0-CD08-430D-A0D4-04B151AAEB96",
+      "firstName": "Erin",
+      "lastName": "Murphy",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 43,
+        "month": 11,
+        "day": 13
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "Moved",
+      "connectionStatus": "Engaged",
+      "email": "erin.murphy@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550153"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "liam",
+      "guid": "A76A0499-C6E2-41DF-8CD0-73D4A70BDBFC",
+      "firstName": "Liam",
+      "lastName": "Murphy",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 12,
+        "month": 9,
+        "day": 4
+      },
+      "recordStatus": "inactive",
+      "recordStatusReason": "Moved",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

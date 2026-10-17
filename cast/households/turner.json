@@ -1,0 +1,66 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "turner",
+  "guid": "0C0C7970-A3B1-47CB-BE38-D4BB2ACA46BE",
+  "name": "Turner",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Nancy Turner asked to serve as an usher after the church promoted online serve sign-ups.",
+  "testPurposes": [
+    "Open connection request that needs a connector."
+  ],
+  "reviewNotes": [
+    "The legacy email starts with 'mturner' though her name is Nancy.",
+    "The legacy data gives Nancy the same street address as Dan Richards. Confirm or change."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11012 N 28th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.585396,
+    "longitude": -112.12165
+  },
+  "members": [
+    {
+      "key": "nancy",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "firstName": "Nancy",
+      "lastName": "Turner",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 33,
+        "month": 3,
+        "day": 26
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "mturner@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550112",
+        "mobile": "4805550107"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "connectionRequests": [
+        {
+          "type": "Involvement",
+          "opportunity": "Usher",
+          "comment": "I can help people find seats in a crowded place.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 9,
+            "day": 25
+          }
+        }
+      ]
+    }
+  ]
+}

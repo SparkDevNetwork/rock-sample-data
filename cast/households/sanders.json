@@ -1,0 +1,80 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "sanders",
+  "guid": "D48C6021-2B1C-465C-8299-7264ECCC98C9",
+  "name": "Sanders Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Josh Sanders started coming last year with a coworker and was baptized two months ago.",
+  "testPurposes": [
+    "New believer baptized recently (steps in Phase 1).",
+    "Irregular giver who just started."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "5542 N 33rd Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85017",
+    "latitude": 33.517939,
+    "longitude": -112.13001
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 70,
+    "started": {
+      "yearsAgo": 1,
+      "month": 3,
+      "day": 25
+    }
+  },
+  "giving": [
+    {
+      "persona": "irregular",
+      "person": "josh",
+      "funds": {
+        "General Fund": 20
+      },
+      "percentOfPeriodsGiven": 75,
+      "started": {
+        "daysAgo": 90
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "josh",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "firstName": "Joshua",
+      "nickName": "Josh",
+      "lastName": "Sanders",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 24,
+        "month": 6,
+        "day": 17
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "josh.sanders@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550170"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Baptized": "Yes",
+        "BaptismDate": {
+          "daysAgo": 60
+        },
+        "Employer": "Ocotillo Market"
+      }
+    }
+  ]
+}

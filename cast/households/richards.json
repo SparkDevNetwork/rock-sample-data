@@ -1,0 +1,51 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "richards",
+  "guid": "01060616-9878-406B-BD8D-10EE3545938A",
+  "name": "Richards",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Dan Richards is a single adult who signed up online and joined a small group.",
+  "testPurposes": [
+    "Single Prospect who is already in a small group."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11018 N 28th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.58544,
+    "longitude": -112.121649
+  },
+  "members": [
+    {
+      "key": "dan",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "firstName": "Daniel",
+      "nickName": "Dan",
+      "lastName": "Richards",
+      "bio": "Dan is a single adult who signed up online and joined the Greggs small group. He is still a Prospect.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 28,
+        "month": 10,
+        "day": 9
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "drichards@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550108"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    }
+  ]
+}

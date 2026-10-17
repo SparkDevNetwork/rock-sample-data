@@ -1,0 +1,177 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "jenkins-group",
+  "guid": "BE6F1D2D-3019-43A0-BD5C-E8C7C01B3A9A",
+  "name": "Jenkins Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "New to Faith",
+  "description": "A welcoming place to learn the basics of faith alongside others who are new too.",
+  "schedule": {
+    "day": "Sunday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "jenkins"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "Spotty",
+  "lifecycle": {
+    "state": "Archived",
+    "started": {
+      "yearsAgo": 1,
+      "month": 2,
+      "day": 27
+    },
+    "ended": {
+      "yearsAgo": 1,
+      "month": 8,
+      "day": 26
+    },
+    "archived": {
+      "yearsAgo": 1,
+      "month": 10,
+      "day": 17
+    }
+  },
+  "testCase": "Archived",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
+      "name": "Gary Jenkins",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "name": "Barb Jenkins",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "4E98A87E-06B9-4822-9C45-88BF1F6E9C12",
+      "name": "Gaby Cruz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "CBE5E38E-4824-4472-904F-9BDCF77BD433",
+      "name": "Jose Cruz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "902984C3-BCE1-405A-8A74-416F7D15B288",
+      "name": "John Smith",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 2,
+        "day": 27
+      },
+      "attendancePercent": 64
+    },
+    {
+      "state": "Active",
+      "guid": "069CF2DC-DD58-4CC6-840E-D770EA2DA96F",
+      "name": "Destiny Young",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 17
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+      "name": "Hannah Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 18
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 18
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Active",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 4,
+        "day": 10
+      },
+      "attendancePercent": 63
+    }
+  ]
+}

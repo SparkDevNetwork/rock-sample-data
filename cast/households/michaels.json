@@ -1,0 +1,60 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "michaels",
+  "guid": "F53EC4A4-300B-4B5D-9A81-CB6198F3583F",
+  "name": "Michaels Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Jenny Michaels is not on staff but coordinates the annual car show and summer camp, so she has staff-like access.",
+  "testPurposes": [
+    "Volunteer with the Staff-Like Users role.",
+    "Contact person for an event registration.",
+    "Member of two small groups."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3137 W Bloomfield Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.598492,
+    "longitude": -112.125907
+  },
+  "members": [
+    {
+      "key": "jenny",
+      "guid": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "firstName": "Jennifer",
+      "nickName": "Jenny",
+      "lastName": "Michaels",
+      "bio": "Jenny is a systems engineer who coordinates the annual car show and summer camp. She is not on staff but has staff-like access for those events.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 28,
+        "month": 9,
+        "day": 19
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "jenny@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550115"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Sonoran Systems",
+        "Position": "Systems Engineer"
+      },
+      "securityRoles": [
+        "Staff-Like Users"
+      ]
+    }
+  ]
+}

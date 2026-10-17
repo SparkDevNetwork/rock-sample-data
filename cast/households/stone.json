@@ -1,0 +1,52 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "stone",
+  "guid": "594A1AEC-7052-43DA-A819-29088ABD9930",
+  "name": "Stone",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Cora (Corrie) Stone is a single adult who attends and is in a small group.",
+  "testPurposes": [
+    "Middle initial and a nickname that differs from the first name."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10820 N 17th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.584015,
+    "longitude": -112.096675
+  },
+  "members": [
+    {
+      "key": "corrie",
+      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+      "firstName": "Cora",
+      "nickName": "Corrie",
+      "middleName": "M",
+      "lastName": "Stone",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 31,
+        "month": 8,
+        "day": 1
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "cstone@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550115",
+        "mobile": "6025550106"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      }
+    }
+  ]
+}

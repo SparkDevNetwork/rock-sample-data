@@ -1,0 +1,268 @@
+// <copyright>
+// Copyright by the Spark Development Network
+//
+// Licensed under the Rock Community License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.rockrms.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+//
+
+using System.Text.Json.Serialization;
+
+namespace RockSampleData.Loader.Model
+{
+    /*
+        These classes mirror cast/household.schema.json. Only the properties the
+        loader uses so far are declared; the JSON reader ignores the rest.
+    */
+
+    /// <summary>
+    /// One Cast household from cast/households.
+    /// </summary>
+    internal sealed class CastHousehold
+    {
+        public string Key { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Name { get; set; }
+
+        public string Kind { get; set; }
+
+        public string CampusSlot { get; set; }
+
+        /// <summary>
+        /// The household key this household is a duplicate record of. Duplicate records never join groups.
+        /// </summary>
+        public string DuplicateOf { get; set; }
+
+        public CastAddress Address { get; set; }
+
+        public CastAttendance Attendance { get; set; }
+
+        public List<CastGiving> Giving { get; set; } = new List<CastGiving>();
+
+        /// <summary>
+        /// True when a married couple gives separately: each spouse is their own giving unit.
+        /// </summary>
+        public bool AdultsGiveSeparately { get; set; }
+
+        public List<CastPerson> Members { get; set; } = new List<CastPerson>();
+
+        public List<CastSharedMember> SharedMembers { get; set; } = new List<CastSharedMember>();
+    }
+
+    /// <summary>
+    /// A household's address.
+    /// </summary>
+    internal sealed class CastAddress
+    {
+        public string Type { get; set; }
+
+        public string Street1 { get; set; }
+
+        public string Street2 { get; set; }
+
+        public string City { get; set; }
+
+        public string State { get; set; }
+
+        public string PostalCode { get; set; }
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+    }
+
+    /// <summary>
+    /// How often a household attends on Sunday.
+    /// </summary>
+    internal sealed class CastAttendance
+    {
+        public string Persona { get; set; }
+
+        public int PercentAttended { get; set; }
+
+        public int? PercentPrimaryService { get; set; }
+
+        public RelativeDate Started { get; set; }
+
+        public RelativeDate Ended { get; set; }
+    }
+
+    /// <summary>
+    /// One giving pattern for one giver in the household.
+    /// </summary>
+    internal sealed class CastGiving
+    {
+        public string Persona { get; set; }
+
+        /// <summary>
+        /// Optional payment method (check, ach, card, or cash). Left out, the profile picks one.
+        /// </summary>
+        public string Currency { get; set; }
+
+        /// <summary>
+        /// Optional name signed on the check, when someone signs for the giver (a business).
+        /// </summary>
+        public string Signer { get; set; }
+
+        public string Person { get; set; }
+
+        public Dictionary<string, decimal> Funds { get; set; } = new Dictionary<string, decimal>();
+
+        public int? PercentOfPeriodsGiven { get; set; }
+
+        public CastGrowth Growth { get; set; }
+
+        public int? SpecialGiftPercent { get; set; }
+
+        public RelativeDate Started { get; set; }
+
+        public RelativeDate Ended { get; set; }
+
+        /// <summary>
+        /// Optional: what Rock should show for this giver after a load (see <see cref="CastGivingExpect"/>).
+        /// </summary>
+        public CastGivingExpect Expect { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock should show for a Cast giver after a load. The builder checks these after every load.
+    /// </summary>
+    internal sealed class CastGivingExpect
+    {
+        /// <summary>
+        /// Rock's gift frequency label: weekly, bi-weekly, monthly, quarterly, erratic, or undetermined.
+        /// </summary>
+        public string Frequency { get; set; }
+
+        /// <summary>
+        /// Rock's journey stage: non-giver, new, consistent, occasional, lapsed, or former.
+        /// </summary>
+        public string JourneyStage { get; set; }
+
+        /// <summary>
+        /// Alert type keys the giver must have at least one alert of.
+        /// </summary>
+        public List<string> Alerts { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// A gift amount's growth: a percent increase every so many weeks.
+    /// </summary>
+    internal sealed class CastGrowth
+    {
+        public decimal Percent { get; set; }
+
+        public int EveryWeeks { get; set; }
+    }
+
+    /// <summary>
+    /// A person whose primary record lives in another household but who also belongs to this one.
+    /// </summary>
+    internal sealed class CastSharedMember
+    {
+        public Guid Guid { get; set; }
+
+        public string Household { get; set; }
+    }
+
+    /// <summary>
+    /// One Cast person.
+    /// </summary>
+    internal sealed class CastPerson
+    {
+        public string Key { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string RecordType { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string NickName { get; set; }
+
+        public string MiddleName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string Gender { get; set; }
+
+        public string FamilyRole { get; set; }
+
+        public CastBirth Birth { get; set; }
+
+        public int? Grade { get; set; }
+
+        public RelativeDate Graduation { get; set; }
+
+        public string MaritalStatus { get; set; }
+
+        public RelativeDate Anniversary { get; set; }
+
+        public string RecordStatus { get; set; }
+
+        public bool IsDeceased { get; set; }
+
+        public string ConnectionStatus { get; set; }
+
+        public string Email { get; set; }
+
+        public bool EmailIsActive { get; set; } = true;
+
+        public bool EmailDoNotEmail { get; set; }
+
+        public CastPhones Phones { get; set; }
+    }
+
+    /// <summary>
+    /// Age on the anchor date plus birthday.
+    /// </summary>
+    internal sealed class CastBirth
+    {
+        public int Age { get; set; }
+
+        public int Month { get; set; }
+
+        public int Day { get; set; }
+    }
+
+    /// <summary>
+    /// A person's phone numbers (10 digits each).
+    /// </summary>
+    internal sealed class CastPhones
+    {
+        public string Home { get; set; }
+
+        public string Mobile { get; set; }
+
+        public string Work { get; set; }
+    }
+
+    /// <summary>
+    /// A calendar date relative to the anchor: the year is the anchor year minus YearsAgo,
+    /// or, when DaysAgo is set, that many days before the anchor.
+    /// </summary>
+    [JsonConverter( typeof( RelativeDateConverter ) )]
+    internal sealed class RelativeDate
+    {
+        public int? DaysAgo { get; set; }
+
+        public int YearsAgo { get; set; }
+
+        public int Month { get; set; }
+
+        public int Day { get; set; }
+
+        public string Time { get; set; }
+    }
+}

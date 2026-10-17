@@ -1,0 +1,125 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "wood",
+  "guid": "D9A190A7-798E-4D8E-A592-A4005F4DB022",
+  "name": "Wood Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Jason and Melissa Wood have a seventh grader and a fourth grader. Jason's gift goes out by card every other week.",
+  "testPurposes": [
+    "Middle school student in the student check-in area.",
+    "Bi-weekly scheduled card giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "22478 N 29th Pl",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85050",
+    "latitude": 33.690407,
+    "longitude": -112.019574
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 64,
+    "started": {
+      "yearsAgo": 5,
+      "month": 1,
+      "day": 19
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "jason",
+      "funds": {
+        "General Fund": 75
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 13
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "jason",
+      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
+      "firstName": "Jason",
+      "lastName": "Wood",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 41,
+        "month": 8,
+        "day": 2
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "jason.wood@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550156"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "melissa",
+      "guid": "B3A4494D-0914-447C-A289-30B8ECE5F00D",
+      "firstName": "Melissa",
+      "lastName": "Wood",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 40,
+        "month": 5,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "melissa.wood@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "ryan",
+      "guid": "4F4EB166-6F83-4D55-8E52-86AE9A84ACAD",
+      "firstName": "Ryan",
+      "lastName": "Wood",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 13,
+        "month": 11,
+        "day": 22
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "kaylee",
+      "guid": "7F581170-E2E9-4197-BE50-34D99E186B34",
+      "firstName": "Kaylee",
+      "lastName": "Wood",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 5,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

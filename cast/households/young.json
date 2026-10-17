@@ -1,0 +1,69 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "young",
+  "guid": "73A14133-4F99-464C-B393-9E94A103B73A",
+  "name": "Young Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Destiny Young came to the church's diaper drive with her son Jayden. She has not been to a Sunday service.",
+  "testPurposes": [
+    "Participant through a community event.",
+    "Young mom with an infant."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1050 E Acoma Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85022",
+    "latitude": 33.618239,
+    "longitude": -112.059523
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 0
+  },
+  "members": [
+    {
+      "key": "destiny",
+      "guid": "069CF2DC-DD58-4CC6-840E-D770EA2DA96F",
+      "firstName": "Destiny",
+      "lastName": "Young",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 22,
+        "month": 1,
+        "day": 11
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "destiny.young@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550151"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "jayden",
+      "guid": "AB7164AB-D269-4F1F-882C-23BCD006FEB2",
+      "firstName": "Jayden",
+      "lastName": "Young",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 1,
+        "month": 10,
+        "day": 2
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Participant"
+    }
+  ]
+}

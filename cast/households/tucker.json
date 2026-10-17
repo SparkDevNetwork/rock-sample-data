@@ -1,0 +1,55 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "tucker",
+  "guid": "2BF1BA50-A9CF-4DA7-A60B-475F0DD187EF",
+  "name": "Tucker Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Dale Tucker owns a video business, recently started attending, and joined a small group. His record is still pending review.",
+  "testPurposes": [
+    "Pending record that needs review."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3007 W Lupine Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.59099,
+    "longitude": -112.123536
+  },
+  "members": [
+    {
+      "key": "dale",
+      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
+      "firstName": "Dale",
+      "lastName": "Tucker",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 55,
+        "month": 2,
+        "day": 7
+      },
+      "maritalStatus": "single",
+      "recordStatus": "pending",
+      "connectionStatus": "Connected",
+      "email": "dtucker@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550103",
+        "mobile": "4805550103",
+        "work": "6025550101"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Video Connections Limited",
+        "Position": "Owner"
+      }
+    }
+  ]
+}

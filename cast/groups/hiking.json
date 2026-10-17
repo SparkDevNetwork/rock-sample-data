@@ -1,0 +1,10 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "hiking",
+  "guid": "8C37511E-78AF-447B-A778-ED9C0BFE0F0A",
+  "name": "Hiking",
+  "type": "general",
+  "parentGroupGuid": "0CB75986-5511-4068-9A5D-A7E9F683AC09",
+  "members": []
+}

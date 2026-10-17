@@ -1,0 +1,107 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "peak",
+  "guid": "32A292E2-504F-4960-B55D-5508BE1828D6",
+  "name": "Peak Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Daniel Peak is the Director of Communications and an experienced web developer.",
+  "testPurposes": [
+    "Staff member with website and communication administrator roles.",
+    "Background check that passed.",
+    "DISC assessment results."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "12203 N 29th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.596507,
+    "longitude": -112.1209
+  },
+  "members": [
+    {
+      "key": "daniel",
+      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "firstName": "Daniel",
+      "lastName": "Peak",
+      "bio": "Daniel is the Director of Communications and an experienced web developer. He has website and communication administrator roles.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 5,
+        "day": 11
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "daniel.peak@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550119"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "BaptismDate": {
+          "yearsAgo": 14,
+          "month": 2,
+          "day": 11
+        },
+        "FirstVisit": {
+          "yearsAgo": 15,
+          "month": 12,
+          "day": 24
+        },
+        "Employer": "Rock Solid Church",
+        "Position": "Director of Communications",
+        "BackgroundCheckDate": {
+          "yearsAgo": 6,
+          "month": 12,
+          "day": 4
+        },
+        "BackgroundCheckResult": "Pass",
+        "AdaptiveD": "27",
+        "AdaptiveI": "21",
+        "AdaptiveS": "93",
+        "AdaptiveC": "69",
+        "NaturalD": "6",
+        "NaturalI": "10",
+        "NaturalS": "100",
+        "NaturalC": "96",
+        "LastSaveDate": {
+          "yearsAgo": 8,
+          "month": 5,
+          "day": 6
+        },
+        "PersonalityType": "SC"
+      },
+      "logins": [
+        "dpeak"
+      ],
+      "securityRoles": [
+        "Communication Administrators",
+        "Staff Users",
+        "Website Administrators"
+      ],
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Called Daniel to see if he would be interested in joining our team as the Communications Director.",
+          "date": {
+            "yearsAgo": 11,
+            "month": 5,
+            "day": 6,
+            "time": "14:03"
+          },
+          "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
+        }
+      ]
+    }
+  ]
+}

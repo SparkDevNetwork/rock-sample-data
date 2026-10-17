@@ -1,0 +1,11 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "bus-2",
+  "guid": "C002F44B-7DD8-4900-AEB9-CF2FDF4DFB1C",
+  "name": "Bus 2",
+  "type": "general",
+  "parentGroupGuid": "0CB75986-5511-4068-9A5D-A7E9F683AC09",
+  "capacity": 20,
+  "members": []
+}

@@ -1,0 +1,118 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ellis",
+  "guid": "DFB6772D-292C-4AB4-B534-CCE08B0E3806",
+  "name": "Ellis Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Jordan and Hannah Ellis married last year and visited for the first time this summer. They have come most weeks since and just started giving.",
+  "testPurposes": [
+    "New couple: first visit about four months ago.",
+    "New giver who started recently.",
+    "Known status."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4915 W Michelle Dr",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85308",
+    "latitude": 33.650051,
+    "longitude": -112.166139
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 75,
+    "started": {
+      "daysAgo": 120
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "jordan",
+      "funds": {
+        "General Fund": 40
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "daysAgo": 70
+      },
+      "expect": {
+        "journeyStage": "new"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "jordan",
+      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "firstName": "Jordan",
+      "lastName": "Ellis",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 27,
+        "month": 9,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "jordan.ellis@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550134"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "daysAgo": 120
+        }
+      }
+    },
+    {
+      "key": "hannah",
+      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+      "firstName": "Hannah",
+      "lastName": "Ellis",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 26,
+        "month": 10,
+        "day": 28
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "hannah.ellis@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550126"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "daysAgo": 120
+        }
+      }
+    }
+  ]
+}

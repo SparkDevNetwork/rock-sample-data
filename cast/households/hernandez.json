@@ -1,0 +1,75 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hernandez",
+  "guid": "BAC85B30-CD84-4575-8517-D1B20A93F71F",
+  "name": "Hernandez Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Gabriel Hernandez plays guitar on the worship team and almost never misses a Sunday.",
+  "testPurposes": [
+    "Young single volunteer (worship team in Phase 1).",
+    "Weekly online giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "5254 N 61st Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85301",
+    "latitude": 33.513593,
+    "longitude": -112.191215
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 92,
+    "started": {
+      "yearsAgo": 3,
+      "month": 4,
+      "day": 7
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "gabriel",
+      "funds": {
+        "General Fund": 50
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 3,
+        "month": 12,
+        "day": 4
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "gabriel",
+      "guid": "9655AD2A-84AB-480F-9772-D5F438593450",
+      "firstName": "Gabriel",
+      "nickName": "Gabe",
+      "lastName": "Hernandez",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 28,
+        "month": 2,
+        "day": 3
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "gabe.hernandez@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550159"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

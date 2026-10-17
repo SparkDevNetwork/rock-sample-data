@@ -1,0 +1,48 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "miller-thomas",
+  "guid": "A1C61DF4-8C5B-4BD6-90D2-0F09117950A8",
+  "name": "Miller Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "duplicateOf": "miller-tom",
+  "story": "This is the duplicate record for Tom Miller, created from a connection card. It shares his email and phone but has his new address.",
+  "testPurposes": [
+    "Duplicate half of a merge-testing pair (same email and phone, different address).",
+    "Record created from a form, so it starts as a Prospect."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11825 N 33rd Cir",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.593461,
+    "longitude": -112.130122
+  },
+  "members": [
+    {
+      "key": "thomas",
+      "guid": "955BF3E9-D38A-4DCB-A6F2-EDF5EC2571C5",
+      "firstName": "Thomas",
+      "lastName": "Miller",
+      "bio": "Thomas is the duplicate of Tom Miller, created from a connection card after Tom moved. It shares Tom's email and phone but has the new address. Use it to test merging.",
+      "gender": "male",
+      "familyRole": "adult",
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "tom.miller@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550103"
+      },
+      "photo": {
+        "ethnicity": "white",
+        "isOmitted": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "peterson",
+  "guid": "11F489E2-27B0-4F8B-B378-5A9442C25453",
+  "name": "Peterson Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Brian and Becky Peterson are a married couple who attend and are in a small group.",
+  "testPurposes": [
+    "Married couple where one spouse has no email."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3026 W Lupine Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.591209,
+    "longitude": -112.12382
+  },
+  "members": [
+    {
+      "key": "brian",
+      "guid": "C28DD35E-E58A-4D5F-81A9-47877B9AE03B",
+      "firstName": "Brian",
+      "lastName": "Peterson",
+      "bio": "Brian and his wife Becky have attended for years and are in the Marble small group.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 53,
+        "month": 11,
+        "day": 12
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 30,
+        "month": 11,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "bpeterson@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550101",
+        "mobile": "6235550105"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "becky",
+      "guid": "3E52CD9D-79D4-40FC-AC71-26688C084A27",
+      "firstName": "Becky",
+      "lastName": "Peterson",
+      "bio": "Becky is in the Marble small group with her husband Brian. She has no email address on file, which makes the couple useful for communication tests.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 53,
+        "month": 12,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 30,
+        "month": 11,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "phones": {
+        "home": "4805550101",
+        "mobile": "6235550109"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

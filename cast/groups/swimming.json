@@ -1,0 +1,10 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "swimming",
+  "guid": "A089F17F-F3F4-413B-ACE0-E3E07B7027A4",
+  "name": "Swimming",
+  "type": "general",
+  "parentGroupGuid": "0CB75986-5511-4068-9A5D-A7E9F683AC09",
+  "members": []
+}

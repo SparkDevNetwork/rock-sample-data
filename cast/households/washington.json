@@ -1,0 +1,115 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "washington",
+  "guid": "22541788-3D5F-4AEF-957A-ACA231B6F4FE",
+  "name": "Washington Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Marcus and Denise Washington's daughter Jasmine graduated from high school this year and still lives at home before college.",
+  "testPurposes": [
+    "An 18-year-old who is still a child in the family.",
+    "Weekly giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "6208 W Wethersfield Rd",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85304",
+    "latitude": 33.596954,
+    "longitude": -112.192007
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 70,
+    "started": {
+      "yearsAgo": 11,
+      "month": 12,
+      "day": 17
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "denise",
+      "funds": {
+        "General Fund": 80
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 10,
+        "month": 12,
+        "day": 28
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "marcus",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "firstName": "Marcus",
+      "lastName": "Washington",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 52,
+        "month": 9,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "marcus.washington@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550131",
+        "mobile": "6235550165"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "denise",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "firstName": "Denise",
+      "lastName": "Washington",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 50,
+        "month": 3,
+        "day": 6
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "denise.washington@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550131",
+        "mobile": "6025550116"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "jasmine",
+      "guid": "FF7ED641-A05A-4863-9DB9-7985E8A234FF",
+      "firstName": "Jasmine",
+      "lastName": "Washington",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 18,
+        "month": 9,
+        "day": 12
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

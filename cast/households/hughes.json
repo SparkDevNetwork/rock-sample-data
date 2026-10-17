@@ -1,0 +1,142 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hughes",
+  "guid": "A307F3AC-1A37-4AFF-B54D-9C04CFEF0C6F",
+  "name": "Hughes Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Matthew and Jessica Hughes have three young kids: a kindergartner, a preschooler, and a one-year-old.",
+  "testPurposes": [
+    "Three kids in three check-in rooms, from nursery to kindergarten.",
+    "Weekly scheduled giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "14886 N 3rd Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85023",
+    "latitude": 33.621512,
+    "longitude": -112.077808
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 85,
+    "started": {
+      "yearsAgo": 6,
+      "month": 9,
+      "day": 28
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "matthew",
+      "funds": {
+        "General Fund": 110
+      },
+      "percentOfPeriodsGiven": 96,
+      "started": {
+        "yearsAgo": 5,
+        "month": 11,
+        "day": 12
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "matthew",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "firstName": "Matthew",
+      "nickName": "Matt",
+      "lastName": "Hughes",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 7,
+        "day": 11
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "matt.hughes@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "jessica",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "firstName": "Jessica",
+      "nickName": "Jess",
+      "lastName": "Hughes",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 34,
+        "month": 3,
+        "day": 17
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "jess.hughes@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550161"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "henry",
+      "guid": "B92F7EE1-306D-406E-ACBF-79CB180B0AE8",
+      "firstName": "Henry",
+      "lastName": "Hughes",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 5,
+        "month": 6,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "charlotte",
+      "guid": "09F47322-00A2-49C4-AE22-F61E53E83E49",
+      "firstName": "Charlotte",
+      "lastName": "Hughes",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 3,
+        "month": 11,
+        "day": 21
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "jack",
+      "guid": "C353CF25-2171-439E-9D23-966AD74C3E1E",
+      "firstName": "Jack",
+      "lastName": "Hughes",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 1,
+        "month": 9,
+        "day": 4
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

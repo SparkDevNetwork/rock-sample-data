@@ -1,0 +1,125 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "shaw",
+  "guid": "0C8C640F-77E2-4041-8F59-645C3A955B9A",
+  "name": "Shaw Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Andrew and Lauren Shaw moved from Denver eight months ago and joined after trying a few churches.",
+  "testPurposes": [
+    "Transfer family from another church.",
+    "New bi-weekly giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3078 W Sands Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85027",
+    "latitude": 33.687077,
+    "longitude": -112.125192
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 65,
+    "started": {
+      "daysAgo": 240
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "andrew",
+      "funds": {
+        "General Fund": 70
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "daysAgo": 200
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "andrew",
+      "guid": "93719445-07BF-4B1F-85E5-2838BF66A13B",
+      "firstName": "Andrew",
+      "nickName": "Andy",
+      "lastName": "Shaw",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 38,
+        "month": 10,
+        "day": 23
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "phones": {
+        "home": "4805550115",
+        "mobile": "6025550187"
+      },
+      "photo": {
+        "ethnicity": "native-american"
+      }
+    },
+    {
+      "key": "lauren",
+      "guid": "EA03C61D-F6B3-4B00-8028-5BC86F24CA09",
+      "firstName": "Lauren",
+      "lastName": "Shaw",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 1,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "lauren.shaw@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550115",
+        "mobile": "4805550168"
+      },
+      "photo": {
+        "ethnicity": "native-american"
+      }
+    },
+    {
+      "key": "owen",
+      "guid": "C7AB4E87-EF23-4B2E-BFD5-BFDCB77FEB1F",
+      "firstName": "Owen",
+      "lastName": "Shaw",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 7,
+        "month": 10,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "ella",
+      "guid": "8C859873-811C-4050-91B5-C95B7D1F2247",
+      "firstName": "Ella",
+      "lastName": "Shaw",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 4,
+        "month": 2,
+        "day": 28
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

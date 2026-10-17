@@ -1,0 +1,28 @@
+{
+  "$comment": "Photo ethnicity groups. Used only to generate photos so families look like families. Never written to Rock, never used for names. Keys match the photo.ethnicity enum in cast/household.schema.json.",
+  "promptRules": [
+    "Everyday, modern clothing that fits the person's age. No traditional, religious, or costume dress unless the Cast file asks for it.",
+    "Natural variety within each group: skin tone, hair, build, and features differ from person to person.",
+    "Friendly, natural expression. A casual, everyday setting that varies from photo to photo (about half outdoors, half indoors), like a social media profile picture, not a studio portrait. Head and shoulders, face clearly visible.",
+    "No resemblance to any real or famous person."
+  ],
+  "groups": [
+    { "key": "white", "label": "White", "crowdWeight": 40, "prompt": "White person, with European ancestry" },
+    { "key": "hispanic-latino", "label": "Hispanic or Latino", "crowdWeight": 25, "prompt": "Hispanic or Latino person, with the wide range of appearance found across Latin American ancestry" },
+    { "key": "black", "label": "Black", "crowdWeight": 13, "prompt": "Black person, with African, African American, or Caribbean ancestry" },
+    { "key": "east-asian", "label": "East Asian", "crowdWeight": 5, "prompt": "East Asian person" },
+    { "key": "southeast-asian", "label": "Southeast Asian", "crowdWeight": 4, "prompt": "Southeast Asian person" },
+    { "key": "south-asian", "label": "South Asian", "crowdWeight": 4, "prompt": "South Asian person" },
+    { "key": "middle-eastern-north-african", "label": "Middle Eastern or North African", "crowdWeight": 3, "prompt": "Middle Eastern or North African person" },
+    { "key": "native-american", "label": "Native American", "crowdWeight": 3, "prompt": "Native American person" },
+    { "key": "multiracial", "label": "Multiracial", "crowdWeight": 2, "prompt": "Multiracial person, blending the parents' ancestries" },
+    { "key": "pacific-islander", "label": "Pacific Islander", "crowdWeight": 1, "prompt": "Pacific Islander person" }
+  ],
+  "$coupleComment": "Share of couples whose spouses have different photo ethnicities, by the older spouse's age. About 15% overall. Based on Census and Pew intermarriage research: about 10% of all U.S. married couples, higher among recent marriages.",
+  "mixedCouplePercentByAge": {
+    "18-34": 20,
+    "35-54": 14,
+    "55+": 8
+  },
+  "$childComment": "A child with no photo.ethnicity of their own takes the parents' value when they match, and a blend of both parents' prompts when they differ."
+}

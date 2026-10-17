@@ -1,0 +1,57 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "jones-will",
+  "guid": "B3844F78-367F-4B58-AF16-726B1349C7AF",
+  "name": "Jones Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Will Jones is an orchestra conductor who recently started attending and joined a small group. His record is still pending review.",
+  "testPurposes": [
+    "Pending record that needs review.",
+    "Shares a last name with an unrelated Cast family."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3027 W Lupine Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.590989,
+    "longitude": -112.12382
+  },
+  "members": [
+    {
+      "key": "will",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "firstName": "William",
+      "nickName": "Will",
+      "lastName": "Jones",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 56,
+        "month": 10,
+        "day": 4
+      },
+      "maritalStatus": "single",
+      "recordStatus": "pending",
+      "connectionStatus": "Connected",
+      "email": "wjones@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550121",
+        "mobile": "6025550100",
+        "work": "6025550111"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      },
+      "attributes": {
+        "Employer": "Valley Philharmonic",
+        "Position": "Conductor"
+      }
+    }
+  ]
+}

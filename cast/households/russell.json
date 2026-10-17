@@ -1,0 +1,75 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "russell",
+  "guid": "177E8115-8C7C-41A9-AEE3-9A351EA89BBA",
+  "name": "Russell Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Harold Russell is 81 and homebound since his wife died. Volunteers visit him monthly and bring communion. He mails a check each month.",
+  "testPurposes": [
+    "Homebound senior and widower.",
+    "Monthly giver who rarely attends."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "32890 N 23rd Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85085",
+    "latitude": 33.783127,
+    "longitude": -112.10878
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 4,
+    "started": {
+      "yearsAgo": 40,
+      "month": 7,
+      "day": 25
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "harold",
+      "funds": {
+        "General Fund": 50
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 20,
+        "month": 8,
+        "day": 2
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "harold",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "firstName": "Harold",
+      "nickName": "Hal",
+      "lastName": "Russell",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 81,
+        "month": 1,
+        "day": 16
+      },
+      "maritalStatus": "widowed",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "hal.russell@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550192"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

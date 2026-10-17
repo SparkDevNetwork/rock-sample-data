@@ -1,0 +1,28 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "alisha-marbles-group",
+  "guid": "10B60F8D-0F23-4FAA-B35F-9A5F19F5F995",
+  "name": "Alisha Marble’s Group",
+  "type": "small-group",
+  "parentGroupGuid": "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
+  "description": "Small group topics involve studying the women of the Bible.",
+  "studyTopic": "Women of the Bible",
+  "meeting": {
+    "frequency": "weekly",
+    "dayOfWeek": "Wednesday",
+    "time": "19:00",
+    "atHousehold": "marble"
+  },
+  "members": [
+    {
+      "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "role": "Leader"
+    },
+    {
+      "guid": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels"
+    }
+  ]
+}

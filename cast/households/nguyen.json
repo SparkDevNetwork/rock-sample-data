@@ -1,0 +1,78 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "nguyen",
+  "guid": "7A23492D-B499-4D70-9CBA-50366C746478",
+  "name": "Nguyen Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Michelle Nguyen is a single nurse who gives online every week and serves on the first-aid team.",
+  "testPurposes": [
+    "Single adult who gives weekly online by card.",
+    "Shift worker who moves between services."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "7066 W Cactus Wren Dr",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85303",
+    "latitude": 33.539091,
+    "longitude": -112.210685
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 68,
+    "percentPrimaryService": 45,
+    "started": {
+      "yearsAgo": 4,
+      "month": 7,
+      "day": 17
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "michelle",
+      "funds": {
+        "General Fund": 60
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 17
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "michelle",
+      "guid": "42E18942-04CB-49BC-A72B-5D121514520E",
+      "firstName": "Michelle",
+      "lastName": "Nguyen",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 33,
+        "month": 6,
+        "day": 23
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "michelle.nguyen@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550158"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      },
+      "attributes": {
+        "Employer": "Valley Water District"
+      }
+    }
+  ]
+}

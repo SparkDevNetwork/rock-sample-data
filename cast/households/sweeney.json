@@ -1,0 +1,85 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "sweeney",
+  "guid": "4B38D838-68CB-494C-8527-72AE85031944",
+  "name": "Sweeney Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "James and Nancy Sweeney are a married couple who attend and are in a small group.",
+  "testPurposes": [
+    "Married couple in the same small group."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11426 N 30th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.590245,
+    "longitude": -112.123649
+  },
+  "members": [
+    {
+      "key": "james",
+      "guid": "DBAE45C0-1980-48FA-8201-41C08910F654",
+      "firstName": "James",
+      "lastName": "Sweeney",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 54,
+        "month": 2,
+        "day": 22
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 27,
+        "month": 6,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "jsweeney@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550108",
+        "mobile": "4805550105"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "nancy",
+      "guid": "988195A3-1895-492E-839B-653C35307862",
+      "firstName": "Nancy",
+      "lastName": "Sweeney",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 54,
+        "month": 12,
+        "day": 22
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 27,
+        "month": 6,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "nsweeney@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550108",
+        "mobile": "6235550106"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

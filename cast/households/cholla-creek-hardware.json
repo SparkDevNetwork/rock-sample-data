@@ -1,0 +1,54 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "cholla-creek-hardware",
+  "guid": "B858AA01-E155-49B1-83CF-50EF1BCCDBCC",
+  "name": "Cholla Creek Hardware",
+  "kind": "business",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "A local hardware store that gives to the church.",
+  "testPurposes": [
+    "Business record."
+  ],
+  "address": {
+    "type": "work",
+    "street1": "4223 E McDowell Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85008",
+    "latitude": 33.465542,
+    "longitude": -111.990905
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "len",
+      "funds": {
+        "General Fund": 250
+      },
+      "percentOfPeriodsGiven": 95,
+      "currency": "check",
+      "signer": "Len Hollis"
+    }
+  ],
+  "members": [
+    {
+      "key": "len",
+      "guid": "9B97D1B2-EAF8-4E45-AD6F-D61477FE9E39",
+      "recordType": "business",
+      "firstName": "Lenny",
+      "nickName": "Len",
+      "lastName": "Cholla Creek Hardware",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "chollacreekhardware@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6235550123"
+      }
+    }
+  ]
+}

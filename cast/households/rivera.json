@@ -1,0 +1,118 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "rivera",
+  "guid": "10D4D5D3-9D6C-4B77-B18D-71EE4083D483",
+  "name": "Rivera Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Michael and Jennifer Rivera adopted Joy when she was three. Joy is now ten.",
+  "testPurposes": [
+    "Adopted child whose photo ethnicity is set on her own record.",
+    "Monthly scheduled giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3149 W Yucca St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.588918,
+    "longitude": -112.127564
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 75,
+    "started": {
+      "yearsAgo": 6,
+      "month": 6,
+      "day": 4
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "jennifer",
+      "funds": {
+        "General Fund": 120
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 6,
+        "month": 2,
+        "day": 12
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "michael",
+      "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC",
+      "firstName": "Michael",
+      "nickName": "Mike",
+      "lastName": "Rivera",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 10,
+        "day": 10
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "mike.rivera@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550137"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "jennifer",
+      "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0",
+      "firstName": "Jennifer",
+      "nickName": "Jen",
+      "lastName": "Rivera",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 43,
+        "month": 1,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "jen.rivera@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550163"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "joy",
+      "guid": "9E20DE2D-9152-4094-8708-BCEA879AED62",
+      "firstName": "Joy",
+      "lastName": "Rivera",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 5,
+        "day": 3
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "photo": {
+        "ethnicity": "native-american"
+      }
+    }
+  ]
+}

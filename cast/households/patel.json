@@ -1,0 +1,98 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "patel",
+  "guid": "ACD057A4-D638-440D-B9DB-49726375A266",
+  "name": "Patel Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Ryan and Megan Patel watch online most weeks and give every week, but they rarely come in person.",
+  "testPurposes": [
+    "Gives every week but seldom attends in person.",
+    "Weekly online giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "2418 N Hayden Rd",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "postalCode": "85257",
+    "latitude": 33.47405,
+    "longitude": -111.909001
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 12,
+    "started": {
+      "yearsAgo": 3,
+      "month": 5,
+      "day": 16
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "ryan",
+      "funds": {
+        "General Fund": 90
+      },
+      "percentOfPeriodsGiven": 96,
+      "started": {
+        "yearsAgo": 3,
+        "month": 7,
+        "day": 12
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "ryan",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "firstName": "Ryan",
+      "lastName": "Patel",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 2,
+        "day": 13
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "ryan.patel@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550182"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "megan",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "firstName": "Megan",
+      "lastName": "Patel",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 7,
+        "day": 18
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "megan.patel@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550188"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

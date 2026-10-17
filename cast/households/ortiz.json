@@ -1,0 +1,125 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ortiz",
+  "guid": "3AF568B0-0D86-42B0-899A-B0DC5F1A203C",
+  "name": "Ortiz Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Luis and Teresa Ortiz were regulars for seven years. They stopped coming about six months ago, and their giving stopped too. Nobody has followed up yet.",
+  "testPurposes": [
+    "Lapsed family: attendance and giving stopped about six months ago.",
+    "Care follow-up candidate."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "968 W Piute Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85027",
+    "latitude": 33.662779,
+    "longitude": -112.085291
+  },
+  "attendance": {
+    "persona": "lapsing",
+    "percentAttended": 60,
+    "started": {
+      "yearsAgo": 7,
+      "month": 3,
+      "day": 24
+    },
+    "ended": {
+      "daysAgo": 195
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "luis",
+      "funds": {
+        "General Fund": 125
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 6,
+        "month": 12,
+        "day": 6
+      },
+      "ended": {
+        "daysAgo": 185
+      },
+      "expect": {
+        "journeyStage": "lapsed",
+        "alerts": [
+          "late-gift"
+        ]
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "luis",
+      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "firstName": "Luis",
+      "lastName": "Ortiz",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 48,
+        "month": 4,
+        "day": 22
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "luis.ortiz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550124"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "teresa",
+      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "firstName": "Teresa",
+      "lastName": "Ortiz",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 47,
+        "month": 9,
+        "day": 23
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "teresa.ortiz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550169"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "diego",
+      "guid": "3C07F71E-4F47-4C6A-8E97-4D589839AE2C",
+      "firstName": "Diego",
+      "lastName": "Ortiz",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 13,
+        "month": 1,
+        "day": 2
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

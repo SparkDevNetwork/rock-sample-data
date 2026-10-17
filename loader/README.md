@@ -1,0 +1,208 @@
+# Loader
+
+The loader installs a dataset package (made by the [builder](../builder/README.md)) into a fresh Rock database. It generates every date for the install day, so "last 12 months" reports are always full, and bulk-loads everything in one transaction. Rock never references this repository; it will use the same loader library.
+
+There are two parts:
+
+- **The loader library** (`loader/`, `RockSampleData.Loader`). `SampleDataPackage.Open` reads a package and checks every file against its checksum. `DatasetLoader.Load` installs it, with a `DatasetLoadOptions` for the anchor, seed, check images, and the rest. A Rock block will call the same two methods.
+- **The loader CLI** (`../loader-cli/`, `rock-sample-data-load`), for developers and test harnesses.
+
+## Loading a package
+
+Build a package first (see the [builder](../builder/README.md)), then load it from the `loader-cli` folder:
+
+```
+dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
+```
+
+| Option | Meaning |
+|---|---|
+| `--package <file>` | The dataset package to load. Required for a load. |
+| `--connection` | Connection string to a fresh Rock database. Required. |
+| `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
+| `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
+| `--years` | Years of attendance and giving history. Defaults to 3. |
+| `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
+| `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
+| `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3 against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
+| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7: about 23 seconds without, about 34 with). Release builds turn it on. |
+| `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
+| `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
+| `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
+| `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
+| `--check-cast` | Loads nothing. Checks the package's Cast giving expectations against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. |
+| `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
+| `--dry-run` | Do everything, then roll it all back. |
+
+The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`.
+
+## Which Rock a package is for
+
+Each package is for one exact Rock (decision 52). Its `package.json` records the Rock version (for example `21.0.1`) and that Rock's newest Entity Framework migration (for example `202609222138362_AddWorkflowBuilder`). A Rock database stores no version number, but its newest migration identifies its schema exactly. So before loading anything, the loader compares the two, and refuses a database whose newest migration is different.
+
+On the develop branch, new migrations land often, so the check would block development loads. `--any-rock` turns the refusal into a warning. Rock's own installer never uses it.
+
+## What the loader checks before loading
+
+1. The package's format is one this loader reads (format 1).
+2. Every file matches its SHA-256 in `package.json`, no listed file is missing, and nothing unlisted was added.
+3. The database is the Rock the package is for (see above).
+
+Any failure stops the load before it writes anything.
+
+The load runs these steps in order: configuration (with the small group setup), people, photos, Sunday attendance, small groups, giving, and check images.
+
+## What makes a load repeatable
+
+A package holds the inputs, not the records: the Cast, the church setup, the dataset manifest, the resolved profile, the address pool, photos, and fonts. The loader generates every record at install. Each package also carries a `README.md` (from `../builder/package-readme.md`) that explains this, for whoever receives the package.
+
+### The seed
+
+The seed is a piece of text that every random choice starts from. It defaults to `rock-sample-data` (`DatasetLoadOptions.Seed`), and `--seed` changes it. It is not stored in the package or the database, and it never comes from the clock or the server.
+
+The loader never draws from one long random stream. Each piece of data gets its own stream, named by the seed and that piece:
+
+| Stream name | What it decides |
+|---|---|
+| `{seed}:crowd:{n}` | The nth generated household: size, ages, names, and statuses |
+| `{seed}:attendance:{household guid}` | Which Sundays that family came |
+| `{seed}:giving:{household guid}:{person}:{persona}:{start}` | That giving pattern's gifts |
+| `{seed}:wallet:{person guid}` | That giver's card, bank account, and checkbook |
+| `{seed}:small-groups:...` | Group planning, joins, leaders, and group attendance |
+| `{seed}:addresses:{campus}` | The order of addresses per campus |
+| `{seed}:photos:{campus}` | Which pool faces go to which households |
+| `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
+
+`generation/SeededRandom.cs` turns each name into a number with a fixed text hash (FNV-1a) and seeds .NET's `Random` with it. So the same name gives the same draws on every machine, a change to one family changes no other family, and the order of the steps does not matter.
+
+### The anchor
+
+The anchor is the date everything counts back from (`--anchor`, default today). The seed decides how a family behaves; the anchor decides which Sundays and holidays fall in the history window. The same seed with a different anchor gives a different history, not just shifted dates.
+
+### What is the same, and what is not
+
+With the same package, seed, and anchor, the data is the same on every server, row for row: people, families, addresses, attendance, gifts, groups, attribute values, alerts, and the contents of every check. The speed work on 2026-10-16 checked this with a fingerprint of 28 tables over more than ten Full 7 loads.
+
+These differ between installs, by design:
+
+1. **Install day.** The anchor defaults to today, so give the same `--anchor` to compare installs.
+2. **Ids.** Each table's Ids start after its highest existing Id, so they match only on databases that started the same.
+3. **Guids.** The Cast, generated people and families, accounts, and alert types keep stable Guids. Most other rows (attendance, gifts, attribute values, check image files) get a new Guid on every install.
+4. **Created and modified times**, a family member's date added, and check image file times come from the install clock.
+5. **Check scanner fields** are hashed with each server's own PasswordKey, and the encrypted bank line fields use its DataEncryptionKey with a random IV, so they differ on every install.
+6. **Check image handwriting** comes from the transaction Id, so it can differ when Ids differ. The checks' contents do not.
+
+## How people load
+
+People are bulk-copied with Ids assigned up front (the table's current maximum plus one, and up), so every foreign key is known before anything is written. Bulk copy skips Rock's save hooks, so the loader fills in what they would set: birth date and key, age and age bracket, graduation year (using Rock's June 1 grade transition), giving Id and giving leader, primary family and campus, and formatted phone numbers. These are the "post-load fix-ups" from the plan; they happen during the load, so no separate step is needed.
+
+A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
+
+## How photos load
+
+`loading/PhotoLoader.cs` attaches profile photos as Rock person images in database storage, one file per person, and sets each person's photo. The rules are in [Photos](../photos/README.md).
+
+- **The Cast.** Every Cast person listed in `../photos/manifest.json` gets their delivered photo. People left out on purpose and businesses are not listed, so they get none.
+- **Generated households.** When the dataset manifest sets `photos.generatedHouseholdPercent` (Core 3 sets 50), about that share of each campus's generated households get faces from the 120-photo pool. A household gets faces only when one photo ethnicity has an unused face for every member's gender and age band, so a family looks like one family and no face repeats on a campus. In Core 3, these are the companion households at Peoria and Gilbert.
+
+Core 1 loads 175 photos in about a third of a second.
+
+## How the timeline is generated
+
+Each Sunday in the history window (3 years by default) comes from `generation/SundayCalendar.cs`. It knows the holidays (Easter, Mother's Day, Memorial Day, July 4, Labor Day, fall kickoff, Thanksgiving, the Sunday before Christmas, Christmas week, and New Year), and it takes each one's attendance multiplier from the profile.
+
+- **Attendance.** Each household gets a rate (from the Cast file, or from its connection status) and a usual service. Adults are recorded on the Weekend Service group without check-in. Kids check in through Rock's check-in template, with a security code per family per Sunday, in the room their grade or age puts them in on that date. A child on their own (usually a student) can check in without an adult.
+- **Giving.** Each giving pattern has a cadence (weekly, bi-weekly, monthly, quarterly, irregular, occasional, or one-time) and a channel: scheduled (ACH or card, with a Rock scheduled transaction), online one-time, onsite (check or cash, on Sundays the family attended), or mailed checks. Gifts follow the profile's seasonality and weekday mix, round the way people give, and land in batches by day, campus, and kind: Sunday checks, Sunday cash, mailed checks, non-cash, or online. Checks are always in batches of their own, because churches run them through a check scanner (decision 54). Year-end gifts are sized from the giver's normal month.
+  - **Who pays how.** Checks lean to older givers and larger gifts (`PickChannel`); a check writer who rarely comes mails their checks. Apple Pay leans young, and large online gifts lean to bank transfers. Scheduled shares are scaled so the measured share per cadence matches the profile.
+  - **Rhythm and amounts.** Onsite givers often catch up after a missed Sunday with one larger check. People who give by hand online keep a usual weekday or day of the month. Hand-given gifts stray from the usual amount some of the time, schedules change amount now and then, irregular and occasional gifts spread widely, and a few givers give exact amounts. Some irregular givers have a small monthly schedule under their extra gifts. The largest givers sometimes give stock (a non-cash gift).
+  - **Crowd givers.** Older givers sit higher on the annual giving curve, and the top 1% follow a long tail. A giver whose year is too small for weekly gifts gives less often instead. Givers start and stop inside the history window, which sets year-over-year retention.
+- **Generated households.** `generation/CrowdGenerator.cs` samples family size, ages, gender, marital status, activity, attendance frequency, giving cadence, and annual giving from the profile. Each household takes the next address for its campus from the address pool (`generation/AddressPool.cs`). Its names are spike-only placeholders. The dataset manifest's `generatedHouseholds.perCampus` sets an exact count per campus (Core 3: 50 at Peoria and 50 at Gilbert). `--crowd` replaces that with households spread across every campus, with the main campus weighted 1.5.
+
+Every random choice comes from a stream named by the seed and the household, so a rerun with the same seed and anchor gives the same data (see [What makes a load repeatable](#what-makes-a-load-repeatable)).
+
+## How small groups load
+
+Every small group is a plan (`model/SmallGroupPlan.cs`): its leader and members, schedule, meeting place, topic, child care, test case, and life from start to end. One planner (`generation/SmallGroupPlanner.cs`) makes plans from households and the rules in `../configuration/small-groups.json`. The design is in [Small groups](../docs/small-groups.md).
+
+- **The Cast.** The builder's `--plan-cast-groups` plans the Cast's groups and writes them to `../cast/groups`, using this library's planner. Legacy groups keep their keys and Guids, and each new leader is marked Leading in the household files. A second run changes nothing. Its dates count back from a fixed planning year and every change is at least a year back, so the files never depend on the day you run it.
+- **Generated households.** During a load, each campus's generated households get plans from the same planner (`generation/GeneratedSmallGroups.cs`). Households that still attend or give join at the profile's rate. Every campus except the main one gets its own test groups; the Cast covers the main campus.
+
+The configuration step sets up small groups in Rock (`loading/SmallGroupConfigurationLoader.cs`): the soft capacity rule, the Small Group purpose, the Host role, three group attributes, the ten topics, the inactive reasons, and a parent group per campus. The small groups step (`loading/SmallGroupLoader.cs`) bulk-copies schedules, groups, meeting locations at the host's home, members, and attribute values.
+
+Bulk copy skips Rock's save hooks, so the loader writes group history itself, the way Rock does: one row per state for each group, member, and meeting location, with the last row current. It also records weekly attendance on the church year. Groups meet in the fall and spring, stop after December 14, and meet in summer only when they say so. Holiday weeks are marked "did not meet". Spotty leaders record only some weeks. Nobody has attendance before they joined, after they left, or while their request is pending.
+## Giving analytics
+
+The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night at 10pm, its default schedule. The job's last run is the night before the anchor. Rock's giving automation settings record that run, so Rock's next real run picks up only newer gifts.
+
+- **Giving attributes** (`loading/GivingAnalyticsLoader.cs`), for every person in a giving unit: first and last gift, percent scheduled, preferred source and currency, gift frequency (mean, standard deviation, and label), next expected gift, median gift, its spread (IQR), and the last classification date. Rock reclassifies a unit only on a night after a new gift. So each unit's values are as of the night after its last gift, and a lapsed giver keeps the values from back then.
+- **Giving bin and percentile** come from Rock's own stored procedure (`spGivingAutomation_UpdateGivingBinsAndPercentiles`), run as of the job's last run.
+- **Journey stages** (Non-Giver, New, Consistent, Occasional, Lapsed, Former), with the previous stage and the change date. The loader replays Rock's weekly Tuesday runs for a year. Then it runs Rock's own procedure (`spGivingAutomation_UpdateGivingJourneyStages`) for the last Tuesday and checks that Rock made exactly the predicted changes. The load prints the result.
+- **Giving alerts** (`loading/GivingAlertsLoader.cs`). The three alert types in `../configuration/giving-alert-types.json` are Large Gift ($5,000 or more), Smaller Than Usual, and Late Gift. They are created as of 12 months ago, and the loader replays Rock's nightly run since then. Each night, each new gift is checked against every alert type, using the giver's last 12 months as of that night. Then every giver who gave in the last year is checked for a gift that has not come. A warm-up month before the 12 months absorbs the burst of late-gift alerts a church sees the day it sets alerts up.
+
+The math for attributes and alerts lives in Rock's C#, so `loading/RockGivingAutomation.cs` is a line-for-line port. It keeps Rock's types, rounding, and value formats. Its header lists the Rock files it mirrors. Values are written the way Rock writes them: attribute values as `Value` text only (Rock fills the persisted values later), and alert numbers cut to the columns' decimal places.
+
+Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the alerts about 2. Core 1 takes under 1 second for each. Full 7 raises about 1,500 alerts a year: about 300 large gifts, 300 smaller than usual, and 900 late gifts (about one per giver who stops). Core 1 raises about 20.
+
+## Speed
+
+| Load | People | Attendance rows (Sunday plus group) | Gifts | Time |
+|---|---|---|---|---|
+| Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
+| Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
+| Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 23 seconds (about 34 with check images) |
+
+The Full 7 times were measured on 2026-10-16, best of three, on a 16-core development machine with other work running. A Full 7 load with check images spends its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
+
+What keeps large loads fast:
+
+1. Bulk copies take a table lock, which is safe on a fresh database inside one transaction.
+2. A copy of 10,000 rows or more turns the table's nonclustered indexes off and rebuilds just those afterward. That cut FinancialTransaction (21 nonclustered indexes) from 21 seconds to under 3.
+3. Sunday attendance and small group attendance both copy into Attendance, and its indexes are rebuilt once, after both.
+4. Giving analytics reads the gifts the giving step planned, instead of reading them back from the database.
+
+Trying to draw checks in the background, alongside giving analytics and alerts, made the load slower: drawing takes every core, and SQL Server runs on the same machine.
+
+## Validation
+
+See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3.
+
+## Steps
+
+| Step | Status |
+|---|---|
+| Configuration: connection statuses, service time slots, campuses, campus schedules, funds with campus child accounts, check-in rooms and Sunday service times | Done |
+| People: Cast families, people, aliases, family memberships (including shared children), home addresses with map points, and phones. Ages, grades, giving units, and statuses come from the anchor date. | Done |
+| Profile photos: every Cast person's delivered photo, and pool faces for generated households in Core 3, stored as Rock person images | Done |
+| Sunday attendance and kids check-in, generated on the real calendar | Done |
+| Small groups: the Cast's planned groups and generated groups per campus, with members, meeting places, attributes, history, and weekly attendance | Done |
+| Giving history, generated from personas and the calibration profile | Done |
+| Post-load fix-ups (primary family, giving leader, age brackets) | Done, during the load |
+| Spike crowd for speed tests and validation | Done |
+| Scanned check images, matching each gift, stored as Rock transaction images | Done |
+| Validation with the calibration scripts | Done (89% of values pass) |
+| Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
+| People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
+
+## Check images
+
+Each giver has a wallet (`generation/Wallet.cs`): one card, one bank account, and a checkbook at a fictional bank whose routing number starts with 39 and fails the routing checksum. Check numbers count up per writer in date order, so the transaction code, the payment details' last four digits, and the check image all agree.
+
+`loading/CheckImageLoader.cs` draws the front and back of each recent check gift with `generation/CheckImageRenderer.cs` (ImageSharp, the version Rock ships) and stores them as Rock transaction images. The front shows the writer's name (both spouses for a married couple), the family's address, the check number, the date, the church as payee, the amount in numbers and words, a memo from the funds, a signature, and the bank line. The back shows the church's endorsement stamp and the bank's processing line.
+
+Each of the five fictional banks has its own logo and paper tint. Personal checks are handwritten (three handwriting fonts and two signature fonts, in blue or black ink, one style per writer). Business checks are typed by accounting software and signed by hand; the Cast's two businesses mail theirs, so they land in "Mailed Checks" batches. A giving pattern can name its payment method (`currency`) and who signs (`signer`). Every font, including Open Sans, comes from `../content/fonts`.
+
+Check scanner fields: every check writer gets a `FinancialPersonBankAccount` row, and every check gift gets `CheckMicrHash` and a successful MICR status. Both use Rock's keyed hash with the PasswordKey from a Rock checkout's web.config (see `--rock`), which development sites run with, so scanning a sample check in that Rock site finds the person who wrote it. Each check gift also gets `CheckMicrEncrypted` (the bank line) and `CheckMicrParts` (routing, account, and check number), encrypted the way Rock's `Encryption.EncryptString` does it, with the web.config's DataEncryptionKey. `loader/database/RockKeys.cs` holds the copy; Rock's own Rock.dll decrypts its output. Real installs generate their own keys, so the loader inside Rock must use the server's keys.
+
+Open batch for transaction matching: one recent "Sunday Offering Checks" batch at the main campus stays Open, as if it was scanned and nobody has matched it yet (decision 53). It is the Sunday with the most checks in the last six weeks. Its checks keep their amounts, check numbers, images, and bank line fields, but have no giver. The checks of Cast households with giving expectations stay matched, because one missing gift can change what Rock shows for them. Rock's Transaction Matching block decrypts `CheckMicrParts`, hashes the routing and account numbers, and finds the writer's saved bank account, so it suggests the right person for each check. Rock's giving analytics leave these gifts out until someone matches them, as Rock's job would. Without `--rock` or `--web-config`, the checks are still unmatched, but matching has nothing to suggest.
+
+Speed: Core 1 draws its 390 or so checks in about 3.5 seconds. Full 7 draws about 3,500 checks (12 months) in about 11 seconds and stores them in about 2 seconds (269 MB). Images are color JPEGs (each bank has its own paper tint) and average 77 KB per check.
+
+## Spike shortcuts
+
+These are deliberate, and they go away in the real loader:
+
+1. Configuration is written with SQL. The real loader saves configuration through Rock's services, so Rock's save hooks and caches run.
+2. The library writes its progress to the console. The Rock block needs it to report through a logger instead.
+3. The spike crowd uses placeholder names. The real Crowd uses the Content name lists. Addresses already come from the address pool (`../addresses/pool.json`); a placeholder street is used only if a campus runs out.
+4. The spike keys the check scanner fields with a Rock checkout's web.config. The real loader must use the server's own PasswordKey and DataEncryptionKey. Inside Rock it can call `Encryption.EncryptString` itself instead of the copy in `RockKeys.cs`.
+5. The real loader runs inside Rock, so it can call Rock's own math (`GivingAutomationHelper`) instead of the port in `RockGivingAutomation.cs`. It still needs the replay, because Rock's job only computes values as of today. The stored procedures are already Rock's own.

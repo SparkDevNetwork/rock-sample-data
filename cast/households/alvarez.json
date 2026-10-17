@@ -1,0 +1,127 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "alvarez",
+  "guid": "33886C25-681F-4FA3-9A2B-82A6B5F37CA8",
+  "name": "Alvarez Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Marco and Elena Alvarez moved to Phoenix three years ago. Their son Mateo was born this year, and Sofia just started in the preschool room.",
+  "testPurposes": [
+    "Newborn in the nursery and a preschooler, so two check-in areas for one family.",
+    "Bi-weekly scheduled giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11733 N 40th Pl",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85028",
+    "latitude": 33.593712,
+    "longitude": -111.992904
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 62,
+    "started": {
+      "yearsAgo": 3,
+      "month": 11,
+      "day": 24
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "marco",
+      "funds": {
+        "General Fund": 60
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 6
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "marco",
+      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
+      "firstName": "Marco",
+      "lastName": "Alvarez",
+      "bio": "Marco and his wife Elena moved to Phoenix three years ago. He gives every other week through a scheduled gift.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 31,
+        "month": 12,
+        "day": 7
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "phones": {
+        "mobile": "6025550154"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "elena",
+      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
+      "firstName": "Elena",
+      "lastName": "Alvarez",
+      "bio": "Elena brings their newborn Mateo to the nursery and Sofia to preschool.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 30,
+        "month": 3,
+        "day": 17
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "elena.alvarez@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "sofia",
+      "guid": "43D38EC3-D765-410B-A5DC-664CA228B6E7",
+      "firstName": "Sofia",
+      "lastName": "Alvarez",
+      "bio": "Sofia is three and in the preschool room.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 3,
+        "month": 7,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "mateo",
+      "guid": "BFF989D0-03BD-410C-97B2-C996BC515640",
+      "firstName": "Mateo",
+      "lastName": "Alvarez",
+      "bio": "Mateo was born this year and is the youngest person in the Cast.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 0,
+        "month": 8,
+        "day": 23
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

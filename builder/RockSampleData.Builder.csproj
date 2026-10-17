@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The builder: reads this repository and writes one dataset package per dataset. It never touches a database. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RockSampleData.Builder</RootNamespace>
+    <AssemblyName>rock-sample-data-build</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\loader\RockSampleData.Loader.csproj" />
+  </ItemGroup>
+
+</Project>

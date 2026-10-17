@@ -1,0 +1,109 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ross",
+  "guid": "65FC231A-03DC-4030-A1DC-8B1473A7B263",
+  "name": "Ross Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Richard and Joan Ross are retired and spend winters in Phoenix and summers in Minnesota.",
+  "testPurposes": [
+    "Seasonal attenders (winter visitors).",
+    "Irregular giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3255 W Bloomfield Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.598442,
+    "longitude": -112.127707
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 35,
+    "started": {
+      "yearsAgo": 6,
+      "month": 2,
+      "day": 18
+    }
+  },
+  "giving": [
+    {
+      "persona": "irregular",
+      "person": "richard",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 70,
+      "started": {
+        "yearsAgo": 5,
+        "month": 11,
+        "day": 3
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "richard",
+      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
+      "firstName": "Richard",
+      "nickName": "Dick",
+      "lastName": "Ross",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 72,
+        "month": 11,
+        "day": 14
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 48,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "dick.ross@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550152"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "joan",
+      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
+      "firstName": "Joan",
+      "lastName": "Ross",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 70,
+        "month": 7,
+        "day": 23
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 48,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "joan.ross@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550195"
+      },
+      "photo": {
+        "ethnicity": "multiracial"
+      }
+    }
+  ]
+}

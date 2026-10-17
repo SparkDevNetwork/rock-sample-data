@@ -1,0 +1,124 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "silva",
+  "guid": "61571777-BB34-4C5A-9778-61E642E2E0D8",
+  "name": "Silva Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Isaac and Natalie Silva split every gift between the General Fund and the Mission Fund.",
+  "testPurposes": [
+    "Every gift goes to two funds.",
+    "Weekly giver.",
+    "Spouses give separately: Isaac weekly, Natalie monthly."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1975 E Rovey Cir",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85016",
+    "latitude": 33.524892,
+    "longitude": -112.040349
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 74,
+    "started": {
+      "yearsAgo": 3,
+      "month": 9,
+      "day": 26
+    }
+  },
+  "adultsGiveSeparately": true,
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "isaac",
+      "funds": {
+        "General Fund": 45,
+        "Mission Fund": 10
+      },
+      "percentOfPeriodsGiven": 88,
+      "started": {
+        "yearsAgo": 3,
+        "month": 8,
+        "day": 18
+      }
+    },
+    {
+      "persona": "monthly",
+      "person": "natalie",
+      "funds": {
+        "General Fund": 80
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 2,
+        "month": 11,
+        "day": 3
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "isaac",
+      "guid": "581C940E-A788-4F32-BCF3-33F4D1948390",
+      "firstName": "Isaac",
+      "lastName": "Silva",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 29,
+        "month": 8,
+        "day": 27
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "isaac.silva@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550135"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "natalie",
+      "guid": "8424C30D-A967-4603-AFAB-10B8235DC371",
+      "firstName": "Natalie",
+      "lastName": "Silva",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 28,
+        "month": 4,
+        "day": 24
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "natalie.silva@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550132"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      }
+    }
+  ]
+}

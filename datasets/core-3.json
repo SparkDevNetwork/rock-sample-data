@@ -1,0 +1,20 @@
+{
+  "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
+  "key": "core-3",
+  "name": "Core 3",
+  "checkImages": {
+    "$comment": "Every check gets images; Core 3 is still small.",
+    "months": 0
+  },
+  "generatedHouseholds": {
+    "$comment": "Companion households. The Cast fills the main campus, so it gets none.",
+    "perCampus": {
+      "peoria": 50,
+      "gilbert": 50
+    }
+  },
+  "photos": {
+    "$comment": "About half of the companion households get faces from the 120-photo pool (decision 30).",
+    "generatedHouseholdPercent": 50
+  }
+}

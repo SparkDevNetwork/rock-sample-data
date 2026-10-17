@@ -1,0 +1,221 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "greggs-group",
+  "guid": "2C8DD5B2-84DA-4591-8B07-91468001868D",
+  "name": "Greggs Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Grief and Loss",
+  "description": "A gentle group for anyone carrying a loss. Come as you are.",
+  "schedule": {
+    "day": "Wednesday",
+    "time": "18:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "greggs"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": true,
+  "attendanceHabit": "Spotty",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 1,
+      "month": 1,
+      "day": 1
+    }
+  },
+  "testCase": "Pending",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
+      "name": "Bob Greggs",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "9C2A020B-CF34-403E-A948-3E91FDFB958B",
+      "name": "Mariah Jackson",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
+      "name": "Amanda Sullivan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
+      "name": "Chris Sullivan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Pending",
+      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "name": "Tori Ramos",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 20
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Pending",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 20
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Inactive",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 6
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 14
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Inactive",
+      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
+      "name": "Ben Jones",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 16
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 7,
+        "day": 15
+      },
+      "attendancePercent": 51
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The loader CLI: loads a dataset package into a Rock database, for developers and test harnesses. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RockSampleData.LoaderCli</RootNamespace>
+    <AssemblyName>rock-sample-data-load</AssemblyName>
+    <!-- Check images allocate a lot of short-lived pixel memory on many threads; the server collector keeps them parallel (as IIS and ASP.NET Core do). -->
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\loader\RockSampleData.Loader.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The calibration scripts the calibrate command runs. They are built into the CLI, never shipped in a package. -->
+    <EmbeddedResource Include="..\calibration\sql\Report_SampleDataCalibration_*.sql" LogicalName="sql/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

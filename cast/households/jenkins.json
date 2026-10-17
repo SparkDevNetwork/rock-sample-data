@@ -1,0 +1,124 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "jenkins",
+  "guid": "77EAD55F-4A70-4F8B-A34C-F7C10EB02EAB",
+  "name": "Jenkins Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Gary and Barbara Jenkins are raising their grandson, Austin Reed. Austin's last name is different from theirs.",
+  "testPurposes": [
+    "Grandparents raising a grandchild.",
+    "Child with a different last name than the adults."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "6368 W Villa Theresa Dr",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85308",
+    "latitude": 33.653389,
+    "longitude": -112.197829
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 66,
+    "started": {
+      "yearsAgo": 12,
+      "month": 2,
+      "day": 21
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "gary",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 88,
+      "started": {
+        "yearsAgo": 10,
+        "month": 3,
+        "day": 22
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "gary",
+      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
+      "firstName": "Gary",
+      "lastName": "Jenkins",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 66,
+        "month": 10,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 40,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "gary.jenkins@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550194"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "barbara",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "firstName": "Barbara",
+      "nickName": "Barb",
+      "lastName": "Jenkins",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 63,
+        "month": 6,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 40,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "barb.jenkins@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550188"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "austin",
+      "guid": "AF03DEC7-8798-48C2-808E-79A63CED4685",
+      "firstName": "Austin",
+      "lastName": "Reed",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 11,
+        "month": 11,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

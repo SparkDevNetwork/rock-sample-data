@@ -1,0 +1,196 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "lee",
+  "guid": "5764034C-59B5-44B0-A29B-3E6D870E7DEC",
+  "name": "Lee Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "James and Sarah Lee have six children, from a high school sophomore to a toddler. Sunday check-in for the Lees touches nearly every room.",
+  "testPurposes": [
+    "Family of eight with kids in every check-in area.",
+    "Weekly giver across two funds."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10509 W Alabama Ave",
+    "city": "Sun City",
+    "state": "AZ",
+    "postalCode": "85351",
+    "latitude": 33.59465,
+    "longitude": -112.285494
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 88,
+    "percentPrimaryService": 92,
+    "started": {
+      "yearsAgo": 8,
+      "month": 6,
+      "day": 28
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "james",
+      "funds": {
+        "General Fund": 150,
+        "Building Fund": 50
+      },
+      "percentOfPeriodsGiven": 90,
+      "specialGiftPercent": 35,
+      "started": {
+        "yearsAgo": 7,
+        "month": 7,
+        "day": 27
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "james",
+      "guid": "58612861-F929-43E0-9EB8-3075868A81B1",
+      "firstName": "James",
+      "lastName": "Lee",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 40,
+        "month": 7,
+        "day": 8
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "james.lee@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550133"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      }
+    },
+    {
+      "key": "sarah",
+      "guid": "9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2",
+      "firstName": "Sarah",
+      "lastName": "Lee",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 38,
+        "month": 9,
+        "day": 12
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "sarah.lee@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550190"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      }
+    },
+    {
+      "key": "benjamin",
+      "guid": "800B232F-C3FF-4F5C-A24A-07B317AB1596",
+      "firstName": "Benjamin",
+      "nickName": "Ben",
+      "lastName": "Lee",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 16,
+        "month": 12,
+        "day": 23
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "abigail",
+      "guid": "C03A9C55-0955-4EFB-A6B8-0A3BDE2E1BD8",
+      "firstName": "Abigail",
+      "nickName": "Abby",
+      "lastName": "Lee",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 14,
+        "month": 2,
+        "day": 21
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "samuel",
+      "guid": "85DDC88D-5D1E-43FB-9B02-5BB36F0DB0B0",
+      "firstName": "Samuel",
+      "nickName": "Sam",
+      "lastName": "Lee",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 11,
+        "month": 1,
+        "day": 8
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "elizabeth",
+      "guid": "7A34C1EA-AA97-44ED-93EE-66655685767B",
+      "firstName": "Elizabeth",
+      "nickName": "Libby",
+      "lastName": "Lee",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 8,
+        "month": 5,
+        "day": 19
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "joseph",
+      "guid": "F0703D95-A478-4D9C-9967-659D72DADE03",
+      "firstName": "Joseph",
+      "nickName": "Joey",
+      "lastName": "Lee",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 5,
+        "month": 7,
+        "day": 16
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "ruth",
+      "guid": "92550557-155A-442C-AFC2-A49B8C870DF7",
+      "firstName": "Ruth",
+      "lastName": "Lee",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 2,
+        "month": 2,
+        "day": 8
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "smith-paul",
+  "guid": "A93BA69D-FC5E-4F03-B6AE-87CD49D5202D",
+  "name": "Smith Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Paul Smith is a young adult and a friend of Ty McClintock. Both took the DISC assessment and attend the Sonoran Valley University student group.",
+  "testPurposes": [
+    "Young adult living alone.",
+    "DISC assessment results to compare with a friend."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3933 E Rough Rider Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85050",
+    "latitude": 33.691083,
+    "longitude": -112.004642
+  },
+  "members": [
+    {
+      "key": "paul",
+      "guid": "D7CE30DF-58F8-4268-BA19-56FDF17D3890",
+      "firstName": "Paul",
+      "lastName": "Smith",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 20,
+        "month": 2,
+        "day": 27
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "paul@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550126"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Sonoran Valley University",
+        "Position": "Teacher",
+        "AdaptiveD": "14",
+        "AdaptiveI": "27",
+        "AdaptiveS": "69",
+        "AdaptiveC": "76",
+        "NaturalD": "62",
+        "NaturalI": "10",
+        "NaturalS": "76",
+        "NaturalC": "79",
+        "LastSaveDate": {
+          "yearsAgo": 9,
+          "month": 12,
+          "day": 2
+        },
+        "PersonalityType": "SC"
+      }
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "silva-group",
+  "guid": "14E2C210-2AE2-428C-99BD-ABBEE62CDDDF",
+  "name": "Silva Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Money and Generosity",
+  "description": "We learn how to manage money well and give freely, together.",
+  "schedule": {
+    "day": "Wednesday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "bennett"
+  },
+  "childCareProvided": false,
+  "capacity": 10,
+  "isPublic": true,
+  "meetsInSummer": true,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 1,
+      "month": 6,
+      "day": 23
+    }
+  },
+  "testCase": "Full",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "581C940E-A788-4F32-BCF3-33F4D1948390",
+      "name": "Isaac Silva",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
+      "name": "Becca Bennett",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
+      "name": "Tom Bennett",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "name": "Larry Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "8424C30D-A967-4603-AFAB-10B8235DC371",
+      "name": "Natalie Silva",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
+      "name": "Dale Tucker",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 22
+      },
+      "attendancePercent": 59
+    },
+    {
+      "state": "Active",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 22
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Inactive",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 11,
+        "day": 13
+      },
+      "attendancePercent": 51
+    }
+  ]
+}

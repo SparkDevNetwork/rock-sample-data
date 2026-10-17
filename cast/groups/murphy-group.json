@@ -1,0 +1,185 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "murphy-group",
+  "guid": "6B72BA41-B6CF-43CF-957B-0347861C8856",
+  "name": "Murphy Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Prayer",
+  "description": "We spend most of our time praying for each other, our church, and our city.",
+  "schedule": {
+    "day": "Wednesday",
+    "time": "18:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "murphy"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Inactive",
+    "started": {
+      "yearsAgo": 6,
+      "month": 1,
+      "day": 14
+    },
+    "ended": {
+      "yearsAgo": 3,
+      "month": 3,
+      "day": 21
+    },
+    "reason": "Taking a season off"
+  },
+  "testCase": "Inactive",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "7434664A-E5DB-4AD4-945B-625FF574E2EC",
+      "name": "Patrick Murphy",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "8AF84CC0-CD08-430D-A0D4-04B151AAEB96",
+      "name": "Erin Murphy",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+      "name": "Hannah Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0",
+      "name": "Jen Rivera",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 2
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC",
+      "name": "Mike Rivera",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 2
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 3
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 3
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
+      "name": "Elena Alvarez",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 19
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
+      "name": "Marco Alvarez",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 19
+      },
+      "attendancePercent": 47
+    }
+  ]
+}

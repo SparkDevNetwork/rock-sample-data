@@ -1,0 +1,107 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "morgan",
+  "guid": "59B8B040-97F5-49F8-9497-04DE3435CACF",
+  "name": "Morgan Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift.",
+  "testPurposes": [
+    "Quarterly giver with a year-end gift.",
+    "Empty nesters."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "6296 W Willow Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85304",
+    "latitude": 33.606721,
+    "longitude": -112.193035
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 72,
+    "started": {
+      "yearsAgo": 18,
+      "month": 9,
+      "day": 4
+    }
+  },
+  "giving": [
+    {
+      "persona": "quarterly",
+      "person": "steve",
+      "funds": {
+        "General Fund": 1500
+      },
+      "percentOfPeriodsGiven": 100,
+      "specialGiftPercent": 80,
+      "started": {
+        "yearsAgo": 15,
+        "month": 4,
+        "day": 28
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "steve",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "firstName": "Steven",
+      "nickName": "Steve",
+      "lastName": "Morgan",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 58,
+        "month": 3,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 33,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "steve.morgan@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "karen",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "firstName": "Karen",
+      "lastName": "Morgan",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 57,
+        "month": 5,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 33,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "karen.morgan@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550130"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "webb",
+  "guid": "0D590BA7-9A5B-456C-B919-FD25F01E1427",
+  "name": "Webb",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Marty and Deb Webb found the church online and joined a small group.",
+  "testPurposes": [
+    "Married couple who are still Prospects but already in a small group."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10800 N 33rd Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.584643,
+    "longitude": -112.130426
+  },
+  "members": [
+    {
+      "key": "marty",
+      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
+      "firstName": "Martin",
+      "nickName": "Marty",
+      "lastName": "Webb",
+      "bio": "Marty and his wife Deb found the church online and joined the Greggs small group before they ever settled into Sunday services. They are still Prospects.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 8,
+        "day": 8
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 17,
+        "month": 8,
+        "day": 2
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "mwebb@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550105"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "deb",
+      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
+      "firstName": "Debbie",
+      "nickName": "Deb",
+      "lastName": "Webb",
+      "bio": "Deb is in the Greggs small group with Marty. The Webbs are the example of a couple who connected through a group first.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 1,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 17,
+        "month": 8,
+        "day": 2
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "dwebb@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550110"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

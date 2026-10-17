@@ -1,0 +1,9 @@
+{
+  "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
+  "key": "core-1",
+  "name": "Core 1",
+  "checkImages": {
+    "$comment": "Every check in the Cast gets images.",
+    "months": 0
+  }
+}

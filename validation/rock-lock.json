@@ -1,0 +1,123 @@
+{
+  "$comment": "Rock files whose logic the builder ports or depends on, with a fingerprint (SHA-256 of the text, line endings normalized) as of the last review. check-rock-lock.js compares them with Rock on GitHub. A section is the text from 'from' up to 'to', for files that are large and change for unrelated reasons.",
+  "checkedRef": "develop",
+  "checkedCommit": "8454aa1419f4c015aca10babad822e5558308e5d",
+  "checkedDate": "2026-10-16",
+  "files": [
+    {
+      "path": "Rock/Jobs/GivingAutomation.cs",
+      "why": "The job: which gifts count, when units are reclassified, the attribute values, and the recent and late alert rules.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs",
+        "loader/loading/GivingAnalyticsLoader.cs",
+        "loader/loading/GivingAlertsLoader.cs"
+      ],
+      "sha256": "d4dea65d50640f667f4657f9dfdf4125734f2ee3361efe3f0a9d979a99f83e6a"
+    },
+    {
+      "path": "Rock/Financial/GivingAutomationHelper.cs",
+      "why": "Frequency stats, quartiles, preferred source and currency, alert metrics, and alert scoring.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "de43c62cdb9b596e3efcd2bc4deb8ba2da4dfafd3db85701c1e160c3eafd6b21"
+    },
+    {
+      "path": "Rock/Financial/FinancialGivingAnalyticsFrequencyLabel.cs",
+      "why": "The frequency label values written to FrequencyLabel.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs",
+        "loader/validation/CastExpectations.cs"
+      ],
+      "sha256": "31ff8fe73ed9175b47c1b2f0b53cb27b937130bfed4a5e047b2d6c155b83cdc5"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialTransaction/FinancialTransactionService.cs",
+      "section": "GetGivingAutomationSourceTransactionQuery and GetGivingAutomationFilterIds",
+      "from": "public IQueryable<FinancialTransaction> GetGivingAutomationSourceTransactionQuery( bool includeNegativeTransactions )",
+      "to": "/// Gets the giving automation monthly account giving history.",
+      "why": "Which transactions qualify, and the default filters (contributions to tax-deductible accounts).",
+      "mirroredBy": [
+        "loader/loading/GivingAnalyticsLoader.cs"
+      ],
+      "sha256": "7c3f4c58cdb072b5a7fb2df6bca7d0077fc6e6bfc9b63b9f87aa71215ff197df"
+    },
+    {
+      "path": "Rock/Utility/Settings/Giving/GivingAutomationSettings.cs",
+      "why": "The settings JSON the loader writes, and the journey stage defaults the replay uses.",
+      "mirroredBy": [
+        "loader/loading/GivingAnalyticsLoader.cs",
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "7fab0802562f09ef995d00234087f7ec0b9795c8f99660ee741f0c3e68360ce4"
+    },
+    {
+      "path": "Rock/Utility/AttributeValueUpdateFactory.cs",
+      "why": "How the job turns dates and numbers into attribute value text.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "2fb09d6f1808c906cfa53f99c963cadabd8fe7a14eacd9c88e47ca1c01fe7ae0"
+    },
+    {
+      "path": "Rock.Common/ExtensionMethods/DateTimeExtensions.cs",
+      "section": "ToISO8601DateString",
+      "from": "public static string ToISO8601DateString( this DateTime dateTime )",
+      "to": "/// Returns the <paramref name=\"dateTime\"/> in RFC3339",
+      "why": "The date format of date attribute values.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "e223d6c8b482b40c2e7032fade510a587b7719f1468302b155ab4959f41e2af4"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialTransactionAlert/FinancialTransactionAlert.cs",
+      "why": "The alert columns and their decimal places.",
+      "mirroredBy": [
+        "loader/loading/GivingAlertsLoader.cs"
+      ],
+      "sha256": "12728a4923145ed80695cc55cc7d5c9c11a5fc7f1e32520d4fd890b1989a308b"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialTransactionAlertType/FinancialTransactionAlertType.cs",
+      "why": "The alert type columns the loader writes.",
+      "mirroredBy": [
+        "loader/loading/GivingAlertsLoader.cs",
+        "configuration/giving-alert-types.json"
+      ],
+      "sha256": "ff890fdaaec46fa6647fab852505853388fee340fa729663acc9cb8aeb4d0645"
+    },
+    {
+      "path": "Rock.Enums/Finance/AlertType.cs",
+      "why": "The gratitude and follow-up values.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "1d2dc2b4726e101efabb9346aa26ee784e2200a21a42daa6451100ee1a606382"
+    },
+    {
+      "path": "Rock.Migrations/Migrations/Version 19.0/Version 19.0/202601152051145_AddGivingAutomationProcedures_spGivingAutomation_UpdateGivingJourneyStages.sql",
+      "why": "The journey stage rules the replay ports. The loader also runs the real procedure for the last week and warns on any difference, which catches a newer migration that replaces this one.",
+      "mirroredBy": [
+        "loader/loading/RockGivingAutomation.cs"
+      ],
+      "sha256": "71e3a700400f735dc10bc1dd0817be49a9879c7ffe22b8c1d2ccfa8fbb2e8d05"
+    },
+    {
+      "path": "Rock/Security/Encryption.cs",
+      "why": "The keyed hash (GetSHA1Hash) behind the check scanner fields, and the v2 two-way encryption (EncryptString, key derivation, footer) behind CheckMicrParts and CheckMicrEncrypted.",
+      "mirroredBy": [
+        "loader/database/RockKeys.cs"
+      ],
+      "sha256": "bf6acdf855b1043ab9f9b9250c0dc7a5eedc5a0dd6bc4513bebe8ea205155ed1"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialPersonBankAccount/FinancialPersonBankAccount.Logic.cs",
+      "why": "EncodeAccountNumber: the routing and account text that a saved bank account hash is made from, which transaction matching compares.",
+      "mirroredBy": [
+        "loader/database/RockKeys.cs"
+      ],
+      "sha256": "344c6c1f26623e5a84277c277442477ec4d2c60aea8c6a2114610036094ebe9d"
+    }
+  ]
+}

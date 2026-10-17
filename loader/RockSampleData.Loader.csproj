@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The loader library: reads a dataset package, generates the timeline for the install day, and bulk-loads it into Rock. -->
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>RockSampleData.Loader</RootNamespace>
+    <AssemblyName>RockSampleData.Loader</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <!-- Pinned above the vulnerable version that Microsoft.Data.SqlClient pulls in. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <!-- The same ImageSharp versions Rock ships, so check image code moves into Rock unchanged. -->
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The builder plans Cast groups and validates packages with the loader's models; the CLI runs its checks. -->
+    <InternalsVisibleTo Include="rock-sample-data-build" />
+    <InternalsVisibleTo Include="rock-sample-data-load" />
+  </ItemGroup>
+
+</Project>

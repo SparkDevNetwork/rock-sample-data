@@ -1,0 +1,109 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "cruz",
+  "guid": "DB1329EF-80CD-4874-8542-77A3A8A2718B",
+  "name": "Cruz Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Jose and Gabriela Cruz registered Adrian and Camila for Vacation Bible School this summer. They have not visited on a Sunday.",
+  "testPurposes": [
+    "Participants through an event registration (VBS).",
+    "Follow-up after a kids event."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10686 W Runion Dr",
+    "city": "Peoria",
+    "state": "AZ",
+    "postalCode": "85382",
+    "latitude": 33.670329,
+    "longitude": -112.289226
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 0
+  },
+  "members": [
+    {
+      "key": "jose",
+      "guid": "CBE5E38E-4824-4472-904F-9BDCF77BD433",
+      "firstName": "Jose",
+      "lastName": "Cruz",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 12,
+        "day": 24
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "jose.cruz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550165"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "gabriela",
+      "guid": "4E98A87E-06B9-4822-9C45-88BF1F6E9C12",
+      "firstName": "Gabriela",
+      "nickName": "Gaby",
+      "lastName": "Cruz",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 2,
+        "day": 14
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "gaby.cruz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550163"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "adrian",
+      "guid": "B2EE9FEF-78FF-443E-A7C6-C42816A07A80",
+      "firstName": "Adrian",
+      "lastName": "Cruz",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 8,
+        "month": 6,
+        "day": 16
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Participant"
+    },
+    {
+      "key": "camila",
+      "guid": "24E948DC-8304-4DF0-8003-876CB3D6DC71",
+      "firstName": "Camila",
+      "lastName": "Cruz",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 6,
+        "month": 6,
+        "day": 28
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Participant"
+    }
+  ]
+}

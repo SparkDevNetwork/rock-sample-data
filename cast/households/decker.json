@@ -1,0 +1,290 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "decker",
+  "guid": "53A02527-C2A7-4F36-8585-71A85B8E4601",
+  "name": "Decker Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Ted and Cindy Decker and their two children are the church's best-known family. Ted is the Outreach Pastor, leads a small group, and serves on the A/V Team. The kids attend about 80% of weekends.",
+  "testPurposes": [
+    "Primary demo family used in documentation and screenshots.",
+    "Two adults and two children; kids check-in with an allergy attribute.",
+    "Monthly giver across two funds, by recurring credit card.",
+    "Small group leader and serving team member.",
+    "Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11622 N 31st Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.592367,
+    "longitude": -112.126383
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 80,
+    "percentPrimaryService": 88,
+    "started": {
+      "yearsAgo": 11,
+      "month": 12,
+      "day": 25
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "currency": "card",
+      "person": "ted",
+      "funds": {
+        "General Fund": 175,
+        "Building Fund": 125
+      },
+      "percentOfPeriodsGiven": 100,
+      "growth": {
+        "percent": 3,
+        "everyWeeks": 52
+      },
+      "specialGiftPercent": 50,
+      "started": {
+        "yearsAgo": 10,
+        "month": 1,
+        "day": 6
+      },
+      "expect": {
+        "frequency": "monthly",
+        "journeyStage": "consistent"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "ted",
+      "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "firstName": "Theodore",
+      "nickName": "Ted",
+      "lastName": "Decker",
+      "bio": "Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, runs cameras on the A/V Team, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 38,
+        "month": 2,
+        "day": 10
+      },
+      "graduation": {
+        "yearsAgo": 22,
+        "month": 1,
+        "day": 1
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 1,
+        "day": 4
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "ted@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550111",
+        "mobile": "6235550111",
+        "work": "6235550108"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "BaptismDate": {
+          "yearsAgo": 22,
+          "month": 9,
+          "day": 13
+        },
+        "FirstVisit": {
+          "yearsAgo": 11,
+          "month": 12,
+          "day": 15
+        },
+        "Employer": "Rock Solid Church",
+        "Position": "Outreach Pastor",
+        "BackgroundCheckDate": {
+          "yearsAgo": 13,
+          "month": 10,
+          "day": 4
+        },
+        "AdaptiveD": "62",
+        "AdaptiveI": "79",
+        "AdaptiveS": "42",
+        "AdaptiveC": "12",
+        "NaturalD": "76",
+        "NaturalI": "79",
+        "NaturalS": "18",
+        "NaturalC": "16",
+        "LastSaveDate": {
+          "yearsAgo": 10,
+          "month": 2,
+          "day": 2
+        },
+        "PersonalityType": "ID"
+      },
+      "logins": [
+        "tdecker"
+      ],
+      "securityRoles": [
+        "Communication Administrators",
+        "Pastoral Staff",
+        "Prayer Team",
+        "Staff Users",
+        "Website Administrators",
+        "RSR - Calendar Administration",
+        "RSR - Event Registration Administration",
+        "RSR - Involvement Administration"
+      ],
+      "follows": [
+        {
+          "type": "person",
+          "target": "3C402382-3BD2-4337-A996-9E62F1BAB09D"
+        },
+        {
+          "type": "person",
+          "target": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33"
+        },
+        {
+          "type": "person",
+          "target": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6"
+        },
+        {
+          "type": "group",
+          "target": "svu-student-group"
+        },
+        {
+          "type": "group",
+          "target": "gilbert-group"
+        }
+      ],
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Talked to Ted today about starting a new Young Adults ministry",
+          "date": {
+            "yearsAgo": 9,
+            "month": 4,
+            "day": 3,
+            "time": "14:23"
+          },
+          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23"
+        },
+        {
+          "type": "Personal Note",
+          "text": "Called Ted and heard that his mother is in the hospital and could use prayer.",
+          "date": {
+            "yearsAgo": 9,
+            "month": 4,
+            "day": 2,
+            "time": "23:00"
+          },
+          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+          "isAlert": true
+        },
+        {
+          "type": "Personal Note",
+          "text": "Ted has strong leadership skills.",
+          "by": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+          "isPrivate": true
+        }
+      ]
+    },
+    {
+      "key": "cindy",
+      "guid": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "firstName": "Cynthia",
+      "nickName": "Cindy",
+      "lastName": "Decker",
+      "bio": "Cindy is Ted's wife and the steady center of the family. She is in Ted's small group, helps on the prayer team, and handles most of the kids' Sunday logistics.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 3,
+        "day": 10
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 1,
+        "day": 4
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "cindy@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550112",
+        "mobile": "6235550112"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "yearsAgo": 22,
+          "month": 9,
+          "day": 13
+        }
+      },
+      "logins": [
+        "cdecker"
+      ],
+      "securityRoles": [
+        "Finance Users",
+        "Prayer Team",
+        "Staff-Like Users",
+        "Website Content Editors"
+      ]
+    },
+    {
+      "key": "noah",
+      "guid": "32AAB9E4-970D-4551-A17E-385E66113BD5",
+      "firstName": "Noah",
+      "lastName": "Decker",
+      "bio": "Noah is ten and checks in to the Grades 4-6 room most weekends. He is the older of the two Decker kids.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 3,
+        "day": 10
+      },
+      "grade": 5,
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "alex",
+      "guid": "27919690-3CCE-4FA6-95C4-CD21419EB51F",
+      "firstName": "Alexis",
+      "nickName": "Alex",
+      "lastName": "Decker",
+      "bio": "Alex (Alexis) is seven and has a peanut allergy that prints on her check-in label. She is the example to use for allergy and label testing.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 7,
+        "month": 2,
+        "day": 10
+      },
+      "grade": 2,
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "attributes": {
+        "Allergy": "Allergic to peanuts"
+      }
+    }
+  ]
+}

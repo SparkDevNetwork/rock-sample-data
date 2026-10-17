@@ -1,0 +1,103 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "simmons",
+  "guid": "FA7316E2-FFA9-4A55-B975-8F762353D0A8",
+  "name": "Simmons Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Jim Simmons married Sarah (formerly Sarah Jones) and is step-parent to her son Brian, who lives with them most of the time. They attend almost every week, nearly always at the same service.",
+  "testPurposes": [
+    "Blended family with a child shared with another household.",
+    "Previous last name (Sarah was a Jones).",
+    "Core attender who almost always uses one service time.",
+    "Serving team member (A/V Team)."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10830 N Biltmore Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.585404,
+    "longitude": -112.117602
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 90,
+    "percentPrimaryService": 98,
+    "started": {
+      "yearsAgo": 10,
+      "month": 11,
+      "day": 15
+    }
+  },
+  "sharedMembers": [
+    {
+      "guid": "3D7F6605-3666-4AB5-9F4E-D7FEBF93278E",
+      "household": "jones-ben",
+      "note": "Primary record lives in the other household."
+    }
+  ],
+  "members": [
+    {
+      "key": "jim",
+      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
+      "firstName": "James",
+      "nickName": "Jim",
+      "lastName": "Simmons",
+      "bio": "Jim married Sarah after her divorce and is stepdad to Brian. He serves on the A/V Team and is in Pastor Pete's small group.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 6,
+        "day": 1
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "jim.simmons@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550127"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "logins": [
+        "jsimmons"
+      ]
+    },
+    {
+      "key": "sarah",
+      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
+      "firstName": "Sarah",
+      "lastName": "Simmons",
+      "bio": "Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service.",
+      "previousLastNames": [
+        "Jones"
+      ],
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 34,
+        "month": 5,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "sarah.simmons@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550128",
+        "work": "6235550123"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

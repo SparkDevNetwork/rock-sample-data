@@ -1,0 +1,131 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "bennett",
+  "guid": "01A8289A-7B29-456E-BEDE-F03667C8C967",
+  "name": "Bennett Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Tom and Rebecca Bennett both teach. Their son Nick is in eighth grade and plays travel soccer on Sunday mornings in the spring.",
+  "testPurposes": [
+    "Middle school student whose attendance drops in spring.",
+    "Monthly giver.",
+    "Spouses give separately: Rebecca monthly, Tom a few times a year."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4094 N 77th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85033",
+    "latitude": 33.494356,
+    "longitude": -112.226345
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 55,
+    "started": {
+      "yearsAgo": 4,
+      "month": 11,
+      "day": 1
+    }
+  },
+  "adultsGiveSeparately": true,
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "rebecca",
+      "funds": {
+        "General Fund": 150
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 15
+      }
+    },
+    {
+      "persona": "occasional",
+      "person": "tom",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 80,
+      "started": {
+        "yearsAgo": 3,
+        "month": 3,
+        "day": 20
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "tom",
+      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
+      "firstName": "Thomas",
+      "nickName": "Tom",
+      "lastName": "Bennett",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 10,
+        "day": 20
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "tom.bennett@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Palo Verde Technical College"
+      }
+    },
+    {
+      "key": "rebecca",
+      "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
+      "firstName": "Rebecca",
+      "nickName": "Becca",
+      "lastName": "Bennett",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 42,
+        "month": 11,
+        "day": 13
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "becca.bennett@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550170"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "nick",
+      "guid": "802D9640-E57E-4CBD-9716-7917D25A87B1",
+      "firstName": "Nicholas",
+      "nickName": "Nick",
+      "lastName": "Bennett",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 13,
+        "month": 9,
+        "day": 17
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

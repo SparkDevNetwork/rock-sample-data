@@ -1,0 +1,105 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "dawson",
+  "guid": "AFE9FBD8-3073-4B11-ADF6-D64B996CA50B",
+  "name": "Dawson Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Kevin Dawson is divorced and has his kids every other weekend. They come when the kids are with him.",
+  "testPurposes": [
+    "Single dad with every-other-weekend attendance.",
+    "Irregular giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3803 W Bloomfield Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.598219,
+    "longitude": -112.140523
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 38,
+    "started": {
+      "yearsAgo": 2,
+      "month": 8,
+      "day": 4
+    }
+  },
+  "giving": [
+    {
+      "persona": "irregular",
+      "person": "kevin",
+      "funds": {
+        "General Fund": 50
+      },
+      "percentOfPeriodsGiven": 80,
+      "started": {
+        "yearsAgo": 2,
+        "month": 11,
+        "day": 23
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "kevin",
+      "guid": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "firstName": "Kevin",
+      "lastName": "Dawson",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 39,
+        "month": 3,
+        "day": 7
+      },
+      "maritalStatus": "divorced",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "kevin.dawson@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550143",
+        "mobile": "4805550160"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "tyler",
+      "guid": "9B76FC70-9F6A-45E0-9221-5A97801D559E",
+      "firstName": "Tyler",
+      "lastName": "Dawson",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 12,
+        "month": 5,
+        "day": 13
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "emma",
+      "guid": "66FDB15D-E99A-42C0-BF1A-112546170717",
+      "firstName": "Emma",
+      "lastName": "Dawson",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 8,
+        "day": 26
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

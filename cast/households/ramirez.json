@@ -1,0 +1,130 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ramirez",
+  "guid": "4C10D5A0-1D0F-4FD8-9918-7B39B37E0F90",
+  "name": "Ramirez Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "The Ramirez family visited for the first time two weeks ago and came back last Sunday. Lucas and Mia checked in to the elementary rooms.",
+  "testPurposes": [
+    "First-time guests: first visit two weeks ago.",
+    "Prospect family that needs follow-up.",
+    "First-time check-in for two kids."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "9 W North Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85021",
+    "latitude": 33.580228,
+    "longitude": -112.070754
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 100,
+    "started": {
+      "daysAgo": 14
+    }
+  },
+  "members": [
+    {
+      "key": "carlos",
+      "guid": "D41605ED-1652-421F-AC36-39DA3FE714E2",
+      "firstName": "Carlos",
+      "lastName": "Ramirez",
+      "bio": "Carlos and his wife Ana visited for the first time two weeks ago and came back last Sunday. They are Prospects who need a follow-up.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 9,
+        "day": 26
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "carlos.ramirez@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550132"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "daysAgo": 14
+        },
+        "SecondVisit": {
+          "daysAgo": 7
+        }
+      }
+    },
+    {
+      "key": "ana",
+      "guid": "112ECC26-08DF-4257-810E-7C848227519B",
+      "firstName": "Ana",
+      "lastName": "Ramirez",
+      "bio": "Ana filled out a connection card on the family's first visit.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 3,
+        "day": 12
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "phones": {
+        "mobile": "6235550164"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "daysAgo": 14
+        },
+        "SecondVisit": {
+          "daysAgo": 7
+        }
+      }
+    },
+    {
+      "key": "lucas",
+      "guid": "3948E813-51A9-40C0-B5C2-BF13192906BC",
+      "firstName": "Lucas",
+      "lastName": "Ramirez",
+      "bio": "Lucas is nine and checked in for the first time two weeks ago.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 11,
+        "day": 6
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect"
+    },
+    {
+      "key": "mia",
+      "guid": "7A22C85E-90FE-49EE-AC02-0FD83076208D",
+      "firstName": "Mia",
+      "lastName": "Ramirez",
+      "bio": "Mia is six and checked in for the first time with her brother.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 6,
+        "month": 4,
+        "day": 27
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Prospect"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "diaz",
+  "guid": "2490462F-3804-4234-B629-4B96D6878426",
+  "name": "Diaz Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Ricardo and Patricia Diaz come at Christmas and Easter and give a couple of times a year.",
+  "testPurposes": [
+    "Holiday-only attenders.",
+    "Occasional giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "14698 N 25th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85023",
+    "latitude": 33.619741,
+    "longitude": -112.11395
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 6,
+    "started": {
+      "yearsAgo": 15,
+      "month": 7,
+      "day": 5
+    }
+  },
+  "giving": [
+    {
+      "persona": "occasional",
+      "person": "ricardo",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 80,
+      "started": {
+        "yearsAgo": 10,
+        "month": 8,
+        "day": 10
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "ricardo",
+      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
+      "firstName": "Ricardo",
+      "lastName": "Diaz",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 55,
+        "month": 7,
+        "day": 26
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 29,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "ricardo.diaz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550164"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "patricia",
+      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "firstName": "Patricia",
+      "nickName": "Patty",
+      "lastName": "Diaz",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 54,
+        "month": 2,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 29,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "patty.diaz@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550154"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

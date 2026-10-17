@@ -1,0 +1,54 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "perry",
+  "guid": "34DA94BB-7A3B-40DA-9DCA-4E34E3180DD5",
+  "name": "Perry Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Dennis Perry is 67 and recently retired. He started attending after his wife invited him for years; she now attends another church closer to her mother's care home.",
+  "testPurposes": [
+    "Married man attending without his spouse (spouse not in the database).",
+    "Newer occasional attender."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4470 N 27th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85017",
+    "latitude": 33.501697,
+    "longitude": -112.117133
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 35,
+    "started": {
+      "yearsAgo": 1,
+      "month": 5,
+      "day": 14
+    }
+  },
+  "members": [
+    {
+      "key": "dennis",
+      "guid": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "firstName": "Dennis",
+      "lastName": "Perry",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 67,
+        "month": 12,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "photo": {
+        "ethnicity": "multiracial"
+      }
+    }
+  ]
+}

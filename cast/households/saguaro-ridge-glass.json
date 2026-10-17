@@ -1,0 +1,55 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "saguaro-ridge-glass",
+  "guid": "DF327531-29B2-4E5C-BCF6-445588DEEF35",
+  "name": "Saguaro Ridge Glass and Screen",
+  "kind": "business",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Saguaro Ridge Glass and Screen is a business owned by Bill Marble.",
+  "testPurposes": [
+    "Business record linked to its owner."
+  ],
+  "address": {
+    "type": "work",
+    "street1": "4127 W Charter Oak Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.597986,
+    "longitude": -112.147631
+  },
+  "giving": [
+    {
+      "persona": "quarterly",
+      "person": "bill",
+      "funds": {
+        "Building Fund": 1000
+      },
+      "percentOfPeriodsGiven": 100,
+      "currency": "check",
+      "signer": "Bill Marble"
+    }
+  ],
+  "members": [
+    {
+      "key": "bill",
+      "guid": "6CE68373-7B38-40DA-B84D-281BEFF41114",
+      "recordType": "business",
+      "firstName": "William",
+      "nickName": "Bill",
+      "lastName": "Saguaro Ridge Glass and Screen",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "saguaroridgeglass@example.org",
+      "emailIsActive": true,
+      "emailDoNotEmail": true,
+      "phones": {
+        "work": "6235550122"
+      }
+    }
+  ]
+}

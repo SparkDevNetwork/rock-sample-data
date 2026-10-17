@@ -1,0 +1,110 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "bell",
+  "guid": "12F94662-F0B2-4CC6-A50B-1DD4FBB32F72",
+  "name": "Bell Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Larry and Debra Bell greet at the front doors every Sunday. Their gift goes out by ACH on the first of the month.",
+  "testPurposes": [
+    "Greeters (guest services in Phase 1).",
+    "Monthly scheduled ACH giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3482 E Paradise Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85032",
+    "latitude": 33.633621,
+    "longitude": -112.007562
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 86,
+    "started": {
+      "yearsAgo": 14,
+      "month": 9,
+      "day": 22
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "larry",
+      "funds": {
+        "General Fund": 220
+      },
+      "percentOfPeriodsGiven": 100,
+      "started": {
+        "yearsAgo": 12,
+        "month": 9,
+        "day": 1
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "larry",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "firstName": "Lawrence",
+      "nickName": "Larry",
+      "lastName": "Bell",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 66,
+        "month": 12,
+        "day": 24
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 41,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "larry.bell@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550183"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      }
+    },
+    {
+      "key": "debra",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "firstName": "Debra",
+      "nickName": "Deb",
+      "lastName": "Bell",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 64,
+        "month": 11,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 41,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "deb.bell@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550129"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      }
+    }
+  ]
+}

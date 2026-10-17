@@ -1,0 +1,51 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "smith-jon",
+  "guid": "FB0CBFC9-A83A-403C-9E99-38E92F7D1269",
+  "name": "Smith Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Jon Smith is the original record in a set of three duplicates created over time with slightly different names and phone types.",
+  "testPurposes": [
+    "Duplicate detection: original record of a three-way duplicate."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "8194 W Lynwood St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85043",
+    "latitude": 33.464704,
+    "longitude": -112.234605
+  },
+  "members": [
+    {
+      "key": "jon",
+      "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465",
+      "firstName": "Jonathan",
+      "nickName": "Jon",
+      "lastName": "Smith",
+      "bio": "Jon is the original record in a set of three duplicates. The other two were created over time as \"John Smith\" with his home phone saved as a mobile or work number.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 43,
+        "month": 8,
+        "day": 1
+      },
+      "maritalStatus": "single",
+      "recordStatus": "pending",
+      "connectionStatus": "Engaged",
+      "email": "jon.smith@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550102"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

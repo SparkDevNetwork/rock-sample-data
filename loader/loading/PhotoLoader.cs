@@ -1,0 +1,249 @@
+// <copyright>
+// Copyright by the Spark Development Network
+//
+// Licensed under the Rock Community License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.rockrms.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+//
+
+using System.Text;
+
+using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Generation;
+using RockSampleData.Loader.Model;
+
+using SixLabors.ImageSharp;
+
+namespace RockSampleData.Loader.Loading
+{
+    /// <summary>
+    /// Attaches profile photos to people, stored as Rock person images in database storage. Every Cast
+    /// person with a delivered photo gets it. Generated households get faces from the shared pool when
+    /// the dataset asks for it (Core 3), one photo ethnicity per family, never reusing a face on a campus.
+    /// </summary>
+    internal sealed class PhotoLoader
+    {
+        private static readonly Guid PersonImageFileTypeGuid = new Guid( "03BD8476-8A9F-4078-B628-5B538F967AFC" );
+        private const string PoolSet = "core-3-pool";
+
+        private readonly RockDatabase _db;
+        private readonly SampleDataSource _source;
+        private readonly string _foreignKey;
+        private readonly string _seed;
+
+        public PhotoLoader( RockDatabase db, SampleDataSource source, string foreignKey, string seed )
+        {
+            _db = db;
+            _source = source;
+            _foreignKey = foreignKey;
+            _seed = seed;
+        }
+
+        /// <summary>
+        /// Picks a photo for each person and writes the files and each person's PhotoId.
+        /// </summary>
+        /// <param name="households">Every loaded household.</param>
+        /// <param name="castHouseholdKeys">The keys of the Cast households; every other household was generated.</param>
+        /// <param name="generatedHouseholdPercent">Percent of generated households per campus that get pool photos.</param>
+        public void Load( List<LoadedHousehold> households, HashSet<string> castHouseholdKeys, int generatedHouseholdPercent )
+        {
+            var manifest = _source.ReadPhotoManifest();
+            var picks = new Dictionary<int, PhotoEntry>();
+
+            var castPhotos = manifest.Images.Where( i => i.Set == "cast" ).ToDictionary( i => (i.Household, i.Member) );
+            foreach ( var household in households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ) )
+            {
+                foreach ( var person in household.Members )
+                {
+                    if ( castPhotos.TryGetValue( (household.Cast.Key, person.Cast.Key), out var photo ) )
+                    {
+                        picks[person.PersonId] = photo;
+                    }
+                }
+            }
+
+            var castCount = picks.Count;
+            var poolSummary = new List<string>();
+            if ( generatedHouseholdPercent > 0 )
+            {
+                var pool = manifest.Images.Where( i => i.Set == PoolSet ).OrderBy( i => i.File, StringComparer.Ordinal ).ToList();
+                var generated = households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) );
+                foreach ( var campus in generated.GroupBy( h => h.CampusKey ).OrderBy( g => g.Key, StringComparer.Ordinal ) )
+                {
+                    var (photographed, people) = PickPoolPhotos( campus.Key, campus.OrderBy( h => h.Cast.Key, StringComparer.Ordinal ).ToList(), pool, generatedHouseholdPercent, picks );
+                    poolSummary.Add( $"{campus.Key} {people} people in {photographed} of {campus.Count()} households" );
+                }
+            }
+
+            Write( picks );
+            Console.WriteLine( $"  Photos: {castCount:N0} Cast people{( poolSummary.Count > 0 ? $"; from the pool, {string.Join( ", ", poolSummary )}" : string.Empty )}" );
+        }
+
+        /// <summary>
+        /// Gives pool photos to about the given percent of one campus's generated households. A household
+        /// gets photos only when one photo ethnicity has an unused face for every member's gender and age
+        /// band, so a family always looks like one family. Returns the households and people photographed.
+        /// </summary>
+        private (int Households, int People) PickPoolPhotos( string campusKey, List<LoadedHousehold> households, List<PhotoEntry> pool, int percent, Dictionary<int, PhotoEntry> picks )
+        {
+            var random = new SeededRandom( $"{_seed}:photos:{campusKey}" );
+            var target = ( int ) Math.Round( households.Count * percent / 100.0 );
+            var used = new HashSet<string>();
+            var ethnicities = pool.Select( p => p.Ethnicity ).Distinct().OrderBy( e => e, StringComparer.Ordinal ).ToList();
+            var photographed = 0;
+            var people = 0;
+
+            foreach ( var household in Shuffle( households, random ) )
+            {
+                if ( photographed >= target )
+                {
+                    break;
+                }
+
+                var members = household.Members.Where( m => !m.Cast.IsDeceased && m.Cast.RecordType != "business" && m.Cast.Birth != null ).ToList();
+                foreach ( var ethnicity in Shuffle( ethnicities, random ) )
+                {
+                    var faces = MatchFamily( members, pool, ethnicity, used, random );
+                    if ( faces == null )
+                    {
+                        continue;
+                    }
+
+                    foreach ( var (person, photo) in faces )
+                    {
+                        picks[person.PersonId] = photo;
+                        used.Add( photo.File );
+                    }
+
+                    photographed++;
+                    people += faces.Count;
+                    break;
+                }
+            }
+
+            return (photographed, people);
+        }
+
+        /// <summary>
+        /// One unused face of the given photo ethnicity for every member, or null when the pool runs out.
+        /// </summary>
+        private static List<(LoadedPerson Person, PhotoEntry Photo)> MatchFamily( List<LoadedPerson> members, List<PhotoEntry> pool, string ethnicity, HashSet<string> used, SeededRandom random )
+        {
+            var taken = new HashSet<string>( used );
+            var faces = new List<(LoadedPerson, PhotoEntry)>();
+            foreach ( var member in members )
+            {
+                var band = AgeBand( member.Cast.Birth.Age );
+                var candidates = pool.Where( p => p.Ethnicity == ethnicity && p.Gender == member.Cast.Gender && p.AgeBand == band && !taken.Contains( p.File ) ).ToList();
+                if ( candidates.Count == 0 )
+                {
+                    return null;
+                }
+
+                var photo = candidates[random.Between( 0, candidates.Count - 1 )];
+                taken.Add( photo.File );
+                faces.Add( (member, photo) );
+            }
+
+            return faces;
+        }
+
+        /// <summary>
+        /// The pool's age band for an age, matching photos/README.md.
+        /// </summary>
+        private static string AgeBand( int age )
+        {
+            return age switch
+            {
+                <= 2 => "0-2",
+                <= 5 => "3-5",
+                <= 11 => "6-11",
+                <= 17 => "12-17",
+                <= 29 => "18-29",
+                <= 44 => "30-44",
+                <= 64 => "45-64",
+                _ => "65+"
+            };
+        }
+
+        private static List<T> Shuffle<T>( List<T> items, SeededRandom random )
+        {
+            var shuffled = new List<T>( items );
+            for ( var i = shuffled.Count - 1; i > 0; i-- )
+            {
+                var j = random.Between( 0, i );
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
+
+            return shuffled;
+        }
+
+        /// <summary>
+        /// Writes one person image file per person, then points each person's PhotoId at it. Files are not
+        /// temporary, the same as Rock leaves a photo once it is saved to a person.
+        /// </summary>
+        private void Write( Dictionary<int, PhotoEntry> picks )
+        {
+            if ( picks.Count == 0 )
+            {
+                return;
+            }
+
+            var fileTypeId = _db.RequireIdByGuid( "BinaryFileType", PersonImageFileTypeGuid );
+            var storageTypeId = Convert.ToInt32( _db.Scalar( "SELECT [StorageEntityTypeId] FROM [BinaryFileType] WHERE [Id] = @Id", RockDatabase.P( "@Id", fileTypeId ) ) );
+            var now = DateTime.Now;
+            var nextFileId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [BinaryFile]" ) );
+
+            var files = TableFactory.Create( "Id:int", "IsTemporary:bool", "IsSystem:bool", "BinaryFileTypeId:int", "FileName:string", "MimeType:string", "StorageEntityTypeId:int", "FileSize:int", "Width:int", "Height:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "ContentLastModified:date" );
+            var data = TableFactory.Create( "Id:int", "Content:bytes", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var photoIds = new List<(int PersonId, int FileId)>();
+            var contents = new Dictionary<string, (byte[] Bytes, int Width, int Height)>();
+
+            foreach ( var (personId, photo) in picks.OrderBy( p => p.Key ) )
+            {
+                if ( !contents.TryGetValue( photo.File, out var content ) )
+                {
+                    var path = $"photos/{photo.File}";
+                    if ( !_source.Files.Exists( path ) )
+                    {
+                        throw new FileNotFoundException( $"photos/manifest.json lists {photo.File}, but the file is missing.", path );
+                    }
+
+                    var bytes = _source.Files.ReadBytes( path );
+                    var info = Image.Identify( bytes );
+                    content = (bytes, info.Width, info.Height);
+                    contents[photo.File] = content;
+                }
+
+                var fileId = nextFileId++;
+                files.Rows.Add( fileId, false, false, fileTypeId, Path.GetFileName( photo.File ), "image/jpeg", storageTypeId, content.Bytes.Length, content.Width, content.Height, Guid.NewGuid(), _foreignKey, now, now, now );
+                data.Rows.Add( fileId, content.Bytes, Guid.NewGuid(), _foreignKey, now, now );
+                photoIds.Add( (personId, fileId) );
+            }
+
+            _db.BulkInsert( "BinaryFile", files, keepIdentity: true );
+            _db.BulkInsert( "BinaryFileData", data, keepIdentity: false );
+
+            // A VALUES list holds at most 1,000 rows.
+            foreach ( var chunk in photoIds.Chunk( 900 ) )
+            {
+                var values = new StringBuilder();
+                foreach ( var (personId, fileId) in chunk )
+                {
+                    values.Append( values.Length == 0 ? string.Empty : ", " ).Append( $"( {personId}, {fileId} )" );
+                }
+
+                _db.Execute( $"UPDATE [p] SET [p].[PhotoId] = [v].[FileId] FROM [Person] AS [p] INNER JOIN ( VALUES {values} ) AS [v] ( [PersonId], [FileId] ) ON [v].[PersonId] = [p].[Id]" );
+            }
+        }
+    }
+}

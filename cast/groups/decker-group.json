@@ -1,0 +1,196 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "decker-group",
+  "guid": "62DC3753-01D5-48B5-B22D-D2825D92900B",
+  "name": "Decker Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Parenting",
+  "description": "Parents comparing notes, praying for our kids, and learning from each other.",
+  "schedule": {
+    "day": "Thursday",
+    "time": "18:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "decker"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 1,
+      "month": 8,
+      "day": 26
+    }
+  },
+  "testCase": "None",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
+      "name": "Elena Alvarez",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
+      "name": "Marco Alvarez",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "name": "Nathan Brooks",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "name": "Barb Jenkins",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
+      "name": "Gary Jenkins",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
+      "name": "Cathy Price",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
+      "name": "Bill Price",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Inactive",
+      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "name": "Tori Ramos",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 28
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 28
+      },
+      "attendancePercent": 50
+    }
+  ]
+}

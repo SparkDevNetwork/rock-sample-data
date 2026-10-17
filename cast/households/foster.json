@@ -1,0 +1,103 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "foster",
+  "guid": "FFE1DA77-B596-46B9-AAF8-C7C8E3AC8F2C",
+  "name": "Foster Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Peter Foster is the senior pastor. His wife Adelle goes by Pamela. Both serve on the prayer team.",
+  "testPurposes": [
+    "Senior pastor with pastoral and staff security roles.",
+    "Nickname that is unrelated to the first name (Adelle goes by Pamela).",
+    "Prayer team members."
+  ],
+  "reviewNotes": [
+    "The legacy XML put Adelle's login outside her person element; it is attached to her here."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1541 W Joan de Arc Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.607643,
+    "longitude": -112.092929
+  },
+  "members": [
+    {
+      "key": "pete",
+      "guid": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "firstName": "Peter",
+      "nickName": "Pete",
+      "lastName": "Foster",
+      "bio": "Pete is the Senior Pastor. He leads his own small group and has pastoral and staff security roles.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 50,
+        "month": 1,
+        "day": 7
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "peter@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550100",
+        "mobile": "6025550104",
+        "work": "6235550108"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Senior Pastor"
+      },
+      "logins": [
+        "pfoster"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Prayer Team",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "pamela",
+      "guid": "F4450E80-F221-4556-881D-CB92B008C2DA",
+      "firstName": "Adelle",
+      "nickName": "Pamela",
+      "lastName": "Foster",
+      "bio": "Pamela (legal first name Adelle) is Pete's wife. She serves on the prayer team. Her record tests a nickname that is very different from the legal first name.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 50,
+        "month": 7,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "pamela@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550100"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "logins": [
+        "afoster"
+      ],
+      "securityRoles": [
+        "Prayer Team",
+        "Staff-Like Users"
+      ]
+    }
+  ]
+}

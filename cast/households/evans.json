@@ -1,0 +1,73 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "evans",
+  "guid": "89B175AD-6BF1-4590-B936-1CF42014A337",
+  "name": "Evans",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Helen Evans came to a very large event on campus and asked about serving in the children's ministry. Someone should follow up with her.",
+  "testPurposes": [
+    "Event guest who needs follow-up.",
+    "Open connection request for children's ministry."
+  ],
+  "reviewNotes": [
+    "The legacy data gives Helen the same street address as the Simmons family. Confirm or change."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10826 N Biltmore Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.585399,
+    "longitude": -112.117602
+  },
+  "members": [
+    {
+      "key": "helen",
+      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "firstName": "Helen",
+      "lastName": "Evans",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 4,
+        "day": 2
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "hevans@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550110",
+        "mobile": "4805550106"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "FirstVisit": {
+          "yearsAgo": 8,
+          "month": 10,
+          "day": 11
+        }
+      },
+      "connectionRequests": [
+        {
+          "type": "Involvement",
+          "opportunity": "Children's",
+          "comment": "I would love to help teach kids about Jesus.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 10,
+            "day": 11
+          }
+        }
+      ]
+    }
+  ]
+}

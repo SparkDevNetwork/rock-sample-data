@@ -1,0 +1,179 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "sullivan",
+  "guid": "87FDCEA2-B7FB-4DF5-9D11-040796B51E1A",
+  "name": "Sullivan Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Chris and Amanda Sullivan married four years ago. Jake is Chris's son, Madison is Amanda's daughter, and Ben is theirs together.",
+  "testPurposes": [
+    "Blended family with half siblings.",
+    "A child whose last name differs from the family name.",
+    "Monthly giver.",
+    "Spouses give separately: Chris and Amanda are two giving units."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "6820 W Briles Rd",
+    "city": "Peoria",
+    "state": "AZ",
+    "postalCode": "85383",
+    "latitude": 33.722202,
+    "longitude": -112.20658
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 80,
+    "started": {
+      "yearsAgo": 4,
+      "month": 3,
+      "day": 18
+    }
+  },
+  "adultsGiveSeparately": true,
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "chris",
+      "funds": {
+        "General Fund": 300
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 4,
+        "month": 2,
+        "day": 10
+      }
+    },
+    {
+      "persona": "bi-weekly",
+      "person": "amanda",
+      "funds": {
+        "General Fund": 60
+      },
+      "percentOfPeriodsGiven": 88,
+      "started": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 5
+      },
+      "expect": {
+        "frequency": "bi-weekly",
+        "journeyStage": "consistent"
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "chris",
+      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
+      "firstName": "Christopher",
+      "nickName": "Chris",
+      "lastName": "Sullivan",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 45,
+        "month": 1,
+        "day": 24
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "chris.sullivan@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550166"
+      },
+      "photo": {
+        "ethnicity": "middle-eastern-north-african"
+      }
+    },
+    {
+      "key": "amanda",
+      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
+      "firstName": "Amanda",
+      "lastName": "Sullivan",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 43,
+        "month": 9,
+        "day": 23
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "amanda.sullivan@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550186"
+      },
+      "photo": {
+        "ethnicity": "middle-eastern-north-african"
+      }
+    },
+    {
+      "key": "jake",
+      "guid": "F28080C9-B2A5-4C85-89EC-DAF84FC9CEA4",
+      "firstName": "Jacob",
+      "nickName": "Jake",
+      "lastName": "Sullivan",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 15,
+        "month": 1,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "phones": {
+        "mobile": "6235550132"
+      }
+    },
+    {
+      "key": "madison",
+      "guid": "C97A3797-2EF3-45FD-A3BA-44FA9BE4683B",
+      "firstName": "Madison",
+      "lastName": "Cole",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 12,
+        "month": 10,
+        "day": 16
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "ben",
+      "guid": "68A3A253-4C4B-44CC-84FF-6EA5324F5720",
+      "firstName": "Benjamin",
+      "nickName": "Ben",
+      "lastName": "Sullivan",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 3,
+        "month": 2,
+        "day": 28
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

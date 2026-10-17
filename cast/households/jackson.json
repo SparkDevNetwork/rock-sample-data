@@ -1,0 +1,89 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "jackson",
+  "guid": "DFBF8D82-3D34-406B-8C84-9F10046ADE30",
+  "name": "Jackson Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Mariah Jackson has sole custody of her daughter Madison Lowe. Madison's father, Craig Lowe, may check her in. Her uncle may not have contact.",
+  "testPurposes": [
+    "Single parent whose child has a different last name.",
+    "Child with a legal note restricting contact.",
+    "Child who can be checked in by a parent in another family."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4929 E White Gates Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85018",
+    "latitude": 33.512503,
+    "longitude": -111.972979
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 65,
+    "percentPrimaryService": 50,
+    "started": {
+      "yearsAgo": 10,
+      "month": 9,
+      "day": 25
+    }
+  },
+  "members": [
+    {
+      "key": "mariah",
+      "guid": "9C2A020B-CF34-403E-A948-3E91FDFB958B",
+      "firstName": "Mariah",
+      "lastName": "Jackson",
+      "bio": "Mariah is a single mom with sole custody of her daughter Madison. Madison's father, Craig Lowe, is allowed to check her in; another relative is not allowed contact, and that note appears on Madison's record.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 1,
+        "day": 11
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "mariah.jackson@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "maddie",
+      "guid": "C398A8E3-C9BC-4017-A3F6-7C2BFF654056",
+      "firstName": "Madison",
+      "nickName": "Maddie",
+      "lastName": "Lowe",
+      "bio": "Maddie (Madison Lowe) is seven. Her last name differs from her mom's, and her record carries a legal note about who may pick her up. Use her to test check-in security and authorized pickups.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 7,
+        "month": 10,
+        "day": 4
+      },
+      "grade": 2,
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "madison.lowe@example.org",
+      "emailIsActive": true,
+      "attributes": {
+        "LegalNotes": "Frank Lowe (uncle) is not allowed to have contact."
+      },
+      "relationships": [
+        {
+          "type": "allow-check-in-by",
+          "with": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0"
+        }
+      ]
+    }
+  ]
+}

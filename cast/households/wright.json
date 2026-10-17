@@ -1,0 +1,111 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "wright",
+  "guid": "742A93F4-B666-4DAC-9C5C-5F86E25C8D45",
+  "name": "Wright Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Gerald and Dorothy Wright are retired teachers who have attended for twenty years. Gerald puts cash in the offering every week.",
+  "testPurposes": [
+    "Weekly cash giver.",
+    "Long-tenured senior couple."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "232 E Palm Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85004",
+    "latitude": 33.46948,
+    "longitude": -112.068711
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 90,
+    "percentPrimaryService": 97,
+    "started": {
+      "yearsAgo": 20,
+      "month": 3,
+      "day": 21
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "gerald",
+      "funds": {
+        "General Fund": 75
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 20,
+        "month": 9,
+        "day": 7
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "gerald",
+      "guid": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "firstName": "Gerald",
+      "nickName": "Jerry",
+      "lastName": "Wright",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 74,
+        "month": 7,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 51,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "jerry.wright@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550184"
+      },
+      "photo": {
+        "ethnicity": "pacific-islander"
+      }
+    },
+    {
+      "key": "dorothy",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "firstName": "Dorothy",
+      "nickName": "Dot",
+      "lastName": "Wright",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 73,
+        "month": 10,
+        "day": 15
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 51,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "dot.wright@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550150"
+      },
+      "photo": {
+        "ethnicity": "pacific-islander"
+      }
+    }
+  ]
+}

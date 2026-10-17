@@ -1,0 +1,132 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "coleman",
+  "guid": "BD8A95A9-FCA9-43C8-8C3E-6F466379FA6E",
+  "name": "Coleman Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Anthony and Tiffany Coleman both work full time. Elijah is in the 2-3 room and Zoe is in preschool.",
+  "testPurposes": [
+    "Two working parents, two check-in rooms.",
+    "Bi-weekly giver."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1724 W Grovers Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85023",
+    "latitude": 33.647528,
+    "longitude": -112.096853
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 60,
+    "started": {
+      "yearsAgo": 2,
+      "month": 9,
+      "day": 5
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "tiffany",
+      "funds": {
+        "General Fund": 50
+      },
+      "percentOfPeriodsGiven": 88,
+      "started": {
+        "yearsAgo": 2,
+        "month": 8,
+        "day": 26
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "anthony",
+      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
+      "firstName": "Anthony",
+      "nickName": "Tony",
+      "lastName": "Coleman",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 2,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "tony.coleman@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550180",
+        "mobile": "4805550172"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "tiffany",
+      "guid": "8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F",
+      "firstName": "Tiffany",
+      "lastName": "Coleman",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 9,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "tiffany.coleman@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550180",
+        "mobile": "6235550136"
+      },
+      "photo": {
+        "ethnicity": "black"
+      }
+    },
+    {
+      "key": "elijah",
+      "guid": "250D9D20-65FF-4768-B2FD-A76BA3155D22",
+      "firstName": "Elijah",
+      "nickName": "Eli",
+      "lastName": "Coleman",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 10,
+        "day": 7
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "zoe",
+      "guid": "D3848700-398A-4BEF-B752-3D16CF2B4CB8",
+      "firstName": "Zoe",
+      "lastName": "Coleman",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 4,
+        "month": 11,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

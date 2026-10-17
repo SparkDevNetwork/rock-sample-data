@@ -1,0 +1,158 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "brooks",
+  "guid": "0EC08F7E-B528-430D-936D-7BABF992E65E",
+  "name": "Brooks Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "The Brooks family has been at the church for nine years. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.",
+  "testPurposes": [
+    "Three kids across the student and elementary check-in areas.",
+    "Weekly giver across two funds with year-end gifts."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4512 N 9th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85013",
+    "latitude": 33.502846,
+    "longitude": -112.085184
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 84,
+    "percentPrimaryService": 90,
+    "started": {
+      "yearsAgo": 9,
+      "month": 6,
+      "day": 20
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "nathan",
+      "funds": {
+        "General Fund": 100,
+        "Building Fund": 25
+      },
+      "percentOfPeriodsGiven": 85,
+      "specialGiftPercent": 40,
+      "growth": {
+        "percent": 3,
+        "everyWeeks": 52
+      },
+      "started": {
+        "yearsAgo": 8,
+        "month": 4,
+        "day": 6
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "nathan",
+      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "firstName": "Nathan",
+      "lastName": "Brooks",
+      "bio": "Nathan has been at the church nine years and gives every week to the General and Building funds. He is the example of a steady, growing weekly giver.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 42,
+        "month": 12,
+        "day": 25
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "nathan.brooks@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "4805550175",
+        "mobile": "6235550147"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "rachel",
+      "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "firstName": "Rachel",
+      "lastName": "Brooks",
+      "bio": "Rachel is Nathan's wife. Sunday mornings she gets three kids to three different check-in rooms.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 41,
+        "month": 8,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "phones": {
+        "home": "4805550175",
+        "mobile": "6025550127"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "ava",
+      "guid": "DAB43FB0-CF9F-4ACB-AF01-670BDA69BB39",
+      "firstName": "Ava",
+      "lastName": "Brooks",
+      "bio": "Ava is fourteen and checks in to the student service.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 14,
+        "month": 12,
+        "day": 28
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "phones": {
+        "mobile": "4805550195"
+      }
+    },
+    {
+      "key": "caleb",
+      "guid": "ACC3E0EF-780C-4733-9ADE-D431B3C8ED78",
+      "firstName": "Caleb",
+      "lastName": "Brooks",
+      "bio": "Caleb is eleven and in the Grades 4-6 room.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 11,
+        "month": 6,
+        "day": 10
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "lily",
+      "guid": "95FDFEF0-E2BF-4D3D-A9F0-C76A781C6FD0",
+      "firstName": "Lily",
+      "lastName": "Brooks",
+      "bio": "Lily is eight and in the Grades 2-3 room.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 8,
+        "month": 4,
+        "day": 28
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

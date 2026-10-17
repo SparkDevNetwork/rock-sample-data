@@ -1,0 +1,206 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "rivera-group",
+  "guid": "1F32F467-67E9-4672-866E-1640FE8ADABF",
+  "name": "Rivera Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Marriage",
+  "description": "A group for married couples who want to grow together, with practical conversations and plenty of laughter.",
+  "schedule": {
+    "day": "Tuesday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "rivera"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": false,
+  "meetsInSummer": true,
+  "attendanceHabit": "Spotty",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 2,
+      "month": 5,
+      "day": 16
+    }
+  },
+  "testCase": "Closed",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC",
+      "name": "Mike Rivera",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0",
+      "name": "Jen Rivera",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "93719445-07BF-4B1F-85E5-2838BF66A13B",
+      "name": "Andy Shaw",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "EA03C61D-F6B3-4B00-8028-5BC86F24CA09",
+      "name": "Lauren Shaw",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
+      "name": "Jason Wood",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "B3A4494D-0914-447C-A289-30B8ECE5F00D",
+      "name": "Melissa Wood",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
+      "name": "Ben Jones",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 11
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Inactive",
+      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "name": "Patty Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 18
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Inactive",
+      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
+      "name": "Ricardo Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 18
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Inactive",
+      "guid": "42E18942-04CB-49BC-A72B-5D121514520E",
+      "name": "Michelle Nguyen",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 20
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 29
+      },
+      "attendancePercent": 60
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "harper",
+  "guid": "723669A0-4F73-47E7-87EF-AA11CF2EFF8A",
+  "name": "Harper Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Jack Harper recently started attending and joined a small group. His record is still pending review.",
+  "testPurposes": [
+    "Pending record that needs review."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11611 N 31st Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.59207,
+    "longitude": -112.127008
+  },
+  "members": [
+    {
+      "key": "jack",
+      "guid": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+      "firstName": "Jackson",
+      "nickName": "Jack",
+      "lastName": "Harper",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 54,
+        "month": 8,
+        "day": 15
+      },
+      "maritalStatus": "single",
+      "recordStatus": "pending",
+      "connectionStatus": "Connected",
+      "email": "jharper@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550100",
+        "mobile": "6235550124"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "BaptismDate": {
+          "yearsAgo": 34,
+          "month": 8,
+          "day": 1
+        },
+        "Employer": "Ocotillo Market",
+        "Position": "Assistant Manager"
+      }
+    }
+  ]
+}

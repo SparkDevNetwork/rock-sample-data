@@ -1,0 +1,100 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "torres",
+  "guid": "14A203C1-40F8-4EFE-A74E-0764DAC7E8EC",
+  "name": "Torres Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Valeria Torres comes to the student service and midweek student night with friends. Her parents come at Christmas and Easter.",
+  "testPurposes": [
+    "Teen who is more engaged than her parents.",
+    "Participant parents with holiday-only attendance."
+  ],
+  "reviewNotes": [
+    "Attendance is per household today, so Valeria's weekly student attendance cannot differ from her parents' yet. Per-person attendance is a later builder feature."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "21912 N 29th St",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85050",
+    "latitude": 33.685714,
+    "longitude": -112.019944
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 8,
+    "started": {
+      "yearsAgo": 2,
+      "month": 3,
+      "day": 28
+    }
+  },
+  "members": [
+    {
+      "key": "victor",
+      "guid": "99FA87F4-C94C-4F32-AE92-F6DE3828F0E3",
+      "firstName": "Victor",
+      "lastName": "Torres",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 47,
+        "month": 6,
+        "day": 2
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "victor.torres@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "rosa",
+      "guid": "8CB1DBDE-271F-41E9-8B4A-142AF83D9F44",
+      "firstName": "Rosa",
+      "lastName": "Torres",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 10,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "rosa.torres@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550155"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "valeria",
+      "guid": "E6BCFE2B-8566-4BE1-B653-6863294B0482",
+      "firstName": "Valeria",
+      "lastName": "Torres",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 16,
+        "month": 5,
+        "day": 25
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "valeria.torres@example.org",
+      "emailIsActive": true
+    }
+  ]
+}

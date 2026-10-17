@@ -1,0 +1,678 @@
+{
+  "source": "source-1",
+  "description": "Calibration source",
+  "collected": "2026-10",
+  "period": {
+    "start": "2024-10-01",
+    "endExclusive": "2026-10-01"
+  },
+  "notes": [
+    "Group statistics use only group types tagged with the Small Group or Serving Area purpose. Group type names are never stored."
+  ],
+  "people": {
+    "pctAdults": 68.5,
+    "pctChildren": 31.5,
+    "ageMix": {
+      "00-05": 4.8,
+      "06-11": 11.7,
+      "12-17": 22.7,
+      "18-24": 16.6,
+      "25-34": 13.7,
+      "35-44": 14.1,
+      "45-54": 8.4,
+      "55-64": 4.8,
+      "65-74": 2.6,
+      "75+": 0.7
+    },
+    "pctFemaleByAge": {
+      "00-05": 48.8,
+      "06-11": 51.5,
+      "12-17": 52.8,
+      "18-24": 53.8,
+      "25-34": 62.5,
+      "35-44": 63.3,
+      "45-54": 57.4,
+      "55-64": 58.3,
+      "65-74": 58.4,
+      "75+": 58
+    },
+    "pctNoBirthDate": 17.9,
+    "familySizeMix": {
+      "1": {
+        "pctFamilies": 75,
+        "avgAdults": 0.81,
+        "avgChildren": 0.19
+      },
+      "2": {
+        "pctFamilies": 12.6,
+        "avgAdults": 1.38,
+        "avgChildren": 0.62
+      },
+      "3": {
+        "pctFamilies": 5.8,
+        "avgAdults": 1.7,
+        "avgChildren": 1.3
+      },
+      "4": {
+        "pctFamilies": 3.9,
+        "avgAdults": 1.98,
+        "avgChildren": 2.02
+      },
+      "5": {
+        "pctFamilies": 1.6,
+        "avgAdults": 2.1,
+        "avgChildren": 2.9
+      },
+      "6+": {
+        "pctFamilies": 1.1,
+        "avgAdults": 2.21,
+        "avgChildren": 4.49
+      }
+    },
+    "adultMaritalMix": {
+      "single": 49.4,
+      "married": 47.5,
+      "divorced": 1.7,
+      "engaged": 0.5,
+      "separated": 0.5,
+      "widowed": 0.4
+    },
+    "pctAdultsNoMaritalStatus": 40.9,
+    "completeness": {
+      "adult": {
+        "pctEmail": 74.5,
+        "pctMobilePhone": 67.8,
+        "pctSmsEnabled": 48.9,
+        "pctBirthDate": 74.6,
+        "pctGraduationYear": 14,
+        "pctMaritalStatus": 59.1,
+        "pctPhoto": 22,
+        "pctHomeAddress": 74.4
+      },
+      "child": {
+        "pctEmail": 15.6,
+        "pctMobilePhone": 28.4,
+        "pctSmsEnabled": 17.7,
+        "pctBirthDate": 98.5,
+        "pctGraduationYear": 82.5,
+        "pctMaritalStatus": 49.3,
+        "pctPhoto": 2.5,
+        "pctHomeAddress": 90.4
+      }
+    },
+    "newPeoplePerMonthPctOfActive": 1.17,
+    "newPeopleMonthIndex": {
+      "10": 0.99,
+      "11": 0.84,
+      "12": 0.83,
+      "01": 1.1,
+      "02": 0.95,
+      "03": 0.89,
+      "04": 1.05,
+      "05": 0.82,
+      "06": 0.95,
+      "07": 0.96,
+      "08": 1.53,
+      "09": 1.1
+    }
+  },
+  "giving": {
+    "pctRetainedYearOverYear": 70.1,
+    "pctLapsedYearOverYear": 29.9,
+    "pctNewUnitsOfCurrent": 31.9,
+    "pctUnitsBusiness": 3.1,
+    "pctDollarsBusiness": 8.4,
+    "pctUnitsWithScheduledGift": 29.5,
+    "giftsPerUnitPerYear": 14.6,
+    "refundsPerThousandGifts": 2.54,
+    "pctUnitsWithPledge": 0,
+    "cadenceMix": {
+      "One time": {
+        "pctUnits": 20.6,
+        "pctDollars": 3.5,
+        "avgGiftDays": 1,
+        "avgAnnualTotal": 914,
+        "avgAmountVariation": null,
+        "avgPctGiftsAtUsualAmount": 100,
+        "avgPctGapsOnRhythm": null,
+        "pctGiftsScheduled": 3.3
+      },
+      "Occasional (2-3)": {
+        "pctUnits": 12.4,
+        "pctDollars": 5,
+        "avgGiftDays": 2.4,
+        "avgAnnualTotal": 2189,
+        "avgAmountVariation": 0.33,
+        "avgPctGiftsAtUsualAmount": 66.9,
+        "avgPctGapsOnRhythm": 75.9,
+        "pctGiftsScheduled": 9.2
+      },
+      "Weekly": {
+        "pctUnits": 12.6,
+        "pctDollars": 17.3,
+        "avgGiftDays": 36.9,
+        "avgAnnualTotal": 7387,
+        "avgAmountVariation": 0.41,
+        "avgPctGiftsAtUsualAmount": 71.3,
+        "avgPctGapsOnRhythm": 83.1,
+        "pctGiftsScheduled": 59.2
+      },
+      "Bi-weekly or twice monthly": {
+        "pctUnits": 13.8,
+        "pctDollars": 17.3,
+        "avgGiftDays": 19.8,
+        "avgAnnualTotal": 6756,
+        "avgAmountVariation": 0.33,
+        "avgPctGiftsAtUsualAmount": 61.8,
+        "avgPctGapsOnRhythm": 79.8,
+        "pctGiftsScheduled": 46.5
+      },
+      "Monthly": {
+        "pctUnits": 17.6,
+        "pctDollars": 25.8,
+        "avgGiftDays": 11,
+        "avgAnnualTotal": 7898,
+        "avgAmountVariation": 0.26,
+        "avgPctGiftsAtUsualAmount": 73.5,
+        "avgPctGapsOnRhythm": 83.7,
+        "pctGiftsScheduled": 53.7
+      },
+      "Quarterly": {
+        "pctUnits": 0.2,
+        "pctDollars": 0.2,
+        "avgGiftDays": 4.6,
+        "avgAnnualTotal": 3790,
+        "avgAmountVariation": 0.32,
+        "avgPctGiftsAtUsualAmount": 52.3,
+        "avgPctGapsOnRhythm": 68.4,
+        "pctGiftsScheduled": 3.3
+      },
+      "Irregular": {
+        "pctUnits": 22.8,
+        "pctDollars": 31,
+        "avgGiftDays": 18.2,
+        "avgAnnualTotal": 7333,
+        "avgAmountVariation": 0.58,
+        "avgPctGiftsAtUsualAmount": 43.6,
+        "avgPctGapsOnRhythm": 31.7,
+        "pctGiftsScheduled": 15.6
+      }
+    },
+    "unitAnnualTotalPercentiles": {
+      "p10": 45,
+      "p25": 225,
+      "p50": 1500,
+      "p75": 6000,
+      "p90": 13275,
+      "p95": 19992,
+      "p99": 46555
+    },
+    "pctDollarsByDecile": {
+      "1": 55.6,
+      "2": 18.7,
+      "3": 11.2,
+      "4": 6.9,
+      "5": 3.9,
+      "6": 2.1,
+      "7": 1,
+      "8": 0.4,
+      "9": 0.2,
+      "10": 0
+    },
+    "pctDollarsTopOnePercent": 20.3,
+    "giftAmounts": {
+      "p10": 24,
+      "p25": 60,
+      "p50": 150,
+      "p75": 348.45,
+      "p90": 700,
+      "p99": 2810,
+      "pctWithCents": 5.5,
+      "pctMultipleOf5": 79,
+      "pctMultipleOf10": 64.6,
+      "pctMultipleOf25": 49.1,
+      "pctMultipleOf100": 26.9
+    },
+    "dollarsMonthIndex": {
+      "10": 0.93,
+      "11": 0.95,
+      "12": 1.61,
+      "01": 0.86,
+      "02": 0.88,
+      "03": 0.99,
+      "04": 1.02,
+      "05": 1.05,
+      "06": 0.91,
+      "07": 0.94,
+      "08": 0.96,
+      "09": 0.9
+    },
+    "giftsMonthIndex": {
+      "10": 0.97,
+      "11": 0.98,
+      "12": 1.06,
+      "01": 0.94,
+      "02": 0.92,
+      "03": 1.04,
+      "04": 1,
+      "05": 1.04,
+      "06": 1.01,
+      "07": 1.01,
+      "08": 1.06,
+      "09": 0.96
+    },
+    "dayOfWeekMix": {
+      "Sun": {
+        "oneTime": 40.8,
+        "scheduled": 17.1
+      },
+      "Mon": {
+        "oneTime": 7.8,
+        "scheduled": 21.4
+      },
+      "Tue": {
+        "oneTime": 7,
+        "scheduled": 10
+      },
+      "Wed": {
+        "oneTime": 9.2,
+        "scheduled": 11.1
+      },
+      "Thu": {
+        "oneTime": 13.4,
+        "scheduled": 8.9
+      },
+      "Fri": {
+        "oneTime": 14.9,
+        "scheduled": 21.4
+      },
+      "Sat": {
+        "oneTime": 6.9,
+        "scheduled": 10.2
+      }
+    },
+    "scheduledDayOfMonthMix": {
+      "1": 10.3,
+      "2": 3.7,
+      "3": 3.8,
+      "4": 2.9,
+      "5": 3.4,
+      "6": 3,
+      "7": 3.1,
+      "8": 2.7,
+      "9": 2.6,
+      "10": 3.2,
+      "11": 2.2,
+      "12": 2.5,
+      "13": 2.8,
+      "14": 2.5,
+      "15": 7.7,
+      "16": 2.9,
+      "17": 3.2,
+      "18": 2.3,
+      "19": 2.8,
+      "20": 3.2,
+      "21": 2.6,
+      "22": 2.7,
+      "23": 2.6,
+      "24": 3,
+      "25": 2.5,
+      "26": 2.9,
+      "27": 3,
+      "28": 3.2,
+      "29": 2.2,
+      "30": 2.9,
+      "31": 1.7
+    },
+    "paymentMix": {
+      "current": {
+        "Credit Card": {
+          "pctGifts": 44,
+          "pctDollars": 36.1
+        },
+        "ACH": {
+          "pctGifts": 34.6,
+          "pctDollars": 38.4
+        },
+        "Check": {
+          "pctGifts": 8.7,
+          "pctDollars": 17.8
+        },
+        "Apple Pay": {
+          "pctGifts": 8.3,
+          "pctDollars": 4.1
+        },
+        "Cash": {
+          "pctGifts": 4.1,
+          "pctDollars": 2.2
+        },
+        "Google Pay": {
+          "pctGifts": 0.3,
+          "pctDollars": 0.2
+        },
+        "Non-Cash": {
+          "pctGifts": 0,
+          "pctDollars": 1.3
+        }
+      },
+      "prior": {
+        "Credit Card": {
+          "pctGifts": 47.6,
+          "pctDollars": 38.9
+        },
+        "ACH": {
+          "pctGifts": 33.4,
+          "pctDollars": 38.2
+        },
+        "Check": {
+          "pctGifts": 9.4,
+          "pctDollars": 17
+        },
+        "Apple Pay": {
+          "pctGifts": 4.8,
+          "pctDollars": 2.6
+        },
+        "Cash": {
+          "pctGifts": 4.5,
+          "pctDollars": 2.6
+        },
+        "Google Pay": {
+          "pctGifts": 0.2,
+          "pctDollars": 0.1
+        },
+        "Non-Cash": {
+          "pctGifts": 0,
+          "pctDollars": 0.6
+        }
+      }
+    },
+    "sourceMix": {
+      "Website": {
+        "pctGifts": 82,
+        "pctDollars": 72.7
+      },
+      "On-Site": {
+        "pctGifts": 12.7,
+        "pctDollars": 19.9
+      },
+      "other": {
+        "pctGifts": 5.1,
+        "pctDollars": 7.3
+      },
+      "SMS Gift": {
+        "pctGifts": 0.1,
+        "pctDollars": 0
+      },
+      "Bank Checks": {
+        "pctGifts": 0,
+        "pctDollars": 0
+      }
+    },
+    "fundsPerGiftMix": {
+      "1": 93.6,
+      "2": 5.5,
+      "3+": 0.9
+    }
+  },
+  "attendance": {
+    "adultCheckInsPerChildCheckIn": 0.78,
+    "firstTimeCheckInsPerHundredChildCheckIns": 4.02,
+    "holidayMultipliers": {
+      "thanksgiving": {
+        "kids": 0.61,
+        "adults": 0.59,
+        "firstTime": 0.38,
+        "samples": 2
+      },
+      "sundayBeforeChristmas": {
+        "kids": 1.2,
+        "adults": 1.05,
+        "firstTime": 2.23,
+        "samples": 2
+      },
+      "christmasWeek": {
+        "kids": 0.01,
+        "adults": 0.3,
+        "firstTime": 0.01,
+        "samples": 2
+      },
+      "newYear": {
+        "kids": 0.68,
+        "adults": 0.65,
+        "firstTime": 0.68,
+        "samples": 2
+      },
+      "easter": {
+        "kids": 1.22,
+        "adults": 1.04,
+        "firstTime": 1.49,
+        "samples": 2
+      },
+      "mothersDay": {
+        "kids": 1.06,
+        "adults": 0.92,
+        "firstTime": 0.81,
+        "samples": 2
+      },
+      "memorialDay": {
+        "kids": 0.92,
+        "adults": 0.87,
+        "firstTime": 0.8,
+        "samples": 2
+      },
+      "july4": {
+        "kids": 0.52,
+        "adults": 0.57,
+        "firstTime": 0.52,
+        "samples": 2
+      },
+      "laborDay": {
+        "kids": 1.15,
+        "adults": 0.97,
+        "firstTime": 2.3,
+        "samples": 2
+      },
+      "fallKickoff": {
+        "kids": 1.37,
+        "adults": 1,
+        "firstTime": 3.7,
+        "samples": 2
+      }
+    },
+    "kidsMonthIndex": {
+      "10": 0.97,
+      "11": 0.99,
+      "12": 0.79,
+      "01": 0.88,
+      "02": 0.95,
+      "03": 0.99,
+      "04": 1.07,
+      "05": 1.07,
+      "06": 0.98,
+      "07": 0.89,
+      "08": 1.22,
+      "09": 1.17
+    },
+    "disruptedWeeksPerYear": 2,
+    "childFrequencyMixOf26Weeks": {
+      "01": 29.4,
+      "02-03": 17.8,
+      "04-07": 15.7,
+      "08-12": 12.5,
+      "13-19": 15.1,
+      "20-26": 9.6
+    },
+    "adultFrequencyMixOf26Weeks": {
+      "01": 26.5,
+      "02-03": 13.4,
+      "04-07": 13.7,
+      "08-12": 12.8,
+      "13-19": 17.7,
+      "20-26": 15.8
+    },
+    "checkInDayMix": {
+      "sunday": 60.7,
+      "saturday": 0.8,
+      "wednesday": 31.1,
+      "otherWeekdays": 7.4
+    },
+    "sundayHourMix": {
+      "6": 0.3,
+      "7": 3.6,
+      "8": 37.7,
+      "9": 31.1,
+      "10": 11.7,
+      "11": 13.7,
+      "12": 0.2,
+      "13": 0.2,
+      "16": 0.8,
+      "17": 0.7
+    },
+    "kidsPerFamilyCheckInMix": {
+      "1": 64.6,
+      "2": 24.7,
+      "3": 8,
+      "4+": 2.7
+    }
+  },
+  "groups": {
+    "smallGroups": {
+      "groupTypes": 3,
+      "weightedMedianSize": 8.7,
+      "pctLeaders": 13.6,
+      "pctDidAttend": 55.8
+    },
+    "servingTeams": {
+      "groupTypes": 8,
+      "weightedMedianSize": 12.8,
+      "pctLeaders": 8.5,
+      "pctDidAttend": 45.9
+    }
+  },
+  "engagement": {
+    "pctAdultRecordsWithAnyActivity": 19.5,
+    "amongActiveAdults": {
+      "pctGive": 53.1,
+      "pctAttend": 62.6,
+      "pctInGroup": 57.5,
+      "pctServe": 22.6,
+      "combinationMix": {
+        "gives": 21.2,
+        "gives+attends+group+serves": 15.1,
+        "attends+group": 15,
+        "attends": 14.3,
+        "group": 12.6,
+        "gives+attends+group": 8.3,
+        "attends+group+serves": 3.3,
+        "gives+attends": 3,
+        "gives+group": 3,
+        "gives+attends+serves": 2.4,
+        "attends+serves": 1.2,
+        "serves": 0.3,
+        "group+serves": 0.1,
+        "gives+serves": 0.1,
+        "gives+group+serves": 0.1
+      }
+    },
+    "newAdultsAfterOneYear": {
+      "pctStillActive": 69.8,
+      "pctGave": 7.8,
+      "pctAttended": 13.2
+    }
+  },
+  "registrations": {
+    "registrantsPerYearPerThousandActiveAdults": 486.2,
+    "avgRegistrantsPerRegistration": 1.31,
+    "pctWaitList": 1.2,
+    "pctPaidRegistrants": 35.6,
+    "pctChildRegistrants": 28.1,
+    "registrantsPerInstance": {
+      "p25": 9,
+      "p50": 50,
+      "p90": 276.0000000000001
+    }
+  },
+  "prayer": {
+    "requestsPerYearPerThousandActiveAdults": 752.9,
+    "pctApproved": 100,
+    "pctPublic": 99.4,
+    "pctUrgent": 0,
+    "pctAllowComments": 0,
+    "pctAnswered": 0,
+    "pctLinkedToPerson": 100,
+    "pctWithCategory": 0.4,
+    "avgPrayerCount": 0.1,
+    "avgTextLength": 162,
+    "monthIndex": {
+      "10": 0.97,
+      "11": 0.84,
+      "12": 0.85,
+      "01": 1.19,
+      "02": 1.05,
+      "03": 1.21,
+      "04": 0.9,
+      "05": 0.91,
+      "06": 0.92,
+      "07": 0.87,
+      "08": 1.23,
+      "09": 1.05
+    }
+  },
+  "communications": {
+    "communicationsPerMonthPerThousandActiveAdults": 1513.3,
+    "pctBulk": 0.1,
+    "recipientsPerCommunication": {
+      "p50": 1,
+      "p90": 1,
+      "p99": 7
+    },
+    "byMedium": {
+      "Email": {
+        "pctOfRecipients": 72.1,
+        "pctDelivered": 93.8,
+        "pctOpened": 62.3,
+        "pctFailed": 6.2
+      },
+      "SMS": {
+        "pctOfRecipients": 22.7,
+        "pctDelivered": 88,
+        "pctOpened": 0,
+        "pctFailed": 12
+      },
+      "Recipient preference": {
+        "pctOfRecipients": 5.2,
+        "pctDelivered": 97.3,
+        "pctOpened": 41.8,
+        "pctFailed": 2.7
+      }
+    }
+  },
+  "connections": {
+    "requestsPerYearPerThousandActiveAdults": 2299.2,
+    "stateMix": {
+      "active": 29.7,
+      "inactive": 25.5,
+      "futureFollowUp": 0,
+      "connected": 44.7
+    },
+    "pctWithConnector": 35.2,
+    "daysToConnect": {
+      "p50": 16,
+      "p90": 97
+    },
+    "monthIndex": {
+      "10": 0.72,
+      "11": 0.64,
+      "12": 0.8,
+      "01": 1.5,
+      "02": 1.2,
+      "03": 0.88,
+      "04": 0.84,
+      "05": 0.87,
+      "06": 1.15,
+      "07": 0.96,
+      "08": 1.33,
+      "09": 1.11
+    }
+  }
+}

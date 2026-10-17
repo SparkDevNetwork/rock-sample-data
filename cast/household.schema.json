@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "household.schema.json",
+  "title": "Cast Household",
+  "description": "One hand-designed Cast household. All dates are relative to the anchor date so the data never goes stale.",
+  "type": "object",
+  "required": [ "schemaVersion", "key", "guid", "name", "kind", "origin", "campusSlot", "story", "testPurposes", "members" ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Stable slug. Matches the file name." },
+    "guid": { "$ref": "#/$defs/guid", "description": "Family group Guid. Never changes." },
+    "name": { "type": "string" },
+    "kind": { "enum": [ "family", "business" ] },
+    "origin": { "type": "string", "description": "Where the household came from, for example legacy-1.14.1 or new." },
+    "campusSlot": { "enum": [ "main" ], "description": "The Cast always lives on the main campus." },
+    "duplicateOf": { "type": "string", "description": "The key of the household this is a duplicate record of. Duplicate records never join groups." },
+    "story": { "type": "string" },
+    "testPurposes": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "reviewNotes": { "type": "array", "items": { "type": "string" }, "description": "Open issues to resolve during Cast review." },
+    "address": { "$ref": "#/$defs/address" },
+    "adultsGiveSeparately": { "type": "boolean", "description": "True when the married couple gives separately: each spouse is their own giving unit with their own giving patterns. Other adults living with a married couple (for example an adult child) always give on their own." },
+    "attendance": { "$ref": "#/$defs/attendance" },
+    "giving": { "type": "array", "items": { "$ref": "#/$defs/giving" } },
+    "members": { "type": "array", "items": { "$ref": "#/$defs/person" }, "minItems": 1 },
+    "sharedMembers": {
+      "type": "array",
+      "description": "People whose primary record lives in another Cast household but who also belong to this one.",
+      "items": {
+        "type": "object",
+        "required": [ "guid", "household" ],
+        "additionalProperties": false,
+        "properties": { "guid": { "$ref": "#/$defs/guid" }, "household": { "type": "string" }, "note": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" },
+    "relativeDate": {
+      "type": "object",
+      "description": "A calendar date relative to the anchor. Either yearsAgo, month, and day (the year is the anchor year minus yearsAgo; a result after the anchor moves back one year), or daysAgo alone for recent events that must stay recent.",
+      "oneOf": [
+        { "required": [ "yearsAgo", "month", "day" ] },
+        { "required": [ "daysAgo" ], "not": { "anyOf": [ { "required": [ "yearsAgo" ] }, { "required": [ "month" ] }, { "required": [ "day" ] } ] } }
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "daysAgo": { "type": "integer", "minimum": 0 },
+        "yearsAgo": { "type": "integer", "minimum": 0 },
+        "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "day": { "type": "integer", "minimum": 1, "maximum": 31 },
+        "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" }
+      }
+    },
+    "birth": {
+      "type": "object",
+      "description": "Age on the anchor date plus birthday. The builder picks the birth year that produces this age.",
+      "required": [ "age", "month", "day" ],
+      "additionalProperties": false,
+      "properties": {
+        "age": { "type": "integer", "minimum": 0 },
+        "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "day": { "type": "integer", "minimum": 1, "maximum": 31 }
+      }
+    },
+    "address": {
+      "type": "object",
+      "required": [ "type", "street1", "city", "state", "postalCode" ],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": [ "home", "work", "previous" ] },
+        "street1": { "type": "string" },
+        "street2": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" }
+      }
+    },
+    "attendance": {
+      "type": "object",
+      "required": [ "persona", "percentAttended" ],
+      "additionalProperties": false,
+      "properties": {
+        "persona": { "enum": [ "core", "regular", "occasional", "holiday-only", "lapsing", "lapsed" ] },
+        "percentAttended": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "percentPrimaryService": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "started": { "$ref": "#/$defs/relativeDate" },
+        "ended": { "$ref": "#/$defs/relativeDate" }
+      }
+    },
+    "giving": {
+      "type": "object",
+      "required": [ "persona", "person", "funds" ],
+      "additionalProperties": false,
+      "properties": {
+        "persona": { "enum": [ "one-time", "occasional", "weekly", "bi-weekly", "monthly", "quarterly", "irregular", "year-end", "lapsing", "new" ] },
+        "person": { "type": "string", "description": "Member key of the giver." },
+        "currency": { "enum": [ "check", "ach", "card", "cash" ], "description": "Optional payment method. Left out, the profile picks one. A check from someone who does not come on Sundays (a business) arrives by mail." },
+        "signer": { "type": "string", "description": "Optional name signed on the check when someone signs for the giver, such as a business owner." },
+        "funds": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 }, "description": "Fund name to amount per gift." },
+        "percentOfPeriodsGiven": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "growth": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "percent": { "type": "number" }, "everyWeeks": { "type": "integer", "minimum": 1 } }
+        },
+        "specialGiftPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "started": { "$ref": "#/$defs/relativeDate" },
+        "ended": { "$ref": "#/$defs/relativeDate" },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "What Rock should show for this giver after a load, checked by the builder. Use it for the givers a story or a test depends on.",
+          "properties": {
+            "frequency": { "enum": [ "weekly", "bi-weekly", "monthly", "quarterly", "erratic", "undetermined" ], "description": "Rock's gift frequency label." },
+            "journeyStage": { "enum": [ "non-giver", "new", "consistent", "occasional", "lapsed", "former" ], "description": "Rock's current giving journey stage." },
+            "alerts": { "type": "array", "items": { "enum": [ "large-gift", "smaller-than-usual", "late-gift" ] }, "description": "Alert types (keys from configuration/giving-alert-types.json) the giver must have at least one of in the alert history." }
+          }
+        }
+      }
+    },
+    "note": {
+      "type": "object",
+      "required": [ "type", "text" ],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string" },
+        "text": { "type": "string" },
+        "date": { "$ref": "#/$defs/relativeDate" },
+        "by": { "$ref": "#/$defs/guid", "description": "Guid of the Cast person who wrote the note." },
+        "isAlert": { "type": "boolean" },
+        "isPrivate": { "type": "boolean" }
+      }
+    },
+    "person": {
+      "type": "object",
+      "required": [ "key", "guid", "firstName", "lastName", "gender", "familyRole", "recordStatus", "connectionStatus" ],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+        "guid": { "$ref": "#/$defs/guid" },
+        "recordType": { "enum": [ "person", "business" ] },
+        "firstName": { "type": "string" },
+        "nickName": { "type": "string" },
+        "middleName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "bio": { "type": "string", "description": "A short backstory for documentation and test writers. Never written to Rock." },
+        "previousLastNames": { "type": "array", "items": { "type": "string" } },
+        "gender": { "enum": [ "male", "female", "unknown" ] },
+        "familyRole": { "enum": [ "adult", "child" ] },
+        "birth": { "$ref": "#/$defs/birth" },
+        "grade": { "type": "integer", "minimum": -1, "maximum": 12, "description": "School grade on the anchor date (0 = kindergarten)." },
+        "graduation": { "$ref": "#/$defs/relativeDate" },
+        "maritalStatus": { "enum": [ "married", "single", "divorced", "widowed", "unknown" ] },
+        "anniversary": { "$ref": "#/$defs/relativeDate" },
+        "recordStatus": { "enum": [ "active", "pending", "inactive" ] },
+        "recordStatusReason": { "type": "string" },
+        "isDeceased": { "type": "boolean" },
+        "connectionStatus": { "enum": [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ] },
+        "email": { "type": "string" },
+        "emailIsActive": { "type": "boolean" },
+        "emailDoNotEmail": { "type": "boolean" },
+        "phones": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": { "home": { "type": "string" }, "mobile": { "type": "string" }, "work": { "type": "string" } }
+        },
+        "photo": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Inputs for this person's generated photo. Never written to Rock, and never used for names or anything else.",
+          "properties": {
+            "ethnicity": {
+              "enum": [ "white", "black", "hispanic-latino", "east-asian", "southeast-asian", "south-asian", "middle-eastern-north-african", "native-american", "pacific-islander", "multiracial" ],
+              "description": "Photo ethnicity, used only to generate a photo that matches the family. Set it on adults. Children inherit a blend of their parents when it is left out; set it on a child only when the blend is wrong (for example, adoption). Prompt wording lives in photos/ethnicities.json."
+            },
+            "seed": { "type": "integer", "minimum": 0, "description": "Generation seed, recorded after the photo is made, so it can be regenerated." },
+            "isOmitted": { "type": "boolean", "description": "True when this person deliberately has no photo, for example a duplicate record created from a form, or a deceased child." }
+          }
+        },
+        "attributes": { "type": "object", "description": "Person attribute values by key. Date values use relativeDate objects." },
+        "logins": { "type": "array", "items": { "type": "string" } },
+        "securityRoles": { "type": "array", "items": { "type": "string" } },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "type", "with" ],
+            "additionalProperties": false,
+            "properties": { "type": { "type": "string" }, "with": { "$ref": "#/$defs/guid" } }
+          }
+        },
+        "follows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "type", "target" ],
+            "additionalProperties": false,
+            "properties": { "type": { "enum": [ "person", "group" ] }, "target": { "type": "string", "description": "Person Guid, or group key in cast/groups." } }
+          }
+        },
+        "connectionRequests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "type", "opportunity" ],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string" },
+              "opportunity": { "type": "string" },
+              "comment": { "type": "string" },
+              "date": { "$ref": "#/$defs/relativeDate" }
+            }
+          }
+        },
+        "notes": { "type": "array", "items": { "$ref": "#/$defs/note" } }
+      }
+    }
+  }
+}

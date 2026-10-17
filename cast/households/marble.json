@@ -1,0 +1,168 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "marble",
+  "guid": "6F2E6B64-3592-4543-8D8E-6BA4040CDC4E",
+  "name": "Marble Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Alisha Marble is the church's Rock administrator. Her husband Bill was born on a leap day, owns a local business, and leads a small group for people new to faith.",
+  "testPurposes": [
+    "Rock administrator with many security roles.",
+    "Leap-day birthday (February 29).",
+    "Business owner linked to a business record.",
+    "Weekly giver with year-end gifts and check images.",
+    "Leads one small group and belongs to another."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3000 W Lupine Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.59121,
+    "longitude": -112.123479
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 88,
+    "percentPrimaryService": 88,
+    "started": {
+      "yearsAgo": 11,
+      "month": 1,
+      "day": 1
+    }
+  },
+  "giving": [
+    {
+      "persona": "one-time",
+      "person": "bill",
+      "funds": {
+        "General Fund": 1000
+      },
+      "started": {
+        "yearsAgo": 9,
+        "month": 12,
+        "day": 31
+      },
+      "ended": {
+        "yearsAgo": 9,
+        "month": 12,
+        "day": 31
+      }
+    },
+    {
+      "persona": "weekly",
+      "person": "bill",
+      "funds": {
+        "General Fund": 100,
+        "Mission Fund": 50
+      },
+      "percentOfPeriodsGiven": 85,
+      "growth": {
+        "percent": 5,
+        "everyWeeks": 52
+      },
+      "specialGiftPercent": 50,
+      "started": {
+        "yearsAgo": 9,
+        "month": 1,
+        "day": 5
+      }
+    },
+    {
+      "persona": "one-time",
+      "person": "bill",
+      "funds": {
+        "General Fund": 800
+      },
+      "started": {
+        "yearsAgo": 8,
+        "month": 12,
+        "day": 31
+      },
+      "ended": {
+        "yearsAgo": 8,
+        "month": 12,
+        "day": 31
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "alisha",
+      "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "firstName": "Alisha",
+      "lastName": "Marble",
+      "bio": "Alisha is the church's Rock administrator and holds nearly every security role. She leads a women's group and is the person to log in as when you need full admin rights.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 48,
+        "month": 5,
+        "day": 29
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "alisha.marble@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6235550108"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Assistant"
+      },
+      "logins": [
+        "amarble"
+      ],
+      "securityRoles": [
+        "Finance Administrators",
+        "Prayer Administrators",
+        "Prayer Team",
+        "Rock Administrators",
+        "Staff Users",
+        "Website Content Editors",
+        "Background Check Administrators",
+        "RSR - Involvement Administration"
+      ]
+    },
+    {
+      "key": "bill",
+      "guid": "1EA811BB-3118-42D1-B020-32A82BC8081A",
+      "firstName": "William",
+      "nickName": "Bill",
+      "lastName": "Marble",
+      "bio": "Bill owns a local business and leads a small group for people who are new to faith. He was born on a leap day, so he is the record to use for February 29 birthday logic. He is one of the church's most generous weekly givers.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 55,
+        "month": 2,
+        "day": 29
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "bill.marble@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "white"
+      },
+      "logins": [
+        "bmarble"
+      ],
+      "relationships": [
+        {
+          "type": "business",
+          "with": "6CE68373-7B38-40DA-B84D-281BEFF41114"
+        }
+      ]
+    }
+  ]
+}

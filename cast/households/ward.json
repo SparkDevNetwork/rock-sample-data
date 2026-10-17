@@ -1,0 +1,127 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ward",
+  "guid": "96B5B0AB-EF85-47FD-A2C6-CB362E1B0ED2",
+  "name": "Ward Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Derek and Kayla Ward gave a single large gift after the church helped them through a hard year.",
+  "testPurposes": [
+    "One-time giver.",
+    "Nursery and preschool check-in."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "5544 W Cinnabar Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85302",
+    "latitude": 33.57629,
+    "longitude": -112.178313
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 45,
+    "started": {
+      "yearsAgo": 2,
+      "month": 4,
+      "day": 19
+    }
+  },
+  "giving": [
+    {
+      "persona": "one-time",
+      "person": "derek",
+      "funds": {
+        "General Fund": 500
+      },
+      "started": {
+        "yearsAgo": 1,
+        "month": 11,
+        "day": 20
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "derek",
+      "guid": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "firstName": "Derek",
+      "lastName": "Ward",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 34,
+        "month": 5,
+        "day": 14
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "derek.ward@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550188"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      }
+    },
+    {
+      "key": "kayla",
+      "guid": "AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592",
+      "firstName": "Kayla",
+      "lastName": "Ward",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 33,
+        "month": 6,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "kayla.ward@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550125"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "aiden",
+      "guid": "F3DC257E-B60E-45A2-9C01-43BA0C55928F",
+      "firstName": "Aiden",
+      "lastName": "Ward",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 5,
+        "month": 2,
+        "day": 13
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    },
+    {
+      "key": "nora",
+      "guid": "BCF9FC7B-D1E7-473E-8946-A91205C194BB",
+      "firstName": "Nora",
+      "lastName": "Ward",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 1,
+        "month": 3,
+        "day": 21
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected"
+    }
+  ]
+}

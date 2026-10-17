@@ -1,0 +1,69 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "mcclintock",
+  "guid": "6296F68F-E89B-4DCA-90E2-5DA5141DC662",
+  "name": "McClintock Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Ty McClintock is a graduate assistant and a friend of Paul Smith. Both took the DISC assessment and attend the Sonoran Valley University student group.",
+  "testPurposes": [
+    "Young adult living alone.",
+    "DISC assessment results to compare with a friend."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3940 E Cat Balue Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85050",
+    "latitude": 33.685683,
+    "longitude": -111.992313
+  },
+  "members": [
+    {
+      "key": "ty",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "firstName": "Taylor",
+      "nickName": "Ty",
+      "lastName": "McClintock",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 20,
+        "month": 7,
+        "day": 1
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "taylor@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550125"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "Employer": "Sonoran Valley University",
+        "Position": "Graduate Assistant",
+        "AdaptiveD": "92",
+        "AdaptiveI": "27",
+        "AdaptiveS": "12",
+        "AdaptiveC": "50",
+        "NaturalD": "76",
+        "NaturalI": "27",
+        "NaturalS": "18",
+        "NaturalC": "84",
+        "LastSaveDate": {
+          "yearsAgo": 9,
+          "month": 12,
+          "day": 2
+        },
+        "PersonalityType": "CD"
+      }
+    }
+  ]
+}

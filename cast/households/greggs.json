@@ -1,0 +1,150 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "greggs",
+  "guid": "E51D3363-13FC-4479-8283-C7B9A2F22AB6",
+  "name": "Greggs",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Robert and Lorraine Greggs lost their first child, Jenny, when she was three. They have two other children now. Jenny's record was moved to its own family and linked back to her parents.",
+  "testPurposes": [
+    "Grieving family with sensitive alert notes.",
+    "Living children in the family; a deceased child linked by relationship."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10636 N 16th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.583346,
+    "longitude": -112.094578
+  },
+  "members": [
+    {
+      "key": "bob",
+      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
+      "firstName": "Robert",
+      "nickName": "Bob",
+      "lastName": "Greggs",
+      "bio": "Bob is an electrical engineer at Mesa Ridge Electronics. He and Lorraine host a small group in their home.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 6,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 16,
+        "month": 7,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Leading",
+      "email": "rgreggs@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550113",
+        "mobile": "6025550113"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Baptized": "No",
+        "Employer": "Mesa Ridge Electronics",
+        "Position": "Electrical Engineer"
+      }
+    },
+    {
+      "key": "lorraine",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "firstName": "Lorraine",
+      "lastName": "Greggs",
+      "bio": "Lorraine is a financial analyst at Mesa Ridge Electronics. She and Bob lost their first daughter, Jenny, at age three, and a staff note asks people to be gentle with her around that anniversary in September.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 36,
+        "month": 12,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 16,
+        "month": 7,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "lgreggs@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550113",
+        "mobile": "6025550109"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Baptized": "No",
+        "Employer": "Mesa Ridge Electronics",
+        "Position": "Financial Analyst"
+      },
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Lorraine's daughter, Jenny, went to be with the Lord on Sept 11. Remember to be sensitive to Lorraine on this day.",
+          "date": {
+            "yearsAgo": 12,
+            "month": 9,
+            "day": 12,
+            "time": "09:01"
+          },
+          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+          "isAlert": true
+        }
+      ]
+    },
+    {
+      "key": "tim",
+      "guid": "5DB35E3C-8A84-488B-9738-FB3CACD4C517",
+      "firstName": "Timothy",
+      "nickName": "Tim",
+      "lastName": "Greggs",
+      "bio": "Tim is ten, born after Jenny. He has a younger sister, Jordan.",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 5,
+        "day": 9
+      },
+      "maritalStatus": "unknown",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "tgreggs@example.org",
+      "emailIsActive": true
+    },
+    {
+      "key": "jordan",
+      "guid": "BDF4A42D-5C22-4E73-868D-17DEF16280D9",
+      "firstName": "Jordan",
+      "lastName": "Greggs",
+      "bio": "Jordan is nine and Tim's younger sister.",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 11,
+        "day": 9
+      },
+      "maritalStatus": "unknown",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

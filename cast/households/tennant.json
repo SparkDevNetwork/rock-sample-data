@@ -1,0 +1,125 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "tennant",
+  "guid": "3B148E44-BFC3-4A5D-9782-00BE59127A87",
+  "name": "Tennant Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Rob and Sheryl Tennant are a married couple who attend and are in a small group. Sheryl is a little older than Rob.",
+  "testPurposes": [
+    "Married couple with different employers.",
+    "Spouses give separately, each from their own employer paycheck."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11460 N 30th Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.59113,
+    "longitude": -112.124951
+  },
+  "adultsGiveSeparately": true,
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "rob",
+      "funds": {
+        "General Fund": 180
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 12,
+        "month": 1,
+        "day": 8
+      }
+    },
+    {
+      "persona": "irregular",
+      "person": "sheryl",
+      "funds": {
+        "General Fund": 75,
+        "Mission Fund": 25
+      },
+      "percentOfPeriodsGiven": 75,
+      "started": {
+        "yearsAgo": 10,
+        "month": 4,
+        "day": 12
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "rob",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "firstName": "Robert",
+      "nickName": "Rob",
+      "lastName": "Tennant",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 56,
+        "month": 3,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 23,
+        "month": 1,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "rtennant@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550114",
+        "mobile": "6235550101"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Palo Verde Technical College",
+        "Position": "Supply Manager"
+      }
+    },
+    {
+      "key": "sheryl",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "firstName": "Sheryl",
+      "lastName": "Tennant",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 58,
+        "month": 5,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 23,
+        "month": 1,
+        "day": 1
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Connected",
+      "email": "stennant@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6025550114",
+        "mobile": "4805550104"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "ACME Art",
+        "Position": "Art Director"
+      }
+    }
+  ]
+}

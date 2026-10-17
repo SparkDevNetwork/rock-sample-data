@@ -1,0 +1,58 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ramos",
+  "guid": "5CA31DAC-5787-4749-9254-38AAA6CACA39",
+  "name": "Ramos Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before ever attending on a Sunday.",
+  "testPurposes": [
+    "Group-first connection (Phase 1).",
+    "Young adult living alone with Known status."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10567 W Kingswood Cir",
+    "city": "Sun City",
+    "state": "AZ",
+    "postalCode": "85351",
+    "latitude": 33.615957,
+    "longitude": -112.277075
+  },
+  "attendance": {
+    "persona": "occasional",
+    "percentAttended": 20,
+    "started": {
+      "daysAgo": 90
+    }
+  },
+  "members": [
+    {
+      "key": "victoria",
+      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "firstName": "Victoria",
+      "nickName": "Tori",
+      "lastName": "Ramos",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 25,
+        "month": 10,
+        "day": 24
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Known",
+      "email": "tori.ramos@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550161"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

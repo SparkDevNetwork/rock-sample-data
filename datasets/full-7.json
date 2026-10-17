@@ -1,0 +1,9 @@
+{
+  "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
+  "key": "full-7",
+  "name": "Full 7",
+  "checkImages": {
+    "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
+    "months": 12
+  }
+}

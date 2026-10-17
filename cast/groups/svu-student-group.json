@@ -1,0 +1,26 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "svu-student-group",
+  "guid": "CD65C668-B324-4F41-BBB7-BEC9C62233F1",
+  "name": "Sonoran Valley University Student Group",
+  "type": "small-group",
+  "parentGroupGuid": "3CBC1A3F-DD26-430A-9B53-B476CB385ABC",
+  "description": "We hang out and study the bible in an informal way.",
+  "studyTopic": "Students of the Bible",
+  "meeting": {
+    "frequency": "weekly",
+    "dayOfWeek": "Saturday",
+    "time": "13:00"
+  },
+  "members": [
+    {
+      "guid": "D7CE30DF-58F8-4268-BA19-56FDF17D3890",
+      "name": "Paul Smith"
+    },
+    {
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Taylor McClintock"
+    }
+  ]
+}

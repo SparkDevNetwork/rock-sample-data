@@ -1,0 +1,50 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "miller-tom",
+  "guid": "ED6AC70A-4022-446D-B116-A1CD611151C4",
+  "name": "Miller Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Tom Miller is a member who moved. Someone later created a second record for him (Thomas Miller) from a connection card, not knowing he already had one.",
+  "testPurposes": [
+    "Original half of a duplicate pair for merge testing."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "2300 E Curnow Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85016",
+    "latitude": 33.483982,
+    "longitude": -112.032353
+  },
+  "members": [
+    {
+      "key": "tom",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "firstName": "Tom",
+      "lastName": "Miller",
+      "bio": "Tom is a long-time member who moved across town. His record is the original half of a duplicate pair.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 4,
+        "day": 1
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "tom.miller@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "home": "6235550103"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

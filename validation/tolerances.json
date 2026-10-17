@@ -1,0 +1,71 @@
+{
+  "$comment": "How close generated data must be to the resolved profile. Paths are dot paths into the profile. The most specific rule wins. 'points' is an absolute difference for percentages; 'relative' is a share of the target (0.2 = within 20%).",
+  "checked": [
+    "people.pctAdults",
+    "people.ageMix",
+    "people.pctFemaleByAge",
+    "people.familySizeMix",
+    "people.adultMaritalMix",
+    "giving",
+    "attendance",
+    "engagement.pctAdultRecordsWithAnyActivity",
+    "engagement.amongActiveAdults.pctGive",
+    "engagement.amongActiveAdults.pctAttend",
+    "engagement.amongActiveAdults.pctInGroup",
+    "groups.smallGroups"
+  ],
+  "skipped": [
+    "giving.pctUnitsBusiness",
+    "giving.pctDollarsBusiness",
+    "giving.refundsPerThousandGifts",
+    "giving.pctUnitsWithPledge",
+    "attendance.holidayMultipliers.*.samples",
+    "attendance.checkInDayMix",
+    "attendance.disruptedWeeksPerYear",
+    "attendance.sundayHourMix",
+    "attendance.adultCheckInsPerChildCheckIn",
+    "attendance.adultFrequencyMixOf26Weeks",
+    "attendance.holidayMultipliers.*.adults",
+    "groups.smallGroups.groupTypes"
+  ],
+  "$skipReasons": {
+    "attendance.sundayHourMix": "Service times come from configuration/schedules.json, not the profile.",
+    "attendance.adultCheckInsPerChildCheckIn": "Adults check in when serving, which arrives with serving in Phase 1. Adult worship attendance is recorded without check-in.",
+    "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see above.",
+    "attendance.holidayMultipliers.*.adults": "Measured from adult check-ins; see above.",
+    "giving.pctUnitsBusiness": "Businesses arrive with the Cast business records in Phase 1.",
+    "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
+    "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
+    "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
+    "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several."
+  },
+  "missingPassesBelow": 1,
+  "rules": {
+    "default": {
+      "points": 3,
+      "relative": 0.2
+    },
+    "people.ageMix": {
+      "points": 2
+    },
+    "people.pctFemaleByAge": {
+      "points": 5
+    },
+    "giving.unitAnnualTotalPercentiles": {
+      "relative": 0.25
+    },
+    "giving.giftAmounts": {
+      "relative": 0.3
+    },
+    "giving.cadenceMix": {
+      "points": 4,
+      "relative": 0.3
+    },
+    "attendance.holidayMultipliers": {
+      "relative": 0.15
+    },
+    "attendance.kidsMonthIndex": {
+      "relative": 0.1
+    }
+  }
+}

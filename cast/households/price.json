@@ -1,0 +1,119 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "price",
+  "guid": "6717A335-B695-407D-AA23-724557007D94",
+  "name": "Price Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "William and Catherine Price are among the church's most generous givers. They give large quarterly gifts and a year-end gift every December.",
+  "testPurposes": [
+    "Top 1% giver with large quarterly gifts.",
+    "Year-end gift every year.",
+    "Gifts to General and Building funds."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "7553 W Yucca St",
+    "city": "Peoria",
+    "state": "AZ",
+    "postalCode": "85345",
+    "latitude": 33.587723,
+    "longitude": -112.221756
+  },
+  "attendance": {
+    "persona": "regular",
+    "percentAttended": 60,
+    "started": {
+      "yearsAgo": 15,
+      "month": 6,
+      "day": 26
+    }
+  },
+  "giving": [
+    {
+      "persona": "quarterly",
+      "person": "william",
+      "funds": {
+        "General Fund": 6000,
+        "Building Fund": 2500
+      },
+      "percentOfPeriodsGiven": 100,
+      "specialGiftPercent": 100,
+      "growth": {
+        "percent": 3,
+        "everyWeeks": 52
+      },
+      "started": {
+        "yearsAgo": 14,
+        "month": 2,
+        "day": 9
+      },
+      "expect": {
+        "alerts": [
+          "large-gift"
+        ]
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "william",
+      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
+      "firstName": "William",
+      "nickName": "Bill",
+      "lastName": "Price",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 61,
+        "month": 2,
+        "day": 10
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 35,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "bill.price@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550143"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    },
+    {
+      "key": "catherine",
+      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
+      "firstName": "Catherine",
+      "nickName": "Cathy",
+      "lastName": "Price",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 59,
+        "month": 11,
+        "day": 16
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 35,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "cathy.price@example.org",
+      "emailIsActive": true,
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "$comment": "General and Building funds have one child account per campus (the traditional Rock pattern). Gifts post to the giver's campus account. Only campuses in the installed dataset get child accounts.",
+  "accounts": [
+    {
+      "key": "general",
+      "name": "General Fund",
+      "publicName": "General Fund",
+      "guid": "4410306F-3FB5-4A57-9A80-09A3F9D40D0C",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 0,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix General Fund",
+          "publicName": "General Fund",
+          "guid": "83BC835B-ECF2-4ED9-8C97-5EAE8DD3D1C9"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria General Fund",
+          "publicName": "General Fund",
+          "guid": "C4DC3E4F-9C20-408F-944B-A73184C3518A"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert General Fund",
+          "publicName": "General Fund",
+          "guid": "A3BB0A8F-E677-47EA-B7ED-634C303FA71D"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale General Fund",
+          "publicName": "General Fund",
+          "guid": "7F4DAC8C-A34B-42CF-9DF9-15DC8D0BA758"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler General Fund",
+          "publicName": "General Fund",
+          "guid": "9D9E2741-6E4C-4ACB-9B79-B12099265FBB"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear General Fund",
+          "publicName": "General Fund",
+          "guid": "6C49C147-2733-44A2-8F7E-735046D26B03"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe General Fund",
+          "publicName": "General Fund",
+          "guid": "50A5F9A0-CF9F-4DC8-B44A-E84DC9001878"
+        }
+      ]
+    },
+    {
+      "key": "building",
+      "name": "Building Fund",
+      "publicName": "Building Fund",
+      "guid": "67C6181C-1D8C-44D7-B262-B81E746F06D8",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 1,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix Building Fund",
+          "publicName": "Building Fund",
+          "guid": "40AE9CE9-614E-4184-8042-A8D22A82F47B"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria Building Fund",
+          "publicName": "Building Fund",
+          "guid": "24A0A703-B534-4521-B6AE-6F95A13847C7"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert Building Fund",
+          "publicName": "Building Fund",
+          "guid": "4AE39F60-85D6-4DED-A046-EA5CEE63DA1B"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale Building Fund",
+          "publicName": "Building Fund",
+          "guid": "3D7E6998-ADE3-4622-8AE7-0C9588EE269C"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler Building Fund",
+          "publicName": "Building Fund",
+          "guid": "FD457FC2-2DBA-45A4-90C3-1A76FC3A42D7"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear Building Fund",
+          "publicName": "Building Fund",
+          "guid": "CF6750B0-FF0C-44F8-A335-9F37D1D764BA"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe Building Fund",
+          "publicName": "Building Fund",
+          "guid": "539FC6F4-2B77-4551-8030-F6BEADE01065"
+        }
+      ]
+    },
+    {
+      "key": "missions",
+      "name": "Mission Fund",
+      "publicName": "Mission Fund",
+      "guid": "BAB250EE-CAE6-4A41-9756-AD9327408BE0",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 2,
+      "campusAccounts": []
+    },
+    {
+      "key": "event-registration",
+      "name": "Event Registration",
+      "guid": "2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5",
+      "rockDefault": true,
+      "isTaxDeductible": false,
+      "order": 3,
+      "campusAccounts": []
+    }
+  ]
+}

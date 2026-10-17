@@ -1,0 +1,106 @@
+# Decisions
+
+The decisions behind the sample data: what it contains, what patterns it follows, and why. This log covers strategy, not implementation. How the builder does its work lives in [How it works](how-it-works.md) and the [builder README](../builder/README.md).
+
+Each row is the current decision. When a decision changes, update its row and its date, and say what changed. Add new decisions at the end of the right section with the next number.
+
+This log wins over the [design spec](design-spec.md) wherever the two disagree.
+
+## Scope and datasets
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 1 | 2026-10-14 | Sample data installs into a fresh database only. | Simpler and much faster. Mixing sample data into real data is out of scope. |
+| 2 | 2026-10-15 | There are three datasets: Core 1 (one campus), Core 3 (three campuses), and Full 7 (seven campuses and about 25,000 people). | Tests need speed, campus features need several campuses, and demos need volume. |
+| 3 | 2026-10-15 | The Cast is the same in every dataset and always lives on the main campus. Extra campuses get their own people. | Tests and documentation can rely on the Cast no matter which dataset is installed. |
+| 4 | 2026-10-15 | Core 3 gets 50 generated companion households at each of Peoria and Gilbert. | Enough people to make campus filters and reports meaningful, while staying small. |
+| 5 | 2026-10-15 | Sample data is defined and built outside Rock. Rock installs a finished dataset and never depends on how it was made. | Church knowledge stays in data, and Rock stays free of sample data tooling. |
+| 41 | 2026-10-16 | A dataset ships as a package of data, never SQL. One C# loader library installs packages; it is published to NuGet, and both a Rock block and a command-line loader for test harnesses use it. | One implementation for every way of installing, and a downloaded package can never run commands against a database. |
+| 49 | 2026-10-16 | A dataset's manifest sets how many generated households each campus gets. Core 3 lists 50 at Peoria and 50 at Gilbert, and none at the main campus. `--crowd` still replaces it for speed tests. | Core 3 then matches decision 4 exactly, and the main campus holds only the Cast, as decision 3 promises. |
+| 52 | 2026-10-16 | Each package is for one exact Rock. Its `package.json` records the Rock version and that Rock's newest migration, and the loader refuses a database whose newest migration differs. Development loads can override this with a warning; Rock's own installer cannot. Each Rock release gets its own packages. | The loader writes straight into Rock's tables, so a schema change can break a load partway. A Rock database stores no version number, but its newest migration identifies its schema exactly. |
+
+## Time
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 6 | 2026-10-14 | Store who people are; generate what they did at install time, counting back from install day. Ages and grades never drift, and recent events (a first visit two weeks ago) stay recent. | Stored timelines go stale, and shifting fixed dates breaks Sundays, holidays, and paydays. |
+
+## Realism and calibration
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 7 | 2026-10-15 | Calibration copies shapes and ratios from real churches, never their size or local setup. | The profile can absorb new sources as they arrive without taking on any one church's quirks. |
+| 8 | 2026-10-15 | Never name or describe a calibration source anywhere. Raw measurements never leave the machine that ran them. | Churches shared their data in confidence, and the sample data ships with Rock. |
+| 9 | 2026-10-15 | Distance targets are coarse, rounded values with no source recorded. A profile may take one section from one source. | Coarse targets are enough for placement and reveal nothing about where they came from. |
+| 10 | 2026-10-15 | Realism is graded: the same measurements run against the generated data and must match the profile within tolerance. Anything we deliberately skip has a written reason. | Realism becomes a number, not an opinion. |
+
+## People and the Cast
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 11 | 2026-10-15 | Six connection statuses: Prospect, Participant, Known, Connected, Engaged, Leading. Rock's Visitor, Attendee, and Member are renamed; Prospect and Participant are kept; Leading is added. | A clear journey from first contact to leadership, and renaming keeps every Rock feature that relies on the built-in statuses working. |
+| 12 | 2026-10-15 | Every person, church, and organization is fictional, including employers and businesses. | Real names invite objections and could point to real people. |
+| 13 | 2026-10-15 | Phone numbers use the reserved 555-0100 to 555-0199 range, and emails use `example.org`. | Sample data must never reach a real person. |
+| 14 | 2026-10-15 | The Cast covers every stage of life and every pattern the data supports: children of every age, teens, seniors, Participants, and every giving pattern. Today that is 83 households and 181 people. Names are chosen first, and photo ethnicity is assigned afterward, so the two stay independent. | The legacy Cast was mostly adults ages 20 to 58 and nearly all White. |
+| 15 | 2026-10-15 | Every Cast household has a story and a test purpose. Featured families, the ones most used in testing, have a short bio for each person. | Testers and writers can find the right person for a case without reading data files. |
+| 51 | 2026-10-16 | Children carry their family's connection status. A child is Engaged when an adult at home is in a small group or serving, or the family gives. | Rock sets a family's status on its children when the family is added, and young children cannot join a group or give on their own. |
+
+## Places
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 16 | 2026-10-15 | The sample church is in the Phoenix area. Families live on real streets with house numbers that do not exist. | Maps and distances behave like a real church, and no real home ever shows a fictional person. |
+| 17 | 2026-10-15 | How far families live from their campus follows a measured pattern, including the share who live closer to a different campus. | Families cluster near campuses in a real, measurable way. |
+| 18 | 2026-10-15 | Addresses come from one fixed set, placed around each campus by the distance pattern. Legacy Cast homes move to an unused number on the same block. Duplicate records of one person keep sharing one address. | Stable addresses across installs, familiar neighborhoods for legacy families, and duplicate detection tests keep working. |
+| 19 | 2026-10-16 | Campuses are named by city only: Phoenix (main), then Peoria and Gilbert, then Scottsdale, Chandler, Goodyear, and Tempe. Tempe is the urban, young-adult campus. Changed 2026-10-16: Tempe is confirmed as the seventh campus; downtown Phoenix is dropped. | Short, clear names spread across the metro. Tempe keeps every name a city, and it was already set up in the configuration and the address pool. |
+
+## Church setup
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 20 | 2026-10-15 | Services are Sunday only, at 9:00, 10:30, and 12:00. All campuses share these time slots and differ only in which they offer. The student service meets Sunday at 10:30 at every campus. | Consistent times are realistic and easy to test across campuses. |
+| 21 | 2026-10-15 | The General and Building Funds have a child account for each campus. | The common pattern for multisite giving in Rock. |
+| 22 | 2026-10-15 | Check-in follows Rock's built-in setup, with the same rooms at every campus. Students also check in midweek. | Rock's own documentation and screenshots still match. |
+
+## Attendance and giving
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 23 | 2026-10-15 | Adults are recorded as attending worship without checking in. Kids check in with a security code per family per Sunday. Attendance follows the measured holiday and month patterns. | This is how churches actually record each, so attendance reports and check-in screens both have real data. |
+| 24 | 2026-10-15 | Giving has three channels: scheduled gifts (bank or card), one-time online gifts, and onsite gifts (check or cash) that only happen on Sundays the family attended. Year-end gifts are sized from the giver's normal giving. | Each channel shows up differently in Rock's finance screens and giving analytics. |
+| 25 | 2026-10-15 | Each giver has one wallet: a card, a bank account, and a checkbook. Every gift's payment details agree with it, and check numbers count up per writer. | A person's gifts tell one consistent story across every screen. |
+| 26 | 2026-10-15 | Check gifts come with scanned check images that match the gift exactly: the writer's name and address, the date, the amount, and the check number. Every check in Core 1 and Core 3 has images; Full 7 covers the last 12 months. Five fictional banks each have their own logo and paper color, ink is blue or black per writer, and routing numbers are invalid. The two Cast businesses mail typed, signed checks. | Real-looking checks for finance screens and demos, with no real bank or account. |
+| 27 | 2026-10-15 | A sample check scanned in a development Rock site finds its writer. | Check scanning can be tested end to end. |
+| 42 | 2026-10-16 | Most married couples give together as one giving unit. About 10% give separately, each spouse a giving unit with their own pattern; in the Cast, the Sullivans, Tennants, Bennetts, and Silvas. Any other adult living with a married couple, such as an adult child at home, always gives on their own. | Rock's statements, giving analytics, and alerts are all per giving unit, and churches see both kinds of couples. |
+| 43 | 2026-10-16 | Giving follows how real people give. Check writers lean older and give larger gifts; they bring checks on Sunday or mail them when they rarely come, and catch up after a missed Sunday. Large online gifts lean to bank transfers, and Apple Pay leans young. Hand-given gifts usually repeat the usual amount but stray now and then, schedules change a few times, and a few givers give exact amounts. Small givers give monthly or a few times a year instead of tiny weekly gifts, the top givers follow a long tail, and the largest give stock now and then. Givers start and stop, so about 30% lapse each year. | Rock's giving analytics, alerts, and finance screens behave the way they do at a real church. Validation passes 191 of 196 giving values. |
+| 44 | 2026-10-16 | The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night: giving attributes as of each unit's last gift, bins and percentiles, and a year of weekly journey stage history. Where Rock has a stored procedure, the loader calls it; the rest is a line-for-line port of Rock's math. Rock's settings record the job's last run. | Giving screens, journey stages, and Rock's next job run all work on a fresh install, with Rock's exact numbers. |
+| 45 | 2026-10-16 | The sample church has three giving alert types: Large Gift (gratitude, $5,000 or more), Smaller Than Usual (follow-up, 2 IQRs below the median, for givers whose median is at least $100), and Late Gift (follow-up, 3 standard deviations later than usual, for medians of at least $50). Each install comes with the 12 months of alerts Rock would have raised since the types were set up. | Rock ships no alert types. With these, the giving alerts list, its follow-up work, and alert history are ready to demo and test. |
+| 46 | 2026-10-16 | A Cast giving pattern can say what Rock should show for that giver (frequency, journey stage, alerts), and every load checks it. Ted Decker gives by recurring credit card every month, so Rock shows him as a monthly, consistent giver. Margaret Carter, whose story already said she writes a check every month, is now the monthly check writer, with check images. The Cast has two lapsed givers: the Ortizes stopped about six months ago, and Emily Gray still attends but her scheduled card gift stopped seven months ago when her card expired. | Stories that documentation and tests rely on cannot quietly break when the generator or Rock changes. |
+| 47 | 2026-10-16 | A lock file fingerprints the Rock code the builder ports, and a check script compares it with Rock on GitHub at a branch or release tag, never with a local checkout. Before each release, a parity test runs Rock's real Giving Automation job on loaded data and compares every giving value with the port. | The guard works the same on every developer's machine, and a Rock change cannot quietly make the sample data disagree with Rock. |
+| 53 | 2026-10-16 | Each install has one Open batch of unmatched checks: the Sunday check batch at the main campus with the most checks in the last six weeks. Cast households with giving expectations keep their checks matched. The open checks have amounts, check numbers, images, and Rock's encrypted bank line fields, but no giver, and every writer's bank account is on file. The loader copies Rock's two-way encryption so Rock can read those fields. | Transaction matching can be tried on every fresh install, and Rock suggests the right giver for each check. The main campus holds the Cast, so the names are familiar. |
+| 54 | 2026-10-16 | Checks are always in batches of their own, named for it. Each Sunday has two batches per campus, "Sunday Offering Checks" and "Sunday Offering Cash", and checks that come during the week land in "Mailed Checks". | Churches run checks through the check scanner, so checks are batched apart from cash and noted in the batch name. |
+
+## Photos
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 28 | 2026-10-15 | New people's photos are AI-generated, fictional faces. No new face may resemble a real or famous person. | Families can match exactly by age and look, without a real person's face. |
+| 29 | 2026-10-15 | Each Cast adult has a photo ethnicity, used only to generate photos that look like one family. It is never written to Rock, and names never depend on it. Children blend their parents unless their story says otherwise, for example an adoption. About 15% of couples are mixed, more among younger couples. The overall mix is broader than the Phoenix area. | Families look like families, without stereotyping or storing demographic data, and the Cast reflects the whole country. |
+| 30 | 2026-10-15 | Photo coverage: every Cast person, except a few left without a photo on purpose (duplicate records made from forms, and a deceased child). About half of Core 3 companions get photos from a shared pool. Full 7 crowd households get none. | Demos need faces, but 25,000 photos would make the dataset huge. |
+| 31 | 2026-10-15 | Photos look like casual social media profile pictures: everyday settings, about half outdoors and half indoors, with a different setting for each family member. Never studio portraits or a church-directory look. | Sample people should feel like real people. |
+| 32 | 2026-10-15 | The legacy Cast's portraits were refreshed once to match the new photo style, keeping each familiar face recognizable. They are not refreshed again. | Every Cast photo matches in quality and style, and long-time Rock users still recognize the characters. |
+| 50 | 2026-10-16 | The image model's full-size originals are kept in git in `photos/originals/`, untouched and in the format the model made, beside the 400-pixel photos Rock uses. | A photo can be re-cropped or resized later without making it again, and a regenerated face would not match the approved one. |
+
+## Small groups
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 33 | 2026-10-16 | Small groups have about 12 members (6 to 18), adults only, with one male leader named in the group's name ("Decker Group"). Spouses join together. | A consistent, recognizable pattern that matches how many churches run groups. |
+| 34 | 2026-10-16 | In 60% of groups the leader's spouse hosts; in the rest another member hosts. In-person groups (90%) meet at the host's home; online groups (10%) have a meeting link. | Group Finder's map, distance search, and meeting details all have real data. |
+| 35 | 2026-10-16 | Groups meet weekly, Sunday through Thursday, mostly at 7:00 PM. They follow a church year: fall and spring seasons, a light summer, and holiday weeks marked as not meeting. | Group attendance has the shape real churches see, instead of a flat line. |
+| 36 | 2026-10-16 | Ten topics replace Rock's defaults. A group only gets a topic its members fit: Marriage for mostly married couples, Parenting for mostly parents, Young Adults for a young group, and Men's Bible Study only for an all-male group. | A topic that contradicts the people in the group looks fake and misleads anyone testing Group Finder. |
+| 37 | 2026-10-16 | Small groups have a Child Care Provided setting, about half yes. Families with young children usually join groups that provide it. | A common Group Finder filter, with data that makes sense. |
+| 38 | 2026-10-16 | Group history is on. Groups change over time: members join and leave, some groups are inactive, and some groups and members are archived. | Every group history and archive screen in Rock has something real to show. |
+| 39 | 2026-10-16 | Each dataset includes Group Finder test cases: full groups, groups closed to new members, and groups with pending requests. | Group Finder's edge cases can be tested without making data by hand. |
+| 40 | 2026-10-16 | The Cast joins groups at high rates; generated households join at the measured rate. | Core datasets need plenty of groups to work with; Full 7 should look like a real church. |
+| 48 | 2026-10-16 | Rock's empty starter sections, Section A and Section B, are removed. Every small group sits under its campus parent. | Empty groups beside the sample church's own structure confuse anyone browsing groups. |

@@ -1,0 +1,112 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hayes",
+  "guid": "D823C6F1-083B-4094-B232-1A953001A419",
+  "name": "Hayes Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Robert and Linda Hayes have been married 46 years and members for 25. They never miss the 9:00 service and give every week.",
+  "testPurposes": [
+    "Senior couple with a long anniversary.",
+    "Weekly giver to the General and Mission funds."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4581 E Horseshoe Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85028",
+    "latitude": 33.565864,
+    "longitude": -111.979953
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 86,
+    "percentPrimaryService": 96,
+    "started": {
+      "yearsAgo": 25,
+      "month": 5,
+      "day": 10
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "robert",
+      "funds": {
+        "General Fund": 120,
+        "Mission Fund": 40
+      },
+      "percentOfPeriodsGiven": 92,
+      "specialGiftPercent": 30,
+      "started": {
+        "yearsAgo": 24,
+        "month": 5,
+        "day": 22
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "robert",
+      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "firstName": "Robert",
+      "nickName": "Bob",
+      "lastName": "Hayes",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 70,
+        "month": 4,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 46,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "bob.hayes@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550185"
+      },
+      "photo": {
+        "ethnicity": "middle-eastern-north-african"
+      }
+    },
+    {
+      "key": "linda",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "firstName": "Linda",
+      "lastName": "Hayes",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 68,
+        "month": 3,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 46,
+        "month": 6,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "linda.hayes@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550142"
+      },
+      "photo": {
+        "ethnicity": "middle-eastern-north-african"
+      }
+    }
+  ]
+}

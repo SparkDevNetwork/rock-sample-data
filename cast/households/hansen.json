@@ -1,0 +1,65 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hansen",
+  "guid": "7C8C6808-1E08-46D0-AA0A-84227E22AA8E",
+  "name": "Hansen",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Sean Hansen asked to serve as an usher after the church promoted online serve sign-ups.",
+  "testPurposes": [
+    "Open connection request that needs a connector."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11010 N 34th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.586026,
+    "longitude": -112.13263
+  },
+  "members": [
+    {
+      "key": "sean",
+      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
+      "firstName": "Sean",
+      "lastName": "Hansen",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 7,
+        "day": 23
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "shansen@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550116"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Sonoran Valley University",
+        "Position": "Research Assistant"
+      },
+      "connectionRequests": [
+        {
+          "type": "Involvement",
+          "opportunity": "Usher",
+          "comment": "I can help if needed.",
+          "date": {
+            "yearsAgo": 8,
+            "month": 9,
+            "day": 25
+          }
+        }
+      ]
+    }
+  ]
+}

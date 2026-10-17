@@ -1,0 +1,55 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hall",
+  "guid": "FFB8A9AB-3BC6-40FA-B7B3-DC73DF682512",
+  "name": "Hall Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet.",
+  "testPurposes": [
+    "Participant: one in-person touch (a serve day), no Sunday attendance.",
+    "Young adult living alone."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11261 W Olive Dr",
+    "city": "Avondale",
+    "state": "AZ",
+    "postalCode": "85392",
+    "latitude": 33.482322,
+    "longitude": -112.301832
+  },
+  "attendance": {
+    "persona": "holiday-only",
+    "percentAttended": 0
+  },
+  "members": [
+    {
+      "key": "brianna",
+      "guid": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "firstName": "Brianna",
+      "nickName": "Bri",
+      "lastName": "Hall",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 19,
+        "month": 4,
+        "day": 20
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Participant",
+      "email": "bri.hall@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550119"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    }
+  ]
+}

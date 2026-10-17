@@ -1,0 +1,96 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hanks",
+  "guid": "D94BC97D-197D-444D-9922-0D36F4C3F31A",
+  "name": "Hanks Family",
+  "kind": "family",
+  "origin": "legacy-1.14.1",
+  "campusSlot": "main",
+  "story": "Sam Hanks is a developer who is not on staff. He is waiting for someone to invite him to volunteer.",
+  "testPurposes": [
+    "Engaged non-staff adult who could be recruited to serve.",
+    "DISC assessment results."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1903 W Eugie Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.60806,
+    "longitude": -112.099869
+  },
+  "members": [
+    {
+      "key": "sam",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "firstName": "Samuel",
+      "nickName": "Sam",
+      "lastName": "Hanks",
+      "bio": "Sam is a developer at Sonoran Systems who is not on staff. A staff member has asked about him volunteering on tech projects, but no one has followed up.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 28,
+        "month": 5,
+        "day": 29
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "sam.hanks@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550120"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "BaptismDate": {
+          "yearsAgo": 7,
+          "month": 4,
+          "day": 1
+        },
+        "FirstVisit": {
+          "yearsAgo": 7,
+          "month": 12,
+          "day": 24
+        },
+        "Employer": "Sonoran Systems",
+        "Position": "Developer",
+        "AdaptiveD": "54",
+        "AdaptiveI": "21",
+        "AdaptiveS": "79",
+        "AdaptiveC": "69",
+        "NaturalD": "42",
+        "NaturalI": "10",
+        "NaturalS": "98",
+        "NaturalC": "98",
+        "LastSaveDate": {
+          "yearsAgo": 6,
+          "month": 7,
+          "day": 4
+        },
+        "PersonalityType": "CS"
+      },
+      "logins": [
+        "shanks"
+      ],
+      "notes": [
+        {
+          "type": "Personal Note",
+          "text": "Called Sam to see if he would be interested in volunteering on some development projects we're thinking about.",
+          "date": {
+            "yearsAgo": 5,
+            "month": 8,
+            "day": 3,
+            "time": "13:22"
+          },
+          "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
+        }
+      ]
+    }
+  ]
+}
