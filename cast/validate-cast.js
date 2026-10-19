@@ -109,6 +109,10 @@ for ( const { file, data: h } of households ) {
         claimGuid( p.guid, owner );
         people.set( p.guid, { household: h, person: p, file } );
 
+        // A business record has no first name, as in Rock; its name is the last name.
+        if ( !p.firstName && p.recordType !== "business" ) {
+            errors.push( `${owner}: missing firstName.` );
+        }
         if ( !STATUSES.includes( p.connectionStatus ) ) {
             errors.push( `${owner}: connection status "${p.connectionStatus}" is not one of ${STATUSES.join( ", " )}.` );
         }
@@ -315,6 +319,9 @@ for ( const { file, data: h } of households ) {
             if ( !people.has( r.with ) ) {
                 errors.push( `${owner}: relationship "${r.type}" points to unknown person ${r.with}.` );
             }
+            else if ( r.type === "business" && people.get( r.with ).person.recordType !== "business" ) {
+                errors.push( `${owner}: relationship "business" points to ${r.with}, which is not a business record.` );
+            }
         }
         for ( const f of p.follows || [] ) {
             const exists = f.type === "group" ? groupKeys.has( f.target ) : people.has( f.target );
@@ -337,6 +344,35 @@ for ( const { file, data: h } of households ) {
             warnings.push( `${owner}: Engaged, but has no small group, serving team, or giving${p.familyRole === "child" ? ", and no adult at home does either" : ""}.` );
         }
     }
+}
+
+/*
+    Businesses. A church keeps a business record because the business gives, so every Cast
+    business has a contact and giving that has not stopped. The main campus has at least six
+    businesses, and the Cast supplies all of them for Core 1 and Core 3 (the loader's
+    BusinessGenerator.MainCampusMinimum).
+*/
+const MAIN_CAMPUS_BUSINESS_MINIMUM = 6;
+const contactedBusinesses = new Set( [ ...people.values() ].flatMap( ( { person } ) => ( person.relationships || [] ).filter( r => r.type === "business" ).map( r => r.with ) ) );
+const businessHouseholds = households.filter( h => h.data.kind === "business" );
+for ( const { file, data: h } of businessHouseholds ) {
+    const business = h.members.find( p => p.recordType === "business" );
+    if ( !business || h.members.length !== 1 ) {
+        errors.push( `${file}: a business household has exactly one member, its business record.` );
+        continue;
+    }
+    if ( !contactedBusinesses.has( business.guid ) ) {
+        errors.push( `${file}: no Cast person is a contact of this business (a "business" relationship on the contact).` );
+    }
+    if ( !( h.giving || [] ).some( g => g.person === business.key && !g.ended ) ) {
+        errors.push( `${file}: every business gives, and its giving must not have ended.` );
+    }
+    if ( h.address && h.address.type !== "work" ) {
+        errors.push( `${file}: a business's address is a work address.` );
+    }
+}
+if ( businessHouseholds.length < MAIN_CAMPUS_BUSINESS_MINIMUM ) {
+    errors.push( `The Cast has ${businessHouseholds.length} businesses; the main campus needs at least ${MAIN_CAMPUS_BUSINESS_MINIMUM}.` );
 }
 
 /**

@@ -7,9 +7,10 @@
   "kind": "business",
   "origin": "legacy-1.14.1",
   "campusSlot": "main",
-  "story": "A local hardware store that gives to the church.",
+  "story": "A local hardware store that gives to the church. Len Hollis owns it and signs the checks. Larry Bell, who manages the store, is the church's contact there.",
   "testPurposes": [
-    "Business record."
+    "Business record.",
+    "Business contact who is not the person who signs its checks."
   ],
   "address": {
     "type": "work",

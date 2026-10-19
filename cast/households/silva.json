@@ -89,7 +89,13 @@
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "relationships": [
+        {
+          "type": "business",
+          "with": "6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8"
+        }
+      ]
     },
     {
       "key": "natalie",

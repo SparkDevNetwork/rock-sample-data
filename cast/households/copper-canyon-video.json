@@ -1,0 +1,55 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "copper-canyon-video",
+  "guid": "1365003E-AEB6-494B-AEF9-50832EACA551",
+  "name": "Copper Canyon Video",
+  "kind": "business",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Copper Canyon Video is Dale Tucker's video business. It started giving by card about eight months ago, soon after Dale started attending.",
+  "testPurposes": [
+    "Business whose contact's record is still pending review.",
+    "New business giver: scheduled monthly card gifts that started about eight months ago."
+  ],
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "business",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 100,
+      "currency": "card",
+      "started": {
+        "daysAgo": 240
+      }
+    }
+  ],
+  "address": {
+    "type": "work",
+    "street1": "11733 N 40th Pl",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85028",
+    "latitude": 33.593712,
+    "longitude": -111.992904
+  },
+  "members": [
+    {
+      "key": "business",
+      "guid": "F981808E-36FB-44EC-8231-427326424147",
+      "recordType": "business",
+      "lastName": "Copper Canyon Video",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "coppercanyonvideo@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6025550117"
+      }
+    }
+  ]
+}

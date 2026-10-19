@@ -1,0 +1,59 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "javelina-wash-coffee",
+  "guid": "9E014B38-2F8E-4C84-8250-4922C7A71EC6",
+  "name": "Javelina Wash Coffee",
+  "kind": "business",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Isaac Silva owns Javelina Wash Coffee, a small coffee shop. Like Isaac's own gifts, every business gift is split between the General Fund and the Mission Fund. Isaac mails a business check each month.",
+  "testPurposes": [
+    "Business gift split between two funds.",
+    "Mailed monthly business checks, each split across two funds."
+  ],
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "business",
+      "funds": {
+        "General Fund": 120,
+        "Mission Fund": 40
+      },
+      "percentOfPeriodsGiven": 95,
+      "currency": "check",
+      "signer": "Isaac Silva",
+      "started": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 15
+      }
+    }
+  ],
+  "address": {
+    "type": "work",
+    "street1": "4094 N 77th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85033",
+    "latitude": 33.494356,
+    "longitude": -112.226345
+  },
+  "members": [
+    {
+      "key": "business",
+      "guid": "6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8",
+      "recordType": "business",
+      "lastName": "Javelina Wash Coffee",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "javelinawashcoffee@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6025550121"
+      }
+    }
+  ]
+}

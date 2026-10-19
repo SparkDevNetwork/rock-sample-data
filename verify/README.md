@@ -1,6 +1,6 @@
 # Verify
 
-The verify tool proves that each dataset package works on one exact Rock, and writes a receipt that says so. It runs when packages are made, never when a church installs one (decision 63).
+The verify tool proves that each dataset package works on one exact Rock, and writes a receipt that says so. It runs when packages are made, never when a church installs one (decision 66).
 
 The loader bulk-copies around Rock's business logic. That is what makes it fast, but it also means Rock never gets a chance to say "this is wrong." So the proof has to come from somewhere else. The verify tool gets it from Rock itself: a database made only by Rock's own migrations and start-up steps, Rock's own column list, and Rock's own Rock Cleanup job.
 

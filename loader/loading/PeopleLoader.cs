@@ -52,6 +52,7 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid DeceasedReasonGuid = new Guid( "05D35BC4-5816-4210-965F-1BF44F35A16A" );
         private static readonly Guid MarriedGuid = new Guid( "5FE5A540-7D9F-433E-B47E-4229D1472248" );
         private static readonly Guid HomeLocationTypeGuid = new Guid( "8C52E53C-2A66-435A-AE6E-5EE307D9A0DC" );
+        private static readonly Guid WorkLocationTypeGuid = new Guid( "E071472A-F805-4FC4-917A-D5E3C095C35C" );
         private static readonly Guid HomePhoneGuid = new Guid( "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303" );
         private static readonly Guid MobilePhoneGuid = new Guid( "407E7E45-7B2E-4FCD-9605-ECB1339F2453" );
         private static readonly Guid WorkPhoneGuid = new Guid( "2CC66D5A-F61C-4B74-9AF9-590A9847C13C" );
@@ -217,7 +218,12 @@ namespace RockSampleData.Loader.Loading
                         homeLocationIds[household.Key] = locationId;
                     }
 
-                    groupLocations.Rows.Add( nextGroupLocationId++, familyId, locationId, lookups.Id( HomeLocationTypeGuid ), isHome, isHome, 0, false, Guid.NewGuid(), _foreignKey, _now, _now );
+                    // A business's address is its Work location, the one Rock's Business Detail shows and edits.
+                    // Like a home, it is the mailing and mapped address.
+                    var isWork = address.Type == "work";
+                    var isMailing = isHome || isWork;
+                    var locationTypeId = lookups.Id( isWork ? WorkLocationTypeGuid : HomeLocationTypeGuid );
+                    groupLocations.Rows.Add( nextGroupLocationId++, familyId, locationId, locationTypeId, isMailing, isMailing, 0, false, Guid.NewGuid(), _foreignKey, _now, _now );
                 }
             }
 

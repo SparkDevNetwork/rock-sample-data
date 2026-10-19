@@ -31,12 +31,13 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 
 | Dataset | People | Campuses | Install time |
 |---|---|---|---|
-| **Core 1** | The Cast (83 households, 181 people) | 1 | About 4 seconds |
+| **Core 1** | The Cast (87 households, 185 people) | 1 | About 4 seconds |
 | **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | Seconds |
 | **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | 20 to 40 seconds |
 
 - **The Cast** is hand-designed, the same in every dataset, and safe for tests to rely on by Guid. Every Cast person has a profile photo, except a few left without one on purpose.
 - **The Crowd** is generated from measured church patterns to give volume.
+- **Every campus has businesses** that give, each with one or two contacts. The main campus has at least 6 and every other campus at least 2.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
 - **Realism is measured.** The same scripts that measure real churches grade our data. Today 89% of measured values fall within tolerance.
 - **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of its exact Rock release, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).

@@ -13,7 +13,7 @@ Isaac and Natalie Silva split every gift between the General Fund and the Missio
 
 ### Isaac Silva
 
-- Age 29 · married · email isaac.silva@example.org · groups: Silva Group (leader), Lee Group (left)
+- Age 29 · married · email isaac.silva@example.org · groups: Silva Group (leader), Lee Group (left) · business contact for Javelina Wash Coffee
 - Person Guid `581C940E-A788-4F32-BCF3-33F4D1948390`
 
 ### Natalie Silva

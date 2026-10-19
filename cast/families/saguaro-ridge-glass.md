@@ -12,7 +12,7 @@ Saguaro Ridge Glass and Screen is a business owned by Bill Marble.
 
 ### Bill (William) Saguaro Ridge Glass and Screen
 
-- email saguaroridgeglass@example.org
+- email saguaroridgeglass@example.org · contacts: Bill Marble
 - Person Guid `6CE68373-7B38-40DA-B84D-281BEFF41114`
 
 ## What this family tests
@@ -21,7 +21,7 @@ Saguaro Ridge Glass and Screen is a business owned by Bill Marble.
 
 ## Activity
 
-- **Attendance:** set by connection status.
+- **Attendance:** none. A business does not attend.
 - **Giving:** **quarterly** by Bill Saguaro Ridge Glass and Screen: $1,000 Building Fund per gift, by check, gives in 100% of periods.
 
 ## Address

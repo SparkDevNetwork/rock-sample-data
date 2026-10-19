@@ -224,9 +224,31 @@ namespace RockSampleData.Loader.Model
         public CastPhones Phones { get; set; }
 
         /// <summary>
+        /// This person's known relationships. Only the "business" type loads so far: the person is a
+        /// contact of the business record it names.
+        /// </summary>
+        public List<CastRelationship> Relationships { get; set; } = new List<CastRelationship>();
+
+        /// <summary>
         /// What Rock should show for this person after a load, or null. Checked after every load.
         /// </summary>
         public CastPersonExpect Expect { get; set; }
+    }
+
+    /// <summary>
+    /// One known relationship from a Cast person to another record.
+    /// </summary>
+    internal sealed class CastRelationship
+    {
+        /// <summary>
+        /// The relationship type, for example "business" (this person is a contact of that business).
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The Guid of the other person or business.
+        /// </summary>
+        public Guid With { get; set; }
     }
 
     /// <summary>

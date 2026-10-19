@@ -12,6 +12,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Attendance per person,** so a teenager can come to the student service more often than their parents.
 - **Realistic names for the generated crowd,** drawn from public name frequency data by birth decade.
+- **Check-in relationships,** such as a grandparent who may check in a grandchild, loaded from the Cast's known relationships.
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
 
 ## Giving

@@ -10,7 +10,7 @@ So the proof has to come from somewhere else. We get it from three places:
 
 1. **Rock itself.** Its migrations, its schema, its stored procedures, and its own Rock Cleanup job tell us what correct looks like.
 2. **Rules written as checks.** A rule that a script can check is a check, not a sentence in a doc. A reminder gets skipped; a failing check does not.
-3. **Receipts.** Each check leaves a record that someone can read later. A package is published only with a receipt that says every check passed (decision 63).
+3. **Receipts.** Each check leaves a record that someone can read later. A package is published only with a receipt that says every check passed (decision 66).
 
 All of this runs when the data is made, never when a church installs it. The one exception is the loader's own short safety check at install (see [When a church installs](#when-a-church-installs)).
 

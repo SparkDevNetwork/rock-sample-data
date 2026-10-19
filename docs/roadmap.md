@@ -7,7 +7,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The design spec and the knowledge framework.
 - Calibration scripts (parts 1 to 4) that run inside Rock's SQL editor, the normalizer, and profile v1.
 - The church setup as data: 7 campuses, Sunday service times, funds with campus accounts, check-in rooms, and connection statuses.
-- The Cast: 38 legacy families converted, plus 45 new families, for 83 households and 181 people. Featured families have a bio for each person, and every family has a page.
+- The Cast: 38 legacy families converted, plus 45 new families and 4 new businesses, for 87 households and 185 people. Featured families have a bio for each person, and every family has a page.
 - The address pool: 18,000 real-street addresses with house numbers that do not exist, and the Cast moved onto it.
 - The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 loads in about 23 seconds (about 34 with check images) and passes 89% of measured values.
 - Photo rules, photo ethnicity for every Cast adult, and the image agent's brief.
@@ -22,7 +22,9 @@ Where the project stands: the team's working list. Update this page whenever som
 - The builder and loader split: the [builder](../builder/README.md) writes one package per dataset (format 1: data only, a checksum for every file, byte-identical when rebuilt), and the [loader](../loader/README.md) library and CLI install packages. Each package is for one exact Rock, checked by its newest migration (decision 52). Loads through packages matched the old direct loads exactly for all three datasets.
 - Kids check-in streaks and achievements: one Kids Check-in streak type, seven achievement types from High Five to Century Club, and each child's streak and attempts the way Rock computes them. Next-gen check-in shows them (decisions 57 to 61). Cast achievement expectations are checked on every load, the version guard covers the ported code, and a parity test runs Rock's own code on loaded data. Core 1 and Full 7 match Rock exactly.
 - Group photos: each of the Cast's 12 small groups has a photo of its real members, made from their profile photos from the [group photo brief](../photos/group-brief.md). Every dataset sets them as the groups' photos, and Group Finder shows them on its cards (decisions 56 and 62).
-- The [verify tool](../verify/README.md) (decision 63): a trusted base made from the Rock release by its migrations and start-up steps, a contract recorded from real loads, invariants, Rock's own Rock Cleanup job as a referee, the content standards as checks, and a receipt per package with a publishing gate.
+- The [verify tool](../verify/README.md) (decision 66): a trusted base made from the Rock release by its migrations and start-up steps, a contract recorded from real loads, invariants, Rock's own Rock Cleanup job as a referee, the content standards as checks, and a receipt per package with a publishing gate.
+
+- Businesses at every campus: at least 6 on the main campus (all from the Cast) and at least 2 at each other campus, or the measured share of giving units when that is more. Every business has one or two contacts, loaded both ways as Rock known relationships, a work address, and gifts in the last 12 months. Every load checks all of it. Full 7 has 87 businesses, and both measured business values pass (decisions 63 to 65).
 
 ## In progress
 
@@ -57,7 +59,10 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 1. **Women's groups.** Add women's small groups led by women, with a Women's Bible Study topic. Alisha Marble's existing group becomes one of them; until then it is not part of the small group design.
 2. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
-3. **Scene photos for companion groups.** The [scene photo brief](../photos/scene-brief.md) is ready for the image model: 12 small group scenes with no clear faces, saved in `photos/scenes/`. Still to do: make the photos, then have the loader give each Core 3 companion group one on install day, never reusing a scene on a campus.
+
+### People
+
+1. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
 
 ### Packages and loaders
 
@@ -78,7 +83,7 @@ The builder and loader are split (see Done). What is left:
 
 1. **Publish packages to Azure Storage when we tag a release.** A GitHub Action runs on a version tag (or a manual run from `main`), builds one package per dataset, and uploads them to the sample data container behind `storage.rockrms.com`. Pieces:
    - The builder already writes the packages (`dotnet run -- --rock <Rock checkout>` in `builder/`). The Action runs it once per supported Rock release, since each package is for one exact Rock (decision 52).
-   - Then it runs the [verify tool](../verify/README.md) on the same built Rock checkout, and `--check-receipts` before any upload (decision 63). The runner needs Windows, SQL Server, and a built Rock, so it is a self-hosted runner, or a Windows runner that builds Rock and starts SQL Server first. Upload each receipt beside its package.
+   - Then it runs the [verify tool](../verify/README.md) on the same built Rock checkout, and `--check-receipts` before any upload (decision 66). The runner needs Windows, SQL Server, and a built Rock, so it is a self-hosted runner, or a Windows runner that builds Rock and starts SQL Server first. Upload each receipt beside its package.
    - Azure sign-in with OpenID Connect (preferred: the repository gets "Storage Blob Data Contributor" on that one container, so no secret is stored), or a SAS token limited to that container, write-only, with an expiry date, stored as an Actions secret.
    - Versioned paths (for example `sampledata/v1.2.0/core-1.zip`), plus an `index.json` uploaded last with a short cache time, listing each package, its checksum, and the Rock version and migration it is for.
    - Publish only from tags or a manual run on `main`, optionally behind a GitHub environment that needs approval.

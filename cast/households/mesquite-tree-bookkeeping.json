@@ -1,0 +1,53 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "mesquite-tree-bookkeeping",
+  "guid": "999FFFC8-2AA0-49C7-A702-5EF76E40D7D9",
+  "name": "Mesquite Tree Bookkeeping",
+  "kind": "business",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Mesquite Tree Bookkeeping is Steve Morgan's bookkeeping firm. Once the firm closes its books for the year, Steve mails one large check in late December.",
+  "testPurposes": [
+    "Business that gives once a year, at year end, by mailed check.",
+    "Business owner who also gives personally on his own schedule."
+  ],
+  "giving": [
+    {
+      "persona": "year-end",
+      "person": "business",
+      "funds": {
+        "General Fund": 2500
+      },
+      "percentOfPeriodsGiven": 100,
+      "currency": "check",
+      "signer": "Steve Morgan"
+    }
+  ],
+  "address": {
+    "type": "work",
+    "street1": "4512 N 9th Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85013",
+    "latitude": 33.502846,
+    "longitude": -112.085184
+  },
+  "members": [
+    {
+      "key": "business",
+      "guid": "D166FB37-61DA-4F11-8F91-0591CEA1E99E",
+      "recordType": "business",
+      "lastName": "Mesquite Tree Bookkeeping",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "mesquitetreebookkeeping@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6025550118"
+      }
+    }
+  ]
+}

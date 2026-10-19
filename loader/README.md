@@ -50,7 +50,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Any failure stops the load before it writes anything.
 
-The load runs these steps in order: configuration (with the small group setup), people, photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, Cast expectations, and check images.
+The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, Cast and business expectations, and check images.
 
 ## What makes a load repeatable
 
@@ -65,6 +65,8 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | Stream name | What it decides |
 |---|---|
 | `{seed}:crowd:{n}` | The nth generated household: size, ages, names, and statuses |
+| `{seed}:business:{campus}:{n}` | The nth generated business at a campus: its name, cadence, payment method, amount, and whether a married couple are both contacts |
+| `{seed}:business-contacts:{campus}` | The order of a campus's families among equals when picking business contacts |
 | `{seed}:attendance:{household guid}` | Which Sundays that family came |
 | `{seed}:giving:{household guid}:{person}:{persona}:{start}` | That giving pattern's gifts |
 | `{seed}:wallet:{person guid}` | That giver's card, bank account, and checkbook |
@@ -118,6 +120,7 @@ Each Sunday in the history window (3 years by default) comes from `generation/Su
   - **Rhythm and amounts.** Onsite givers often catch up after a missed Sunday with one larger check. People who give by hand online keep a usual weekday or day of the month. Hand-given gifts stray from the usual amount some of the time, schedules change amount now and then, irregular and occasional gifts spread widely, and a few givers give exact amounts. Some irregular givers have a small monthly schedule under their extra gifts. The largest givers sometimes give stock (a non-cash gift).
   - **Crowd givers.** Older givers sit higher on the annual giving curve, and the top 1% follow a long tail. A giver whose year is too small for weekly gifts gives less often instead. Givers start and stop inside the history window, which sets year-over-year retention.
 - **Generated households.** `generation/CrowdGenerator.cs` samples family size, ages, gender, marital status, activity, attendance frequency, giving cadence, and annual giving from the profile. Each household takes the next address for its campus from the address pool (`generation/AddressPool.cs`). Its names are spike-only placeholders. The dataset manifest's `generatedHouseholds.perCampus` sets an exact count per campus (Core 3: 75 at Peoria and 75 at Gilbert). `--crowd` replaces that with households spread across every campus, with the main campus weighted 1.5.
+- **Generated businesses.** `generation/BusinessGenerator.cs` adds businesses to each campus with generated households, after their small groups are planned, so no group changes. A campus gets enough to reach its minimum (6 on the main campus, counting the Cast's, and 2 elsewhere) or the profile's share of giving units, whichever is more. Each takes the next pool address as its work address, an adult from its campus as a contact (sometimes a married couple), and a monthly, bi-weekly, or irregular giving pattern. `loading/RelationshipsLoader.cs` writes every business contact, Cast and generated, the way Rock's `AddContactToBusiness` does: the contact in the business's Known Relationships group, and the business in the contact's.
 
 Every random choice comes from a stream named by the seed and the household, so a rerun with the same seed and anchor gives the same data (see [What makes a load repeatable](#what-makes-a-load-repeatable)).
 
@@ -179,7 +182,7 @@ Trying to draw checks in the background, alongside giving analytics and alerts, 
 
 ## Validation
 
-See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3.
+See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%).
 
 ## Steps
 
@@ -205,7 +208,7 @@ Each giver has a wallet (`generation/Wallet.cs`): one card, one bank account, an
 
 `loading/CheckImageLoader.cs` draws the front and back of each recent check gift with `generation/CheckImageRenderer.cs` (ImageSharp, the version Rock ships) and stores them as Rock transaction images. The front shows the writer's name (both spouses for a married couple), the family's address, the check number, the date, the church as payee, the amount in numbers and words, a memo from the funds, a signature, and the bank line. The back shows the church's endorsement stamp and the bank's processing line.
 
-Each of the five fictional banks has its own logo and paper tint. Personal checks are handwritten (three handwriting fonts and two signature fonts, in blue or black ink, one style per writer). Business checks are typed by accounting software and signed by hand; the Cast's two businesses mail theirs, so they land in "Mailed Checks" batches. A giving pattern can name its payment method (`currency`) and who signs (`signer`). Every font, including Open Sans, comes from `../content/fonts`.
+Each of the five fictional banks has its own logo and paper tint. Personal checks are handwritten (three handwriting fonts and two signature fonts, in blue or black ink, one style per writer). Business checks are typed by accounting software and signed by hand; businesses that pay by check mail theirs, so they land in "Mailed Checks" batches. A giving pattern can name its payment method (`currency`) and who signs (`signer`). Every font, including Open Sans, comes from `../content/fonts`.
 
 Check scanner fields: every check writer gets a `FinancialPersonBankAccount` row, and every check gift gets `CheckMicrHash` and a successful MICR status. Both use Rock's keyed hash with the PasswordKey from a Rock checkout's web.config (see `--rock`), which development sites run with, so scanning a sample check in that Rock site finds the person who wrote it. Each check gift also gets `CheckMicrEncrypted` (the bank line) and `CheckMicrParts` (routing, account, and check number), encrypted the way Rock's `Encryption.EncryptString` does it, with the web.config's DataEncryptionKey. `loader/database/RockKeys.cs` holds the copy; Rock's own Rock.dll decrypts its output. Real installs generate their own keys, so the loader inside Rock must use the server's keys.
 

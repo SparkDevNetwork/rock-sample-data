@@ -560,7 +560,7 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
             report.push( `${h.key}: ${h.address.street1} -> ${address.street1}` );
         }
         else {
-            // A new household: a pool-style address near the main campus.
+            // A new household: a pool-style address near the main campus. A business gets it as its work address.
             for ( let tries = 0; !address && tries < 200; tries++ ) {
                 // Reuse streets already looked up for the pool, so Cast placement adds few new queries.
                 const [ side ] = pickSides( mainCampus, [ mainCampus ], 1, index, distance, castUsage, streets, 2 );
@@ -577,7 +577,7 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
                     continue;
                 }
                 taken.add( `${side.zip}|${side.fullName}|${fake}` );
-                address = { type: "home", ...toAddress( side, fake, existing ) };
+                address = { type: h.kind === "business" ? "work" : "home", ...toAddress( side, fake, existing ) };
             }
             report.push( `${h.key}: new address ${address ? address.street1 : "(none found)"}` );
         }

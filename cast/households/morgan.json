@@ -72,7 +72,13 @@
       "emailIsActive": true,
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "relationships": [
+        {
+          "type": "business",
+          "with": "D166FB37-61DA-4F11-8F91-0591CEA1E99E"
+        }
+      ]
     },
     {
       "key": "karen",
