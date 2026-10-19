@@ -15,8 +15,6 @@
     "groups.smallGroups"
   ],
   "skipped": [
-    "giving.pctUnitsBusiness",
-    "giving.pctDollarsBusiness",
     "giving.refundsPerThousandGifts",
     "giving.pctUnitsWithPledge",
     "attendance.holidayMultipliers.*.samples",
@@ -33,7 +31,6 @@
     "attendance.adultCheckInsPerChildCheckIn": "Adults check in when serving, which arrives with serving in Phase 1. Adult worship attendance is recorded without check-in.",
     "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see above.",
     "attendance.holidayMultipliers.*.adults": "Measured from adult check-ins; see above.",
-    "giving.pctUnitsBusiness": "Businesses arrive with the Cast business records in Phase 1.",
     "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
     "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
     "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",

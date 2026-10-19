@@ -68,7 +68,13 @@
       },
       "photo": {
         "ethnicity": "south-asian"
-      }
+      },
+      "relationships": [
+        {
+          "type": "business",
+          "with": "2E987E5A-D257-4147-BD48-140DBB6A8755"
+        }
+      ]
     },
     {
       "key": "maria",
@@ -93,7 +99,13 @@
       },
       "photo": {
         "ethnicity": "south-asian"
-      }
+      },
+      "relationships": [
+        {
+          "type": "business",
+          "with": "2E987E5A-D257-4147-BD48-140DBB6A8755"
+        }
+      ]
     },
     {
       "key": "olivia",

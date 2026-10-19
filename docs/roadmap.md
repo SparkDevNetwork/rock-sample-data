@@ -7,7 +7,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The design spec and the knowledge framework.
 - Calibration scripts (parts 1 to 4) that run inside Rock's SQL editor, the normalizer, and profile v1.
 - The church setup as data: 7 campuses, Sunday service times, funds with campus accounts, check-in rooms, and connection statuses.
-- The Cast: 38 legacy families converted, plus 45 new families, for 83 households and 181 people. Featured families have a bio for each person, and every family has a page.
+- The Cast: 38 legacy families converted, plus 45 new families and 4 new businesses, for 87 households and 185 people. Featured families have a bio for each person, and every family has a page.
 - The address pool: 18,000 real-street addresses with house numbers that do not exist, and the Cast moved onto it.
 - The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 loads in about 23 seconds (about 34 with check images) and passes 89% of measured values.
 - Photo rules, photo ethnicity for every Cast adult, and the image agent's brief.
@@ -21,6 +21,8 @@ Where the project stands: the team's working list. Update this page whenever som
 - Giving analytics: Rock's giving attributes, bins and percentiles, journey stages with history, and three alert types with 12 months of alerts (decisions 44 and 45). Cast giving expectations are checked on every load (decision 46), and a version guard checks Rock on GitHub for changes to the code the loader ports (decision 47).
 - The builder and loader split: the [builder](../builder/README.md) writes one package per dataset (format 1: data only, a checksum for every file, byte-identical when rebuilt), and the [loader](../loader/README.md) library and CLI install packages. Each package is for one exact Rock, checked by its newest migration (decision 52). Loads through packages matched the old direct loads exactly for all three datasets.
 - Kids check-in streaks and achievements: one Kids Check-in streak type, seven achievement types from High Five to Century Club, and each child's streak and attempts the way Rock computes them. Next-gen check-in shows them (decisions 57 to 61). Cast achievement expectations are checked on every load, the version guard covers the ported code, and a parity test runs Rock's own code on loaded data. Core 1 and Full 7 match Rock exactly.
+
+- Businesses at every campus: at least 6 on the main campus (all from the Cast) and at least 2 at each other campus, or the measured share of giving units when that is more. Every business has one or two contacts, loaded both ways as Rock known relationships, a work address, and gifts in the last 12 months. Every load checks all of it. Full 7 has 87 businesses, and both measured business values pass (decisions 63 to 65).
 
 ## In progress
 
@@ -47,6 +49,10 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 1. **Women's groups.** Add women's small groups led by women, with a Women's Bible Study topic. Alisha Marble's existing group becomes one of them; until then it is not part of the small group design.
 2. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
 3. **Group photos.** The [group photo brief](../photos/group-brief.md) is ready for the image model: one photo of each Cast small group's real members, saved as `photos/groups/{group-key}.jpg` (decision 56). Still to do: make the photos, then teach the loader to store them and set each group's photo, and add group photos to the delivery command.
+
+### People
+
+1. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
 
 ### Packages and loaders
 

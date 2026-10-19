@@ -78,10 +78,22 @@ for ( const [ guid, list ] of memberships ) {
     memberships.set( guid, [ ...list.filter( x => x.isCurrent ), ...list.filter( x => !x.isCurrent ) ].map( x => x.label ) );
 }
 
+// Business contacts: each "business" relationship, both ways, by person Guid.
+const personByGuid = new Map( households.flatMap( h => h.members.map( p => [ p.guid, p ] ) ) );
+const contactsOf = new Map();
+const businessesOf = new Map();
+for ( const p of personByGuid.values() ) {
+    for ( const r of ( p.relationships || [] ).filter( r => r.type === "business" ) ) {
+        contactsOf.set( r.with, [ ...( contactsOf.get( r.with ) || [] ), p ] );
+        businessesOf.set( p.guid, [ ...( businessesOf.get( p.guid ) || [] ), personByGuid.get( r.with ) ] );
+    }
+}
+
 // #region Formatting
 
-const name = p => `${p.nickName && p.nickName !== p.firstName ? `${p.nickName} (${p.firstName})` : p.firstName} ${p.lastName}`;
-const shortName = p => `${p.nickName || p.firstName} ${p.lastName}`;
+// A business record has no first name; its name is the last name, as in Rock.
+const name = p => !p.firstName ? p.lastName : `${p.nickName && p.nickName !== p.firstName ? `${p.nickName} (${p.firstName})` : p.firstName} ${p.lastName}`;
+const shortName = p => !p.firstName ? p.lastName : `${p.nickName || p.firstName} ${p.lastName}`;
 const money = n => `$${Number( n ).toLocaleString( "en-US" )}`;
 const ago = d => {
     if ( !d ) {
@@ -190,6 +202,12 @@ function familyPage( h ) {
         if ( memberships.has( p.guid ) ) {
             facts.push( `groups: ${memberships.get( p.guid ).join( ", " )}` );
         }
+        if ( businessesOf.has( p.guid ) ) {
+            facts.push( `business contact for ${businessesOf.get( p.guid ).map( b => b.lastName ).join( ", " )}` );
+        }
+        if ( contactsOf.has( p.guid ) ) {
+            facts.push( `contacts: ${contactsOf.get( p.guid ).map( shortName ).join( ", " )}` );
+        }
         if ( p.securityRoles && p.securityRoles.length ) {
             facts.push( `${p.securityRoles.length} security roles` );
         }
@@ -221,6 +239,9 @@ function familyPage( h ) {
     if ( h.attendance ) {
         const att = h.attendance;
         lines.push( `- **Attendance:** ${att.persona}, ${att.percentAttended}% of Sundays${att.percentPrimaryService ? `, ${att.percentPrimaryService}% at their usual service` : ""}${att.started ? `, since ${ago( att.started )}` : ""}${att.ended ? `, stopped ${ago( att.ended )}` : ""}.` );
+    }
+    else if ( h.kind === "business" ) {
+        lines.push( "- **Attendance:** none. A business does not attend." );
     }
     else {
         lines.push( "- **Attendance:** set by connection status." );
@@ -266,7 +287,7 @@ function indexPage() {
     lines.push( "| | Family | Who | Used to test |", "|---|---|---|---|" );
     for ( const h of featured ) {
         const lead = h.members.find( p => p.familyRole === "adult" ) || h.members[ 0 ];
-        lines.push( `| ${photoFor( h, lead, 56 )} | [${h.name}](${h.key}.md) | ${h.members.map( p => p.nickName || p.firstName ).join( ", " )} | ${h.testPurposes[ 0 ]} |` );
+        lines.push( `| ${photoFor( h, lead, 56 )} | [${h.name}](${h.key}.md) | ${h.members.map( p => p.nickName || p.firstName || p.lastName ).join( ", " )} | ${h.testPurposes[ 0 ]} |` );
     }
     lines.push( "" );
 

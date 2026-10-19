@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 83 hand-designed households and 181 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
+The Cast is 87 hand-designed households and 185 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -52,9 +52,11 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Cholla Creek Hardware](cholla-creek-hardware.md) | legacy | 1 | Prospect | Business record. |
 | [Coffee](coffee.md) | legacy | 1 | Engaged | Invited-by-a-friend journey from first visit to baptism. |
 | [Coleman Family](coleman.md) | new | 4 | Connected | Two working parents, two check-in rooms. |
+| [Copper Canyon Video](copper-canyon-video.md) | new | 1 | Prospect | Business whose contact's record is still pending review. |
 | [Cruz Family](cruz.md) | new | 4 | Participant | Participants through an event registration (VBS). |
 | [Dawson Family](dawson.md) | new | 3 | Connected | Single dad with every-other-weekend attendance. |
 | [Decker Family](decker.md) | legacy | 4 | Leading, Engaged, Connected | Primary demo family used in documentation and screenshots. |
+| [Desert Bloom Landscaping](desert-bloom-landscaping.md) | new | 1 | Prospect | Business with two contacts, a married couple who own it together. |
 | [Dexter Family](dexter.md) | legacy | 1 | Engaged | Failed background check that needs review. |
 | [Diaz Family](diaz.md) | new | 2 | Known | Holiday-only attenders. |
 | [Ellis Family](ellis.md) | new | 2 | Known | New couple: first visit about four months ago. |
@@ -75,6 +77,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Hernandez Family](hernandez.md) | new | 1 | Engaged | Young single volunteer (worship team in Phase 1). |
 | [Hughes Family](hughes.md) | new | 5 | Engaged | Three kids in three check-in rooms, from nursery to kindergarten. |
 | [Jackson Family](jackson.md) | legacy | 2 | Engaged | Single parent whose child has a different last name. |
+| [Javelina Wash Coffee](javelina-wash-coffee.md) | new | 1 | Prospect | Business gift split between two funds. |
 | [Jenkins Family](jenkins.md) | new | 3 | Engaged | Grandparents raising a grandchild. |
 | [Jones Family](jones-ben.md) | legacy | 2 | Known, Connected | Divorced parent with joint custody; the child belongs to two families. |
 | [Jones Family](jones-will.md) | legacy | 1 | Connected | Pending record that needs review. |
@@ -84,6 +87,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Lowe Family](lowe.md) | legacy | 2 | Known | Visitor household that gives regularly. |
 | [Marble Family](marble.md) | legacy | 2 | Leading | Rock administrator with many security roles. |
 | [McClintock Family](mcclintock.md) | legacy | 1 | Connected | Young adult living alone. |
+| [Mesquite Tree Bookkeeping](mesquite-tree-bookkeeping.md) | new | 1 | Prospect | Business that gives once a year, at year end, by mailed check. |
 | [Michaels Family](michaels.md) | legacy | 1 | Engaged | Volunteer with the Staff-Like Users role. |
 | [Miller Family](miller-thomas.md) | legacy | 1 | Prospect | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |

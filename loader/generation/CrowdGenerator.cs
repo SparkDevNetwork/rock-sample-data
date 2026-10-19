@@ -115,6 +115,15 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
+        /// Makes business records for the campuses of the generated households, with contacts from those
+        /// households and giving. They take addresses from the same pool, after the households.
+        /// </summary>
+        public List<CastHousehold> GenerateBusinesses( IReadOnlyList<CastHousehold> generated, IReadOnlyList<string> campusKeys, string mainCampusKey, int castMainCampusBusinesses )
+        {
+            return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
+        }
+
+        /// <summary>
         /// Builds one household with its attendance and giving history.
         /// </summary>
         private CastHousehold NewActiveHousehold( int index, SeededRandom random, string campusKey, CampusDefinition campus, Dictionary<string, double> sizeWeights, int historyYears )

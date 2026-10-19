@@ -175,10 +175,19 @@ namespace RockSampleData.Loader
                 groupPlans.AddRange( generatedPlans );
                 var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
                 Console.WriteLine( $"  Generated: {generated.Count:N0} households ({perCampusText}) and {generatedPlans.Count:N0} small groups ({step.ElapsedMilliseconds:N0} ms)" );
+
+                // Businesses come after small groups are planned, so they never change a planned group.
+                var castMainCampusBusinesses = households.Count( h => h.Kind == "business" && castHouseholdKeys.Contains( h.Key ) );
+                var businesses = generator.GenerateBusinesses( generated, configuration.CampusIds.Keys.ToList(), mainCampusKey, castMainCampusBusinesses );
+                households.AddRange( businesses );
+                var businessText = string.Join( ", ", businesses.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
+                Console.WriteLine( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
             }
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
             people.Load( households );
+            var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
+            Console.WriteLine( $"  Business contacts: {contactCount:N0}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
