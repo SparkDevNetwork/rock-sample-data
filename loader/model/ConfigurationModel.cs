@@ -351,4 +351,74 @@ namespace RockSampleData.Loader.Model
 
         public int? MaximumDaysSinceLastGift { get; set; }
     }
+
+    /// <summary>
+    /// configuration/achievements.json: the kids check-in streak type and the achievement types that read it.
+    /// </summary>
+    internal sealed class AchievementConfiguration
+    {
+        public AchievementStreakTypeDefinition StreakType { get; set; }
+
+        /// <summary>
+        /// In processing order: a prerequisite always comes before the types that need it.
+        /// </summary>
+        public List<AchievementTypeDefinition> AchievementTypes { get; set; } = new List<AchievementTypeDefinition>();
+    }
+
+    /// <summary>
+    /// The weekly streak type that counts check-ins under one check-in template.
+    /// </summary>
+    internal sealed class AchievementStreakTypeDefinition
+    {
+        public string Name { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The check-in template GroupType whose areas count. Its template setting also lists the achievement types.
+        /// </summary>
+        public Guid CheckInTemplateGuid { get; set; }
+    }
+
+    /// <summary>
+    /// One achievement type on the streak type.
+    /// </summary>
+    internal sealed class AchievementTypeDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// "consecutive" (Rock's Streaks: Consecutive) or "accumulative" (Streaks: Accumulative).
+        /// </summary>
+        public string Component { get; set; }
+
+        /// <summary>
+        /// Weeks in a row (consecutive) or weeks in all (accumulative) to succeed.
+        /// </summary>
+        public int Target { get; set; }
+
+        /// <summary>
+        /// How many times a person can succeed. Null means unlimited.
+        /// </summary>
+        public int? MaxAccomplishmentsAllowed { get; set; }
+
+        /// <summary>
+        /// The key of the achievement type a person must succeed at first, or null.
+        /// </summary>
+        public string Prerequisite { get; set; }
+
+        public string IconCssClass { get; set; }
+
+        public string HighlightColor { get; set; }
+
+        public bool IsConsecutive => Component == "consecutive";
+    }
 }

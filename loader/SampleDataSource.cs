@@ -54,6 +54,8 @@ namespace RockSampleData.Loader
 
         public GivingAlertTypeConfiguration GivingAlertTypes { get; }
 
+        public AchievementConfiguration Achievements { get; }
+
         /// <summary>
         /// Reads every configuration file.
         /// </summary>
@@ -67,6 +69,7 @@ namespace RockSampleData.Loader
             ConnectionStatuses = Read<ConnectionStatusConfiguration>( "configuration/connection-statuses.json" );
             SmallGroups = Read<SmallGroupRules>( "configuration/small-groups.json" );
             GivingAlertTypes = Read<GivingAlertTypeConfiguration>( "configuration/giving-alert-types.json" );
+            Achievements = Read<AchievementConfiguration>( "configuration/achievements.json" );
         }
 
         /// <summary>
