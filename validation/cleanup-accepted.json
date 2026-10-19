@@ -1,0 +1,4 @@
+{
+  "$comment": "Changes Rock Cleanup makes to sample data that we accept on purpose. Each needs a reason a reviewer can check. The verify tool still reports them, but they do not fail. Keys look like Table.Column, 'Table: rows added', or 'Table: rows removed'. See verify/README.md.",
+  "accepted": []
+}

@@ -22,6 +22,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The builder and loader split: the [builder](../builder/README.md) writes one package per dataset (format 1: data only, a checksum for every file, byte-identical when rebuilt), and the [loader](../loader/README.md) library and CLI install packages. Each package is for one exact Rock, checked by its newest migration (decision 52). Loads through packages matched the old direct loads exactly for all three datasets.
 - Kids check-in streaks and achievements: one Kids Check-in streak type, seven achievement types from High Five to Century Club, and each child's streak and attempts the way Rock computes them. Next-gen check-in shows them (decisions 57 to 61). Cast achievement expectations are checked on every load, the version guard covers the ported code, and a parity test runs Rock's own code on loaded data. Core 1 and Full 7 match Rock exactly.
 - Group photos: each of the Cast's 12 small groups has a photo of its real members, made from their profile photos from the [group photo brief](../photos/group-brief.md). Every dataset sets them as the groups' photos, and Group Finder shows them on its cards (decisions 56 and 62).
+- The [verify tool](../verify/README.md) (decision 63): a trusted base made from the Rock release by its migrations and start-up steps, a contract recorded from real loads, invariants, Rock's own Rock Cleanup job as a referee, the content standards as checks, and a receipt per package with a publishing gate.
 
 ## In progress
 
@@ -33,11 +34,20 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
-2. **Close validation gaps.** First-time visitors run low and teens run low.
-3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-4. **Per-person attendance,** so a teen can attend more often than their parents.
-5. **Real Crowd names** from public-domain frequency data by birth decade.
+1. **Fix what the verify tool found.** Every package fails verification today, for real gaps. The loader must set what Rock's save hooks set:
+   - `Person.PrimaryAliasId` and `PrimaryAliasGuid` for every person.
+   - A known-relationships group (and its owner member) for every person.
+   - A `PersonSearchKey` row and `Metaphone` entries for every person, which person search and duplicate finding use.
+   - Family salutations (`GroupSalutation` and `GroupSalutationFull`).
+   - `InactiveDateTime` on inactive groups, and the archived group whose `IsActive` Rock changes.
+   - Age and age bracket for some generated people in Core 3, one group member's role, and one person's age classification.
+
+   Then run the verify tool until every receipt passes.
+2. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
+3. **Close validation gaps.** First-time visitors run low and teens run low.
+4. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+5. **Per-person attendance,** so a teen can attend more often than their parents.
+6. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)
 
@@ -68,6 +78,7 @@ The builder and loader are split (see Done). What is left:
 
 1. **Publish packages to Azure Storage when we tag a release.** A GitHub Action runs on a version tag (or a manual run from `main`), builds one package per dataset, and uploads them to the sample data container behind `storage.rockrms.com`. Pieces:
    - The builder already writes the packages (`dotnet run -- --rock <Rock checkout>` in `builder/`). The Action runs it once per supported Rock release, since each package is for one exact Rock (decision 52).
+   - Then it runs the [verify tool](../verify/README.md) on the same built Rock checkout, and `--check-receipts` before any upload (decision 63). The runner needs Windows, SQL Server, and a built Rock, so it is a self-hosted runner, or a Windows runner that builds Rock and starts SQL Server first. Upload each receipt beside its package.
    - Azure sign-in with OpenID Connect (preferred: the repository gets "Storage Blob Data Contributor" on that one container, so no secret is stored), or a SAS token limited to that container, write-only, with an expiry date, stored as an Actions secret.
    - Versioned paths (for example `sampledata/v1.2.0/core-1.zip`), plus an `index.json` uploaded last with a short cache time, listing each package, its checksum, and the Rock version and migration it is for.
    - Publish only from tags or a manual run on `main`, optionally behind a GitHub environment that needs approval.

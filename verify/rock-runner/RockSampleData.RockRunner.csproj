@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Runs Rock's own Rock Cleanup job against a database, outside IIS, for the verify tool's referee check.
+    It targets the .NET Framework Rock runs on and has no compile-time reference to Rock: it loads Rock.dll
+    from a built Rock checkout's RockWeb/bin at run time, so one build works with any Rock version.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>RockSampleData.RockRunner</RootNamespace>
+    <AssemblyName>rock-runner</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+</Project>

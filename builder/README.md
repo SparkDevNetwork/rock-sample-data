@@ -51,4 +51,6 @@ Before writing a package, the builder opens it the way the loader does and reads
 
 ## Proving a change
 
+After you build packages, run the [verify tool](../verify/README.md) with the same Rock checkout. It loads each package into a trusted Rock database, checks it against Rock itself, and writes a receipt next to each package. Packages are published only with a passing receipt (decision 63).
+
 The split into builder and loader was proven by loading each dataset both ways: straight from the repository with the old builder, and through a package. At the same seed and anchor, every table's row count, the money totals, and fingerprints of people, addresses, gifts, attendance, groups, attribute values, alerts, and stored files matched exactly, including Full 7 with a 3,000-household crowd.

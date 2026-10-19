@@ -46,7 +46,7 @@ namespace RockSampleData.Loader
             // Every relative date counts back from the anchor. Tests pin it.
             var dates = new AnchorDates( options.Anchor ?? DateTime.Today );
 
-            using var db = new RockDatabase( connectionString );
+            using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder };
             CheckRockVersion( db, package.Manifest, options.IsAnyRockVersionAllowed );
 
             var total = Stopwatch.StartNew();
