@@ -59,7 +59,8 @@ Write commit messages that start with a past-tense verb and say what changed, fo
 ## Review checklist
 
 - [ ] Follows the [content standards](content-standards.md).
-- [ ] `node cast/validate-cast.js` shows 0 errors.
+- [ ] `node cast/validate-cast.js` and `node validation/check-standards.js` show 0 errors.
+- [ ] For a builder or loader change, the [verify tool](../verify/README.md) passes, and any change to `validation/rock-contract.json` is explained. See [Verification](verification.md).
 - [ ] Family pages rebuilt if a Cast file changed.
 - [ ] The Core 1 package builds and loads with `--dry-run`.
 - [ ] New decisions added to [decisions.md](decisions.md).

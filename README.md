@@ -13,16 +13,17 @@ This repository holds everything that goes into that data: the people, the churc
 
 ## Get up to speed
 
-Read these in order. Together they take about 30 minutes.
+Read these in order. Together they take about 35 minutes.
 
 1. [Strategy](docs/strategy.md): the problem, the goal, and the big ideas behind the design.
 2. [How it works](docs/how-it-works.md): how the data files become a Rock database, step by step.
 3. [Meet the Cast](cast/families/README.md): the families we use in testing, with photos and backstories.
 4. [Decisions](docs/decisions.md): every decision we made, with the date and the reason.
 5. [Content standards](docs/content-standards.md): the rules every piece of data must follow.
-6. [Planned work](docs/planned.md): features and data we plan to add but have not built yet.
-7. [Roadmap](docs/roadmap.md): the team's working list: what is done, what is next, and what we are waiting on.
-8. [Contributing](docs/contributing.md): how to suggest a use case or point out a gap.
+6. [Verification](docs/verification.md): every check that proves the data is right, what each one does, and why it is there.
+7. [Planned work](docs/planned.md): features and data we plan to add but have not built yet.
+8. [Roadmap](docs/roadmap.md): the team's working list: what is done, what is next, and what we are waiting on.
+9. [Contributing](docs/contributing.md): how to suggest a use case or point out a gap.
 
 Need a word explained? See the [glossary](docs/glossary.md). Curious how generated people behave? See [The Crowd and personas](docs/crowd.md). Want the original design? See the [design spec](docs/design-spec.md).
 
@@ -38,6 +39,7 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 - **The Crowd** is generated from measured church patterns to give volume.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
 - **Realism is measured.** The same scripts that measure real churches grade our data. Today 89% of measured values fall within tolerance.
+- **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of its exact Rock release, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 
 ## What is where
@@ -84,7 +86,7 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 
-5. Before you publish, prove every package works on its Rock. The verify tool makes its own databases, loads each package, and writes a receipt next to it (see [Verify](verify/README.md)):
+5. Before you publish, prove every package works on its Rock. The verify tool makes its own databases, loads each package, and writes a receipt next to it (see [Verification](docs/verification.md)):
 
    ```
    cd ../verify

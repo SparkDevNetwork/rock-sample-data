@@ -30,7 +30,7 @@ Every piece of data in this repository follows these rules. Read them before you
 
 ## How each rule is checked
 
-A rule a script can check is a check, not a reminder. Run `node cast/validate-cast.js` and `node validation/check-standards.js` before you open a pull request. The [verify tool](../verify/README.md) runs both, and also checks the loaded data in a real Rock, before any package is published.
+A rule a script can check is a check, not a reminder. Run `node cast/validate-cast.js` and `node validation/check-standards.js` before you open a pull request. The [verify tool](../verify/README.md) runs both, and also checks the loaded data in a real Rock, before any package is published. [Verification](verification.md) describes every check.
 
 | Rule | Checked by |
 |---|---|
