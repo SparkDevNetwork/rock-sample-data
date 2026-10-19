@@ -39,13 +39,23 @@ Documentation, demos, and tests lean on certain Cast givers, for example "the De
 - `journeyStage` is Rock's giving journey stage: non-giver, new, consistent, occasional, lapsed, or former.
 - `alerts` lists alert type keys from `configuration/giving-alert-types.json`. The giver must have at least one alert of each type.
 
+A Cast person can say what Rock should show for their achievements with `expect` on the person:
+
+```json
+"expect": { "achievements": { "earned": [ "high-five" ], "inProgress": [ "25-club" ], "notEarned": [ "25-club" ] } }
+```
+
+- `earned` lists achievement type keys from `configuration/achievements.json` that the person has at least one success of.
+- `inProgress` lists types the person has an open attempt of, which check-in shows as in progress.
+- `notEarned` lists types the person has no success of.
+
 Every load checks them and prints the result. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
-The Cast expectations hold at every anchor date tested. They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts).
+The Cast expectations hold at every anchor date tested. They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
 ## Rock version guard
 
-The loader ports some of Rock's code: the giving automation math, the alert rules, and the value formats. If Rock changes that code, the port goes stale. Two checks catch it.
+The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, and the streak and achievement math. If Rock changes that code, the port goes stale. Two checks catch it.
 
 ### The lock check (any time)
 
@@ -58,7 +68,7 @@ node validation/check-rock-lock.js --ref 19.1.0    # against a release tag, bran
 
 It exits with 1 when a file changed and prints a link to the file's history and the loader files to update. Set `GITHUB_TOKEN` if GitHub's rate limit gets in the way. After reviewing a change and updating the port, run it with `--update` to record the new fingerprints.
 
-The lock was last recorded against `develop` at commit 8454aa1419 (Rock 19). Older Rock versions fail the check, because Rock 19 rewrote giving automation.
+The lock was last recorded against `develop` at commit b34e15fc21 (Rock 21) on 2026-10-19. Older Rock versions fail the check, because Rock 19 rewrote giving automation.
 
 The loader adds a third check on every load: it runs Rock's own journey stage procedure for the last week and warns if Rock's result differs from the replay.
 
@@ -80,6 +90,31 @@ The parity test runs Rock's real Giving Automation job on loaded sample data and
 5. Run `node validation/check-rock-lock.js --update` and commit `rock-lock.json`.
 
 The parity test covers the giving attributes. Bins, percentiles, and journey stages already come from Rock's own procedures. The alert rules are covered by the lock check and by reading the port against Rock's code, because Rock's job only raises alerts for the last week.
+
+### The achievements parity test (before each release)
+
+The achievements parity test runs Rock's own streak and achievement code, not the port, on loaded sample data. It sets Rock's clock to the moment Rock would have run each piece, the way Rock's integration tests do, and compares the results with the loader's rows:
+
+1. **Streak counts.** Rock's GetStreakData as of the anchor, against each streak's current streak, longest streak, and engagement count.
+2. **Attempts.** It deletes the loader's attempts, then lets Rock process each child's streak as of their last check-in Sunday, as a live check-in would. Rock's attempts must match the loader's exactly.
+3. **Rebuild.** Rock's streak type rebuild from attendance (the Rebuild button on Streak Type Detail), as of the anchor. Rock's occurrence map, engagement maps, and enrollment dates must match the loader's byte for byte.
+
+Steps 2 and 3 rewrite rows, so run it on a copy of a loaded database, never one you want to keep.
+
+1. Build Rock's integration tests in a Rock checkout of the same version (`Rock.Tests.Integration`). The test needs its output folder, which holds Rock.dll and everything it uses.
+2. Load a package into a fresh database with the loader CLI, and note the anchor. Make a copy of the database.
+3. From `validation/achievement-parity/`, build and run it against the copy:
+
+   ```
+   dotnet build -p:RockBin="C:DevelopmentRockRock.Tests.IntegrationinDebug
+et472"
+   binDebug
+et472RockSampleData.AchievementParity.exe --connection "<the copy>" --anchor 2026-10-19 --changes-database
+   ```
+
+4. It prints each difference and exits with 1 if there are any.
+
+On 2026-10-19 it passed for Core 1 (49 streaks and 5,009 attempts) and for Full 7 with a 17,000-household crowd (2,893 streaks and 182,762 attempts). Full 7 takes about 6 minutes.
 
 ## Where it stands
 

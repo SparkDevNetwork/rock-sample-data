@@ -22,7 +22,7 @@ The package holds the inputs, not the records. It has no attendance rows, gifts,
 
 ## What the loader makes from it
 
-At install, the loader generates the rest: the generated households, three years of attendance and kids check-in, giving, small groups, giving analytics, giving alerts, and (when turned on) scanned check images. A recent Sunday check batch at the main campus stays open, with its checks unmatched, so Rock's transaction matching has work to try. Every date counts back from an **anchor date**, so "last 12 months" reports are always full.
+At install, the loader generates the rest: the generated households, three years of attendance and kids check-in, kids check-in streaks and achievements, giving, small groups, giving analytics, giving alerts, and (when turned on) scanned check images. A recent Sunday check batch at the main campus stays open, with its checks unmatched, so Rock's transaction matching has work to try. Every date counts back from an **anchor date**, so "last 12 months" reports are always full.
 
 ## The seed and the anchor
 
