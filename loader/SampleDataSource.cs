@@ -103,6 +103,17 @@ namespace RockSampleData.Loader
         }
 
         /// <summary>
+        /// Reads photos/groups/manifest.json, the Cast small group photos. A package built before
+        /// group photos existed has none.
+        /// </summary>
+        public GroupPhotoManifest ReadGroupPhotoManifest()
+        {
+            return Files.Exists( GroupPhotoManifestPath ) ? Read<GroupPhotoManifest>( GroupPhotoManifestPath ) : new GroupPhotoManifest();
+        }
+
+        public const string GroupPhotoManifestPath = "photos/groups/manifest.json";
+
+        /// <summary>
         /// Reads the Cast's small group plans from cast/groups, in file name order. Groups the
         /// configuration lists as not in the pattern, and other group types, are skipped.
         /// </summary>

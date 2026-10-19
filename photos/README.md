@@ -66,6 +66,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 |---|---|
 | Cast (in every dataset) | Every adult and child, except a few omitted on purpose (duplicate records and a deceased child). The 45 legacy portraits have approved replacements. Businesses get no portrait. |
 | Core 3 companions | About half, from a pool of 120 photos. |
+| Cast small groups (in every dataset) | All 12, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos

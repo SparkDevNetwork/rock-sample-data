@@ -208,6 +208,8 @@ namespace RockSampleData.Loader
             step.Restart();
             Console.WriteLine( "Small groups" );
             new SmallGroupLoader( db, source.SmallGroups, smallGroupSetup, calendar, dates, foreignKey, seed, mainCampusKey, configuration.CampusIds ).Load( groupPlans, people );
+            var groupPhotoCount = new PhotoLoader( db, source, foreignKey, seed ).LoadGroupPhotos( groupPlans );
+            Console.WriteLine( $"  Group photos: {groupPhotoCount}" );
             db.RebuildDeferredIndexes();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 

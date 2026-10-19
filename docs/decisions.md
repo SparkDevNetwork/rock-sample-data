@@ -96,6 +96,7 @@ This log wins over the [design spec](design-spec.md) wherever the two disagree.
 | 32 | 2026-10-15 | The legacy Cast's portraits were refreshed once to match the new photo style, keeping each familiar face recognizable. They are not refreshed again. | Every Cast photo matches in quality and style, and long-time Rock users still recognize the characters. |
 | 50 | 2026-10-16 | The image model's full-size originals are kept in git in `photos/originals/`, untouched and in the format the model made, beside the 400-pixel photos Rock uses. | A photo can be re-cropped or resized later without making it again, and a regenerated face would not match the approved one. |
 | 56 | 2026-10-19 | Each Cast small group gets a photo of its actual members, made from their profile photos: a casual meeting or invitation photo with Bibles around, each in its own living room, patio, or yard. Core 3's companion groups do not, because the loader plans their members on install day. | Group Finder looks real when the faces on a group match the people in it. |
+| 62 | 2026-10-19 | Every dataset sets each Cast small group's photo, stored as Rock stores a photo uploaded on the group's page (the Default file type). The loader turns on Show Image on Rock's Group Finder page, which is off by default, so the cards show the photos. | The photos only help if people see them, and Group Finder is where people choose a group. |
 
 ## Small groups
 

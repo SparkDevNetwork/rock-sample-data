@@ -57,7 +57,7 @@ Landscape, 3:2, as large as your tool allows (for example 1536 by 1024). JPEG or
 
 ## Saving the photos
 
-There is no delivery command for group photos yet. Save them by hand:
+There is no delivery command for group photos, so save them by hand. The builder packs every photo listed in `photos/groups/manifest.json` into every dataset, and the loader sets it as that group's photo in Rock (decision 62).
 
 1. Save your full-size image to `photos/originals/groups/{group-key}.png` (or `.jpg`, in the format your tool made).
 2. Save a JPEG copy 1200 pixels wide (800 high) to `photos/groups/{group-key}.jpg`, with image metadata removed. If you cannot resize, save the original there as a JPEG and say so in your report.

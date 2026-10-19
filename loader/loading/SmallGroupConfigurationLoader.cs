@@ -76,7 +76,40 @@ namespace RockSampleData.Loader.Loading
             LoadTopics( rules, setup );
             LoadInactiveReasons( rules, setup );
             LoadParents( rules, setup );
+            LoadGroupFinder( rules );
             return setup;
+        }
+
+        /// <summary>
+        /// Turns on Show Image on Rock's Group Finder page, so each card shows the group's photo. A Rock
+        /// without that block is left alone.
+        /// </summary>
+        private void LoadGroupFinder( SmallGroupRules rules )
+        {
+            var finder = rules.GroupFinder;
+            var blockId = finder == null ? null : _db.Scalar( "SELECT [Id] FROM [Block] WHERE [Guid] = @Guid", P( "@Guid", finder.BlockGuid ) );
+            var attributeId = finder == null ? null : _db.Scalar( "SELECT [Id] FROM [Attribute] WHERE [Guid] = @Guid", P( "@Guid", finder.ShowImageAttributeGuid ) );
+            if ( blockId == null || attributeId == null )
+            {
+                return;
+            }
+
+            UpsertAttributeValue( attributeId, blockId, "True" );
+            Console.WriteLine( "  Group Finder: shows group photos" );
+        }
+
+        /// <summary>
+        /// Sets an attribute value, adding it when the entity has none yet.
+        /// </summary>
+        private void UpsertAttributeValue( object attributeId, object entityId, string value )
+        {
+            _db.Execute( @"
+IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId )
+    INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [IsPersistedValueDirty], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+    VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, GETDATE(), GETDATE() )
+ELSE
+    UPDATE [AttributeValue] SET [Value] = @Value, [IsPersistedValueDirty] = 1 WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId",
+                P( "@AttributeId", attributeId ), P( "@EntityId", entityId ), P( "@Value", value ), P( "@ForeignKey", _foreignKey ) );
         }
 
         /// <summary>
@@ -212,13 +245,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), ( SELECT
                 setup.InactiveReasonIds[reason.Value] = id;
                 if ( filterAttribute != null )
                 {
-                    _db.Execute( @"
-IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId )
-    INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [IsPersistedValueDirty], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-    VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, GETDATE(), GETDATE() )
-ELSE
-    UPDATE [AttributeValue] SET [Value] = @Value, [IsPersistedValueDirty] = 1 WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId",
-                        P( "@AttributeId", filterAttribute ), P( "@EntityId", id ), P( "@Value", groupTypeGuid ), P( "@ForeignKey", _foreignKey ) );
+                    UpsertAttributeValue( filterAttribute, id, groupTypeGuid );
                 }
             }
 
