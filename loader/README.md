@@ -106,6 +106,7 @@ A February 29 birthday uses the nearest leap year, so that person's age can be o
 
 - **The Cast.** Every Cast person listed in `../photos/manifest.json` gets their delivered photo. People left out on purpose and businesses are not listed, so they get none.
 - **Generated households.** When the dataset manifest sets `photos.generatedHouseholdPercent` (Core 3 sets 50), about that share of each campus's generated households get faces from the 120-photo pool. A household gets faces only when one photo ethnicity has an unused face for every member's gender and age band, so a family looks like one family and no face repeats on a campus. In Core 3, these are the companion households at Peoria and Gilbert.
+- **Cast small groups.** After the small groups load, each group in `../photos/groups/manifest.json` gets its photo as the group's photo, stored the way Rock stores a photo uploaded on the group's page (the Default file type). Every dataset has all 12. The configuration step turns on Show Image on Rock's Group Finder page, so the cards show them (decision 62). A package without group photos still loads.
 
 Core 1 loads 175 photos in about a third of a second.
 

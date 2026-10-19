@@ -6,7 +6,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Women's groups,** led by women, with a women's Bible study topic.
 - **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
-- **Group photos** for Group Finder and group pages.
 - **Serving teams** for kids, guest services, worship, and students, with schedules and volunteers who check in to serve.
 
 ## People and attendance
