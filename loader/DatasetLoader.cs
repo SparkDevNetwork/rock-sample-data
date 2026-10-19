@@ -198,6 +198,13 @@ namespace RockSampleData.Loader
             attendance.Load( people.Households );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
+            // Kids check-in streaks and achievements come straight from the check-ins just planned. They read the plan
+            // in memory, not Attendance, and no later step reads what they write.
+            step.Restart();
+            Console.WriteLine( "Achievements" );
+            new AchievementsLoader( db, source.Achievements, calendar, dates, foreignKey ).Load( attendance.CheckInSundaysByAlias, attendance.CheckInSundays );
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
             step.Restart();
             Console.WriteLine( "Small groups" );
             new SmallGroupLoader( db, source.SmallGroups, smallGroupSetup, calendar, dates, foreignKey, seed, mainCampusKey, configuration.CampusIds ).Load( groupPlans, people );

@@ -65,6 +65,16 @@ namespace RockSampleData.Loader.Loading
         public Dictionary<int, HashSet<DateTime>> FamilySundays { get; } = new Dictionary<int, HashSet<DateTime>>();
 
         /// <summary>
+        /// The Sundays each child checked in, keyed by the child's person alias. Used by the achievements step.
+        /// </summary>
+        public Dictionary<int, SortedSet<DateTime>> CheckInSundaysByAlias { get; } = new Dictionary<int, SortedSet<DateTime>>();
+
+        /// <summary>
+        /// The Sundays with at least one kids check-in, in any area of the check-in template.
+        /// </summary>
+        public SortedSet<DateTime> CheckInSundays { get; } = new SortedSet<DateTime>();
+
+        /// <summary>
         /// Plans and writes attendance for every household.
         /// </summary>
         public void Load( List<LoadedHousehold> households )
@@ -178,6 +188,15 @@ namespace RockSampleData.Loader.Loading
                         attendance.Rows.Add( nextAttendanceId++, occurrenceId, child.AliasId, plan.CampusId, start, true,
                             ( object ) _configuration.KioskDeviceId ?? DBNull.Value, ( object ) searchTypeId ?? DBNull.Value, codeId.Value, present.Count > 0 ? present[0].AliasId : child.AliasId, start,
                             attendedBefore.Add( child.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
+
+                        if ( !CheckInSundaysByAlias.TryGetValue( child.AliasId, out var checkedIn ) )
+                        {
+                            checkedIn = new SortedSet<DateTime>();
+                            CheckInSundaysByAlias[child.AliasId] = checkedIn;
+                        }
+
+                        checkedIn.Add( sunday );
+                        CheckInSundays.Add( sunday );
                     }
                 }
             }
