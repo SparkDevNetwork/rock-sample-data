@@ -80,7 +80,7 @@ namespace RockSampleData.Loader
         }
 
         /// <summary>
-        /// Checks the Cast giving expectations in a package against an already loaded database.
+        /// Checks the Cast expectations (giving and achievements) in a package against an already loaded database.
         /// Returns the number that fail.
         /// </summary>
         public static int CheckCastExpectations( string connectionString, SampleDataPackage package )
@@ -237,7 +237,7 @@ namespace RockSampleData.Loader
             new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
-            // The Cast givers that documentation and tests lean on must still show what their stories say.
+            // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             step.Restart();
             Console.WriteLine( "Cast expectations" );
             CastExpectations.Check( db, source );
