@@ -1,8 +1,8 @@
 {
   "$comment": "Rock files whose logic the builder ports or depends on, with a fingerprint (SHA-256 of the text, line endings normalized) as of the last review. check-rock-lock.js compares them with Rock on GitHub. A section is the text from 'from' up to 'to', for files that are large and change for unrelated reasons.",
   "checkedRef": "develop",
-  "checkedCommit": "8454aa1419f4c015aca10babad822e5558308e5d",
-  "checkedDate": "2026-10-16",
+  "checkedCommit": "b34e15fc211b8593a29526f936f5cd830fc52b91",
+  "checkedDate": "2026-10-19",
   "files": [
     {
       "path": "Rock/Jobs/GivingAutomation.cs",
@@ -118,6 +118,266 @@
         "loader/database/RockKeys.cs"
       ],
       "sha256": "344c6c1f26623e5a84277c277442477ec4d2c60aea8c6a2114610036094ebe9d"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "SetBit",
+      "from": "public static byte[] SetBit( StreakTypeCache streakTypeCache, byte[] map, DateTime bitDate, bool newValue, out string errorMessage )",
+      "to": "/// Get a byte array from a string of hex digits",
+      "why": "How a date becomes a bit: big-endian bytes, bit 0 at the start date, and maps grown in 128-byte steps.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "5944d1c9f1f7415dd86699c6155a2c28a9c96d77faab03bc85b756b773ea555c"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "AlignDate through GetMaxDateForStreakBreaking",
+      "from": "public static DateTime AlignDate( DateTime dateTime, StreakTypeCache streakTypeCache )",
+      "to": "#endregion Date Helpers",
+      "why": "Week alignment, unit counting, and the last week that can break a streak.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "6b4e8a4cf2db7782f4ec630af70d45979bade2247501907fd84b9babb3ab134d"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "AndBitOperation, PadLeft, AllocateNewByteArray, and GetByteFromMap",
+      "from": "private static void AndBitOperation( byte[] a, byte[] b )",
+      "to": "/// Count the number of bits that are set in the map within the specified inclusive date range",
+      "why": "The bit helpers: engagement counts only where an occurrence exists, and the map sizes.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "f9f82167a16e098fcf0e7e4c1f2afe82d2c54acaef687d04f772ab9fbf45f0f6"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "IterateMaps",
+      "from": "private static void IterateMaps(",
+      "to": "/// Iterates over each bit in the maps over the given timeframe from max to min.",
+      "why": "The walk over the maps that every streak and achievement calculation uses.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "eb19d05bbc3fe7802eec0c7ef75a515166a7cc2f722013fe3f4c34fcd89708b0"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "IterateStreakMap and GetStreakData",
+      "from": "public void IterateStreakMap(",
+      "to": "public StreakData GetStreakData( int streakId,",
+      "why": "The date clamping for achievements, and the current streak, longest streak, and engagement count on each streak row.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs",
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "7b782b15df578f680920885a3fbd02b771edb278e08a686e007db17ea3b57819"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "RebuildStreakTypeFromAttendance",
+      "from": "private static void RebuildStreakTypeFromAttendance(",
+      "to": "/// Rebuild the streak type occurrence map and streak maps from the linked activity structure of the streak type.",
+      "why": "Which weeks get an occurrence bit, and who gets a streak.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "9f625d4f3a1e12f444341b365a8d41dab2c4cbe1bc1617954e3141e6ed8a8d2c"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "RebuildStreak and GetLinkedActivityEngagementDatesQuery",
+      "from": "private static void RebuildStreak( RockContext rockContext,",
+      "to": "public void IterateStreakMap(",
+      "why": "One streak per person on the primary alias, the enrollment date, and an engagement map as long as the occurrence map.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "c7d282ca7c1d78db811d1bf1f6a6c31720be62c5daf24dcaff865074797948c9"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "MarkEngagement and HandleAttendanceRecordForStreak",
+      "from": "private Streak MarkEngagement( StreakTypeCache streakTypeCache, int personId, out string errorMessage, DateTime dateOfEngagement, int? locationId )",
+      "to": "/// Handles the interaction record for streaks.",
+      "why": "What a live check-in does: it needs EnableAttendance, counts areas directly under the template, enrolls on the first check-in, and saves the streak, which processes achievements.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "119b0daa783ad66397dae368bee5daf07800adc5d94b866ea8f93dfd99823d75"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakTypeService.cs",
+      "section": "GetGroupsQuery",
+      "from": "private static IQueryable<Group> GetGroupsQuery(",
+      "to": "private static IQueryable<Interaction> GetInteractionQuery(",
+      "why": "Which check-in groups count for a check-in template streak type.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "08db38fe6f00435eeb7ba3b22b9cdac980e8cb28ccb4a8bcf23ed4e5d9ec72ed"
+    },
+    {
+      "path": "Rock.Common/RockDateTime.cs",
+      "section": "DefaultFirstDayOfWeek through GetSundayDate",
+      "from": "public static DayOfWeek DefaultFirstDayOfWeek",
+      "to": "/// Returns a human-friendly description of the time of day.",
+      "why": "The Sunday that labels each week, with Monday as the default first day.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "0927c50547732418797adf718d81d09902508efb7fb95a6878cb70b958a220c6"
+    },
+    {
+      "path": "Rock/Achievement/StreakSourcedAchievementComponent.cs",
+      "why": "Process: prerequisites, the success cap, which attempts are rebuilt, and which are kept.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs",
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "2e2c3efd2e1f89320a4b5003dd4873dade9d806d8c24a5485937e94529a5dfe2"
+    },
+    {
+      "path": "Rock/Achievement/AchievementComponent.cs",
+      "why": "The attempt date range, progress, and deficiency helpers.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "99b8c23fd5ffdfee9f8bf886ffdebd2eb52f4e8cac5bce7d46ce608d0d0ad3fd"
+    },
+    {
+      "path": "Rock/Achievement/Component/StreakAchievement.cs",
+      "why": "Streaks: Consecutive. How streaks become attempts, and its NumberToAchieve setting.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs",
+        "loader/loading/AchievementsLoader.cs",
+        "configuration/achievements.json"
+      ],
+      "sha256": "c76e2eb98befd8d69108e379dc8c863c42ad5124fe9c5743a7a5c43009c574c7"
+    },
+    {
+      "path": "Rock/Achievement/Component/AccumulativeAchievement.cs",
+      "why": "Streaks: Accumulative. How weeks add up to attempts, and its NumberToAccumulate setting.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs",
+        "loader/loading/AchievementsLoader.cs",
+        "configuration/achievements.json"
+      ],
+      "sha256": "a425bb0cd120caa67b7df8b564193b10f1222f9b3616f92a52e1fac238f22909"
+    },
+    {
+      "path": "Rock/Web/Cache/Entities/AchievementTypeCache.cs",
+      "section": "ProcessAchievements",
+      "from": "public static List<AchievementAttempt> ProcessAchievements( IEntity sourceEntity )",
+      "to": "/// Gets the progress count based on",
+      "why": "Achievement types are processed in prerequisite order on each streak save.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "01417294b79c21ca92a9ba1dabe74cf836d0f39d1d83c369328d9ecde0d6ab79"
+    },
+    {
+      "path": "Rock/Model/Engagement/AchievementType/AchievementTypeService.cs",
+      "section": "SortAccordingToPrerequisites through GetUnmetPrerequisites",
+      "from": "public static List<AchievementTypeCache> SortAccordingToPrerequisites(",
+      "to": "/// Returns a collection of Achievement Types that can be selected as prerequisites",
+      "why": "The prerequisite order, and that a prerequisite needs one successful attempt.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "b5550c10c5b779e1092d345e3479f023420e06ec069a1011e0655dc960344494"
+    },
+    {
+      "path": "Rock/Model/Engagement/Streak/StreakService.cs",
+      "section": "CopyStreakDataToStreakModel",
+      "from": "private static void CopyStreakDataToStreakModel(",
+      "to": "/// Determines whether this instance can delete the specified item.",
+      "why": "Which streak data values are copied onto the streak row.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "c6ce7af44f810cb09c5015f83134af6fcd5b158eae0daf34474d671d9d313d7c"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "RefreshStreaksDenormalizedData",
+      "from": "private int RefreshStreaksDenormalizedData()",
+      "to": "/// Ensures the schedule effective start end dates.",
+      "why": "The daily refresh that makes streak counts current as of the anchor, without processing achievements.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "0890e11d164cf283c4b32addecdc7ebae81d0815ded9fe45ac8486cbc72fa79f"
+    },
+    {
+      "path": "Rock/CheckIn/v2/TemplateConfigurationData.cs",
+      "section": "AchievementTypeGuids",
+      "from": "AchievementTypeGuids = groupTypeCache.GetAttributeValue(",
+      "to": "AgeRestriction = ",
+      "why": "Check-in reads the template's achievement types as a delimited list of Guids.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "9bc97b65aa314e86b133bc9d485a256a7ac3cd254a44c0c0f50e2ee5cebb9476"
+    },
+    {
+      "path": "Rock/Model/Engagement/StreakType/StreakType.cs",
+      "why": "The streak type columns the loader writes.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "2ca1f0cf0a2b4a649b11a75f21ada9c494441c50bfed3f532681273de309fcb5"
+    },
+    {
+      "path": "Rock/Model/Engagement/Streak/Streak.cs",
+      "why": "The streak columns the loader writes.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "b64393dc3be892f99c9236ee54d75d5d8ca806f1575d65f90cc2b229a8d99b18"
+    },
+    {
+      "path": "Rock/Model/Engagement/AchievementType/AchievementType.cs",
+      "why": "The achievement type columns the loader writes.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs",
+        "configuration/achievements.json"
+      ],
+      "sha256": "ee25951e8c31a489fbc9a67e90fc1044238ec627adf59f85953c5e4754e2b1ae"
+    },
+    {
+      "path": "Rock/Model/Engagement/AchievementAttempt/AchievementAttempt.cs",
+      "why": "The attempt columns the loader writes, and the decimal places of Progress.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "f749022c4797a152daff3e4c4145d391becc2a662a0c14eaefeb6cfa22a87e52"
+    },
+    {
+      "path": "Rock/Model/Engagement/AchievementTypePrerequisite/AchievementTypePrerequisite.cs",
+      "why": "The prerequisite columns the loader writes.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "6664c8d748e86e70c98023756a776b6b89bc5d8d40d98d4aa89bbb96d39bed5d"
+    },
+    {
+      "path": "Rock.Enums/Engagement/StreakStructureType.cs",
+      "why": "The CheckInConfig structure type value.",
+      "mirroredBy": [
+        "loader/loading/AchievementsLoader.cs"
+      ],
+      "sha256": "ff595ab6138f14dc048a2ede2ec0bedd4431f4544d880e164b124b1b79342db9"
+    },
+    {
+      "path": "Rock.Enums/Engagement/StreakOccurrenceFrequency.cs",
+      "why": "The weekly frequency value.",
+      "mirroredBy": [
+        "loader/loading/RockStreaks.cs"
+      ],
+      "sha256": "c06897b9352543b720eb767d8b57df0c35e1f485feab5ef85a40e1b5c8e03d57"
     }
   ]
 }
