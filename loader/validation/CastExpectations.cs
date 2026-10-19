@@ -23,7 +23,8 @@ namespace RockSampleData.Loader.Validation
 {
     /// <summary>
     /// Checks the Cast givers whose giving patterns say what Rock should show (<c>expect</c> in their household
-    /// file) against Rock's values in the loaded database: the frequency label, the journey stage, and alerts.
+    /// file) against Rock's values in the loaded database: the frequency label, the journey stage, and alerts. Also
+    /// checks the Cast people whose own <c>expect</c> names achievements: earned, in progress, or not earned.
     /// </summary>
     /// <remarks>
     /// Documentation, demos, and tests lean on these givers ("the Deckers give monthly"). Generator changes
@@ -106,6 +107,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                 }
             }
 
+            checks += CheckAchievements( db, source, failures );
+
             Console.WriteLine( failures.Count == 0
                 ? $"  Cast expectations: all {checks} hold"
                 : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
@@ -115,6 +118,64 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             }
 
             return failures.Count;
+        }
+
+        /// <summary>
+        /// Checks each Cast person's achievement expectations against their attempts in the loaded database. Returns
+        /// how many were checked and adds each failure.
+        /// </summary>
+        private static int CheckAchievements( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var typeKeys = source.Achievements.AchievementTypes.ToDictionary( t => t.Guid, t => t.Key );
+            var checks = 0;
+
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( m => m.Expect?.Achievements != null ) )
+            {
+                var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
+                var attempts = db.Query( @"
+SELECT [t].[Guid], [a].[IsSuccessful], [a].[IsClosed]
+FROM [AchievementAttempt] AS [a]
+INNER JOIN [AchievementType] AS [t] ON [t].[Id] = [a].[AchievementTypeId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[AchieverEntityId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+                    .Where( r => typeKeys.ContainsKey( ( Guid ) r["Guid"] ) )
+                    .Select( r => (Key: typeKeys[( Guid ) r["Guid"]], IsSuccessful: ( bool ) r["IsSuccessful"], IsClosed: ( bool ) r["IsClosed"]) )
+                    .ToList();
+
+                var earned = attempts.Where( a => a.IsSuccessful ).Select( a => a.Key ).ToHashSet();
+                var inProgress = attempts.Where( a => !a.IsSuccessful && !a.IsClosed ).Select( a => a.Key ).ToHashSet();
+                var expect = person.Expect.Achievements;
+
+                foreach ( var key in expect.Earned )
+                {
+                    checks++;
+                    if ( !earned.Contains( key ) )
+                    {
+                        failures.Add( $"{name}: expected {key} earned, Rock shows it {( inProgress.Contains( key ) ? "in progress" : "not earned" )}" );
+                    }
+                }
+
+                foreach ( var key in expect.InProgress )
+                {
+                    checks++;
+                    if ( !inProgress.Contains( key ) )
+                    {
+                        failures.Add( $"{name}: expected {key} in progress, Rock shows it {( earned.Contains( key ) ? "earned" : "not started" )}" );
+                    }
+                }
+
+                foreach ( var key in expect.NotEarned )
+                {
+                    checks++;
+                    if ( earned.Contains( key ) )
+                    {
+                        failures.Add( $"{name}: expected {key} not earned, Rock shows it earned" );
+                    }
+                }
+            }
+
+            return checks;
         }
     }
 }

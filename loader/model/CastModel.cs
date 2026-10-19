@@ -222,6 +222,40 @@ namespace RockSampleData.Loader.Model
         public bool EmailDoNotEmail { get; set; }
 
         public CastPhones Phones { get; set; }
+
+        /// <summary>
+        /// What Rock should show for this person after a load, or null. Checked after every load.
+        /// </summary>
+        public CastPersonExpect Expect { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock should show for a Cast person after a load.
+    /// </summary>
+    internal sealed class CastPersonExpect
+    {
+        public CastAchievementExpect Achievements { get; set; }
+    }
+
+    /// <summary>
+    /// Achievement type keys (from configuration/achievements.json) and what Rock should show for each.
+    /// </summary>
+    internal sealed class CastAchievementExpect
+    {
+        /// <summary>
+        /// Types the person has at least one successful attempt of.
+        /// </summary>
+        public List<string> Earned { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Types the person has an open attempt of: not closed and not yet successful, which check-in shows as in progress.
+        /// </summary>
+        public List<string> InProgress { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Types the person has no successful attempt of.
+        /// </summary>
+        public List<string> NotEarned { get; set; } = new List<string>();
     }
 
     /// <summary>

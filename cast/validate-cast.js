@@ -49,6 +49,7 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
 const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.giving.properties.expect.properties;
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
 const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "giving-alert-types.json" ), "utf8" ) ).alertTypes.map( t => t.key );
+const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
 const adultsWithoutPhotoEthnicity = [];
 
 /**
@@ -264,6 +265,23 @@ for ( const { file, data: h } of households ) {
         for ( const alert of expect.alerts || [] ) {
             if ( !ALERT_TYPE_KEYS.includes( alert ) ) {
                 errors.push( `${file}: giving for "${gv.person}" expects alert "${alert}", which is not in configuration/giving-alert-types.json.` );
+            }
+        }
+    }
+
+    // What Rock should show for a person's achievements: keys from the achievements configuration, and no type both earned and not.
+    for ( const p of h.members || [] ) {
+        const achievements = p.expect?.achievements || {};
+        for ( const list of [ "earned", "inProgress", "notEarned" ] ) {
+            for ( const key of achievements[list] || [] ) {
+                if ( !ACHIEVEMENT_TYPE_KEYS.includes( key ) ) {
+                    errors.push( `${file}: "${p.key}" expects achievement "${key}", which is not in configuration/achievements.json.` );
+                }
+            }
+        }
+        for ( const key of achievements.earned || [] ) {
+            if ( ( achievements.notEarned || [] ).includes( key ) ) {
+                errors.push( `${file}: "${p.key}" expects achievement "${key}" both earned and not earned.` );
             }
         }
     }

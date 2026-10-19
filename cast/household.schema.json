@@ -168,6 +168,23 @@
           "additionalProperties": false,
           "properties": { "home": { "type": "string" }, "mobile": { "type": "string" }, "work": { "type": "string" } }
         },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "What Rock should show for this person after a load, checked on every load. Use it for the people a story or a test depends on.",
+          "properties": {
+            "achievements": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Achievement type keys from configuration/achievements.json.",
+              "properties": {
+                "earned": { "type": "array", "items": { "type": "string" }, "description": "Types the person has earned at least once." },
+                "inProgress": { "type": "array", "items": { "type": "string" }, "description": "Types with an open attempt, which check-in shows as in progress." },
+                "notEarned": { "type": "array", "items": { "type": "string" }, "description": "Types the person has not earned." }
+              }
+            }
+          }
+        },
         "photo": {
           "type": "object",
           "additionalProperties": false,

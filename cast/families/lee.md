@@ -39,7 +39,7 @@ James and Sarah Lee have six children, from a high school sophomore to a toddler
 
 ### Sam (Samuel) Lee
 
-- Age 11 · no email
+- Age 11 · no email · Rock shows Century Club earned
 - Person Guid `85DDC88D-5D1E-43FB-9B02-5BB36F0DB0B0`
 
 ### Libby (Elizabeth) Lee

@@ -23,7 +23,7 @@ Ashley is a single mom of two who asked the benevolence team for help with rent 
 
 Mason is seven and in the Grades 2-3 room.
 
-- Age 7 · no email
+- Age 7 · no email · Rock shows High Five earned, 25 Club in progress
 - Person Guid `CF641196-EDF3-40D0-AA66-93029C8CC727`
 
 ### Chloe Kelly
