@@ -119,7 +119,17 @@
         "day": 2
       },
       "recordStatus": "active",
-      "connectionStatus": "Connected"
+      "connectionStatus": "Connected",
+      "expect": {
+        "achievements": {
+          "earned": [
+            "half-century"
+          ],
+          "inProgress": [
+            "century-club"
+          ]
+        }
+      }
     }
   ]
 }

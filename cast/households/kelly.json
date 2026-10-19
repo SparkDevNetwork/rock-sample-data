@@ -71,7 +71,20 @@
         "day": 21
       },
       "recordStatus": "active",
-      "connectionStatus": "Known"
+      "connectionStatus": "Known",
+      "expect": {
+        "achievements": {
+          "earned": [
+            "high-five"
+          ],
+          "inProgress": [
+            "25-club"
+          ],
+          "notEarned": [
+            "25-club"
+          ]
+        }
+      }
     },
     {
       "key": "chloe",

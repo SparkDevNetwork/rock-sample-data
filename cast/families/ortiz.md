@@ -24,7 +24,7 @@ Luis and Teresa Ortiz were regulars for seven years. They stopped coming about s
 
 ### Diego Ortiz
 
-- Age 13 · no email
+- Age 13 · no email · Rock shows Half Century earned, Century Club in progress
 - Person Guid `3C07F71E-4F47-4C6A-8E97-4D589839AE2C`
 
 ## What this family tests

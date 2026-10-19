@@ -30,7 +30,7 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 
 ### Grace Fischer
 
-- Age 15 · no email
+- Age 15 · no email · Rock shows Half Century earned, Century Club in progress
 - Person Guid `E32DD15D-52BA-4979-9653-F88AEBF6F49A`
 
 ## What this family tests

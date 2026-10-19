@@ -80,7 +80,7 @@ namespace RockSampleData.Loader
         }
 
         /// <summary>
-        /// Checks the Cast giving expectations in a package against an already loaded database.
+        /// Checks the Cast expectations (giving and achievements) in a package against an already loaded database.
         /// Returns the number that fail.
         /// </summary>
         public static int CheckCastExpectations( string connectionString, SampleDataPackage package )
@@ -198,6 +198,13 @@ namespace RockSampleData.Loader
             attendance.Load( people.Households );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
+            // Kids check-in streaks and achievements come straight from the check-ins just planned. They read the plan
+            // in memory, not Attendance, and no later step reads what they write.
+            step.Restart();
+            Console.WriteLine( "Achievements" );
+            new AchievementsLoader( db, source.Achievements, calendar, dates, foreignKey ).Load( attendance.CheckInSundaysByAlias, attendance.CheckInSundays );
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
             step.Restart();
             Console.WriteLine( "Small groups" );
             new SmallGroupLoader( db, source.SmallGroups, smallGroupSetup, calendar, dates, foreignKey, seed, mainCampusKey, configuration.CampusIds ).Load( groupPlans, people );
@@ -230,7 +237,7 @@ namespace RockSampleData.Loader
             new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
-            // The Cast givers that documentation and tests lean on must still show what their stories say.
+            // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             step.Restart();
             Console.WriteLine( "Cast expectations" );
             CastExpectations.Check( db, source );

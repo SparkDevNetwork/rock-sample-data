@@ -4,11 +4,13 @@ The words this project uses, in alphabetical order.
 
 | Term | Meaning |
 |---|---|
+| **Achievement attempt** | One try at an achievement in Rock. It is open while it can still grow, and closed when it succeeds or a streak breaks. Check-in shows the open ones as in progress. |
+| **Achievement type** | Something a person can earn in Rock, such as Century Club. Each one reads a streak type and has a goal. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day. Tests pin it with `--anchor`. |
 | **Builder** | The .NET tool in `builder/` that turns this repository into one package per dataset. It never touches a database. |
 | **Calibration** | Measuring real Rock databases with read-only scripts, so generated data matches real patterns. |
 | **Cast** | The hand-designed households (83 today). The same in every dataset, always on the main campus, and safe to rely on by Guid. |
-| **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts). Every load checks it. |
+| **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts) or for a Cast person's achievements. Every load checks it. |
 | **Companion** | A generated household on one of Core 3's two extra campuses. |
 | **Connection status** | A person's place in the journey: Prospect, Participant, Known, Connected, Engaged, or Leading. |
 | **Core 1, Core 3, Full 7** | The three datasets. The number is how many campuses each has. |
@@ -28,6 +30,8 @@ The words this project uses, in alphabetical order.
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
+| **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
+| **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |
 | **Version guard** | The checks that catch Rock changing code the builder ports: the lock check against GitHub and the parity test before a release. |

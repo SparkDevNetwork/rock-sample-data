@@ -143,7 +143,14 @@
         "day": 8
       },
       "recordStatus": "active",
-      "connectionStatus": "Engaged"
+      "connectionStatus": "Engaged",
+      "expect": {
+        "achievements": {
+          "earned": [
+            "century-club"
+          ]
+        }
+      }
     },
     {
       "key": "elizabeth",

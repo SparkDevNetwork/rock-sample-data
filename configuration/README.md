@@ -12,6 +12,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
+| `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 
 ## Service times
 
@@ -36,6 +37,22 @@ General Fund and Building Fund each have a child account per campus (for example
 ## Check-in
 
 Check-in uses Rock's built-in Weekly Service Check-in template, its areas, its groups, and their age and grade rules, unchanged. Every campus gets the same building and room names. Kids groups meet at every Sunday service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. Adult worship attendance uses Rock's Service Attendance template, located at each campus with its weekend services.
+
+## Kids achievements
+
+One weekly streak type, Kids Check-in, counts every check-in under the Weekly Service Check-in template, from the nursery through grades 9-12. Seven achievement types read it. Week-in-a-row types show Rock's trophy, and the others show its medal. The template's Achievement Types setting lists all seven, so next-gen check-in shows them.
+
+| Achievement | Goal | Earned |
+|---|---|---|
+| High Five | 5 check-ins | Once |
+| Back-to-Back | 2 weeks in a row | Again and again |
+| Four-Peat | 4 weeks in a row | Again and again |
+| Unstoppable | 10 weeks in a row | Once |
+| 25 Club | 25 check-ins | Once |
+| Half Century | 50 check-ins, after the 25 Club | Once |
+| Century Club | 100 check-ins, after Half Century | Once |
+
+Each entry in `achievements.json` has a key, a Guid, a name, a description for kids, a component (`consecutive` or `accumulative`), a target, how many times it can be earned (`null` is unlimited), an optional prerequisite, a Font Awesome icon, and a highlight color. A prerequisite must come before the types that need it. Rock's own Weekly Attendance streak type and its two achievement types stay as Rock ships them.
 
 ## Campuses
 

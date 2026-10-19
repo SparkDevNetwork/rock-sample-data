@@ -30,7 +30,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
-| `--check-cast` | Loads nothing. Checks the package's Cast giving expectations against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. |
+| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving and achievements) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
@@ -50,7 +50,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Any failure stops the load before it writes anything.
 
-The load runs these steps in order: configuration (with the small group setup), people, photos, Sunday attendance, small groups, giving, and check images.
+The load runs these steps in order: configuration (with the small group setup), people, photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, Cast expectations, and check images.
 
 ## What makes a load repeatable
 
@@ -130,6 +130,20 @@ Every small group is a plan (`model/SmallGroupPlan.cs`): its leader and members,
 The configuration step sets up small groups in Rock (`loading/SmallGroupConfigurationLoader.cs`): the soft capacity rule, the Small Group purpose, the Host role, three group attributes, the ten topics, the inactive reasons, and a parent group per campus. The small groups step (`loading/SmallGroupLoader.cs`) bulk-copies schedules, groups, meeting locations at the host's home, members, and attribute values.
 
 Bulk copy skips Rock's save hooks, so the loader writes group history itself, the way Rock does: one row per state for each group, member, and meeting location, with the last row current. It also records weekly attendance on the church year. Groups meet in the fall and spring, stop after December 14, and meet in summer only when they say so. Holiday weeks are marked "did not meet". Spotty leaders record only some weeks. Nobody has attendance before they joined, after they left, or while their request is pending.
+## Streaks and achievements
+
+`loading/AchievementsLoader.cs` creates the Kids Check-in streak type and the seven achievement types in `../configuration/achievements.json` (decisions 57 to 60). Then it writes each child's streak and achievement attempts the way Rock would have computed them.
+
+- **The streak type** is weekly and counts every check-in under the Weekly Service Check-in template. It starts on the first Sunday of the history. Its occurrence map has a bit for each Sunday with any kids check-in. Attendance is on, as Rock sets it for a new streak type, so check-ins after install keep counting.
+- **Streaks.** Each child who checked in gets one streak on their primary alias. It starts on their first check-in week, and its map has a bit for each Sunday they checked in. Maps are as long as the occurrence map, as Rock's rebuild makes them. The current streak, longest streak, and engagement count are as of the anchor, because Rock's cleanup job refreshes them every day.
+- **Attempts.** Rock processes achievements each time a check-in saves a child's streak. It keeps successful attempts and rebuilds the rest, so a child's attempts end up as one run on their last check-in Sunday would leave them. Types run in prerequisite order, and a type whose prerequisite has no success gets no attempts. Nothing processes a child again after they stop coming, so an attempt still open then stays open. Failed attempts stay too, as they do in Rock.
+- **Settings.** Each achievement type's streak type and goal are attribute values on the type, as Rock's Achievement Type Detail block saves them. Its component settings JSON also names the streak type, and `TargetCount` holds the goal, which check-in uses to draw progress.
+- **Check-in.** The template's Achievement Types setting lists all seven types, so next-gen check-in shows each child's progress and badges.
+
+The math lives in Rock's C#, so `loading/RockStreaks.cs` is a line-for-line port: the bit maps, week alignment, the streak counts, and the consecutive and accumulative components. Its header lists the Rock files it mirrors. The step runs right after attendance. It reads the check-ins the attendance step planned, held in memory, because Attendance's indexes are not rebuilt until after small groups. No later step reads what it writes.
+
+Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 attempts, and the step takes about 1.3 seconds. Core 1 has 49 kids and 5,009 attempts. Most attempts are failed tries at Back-to-Back, Four-Peat, and Unstoppable, because each broken streak closes one.
+
 ## Giving analytics
 
 The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night at 10pm, its default schedule. The job's last run is the night before the anchor. Rock's giving automation settings record that run, so Rock's next real run picks up only newer gifts.
@@ -181,6 +195,7 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Scanned check images, matching each gift, stored as Rock transaction images | Done |
 | Validation with the calibration scripts | Done (89% of values pass) |
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
+| Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
 | People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
 
 ## Check images
@@ -205,4 +220,4 @@ These are deliberate, and they go away in the real loader:
 2. The library writes its progress to the console. The Rock block needs it to report through a logger instead.
 3. The spike crowd uses placeholder names. The real Crowd uses the Content name lists. Addresses already come from the address pool (`../addresses/pool.json`); a placeholder street is used only if a campus runs out.
 4. The spike keys the check scanner fields with a Rock checkout's web.config. The real loader must use the server's own PasswordKey and DataEncryptionKey. Inside Rock it can call `Encryption.EncryptString` itself instead of the copy in `RockKeys.cs`.
-5. The real loader runs inside Rock, so it can call Rock's own math (`GivingAutomationHelper`) instead of the port in `RockGivingAutomation.cs`. It still needs the replay, because Rock's job only computes values as of today. The stored procedures are already Rock's own.
+5. The real loader runs inside Rock, so it can call Rock's own math (`GivingAutomationHelper`) instead of the port in `RockGivingAutomation.cs`. It still needs the replay, because Rock's job only computes values as of today. The stored procedures are already Rock's own. The same goes for `RockStreaks.cs`: Rock's own streak and achievement code can run as of each child's last check-in, as the achievements parity test does.

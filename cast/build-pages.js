@@ -31,6 +31,7 @@ const castDir = __dirname;
 const outDir = path.join( castDir, "families" );
 const photoDir = path.join( castDir, "..", "photos", "cast" );
 const campuses = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses;
+const achievementNames = new Map( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( a => [ a.key, a.name ] ) );
 const mainCampus = campuses.find( c => c.rockDefault ).name;
 
 const readFolder = folder => fs.readdirSync( path.join( castDir, folder ) ).filter( f => f.endsWith( ".json" ) ).sort()
@@ -197,6 +198,16 @@ function familyPage( h ) {
         }
         if ( a.BackgroundCheckResult ) {
             facts.push( `background check: ${a.BackgroundCheckResult}` );
+        }
+        const achievements = p.expect?.achievements;
+        if ( achievements ) {
+            // What Rock should show for this person's achievements; every load checks it.
+            const shows = [
+                ...( achievements.earned || [] ).map( k => `${achievementNames.get( k )} earned` ),
+                ...( achievements.inProgress || [] ).map( k => `${achievementNames.get( k )} in progress` ),
+                ...( achievements.notEarned || [] ).filter( k => !( achievements.inProgress || [] ).includes( k ) ).map( k => `${achievementNames.get( k )} not earned` )
+            ];
+            facts.push( `Rock shows ${shows.join( ", " )}` );
         }
         lines.push( `- ${facts.join( " · " )}` );
         lines.push( `- Person Guid \`${p.guid}\``, "" );

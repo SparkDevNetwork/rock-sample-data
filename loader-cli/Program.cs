@@ -64,10 +64,10 @@ try
 
     var package = SampleDataPackage.Open( packagePath );
 
-    // --check-cast checks the package's Cast giving expectations against an already loaded database.
+    // --check-cast checks the package's Cast expectations (giving and achievements) against an already loaded database.
     if ( options.ContainsKey( "check-cast" ) )
     {
-        Console.WriteLine( "Checking Cast giving expectations" );
+        Console.WriteLine( "Checking Cast expectations" );
         return DatasetLoader.CheckCastExpectations( connectionString, package ) == 0 ? 0 : 1;
     }
 
