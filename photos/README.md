@@ -7,7 +7,8 @@ An image model makes the people photos from the [photo brief](brief.md). This fo
 | Kind | Rock field | Source |
 |---|---|---|
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
-| Scenes | `Group.PhotoId`, event items, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
+| Cast small groups | `Group.PhotoId` | AI-generated group photos of each group's real members, made from their profile photos, from the [group photo brief](group-brief.md) (decision 56) |
+| Scenes | Other groups' `Group.PhotoId`, event items, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
 | Scanned checks | `FinancialTransactionImage` | Drawn at install from fictional check templates, for the months each [dataset](../datasets/README.md) sets |
 
 ## Photo style
@@ -78,4 +79,6 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `manifest.json` | One entry per delivered photo, with the exact prompt | Yes |
 | `ethnicities.json` | Prompt wording, Crowd weights, and mixed-couple rates | Yes |
 | `brief.md` | The brief for the image model | Yes |
+| `group-brief.md` | The brief for the Cast small group photos. `node photos/build-group-brief.js` rewrites its member lists | Yes |
+| `groups/` | Delivered group photos, `{group-key}.jpg`, and their `manifest.json` | Yes |
 | `originals/` | The image model's full-size originals of both, same names, in the format the model made (JPEG or PNG) | Yes |

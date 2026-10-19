@@ -45,7 +45,7 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 1. **Women's groups.** Add women's small groups led by women, with a Women's Bible Study topic. Alisha Marble's existing group becomes one of them; until then it is not part of the small group design.
 2. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
-3. **Group photos.** The photo agent makes a photo for each group, saved as `photos/groups/{group-key}.jpg`, for Group Finder and the group pages.
+3. **Group photos.** The [group photo brief](../photos/group-brief.md) is ready for the image model: one photo of each Cast small group's real members, saved as `photos/groups/{group-key}.jpg` (decision 56). Still to do: make the photos, then teach the loader to store them and set each group's photo, and add group photos to the delivery command.
 
 ### Packages and loaders
 
