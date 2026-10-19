@@ -77,5 +77,10 @@ namespace RockSampleData.Loader
         /// Rock's own installer leaves this false.
         /// </summary>
         public bool IsAnyRockVersionAllowed { get; set; }
+
+        /// <summary>
+        /// When set, records what the load writes in Rock. Only the verify tool sets it.
+        /// </summary>
+        internal Database.WriteRecorder Recorder { get; set; }
     }
 }

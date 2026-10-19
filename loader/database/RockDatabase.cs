@@ -151,6 +151,8 @@ namespace RockSampleData.Loader.Database
                 bulk.ColumnMappings.Add( column.ColumnName, column.ColumnName );
             }
 
+            Recorder?.RecordBulk( table, rows.Columns.Cast<DataColumn>().Select( c => c.ColumnName ) );
+
             var timer = System.Diagnostics.Stopwatch.StartNew();
             if ( rows.Rows.Count >= LargeLoadRows && !table.StartsWith( "#" ) && !_disabledIndexes.ContainsKey( table ) )
             {
@@ -248,6 +250,11 @@ namespace RockSampleData.Loader.Database
         }
 
         /// <summary>
+        /// When set, records every column written, Guid named, and procedure run (see <see cref="WriteRecorder"/>).
+        /// </summary>
+        public WriteRecorder Recorder { get; set; }
+
+        /// <summary>
         /// Rows and milliseconds for each bulk copy, for the end-of-load timing report.
         /// </summary>
         public List<(string Table, int Rows, long Milliseconds)> Timings { get; } = new List<(string, int, long)>();
@@ -263,6 +270,7 @@ namespace RockSampleData.Loader.Database
                 CommandTimeout = 600
             };
             command.Parameters.AddRange( parameters );
+            Recorder?.RecordCommand( command );
             return command;
         }
 

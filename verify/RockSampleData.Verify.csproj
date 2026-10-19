@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The verify tool: proves each dataset package works on one exact Rock and writes its receipt. See README.md. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RockSampleData.Verify</RootNamespace>
+    <AssemblyName>rock-sample-data-verify</AssemblyName>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\loader\RockSampleData.Loader.csproj" />
+    <!-- Built for the .NET Framework Rock runs on, and copied next to this tool after each build. -->
+    <ProjectReference Include="rock-runner\RockSampleData.RockRunner.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" SetTargetFramework="TargetFramework=net472" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="rock-runner\**" />
+    <None Remove="rock-runner\**" />
+  </ItemGroup>
+
+  <Target Name="CopyRockRunner" AfterTargets="Build">
+    <ItemGroup>
+      <RockRunnerFiles Include="rock-runner\bin\$(Configuration)\net472\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RockRunnerFiles)" DestinationFolder="$(OutDir)rock-runner\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

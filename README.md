@@ -52,7 +52,8 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 | [photos/](photos/README.md) | The photo rules, the manifest, and the delivered Cast and pool photos. |
 | [builder/](builder/README.md) | The .NET tool that turns this repository into one dataset package per dataset. |
 | [loader/](loader/README.md), `loader-cli/` | The loader library that installs a package into a Rock database, and its command line for developers and test harnesses. |
-| [validation/](validation/README.md) | Tolerances and the script that grades generated data. |
+| [validation/](validation/README.md) | Tolerances and the script that grades generated data, plus the invariants, contract, and standards check the verify tool uses. |
+| [verify/](verify/README.md) | The tool that proves each package works on one exact Rock and writes its receipt. Publishing needs a passing receipt. |
 | [datasets/](datasets/README.md) | One manifest per dataset, with its settings. |
 | [content/](content/README.md) | Fonts for check images, and later the text pools. |
 
@@ -60,10 +61,11 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 
 You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly installed Rock database.
 
-1. Check the Cast:
+1. Check the Cast and the content standards:
 
    ```
    node cast/validate-cast.js
+   node validation/check-standards.js
    ```
 
 2. Build the packages for your Rock checkout. They land in `packages/`.
@@ -82,7 +84,14 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 
-5. After you change a Cast file, rebuild the family pages:
+5. Before you publish, prove every package works on its Rock. The verify tool makes its own databases, loads each package, and writes a receipt next to it (see [Verify](verify/README.md)):
+
+   ```
+   cd ../verify
+   dotnet run -- --rock C:\Development\Rock
+   ```
+
+6. After you change a Cast file, rebuild the family pages:
 
    ```
    node cast/build-pages.js

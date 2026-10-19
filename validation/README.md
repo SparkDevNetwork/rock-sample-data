@@ -2,6 +2,15 @@
 
 Validation proves the generated data is realistic. It runs the calibration scripts from `../calibration/sql/` against a freshly installed sample database, then compares the results to the calibration profile.
 
+Realism is one question. Whether the data is correct in Rock is another, and the [verify tool](../verify/README.md) answers it. These files in this folder belong to the verify tool:
+
+| File | What it holds |
+|---|---|
+| [invariants.sql](invariants.sql) | Rules that must hold in every loaded dataset, each with why it matters. |
+| [rock-contract.json](rock-contract.json) | Every Rock column, Guid, and procedure the loader depends on. Recorded from real loads, never edited by hand. |
+| [cleanup-accepted.json](cleanup-accepted.json) | Changes Rock Cleanup makes to sample data that we accept on purpose, each with a reason. |
+| [check-standards.js](check-standards.js) | The [content standards](../docs/content-standards.md) that span folders, as a check. |
+
 ## Rules
 
 1. Each profile value has a tolerance in [tolerances.json](tolerances.json). Percentages use points (for example, plus or minus 3). Everything else uses a share of the target (for example, within 20%).

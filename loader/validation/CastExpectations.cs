@@ -39,6 +39,23 @@ namespace RockSampleData.Loader.Validation
         /// </summary>
         public static int Check( RockDatabase db, SampleDataSource source )
         {
+            var (checks, failures) = Evaluate( db, source );
+            Console.WriteLine( failures.Count == 0
+                ? $"  Cast expectations: all {checks} hold"
+                : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
+            foreach ( var failure in failures )
+            {
+                Console.WriteLine( $"    {failure}" );
+            }
+
+            return failures.Count;
+        }
+
+        /// <summary>
+        /// Returns how many expectations were checked, and a line for each one that does not hold.
+        /// </summary>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source )
+        {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var checks = 0;
             var failures = new List<string>();
@@ -106,15 +123,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                 }
             }
 
-            Console.WriteLine( failures.Count == 0
-                ? $"  Cast expectations: all {checks} hold"
-                : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
-            foreach ( var failure in failures )
-            {
-                Console.WriteLine( $"    {failure}" );
-            }
-
-            return failures.Count;
+            return (checks, failures);
         }
     }
 }
