@@ -49,6 +49,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 - **Connected requests.** Every volunteer who joined in the last two years has the request that put them on their team, ending the day they joined.
 - **Open requests.** People who are not serving ask to serve in the profile's mix of active and inactive requests, with one future follow-up and one transferred request per campus. Each request has the activity a connector would leave.
 - **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured.
+- **Person history.** Each request shows on the person's History tab, the way Rock records it: added, status changed, connected, and set aside or saved for a future follow-up.
 
 ## The Cast's stories
 
@@ -78,5 +79,4 @@ Still outside tolerance, by a few points: three holiday multipliers for adults (
 ## Later
 
 - A midweek student night (parked in the [roadmap](roadmap.md)).
-- Photos for the five new opportunities.
-- The person history rows Rock writes when a request is added or connected, so the person timeline shows them.
+- New photos for all eight opportunities, replacing Rock's three. The [opportunity photo brief](../photos/opportunity-brief.md) is ready for the image model; the loader sets the photos once they exist.

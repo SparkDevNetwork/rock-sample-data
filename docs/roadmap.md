@@ -35,7 +35,7 @@ Where the project stands: the team's working list. Update this page whenever som
 3. Done: scheduling. Rotations, preferences, history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
 4. Done: connection requests (decision 74). A connected request behind every volunteer who joined in the last two years, people waiting as Pending, and active and inactive requests in the measured mix, plus the Cast's stories. Each team leader is the default connector.
 5. Done: volunteer check-in and serving validation (decision 76). Serving history spans the whole history window, volunteers check in to serve, and validation grades serving and connections. Full 7 passes 284 of 325 values. Still out by a few points: three holiday multipliers for adults and five months of the connection month pattern.
-6. Done: the [Serving](serving.md) guide and the glossary. Still to do: photos for the five new opportunities, and the person history rows Rock writes for connection requests.
+6. Done: the [Serving](serving.md) guide, the glossary, and the person history Rock writes for connection requests. Still to do: photos for all eight opportunities. The [opportunity photo brief](../photos/opportunity-brief.md) is ready for the image model; then the loader stores them and sets each opportunity's photo.
 
 ## Waiting on a decision
 

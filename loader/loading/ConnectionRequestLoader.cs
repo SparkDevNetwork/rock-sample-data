@@ -33,7 +33,10 @@ namespace RockSampleData.Loader.Loading
         and ConnectedDateTime when it connects. Bulk copy skips that hook, so this loader sets the same
         values. See Rock/Model/Connection/ConnectionRequest/ConnectionRequest.SaveHook.cs.
 
-        Reason: the connection board's due and overdue labels and the analytics read these columns.
+        It also writes the person history the hook writes (added, status changed, connected, state changed),
+        so the person's History tab shows each request.
+
+        Reason: the connection board's due and overdue labels, the analytics, and the History tab read these.
     */
 
     /// <summary>
@@ -46,6 +49,7 @@ namespace RockSampleData.Loader.Loading
     internal sealed class ConnectionRequestLoader
     {
         private static readonly Guid GlobalConnectorGroupGuid = new Guid( "7A2AFC10-BCFA-4CCF-9B6C-C2367D6BE7BE" );
+        private static readonly Guid PersonConnectionRequestHistoryCategoryGuid = new Guid( "4B472C6A-1ACF-481E-A2D4-9C44436BBCF5" );
 
         private const int StateActive = 0;
         private const int StateInactive = 1;
@@ -349,6 +353,8 @@ namespace RockSampleData.Loader.Loading
                 Activity( "Connected", end, null );
             }
 
+            AddPersonHistory( tables, random, request, requestId, connector, end );
+
             if ( request.BackgroundCheck != null )
             {
                 AddBackgroundCheck( tables, request.Person, request.Created.AddDays( 7 ), request.BackgroundCheck );
@@ -360,6 +366,37 @@ namespace RockSampleData.Loader.Loading
                 var joined = request.Connected.Value;
                 tables.Members.Rows.Add( memberId, false, groupId, _serving.GroupTypeId, request.Person.PersonId, _serving.MemberRoleId, MemberPending, joined, Guid.NewGuid(), _foreignKey, joined, joined );
                 tables.MemberHistory.Rows.Add( memberId, groupId, _serving.MemberRoleId, "Member", false, MemberPending, false, joined, new DateTime( 9999, 1, 1 ), true, joined, joined, Guid.NewGuid(), _foreignKey );
+            }
+        }
+
+        /// <summary>
+        /// Writes the person history Rock's save hook writes for a request, so the person's History tab
+        /// shows it: added when the person asked, a status change at first contact, connected, and a
+        /// state change when it was set aside or saved for a future follow-up.
+        /// </summary>
+        private void AddPersonHistory( Tables tables, SeededRandom random, PlannedRequest request, int requestId, int? connector, DateTime end )
+        {
+            var opportunityName = _source.Serving.Teams.Single( t => t.Key == request.Team ).Name;
+
+            void History( string verb, DateTime when, int? by )
+            {
+                tables.History.Rows.Add( false, tables.HistoryCategoryId, tables.PersonEntityTypeId, request.Person.PersonId, "Request", tables.RequestEntityTypeId, requestId, verb, "Record", opportunityName, false,
+                    Value( by ), Guid.NewGuid(), _foreignKey, when, when );
+            }
+
+            History( "CONNECTIONREQUESTADDED", request.Created, null );
+            if ( request.Status != "No Contact" )
+            {
+                History( "CONNECTIONREQUESTSTATUSMODIFY", request.Created.AddDays( random.Between( 1, Math.Max( 1, Math.Min( 3, ( int ) ( end - request.Created ).TotalDays ) ) ) ), connector );
+            }
+
+            if ( request.State == StateConnected )
+            {
+                History( "CONNECTIONREQUESTCONNECTED", end, connector );
+            }
+            else if ( request.State is StateInactive or StateFutureFollowUp )
+            {
+                History( "CONNECTIONREQUESTSTATEMODIFY", request.Created.AddDays( random.Between( 1, Math.Max( 1, ( int ) ( end - request.Created ).TotalDays ) ) ), connector );
             }
         }
 
@@ -508,6 +545,9 @@ WHERE [pa].[Id] = @AliasId
             {
                 NextRequestId = Convert.ToInt32( db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [ConnectionRequest]" ) );
                 NextMemberId = Convert.ToInt32( db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [GroupMember]" ) );
+                PersonEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person'" ) );
+                RequestEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.ConnectionRequest'" ) );
+                HistoryCategoryId = db.RequireIdByGuid( "Category", PersonConnectionRequestHistoryCategoryGuid );
                 BackgroundCheckAttributeIds = db.Query( @"
 SELECT [a].[Key], [a].[Id]
 FROM [Attribute] AS [a]
@@ -520,6 +560,15 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             public int NextMemberId { get; set; }
 
             public Dictionary<string, int> BackgroundCheckAttributeIds { get; }
+
+            public int PersonEntityTypeId { get; }
+
+            public int RequestEntityTypeId { get; }
+
+            public int HistoryCategoryId { get; }
+
+            public DataTable History { get; } = TableFactory.Create( "IsSystem:bool", "CategoryId:int", "EntityTypeId:int", "EntityId:int", "Caption:string", "RelatedEntityTypeId:int", "RelatedEntityId:int", "Verb:string", "ChangeType:string", "ValueName:string", "IsSensitive:bool",
+                "CreatedByPersonAliasId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable Requests { get; } = TableFactory.Create( "Id:int", "ConnectionOpportunityId:int", "PersonAliasId:int", "Comments:string", "ConnectionStatusId:int", "ConnectionState:int", "FollowupDate:date", "CampusId:int",
                 "AssignedGroupId:int", "AssignedGroupMemberRoleId:int", "AssignedGroupMemberStatus:int", "ConnectorPersonAliasId:int", "ConnectionTypeId:int", "DueDate:date", "DueSoonDate:date", "ConnectedDateTime:date", "WasCompletedOnTime:bool",
@@ -544,6 +593,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 db.BulkInsert( "GroupMember", Members, keepIdentity: true );
                 db.BulkInsert( "GroupMemberHistorical", MemberHistory, keepIdentity: false );
                 db.BulkInsert( "AttributeValue", PersonValues, keepIdentity: false );
+                db.BulkInsert( "History", History, keepIdentity: false );
             }
         }
     }

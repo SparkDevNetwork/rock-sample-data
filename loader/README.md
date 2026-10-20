@@ -157,7 +157,7 @@ The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serv
 - **Active and inactive.** People who are not serving ask to serve in the profile's state mix around the connected requests, more often in the busy months of its month pattern. Each campus also has one future follow-up and one request transferred from another team.
 - **The Cast.** Requests in the household files (`connectionRequests`) tell the Cast's stories and count toward their campus's mix.
 
-Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date (7 days), due soon date (5 days), connected date, and on-time flag the way the hook does. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
+Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date (7 days), due soon date (5 days), connected date, and on-time flag the way the hook does. It also writes the person history the hook writes (added, status changed, connected, and state changed), so each request shows on the person's History tab. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
 
 ## Streaks and achievements
 
