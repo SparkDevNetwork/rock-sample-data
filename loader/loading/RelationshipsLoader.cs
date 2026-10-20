@@ -27,8 +27,8 @@ namespace RockSampleData.Loader.Loading
         Rock keeps known relationships as one Known Relationships group per person, owned by that
         person. A business contact is two rows, as Rock's PersonService.AddContactToBusiness writes
         them: the contact in the business's group with the Business Contact role, and the business in
-        the contact's group with the Business role. Rock creates a person's group when it first needs
-        one, so only businesses and their contacts get a group here.
+        the contact's group with the Business role. The people step already gave every person their
+        group, the way Rock Cleanup does, so these rows go into those groups.
 
         Reason: Business Detail lists contacts, and a person's Known Relationships shows the business.
     */
@@ -39,7 +39,6 @@ namespace RockSampleData.Loader.Loading
     internal sealed class RelationshipsLoader
     {
         private static readonly Guid KnownRelationshipsGroupTypeGuid = new Guid( "E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF" );
-        private static readonly Guid OwnerRoleGuid = new Guid( "7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42" );
         private static readonly Guid BusinessContactRoleGuid = new Guid( "102E6AF5-62C2-4767-B473-C9C228D75FB6" );
         private static readonly Guid BusinessRoleGuid = new Guid( "7FC58BB2-7C1E-4C5C-B2B3-4738258A0BE0" );
 
@@ -67,37 +66,17 @@ namespace RockSampleData.Loader.Loading
             }
 
             var groupTypeId = _db.RequireIdByGuid( "GroupType", KnownRelationshipsGroupTypeGuid );
-            var ownerRoleId = _db.RequireIdByGuid( "GroupTypeRole", OwnerRoleGuid );
             var contactRoleId = _db.RequireIdByGuid( "GroupTypeRole", BusinessContactRoleGuid );
             var businessRoleId = _db.RequireIdByGuid( "GroupTypeRole", BusinessRoleGuid );
 
-            var nextGroupId = NextId( "Group" );
             var nextMemberId = NextId( "GroupMember" );
-            var groups = TableFactory.Create( "Id:int", "IsSystem:bool", "GroupTypeId:int", "Name:string", "IsSecurityRole:bool", "IsActive:bool", "Order:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var members = TableFactory.Create( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-
-            // One group per owner, made the first time the owner needs it.
-            var groupIds = new Dictionary<int, int>();
-            int GroupFor( int personId )
-            {
-                if ( !groupIds.TryGetValue( personId, out var groupId ) )
-                {
-                    groupId = nextGroupId++;
-                    groupIds[personId] = groupId;
-                    groups.Rows.Add( groupId, false, groupTypeId, "Known Relationship", false, true, 0, Guid.NewGuid(), _foreignKey, _now, _now );
-                    members.Rows.Add( nextMemberId++, false, groupId, groupTypeId, personId, ownerRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
-                }
-
-                return groupId;
-            }
-
             foreach ( var (contact, business) in contacts )
             {
-                members.Rows.Add( nextMemberId++, false, GroupFor( business.PersonId ), groupTypeId, contact.PersonId, contactRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
-                members.Rows.Add( nextMemberId++, false, GroupFor( contact.PersonId ), groupTypeId, business.PersonId, businessRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+                members.Rows.Add( nextMemberId++, false, business.KnownRelationshipGroupId, groupTypeId, contact.PersonId, contactRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+                members.Rows.Add( nextMemberId++, false, contact.KnownRelationshipGroupId, groupTypeId, business.PersonId, businessRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
             }
 
-            _db.BulkInsert( "Group", groups, keepIdentity: true );
             _db.BulkInsert( "GroupMember", members, keepIdentity: true );
             return contacts.Count;
         }

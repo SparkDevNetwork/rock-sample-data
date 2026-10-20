@@ -23,8 +23,8 @@ Where the project stands: the team's working list. Update this page whenever som
 - Kids check-in streaks and achievements: one Kids Check-in streak type, seven achievement types from High Five to Century Club, and each child's streak and attempts the way Rock computes them. Next-gen check-in shows them (decisions 57 to 61). Cast achievement expectations are checked on every load, the version guard covers the ported code, and a parity test runs Rock's own code on loaded data. Core 1 and Full 7 match Rock exactly.
 - Group photos: each of the Cast's 12 small groups has a photo of its real members, made from their profile photos from the [group photo brief](../photos/group-brief.md). Every dataset sets them as the groups' photos, and Group Finder shows them on its cards (decisions 56 and 62).
 - The [verify tool](../verify/README.md) (decision 66): a trusted base made from the Rock release by its migrations and start-up steps, a contract recorded from real loads, invariants, Rock's own Rock Cleanup job as a referee, the content standards as checks, and a receipt per package with a publishing gate.
-
 - Businesses at every campus: at least 6 on the main campus (all from the Cast) and at least 2 at each other campus, or the measured share of giving units when that is more. Every business has one or two contacts, loaded both ways as Rock known relationships, a work address, and gifts in the last 12 months. Every load checks all of it. Full 7 has 87 businesses, and both measured business values pass (decisions 63 to 65).
+- Every package passes the verify tool. The loader now sets what Rock's save hooks and Rock Cleanup would: primary aliases, age classification, family salutations, inactive families, an alternate Id and name metaphones for every person, and a Known Relationship group for every person (see [How people load](../loader/README.md#how-people-load)). The trusted base also runs Rock's first-night post-install job, without which Rock Cleanup blanks every age.
 
 ## In progress
 
@@ -36,20 +36,11 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Fix what the verify tool found.** Every package fails verification today, for real gaps. The loader must set what Rock's save hooks set:
-   - `Person.PrimaryAliasId` and `PrimaryAliasGuid` for every person.
-   - A known-relationships group (and its owner member) for every person.
-   - A `PersonSearchKey` row and `Metaphone` entries for every person, which person search and duplicate finding use.
-   - Family salutations (`GroupSalutation` and `GroupSalutationFull`).
-   - `InactiveDateTime` on inactive groups, and the archived group whose `IsActive` Rock changes.
-   - Age and age bracket for some generated people in Core 3, one group member's role, and one person's age classification.
-
-   Then run the verify tool until every receipt passes.
-2. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
-3. **Close validation gaps.** First-time visitors run low and teens run low.
-4. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-5. **Per-person attendance,** so a teen can attend more often than their parents.
-6. **Real Crowd names** from public-domain frequency data by birth decade.
+1. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
+2. **Close validation gaps.** First-time visitors run low and teens run low.
+3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+4. **Per-person attendance,** so a teen can attend more often than their parents.
+5. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)
 

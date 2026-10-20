@@ -106,6 +106,10 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
             {
                 problems.Add( "Rock's start-up steps have not run on it (it has no RockGetDate function)." );
             }
+            else if ( Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [AnalyticsSourceDate]" ) ) == 0 )
+            {
+                problems.Add( "Rock's post-install job has not run on it (AnalyticsSourceDate is empty)." );
+            }
 
             var exceptions = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [ExceptionLog]" ) );
             if ( exceptions > 0 )
@@ -191,6 +195,7 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
             }
 
             // A real install has also started once: hotfix migrations, the RockGetDate function, and the attribute value views.
+            // It has also run its one-time post-install job, the first night.
             Console.WriteLine( "  Running Rock's start-up steps" );
             Console.WriteLine( $"  {RockRunner.Run( rock, sql, database, "startup" ).Trim()}" );
 

@@ -18,6 +18,7 @@
 using System.Data;
 
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Generation;
 using RockSampleData.Loader.Model;
 
 using static RockSampleData.Loader.Database.RockDatabase;
@@ -30,8 +31,11 @@ namespace RockSampleData.Loader.Loading
         People are bulk-copied with Ids assigned here (current maximum Id + 1, and up),
         so every foreign key is known before anything is written and no lookups are needed
         during the copy. Bulk copy skips Rock's save hooks, so this loader also fills in
-        what those hooks normally set: birth date and key, age and age bracket, giving Id
-        and giving leader, primary family and campus, and the phone's formatted forms.
+        what those hooks normally set: birth date and key, age and age bracket, age
+        classification, primary alias, giving Id and giving leader, primary family and
+        campus, the family salutations, and the phone's formatted forms. It also adds the
+        rows Rock adds for every person: an alternate Id search key, the names' metaphones,
+        and a Known Relationship group the person owns.
 
         Reason: Bulk insert is what makes the install fast.
     */
@@ -56,6 +60,9 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid HomePhoneGuid = new Guid( "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303" );
         private static readonly Guid MobilePhoneGuid = new Guid( "407E7E45-7B2E-4FCD-9605-ECB1339F2453" );
         private static readonly Guid WorkPhoneGuid = new Guid( "2CC66D5A-F61C-4B74-9AF9-590A9847C13C" );
+        private static readonly Guid KnownRelationshipGroupTypeGuid = new Guid( "E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF" );
+        private static readonly Guid KnownRelationshipOwnerRoleGuid = new Guid( "7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42" );
+        private static readonly Guid AlternateIdSearchKeyGuid = new Guid( "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022" );
 
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
@@ -99,6 +106,9 @@ namespace RockSampleData.Loader.Loading
             var familyTypeId = _db.RequireIdByGuid( "GroupType", FamilyGroupTypeGuid );
             var adultRoleId = _db.RequireIdByGuid( "GroupTypeRole", AdultRoleGuid );
             var childRoleId = _db.RequireIdByGuid( "GroupTypeRole", ChildRoleGuid );
+            var relationshipTypeId = _db.RequireIdByGuid( "GroupType", KnownRelationshipGroupTypeGuid );
+            var relationshipOwnerRoleId = _db.RequireIdByGuid( "GroupTypeRole", KnownRelationshipOwnerRoleGuid );
+            var relationshipGroupName = ( string ) _db.Scalar( "SELECT [Name] FROM [GroupType] WHERE [Id] = @Id", P( "@Id", relationshipTypeId ) );
             var lookups = new Lookups( _db, _source );
 
             var nextGroupId = NextId( "Group" );
@@ -109,11 +119,13 @@ namespace RockSampleData.Loader.Loading
             var nextGroupLocationId = NextId( "GroupLocation" );
             var nextPhoneId = NextId( "PhoneNumber" );
 
-            var groups = NewTable( "Id:int", "IsSystem:bool", "GroupTypeId:int", "CampusId:int", "Name:string", "IsSecurityRole:bool", "IsActive:bool", "Order:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var groups = NewTable( "Id:int", "IsSystem:bool", "GroupTypeId:int", "CampusId:int", "Name:string", "IsSecurityRole:bool", "IsActive:bool", "Order:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date",
+                "GroupSalutation:string", "GroupSalutationFull:string", "InactiveDateTime:date" );
             var persons = NewTable( "Id:int", "IsSystem:bool", "RecordTypeValueId:int", "RecordStatusValueId:int", "RecordStatusReasonValueId:int", "ConnectionStatusValueId:int", "IsDeceased:bool",
                 "FirstName:string", "NickName:string", "MiddleName:string", "LastName:string", "BirthDay:int", "BirthMonth:int", "BirthYear:int", "BirthDate:date", "BirthDateKey:int", "Age:int", "AgeBracket:int",
                 "Gender:int", "MaritalStatusValueId:int", "AnniversaryDate:date", "GraduationYear:int", "GivingGroupId:int", "GivingId:string", "GivingLeaderId:int", "Email:string", "IsEmailActive:bool",
-                "EmailPreference:int", "CommunicationPreference:int", "AgeClassification:int", "PrimaryFamilyId:int", "PrimaryCampusId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+                "EmailPreference:int", "CommunicationPreference:int", "AgeClassification:int", "PrimaryFamilyId:int", "PrimaryCampusId:int", "PrimaryAliasId:int", "PrimaryAliasGuid:guid",
+                "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var aliases = NewTable( "Id:int", "PersonId:int", "AliasPersonId:int", "AliasPersonGuid:guid", "Guid:guid", "ForeignKey:string" );
             var members = NewTable( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var locations = NewTable( "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -122,6 +134,8 @@ namespace RockSampleData.Loader.Loading
             var phones = NewTable( "Id:int", "IsSystem:bool", "PersonId:int", "CountryCode:string", "Number:string", "NumberFormatted:string", "FullNumber:string", "NumberTypeValueId:int", "IsMessagingEnabled:bool", "IsUnlisted:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             var homeLocationIds = new Dictionary<string, int>();
+            var familyRows = new Dictionary<int, DataRow>();
+            var salutationMembers = new Dictionary<int, List<SalutationMember>>();
 
             // Pass 1: assign every family and person an Id, so shared members can point across households.
             foreach ( var household in households )
@@ -130,7 +144,7 @@ namespace RockSampleData.Loader.Loading
                 var campusId = _campusIds[CampusKeyFor( household )];
                 foreach ( var person in household.Members )
                 {
-                    People[person.Guid] = new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
+                    People[person.Guid] = new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, AliasGuid = Guid.NewGuid(), FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
                 }
             }
 
@@ -139,7 +153,8 @@ namespace RockSampleData.Loader.Loading
             {
                 var familyId = FamilyIds[household.Key];
                 var familyCampusId = _campusIds[CampusKeyFor( household )];
-                groups.Rows.Add( familyId, false, familyTypeId, familyCampusId, household.Name, false, true, 0, household.Guid, _foreignKey, _now, _now );
+                familyRows[familyId] = groups.Rows.Add( familyId, false, familyTypeId, familyCampusId, household.Name, false, true, 0, household.Guid, _foreignKey, _now, _now );
+                var familySalutationMembers = salutationMembers[familyId] = new List<SalutationMember>();
 
                 var givingLeader = GivingLeader( household );
                 foreach ( var person in household.Members )
@@ -182,12 +197,14 @@ namespace RockSampleData.Loader.Loading
                         person.EmailIsActive,
                         person.EmailDoNotEmail ? 2 : 0,
                         1,
-                        isAdult ? 1 : 2,
+                        AgeClassification( person, isAdult, isBusiness, age ),
                         familyId, familyCampusId,
+                        loaded.AliasId, loaded.AliasGuid,
                         person.Guid, _foreignKey, _now, _now );
 
-                    aliases.Rows.Add( loaded.AliasId, loaded.PersonId, loaded.PersonId, person.Guid, Guid.NewGuid(), _foreignKey );
+                    aliases.Rows.Add( loaded.AliasId, loaded.PersonId, loaded.PersonId, person.Guid, loaded.AliasGuid, _foreignKey );
                     members.Rows.Add( nextMemberId++, false, familyId, familyTypeId, loaded.PersonId, isAdult ? adultRoleId : childRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+                    familySalutationMembers.Add( SalutationMemberFor( person, isAdult, age ) );
 
                     AddPhone( phones, ref nextPhoneId, loaded.PersonId, person.Phones?.Home, lookups.Id( HomePhoneGuid ), false );
                     AddPhone( phones, ref nextPhoneId, loaded.PersonId, person.Phones?.Mobile, lookups.Id( MobilePhoneGuid ), true );
@@ -198,8 +215,9 @@ namespace RockSampleData.Loader.Loading
                 foreach ( var shared in household.SharedMembers )
                 {
                     var loaded = People[shared.Guid];
-                    var role = loaded.Cast.FamilyRole == "child" ? childRoleId : adultRoleId;
-                    members.Rows.Add( nextMemberId++, false, familyId, familyTypeId, loaded.PersonId, role, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+                    var isSharedAdult = loaded.Cast.FamilyRole != "child";
+                    members.Rows.Add( nextMemberId++, false, familyId, familyTypeId, loaded.PersonId, isSharedAdult ? adultRoleId : childRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+                    familySalutationMembers.Add( SalutationMemberFor( loaded.Cast, isSharedAdult, loaded.Cast.Birth == null ? null : _dates.AgeOn( _dates.BirthDate( loaded.Cast.Birth ) ) ) );
                 }
 
                 if ( household.Address != null )
@@ -227,6 +245,27 @@ namespace RockSampleData.Loader.Loading
                 }
             }
 
+            // Rock Cleanup marks a family inactive when none of its members has a record status other than
+            // Inactive (PersonCleanup in Rock/Jobs/RockCleanup.cs), and Rock dates it then. So does the loader.
+            foreach ( var household in households )
+            {
+                var familyId = FamilyIds[household.Key];
+                var family = familyRows[familyId];
+                family["GroupSalutation"] = FamilySalutation.Calculate( household.Name, salutationMembers[familyId], includeChildren: false );
+                family["GroupSalutationFull"] = FamilySalutation.Calculate( household.Name, salutationMembers[familyId], includeChildren: true );
+
+                var isActive = household.Members.Concat( household.SharedMembers.Select( s => People[s.Guid].Cast ) ).Any( p => p.RecordStatus != "inactive" );
+                if ( !isActive )
+                {
+                    family["IsActive"] = false;
+                    family["InactiveDateTime"] = _now;
+                }
+            }
+
+            var relationshipGroupCount = AddKnownRelationshipGroups( groups, members, ref nextGroupId, ref nextMemberId, relationshipTypeId, relationshipOwnerRoleId, relationshipGroupName );
+            var searchKeys = AlternateIdSearchKeys( lookups.Id( AlternateIdSearchKeyGuid ) );
+            var metaphones = Metaphones();
+
             // The household view later steps use. Shared children appear in every household they belong to.
             foreach ( var household in households )
             {
@@ -243,9 +282,12 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "Location", locations, keepIdentity: true );
             _db.BulkInsert( "GroupLocation", groupLocations, keepIdentity: true );
             _db.BulkInsert( "PhoneNumber", phones, keepIdentity: true );
+            _db.BulkInsert( "PersonSearchKey", searchKeys, keepIdentity: false );
+            _db.BulkInsert( "Metaphone", metaphones, keepIdentity: false );
             SetGeoPoints( geo );
 
-            Console.WriteLine( $"  Families: {groups.Rows.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}" );
+            Console.WriteLine( $"  Families: {households.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
+                + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {metaphones.Rows.Count}" );
         }
 
         /// <summary>
@@ -305,6 +347,145 @@ namespace RockSampleData.Loader.Loading
         private static bool IsMarried( CastPerson person )
         {
             return string.Equals( person.MaritalStatus, "married", StringComparison.OrdinalIgnoreCase );
+        }
+
+        /// <summary>
+        /// Rock's age classification (PersonService.UpdatePersonAgeClassifications): Adult (1) when the
+        /// person is 18 or older or an adult in any family, otherwise Child (2). Rock's update skips
+        /// businesses and the deceased, so they keep the family role's classification.
+        /// </summary>
+        private static int AgeClassification( CastPerson person, bool isAdult, bool isBusiness, int? age )
+        {
+            var isClassifiedByRock = !isBusiness && !person.IsDeceased;
+            var isAdultByRock = isAdult || age >= 18;
+            return ( isClassifiedByRock ? isAdultByRock : isAdult ) ? 1 : 2;
+        }
+
+        /// <summary>
+        /// What Rock's family salutation reads about one family member.
+        /// </summary>
+        private static SalutationMember SalutationMemberFor( CastPerson person, bool isAdult, int? age )
+        {
+            return new SalutationMember
+            {
+                NickName = person.NickName ?? person.FirstName,
+                LastName = person.LastName,
+                Gender = person.Gender == "male" ? 1 : person.Gender == "female" ? 2 : 0,
+                Age = age,
+                IsAdult = isAdult,
+                IsActiveRecord = person.RecordStatus != "inactive" && person.RecordStatus != "pending",
+                IsDeceased = person.IsDeceased
+            };
+        }
+
+        /*
+            10/19/26 - CLAUDE
+
+            Rock Cleanup gives every person who owns no Known Relationship group a new one, named for the
+            group type, with the person as its Owner (AddMissingRelationshipGroups in Rock/Jobs/RockCleanup.cs).
+            Rock's relationship screens and the "known relationships" badge read it. The loader adds the
+            same rows for every person, including the deceased, who would have had one while they were alive.
+
+            Reason: Bulk copy skips what Rock adds for each person.
+        */
+
+        /// <summary>
+        /// Adds one Known Relationship group per person, with the person as Owner. Returns how many.
+        /// </summary>
+        private int AddKnownRelationshipGroups( DataTable groups, DataTable members, ref int nextGroupId, ref int nextMemberId, int groupTypeId, int ownerRoleId, string groupName )
+        {
+            foreach ( var person in People.Values )
+            {
+                var groupId = nextGroupId++;
+                person.KnownRelationshipGroupId = groupId;
+                groups.Rows.Add( groupId, false, groupTypeId, DBNull.Value, groupName, false, true, 0, Guid.NewGuid(), _foreignKey, _now, _now, DBNull.Value, DBNull.Value );
+                members.Rows.Add( nextMemberId++, false, groupId, groupTypeId, person.PersonId, ownerRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
+            }
+
+            return People.Count;
+        }
+
+        /*
+            10/19/26 - CLAUDE
+
+            Rock's person save hook gives every new person an alternate Id search key on their primary alias
+            (Rock/Model/CRM/Person/Person.SaveHook.cs), made by PersonSearchKeyService.GenerateRandomAlternateId:
+            the first 14 hex digits of a new Guid, as 7, a dash, and 7. Check-in and person search look people
+            up by it. Each value must be unique among alternate Ids, so the ones already in Rock are read first.
+
+            Reason: Bulk copy skips what Rock adds for each person.
+        */
+
+        /// <summary>
+        /// One alternate Id search key per person.
+        /// </summary>
+        private DataTable AlternateIdSearchKeys( int alternateIdTypeId )
+        {
+            var taken = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+            foreach ( var row in _db.Query( "SELECT [SearchValue] FROM [PersonSearchKey] WHERE [SearchTypeValueId] = @TypeId AND [SearchValue] IS NOT NULL", P( "@TypeId", alternateIdTypeId ) ) )
+            {
+                taken.Add( ( string ) row["SearchValue"] );
+            }
+
+            var keys = NewTable( "PersonAliasId:int", "SearchTypeValueId:int", "SearchValue:string", "IsValuePrivate:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            foreach ( var person in People.Values )
+            {
+                string value;
+                do
+                {
+                    var random = Guid.NewGuid().ToString( "N" );
+                    value = $"{random.Substring( 0, 7 )}-{random.Substring( 7, 7 )}";
+                }
+                while ( !taken.Add( value ) );
+
+                keys.Rows.Add( person.AliasId, alternateIdTypeId, value, false, Guid.NewGuid(), _foreignKey, _now, _now );
+            }
+
+            return keys;
+        }
+
+        /*
+            10/19/26 - CLAUDE
+
+            Rock's person save hook queues SaveMetaphoneTransaction (Rock/Transactions/SaveMetaphoneTransaction.cs),
+            which adds each new first, nick, and last name to the Metaphone table with its two Double Metaphone
+            keys. Rock's duplicate finder and sounds-like person search read them. The table is keyed by name
+            and shared by everyone, so only names Rock does not have yet are added, compared the way SQL Server's
+            default collation compares them. Metaphone has no ForeignKey column, so these rows are not marked
+            as sample data; they hold only names, and Rock keeps them after a person is deleted too.
+
+            Reason: Bulk copy skips what Rock adds for each person.
+        */
+
+        /// <summary>
+        /// The metaphone rows for every name Rock does not have yet.
+        /// </summary>
+        private DataTable Metaphones()
+        {
+            var known = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+            foreach ( var row in _db.Query( "SELECT [Name] FROM [Metaphone]" ) )
+            {
+                known.Add( ( ( string ) row["Name"] ).TrimEnd() );
+            }
+
+            var metaphones = NewTable( "Name:string", "Metaphone1:string", "Metaphone2:string" );
+            foreach ( var person in People.Values.Select( p => p.Cast ) )
+            {
+                foreach ( var name in new[] { person.FirstName, person.NickName ?? person.FirstName, person.LastName } )
+                {
+                    if ( string.IsNullOrWhiteSpace( name ) || !known.Add( name.Trim() ) )
+                    {
+                        continue;
+                    }
+
+                    string primary = null;
+                    string alternate = null;
+                    DoubleMetaphone.doubleMetaphone( name.Trim(), ref primary, ref alternate );
+                    metaphones.Rows.Add( name.Trim(), primary ?? ( object ) DBNull.Value, alternate ?? ( object ) DBNull.Value );
+                }
+            }
+
+            return metaphones;
         }
 
         /// <summary>
@@ -449,6 +630,16 @@ DROP TABLE #LocationGeo;" );
         public int PersonId { get; set; }
 
         public int AliasId { get; set; }
+
+        /// <summary>
+        /// The primary alias's Guid, which Rock also keeps on the person (PrimaryAliasGuid).
+        /// </summary>
+        public Guid AliasGuid { get; set; }
+
+        /// <summary>
+        /// The Known Relationship group the person owns. Business contacts are added to it.
+        /// </summary>
+        public int KnownRelationshipGroupId { get; set; }
 
         public int FamilyId { get; set; }
 

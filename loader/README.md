@@ -34,7 +34,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
-The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`.
+The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` rows, which have no such column (see [How people load](#how-people-load)).
 
 ## Which Rock a package is for
 
@@ -97,6 +97,18 @@ These differ between installs, by design:
 ## How people load
 
 People are bulk-copied with Ids assigned up front (the table's current maximum plus one, and up), so every foreign key is known before anything is written. Bulk copy skips Rock's save hooks, so the loader fills in what they would set: birth date and key, age and age bracket, graduation year (using Rock's June 1 grade transition), giving Id and giving leader, primary family and campus, and formatted phone numbers. These are the "post-load fix-ups" from the plan; they happen during the load, so no separate step is needed.
+
+It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup referee showed was missing. Each follows Rock's own code, named in a note above the loader code that ports it:
+
+| What | How Rock sets it | How the loader sets it |
+|---|---|---|
+| `Person.PrimaryAliasId` and `PrimaryAliasGuid` | The person save hook, after it adds the alias. | From the alias it writes for the person. |
+| Age classification | `PersonService.UpdatePersonAgeClassifications`. | Adult for anyone 18 or older or an adult in any family, otherwise Child. Jasmine Washington, 18, stays a child in her family on purpose, so she is a Child by role and an Adult by classification, the way Rock leaves a child who turns 18. |
+| Family salutations (`GroupSalutation`, `GroupSalutationFull`) | `GroupService.CalculateFamilySalutation`, from the person and group member save hooks. | A port of it (`loading/FamilySalutation.cs`), for example "Ted & Cindy Decker". |
+| Inactive families | Rock Cleanup marks a family inactive when every member's record is inactive, then dates it. | The same, dated at install (in the Cast, the Murphys and Jenny Greggs's family). |
+| An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
+| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. The table is keyed by name and shared, so these rows have no `ForeignKey`. |
+| A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 

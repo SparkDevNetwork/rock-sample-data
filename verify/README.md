@@ -45,14 +45,15 @@ A full run takes about 5 minutes. Making a new trusted base adds about 9 minutes
 
 ### The trusted base
 
-The base is an empty database made from nothing in two steps:
+The base is an empty database made from nothing in three steps:
 
 1. EF's own migration tool (`ef6.exe`, from the Rock checkout's packages) applies every Rock migration, the same way a Rock developer runs Update-Database.
 2. `rock-runner` runs Rock's own start-up steps that write to the database: the `RockGetDate` function, the plugin and hotfix migrations, and the attribute value views. EF alone skips these. On Rock 21.0.1 that is 189 hotfix migrations, so a base made only by EF is not what a church has after Rock starts.
+3. `rock-runner` runs Rock's one-time post-install job (`PostInstallDataMigrations`), which a new install runs at 2am on its first night. It fills `AnalyticsSourceDate` and the identity verification codes. Rock Cleanup reads every person's age from `AnalyticsSourceDate`, so without this step Rock Cleanup sets every age to null, which no church that has run one night sees.
 
 Nothing else ever touches the base; every load runs on a copy.
 
-Before each run, the tool checks the base: its `__MigrationHistory` must hold exactly the Rock checkout's migrations (read from each migration's designer file, since a file name is not always its Id), Rock's start-up steps must have run, and it must have no sample data and an empty Exception Log. A plugin migration that fails logs an exception, so the empty log also proves every hotfix applied. If the base is missing or does not match the checkout, the tool makes a new one. The receipt records the base's schema hash, so two receipts with the same hash were checked against the same schema.
+Before each run, the tool checks the base: its `__MigrationHistory` must hold exactly the Rock checkout's migrations (read from each migration's designer file, since a file name is not always its Id), Rock's start-up steps and post-install job must have run, and it must have no sample data and an empty Exception Log. A plugin migration that fails logs an exception, so the empty log also proves every hotfix applied. If the base is missing or does not match the checkout, the tool makes a new one. The receipt records the base's schema hash, so two receipts with the same hash were checked against the same schema.
 
 The tool writes its own config file for EF and for Rock, pointed at its own database. The checkout's `web.ConnectionStrings.config` is never read.
 

@@ -1020,6 +1020,8 @@
         "Description",
         "ForeignKey",
         "GroupCapacity",
+        "GroupSalutation",
+        "GroupSalutationFull",
         "GroupTypeId",
         "Guid",
         "Id",
@@ -1554,6 +1556,18 @@
         "Street2": "nvarchar(100) null"
       }
     },
+    "Metaphone": {
+      "written": [
+        "Metaphone1",
+        "Metaphone2",
+        "Name"
+      ],
+      "rockColumns": {
+        "Metaphone1": "nvarchar(4) null",
+        "Metaphone2": "nvarchar(4) null",
+        "Name": "nvarchar(50) not null"
+      }
+    },
     "Person": {
       "written": [
         "Age",
@@ -1588,6 +1602,8 @@
         "ModifiedDateTime",
         "NickName",
         "PhotoId",
+        "PrimaryAliasGuid",
+        "PrimaryAliasId",
         "PrimaryCampusId",
         "PrimaryFamilyId",
         "RecordStatusReasonValueId",
@@ -1697,6 +1713,33 @@
         "LastVisitDateTime": "datetime null",
         "Name": "nvarchar(200) null",
         "PersonId": "int not null"
+      }
+    },
+    "PersonSearchKey": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsValuePrivate",
+        "ModifiedDateTime",
+        "PersonAliasId",
+        "SearchTypeValueId",
+        "SearchValue"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsValuePrivate": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PersonAliasId": "int not null",
+        "SearchTypeValueId": "int not null",
+        "SearchValue": "nvarchar(255) null"
       }
     },
     "PhoneNumber": {
@@ -1946,6 +1989,7 @@
       "928A2E04-C77B-4282-888F-EC549CEE026A",
       "96D540F5-071D-4BBD-9906-28F0A64D39C4",
       "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303",
+      "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022",
       "B91BA046-BC1E-400C-B85D-638C1F4E0CE2",
       "BE7ECF50-52BC-4774-808D-574BA842DB98",
       "BF64ADD3-E70A-44CE-9C4B-E76BBED37550",
