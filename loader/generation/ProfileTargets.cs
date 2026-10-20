@@ -79,7 +79,7 @@ namespace RockSampleData.Loader.Generation
             var sources = sourceIds.ToDictionary( id => id, id => JsonNode.Parse( repository.ReadText( $"calibration/profiles/sources/{id}.json" ) ).AsObject() );
 
             var sections = blend.SelectMany( b => sources[b["source"].GetValue<string>()].Select( kv => kv.Key ) )
-                .Concat( sectionBlend.Select( s => s.Key ) )
+                .Concat( sectionBlend.Select( s => s.Key ).Where( k => !k.Contains( '.' ) ) )
                 .Where( k => !SkippedKeys.Contains( k ) )
                 .Distinct()
                 .ToList();
@@ -91,6 +91,22 @@ namespace RockSampleData.Loader.Generation
                 var values = recipe.Select( b => sources[b["source"].GetValue<string>()][section] ).ToList();
                 var weights = recipe.Select( b => b["weight"].GetValue<double>() ).ToList();
                 effective[section] = Blend( values, weights );
+            }
+
+            // A dotted key (for example "prayer.monthIndex") replaces one value inside a section with a blend of its own sources.
+            foreach ( var dotted in sectionBlend.Where( s => s.Key.Contains( '.' ) ) )
+            {
+                var parts = dotted.Key.Split( '.' );
+                var parent = parts.Take( parts.Length - 1 ).Aggregate( ( JsonNode ) effective, ( node, part ) => node?[part] ) as JsonObject;
+                if ( parent == null )
+                {
+                    continue;
+                }
+
+                var recipe = dotted.Value.AsArray();
+                var values = recipe.Select( b => parts.Aggregate( ( JsonNode ) sources[b["source"].GetValue<string>()], ( node, part ) => node?[part] ) ).ToList();
+                var weights = recipe.Select( b => b["weight"].GetValue<double>() ).ToList();
+                parent[parts[^1]] = Blend( values, weights );
             }
 
             foreach ( var excluded in ( profile["excluded"] as JsonArray ) ?? new JsonArray() )

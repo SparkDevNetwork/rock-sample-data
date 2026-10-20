@@ -28,7 +28,7 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-Nothing right now.
+1. **Prayer requests (Phase 1).** The profile has prayer targets: volume and seasonality from source-1, categories, request length, timing, and who asks from source-2, and a designed prayer team (decision 67). Calibration part 5 measures prayer in detail. Next: weights for Rock's own prayer categories and prayer settings in configuration, text pools, the generator with prayer team activity, and Cast requests that cover each prayer screen state.
 
 ## Waiting on a decision
 
