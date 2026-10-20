@@ -93,6 +93,16 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // Every dataset has the serving opportunities, so every package carries their photos.
+            if ( repository.Exists( SampleDataSource.OpportunityPhotoManifestPath ) )
+            {
+                AddFile( SampleDataSource.OpportunityPhotoManifestPath );
+                foreach ( var photo in source.ReadOpportunityPhotoManifest().Images )
+                {
+                    AddFile( $"photos/{photo.File}" );
+                }
+            }
+
             // Fonts for check images, with their licenses, and the license for the data itself.
             AddFolder( "content/fonts" );
             AddFile( "LICENSE.md" );
@@ -151,6 +161,20 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"photos/groups/manifest.json lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            var opportunityTeams = source.Connections.Opportunities.Select( o => o.Team ).ToHashSet();
+            foreach ( var photo in source.ReadOpportunityPhotoManifest().Images )
+            {
+                if ( !opportunityTeams.Contains( photo.Opportunity ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.OpportunityPhotoManifestPath} has a photo for {photo.Opportunity}, which is not a serving opportunity in configuration/connections.json." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.OpportunityPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

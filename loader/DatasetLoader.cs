@@ -199,7 +199,9 @@ namespace RockSampleData.Loader
             step.Restart();
             Console.WriteLine( "Photos" );
             var photoPercent = manifest?.Photos?.GeneratedHouseholdPercent ?? 0;
-            new PhotoLoader( db, source, foreignKey, seed ).Load( people.Households, castHouseholdKeys, photoPercent );
+            var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
+            photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
+            Console.WriteLine( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its

@@ -131,6 +131,17 @@ namespace RockSampleData.Loader
         public const string GroupPhotoManifestPath = "photos/groups/manifest.json";
 
         /// <summary>
+        /// Reads photos/opportunities/manifest.json, the serving opportunity photos. A package built before
+        /// opportunity photos existed has none.
+        /// </summary>
+        public OpportunityPhotoManifest ReadOpportunityPhotoManifest()
+        {
+            return Files.Exists( OpportunityPhotoManifestPath ) ? Read<OpportunityPhotoManifest>( OpportunityPhotoManifestPath ) : new OpportunityPhotoManifest();
+        }
+
+        public const string OpportunityPhotoManifestPath = "photos/opportunities/manifest.json";
+
+        /// <summary>
         /// Reads the Cast's small group plans from cast/groups, in file name order. Groups the
         /// configuration lists as not in the pattern, and other group types, are skipped.
         /// </summary>

@@ -44,7 +44,7 @@ Each request to serve is an Attendance row on the team's occurrence for that roo
 
 Requests use Rock's Involvement connection type, which keeps its name. Many churches call connections "involvement" and the teams "serving".
 
-- **Opportunities.** Eight, one per team. Each opportunity's Name is its team's name, and its PublicName is the role a person takes on: Greeter, Usher, Kids Volunteer, Musician or Vocalist, Production Volunteer, Student Leader, Prayer Partner, and First Aid Responder. Each has an icon, a summary, a full description, and the Serve page's search filters (Preference Area, Days of the Week, and Role).
+- **Opportunities.** Eight, one per team. Each opportunity's Name is its team's name, and its PublicName is the role a person takes on: Greeter, Usher, Kids Volunteer, Musician or Vocalist, Production Volunteer, Student Leader, Prayer Partner, and First Aid Responder. Each has an icon, a summary, a full description, a photo of Phoenix's Cast volunteers doing the job, and the Serve page's search filters (Preference Area, Days of the Week, and Role). The eight photos replace the three Rock ships.
 - **Statuses.** No Contact, In Progress, Background Check, and Shadowing, each a real onboarding step.
 - **Connected requests.** Every volunteer who joined in the last two years has the request that put them on their team, ending the day they joined.
 - **Open requests.** People who are not serving ask to serve in the profile's mix of active and inactive requests, with one future follow-up and one transferred request per campus. Each request has the activity a connector would leave.
@@ -79,4 +79,3 @@ Still outside tolerance, by a few points: three holiday multipliers for adults (
 ## Later
 
 - A midweek student night (parked in the [roadmap](roadmap.md)).
-- New photos for all eight opportunities, replacing Rock's three. The [opportunity photo brief](../photos/opportunity-brief.md) is ready for the image model; the loader sets the photos once they exist.
