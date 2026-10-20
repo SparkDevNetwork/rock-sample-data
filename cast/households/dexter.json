@@ -134,6 +134,19 @@
           },
           "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23"
         }
+      ],
+      "connectionRequests": [
+        {
+          "opportunity": "kids-ministry",
+          "state": "Active",
+          "status": "Background Check",
+          "created": {
+            "daysAgo": 40
+          },
+          "connector": true,
+          "backgroundCheck": "Fail",
+          "comment": "I'd like to help with the elementary kids on Sundays."
+        }
       ]
     }
   ]

@@ -68,7 +68,20 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "production-team",
+          "state": "FutureFollowUp",
+          "status": "In Progress",
+          "created": {
+            "daysAgo": 45
+          },
+          "followUpInDays": 50,
+          "connector": true,
+          "comment": "We watch online most weeks. Could I help with the livestream? Work travel keeps me busy until after the holidays."
+        }
+      ]
     },
     {
       "key": "megan",

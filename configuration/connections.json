@@ -24,6 +24,41 @@
   "attributeOptions": {
     "PreferenceArea": "1^Kids, 2^Guest Services, 3^Students, 4^Worship and Production, 5^Prayer and Care"
   },
+  "requests": {
+    "$comment": "Requests to serve (decision 74). Every volunteer who joined in the last historyDays came through a connected request that ends on the day they joined. Active and inactive requests come from people who are not serving, in the profile's state mix around the connected ones. A few people per campus connected in the last few weeks and wait on the team leader as Pending (decision 71). The Cast's own requests are in their household files.",
+    "historyDays": 730,
+    "stateMixProfilePath": "connections.stateMix",
+    "daysToConnectProfilePath": "connections.daysToConnect",
+    "monthIndexProfilePath": "connections.monthIndex",
+    "$connectorComment": "Share of requests with a connector, by state. Active requests waiting on a background check or shadowing always have one. Together they give about the profile's 35% (connections.pctWithConnector). The connector is the team's leader at the person's campus.",
+    "connectorPercent": { "Connected": 42, "Active": 25, "Inactive": 10 },
+    "pendingPerCampus": { "min": 1, "percentOfConnected": 8 },
+    "pendingDaysAgo": { "min": 3, "max": 25 },
+    "activeDaysAgo": { "min": 1, "max": 120 },
+    "inactiveDaysAgo": { "min": 30, "max": 730 },
+    "requesterStatuses": { "Connected": 35, "Engaged": 25, "Known": 20, "Participant": 10, "Prospect": 10 },
+    "activeStatuses": { "No Contact": 35, "In Progress": 40, "Background Check": 10, "Shadowing": 15 },
+    "backgroundCheckTeams": [ "kids-ministry", "student-ministry" ],
+    "testCasesPerCampus": { "futureFollowUp": 1, "transferred": 1 },
+    "comments": [
+      "I'd love to help out wherever you need me.",
+      "We're new here and want to get involved.",
+      "I have some free time on Sundays and want to serve.",
+      "A friend serves on this team and said I'd enjoy it.",
+      "I'd like to try this out for a few weeks and see if it fits.",
+      "I served on a team like this at my last church.",
+      "My kids are older now and I finally have time to help.",
+      "I'm available most Sundays. Any service works."
+    ],
+    "notes": {
+      "Called Left Message": [ "Left a voicemail with the service times.", "Left a message and sent a text." ],
+      "Called No Answer": [ "No answer. Will try again later this week." ],
+      "Called": [ "Talked through what the team does and which service fits best.", "Good call. Excited to get started." ],
+      "Contacted Waiting for Response": [ "Sent the team schedule. Waiting to hear back.", "Emailed details and the training dates." ],
+      "Met the Team Leader": [ "Met before the service and walked through the role." ],
+      "Shadowed a Team": [ "Shadowed for a Sunday. It went well." ]
+    }
+  },
   "$opportunitiesComment": "Each opportunity's Name is its team's name from serving.json; publicName is the role a person takes on. The first three keep Rock's Guids. In list order.",
   "opportunities": [
     {

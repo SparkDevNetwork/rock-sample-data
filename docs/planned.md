@@ -26,7 +26,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
 - **Prayer requests,** with prayer team activity.
 - **Communications:** email and text history, with opens and clicks.
-- **Connection requests** that move through their states, including some waiting on a connector, and connected requests that match the team each person joined.
 - **Steps,** such as baptism and membership.
 - **Benevolence requests.**
 - **Reminders and notes** that staff would really write.

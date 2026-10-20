@@ -37,6 +37,7 @@ const errors = [];
 const warnings = [];
 const smallGroups = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "small-groups.json" ), "utf8" ) );
 const serving = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "serving.json" ), "utf8" ) );
+const connections = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "connections.json" ), "utf8" ) );
 
 // Photo ethnicity values come from one file, and the schema enum must list the same keys.
 const ethnicityFile = JSON.parse( fs.readFileSync( path.join( castDir, "..", "photos", "ethnicities.json" ), "utf8" ) );
@@ -343,6 +344,20 @@ for ( const { file, data: h } of households ) {
 
     for ( const p of h.members || [] ) {
         const owner = `${file} (${p.key})`;
+        for ( const c of p.connectionRequests || [] ) {
+            if ( !connections.opportunities.some( o => o.team === c.opportunity ) ) {
+                errors.push( `${owner}: connection request for "${c.opportunity}", which no opportunity in configuration/connections.json places people on.` );
+            }
+            if ( !connections.requestStatuses.some( s => s.name === c.status ) ) {
+                errors.push( `${owner}: connection request status "${c.status}" is not in configuration/connections.json.` );
+            }
+            if ( ( c.state === "Connected" ) !== ( c.connected !== undefined ) ) {
+                errors.push( `${owner}: a connection request has a connected date exactly when its state is Connected.` );
+            }
+            if ( ( c.state === "FutureFollowUp" ) !== ( c.followUpInDays !== undefined ) ) {
+                errors.push( `${owner}: a connection request has followUpInDays exactly when its state is FutureFollowUp.` );
+            }
+        }
         for ( const r of p.relationships || [] ) {
             if ( !people.has( r.with ) ) {
                 errors.push( `${owner}: relationship "${r.type}" points to unknown person ${r.with}.` );

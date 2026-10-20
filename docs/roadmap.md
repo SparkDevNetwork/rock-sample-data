@@ -33,7 +33,7 @@ Where the project stands: the team's working list. Update this page whenever som
 1. Done: configuration. The connection type, statuses, opportunities, and their Serve page filters; the serving team parents, teams, rooms, service times, and staffing; and the background check requirement.
 2. Done: serving teams with volunteers at every campus (decision 75). The Cast's 47 volunteers are in `cast/groups/serving-*.json`, which replaced the legacy A/V Team.
 3. Done: scheduling. Rotations, preferences, 26 weeks of history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
-4. Connection requests for the Cast and the Crowd, each connected request matching the team membership it created.
+4. Done: connection requests (decision 74). A connected request behind every volunteer who joined in the last two years, people waiting as Pending, and active and inactive requests in the measured mix, plus the Cast's stories. Each team leader is the default connector.
 5. Volunteer check-in, and validation of serving (`pctServe` and `groups.servingTeams`), which fills the adult check-in gap.
 6. Opportunity photos, a serving guide like [Small groups](small-groups.md), and the glossary.
 

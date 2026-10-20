@@ -72,6 +72,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:wallet:{person guid}` | That giver's card, bank account, and checkbook |
 | `{seed}:small-groups:...` | Group planning, joins, leaders, and group attendance |
 | `{seed}:serving:...` | Who serves on which team, each volunteer's rotation and preferences, and their requests to serve |
+| `{seed}:connections:{campus}` | Who asks to serve at that campus, and each request's dates, status, connector, and activities |
 | `{seed}:addresses:{campus}` | The order of addresses per campus |
 | `{seed}:photos:{campus}` | Which pool faces go to which households |
 | `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
@@ -147,6 +148,17 @@ Serving teams are set up in the configuration step from `../configuration/servin
 
 Every volunteer gets a rotation (one of Rock's four schedule templates), a join date, and usually a preferred service and room, seeded by the person. The serving step (`loading/ServingLoader.cs`) bulk-copies the members with their rotations and member history, the preferences as `GroupMemberAssignment` rows, a few blackout dates, and every request to serve as an `Attendance` row on the team's occurrence for that room, service, and Sunday. Past requests follow the family: a volunteer served on a Sunday their family came, and otherwise declined with a reason, never answered, or confirmed and did not come. The next six weeks mix confirmed, pending, and declined. Every confirmation and reminder is marked sent. Kids and student volunteers get a passing background check and the requirement results Rock's job would have saved. A team too small for its configured staffing asks for about the people it usually has.
 
+## How connection requests load
+
+The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serving, because requests end in the memberships serving just loaded. The rules are in `../configuration/connections.json` under `requests`, and the measured targets come from the profile's `connections` values. The design is decision 74.
+
+- **Connected.** Every volunteer who joined in the last two years gets the request that put them on their team, ending the day they joined. Time to connect is log-normal around the profile's median and 90th percentile.
+- **Pending.** A few people per campus connected in the last few weeks. Each gets a Pending membership on their team, which waits for the team leader to make it Active.
+- **Active and inactive.** People who are not serving ask to serve in the profile's state mix around the connected requests, more often in the busy months of its month pattern. Each campus also has one future follow-up and one request transferred from another team.
+- **The Cast.** Requests in the household files (`connectionRequests`) tell the Cast's stories and count toward their campus's mix.
+
+Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date (7 days), due soon date (5 days), connected date, and on-time flag the way the hook does. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
+
 ## Streaks and achievements
 
 `loading/AchievementsLoader.cs` creates the Kids Check-in streak type and the seven achievement types in `../configuration/achievements.json` (decisions 57 to 60). Then it writes each child's streak and achievement attempts the way Rock would have computed them.
@@ -214,7 +226,8 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
 | Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, and 26 weeks of scheduling history plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
-| People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's general groups | Later (Phase 1) |
+| Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
+| People, the rest: person attributes, notes, logins, security roles, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
 ## Check images
 

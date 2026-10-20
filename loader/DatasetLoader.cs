@@ -132,7 +132,7 @@ namespace RockSampleData.Loader
             configuration.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
-            new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
+            var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             var profile = source.ReadProfile();
@@ -231,6 +231,12 @@ namespace RockSampleData.Loader
             Console.WriteLine( "Serving" );
             new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed ).Load( servingPlans, people, attendance.FamilySundays );
             db.RebuildDeferredIndexes();
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
+            // Requests to serve end in the team memberships serving just loaded, so they follow it.
+            step.Restart();
+            Console.WriteLine( "Connection requests" );
+            new ConnectionRequestLoader( db, source, connectionSetup, servingSetup, profile, dates, foreignKey, seed ).Load( servingPlans, people );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             step.Restart();

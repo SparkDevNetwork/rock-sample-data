@@ -224,7 +224,74 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public Dictionary<string, string> AttributeOptions { get; set; } = new Dictionary<string, string>();
 
+        public ConnectionRequestRules Requests { get; set; }
+
         public List<ConnectionOpportunityDefinition> Opportunities { get; set; } = new List<ConnectionOpportunityDefinition>();
+    }
+
+    /// <summary>
+    /// How requests to serve are generated around the volunteers.
+    /// </summary>
+    internal sealed class ConnectionRequestRules
+    {
+        public int HistoryDays { get; set; }
+
+        public string StateMixProfilePath { get; set; }
+
+        public string DaysToConnectProfilePath { get; set; }
+
+        public string MonthIndexProfilePath { get; set; }
+
+        /// <summary>
+        /// Percent of requests with a connector, by state (Connected, Active, Inactive).
+        /// </summary>
+        public Dictionary<string, double> ConnectorPercent { get; set; } = new Dictionary<string, double>();
+
+        public PendingRules PendingPerCampus { get; set; }
+
+        public NumberRange PendingDaysAgo { get; set; }
+
+        public NumberRange ActiveDaysAgo { get; set; }
+
+        public NumberRange InactiveDaysAgo { get; set; }
+
+        /// <summary>
+        /// Weights of who asks to serve, by connection status.
+        /// </summary>
+        public Dictionary<string, double> RequesterStatuses { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// Weights of an active request's status.
+        /// </summary>
+        public Dictionary<string, double> ActiveStatuses { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// Teams whose requests can wait on a background check.
+        /// </summary>
+        public List<string> BackgroundCheckTeams { get; set; } = new List<string>();
+
+        public RequestTestCases TestCasesPerCampus { get; set; }
+
+        public List<string> Comments { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Note text pools by activity type name.
+        /// </summary>
+        public Dictionary<string, List<string>> Notes { get; set; } = new Dictionary<string, List<string>>();
+    }
+
+    internal sealed class PendingRules
+    {
+        public int Min { get; set; }
+
+        public double PercentOfConnected { get; set; }
+    }
+
+    internal sealed class RequestTestCases
+    {
+        public int FutureFollowUp { get; set; }
+
+        public int Transferred { get; set; }
     }
 
     internal sealed class ConnectionTypeDefinition
