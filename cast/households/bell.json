@@ -74,7 +74,13 @@
       },
       "photo": {
         "ethnicity": "southeast-asian"
-      }
+      },
+      "relationships": [
+        {
+          "type": "business",
+          "with": "9B97D1B2-EAF8-4E45-AD6F-D61477FE9E39"
+        }
+      ]
     },
     {
       "key": "debra",

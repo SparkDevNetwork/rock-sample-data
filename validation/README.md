@@ -2,6 +2,15 @@
 
 Validation proves the generated data is realistic. It runs the calibration scripts from `../calibration/sql/` against a freshly installed sample database, then compares the results to the calibration profile.
 
+Realism is one question. Whether the data is correct in Rock is another, and the [verify tool](../verify/README.md) answers it. These files in this folder belong to the verify tool:
+
+| File | What it holds |
+|---|---|
+| [invariants.sql](invariants.sql) | Rules that must hold in every loaded dataset, each with why it matters. |
+| [rock-contract.json](rock-contract.json) | Every Rock column, Guid, and procedure the loader depends on. Recorded from real loads, never edited by hand. |
+| [cleanup-accepted.json](cleanup-accepted.json) | Changes Rock Cleanup makes to sample data that we accept on purpose, each with a reason. |
+| [check-standards.js](check-standards.js) | The [content standards](../docs/content-standards.md) that span folders, as a check. |
+
 ## Rules
 
 1. Each profile value has a tolerance in [tolerances.json](tolerances.json). Percentages use points (for example, plus or minus 3). Everything else uses a share of the target (for example, within 20%).
@@ -52,6 +61,16 @@ A Cast person can say what Rock should show for their achievements with `expect`
 Every load checks them and prints the result. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast expectations hold at every anchor date tested. They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
+
+## Business expectations
+
+Every load also checks the businesses, Cast and generated alike, and prints the result after the Cast expectations:
+
+1. Each campus that has families has at least its minimum number of businesses: 6 on the main campus and 2 on every other campus.
+2. Every business has at least one business contact.
+3. Every business has a gift in the last 12 months, counted back from the newest gift in the database, so a later `--check-cast` run gets the same answer.
+
+Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 (with a 17,000-household crowd) has 87 at 7 campuses. All checks hold.
 
 ## Rock version guard
 

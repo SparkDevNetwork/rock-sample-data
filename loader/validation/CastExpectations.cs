@@ -16,6 +16,7 @@
 //
 
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Generation;
 
 using static RockSampleData.Loader.Database.RockDatabase;
 
@@ -39,6 +40,23 @@ namespace RockSampleData.Loader.Validation
         /// Prints each expectation's result and returns how many failed.
         /// </summary>
         public static int Check( RockDatabase db, SampleDataSource source )
+        {
+            var (checks, failures) = Evaluate( db, source );
+            Console.WriteLine( failures.Count == 0
+                ? $"  Cast expectations: all {checks} hold"
+                : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
+            foreach ( var failure in failures )
+            {
+                Console.WriteLine( $"    {failure}" );
+            }
+
+            return failures.Count;
+        }
+
+        /// <summary>
+        /// Returns how many expectations were checked, and a line for each one that does not hold.
+        /// </summary>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var checks = 0;
@@ -109,15 +127,79 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAchievements( db, source, failures );
 
-            Console.WriteLine( failures.Count == 0
-                ? $"  Cast expectations: all {checks} hold"
-                : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
-            foreach ( var failure in failures )
+            checks += CheckBusinesses( db, source, failures );
+
+            return (checks, failures);
+        }
+
+        /*
+            10/19/26 - CLAUDE
+
+            Every load also checks the businesses, Cast and generated alike: each campus with families
+            has its minimum number of businesses, and every business has a contact and a gift in the
+            last 12 months. "The last 12 months" counts back from the newest gift in the database, so
+            a later --check-cast run on the same database gets the same answer.
+
+            Reason: A church keeps a business record only because the business gives.
+        */
+
+        /// <summary>
+        /// Checks the businesses in the loaded database. Returns how many were checked and adds each failure.
+        /// </summary>
+        private static int CheckBusinesses( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var mainCampusGuid = source.Campuses.Campuses.Single( c => c.RockDefault ).Guid;
+            var businesses = db.Query( @"
+DECLARE @BusinessTypeId INT = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BF64ADD3-E70A-44CE-9C4B-E76BBED37550' );
+DECLARE @OwnerRoleId INT = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' );
+DECLARE @ContactRoleId INT = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '102E6AF5-62C2-4767-B473-C9C228D75FB6' );
+DECLARE @YearAgo DATETIME = DATEADD( DAY, -365, ( SELECT MAX( [TransactionDateTime] ) FROM [FinancialTransaction] ) );
+
+SELECT
+    [p].[LastName],
+    [p].[PrimaryCampusId],
+    ( SELECT COUNT( * )
+        FROM [GroupMember] AS [owner]
+        INNER JOIN [GroupMember] AS [contact] ON [contact].[GroupId] = [owner].[GroupId] AND [contact].[GroupRoleId] = @ContactRoleId
+        WHERE [owner].[PersonId] = [p].[Id] AND [owner].[GroupRoleId] = @OwnerRoleId ) AS [Contacts],
+    ( SELECT COUNT( * )
+        FROM [FinancialTransaction] AS [ft]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ft].[AuthorizedPersonAliasId]
+        WHERE [pa].[PersonId] = [p].[Id] AND [ft].[TransactionDateTime] >= @YearAgo ) AS [RecentGifts]
+FROM [Person] AS [p]
+WHERE [p].[RecordTypeValueId] = @BusinessTypeId" );
+
+            foreach ( var business in businesses )
             {
-                Console.WriteLine( $"    {failure}" );
+                if ( ( int ) business["Contacts"] == 0 )
+                {
+                    failures.Add( $"{business["LastName"]}: has no business contact" );
+                }
+
+                if ( ( int ) business["RecentGifts"] == 0 )
+                {
+                    failures.Add( $"{business["LastName"]}: has no gift in the last 12 months" );
+                }
             }
 
-            return failures.Count;
+            // Every campus that has families has its minimum number of businesses.
+            var campuses = db.Query( @"
+SELECT [c].[Id], [c].[Name], [c].[Guid]
+FROM [Campus] AS [c]
+WHERE EXISTS (
+    SELECT 1 FROM [Person] AS [p]
+    WHERE [p].[PrimaryCampusId] = [c].[Id] AND [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BF64ADD3-E70A-44CE-9C4B-E76BBED37550' ) )" );
+            foreach ( var campus in campuses )
+            {
+                var minimum = ( Guid ) campus["Guid"] == mainCampusGuid ? BusinessGenerator.MainCampusMinimum : BusinessGenerator.CampusMinimum;
+                var count = businesses.Count( b => b["PrimaryCampusId"] is int id && id == ( int ) campus["Id"] );
+                if ( count < minimum )
+                {
+                    failures.Add( $"{campus["Name"]}: has {count} businesses; it needs at least {minimum}" );
+                }
+            }
+
+            return ( businesses.Count * 2 ) + campuses.Count;
         }
 
         /// <summary>

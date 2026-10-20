@@ -26,6 +26,7 @@ flowchart LR
 4. **Pack.** The [builder](../builder/README.md) reads the Cast, the configuration, the address pool, the photos, and the resolved profile, and writes one package per dataset for one exact Rock. A package holds data only, never SQL, and no dates are fixed in it.
 5. **Load.** The [loader](../loader/README.md) checks the package and the database's Rock, generates the timeline for the install day, and writes the dataset into a fresh Rock database.
 6. **Grade.** The loader CLI runs the same calibration scripts against the loaded database, and `validation/validate.js` compares the results with the profile.
+7. **Verify.** Before a package is published, the [verify tool](../verify/README.md) loads it into a clean copy of its exact Rock release and checks it against Rock itself, then writes a receipt. Publishing needs a passing receipt. See [Verification](verification.md) for every check and why it is there.
 
 ## The data files
 
@@ -43,15 +44,15 @@ flowchart LR
 The loader runs the steps below in one database transaction. A failure rolls everything back, and `--dry-run` rolls back on purpose. Every inserted row carries `ForeignKey = SampleData:<dataset>`.
 
 1. **Configuration.** Connection statuses, service time slots, campuses and their schedules, funds with a child account per campus, and check-in rooms. It also sets up small groups: the capacity rule, the Host role, the group attributes, the topics, the inactive reasons, and a parent group per campus.
-2. **People.** Cast families, people, family memberships (including children shared between two homes), addresses with map points, and phones. For Full 7 and Core 3, generated households are added from the profile, and their small groups are planned before they load. The loader fills in what Rock's save hooks would set: ages, grades, giving Ids, giving leaders, primary family, and campus.
+2. **People.** Cast families, people, family memberships (including children shared between two homes), addresses with map points, and phones. For Full 7 and Core 3, generated households are added from the profile, and their small groups are planned before they load. Every campus also gets businesses: the Cast's 6 on the main campus, and at least 2 generated ones at each other campus. Each business has one or two contacts, loaded as Rock's Business Contact relationship. The loader fills in what Rock's save hooks would set: ages, grades, giving Ids, giving leaders, primary family, and campus.
 3. **Photos.** Every Cast person gets their delivered profile photo, except the few left without one on purpose. In Core 3, about half of the generated households get faces from a shared pool, one photo ethnicity per family. Full 7's crowd gets none.
 4. **Attendance.** For each Sunday in the history window (3 years by default), each household attends at its own rate, adjusted for holidays and the month. Adults are recorded at worship. Children check in to the room their age or grade puts them in on that date, with a security code per family per Sunday.
 5. **Achievements.** The Kids Check-in streak type and its seven achievement types, from High Five to Century Club. Each child who checked in gets a streak, and the achievement attempts Rock would have made at each of their check-ins. Next-gen check-in lists the seven types, so kiosks show each child's progress.
-6. **Small groups.** The Cast's planned groups from `cast/groups` and the generated groups for each campus. Each group gets its schedule, its meeting place at the host's home (or a meeting link), its members, its attribute values, and its history. Weekly attendance follows the church year in [Small groups](small-groups.md): fall and spring seasons, a light summer, and holiday weeks marked "did not meet".
+6. **Small groups.** The Cast's planned groups from `cast/groups` and the generated groups for each campus. Each group gets its schedule, its meeting place at the host's home (or a meeting link), its members, its attribute values, and its history. Weekly attendance follows the church year in [Small groups](small-groups.md): fall and spring seasons, a light summer, and holiday weeks marked "did not meet". Each Cast group gets a photo of its members, and Group Finder shows it on the group's card.
 7. **Giving.** Each giving pattern produces gifts on its rhythm (weekly, bi-weekly, monthly, quarterly, irregular, occasional, year-end, or one-time). Gifts come through a channel: scheduled, online, in the offering, or a mailed check. They land in batches by day, campus, and channel, and checks always get batches of their own, because churches run them through a check scanner. Most couples give together as one giving unit, and about 10% give separately. Who pays how follows age and gift size, so older givers write most checks.
 8. **Giving analytics.** The loader fills in what Rock's Giving Automation job would have written if it had run every night: each giver's giving attributes, giving bin and percentile, and journey stage with a year of history. Rock's own stored procedures do part of this work.
 9. **Giving alerts.** The sample church's three alert types (Large Gift, Smaller Than Usual, Late Gift) come with the 12 months of alerts Rock would have raised.
-10. **Cast expectations.** The loader checks that key Cast people show what their stories say, for example that the Deckers are monthly, consistent givers and that Sam Lee has earned Century Club.
+10. **Cast and business expectations.** The loader checks that key Cast people show what their stories say, for example that the Deckers are monthly, consistent givers and that Sam Lee has earned Century Club. It also checks that each campus has its minimum number of businesses, and that every business has a contact and a gift in the last 12 months.
 11. **Check images** (optional, `--check-images`). Each recent check gift gets a scanned front and back that match the gift.
 
 ## Dates and repeatability
@@ -76,6 +77,8 @@ The loader runs the steps below in one database transaction. A failure rolls eve
 | `node validation/validate.js` | Grades generated data against the profile. |
 | `node validation/check-rock-lock.js` | Checks Rock on GitHub for changes to the code the loader ports. See [Validation](../validation/README.md#rock-version-guard). |
 | `validation/achievement-parity/` | The achievements parity test. It runs Rock's own streak and achievement code on a loaded copy and compares the results with the loader's rows. See [Validation](../validation/README.md#the-achievements-parity-test-before-each-release). |
+| `node validation/check-standards.js` | Checks the content standards that span folders: phones, emails, raw data, and calibration source labels. |
+| `dotnet run -- --rock <Rock checkout>` (in `verify/`) | Proves each package works on its Rock and writes a receipt. Add `--check-receipts` for the publishing gate. See [Verification](verification.md). |
 
 ## Where the loader goes
 

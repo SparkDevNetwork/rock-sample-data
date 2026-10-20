@@ -13,7 +13,7 @@ Larry and Debra Bell greet at the front doors every Sunday. Their gift goes out 
 
 ### Larry (Lawrence) Bell
 
-- Age 66 · married · email larry.bell@example.org · groups: Greeters, Silva Group, Wright Group (left), Hughes Group (group ended)
+- Age 66 · married · email larry.bell@example.org · groups: Greeters, Silva Group, Wright Group (left), Hughes Group (group ended) · business contact for Cholla Creek Hardware
 - Person Guid `65B88091-00EE-4E28-9136-42B45E0C7188`
 
 ### Deb (Debra) Bell

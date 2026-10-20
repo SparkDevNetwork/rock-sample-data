@@ -103,7 +103,20 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [wright](households/wright.json) | Jerry (Engaged), Dot (Engaged) | Weekly cash giver. |
 | [young](households/young.json) | Destiny (Participant), Jayden 1 (Participant) | Participant through a community event. |
 
-The Cast is now 83 households and 181 people. Adult photo ethnicity is 40% White, 24% Hispanic or Latino, 12% Black, 6% East Asian, 4% Southeast Asian, 4% South Asian, 3% Native American, 3% Middle Eastern or North African, 2% Multiracial, and 2% Pacific Islander. 7 of 43 couples (16%) are mixed.
+With the new households the Cast reached 83 households and 181 people. Adult photo ethnicity is 40% White, 24% Hispanic or Latino, 12% Black, 6% East Asian, 4% Southeast Asian, 4% South Asian, 3% Native American, 3% Middle Eastern or North African, 2% Multiracial, and 2% Pacific Islander. 7 of 43 couples (16%) are mixed.
+
+## New businesses (2026-10-19)
+
+Four businesses were added so the main campus has six (decision 63). Each is tied to an existing Cast story, and its contacts are Cast people (decision 64). Cholla Creek Hardware also gained a contact, Larry Bell.
+
+| Household | Contacts | Main test purpose |
+|---|---|---|
+| [copper-canyon-video](households/copper-canyon-video.json) | Dale Tucker | Business whose contact's record is still pending review. |
+| [mesquite-tree-bookkeeping](households/mesquite-tree-bookkeeping.json) | Steve Morgan | Business that gives once a year, at year end, by mailed check. |
+| [desert-bloom-landscaping](households/desert-bloom-landscaping.json) | Daniel and Maria Garcia | Business with two contacts, a married couple who own it together. |
+| [javelina-wash-coffee](households/javelina-wash-coffee.json) | Isaac Silva | Business gift split between two funds. |
+
+The Cast is now 87 households and 185 people, with 6 businesses.
 
 ## Issues to fix during Cast review
 

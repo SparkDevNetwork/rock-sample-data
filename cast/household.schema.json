@@ -137,7 +137,10 @@
     },
     "person": {
       "type": "object",
-      "required": [ "key", "guid", "firstName", "lastName", "gender", "familyRole", "recordStatus", "connectionStatus" ],
+      "required": [ "key", "guid", "lastName", "gender", "familyRole", "recordStatus", "connectionStatus" ],
+      "$comment": "A person needs a first name. A business record has none, as in Rock: its name is the last name.",
+      "if": { "properties": { "recordType": { "const": "business" } }, "required": [ "recordType" ] },
+      "else": { "required": [ "firstName" ] },
       "additionalProperties": false,
       "properties": {
         "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },

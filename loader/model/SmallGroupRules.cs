@@ -33,6 +33,8 @@ namespace RockSampleData.Loader.Model
 
         public SmallGroupParents Parents { get; set; }
 
+        public SmallGroupFinderSettings GroupFinder { get; set; }
+
         public List<SmallGroupTopic> Topics { get; set; } = new List<SmallGroupTopic>();
 
         public SmallGroupAttributes Attributes { get; set; }
@@ -227,6 +229,16 @@ namespace RockSampleData.Loader.Model
         public int Max { get; set; }
 
         public int Capacity { get; set; }
+    }
+
+    /// <summary>
+    /// Rock's Group Finder page block, and the setting that shows each group's photo on its card.
+    /// </summary>
+    internal sealed class SmallGroupFinderSettings
+    {
+        public Guid BlockGuid { get; set; }
+
+        public Guid ShowImageAttributeGuid { get; set; }
     }
 
     internal sealed class SmallGroupLeaderRules

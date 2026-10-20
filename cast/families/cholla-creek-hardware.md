@@ -2,7 +2,7 @@
 
 Legacy household · Business · Phoenix campus · [source](../households/cholla-creek-hardware.json)
 
-A local hardware store that gives to the church.
+A local hardware store that gives to the church. Len Hollis owns it and signs the checks. Larry Bell, who manages the store, is the church's contact there.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,16 +12,17 @@ A local hardware store that gives to the church.
 
 ### Len (Lenny) Cholla Creek Hardware
 
-- email chollacreekhardware@example.org
+- email chollacreekhardware@example.org · contacts: Larry Bell
 - Person Guid `9B97D1B2-EAF8-4E45-AD6F-D61477FE9E39`
 
 ## What this family tests
 
 - Business record.
+- Business contact who is not the person who signs its checks.
 
 ## Activity
 
-- **Attendance:** set by connection status.
+- **Attendance:** none. A business does not attend.
 - **Giving:** **monthly** by Len Cholla Creek Hardware: $250 General Fund per gift, by check, gives in 95% of periods.
 
 ## Address

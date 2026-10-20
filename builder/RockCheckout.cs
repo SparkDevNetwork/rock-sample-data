@@ -68,7 +68,8 @@ namespace RockSampleData.Builder
 
         /// <summary>
         /// The newest migration's Id, for example "202609222138362_AddWorkflowBuilder". Migration
-        /// Ids start with a timestamp, so the largest name is the newest.
+        /// Ids start with a timestamp, so the largest name is the newest. Rock keeps older migrations in
+        /// version folders, and sometimes the newest too, so every folder is searched.
         /// </summary>
         private static string ReadNewestMigration( string checkoutPath )
         {
@@ -78,7 +79,7 @@ namespace RockSampleData.Builder
                 throw new DirectoryNotFoundException( $"The Rock checkout has no {folder}. Pass --rock-migration." );
             }
 
-            return Directory.GetFiles( folder, "*.cs" )
+            return Directory.GetFiles( folder, "*.cs", SearchOption.AllDirectories )
                 .Select( Path.GetFileName )
                 .Where( name => MigrationFile.IsMatch( name ) )
                 .Select( Path.GetFileNameWithoutExtension )

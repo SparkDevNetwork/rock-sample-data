@@ -53,4 +53,28 @@ namespace RockSampleData.Loader.Model
 
         public string AgeBand { get; set; }
     }
+
+    /// <summary>
+    /// photos/groups/manifest.json: one photo of each Cast small group's members.
+    /// </summary>
+    internal sealed class GroupPhotoManifest
+    {
+        public List<GroupPhotoEntry> Images { get; set; } = new List<GroupPhotoEntry>();
+    }
+
+    /// <summary>
+    /// One delivered group photo.
+    /// </summary>
+    internal sealed class GroupPhotoEntry
+    {
+        /// <summary>
+        /// The file, relative to the photos folder (for example "groups/decker-group.jpg").
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The Cast small group's key, as in cast/groups.
+        /// </summary>
+        public string Group { get; set; }
+    }
 }

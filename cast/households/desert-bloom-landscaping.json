@@ -1,0 +1,57 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "desert-bloom-landscaping",
+  "guid": "4B840A55-753B-43EF-A6F9-22326F91982A",
+  "name": "Desert Bloom Landscaping",
+  "kind": "business",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Daniel and Maria Garcia run Desert Bloom Landscaping together. The business gives by bank transfer on a monthly schedule.",
+  "testPurposes": [
+    "Business with two contacts, a married couple who own it together.",
+    "Scheduled monthly ACH gifts from a business."
+  ],
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "business",
+      "funds": {
+        "General Fund": 150
+      },
+      "percentOfPeriodsGiven": 100,
+      "currency": "ach",
+      "started": {
+        "yearsAgo": 3,
+        "month": 3,
+        "day": 1
+      }
+    }
+  ],
+  "address": {
+    "type": "work",
+    "street1": "3482 E Paradise Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85032",
+    "latitude": 33.633621,
+    "longitude": -112.007562
+  },
+  "members": [
+    {
+      "key": "business",
+      "guid": "2E987E5A-D257-4147-BD48-140DBB6A8755",
+      "recordType": "business",
+      "lastName": "Desert Bloom Landscaping",
+      "gender": "unknown",
+      "familyRole": "adult",
+      "recordStatus": "active",
+      "connectionStatus": "Prospect",
+      "email": "desertbloomlandscaping@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "work": "6025550120"
+      }
+    }
+  ]
+}

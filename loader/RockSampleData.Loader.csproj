@@ -17,9 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The builder plans Cast groups and validates packages with the loader's models; the CLI runs its checks. -->
+    <!-- The builder plans Cast groups and validates packages with the loader's models; the CLI runs its checks; the verify tool records loads. -->
     <InternalsVisibleTo Include="rock-sample-data-build" />
     <InternalsVisibleTo Include="rock-sample-data-load" />
+    <InternalsVisibleTo Include="rock-sample-data-verify" />
   </ItemGroup>
 
 </Project>

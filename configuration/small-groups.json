@@ -11,6 +11,11 @@
     "member": { "guid": "F0806058-7E5D-4CA9-9C04-3BDF92739462" },
     "host": { "guid": "D44D555A-9C6E-4341-90D7-539F6E60B409", "name": "Host", "description": "Opens their home for the group's meetings." }
   },
+  "groupFinder": {
+    "$comment": "Rock's Group Finder page block and its Show Image setting, which is off by default. Turned on so each card shows the group's photo (decision 62).",
+    "blockGuid": "63733A54-060F-4C8A-8166-87F9E1E4E835",
+    "showImageAttributeGuid": "80D044F6-75B4-4C91-811A-6CAE9D5BA95E"
+  },
   "parents": {
     "root": { "guid": "CA8D6272-82EB-4C39-9BDF-7FB628FB49E4", "name": "Small Groups" },
     "campuses": {

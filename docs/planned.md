@@ -6,13 +6,13 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Women's groups,** led by women, with a women's Bible study topic.
 - **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
-- **Group photos** for Group Finder and group pages.
 - **Serving teams** at every campus (guest services, kids, worship, production, students, prayer, and first aid), with group scheduling and volunteers who check in to serve. People join them through eight serving opportunities in connections.
 
 ## People and attendance
 
 - **Attendance per person,** so a teenager can come to the student service more often than their parents.
 - **Realistic names for the generated crowd,** drawn from public name frequency data by birth decade.
+- **Check-in relationships,** such as a grandparent who may check in a grandchild, loaded from the Cast's known relationships.
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
 
 ## Giving

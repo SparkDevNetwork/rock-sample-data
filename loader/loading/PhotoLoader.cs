@@ -33,6 +33,11 @@ namespace RockSampleData.Loader.Loading
     internal sealed class PhotoLoader
     {
         private static readonly Guid PersonImageFileTypeGuid = new Guid( "03BD8476-8A9F-4078-B628-5B538F967AFC" );
+
+        /// <summary>
+        /// Rock's Default file type, which its group detail page uses for a group's photo.
+        /// </summary>
+        private static readonly Guid DefaultFileTypeGuid = new Guid( "C1142570-8CD6-4A20-83B1-ACB47C1CD377" );
         private const string PoolSet = "core-3-pool";
 
         private readonly RockDatabase _db;
@@ -198,52 +203,85 @@ namespace RockSampleData.Loader.Loading
                 return;
             }
 
-            var fileTypeId = _db.RequireIdByGuid( "BinaryFileType", PersonImageFileTypeGuid );
+            var ordered = picks.OrderBy( p => p.Key ).ToList();
+            var fileIds = WriteFiles( PersonImageFileTypeGuid, ordered.Select( p => p.Value.File ).ToList(), "photos/manifest.json" );
+
+            // A VALUES list holds at most 1,000 rows.
+            foreach ( var chunk in ordered.Select( ( p, i ) => (PersonId: p.Key, FileId: fileIds[i]) ).Chunk( 900 ) )
+            {
+                var values = string.Join( ", ", chunk.Select( c => $"( {c.PersonId}, {c.FileId} )" ) );
+                _db.Execute( $"UPDATE [p] SET [p].[PhotoId] = [v].[FileId] FROM [Person] AS [p] INNER JOIN ( VALUES {values} ) AS [v] ( [PersonId], [FileId] ) ON [v].[PersonId] = [p].[Id]" );
+            }
+        }
+
+        /// <summary>
+        /// Gives each Cast small group in photos/groups/manifest.json its photo, the way Rock stores a
+        /// photo uploaded on the group's page: a Default file, not temporary, set as the group's PhotoId.
+        /// Run after the small groups load. Returns how many groups got a photo.
+        /// </summary>
+        /// <param name="plans">The loaded small group plans; photos match them by group key.</param>
+        public int LoadGroupPhotos( IReadOnlyList<SmallGroupPlan> plans )
+        {
+            var guids = plans.ToDictionary( p => p.Key, p => p.Guid );
+            var photos = _source.ReadGroupPhotoManifest().Images
+                .Where( p => guids.ContainsKey( p.Group ) )
+                .OrderBy( p => p.Group, StringComparer.Ordinal )
+                .ToList();
+            if ( photos.Count == 0 )
+            {
+                return 0;
+            }
+
+            var fileIds = WriteFiles( DefaultFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.GroupPhotoManifestPath );
+            var values = string.Join( ", ", photos.Select( ( p, i ) => $"( '{guids[p.Group]}', {fileIds[i]} )" ) );
+            _db.Execute( $"UPDATE [g] SET [g].[PhotoId] = [v].[FileId] FROM [Group] AS [g] INNER JOIN ( VALUES {values} ) AS [v] ( [Guid], [FileId] ) ON [v].[Guid] = [g].[Guid]" );
+            return photos.Count;
+        }
+
+        /// <summary>
+        /// Writes one JPEG file per item, in order, stored in the database, and returns their Ids in the same
+        /// order. Files are not temporary, the same as Rock leaves an image once it is saved to a record.
+        /// </summary>
+        /// <param name="fileTypeGuid">The Rock file type.</param>
+        /// <param name="photoFiles">Each item's file, relative to the photos folder. One file can be listed more than once.</param>
+        /// <param name="manifestName">The manifest that lists them, for the error when one is missing.</param>
+        private List<int> WriteFiles( Guid fileTypeGuid, IReadOnlyList<string> photoFiles, string manifestName )
+        {
+            var fileTypeId = _db.RequireIdByGuid( "BinaryFileType", fileTypeGuid );
             var storageTypeId = Convert.ToInt32( _db.Scalar( "SELECT [StorageEntityTypeId] FROM [BinaryFileType] WHERE [Id] = @Id", RockDatabase.P( "@Id", fileTypeId ) ) );
             var now = DateTime.Now;
             var nextFileId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [BinaryFile]" ) );
 
             var files = TableFactory.Create( "Id:int", "IsTemporary:bool", "IsSystem:bool", "BinaryFileTypeId:int", "FileName:string", "MimeType:string", "StorageEntityTypeId:int", "FileSize:int", "Width:int", "Height:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "ContentLastModified:date" );
             var data = TableFactory.Create( "Id:int", "Content:bytes", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var photoIds = new List<(int PersonId, int FileId)>();
+            var fileIds = new List<int>( photoFiles.Count );
             var contents = new Dictionary<string, (byte[] Bytes, int Width, int Height)>();
 
-            foreach ( var (personId, photo) in picks.OrderBy( p => p.Key ) )
+            foreach ( var photoFile in photoFiles )
             {
-                if ( !contents.TryGetValue( photo.File, out var content ) )
+                if ( !contents.TryGetValue( photoFile, out var content ) )
                 {
-                    var path = $"photos/{photo.File}";
+                    var path = $"photos/{photoFile}";
                     if ( !_source.Files.Exists( path ) )
                     {
-                        throw new FileNotFoundException( $"photos/manifest.json lists {photo.File}, but the file is missing.", path );
+                        throw new FileNotFoundException( $"{manifestName} lists {photoFile}, but the file is missing.", path );
                     }
 
                     var bytes = _source.Files.ReadBytes( path );
                     var info = Image.Identify( bytes );
                     content = (bytes, info.Width, info.Height);
-                    contents[photo.File] = content;
+                    contents[photoFile] = content;
                 }
 
                 var fileId = nextFileId++;
-                files.Rows.Add( fileId, false, false, fileTypeId, Path.GetFileName( photo.File ), "image/jpeg", storageTypeId, content.Bytes.Length, content.Width, content.Height, Guid.NewGuid(), _foreignKey, now, now, now );
+                files.Rows.Add( fileId, false, false, fileTypeId, Path.GetFileName( photoFile ), "image/jpeg", storageTypeId, content.Bytes.Length, content.Width, content.Height, Guid.NewGuid(), _foreignKey, now, now, now );
                 data.Rows.Add( fileId, content.Bytes, Guid.NewGuid(), _foreignKey, now, now );
-                photoIds.Add( (personId, fileId) );
+                fileIds.Add( fileId );
             }
 
             _db.BulkInsert( "BinaryFile", files, keepIdentity: true );
             _db.BulkInsert( "BinaryFileData", data, keepIdentity: false );
-
-            // A VALUES list holds at most 1,000 rows.
-            foreach ( var chunk in photoIds.Chunk( 900 ) )
-            {
-                var values = new StringBuilder();
-                foreach ( var (personId, fileId) in chunk )
-                {
-                    values.Append( values.Length == 0 ? string.Empty : ", " ).Append( $"( {personId}, {fileId} )" );
-                }
-
-                _db.Execute( $"UPDATE [p] SET [p].[PhotoId] = [v].[FileId] FROM [Person] AS [p] INNER JOIN ( VALUES {values} ) AS [v] ( [PersonId], [FileId] ) ON [v].[PersonId] = [p].[Id]" );
-            }
+            return fileIds;
         }
     }
 }

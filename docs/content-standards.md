@@ -28,6 +28,23 @@ Every piece of data in this repository follows these rules. Read them before you
 13. **Scripture quotes use public-domain translations only.**
 14. **Text pools use many short, varied entries** rather than a few long ones, so repeats are not noticeable.
 
+## How each rule is checked
+
+A rule a script can check is a check, not a reminder. Run `node cast/validate-cast.js` and `node validation/check-standards.js` before you open a pull request. The [verify tool](../verify/README.md) runs both, and also checks the loaded data in a real Rock, before any package is published. [Verification](verification.md) describes every check.
+
+| Rule | Checked by |
+|---|---|
+| 1. Fictional people and organizations | A reviewer. |
+| 2. Reserved phone numbers | `check-standards.js` (the Cast, including when a number may be shared) and `validation/invariants.sql` (every loaded phone, generated households too). |
+| 3. Reserved email domains | `validate-cast.js`, `check-standards.js` (every data file), and `validation/invariants.sql` (every loaded email). |
+| 4. Addresses with house numbers that do not exist | `addresses/build-pool.js`, the only thing that makes addresses. It needs the county data in `addresses/raw/`, so it runs when the pool is rebuilt. |
+| 5. No raw church data in git | `check-standards.js` (the raw folders hold only their README and `.gitignore`). |
+| 6. Calibration sources never named or described | `check-standards.js` (sources are `source-N`, and every description is exactly "Calibration source"). A reviewer reads everything else. |
+| 7. Names from public frequency data | A reviewer. |
+| 8. Photo ethnicity never goes into Rock | `validate-cast.js` (no race or ethnicity attributes), the verify tool's contract (the loader never writes `Person.RaceValueId` or `Person.EthnicityValueId`), and `validation/invariants.sql`. |
+| 9 and 10. Photos | `validate-cast.js` (every photo is a 400 by 400 JPEG that matches its person) and a reviewer (how it looks). |
+| 11 to 14. Text | A reviewer. |
+
 ## Why these rules exist
 
 The data ships with Rock, which is open source, and is shown in demos, documentation, and screenshots. A real name, a real phone number, or a real home in sample data could reach a real person. Churches shared calibration data in confidence, so nothing about them may be traceable.

@@ -83,6 +83,16 @@ namespace RockSampleData.Builder
                 AddFile( $"photos/{photo}" );
             }
 
+            // Every dataset has the Cast, so every package carries the Cast's small group photos.
+            if ( repository.Exists( SampleDataSource.GroupPhotoManifestPath ) )
+            {
+                AddFile( SampleDataSource.GroupPhotoManifestPath );
+                foreach ( var photo in source.ReadGroupPhotoManifest().Images )
+                {
+                    AddFile( $"photos/{photo.File}" );
+                }
+            }
+
             // Fonts for check images, with their licenses, and the license for the data itself.
             AddFolder( "content/fonts" );
             AddFile( "LICENSE.md" );
@@ -130,7 +140,20 @@ namespace RockSampleData.Builder
             IPackageFiles files = package;
 
             source.ReadHouseholds();
-            source.ReadCastSmallGroupPlans();
+            var castGroupKeys = source.ReadCastSmallGroupPlans().Select( p => p.Key ).ToHashSet();
+            foreach ( var photo in source.ReadGroupPhotoManifest().Images )
+            {
+                if ( !castGroupKeys.Contains( photo.Group ) )
+                {
+                    throw new InvalidOperationException( $"photos/groups/manifest.json has a photo for {photo.Group}, which is not a Cast small group." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"photos/groups/manifest.json lists {photo.File}, but the file is missing." );
+                }
+            }
+
             source.ReadProfile();
             AddressPool.Load( files, "check" );
             foreach ( var photo in source.ReadPhotoManifest().Images.Where( p => !files.Exists( $"photos/{p.File}" ) ) )

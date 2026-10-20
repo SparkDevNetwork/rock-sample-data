@@ -12,7 +12,7 @@ Dale Tucker owns a video business, recently started attending, and joined a smal
 
 ### Dale Tucker
 
-- Age 55 · single · record pending · Owner, Video Connections Limited · email dtucker@example.org · groups: Silva Group
+- Age 55 · single · record pending · Owner, Video Connections Limited · email dtucker@example.org · groups: Silva Group · business contact for Copper Canyon Video
 - Person Guid `52F2BD19-573B-485C-836A-9562389AF2E4`
 
 ## What this family tests
