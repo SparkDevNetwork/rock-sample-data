@@ -479,6 +479,17 @@
         "loader/loading/PeopleLoader.cs"
       ],
       "sha256": "95287cc4442d4538c7194ec32f3bb8e27d93f4e92b5d82b2b2c4d5d794c87764"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "UpdateInteractionComponentDailyCounts and its INSERT",
+      "from": "private int UpdateInteractionComponentDailyCounts()",
+      "to": "/// Removes any expired saved accounts",
+      "why": "The daily interaction counts Rock Cleanup backfills on its first run, and the system setting that records the last day processed.",
+      "mirroredBy": [
+        "loader/loading/PrayerLoader.cs"
+      ],
+      "sha256": "c0245b170731c9b0d88991fb90beaae75357ac0357bba8362af02efa1f840746"
     }
   ]
 }

@@ -24,7 +24,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
-| `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3 against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
+| `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
 | `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7: about 23 seconds without, about 34 with). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
@@ -173,6 +173,19 @@ The math for attributes and alerts lives in Rock's C#, so `loading/RockGivingAut
 
 Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the alerts about 2. Core 1 takes under 1 second for each. Full 7 raises about 1,500 alerts a year: about 300 large gifts, 300 smaller than usual, and 900 late gifts (about one per giver who stops). Core 1 raises about 20.
 
+## Prayer requests
+
+`generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.
+
+1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 250 requests a year per 1,000 of them. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
+2. **When and what.** Days follow the profile's month and weekday patterns, and times its hour bands. Each request gets a category by its weight in `configuration/prayer.json` and text from that category's pool in `content/prayer`: one request, some details, and sometimes a closing.
+3. **Approval.** The Cast's Prayer Administrator approves most requests within hours. Rock's approval stamps who and when, and sets the request to expire 14 days later, stored as a date. Requests whose approval would fall after install day still wait in the queue.
+4. **Prayer.** The prayer team is the Cast's Prayer Team plus about 3% of active adults, a few of them far busier than the rest. They pray through a request while it is approved and not expired, through the end of its expiration day, as Rock's prayer session shows it. Each prayer is a "Prayed" interaction in Rock's Prayer Events channel, with one interaction component per request, and `PrayerCount` is the number of them. Nobody prays for their own request.
+5. **Flags, comments, and answers.** About 2% are flagged partway through, which unapproves them, as Rock's flag limit does. Some requests that allow comments get Prayer Comment notes from people who prayed, and a few requesters reply. Some requests whose prayer window has ended get an answer, and a few are closed.
+6. **Daily counts.** Rock Cleanup keeps a daily count of interactions for channels with daily counts on, and Prayer Events is one. The loader runs Rock's own backfill and saves its last processed date, so Rock's first run finds nothing to do (`validation/rock-lock.json` tracks the Rock code).
+
+Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250 comments, and the step takes about 2 seconds. Core 1 has about 86 requests.
+
 ## Speed
 
 | Load | People | Attendance rows (Sunday plus group) | Gifts | Time |
@@ -194,7 +207,7 @@ Trying to draw checks in the background, alongside giving analytics and alerts, 
 
 ## Validation
 
-See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%).
+See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%). Prayer added 87 graded values on 2026-10-20, and all pass: 347 of 380 pass (91%).
 
 ## Steps
 
@@ -209,9 +222,10 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Post-load fix-ups (primary family, giving leader, age brackets) | Done, during the load |
 | Spike crowd for speed tests and validation | Done |
 | Scanned check images, matching each gift, stored as Rock transaction images | Done |
-| Validation with the calibration scripts | Done (89% of values pass) |
+| Validation with the calibration scripts | Done (91% of values pass) |
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
+| Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
 | People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
 
 ## Check images

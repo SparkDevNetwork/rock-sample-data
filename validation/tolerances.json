@@ -12,7 +12,8 @@
     "engagement.amongActiveAdults.pctGive",
     "engagement.amongActiveAdults.pctAttend",
     "engagement.amongActiveAdults.pctInGroup",
-    "groups.smallGroups"
+    "groups.smallGroups",
+    "prayer"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
@@ -24,7 +25,11 @@
     "attendance.adultCheckInsPerChildCheckIn",
     "attendance.adultFrequencyMixOf26Weeks",
     "attendance.holidayMultipliers.*.adults",
-    "groups.smallGroups.groupTypes"
+    "groups.smallGroups.groupTypes",
+    "prayer.avgTextLength",
+    "prayer.categories.categoriesUsed",
+    "prayer.categories.pctOfUsedCategoriesWithAParent",
+    "prayer.requesters.pctOfActiveAdultsWhoAskedIn24Months"
   ],
   "$skipReasons": {
     "attendance.sundayHourMix": "Service times come from configuration/schedules.json, not the profile.",
@@ -34,7 +39,11 @@
     "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
     "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
     "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
-    "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several."
+    "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several.",
+    "prayer.avgTextLength": "The measured mean is pulled up by a few very long requests. Generated requests stop near 500 characters (decision 67), so the length percentiles are graded instead.",
+    "prayer.categories.categoriesUsed": "The sample church uses every prayer category Rock ships, so demos show each one (decision 67).",
+    "prayer.categories.pctOfUsedCategoriesWithAParent": "Rock ships every prayer category under All Church, so all of them have a parent.",
+    "prayer.requesters.pctOfActiveAdultsWhoAskedIn24Months": "Follows from volume and the requests per requester mix, so it is not a target of its own."
   },
   "missingPassesBelow": 1,
   "rules": {
@@ -63,6 +72,9 @@
     },
     "attendance.kidsMonthIndex": {
       "relative": 0.1
+    },
+    "prayer.requesters.ageMixAmongKnown": {
+      "points": 3
     }
   }
 }

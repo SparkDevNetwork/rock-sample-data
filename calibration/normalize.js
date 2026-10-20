@@ -386,7 +386,12 @@ if ( s.prayerDetail && out.prayer ) {
     const requesters = s.prayerRequesters || {};
     const team = s.prayerTeam || {};
 
-    out.prayer.detail = s.prayerDetail;
+    // The share of requests by how many times people prayed for them, as one mix.
+    const bands = { 0: "pctPrayerCount0", 1: "pctPrayerCount1", "2-4": "pctPrayerCount2To4", "5-9": "pctPrayerCount5To9", "10-19": "pctPrayerCount10To19", "20+": "pctPrayerCount20Plus" };
+    out.prayer.detail = {
+        ...without( s.prayerDetail, ...Object.values( bands ) ),
+        prayerCountMix: Object.fromEntries( Object.entries( bands ).map( ( [ k, field ] ) => [ k, s.prayerDetail[ field ] ] ) )
+    };
     out.prayer.weekdayMix = Object.fromEntries( list( s.prayerByWeekday ).map( w => [ w.weekday, w.pctRequests ] ) );
     out.prayer.hourBandMix = Object.fromEntries( list( s.prayerByHourBand ).map( h => [ h.hourBand, h.pctRequests ] ) );
     out.prayer.categories = s.prayerCategories || null;

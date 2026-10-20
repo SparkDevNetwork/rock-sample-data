@@ -40,12 +40,6 @@
       "pctWithExpiration": 70.7,
       "pctApprovedByAPerson": 46.7,
       "pctEnteredAtMidnight": 0,
-      "pctPrayerCount0": 93.3,
-      "pctPrayerCount1": 1.3,
-      "pctPrayerCount2To4": 0,
-      "pctPrayerCount5To9": 4,
-      "pctPrayerCount10To19": 0,
-      "pctPrayerCount20Plus": 1.3,
       "daysToExpireP50": 14,
       "daysToExpireP90": 25,
       "hoursToApproveP50": 20,
@@ -54,7 +48,15 @@
       "textLengthP50": 241,
       "textLengthP90": 1108,
       "prayerCountP50": 0,
-      "prayerCountP90": 0
+      "prayerCountP90": 0,
+      "prayerCountMix": {
+        "0": 93.3,
+        "1": 1.3,
+        "2-4": 0,
+        "5-9": 4,
+        "10-19": 0,
+        "20+": 1.3
+      }
     },
     "weekdayMix": {
       "Mon": 14.7,

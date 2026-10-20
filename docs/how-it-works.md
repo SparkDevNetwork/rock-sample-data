@@ -34,7 +34,8 @@ flowchart LR
 |---|---|---|
 | `cast/households/*.json` | Each Cast family: people, ages, statuses, story, test purposes, attendance and giving patterns, address, photo inputs | People designing test cases |
 | `cast/groups/*.json` | Cast groups and their members. Small groups are plans that the builder writes with `--plan-cast-groups`. | People designing test cases; the builder for small groups |
-| `configuration/*.json` | Campuses, service times, funds, check-in rooms, connection statuses, kids achievements, and every small group rule | People shaping the church setup |
+| `configuration/*.json` | Campuses, service times, funds, check-in rooms, connection statuses, kids achievements, every small group rule, and prayer category weights | People shaping the church setup |
+| `content/prayer/*` | Text pools for prayer requests, answers, and prayer team comments, checked by `check-pools.js` | People writing sample text |
 | `calibration/profiles/*.json` | Target numbers for everything generated | People adding calibration sources |
 | `addresses/pool.json` | 18,000 placed addresses | Built by `addresses/build-pool.js` |
 | `photos/manifest.json` | Every generated photo and the prompt that made it | The image agent |
@@ -52,8 +53,9 @@ The loader runs the steps below in one database transaction. A failure rolls eve
 7. **Giving.** Each giving pattern produces gifts on its rhythm (weekly, bi-weekly, monthly, quarterly, irregular, occasional, year-end, or one-time). Gifts come through a channel: scheduled, online, in the offering, or a mailed check. They land in batches by day, campus, and channel, and checks always get batches of their own, because churches run them through a check scanner. Most couples give together as one giving unit, and about 10% give separately. Who pays how follows age and gift size, so older givers write most checks.
 8. **Giving analytics.** The loader fills in what Rock's Giving Automation job would have written if it had run every night: each giver's giving attributes, giving bin and percentile, and journey stage with a year of history. Rock's own stored procedures do part of this work.
 9. **Giving alerts.** The sample church's three alert types (Large Gift, Smaller Than Usual, Late Gift) come with the 12 months of alerts Rock would have raised.
-10. **Cast and business expectations.** The loader checks that key Cast people show what their stories say, for example that the Deckers are monthly, consistent givers and that Sam Lee has earned Century Club. It also checks that each campus has its minimum number of businesses, and that every business has a contact and a gift in the last 12 months.
-11. **Check images** (optional, `--check-images`). Each recent check gift gets a scanned front and back that match the gift.
+10. **Prayer.** Adults who attended, gave, or were in a small group in the last year ask for prayer at the profile's rate, mostly once and a few several times, through the profile's months, weekdays, and hours. Each request gets a Rock prayer category by its weight in `configuration/prayer.json` and text built from that category's pool in `content/prayer`. A prayer administrator from the Cast approves most within hours, which sets them to expire 14 days later, and the newest few still wait for approval. The prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each approved request while it is active, each prayer a "Prayed" interaction, as Rock's prayer session records it. A few requests are flagged back to the approval queue, some get comments and a reply, and some older ones get an answer (decision 67).
+11. **Cast and business expectations.** The loader checks that key Cast people show what their stories say, for example that the Deckers are monthly, consistent givers and that Sam Lee has earned Century Club. It also checks that each campus has its minimum number of businesses, and that every business has a contact and a gift in the last 12 months.
+12. **Check images** (optional, `--check-images`). Each recent check gift gets a scanned front and back that match the gift.
 
 ## Dates and repeatability
 

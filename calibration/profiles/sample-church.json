@@ -18,13 +18,7 @@
     { "path": "engagement.newAdultsAfterOneYear", "reason": "Depends heavily on how records are created, so it is not used as a target." },
     { "path": "communications.communicationsPerMonthPerThousandActiveAdults", "reason": "Varies widely with workflow use. Communication volume comes from the communications design instead." },
     { "path": "communications.recipientsPerCommunication", "reason": "Varies widely with workflow use." },
-    { "path": "connections.requestsPerYearPerThousandActiveAdults", "reason": "Varies widely with workflow use." },
-    { "path": "prayer.detail.pctPrayerCount0", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." },
-    { "path": "prayer.detail.pctPrayerCount1", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." },
-    { "path": "prayer.detail.pctPrayerCount2To4", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." },
-    { "path": "prayer.detail.pctPrayerCount5To9", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." },
-    { "path": "prayer.detail.pctPrayerCount10To19", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." },
-    { "path": "prayer.detail.pctPrayerCount20Plus", "reason": "Replaced by the designed prayer.detail.prayerCountMix (decision 67)." }
+    { "path": "connections.requestsPerYearPerThousandActiveAdults", "reason": "Varies widely with workflow use." }
   ],
   "overrides": [
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
@@ -35,6 +29,9 @@
     { "path": "prayer.pctAnswered", "value": 15, "reason": "Assumption. The sample data must exercise answered prayers." },
     { "path": "prayer.pctAllowComments", "value": 40, "reason": "Assumption. The sample data must exercise prayer comments." },
     { "path": "prayer.pctUrgent", "value": 5, "reason": "Assumption. The sample data must exercise urgent requests." },
+    { "path": "prayer.requestsPerYearPerThousandActiveAdults", "value": 250, "reason": "Design choice. At the measured requests per requester, the measured volume would need more requesters than active adults. 250 a year lets about a third of active adults ask over two years (decision 67)." },
+    { "path": "prayer.detail.pctWithExpiration", "value": 100, "reason": "Design choice. Rock sets an expiration date whenever a request is approved, and the prayer team approves every request it keeps (decision 67)." },
+    { "path": "prayer.detail.textLengthP90", "value": 500, "reason": "Design choice. Long requests are built from a request and its details, and past about 500 characters they read as repetition (decision 67)." },
     { "path": "prayer.pctApproved", "value": 97, "reason": "Design choice. The prayer team approves nearly every request, and a few wait in the approval queue (decision 67)." },
     { "path": "prayer.avgPrayerCount", "value": 6, "reason": "Design choice. The prayer team prays through requests (decision 67)." },
     { "path": "prayer.detail.pctWithGroup", "value": 8, "reason": "Design choice. A few requests are shared with a small group, so group prayer screens have data (decision 67)." },
@@ -50,8 +47,8 @@
     },
     { "path": "prayer.detail.prayerCountP50", "value": 5, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
     { "path": "prayer.detail.prayerCountP90", "value": 12, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
-    { "path": "prayer.detail.answerLengthP50", "value": 90, "reason": "Assumption. An answer is a short note from the requester or the team (decision 67)." },
-    { "path": "prayer.requesters.pctRequestersWhoAlsoPrayed", "value": 15, "reason": "Design choice. Prayer team members ask for prayer too (decision 67)." },
+    { "path": "prayer.detail.answerLengthP50", "value": 70, "reason": "Design choice. An answer is a short note from the requester, as written in content/prayer (decision 67)." },
+    { "path": "prayer.requesters.pctRequestersWhoAlsoPrayed", "value": 6, "reason": "Design choice. Prayer team members ask for prayer too. A team of 3% of active adults can be at most about 8% of the third of active adults who ask (decision 67)." },
     {
       "path": "prayer.team",
       "reason": "Design choice. An active prayer team prays through requests in Rock (decision 67). Prayers per year follow from request volume times prayers per request, so they are not set here.",
@@ -72,7 +69,7 @@
     },
     {
       "path": "prayer.comments",
-      "reason": "Design choice. The prayer team leaves short encouragements, and a few requesters reply (decision 67).",
+      "reason": "Design choice. The prayer team leaves short encouragements, as written in content/prayer, and a few requesters reply (decision 67).",
       "value": {
         "pctRequestsWithComment": 15,
         "pctCommentsThatAreReplies": 10,
@@ -80,7 +77,7 @@
         "commentsPerCommentedRequestP50": 1,
         "commentsPerCommentedRequestP90": 3,
         "hoursToFirstCommentP50": 24,
-        "commentLengthP50": 80
+        "commentLengthP50": 65
       }
     },
     {
