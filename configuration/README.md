@@ -13,6 +13,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
+| `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 
 ## Service times
 
@@ -53,6 +54,10 @@ One weekly streak type, Kids Check-in, counts every check-in under the Weekly Se
 | Century Club | 100 check-ins, after Half Century | Once |
 
 Each entry in `achievements.json` has a key, a Guid, a name, a description for kids, a component (`consecutive` or `accumulative`), a target, how many times it can be earned (`null` is unlimited), an optional prerequisite, a Font Awesome icon, and a highlight color. A prerequisite must come before the types that need it. Rock's own Weekly Attendance streak type and its two achievement types stay as Rock ships them.
+
+## Prayer categories
+
+Prayer requests use the 19 categories Rock ships under All Church, unchanged (decision 67). Each has a weight: its share of generated requests. General holds 65%, and the top 5 hold about 89%, which matches the measured shape. The rest share what is left, from Finances/Job at 2.2% down to Current Events and Nation at 0.3%. Suicidal Tendencies has weight 0, because that text is too heavy for sample data shown in demos. The category stays in Rock, empty. Each category's text pool is in [content/prayer](../content/prayer/README.md).
 
 ## Campuses
 
