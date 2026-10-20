@@ -28,14 +28,14 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-**Serving and connections (Phase 1),** on the `serving` branch (decisions 67 to 75). Eight serving opportunities in Rock's Involvement connection type, backed by serving teams at every campus, with group scheduling and connection requests that tell one story. The steps, in order:
+**Serving and connections (Phase 1),** on the `serving` branch (decisions 67 to 76). Eight serving opportunities in Rock's Involvement connection type, backed by serving teams at every campus, with group scheduling and connection requests that tell one story. The steps, in order:
 
 1. Done: configuration. The connection type, statuses, opportunities, and their Serve page filters; the serving team parents, teams, rooms, service times, and staffing; and the background check requirement.
 2. Done: serving teams with volunteers at every campus (decision 75). The Cast's 47 volunteers are in `cast/groups/serving-*.json`, which replaced the legacy A/V Team.
-3. Done: scheduling. Rotations, preferences, 26 weeks of history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
+3. Done: scheduling. Rotations, preferences, history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
 4. Done: connection requests (decision 74). A connected request behind every volunteer who joined in the last two years, people waiting as Pending, and active and inactive requests in the measured mix, plus the Cast's stories. Each team leader is the default connector.
-5. Volunteer check-in, and validation of serving (`pctServe` and `groups.servingTeams`), which fills the adult check-in gap.
-6. Opportunity photos, a serving guide like [Small groups](small-groups.md), and the glossary.
+5. Done: volunteer check-in and serving validation (decision 76). Serving history spans the whole history window, volunteers check in to serve, and validation grades serving and connections. Full 7 passes 284 of 325 values. Still out by a few points: three holiday multipliers for adults and five months of the connection month pattern.
+6. Done: the [Serving](serving.md) guide and the glossary. Still to do: photos for the five new opportunities, and the person history rows Rock writes for connection requests.
 
 ## Waiting on a decision
 

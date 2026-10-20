@@ -62,6 +62,13 @@ namespace RockSampleData.Loader.Loading
 
             var mainCampusKey = _source.Campuses.Campuses.Single( c => c.RockDefault ).Key;
             var castTeams = _source.ReadCastServingTeams();
+            var attendanceRecordRequired = config.CheckIn.AttendanceRecordRequired switch
+            {
+                "ScheduleNotRequired" => 0,
+                "PreSelect" => 1,
+                "ScheduleRequired" => 2,
+                _ => throw new InvalidOperationException( $"serving.json checkIn.attendanceRecordRequired '{config.CheckIn.AttendanceRecordRequired}' is not one of Rock's values." )
+            };
             var requirementTypeId = _db.RequireIdByGuid( "GroupRequirementType", config.BackgroundCheckRequirementTypeGuid );
             var backgroundCheckAttributeId = _db.RequireIdByGuid( "Attribute", RequiresBackgroundCheckAttributeGuid );
             var positions = 0;
@@ -79,6 +86,7 @@ namespace RockSampleData.Loader.Loading
                     var guid = campus.Key == mainCampusKey && castTeams.TryGetValue( team.Key, out var castTeam ) ? castTeam.Guid : TeamGuid( campus.Key, team.Key );
                     var groupId = EnsureGroup( guid, team.Name, team.Description, setup.GroupTypeId, parentId, plan.CampusId, order++, team.RequiresBackgroundCheck );
                     setup.TeamGroupIds[(campus.Key, team.Key)] = groupId;
+                    _db.Execute( "UPDATE [Group] SET [AttendanceRecordRequiredForCheckIn] = @Required WHERE [Id] = @Id", P( "@Required", attendanceRecordRequired ), P( "@Id", groupId ) );
 
                     var services = TeamServices( team, plan );
                     var positionOrder = 0;

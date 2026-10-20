@@ -58,8 +58,11 @@ namespace RockSampleData.Loader.Loading
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
         private readonly string _seed;
+        private readonly int? _kioskDeviceId;
+        private readonly DateTime _historyStart;
+        private int? _searchTypeId;
 
-        public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed )
+        public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed, int? kioskDeviceId, DateTime historyStart )
         {
             _db = db;
             _config = config;
@@ -68,6 +71,8 @@ namespace RockSampleData.Loader.Loading
             _dates = dates;
             _foreignKey = foreignKey;
             _seed = seed;
+            _kioskDeviceId = kioskDeviceId;
+            _historyStart = historyStart;
         }
 
         /// <summary>
@@ -75,6 +80,7 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         public void Load( IReadOnlyList<ServingTeamPlan> plans, PeopleLoader people, Dictionary<int, HashSet<DateTime>> familySundays )
         {
+            _searchTypeId = _db.IdByGuid( "DefinedValue", AttendanceLoader.PhoneSearchTypeGuid );
             var templateIds = _db.Query( "SELECT [Id], [Name] FROM [GroupMemberScheduleTemplate]" ).ToDictionary( r => ( string ) r["Name"], r => Convert.ToInt32( r["Id"] ) );
             var declineReasonIds = _db.Query( "SELECT [dv].[Id] FROM [DefinedValue] AS [dv] INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId] WHERE [dt].[Guid] = @Guid",
                 P( "@Guid", DeclineReasonTypeGuid ) ).Select( r => Convert.ToInt32( r["Id"] ) ).ToList();
@@ -91,8 +97,10 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
             var tables = new Tables( _db );
             var today = _dates.Anchor.Date;
-            var firstSunday = SundayCalendar.SundayOnOrAfter( today ).AddDays( -7 * _config.Scheduling.PastWeeks );
-            var sundays = Enumerable.Range( 0, _config.Scheduling.PastWeeks + _config.Scheduling.FutureWeeks + 1 ).Select( i => firstSunday.AddDays( 7 * i ) ).ToList();
+            // The whole history window, like Sunday attendance, then the weeks ahead.
+            var firstSunday = SundayCalendar.SundayOnOrAfter( _historyStart );
+            var lastSunday = SundayCalendar.SundayOnOrAfter( today ).AddDays( 7 * _config.Scheduling.FutureWeeks );
+            var sundays = Enumerable.Range( 0, ( ( lastSunday - firstSunday ).Days / 7 ) + 1 ).Select( i => firstSunday.AddDays( 7 * i ) ).ToList();
 
             foreach ( var plan in plans )
             {
@@ -134,9 +142,18 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
                     var blackout = AddBlackout( tables, random, person, today );
 
-                    foreach ( var sunday in sundays.Where( s => s >= startSunday && IsServingWeek( member.Rotation, startSunday, s ) ) )
+                    var fifthSundayChance = _config.Volunteers.FifthSundayPercent / 100.0;
+                    foreach ( var sunday in sundays.Where( s => s >= startSunday && ( IsServingWeek( member.Rotation, startSunday, s ) || IsFifthSundayFillIn( member.Rotation, s, random, fifthSundayChance ) ) ) )
                     {
                         if ( sunday > today && blackout.HasValue && sunday >= blackout.Value.Start && sunday <= blackout.Value.End )
+                        {
+                            continue;
+                        }
+
+                        var outcome = sunday <= today
+                            ? familySundays.TryGetValue( person.FamilyId, out var attended ) && attended.Contains( sunday ) ? Outcome.Attended : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.WhenAbsent ), true )
+                            : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.Future ), true );
+                        if ( outcome == Outcome.NotScheduled )
                         {
                             continue;
                         }
@@ -147,9 +164,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
                         var occurrenceId = tables.Occurrence( groupId, positions[position].LocationId, services[service].ScheduleId, sunday, _foreignKey );
                         var start = sunday.Add( services[service].Start );
-                        var outcome = sunday <= today
-                            ? familySundays.TryGetValue( person.FamilyId, out var attended ) && attended.Contains( sunday ) ? Outcome.Attended : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.WhenAbsent ), true )
-                            : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.Future ), true );
                         AddRequest( tables, random, occurrenceId, person, campus.CampusId, start, outcome, declineReasonIds, member.IsLeader ? null : leaderAliasId );
                     }
                 }
@@ -200,6 +214,12 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             "Every Other Week" => 0.5,
             _ => 2.0 / 4.33
         };
+
+        /// <summary>
+        /// Whether a volunteer whose rotation skips fifth Sundays fills in on this one.
+        /// </summary>
+        private static bool IsFifthSundayFillIn( string rotation, DateTime sunday, SeededRandom random, double chance ) =>
+            sunday.Day > 28 && rotation is "1st and 3rd Week" or "2nd and 4th Week" && random.Chance( chance );
 
         /// <summary>
         /// Whether a rotation serves on a Sunday, the way Rock's schedule templates repeat from the
@@ -282,13 +302,21 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             var answered = rsvp == RsvpUnknown ? DBNull.Value : ( object ) requested.AddDays( random.Between( 1, 5 ) );
             var declineReason = outcome == Outcome.Declined && declineReasonIds.Count > 0 ? random.Pick( declineReasonIds ) : ( object ) DBNull.Value;
 
+            // A volunteer who served usually checked in at the kiosk a few minutes before the service.
+            var checkIn = _config.CheckIn;
+            var checkedIn = outcome == Outcome.Attended && _kioskDeviceId.HasValue && random.Chance( checkIn.CheckInPercent / 100.0 );
+            var present = checkedIn ? start.AddMinutes( -random.Between( ( int ) checkIn.ArrivesMinutesEarly.Min, ( int ) checkIn.ArrivesMinutesEarly.Max ) ) : ( object ) DBNull.Value;
+
             tables.Attendance.Rows.Add( occurrenceId, person.AliasId, campusId, start, didAttend, rsvp, true, scheduled, true, true, answered, declineReason,
-                scheduledByAliasId.HasValue ? scheduledByAliasId.Value : ( object ) DBNull.Value, Guid.NewGuid(), _foreignKey, requested, start );
+                scheduledByAliasId.HasValue ? scheduledByAliasId.Value : ( object ) DBNull.Value,
+                checkedIn ? _kioskDeviceId.Value : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present,
+                Guid.NewGuid(), _foreignKey, requested, start );
         }
 
         private enum Outcome
         {
             Attended,
+            NotScheduled,
             Declined,
             NoResponse,
             ConfirmedNoShow,
@@ -331,7 +359,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             public DataTable Occurrences { get; } = TableFactory.Create( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "DidNotOccur:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable Attendance { get; } = TableFactory.Create( "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "RSVP:int", "RequestedToAttend:bool", "ScheduledToAttend:bool",
-                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "DeviceId:int", "SearchTypeValueId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             /// <summary>
             /// The team's occurrence for one room, service, and Sunday, added the first time it is needed.

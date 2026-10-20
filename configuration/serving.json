@@ -27,6 +27,10 @@
   "volunteers": {
     "$comment": "Who serves and how (decision 73). The Cast's volunteers are hand-picked in cast/groups/serving-*.json. Generated households serve at the profile's share of active adults, chosen from Engaged and Leading adults; every team at every campus gets at least minimumTeamSize, and its leader becomes Leading.",
     "generatedProfilePath": "engagement.amongActiveAdults.pctServe",
+    "leadersProfilePath": "groups.servingTeams.pctLeaders",
+    "$joinedComment": "Volunteers who joined in the last joinedMonthIndexDays connected through a request, so their join dates follow the month pattern of connection requests.",
+    "joinedMonthIndexProfilePath": "connections.monthIndex",
+    "joinedMonthIndexDays": 730,
     "statuses": [ "Engaged", "Leading" ],
     "$fallbackComment": "A campus too small to give every team its minimum size also takes volunteers from these statuses, in order. They become becomeMemberStatus, since serving makes someone Engaged.",
     "fallbackStatuses": [ "Connected", "Known" ],
@@ -38,14 +42,21 @@
     "joinedYearsAgo": { "min": 0.3, "max": 9 },
     "$rotationsComment": "Rock's four schedule templates. Leaders serve every week.",
     "rotations": { "Every Week": 15, "Every Other Week": 40, "1st and 3rd Week": 25, "2nd and 4th Week": 20 },
+    "$fifthSundayComment": "Leaders fill a fifth Sunday from whoever is free, so a volunteer on a 1st and 3rd or 2nd and 4th rotation serves this share of fifth Sundays.",
+    "fifthSundayPercent": 50,
     "preferredServicePercent": 85,
     "preferredPositionPercent": 70
   },
+  "checkIn": {
+    "$comment": "Volunteers check in to serve through Rock's Volunteer Check-in template, whose Serving Team area holds every team. A scheduled volunteer is pre-selected at the kiosk. A volunteer who served usually checked in, a few minutes before the service.",
+    "attendanceRecordRequired": "PreSelect",
+    "checkInPercent": 100,
+    "arrivesMinutesEarly": { "min": 5, "max": 30 }
+  },
   "scheduling": {
-    "$comment": "Serving history and the weeks ahead (decision 73). A volunteer serves when the family came that Sunday; otherwise the request ends one of the absent ways. Every confirmation and reminder is marked sent so Rock's job never emails sample people.",
-    "pastWeeks": 26,
+    "$comment": "Serving history covers the dataset's whole history window, plus the weeks ahead (decision 73). A volunteer serves when the family came that Sunday. Otherwise they were often not scheduled at all, since the family planned to be away, or the request ends one of the other absent ways. Every confirmation and reminder is marked sent so Rock's job never emails sample people.",
     "futureWeeks": 6,
-    "whenAbsent": { "declined": 55, "noResponse": 25, "confirmedNoShow": 20 },
+    "whenAbsent": { "notScheduled": 20, "declined": 45, "noResponse": 20, "confirmedNoShow": 15 },
     "future": { "confirmed": 60, "pending": 30, "declined": 10 },
     "blackoutPercent": 6,
     "blackoutTitles": [ "Out of town", "Family vacation", "Work trip", "Visiting family" ]

@@ -35,6 +35,8 @@ namespace RockSampleData.Loader.Generation
             HashSet<string> castHouseholdKeys, Dictionary<string, CastServingTeam> castTeams, Dictionary<string, CampusPlan> campuses, string mainCampusKey )
         {
             var servePercent = profile.Number( config.Volunteers.GeneratedProfilePath, 0 );
+            var leaderPercent = profile.Number( config.Volunteers.LeadersProfilePath, 0 );
+            var joinedMonths = profile.Map( config.Volunteers.JoinedMonthIndexProfilePath ).ToDictionary( kv => int.Parse( kv.Key ), kv => kv.Value );
             var castPeople = households.Where( h => castHouseholdKeys.Contains( h.Key ) )
                 .SelectMany( h => h.Members.Select( p => (Person: p, Household: h) ) )
                 .ToDictionary( x => x.Person.Guid );
@@ -50,13 +52,13 @@ namespace RockSampleData.Loader.Generation
                         foreach ( var member in castTeam.Members )
                         {
                             var (person, household) = castPeople[member.Guid];
-                            teams[castTeam.Team].Members.Add( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader" ) );
+                            teams[castTeam.Team].Members.Add( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader", joinedMonths ) );
                         }
                     }
                 }
 
                 var generated = households.Where( h => h.CampusSlot == campus.Key && !castHouseholdKeys.Contains( h.Key ) ).ToList();
-                AssignGenerated( config, dates, seed, campus, generated, teams, servePercent );
+                AssignGenerated( config, dates, seed, campus, generated, teams, servePercent, leaderPercent, joinedMonths );
                 plans.AddRange( teams.Values.Where( t => t.Members.Count > 0 ) );
             }
 
@@ -69,21 +71,24 @@ namespace RockSampleData.Loader.Generation
         /// without a leader takes the volunteer whose family attends most, who becomes Leading.
         /// </summary>
         private static void AssignGenerated( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, List<CastHousehold> households,
-            Dictionary<string, ServingTeamPlan> teams, double servePercent )
+            Dictionary<string, ServingTeamPlan> teams, double servePercent, double leaderPercent, Dictionary<int, double> joinedMonths )
         {
             var rules = config.Volunteers;
             var random = new SeededRandom( $"{seed}:serving:{campus.Key}" );
+            // Active adults are counted the way calibration counts them: in households that attend or give.
+            // Volunteers come from households that attend.
             var active = households.Where( IsActiveNow ).ToList();
-            var activeAdults = active.SelectMany( h => h.Members.Where( p => IsAdult( p, rules.MinimumAge ) ) ).Count();
+            var activeAdults = households.Where( h => IsActiveNow( h ) || h.Giving.Any( g => g.Ended == null && g.Persona != "one-time" ) ).SelectMany( h => h.Members.Where( p => IsAdult( p, rules.MinimumAge ) ) ).Count();
             List<(CastPerson Person, CastHousehold Household)> WithStatus( string status ) => active
                 .SelectMany( h => h.Members.Where( p => IsAdult( p, rules.MinimumAge ) && p.ConnectionStatus == status ).Select( p => (Person: p, Household: h) ) )
                 .OrderBy( x => new SeededRandom( $"{seed}:serving:order:{x.Person.Guid}" ).Between( 0.0, 1.0 ) )
                 .ToList();
 
-            // Engaged and Leading adults first; Connected, then Known, adults only when the teams' minimum sizes need them.
+            // Engaged and Leading adults first, then Connected and Known adults when the campus needs them to reach
+            // the measured share or the teams' minimum sizes. Serving makes them Engaged.
             var primary = rules.Statuses.SelectMany( WithStatus ).OrderBy( x => new SeededRandom( $"{seed}:serving:order:{x.Person.Guid}" ).Between( 0.0, 1.0 ) ).ToList();
             var candidates = primary.Concat( rules.FallbackStatuses.SelectMany( WithStatus ) ).ToList();
-            var measured = Math.Min( primary.Count, ( int ) Math.Round( activeAdults * servePercent / 100.0 ) );
+            var measured = Math.Min( candidates.Count, ( int ) Math.Round( activeAdults * servePercent / 100.0 ) );
             var target = Math.Min( candidates.Count, Math.Max( measured, config.Teams.Count * rules.MinimumTeamSize ) );
             if ( target == 0 )
             {
@@ -96,7 +101,7 @@ namespace RockSampleData.Loader.Generation
 
             void Add( ServingTeamDefinition team, CastPerson person, CastHousehold household )
             {
-                teams[team.Key].Members.Add( PlanMember( config, dates, seed, campus, team.Key, person, household, false ) );
+                teams[team.Key].Members.Add( PlanMember( config, dates, seed, campus, team.Key, person, household, false, joinedMonths ) );
                 assigned.Add( person.Guid );
                 if ( rules.FallbackStatuses.Contains( person.ConnectionStatus ) )
                 {
@@ -166,14 +171,23 @@ namespace RockSampleData.Loader.Generation
                 Assign( team, pick.Person, pick.Household, spouseMayJoin: true );
             }
 
-            foreach ( var plan in teams.Values.Where( t => t.Members.Count > 0 && !t.Members.Any( m => m.IsLeader ) ) )
+            // Every team has a leader, and a large team has co-leaders at the measured share of leaders,
+            // the way a big team has a coordinator for each service. Leaders come from the generated
+            // volunteers whose families attend most; a Cast team keeps its Cast leader.
+            var generatedPeople = households.SelectMany( h => h.Members.Select( p => (Person: p, Household: h) ) ).ToDictionary( x => x.Person.Guid );
+            foreach ( var plan in teams.Values.Where( t => t.Members.Count > 0 ) )
             {
-                var leader = plan.Members
-                    .OrderByDescending( m => households.First( h => h.Members.Any( p => p.Guid == m.Person ) ).Attendance?.PercentAttended ?? 0 )
-                    .First();
-                var index = plan.Members.IndexOf( leader );
-                plan.Members[index] = leader with { IsLeader = true, Rotation = LeaderRotation };
-                households.SelectMany( h => h.Members ).First( p => p.Guid == leader.Person ).ConnectionStatus = rules.BecomeLeaderStatus;
+                var wanted = Math.Max( 1, ( int ) Math.Round( plan.Members.Count * leaderPercent / 100.0 ) );
+                var promote = plan.Members
+                    .Where( m => !m.IsLeader && generatedPeople.ContainsKey( m.Person ) )
+                    .OrderByDescending( m => generatedPeople[m.Person].Household.Attendance?.PercentAttended ?? 0 )
+                    .Take( wanted - plan.Members.Count( m => m.IsLeader ) )
+                    .ToList();
+                foreach ( var leader in promote )
+                {
+                    plan.Members[plan.Members.IndexOf( leader )] = leader with { IsLeader = true, Rotation = LeaderRotation };
+                    generatedPeople[leader.Person].Person.ConnectionStatus = rules.BecomeLeaderStatus;
+                }
             }
         }
 
@@ -182,14 +196,21 @@ namespace RockSampleData.Loader.Generation
         /// Leaders serve every week and have served longer. Nobody joined in the last month; new
         /// volunteers arrive through connection requests.
         /// </summary>
-        private static ServingMemberPlan PlanMember( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, string teamKey, CastPerson person, CastHousehold household, bool isLeader )
+        private static ServingMemberPlan PlanMember( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, string teamKey, CastPerson person, CastHousehold household, bool isLeader, Dictionary<int, double> joinedMonths )
         {
             var rules = config.Volunteers;
             var team = config.Teams.Single( t => t.Key == teamKey );
             var random = new SeededRandom( $"{seed}:serving:{campus.Key}:{teamKey}:{person.Guid}" );
             var rotation = isLeader ? LeaderRotation : random.Pick( rules.Rotations );
-            var yearsAgo = random.Between( isLeader ? Math.Max( 2, rules.JoinedYearsAgo.Min ) : rules.JoinedYearsAgo.Min, rules.JoinedYearsAgo.Max );
-            var joined = dates.Anchor.AddDays( -Math.Round( yearsAgo * 365.25 ) );
+            // A recent volunteer joined through a request, so recent join dates follow the requests' month pattern.
+            var busiest = joinedMonths.Count > 0 ? joinedMonths.Values.Max() : 1.0;
+            DateTime joined;
+            do
+            {
+                var yearsAgo = random.Between( isLeader ? Math.Max( 2, rules.JoinedYearsAgo.Min ) : rules.JoinedYearsAgo.Min, rules.JoinedYearsAgo.Max );
+                joined = dates.Anchor.AddDays( -Math.Round( yearsAgo * 365.25 ) );
+            }
+            while ( joined > dates.Anchor.AddDays( -rules.JoinedMonthIndexDays ) && joinedMonths.Count > 0 && !random.Chance( joinedMonths.GetValueOrDefault( joined.Month, busiest ) / busiest ) );
             var started = dates.Resolve( household.Attendance?.Started );
             if ( started.HasValue && joined < started.Value.AddDays( 30 ) )
             {

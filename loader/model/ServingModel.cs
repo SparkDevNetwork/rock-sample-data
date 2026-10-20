@@ -37,6 +37,8 @@ namespace RockSampleData.Loader.Model
 
         public VolunteerRules Volunteers { get; set; }
 
+        public CheckInRules CheckIn { get; set; }
+
         public SchedulingRules Scheduling { get; set; }
 
         public List<ServingTeamDefinition> Teams { get; set; } = new List<ServingTeamDefinition>();
@@ -48,6 +50,19 @@ namespace RockSampleData.Loader.Model
     internal sealed class VolunteerRules
     {
         public string GeneratedProfilePath { get; set; }
+
+        /// <summary>
+        /// The profile path of the share of members who lead. Large generated teams get co-leaders to match it.
+        /// </summary>
+        public string LeadersProfilePath { get; set; }
+
+        /// <summary>
+        /// The profile path of the month pattern that recent join dates follow, since recent volunteers
+        /// joined through a connection request.
+        /// </summary>
+        public string JoinedMonthIndexProfilePath { get; set; }
+
+        public int JoinedMonthIndexDays { get; set; }
 
         public List<string> Statuses { get; set; } = new List<string>();
 
@@ -76,6 +91,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public Dictionary<string, double> Rotations { get; set; } = new Dictionary<string, double>();
 
+        /// <summary>
+        /// The percent of fifth Sundays a volunteer on a 1st and 3rd or 2nd and 4th rotation serves.
+        /// </summary>
+        public int FifthSundayPercent { get; set; }
+
         public int PreferredServicePercent { get; set; }
 
         public int PreferredPositionPercent { get; set; }
@@ -89,12 +109,28 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// How volunteers check in to serve.
+    /// </summary>
+    internal sealed class CheckInRules
+    {
+        /// <summary>
+        /// Rock's Attendance Record Required For Check-in setting for every team: ScheduleNotRequired, PreSelect, or ScheduleRequired.
+        /// </summary>
+        public string AttendanceRecordRequired { get; set; }
+
+        /// <summary>
+        /// The percent of times a volunteer served that they checked in.
+        /// </summary>
+        public int CheckInPercent { get; set; }
+
+        public NumberRange ArrivesMinutesEarly { get; set; }
+    }
+
+    /// <summary>
     /// How serving history and the weeks ahead are generated.
     /// </summary>
     internal sealed class SchedulingRules
     {
-        public int PastWeeks { get; set; }
-
         public int FutureWeeks { get; set; }
 
         /// <summary>

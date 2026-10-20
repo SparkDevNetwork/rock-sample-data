@@ -34,7 +34,7 @@
     "connectorPercent": { "Connected": 42, "Active": 25, "Inactive": 10 },
     "pendingPerCampus": { "min": 1, "percentOfConnected": 8 },
     "pendingDaysAgo": { "min": 3, "max": 25 },
-    "activeDaysAgo": { "min": 1, "max": 120 },
+    "activeDaysAgo": { "min": 1, "max": 540 },
     "inactiveDaysAgo": { "min": 30, "max": 730 },
     "requesterStatuses": { "Connected": 35, "Engaged": 25, "Known": 20, "Participant": 10, "Prospect": 10 },
     "activeStatuses": { "No Contact": 35, "In Progress": 40, "Background Check": 10, "Shadowing": 15 },

@@ -12,7 +12,10 @@
     "engagement.amongActiveAdults.pctGive",
     "engagement.amongActiveAdults.pctAttend",
     "engagement.amongActiveAdults.pctInGroup",
-    "groups.smallGroups"
+    "engagement.amongActiveAdults.pctServe",
+    "groups.smallGroups",
+    "groups.servingTeams",
+    "connections"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
@@ -21,20 +24,22 @@
     "attendance.checkInDayMix",
     "attendance.disruptedWeeksPerYear",
     "attendance.sundayHourMix",
+    "groups.smallGroups.groupTypes",
+    "groups.servingTeams.groupTypes",
     "attendance.adultCheckInsPerChildCheckIn",
     "attendance.adultFrequencyMixOf26Weeks",
-    "attendance.holidayMultipliers.*.adults",
-    "groups.smallGroups.groupTypes"
+    "groups.servingTeams.weightedMedianSize"
   ],
   "$skipReasons": {
     "attendance.sundayHourMix": "Service times come from configuration/schedules.json, not the profile.",
-    "attendance.adultCheckInsPerChildCheckIn": "Adults check in when serving, which arrives with serving in Phase 1. Adult worship attendance is recorded without check-in.",
-    "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see above.",
-    "attendance.holidayMultipliers.*.adults": "Measured from adult check-ins; see above.",
     "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
     "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
     "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
-    "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several."
+    "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several.",
+    "groups.servingTeams.groupTypes": "The sample church has one Serving Team type by design, with a parent group per campus.",
+    "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. It has no midweek programs, adult classes, or events where adults check in (see the midweek item in the roadmap).",
+    "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see attendance.adultCheckInsPerChildCheckIn. Volunteers check in on their rotation, and there are no one-time adult check-ins.",
+    "groups.servingTeams.weightedMedianSize": "Each campus has eight serving teams by design (decision 69), so a large campus has large teams."
   },
   "missingPassesBelow": 1,
   "rules": {

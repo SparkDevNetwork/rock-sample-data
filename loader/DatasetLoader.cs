@@ -229,7 +229,7 @@ namespace RockSampleData.Loader
             // Volunteers serve on the Sundays their family came, so serving follows Sunday attendance.
             step.Restart();
             Console.WriteLine( "Serving" );
-            new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed ).Load( servingPlans, people, attendance.FamilySundays );
+            new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, configuration.KioskDeviceId, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
             db.RebuildDeferredIndexes();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
