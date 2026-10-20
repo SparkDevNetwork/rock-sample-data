@@ -1,0 +1,125 @@
+{
+  "source": "source-2",
+  "description": "Calibration source",
+  "collected": "2026-10",
+  "period": {
+    "start": "2024-10-01",
+    "endExclusive": "2026-10-01"
+  },
+  "notes": [],
+  "prayer": {
+    "requestsPerYearPerThousandActiveAdults": null,
+    "pctApproved": 1.3,
+    "pctPublic": 56,
+    "pctUrgent": 0,
+    "pctAllowComments": 0,
+    "pctAnswered": 0,
+    "pctLinkedToPerson": 88,
+    "pctWithCategory": 100,
+    "avgPrayerCount": 0.6,
+    "avgTextLength": 419,
+    "monthIndex": {
+      "10": 0.61,
+      "11": 0.77,
+      "12": 1.23,
+      "01": 0.61,
+      "02": 0.92,
+      "03": 1.23,
+      "04": 0.92,
+      "05": 1.38,
+      "06": 1.07,
+      "07": 0.31,
+      "08": 0.92,
+      "09": 1.69
+    },
+    "detail": {
+      "pctWithGroup": 0,
+      "pctWithCampus": 49.3,
+      "pctActive": 94.7,
+      "pctFlagged": 8,
+      "pctWithExpiration": 70.7,
+      "pctApprovedByAPerson": 46.7,
+      "pctEnteredAtMidnight": 0,
+      "pctPrayerCount0": 93.3,
+      "pctPrayerCount1": 1.3,
+      "pctPrayerCount2To4": 0,
+      "pctPrayerCount5To9": 4,
+      "pctPrayerCount10To19": 0,
+      "pctPrayerCount20Plus": 1.3,
+      "daysToExpireP50": 14,
+      "daysToExpireP90": 25,
+      "hoursToApproveP50": 20,
+      "hoursToApproveP90": 716,
+      "textLengthP10": 95,
+      "textLengthP50": 241,
+      "textLengthP90": 1108,
+      "prayerCountP50": 0,
+      "prayerCountP90": 0
+    },
+    "weekdayMix": {
+      "Mon": 14.7,
+      "Tue": 12,
+      "Wed": 17.3,
+      "Thu": 14.7,
+      "Fri": 13.3,
+      "Sat": 9.3,
+      "Sun": 18.7
+    },
+    "hourBandMix": {
+      "00-05": 9.3,
+      "06-11": 40,
+      "12-17": 21.3,
+      "18-23": 29.3
+    },
+    "categories": {
+      "categoriesUsed": 9,
+      "pctInTopCategory": 65.3,
+      "pctInTop3Categories": 80,
+      "pctInTop5Categories": 89.3,
+      "pctOfUsedCategoriesWithAParent": 77.8
+    },
+    "requesters": {
+      "pctOfActiveAdultsWhoAskedIn24Months": null,
+      "ageMixAmongKnown": {
+        "under18": 0,
+        "18-29": 31,
+        "30-44": 21.4,
+        "45-64": 40.6,
+        "65+": 7.1
+      },
+      "pctFemaleAmongKnown": 64.4,
+      "requestsPerRequesterMix": {
+        "1": 79.6,
+        "2-3": 16.3,
+        "4+": 4.1
+      },
+      "pctRequestersWhoAlsoPrayed": 0
+    },
+    "team": {
+      "prayersPerYearPerThousandActiveAdults": null,
+      "pctOfActiveAdultsWhoPrayedIn24Months": null,
+      "pctPrayersWithAPerson": 100,
+      "prayersPerPrayingPersonP50": 29.5,
+      "prayersPerPrayingPersonP90": 33.9,
+      "pctPrayersByTop10PctOfPrayingPeople": 59.3,
+      "pctRequestsPrayedFor": 6.7,
+      "avgPrayedInteractionsPerRequest": 0.4,
+      "avgPrayerCountPerRequest": 0.64,
+      "prayersPerPrayedRequestP50": 3,
+      "prayersPerPrayedRequestP90": 13.8,
+      "hoursToFirstPrayerP50": 588.9,
+      "hoursToFirstPrayerP90": 1839.1,
+      "daysToLastPrayerP50": 42,
+      "daysToLastPrayerP90": 107.8
+    },
+    "comments": {
+      "pctRequestsWithComment": 2.7,
+      "pctCommentsThatAreReplies": 0,
+      "pctCommentsByRequester": 0,
+      "commentsPerCommentedRequestP50": 1,
+      "commentsPerCommentedRequestP90": 1,
+      "hoursToFirstCommentP50": 90.8,
+      "commentLengthP50": 965
+    }
+  }
+}

@@ -25,6 +25,16 @@ node normalize.js source-2 "Calibration source" raw/source-2-part-4-sections.tsv
 
 Delete the cell file after normalizing. Part 4 can run on its own. A profile can take its `distance` section from one source with `sectionBlend`, or hold coarse distance targets as an override (see `profiles/README.md`).
 
+## Part 5: prayer
+
+Part 5 measures how a prayer team uses Rock: who asks, how fast requests are approved, how often people pray for them, how the praying is spread across the team, and how comments and answers are used. It returns no category names and no request text.
+
+Every per-request measure stands alone. Yearly volumes (requests and prayers per 1,000 active adults) also need part 2 from the same database, because the normalizer scales them by part 2's active adults. Without part 2 they come out empty, and a profile can take volume from another source:
+
+```
+node normalize.js source-2 "Calibration source" raw/source-2-part-5.tsv
+```
+
 ## Tools
 
 | Tool | Purpose |
@@ -42,6 +52,7 @@ Delete the cell file after normalizing. Part 4 can run on its own. A profile can
 | `sql/Report_SampleDataCalibration_2_AttendanceAndGroups.sql` | Rock's SQL editor or SSMS |
 | `sql/Report_SampleDataCalibration_3_RegistrationsPrayerCommsConnections.sql` | Rock's SQL editor or SSMS |
 | `sql/Report_SampleDataCalibration_4_DistanceToCampus.sql` | Rock's SQL editor or SSMS. Returns grid-cell counts, not statistics (see above). |
+| `sql/Report_SampleDataCalibration_5_Prayer.sql` | Rock's SQL editor or SSMS. Prayer in detail (see above). |
 | `sql/Report_SampleDataCalibrationStats.sql` | SSMS only (parts 1 to 3 in one run; run part 4 separately) |
 
 The scripts are read-only. They write only to temp tables, and Rock's SQL editor rolls everything back. Each one returns anonymous aggregates with no names or Ids.

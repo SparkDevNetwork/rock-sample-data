@@ -23,6 +23,7 @@
     Steps:
       1. Blend the sources by weight. Numbers are weighted averages; other values come from the first source.
          A profile's "sectionBlend" can give one section (for example "distance") its own sources.
+         A dotted key (for example "prayer.monthIndex") does the same for one value inside a section.
       2. Remove excluded paths. A map that loses a key is renormalized to 100 when it was a percentage mix.
       3. Apply overrides.
 */
@@ -76,12 +77,25 @@ const sourceIds = [ ...new Set( [ ...profile.blend, ...Object.values( sectionBle
 const sources = Object.fromEntries( sourceIds.map( id => [ id, JSON.parse( fs.readFileSync( path.join( sourcesDir, `${id}.json` ), "utf8" ) ) ] ) );
 
 // Sections come from the default blend, plus any section given its own sources.
+const sectionKeys = Object.keys( sectionBlend ).filter( k => !k.includes( "." ) );
 const defaultSections = profile.blend.flatMap( b => Object.keys( sources[ b.source ] ) );
-const sections = [ ...new Set( [ ...defaultSections, ...Object.keys( sectionBlend ) ] ) ].filter( k => !SKIP.has( k ) );
+const sections = [ ...new Set( [ ...defaultSections, ...sectionKeys ] ) ].filter( k => !SKIP.has( k ) );
 const effective = Object.fromEntries( sections.map( k => {
     const recipe = sectionBlend[ k ] || profile.blend;
     return [ k, blend( recipe.map( b => sources[ b.source ][ k ] ), recipe.map( b => b.weight ) ) ];
 } ) );
+
+// A dotted key (for example "prayer.monthIndex") replaces one value inside a section with a blend of its own sources.
+const valueAt = ( root, dotted ) => dotted.split( "." ).reduce( ( node, p ) => node == null ? undefined : node[ p ], root );
+for ( const dotted of Object.keys( sectionBlend ).filter( k => k.includes( "." ) ) ) {
+    const recipe = sectionBlend[ dotted ];
+    const { parent, key } = locate( effective, dotted );
+    if ( !parent ) {
+        console.warn( `Section blend path not found: ${dotted}` );
+        continue;
+    }
+    parent[ key ] = blend( recipe.map( b => valueAt( sources[ b.source ], dotted ) ), recipe.map( b => b.weight ) );
+}
 
 for ( const ex of profile.excluded || [] ) {
     const { parent, key } = locate( effective, ex.path );

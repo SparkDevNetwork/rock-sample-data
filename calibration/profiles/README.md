@@ -13,6 +13,9 @@ A profile is a short recipe on top of the sources:
 1. **blend**: which sources to use, and their weights.
    **sectionBlend** (optional): gives one section its own sources, for example:
    `"sectionBlend": { "distance": [ { "source": "source-2", "weight": 1 } ] }`
+   A dotted key gives one value inside a section its own sources, for example:
+   `"prayer.monthIndex": [ { "source": "source-1", "weight": 1 } ]`
+   The builder resolves profiles in C# (`loader/generation/ProfileTargets.cs`), so a change to how profiles resolve goes in both places.
 2. **excluded**: paths to leave out, each with a reason.
 3. **overrides**: values to replace or add, each with a reason. Values with no source are marked "Assumption." An override can also hold coarse, rounded targets that record no source at all.
 4. **notes**: anything a reader should know about the targets.
