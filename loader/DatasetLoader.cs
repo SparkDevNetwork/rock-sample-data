@@ -131,6 +131,8 @@ namespace RockSampleData.Loader
             var configuration = new ConfigurationLoader( db, source, dataset, foreignKey );
             configuration.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
+            var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
+            new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             var profile = source.ReadProfile();
@@ -177,6 +179,9 @@ namespace RockSampleData.Loader
                 Console.WriteLine( $"  Generated: {generated.Count:N0} households ({perCampusText}) and {generatedPlans.Count:N0} small groups ({step.ElapsedMilliseconds:N0} ms)" );
             }
 
+            // Serving is planned before people load too, so new team leaders load as Leading.
+            var servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
             people.Load( households );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
@@ -188,8 +193,8 @@ namespace RockSampleData.Loader
             new PhotoLoader( db, source, foreignKey, seed ).Load( people.Households, castHouseholdKeys, photoPercent );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
-            // Sunday attendance and small group attendance both copy into Attendance. Its indexes are
-            // rebuilt once, after both copies; nothing reads Attendance in between.
+            // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its
+            // indexes are rebuilt once, after every copy; nothing reads Attendance in between.
             db.DeferIndexRebuild( "Attendance" );
 
             step.Restart();
@@ -208,6 +213,12 @@ namespace RockSampleData.Loader
             step.Restart();
             Console.WriteLine( "Small groups" );
             new SmallGroupLoader( db, source.SmallGroups, smallGroupSetup, calendar, dates, foreignKey, seed, mainCampusKey, configuration.CampusIds ).Load( groupPlans, people );
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
+            // Volunteers serve on the Sundays their family came, so serving follows Sunday attendance.
+            step.Restart();
+            Console.WriteLine( "Serving" );
+            new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed ).Load( servingPlans, people, attendance.FamilySundays );
             db.RebuildDeferredIndexes();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 

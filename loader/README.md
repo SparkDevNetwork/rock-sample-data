@@ -69,6 +69,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:giving:{household guid}:{person}:{persona}:{start}` | That giving pattern's gifts |
 | `{seed}:wallet:{person guid}` | That giver's card, bank account, and checkbook |
 | `{seed}:small-groups:...` | Group planning, joins, leaders, and group attendance |
+| `{seed}:serving:...` | Who serves on which team, each volunteer's rotation and preferences, and their requests to serve |
 | `{seed}:addresses:{campus}` | The order of addresses per campus |
 | `{seed}:photos:{campus}` | Which pool faces go to which households |
 | `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
@@ -130,6 +131,18 @@ Every small group is a plan (`model/SmallGroupPlan.cs`): its leader and members,
 The configuration step sets up small groups in Rock (`loading/SmallGroupConfigurationLoader.cs`): the soft capacity rule, the Small Group purpose, the Host role, three group attributes, the ten topics, the inactive reasons, and a parent group per campus. The small groups step (`loading/SmallGroupLoader.cs`) bulk-copies schedules, groups, meeting locations at the host's home, members, and attribute values.
 
 Bulk copy skips Rock's save hooks, so the loader writes group history itself, the way Rock does: one row per state for each group, member, and meeting location, with the last row current. It also records weekly attendance on the church year. Groups meet in the fall and spring, stop after December 14, and meet in summer only when they say so. Holiday weeks are marked "did not meet". Spotty leaders record only some weeks. Nobody has attendance before they joined, after they left, or while their request is pending.
+
+## How serving loads
+
+Serving teams are set up in the configuration step from `../configuration/serving.json` (`loading/ServingConfigurationLoader.cs`): a "{campus} Serving Teams" parent per campus, every team at every campus, each team's rooms with its campus's service times and staffing, and the background check requirement. The same step sets up Rock's Involvement connection type and the eight serving opportunities from `../configuration/connections.json` (`loading/ConnectionConfigurationLoader.cs`).
+
+`generation/ServingPlanner.cs` plans the volunteers before people load, so a generated team's new leader loads as Leading.
+
+- **The Cast.** The Phoenix rosters are hand-picked in `../cast/groups/serving-*.json`, one file per team. Each file's Guid is the Phoenix team's Guid.
+- **Generated households.** Engaged and Leading adults in households that still attend serve at the profile's `pctServe` share of active adults. Each team gets a leader and at least two people, drawing on Connected, then Known, adults when a campus is small (decision 75). Couples often serve together.
+
+Every volunteer gets a rotation (one of Rock's four schedule templates), a join date, and usually a preferred service and room, seeded by the person. The serving step (`loading/ServingLoader.cs`) bulk-copies the members with their rotations and member history, the preferences as `GroupMemberAssignment` rows, a few blackout dates, and every request to serve as an `Attendance` row on the team's occurrence for that room, service, and Sunday. Past requests follow the family: a volunteer served on a Sunday their family came, and otherwise declined with a reason, never answered, or confirmed and did not come. The next six weeks mix confirmed, pending, and declined. Every confirmation and reminder is marked sent. Kids and student volunteers get a passing background check and the requirement results Rock's job would have saved. A team too small for its configured staffing asks for about the people it usually has.
+
 ## Streaks and achievements
 
 `loading/AchievementsLoader.cs` creates the Kids Check-in streak type and the seven achievement types in `../configuration/achievements.json` (decisions 57 to 60). Then it writes each child's streak and achievement attempts the way Rock would have computed them.
@@ -196,7 +209,8 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Validation with the calibration scripts | Done (89% of values pass) |
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
-| People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
+| Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, and 26 weeks of scheduling history plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
+| People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's general groups | Later (Phase 1) |
 
 ## Check images
 

@@ -36,6 +36,7 @@ const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchde
 const errors = [];
 const warnings = [];
 const smallGroups = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "small-groups.json" ), "utf8" ) );
+const serving = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "serving.json" ), "utf8" ) );
 
 // Photo ethnicity values come from one file, and the schema enum must list the same keys.
 const ethnicityFile = JSON.parse( fs.readFileSync( path.join( castDir, "..", "photos", "ethnicities.json" ), "utf8" ) );
@@ -143,6 +144,30 @@ const groupTypesByPerson = new Map();
 const duplicateHouseholds = new Set( households.filter( h => h.data.duplicateOf ).map( h => h.data.key ) );
 
 /**
+ * Checks a Cast serving team roster against its team in configuration/serving.json.
+ */
+function checkServingTeam( file, g ) {
+    const team = serving.teams.find( t => t.key === g.team );
+    if ( !team ) {
+        errors.push( `${file}: team "${g.team}" is not in configuration/serving.json.` );
+        return;
+    }
+    if ( g.name !== team.name || g.key !== `serving-${team.key}` ) {
+        errors.push( `${file}: a roster for "${team.key}" must be named "${team.name}" with key "serving-${team.key}".` );
+    }
+    const teamLeaders = ( g.members || [] ).filter( m => m.role === "Leader" );
+    if ( teamLeaders.length !== 1 ) {
+        errors.push( `${file}: has ${teamLeaders.length} leaders; a serving team has exactly one.` );
+    }
+    for ( const m of g.members || [] ) {
+        const entry = people.get( m.guid );
+        if ( entry && ( entry.person.birth?.age ?? 0 ) < 18 ) {
+            errors.push( `${file}: ${m.name} is under 18; serving team members are adults.` );
+        }
+    }
+}
+
+/**
  * Checks a small group plan (see group.schema.json and configuration/small-groups.json).
  */
 function checkSmallGroupPlan( file, g ) {
@@ -222,6 +247,9 @@ for ( const { file, data: g } of groups ) {
     }
     if ( isPlan ) {
         checkSmallGroupPlan( file, g );
+    }
+    if ( g.type === "serving" ) {
+        checkServingTeam( file, g );
     }
 
     for ( const m of g.members || [] ) {

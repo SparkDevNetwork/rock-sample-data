@@ -15,7 +15,11 @@
   },
   "if": { "properties": { "type": { "const": "small-group" } } },
   "then": { "oneOf": [ { "$ref": "#/$defs/smallGroupPlan" }, { "$ref": "#/$defs/smallGroupNotInPattern" } ] },
-  "else": { "$ref": "#/$defs/otherGroup" },
+  "else": {
+    "if": { "properties": { "type": { "const": "serving" } } },
+    "then": { "$ref": "#/$defs/servingTeam" },
+    "else": { "$ref": "#/$defs/otherGroup" }
+  },
   "unevaluatedProperties": false,
   "$defs": {
     "smallGroupPlan": {
@@ -141,8 +145,29 @@
         }
       }
     },
+    "servingTeam": {
+      "description": "The Cast's members of one serving team at the main campus. The team itself (rooms, service times, staffing) is in configuration/serving.json; see docs/serving.md. The loader adds each member's rotation, preferences, and serving history.",
+      "required": [ "team", "campus", "members" ],
+      "properties": {
+        "team": { "type": "string", "description": "A team key from configuration/serving.json." },
+        "campus": { "const": "main" },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "guid", "role" ],
+            "additionalProperties": false,
+            "properties": {
+              "guid": { "$ref": "household.schema.json#/$defs/guid" },
+              "name": { "type": "string", "description": "For readability only." },
+              "role": { "enum": [ "Leader", "Member" ] }
+            }
+          }
+        }
+      }
+    },
     "otherGroup": {
-      "description": "A serving team or general group.",
+      "description": "A general group.",
       "properties": {
         "parentGroupGuid": { "$ref": "household.schema.json#/$defs/guid" },
         "description": { "type": "string" },

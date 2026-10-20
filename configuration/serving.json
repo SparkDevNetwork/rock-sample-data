@@ -1,0 +1,138 @@
+{
+  "$comment": "Serving teams in every dataset: the parent groups, the rooms teams serve in, and each team's positions, service times, and staffing (decisions 69, 70, and 72). Every campus in the dataset gets every team. connections.json links each team to its serving opportunity.",
+  "groupType": {
+    "guid": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4",
+    "$comment": "Rock's Serving Team type. Scheduling is on and its purpose is Serving Area, which is how calibration finds serving teams."
+  },
+  "roles": {
+    "leader": { "guid": "F6CECB48-52C1-4D25-9411-F1465755EB70" },
+    "member": { "guid": "8F63AB81-A2F7-4D69-82E9-158FDD92DB3D" }
+  },
+  "parents": {
+    "root": { "guid": "31730962-4C7B-425B-BD73-4185331F37EF", "name": "Serving Teams", "$comment": "Rock's own Serving Teams group." },
+    "campuses": {
+      "phoenix": "7ADD29D6-4462-46EB-BCE9-CBEC53458A24",
+      "peoria": "BDC1F562-3934-4D92-8805-5A23BE773FE7",
+      "gilbert": "06E4C063-52B4-4736-95F4-156DBFFC7BAE",
+      "scottsdale": "4B88A8A1-D15A-49DA-B617-2DA443C67BD1",
+      "chandler": "5DFD333C-6B01-45C6-B237-27AD3D94D251",
+      "goodyear": "74051073-6C18-43E3-9622-D4AC739D4307",
+      "tempe": "A063A3D9-1CD8-4086-B190-93AA88CD474C"
+    },
+    "campusNameFormat": "{campus} Serving Teams"
+  },
+  "$roomsComment": "Rooms added to each campus building beside the check-in rooms. A position names either one of these rooms or a check-in group key from checkin.json, which means that group's room.",
+  "rooms": [ "Main Entrance", "Kids Entrance", "Worship Center", "Production Booth", "Prayer Room", "First Aid Station" ],
+  "backgroundCheckRequirementTypeGuid": "1C21C346-A861-4A9A-BD6D-BAA7D92419D5",
+  "volunteers": {
+    "$comment": "Who serves and how (decision 73). The Cast's volunteers are hand-picked in cast/groups/serving-*.json. Generated households serve at the profile's share of active adults, chosen from Engaged and Leading adults; every team at every campus gets at least minimumTeamSize, and its leader becomes Leading.",
+    "generatedProfilePath": "engagement.amongActiveAdults.pctServe",
+    "statuses": [ "Engaged", "Leading" ],
+    "$fallbackComment": "A campus too small to give every team its minimum size also takes volunteers from these statuses, in order. They become becomeMemberStatus, since serving makes someone Engaged.",
+    "fallbackStatuses": [ "Connected", "Known" ],
+    "becomeMemberStatus": "Engaged",
+    "minimumAge": 18,
+    "minimumTeamSize": 2,
+    "spouseSameTeamPercent": 50,
+    "becomeLeaderStatus": "Leading",
+    "joinedYearsAgo": { "min": 0.3, "max": 9 },
+    "$rotationsComment": "Rock's four schedule templates. Leaders serve every week.",
+    "rotations": { "Every Week": 15, "Every Other Week": 40, "1st and 3rd Week": 25, "2nd and 4th Week": 20 },
+    "preferredServicePercent": 85,
+    "preferredPositionPercent": 70
+  },
+  "scheduling": {
+    "$comment": "Serving history and the weeks ahead (decision 73). A volunteer serves when the family came that Sunday; otherwise the request ends one of the absent ways. Every confirmation and reminder is marked sent so Rock's job never emails sample people.",
+    "pastWeeks": 26,
+    "futureWeeks": 6,
+    "whenAbsent": { "declined": 55, "noResponse": 25, "confirmedNoShow": 20 },
+    "future": { "confirmed": 60, "pending": 30, "declined": 10 },
+    "blackoutPercent": 6,
+    "blackoutTitles": [ "Out of town", "Family vacation", "Work trip", "Visiting family" ]
+  },
+  "$teamsComment": "The main campus teams take their Guids from the Cast rosters in cast/groups/serving-*.json. Every other team's Guid comes from its campus and key, so it is the same on every install. services is all (every service at the campus) or student (the student service). capacity is minimum, desired, and maximum people for each position at each service, for a campus that can staff it; a smaller campus scales it down to the volunteers it has.",
+  "teams": [
+    {
+      "key": "greeters",
+      "name": "Greeters",
+      "description": "Greeters welcome everyone at the doors with a smile and help first-time guests find their way.",
+      "services": "all",
+      "positions": [
+        { "room": "Main Entrance", "capacity": [ 2, 3, 4 ] },
+        { "room": "Kids Entrance", "capacity": [ 1, 2, 2 ] }
+      ]
+    },
+    {
+      "key": "ushers",
+      "name": "Ushers",
+      "description": "Ushers help people find a seat, keep the room running smoothly, and receive the offering.",
+      "services": "all",
+      "positions": [
+        { "room": "Worship Center", "capacity": [ 3, 4, 6 ] }
+      ]
+    },
+    {
+      "key": "kids-ministry",
+      "name": "Kids Ministry",
+      "description": "Kids Ministry volunteers lead and care for children from the nursery through 6th grade during every service.",
+      "services": "all",
+      "requiresBackgroundCheck": true,
+      "positions": [
+        { "checkInGroup": "nursery", "capacity": [ 2, 3, 4 ] },
+        { "checkInGroup": "crawlers-walkers", "capacity": [ 2, 3, 4 ] },
+        { "checkInGroup": "preschool", "capacity": [ 2, 3, 4 ] },
+        { "checkInGroup": "grades-k-1", "capacity": [ 2, 3, 4 ] },
+        { "checkInGroup": "grades-2-3", "capacity": [ 2, 3, 4 ] },
+        { "checkInGroup": "grades-4-6", "capacity": [ 2, 3, 4 ] }
+      ]
+    },
+    {
+      "key": "worship-team",
+      "name": "Worship Team",
+      "description": "Musicians and vocalists who lead the church in worship every Sunday.",
+      "services": "all",
+      "positions": [
+        { "room": "Worship Center", "capacity": [ 4, 6, 8 ] }
+      ]
+    },
+    {
+      "key": "production-team",
+      "name": "Production Team",
+      "description": "The Production Team runs sound, lights, slides, cameras, and the livestream.",
+      "services": "all",
+      "positions": [
+        { "room": "Production Booth", "capacity": [ 2, 3, 4 ] }
+      ]
+    },
+    {
+      "key": "student-ministry",
+      "name": "Student Ministry",
+      "description": "Student leaders build friendships with 7th through 12th graders and lead their small group conversations.",
+      "services": "student",
+      "minimumAge": 21,
+      "requiresBackgroundCheck": true,
+      "positions": [
+        { "checkInGroup": "grades-7-8", "capacity": [ 2, 3, 5 ] },
+        { "checkInGroup": "grades-9-12", "capacity": [ 2, 3, 5 ] }
+      ]
+    },
+    {
+      "key": "prayer-team",
+      "name": "Prayer Team",
+      "description": "The Prayer Team prays with anyone who asks, before and after every service.",
+      "services": "all",
+      "positions": [
+        { "room": "Prayer Room", "capacity": [ 2, 2, 4 ] }
+      ]
+    },
+    {
+      "key": "first-aid-team",
+      "name": "First Aid Team",
+      "description": "Trained responders who care for injuries and medical needs during services.",
+      "services": "all",
+      "positions": [
+        { "room": "First Aid Station", "capacity": [ 1, 1, 2 ] }
+      ]
+    }
+  ]
+}

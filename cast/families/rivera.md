@@ -14,12 +14,12 @@ Michael and Jennifer Rivera adopted Joy when she was three. Joy is now ten.
 
 ### Mike (Michael) Rivera
 
-- Age 44 · married · email mike.rivera@example.org · groups: Rivera Group (leader), Murphy Group (group ended)
+- Age 44 · married · email mike.rivera@example.org · groups: Rivera Group (leader), Student Ministry, Murphy Group (group ended)
 - Person Guid `A8002793-F4F2-425A-B68E-8BE8017EAEAC`
 
 ### Jen (Jennifer) Rivera
 
-- Age 43 · married · email jen.rivera@example.org · groups: Rivera Group (host), Murphy Group (group ended)
+- Age 43 · married · email jen.rivera@example.org · groups: Rivera Group (host), Student Ministry, Murphy Group (group ended)
 - Person Guid `17415CFB-C1A6-422E-B23E-D695BE0171C0`
 
 ### Joy Rivera

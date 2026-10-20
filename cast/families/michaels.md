@@ -14,7 +14,7 @@ Jenny Michaels is not on staff but coordinates the annual car show and summer ca
 
 Jenny is a systems engineer who coordinates the annual car show and summer camp. She is not on staff but has staff-like access for those events.
 
-- Age 28 · single · Systems Engineer, Sonoran Systems · email jenny@rocksolidchurchdemo.com · groups: Alisha Marble’s Group, Foster Group · 1 security roles
+- Age 28 · single · Systems Engineer, Sonoran Systems · email jenny@rocksolidchurchdemo.com · groups: Alisha Marble’s Group, Foster Group, Student Ministry · 1 security roles
 - Person Guid `82309081-A110-496F-8295-CE6A4720D7A8`
 
 ## What this family tests

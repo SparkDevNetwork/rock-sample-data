@@ -22,7 +22,7 @@ Alisha is the church's Rock administrator and holds nearly every security role. 
 
 Bill owns a local business and leads a small group for people who are new to faith. He was born on a leap day, so he is the record to use for February 29 birthday logic. He is one of the church's most generous weekly givers.
 
-- Age 55 · married · email bill.marble@example.org · groups: Marble Group (leader), Foster Group (left)
+- Age 55 · married · email bill.marble@example.org · groups: Marble Group (leader), Ushers (leader), Foster Group (left)
 - Person Guid `1EA811BB-3118-42D1-B020-32A82BC8081A`
 
 ## What this family tests

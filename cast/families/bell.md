@@ -13,17 +13,17 @@ Larry and Debra Bell greet at the front doors every Sunday. Their gift goes out 
 
 ### Larry (Lawrence) Bell
 
-- Age 66 · married · email larry.bell@example.org · groups: Silva Group, Wright Group (left), Hughes Group (group ended)
+- Age 66 · married · email larry.bell@example.org · groups: Greeters, Silva Group, Wright Group (left), Hughes Group (group ended)
 - Person Guid `65B88091-00EE-4E28-9136-42B45E0C7188`
 
 ### Deb (Debra) Bell
 
-- Age 64 · married · email deb.bell@example.org · groups: Silva Group, Wright Group (left), Hughes Group (group ended)
+- Age 64 · married · email deb.bell@example.org · groups: Greeters, Silva Group, Wright Group (left), Hughes Group (group ended)
 - Person Guid `727A0988-9147-40E0-96D5-12D90F3C2DDD`
 
 ## What this family tests
 
-- Greeters (guest services in Phase 1).
+- Greeters on the Phoenix Greeters team.
 - Monthly scheduled ACH giver.
 
 ## Activity

@@ -1,0 +1,18 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-prayer-team",
+  "guid": "1CE1B99C-BF18-4A20-AA1A-EA488F6E6C21",
+  "name": "Prayer Team",
+  "type": "serving",
+  "team": "prayer-team",
+  "campus": "main",
+  "members": [
+    { "guid": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "name": "Pete Foster", "role": "Leader" },
+    { "guid": "F4450E80-F221-4556-881D-CB92B008C2DA", "name": "Pamela Foster", "role": "Member" },
+    { "guid": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "role": "Member" },
+    { "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087", "name": "Peggy Carter", "role": "Member" },
+    { "guid": "6B190521-2A32-4B46-A02B-618174709D59", "name": "Barb Jenkins", "role": "Member" },
+    { "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE", "name": "Gary Jenkins", "role": "Member" }
+  ]
+}

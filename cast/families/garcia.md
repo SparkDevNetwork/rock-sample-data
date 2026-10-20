@@ -18,14 +18,14 @@ Daniel and Maria Garcia have twin girls in first grade and a two-year-old son.
 
 Daniel and his wife Maria have twin girls in first grade and a two-year-old son.
 
-- Age 35 · married · no email
+- Age 35 · married · no email · groups: Kids Ministry
 - Person Guid `83DAAFFE-41B0-4439-A958-F854589887E6`
 
 ### Maria Garcia
 
 Maria gives monthly. She checks in all three kids every Sunday.
 
-- Age 34 · married · email maria.garcia@example.org
+- Age 34 · married · email maria.garcia@example.org · groups: Kids Ministry
 - Person Guid `1AD452EF-23CE-4250-A1B1-34836452DEFB`
 
 ### Olivia Garcia

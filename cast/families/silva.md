@@ -13,12 +13,12 @@ Isaac and Natalie Silva split every gift between the General Fund and the Missio
 
 ### Isaac Silva
 
-- Age 29 · married · email isaac.silva@example.org · groups: Silva Group (leader), Lee Group (left)
+- Age 29 · married · email isaac.silva@example.org · groups: Student Ministry (leader), Silva Group (leader), Lee Group (left)
 - Person Guid `581C940E-A788-4F32-BCF3-33F4D1948390`
 
 ### Natalie Silva
 
-- Age 28 · married · email natalie.silva@example.org · groups: Silva Group, Lee Group (left)
+- Age 28 · married · email natalie.silva@example.org · groups: Kids Ministry, Worship Team, Silva Group, Lee Group (left)
 - Person Guid `8424C30D-A967-4603-AFAB-10B8235DC371`
 
 ## What this family tests

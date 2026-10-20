@@ -13,12 +13,12 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 
 ### Steve (Steven) Morgan
 
-- Age 58 · married · email steve.morgan@example.org · groups: Silva Group, Jenkins Group (group archived), Foster Group (left)
+- Age 58 · married · email steve.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left)
 - Person Guid `26ECA7AC-9EF7-403A-B053-C852CBA7DB4C`
 
 ### Karen Morgan
 
-- Age 57 · married · email karen.morgan@example.org · groups: Silva Group, Jenkins Group (group archived), Foster Group (left)
+- Age 57 · married · email karen.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left)
 - Person Guid `4CB52244-023C-46BA-8C3A-FA24D9611ADF`
 
 ## What this family tests

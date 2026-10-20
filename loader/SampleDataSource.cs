@@ -56,6 +56,10 @@ namespace RockSampleData.Loader
 
         public AchievementConfiguration Achievements { get; }
 
+        public ServingConfiguration Serving { get; }
+
+        public ConnectionsConfiguration Connections { get; }
+
         /// <summary>
         /// Reads every configuration file.
         /// </summary>
@@ -70,6 +74,8 @@ namespace RockSampleData.Loader
             SmallGroups = Read<SmallGroupRules>( "configuration/small-groups.json" );
             GivingAlertTypes = Read<GivingAlertTypeConfiguration>( "configuration/giving-alert-types.json" );
             Achievements = Read<AchievementConfiguration>( "configuration/achievements.json" );
+            Serving = Read<ServingConfiguration>( "configuration/serving.json" );
+            Connections = Read<ConnectionsConfiguration>( "configuration/connections.json" );
         }
 
         /// <summary>
@@ -100,6 +106,17 @@ namespace RockSampleData.Loader
         public PhotoManifest ReadPhotoManifest()
         {
             return Read<PhotoManifest>( "photos/manifest.json" );
+        }
+
+        /// <summary>
+        /// Reads the Cast's serving team rosters (cast/groups/serving-*.json), by team key.
+        /// </summary>
+        public Dictionary<string, CastServingTeam> ReadCastServingTeams()
+        {
+            return Files.List( "cast/groups" )
+                .Where( f => Path.GetFileName( f ).StartsWith( "serving-", StringComparison.Ordinal ) && f.EndsWith( ".json", StringComparison.Ordinal ) )
+                .Select( Read<CastServingTeam> )
+                .ToDictionary( t => t.Team );
         }
 
         /// <summary>

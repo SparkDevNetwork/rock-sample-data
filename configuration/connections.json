@@ -1,0 +1,102 @@
+{
+  "$comment": "Requests to serve (decisions 67, 68, and 71). Rock's Involvement connection type keeps its name and gets a real description and icon. Each opportunity places people on its serving team (serving.json) at the requester's campus. These are request statuses, not the person connection statuses in connection-statuses.json.",
+  "connectionType": {
+    "guid": "DD565087-A4BE-4943-B123-BF22777E8426",
+    "name": "Involvement",
+    "iconCssClass": "ti ti-heart-handshake",
+    "description": "People who want to get involved by serving. A connector follows up, helps each person find a team that fits, and places them on that team at their campus.",
+    "requiresPlacementGroupToConnect": true
+  },
+  "$requestStatusesComment": "Rock ships No Contact and In Progress; the sample church adds the two onboarding steps between them and serving. Colors show on the connection board.",
+  "requestStatuses": [
+    { "guid": "901E1A6A-0E91-4F42-880F-47C061C24E0C", "name": "No Contact", "description": "A new request. No one has reached out yet.", "isDefault": true, "isCritical": true, "highlightColor": "#f04438" },
+    { "guid": "828D8744-B412-4B09-A00F-FC51BBE220F6", "name": "In Progress", "description": "A connector has reached out and is helping the person find a team that fits.", "highlightColor": "#00a6f4" },
+    { "guid": "720EA71A-18F9-4D6B-B3B5-56D39EA403E3", "name": "Background Check", "description": "Waiting on a background check before the person can serve.", "highlightColor": "#f79009" },
+    { "guid": "6FC5BE2B-8FDE-45E0-AD43-722EEDB7C021", "name": "Shadowing", "description": "Serving alongside an experienced volunteer before joining the team.", "highlightColor": "#12b76a" }
+  ],
+  "activityTypes": [
+    { "guid": "98EA1590-5E18-4B93-A94C-13482A19FA63", "name": "Shadowed a Team" },
+    { "guid": "0BAAEE94-F862-4C7A-8CA8-4D32ABEBF16C", "name": "Met the Team Leader" }
+  ],
+  "$placementComment": "Connecting someone adds them to the team with this role and status. Pending is Rock's default; the team leader makes them Active after onboarding (decision 71).",
+  "placement": { "role": "member", "status": "Pending" },
+  "$attributeOptionsComment": "Rock ships three opportunity attributes on Involvement, used as filters on the public Serve page. Preference Area's options become the serving areas; keys 1 and 2 keep their meaning (Children's and First Impressions). Each opportunity's attributes give its values by attribute key.",
+  "attributeOptions": {
+    "PreferenceArea": "1^Kids, 2^Guest Services, 3^Students, 4^Worship and Production, 5^Prayer and Care"
+  },
+  "$opportunitiesComment": "Each opportunity's Name is its team's name from serving.json; publicName is the role a person takes on. The first three keep Rock's Guids. In list order.",
+  "opportunities": [
+    {
+      "guid": "6C7925A1-A87D-4F9D-82A3-4E835522325F",
+      "team": "greeters",
+      "publicName": "Greeter",
+      "iconCssClass": "ti ti-mood-smile",
+      "attributes": { "PreferenceArea": "2", "DaysoftheWeek": "7", "Role": "1" },
+      "summary": "Be the first friendly face people see. Greeters welcome guests at the doors and help them find their way.",
+      "description": "<p>A warm welcome sets the tone for someone's whole morning. Greeters open doors, say hello, and help guests find the kids area, the worship center, or the coffee.</p><p><strong>What you'll do:</strong> welcome people at the main entrance or the kids entrance, answer questions, and walk first-time guests where they need to go.</p><p><strong>Time:</strong> about 45 minutes before and during one service, once or twice a month.</p><p><strong>A good fit if:</strong> you like meeting people and remembering names. Families and couples often serve together.</p><p><strong>Training:</strong> a short walkthrough with a team leader on your first Sunday.</p>"
+    },
+    {
+      "guid": "864DC2CD-C03F-4DDB-903B-C490AAC80B48",
+      "team": "ushers",
+      "publicName": "Usher",
+      "iconCssClass": "ti ti-armchair",
+      "attributes": { "PreferenceArea": "2", "DaysoftheWeek": "7", "Role": "1" },
+      "summary": "Help people find a seat and keep the service running smoothly, from the first song to the offering.",
+      "description": "<p>Walking into a full room can feel overwhelming. Ushers notice who needs help and make it easy to find a seat.</p><p><strong>What you'll do:</strong> help people find seats, hand out what the service needs, receive the offering, and help serve communion.</p><p><strong>Time:</strong> one service, once or twice a month.</p><p><strong>A good fit if:</strong> you're calm, attentive, and happy to help in the background.</p><p><strong>Training:</strong> shadow an experienced usher for one Sunday.</p>"
+    },
+    {
+      "guid": "2C09211F-E19E-4685-9B67-4EDAA9945A97",
+      "team": "kids-ministry",
+      "publicName": "Kids Volunteer",
+      "iconCssClass": "ti ti-baby-carriage",
+      "attributes": { "PreferenceArea": "1", "DaysoftheWeek": "7", "Role": "1" },
+      "summary": "Help kids from the nursery through 6th grade learn about Jesus in a safe, fun place.",
+      "description": "<p>Every Sunday, kids hear that God loves them from people who know their names. Kids volunteers make that happen in every room, from the nursery to 6th grade.</p><p><strong>What you'll do:</strong> welcome kids to their room, lead a small group or activity, and care for babies and toddlers in the nursery.</p><p><strong>Time:</strong> one service, about twice a month. Lessons are ready for you each week.</p><p><strong>A good fit if:</strong> you love kids. No teaching experience is needed.</p><p><strong>Training:</strong> a background check and our kids safety training, then shadow a room leader for a Sunday.</p>"
+    },
+    {
+      "guid": "27B9898C-9158-4F61-986B-FD08F65DE257",
+      "team": "worship-team",
+      "publicName": "Musician or Vocalist",
+      "iconCssClass": "ti ti-music",
+      "attributes": { "PreferenceArea": "4", "DaysoftheWeek": "4,7", "Role": "1" },
+      "summary": "Sing or play on the team that leads the church in worship each Sunday.",
+      "description": "<p>The Worship Team helps the whole room sing together. We need vocalists and players for keys, guitar, bass, and drums.</p><p><strong>What you'll do:</strong> learn the week's songs, join a Thursday rehearsal, and lead worship at the services you're scheduled for.</p><p><strong>Time:</strong> a rehearsal and a Sunday morning, about twice a month.</p><p><strong>A good fit if:</strong> you sing or play with some experience and enjoy serving as part of a band.</p><p><strong>Training:</strong> a short, friendly audition with the worship leader, then a rehearsal with the team.</p>"
+    },
+    {
+      "guid": "AB3070AC-B1E6-4006-8E0F-BAAD43432AA3",
+      "team": "production-team",
+      "publicName": "Production Volunteer",
+      "iconCssClass": "ti ti-video",
+      "attributes": { "PreferenceArea": "4", "DaysoftheWeek": "7", "Role": "2" },
+      "summary": "Run sound, lights, slides, cameras, or the livestream. No experience needed.",
+      "description": "<p>Behind every service is a team that makes sure people can hear, see, and follow along, in the room and online.</p><p><strong>What you'll do:</strong> run sound, lights, slides, a camera, or the livestream from the production booth.</p><p><strong>Time:</strong> about two hours on a Sunday morning, once or twice a month.</p><p><strong>A good fit if:</strong> you like technology or want to learn it. Many of our best volunteers started with no experience.</p><p><strong>Training:</strong> hands-on training at one position at a time, alongside a team leader.</p>"
+    },
+    {
+      "guid": "5A0789ED-14C3-449C-9FF2-4244E6CB5608",
+      "team": "student-ministry",
+      "publicName": "Student Leader",
+      "iconCssClass": "ti ti-school",
+      "attributes": { "PreferenceArea": "3", "DaysoftheWeek": "7", "Role": "1" },
+      "summary": "Walk with 7th through 12th graders as they grow in faith, one Sunday conversation at a time.",
+      "description": "<p>Students need adults who show up, listen, and care. Student leaders build friendships with the same group of students week after week.</p><p><strong>What you'll do:</strong> lead a small group conversation after the message, and check in with your students during the week.</p><p><strong>Time:</strong> the student service every week, plus a few events each year.</p><p><strong>A good fit if:</strong> you're 21 or older and want to invest in the next generation.</p><p><strong>Training:</strong> a background check, our student safety training, and a meeting with the student pastor.</p>"
+    },
+    {
+      "guid": "D04CAC05-50A3-4339-A6D6-E12472C2493C",
+      "team": "prayer-team",
+      "publicName": "Prayer Partner",
+      "iconCssClass": "ti ti-pray",
+      "attributes": { "PreferenceArea": "5", "DaysoftheWeek": "7", "Role": "1" },
+      "summary": "Pray with people before and after services, in the prayer room or at the front after the message.",
+      "description": "<p>Sometimes the most important part of a Sunday is the prayer afterward. Prayer partners are ready to listen and pray with anyone who asks.</p><p><strong>What you'll do:</strong> pray with people in the prayer room or at the front after the service, and keep what you hear in confidence.</p><p><strong>Time:</strong> one service, once or twice a month.</p><p><strong>A good fit if:</strong> you're a good listener and comfortable praying aloud with others.</p><p><strong>Training:</strong> a short training on praying with others and caring for people in hard seasons.</p>"
+    },
+    {
+      "guid": "6D081CCD-889E-4C58-886D-5999C5A55D5D",
+      "team": "first-aid-team",
+      "publicName": "First Aid Responder",
+      "iconCssClass": "ti ti-first-aid-kit",
+      "attributes": { "PreferenceArea": "5", "DaysoftheWeek": "7", "Role": "2" },
+      "summary": "Use your medical training to care for anyone who needs help during a service.",
+      "description": "<p>With hundreds of people on campus, someone may need first aid. The First Aid Team is ready to respond calmly and quickly.</p><p><strong>What you'll do:</strong> staff the first aid station, carry a radio, and care for injuries and medical needs until more help arrives.</p><p><strong>Time:</strong> one service, about once a month.</p><p><strong>A good fit if:</strong> you have current first aid and CPR certification, or medical training such as nursing or EMT work.</p><p><strong>Training:</strong> an orientation to our station, radios, and emergency plan.</p>"
+    }
+  ]
+}

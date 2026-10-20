@@ -24,7 +24,14 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-Nothing right now.
+**Serving and connections (Phase 1),** on the `serving` branch (decisions 67 to 75). Eight serving opportunities in Rock's Involvement connection type, backed by serving teams at every campus, with group scheduling and connection requests that tell one story. The steps, in order:
+
+1. Done: configuration. The connection type, statuses, opportunities, and their Serve page filters; the serving team parents, teams, rooms, service times, and staffing; and the background check requirement.
+2. Done: serving teams with volunteers at every campus (decision 75). The Cast's 47 volunteers are in `cast/groups/serving-*.json`, which replaced the legacy A/V Team.
+3. Done: scheduling. Rotations, preferences, 26 weeks of history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
+4. Connection requests for the Cast and the Crowd, each connected request matching the team membership it created.
+5. Volunteer check-in, and validation of serving (`pctServe` and `groups.servingTeams`), which fills the adult check-in gap.
+6. Opportunity photos, a serving guide like [Small groups](small-groups.md), and the glossary.
 
 ## Waiting on a decision
 
@@ -32,11 +39,10 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
-2. **Close validation gaps.** First-time visitors run low and teens run low.
-3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-4. **Per-person attendance,** so a teen can attend more often than their parents.
-5. **Real Crowd names** from public-domain frequency data by birth decade.
+1. **Close validation gaps.** First-time visitors run low and teens run low.
+2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+3. **Per-person attendance,** so a teen can attend more often than their parents.
+4. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)
 
@@ -47,6 +53,10 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 1. **Women's groups.** Add women's small groups led by women, with a Women's Bible Study topic. Alisha Marble's existing group becomes one of them; until then it is not part of the small group design.
 2. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
 3. **Group photos.** The [group photo brief](../photos/group-brief.md) is ready for the image model: one photo of each Cast small group's real members, saved as `photos/groups/{group-key}.jpg` (decision 56). Still to do: make the photos, then teach the loader to store them and set each group's photo, and add group photos to the delivery command.
+
+### Serving
+
+1. **A midweek student night.** Calibration shows about 31% of check-ins on Wednesday, and the sample church has no midweek service. Set aside on 2026-10-19 while serving is built.
 
 ### Packages and loaders
 
@@ -75,7 +85,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests, steps, learning (LMS), benevolence, reminders, notes, and person attributes for the Crowd.
+Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, notes, and person attributes for the Crowd.
 
 ## Open questions
 

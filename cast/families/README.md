@@ -45,9 +45,9 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | Family | Origin | People | Statuses | Used to test |
 |---|---|---|---|---|
 | [Alvarez Family](alvarez.md) | new | 4 | Connected | Newborn in the nursery and a preschooler, so two check-in areas for one family. |
-| [Bell Family](bell.md) | new | 2 | Engaged | Greeters (guest services in Phase 1). |
+| [Bell Family](bell.md) | new | 2 | Engaged | Greeters on the Phoenix Greeters team. |
 | [Bennett Family](bennett.md) | new | 3 | Connected | Middle school student whose attendance drops in spring. |
-| [Brooks Family](brooks.md) | new | 5 | Engaged | Three kids across the student and elementary check-in areas. |
+| [Brooks Family](brooks.md) | new | 5 | Engaged, Leading | Three kids across the student and elementary check-in areas. |
 | [Carter Family](carter.md) | new | 1 | Engaged | Widow living alone, age 78. |
 | [Cholla Creek Hardware](cholla-creek-hardware.md) | legacy | 1 | Prospect | Business record. |
 | [Coffee](coffee.md) | legacy | 1 | Engaged | Invited-by-a-friend journey from first visit to baptism. |
@@ -72,7 +72,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Hansen](hansen.md) | legacy | 1 | Prospect | Open connection request that needs a connector. |
 | [Harper Family](harper.md) | legacy | 1 | Connected | Pending record that needs review. |
 | [Hayes Family](hayes.md) | new | 2 | Engaged | Senior couple with a long anniversary. |
-| [Hernandez Family](hernandez.md) | new | 1 | Engaged | Young single volunteer (worship team in Phase 1). |
+| [Hernandez Family](hernandez.md) | new | 1 | Engaged | Young single volunteer on the Phoenix Worship Team. |
 | [Hughes Family](hughes.md) | new | 5 | Engaged | Three kids in three check-in rooms, from nursery to kindergarten. |
 | [Jackson Family](jackson.md) | legacy | 2 | Engaged | Single parent whose child has a different last name. |
 | [Jenkins Family](jenkins.md) | new | 3 | Engaged | Grandparents raising a grandchild. |
@@ -89,7 +89,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |
 | [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
-| [Nguyen Family](nguyen.md) | new | 1 | Engaged | Single adult who gives weekly online by card. |
+| [Nguyen Family](nguyen.md) | new | 1 | Leading | Single adult who gives weekly online by card. |
 | [Ortiz Family](ortiz.md) | new | 3 | Connected | Lapsed family: attendance and giving stopped about six months ago. |
 | [Patel Family](patel.md) | new | 2 | Engaged | Gives every week but seldom attends in person. |
 | [Peak Family](peak.md) | legacy | 1 | Engaged | Staff member with website and communication administrator roles. |
