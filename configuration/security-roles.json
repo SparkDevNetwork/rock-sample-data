@@ -1,0 +1,21 @@
+{
+  "$comment": "The security roles Cast people belong to (decision D-notes-2). The sample church uses only the security roles Rock ships; the loader never creates one. Each Cast role name (the 'securityRoles' list in cast/households) maps to one of Rock's role groups by Guid, and the loader adds the person to it as an active member. 'notRoles' are names Cast files list that are not Rock security roles: the loader adds no one to a role for them, and other loaders may read them. Any other name fails the Cast validator and the load.",
+  "roles": [
+    { "name": "Rock Administrators", "rockRole": "RSR - Rock Administration", "guid": "628C51A8-4613-43ED-A18D-4A6FB999273E" },
+    { "name": "Staff Users", "rockRole": "RSR - Staff Workers", "guid": "2C112948-FF4C-46E7-981A-0257681EADF4" },
+    { "name": "Staff-Like Users", "rockRole": "RSR - Staff Like Workers", "guid": "300BA2C8-49A3-44BA-A82A-82E3FD8C3745" },
+    { "name": "Pastoral Staff", "rockRole": "RSR - Pastoral Workers", "guid": "26E7148C-2059-4F45-BCFE-32230A12F0DC" },
+    { "name": "Finance Administrators", "rockRole": "RSR - Finance Administration", "guid": "6246A7EF-B7A3-4C8C-B1E4-3FF114B84559" },
+    { "name": "Finance Users", "rockRole": "RSR - Finance Worker", "guid": "2539CF5D-E2CE-4706-8BBF-4A9DF8E763E9" },
+    { "name": "Prayer Administrators", "rockRole": "RSR - Prayer Administration", "guid": "59DA53FC-AE18-4052-BC90-CE75B3979943" },
+    { "name": "Communication Administrators", "rockRole": "RSR - Communication Administration", "guid": "B1906B7D-1A1E-41B9-BBA4-F4482CECAF7B" },
+    { "name": "Background Check Administrators", "rockRole": "RSR - Background Check Administration", "guid": "A6BCC49E-103F-46B0-8BAC-84EA03FF04D5" },
+    { "name": "Website Administrators", "rockRole": "WEB - Administration", "guid": "1918E74F-C00D-4DDD-94C4-2E7209CE12C3" },
+    { "name": "Website Content Editors", "rockRole": "WEB - General Editor", "guid": "CDF68207-2795-42DE-B060-FE01C33BEAEA" },
+    { "name": "RSR - Calendar Administration", "rockRole": "RSR - Calendar Administration", "guid": "FDA9D63F-B0B1-43E8-8B82-0255E5D99F26" },
+    { "name": "RSR - Event Registration Administration", "rockRole": "RSR - Event Registration Administration", "guid": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF" }
+  ],
+  "notRoles": [
+    { "name": "Prayer Team", "reason": "Rock ships no prayer team role. The prayer loader reads this name to pick the Cast's prayer team members (decision 67)." }
+  ]
+}

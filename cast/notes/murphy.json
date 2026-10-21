@@ -1,0 +1,44 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "murphy",
+  "notes": [
+    {
+      "key": "patrick-move-plans",
+      "guid": "35ADB922-DA70-411F-BB72-A7BF04FC6DC3",
+      "about": "patrick",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 1000
+      },
+      "time": "14:00",
+      "text": "Patrick and Erin shared that they are planning a move to Ohio to be closer to family. No date yet. They want to keep leading their group until they go.",
+      "testPurpose": "Notes on an inactive family from before they moved."
+    },
+    {
+      "key": "liam-goodbye-card",
+      "guid": "A2B249AA-82F1-4745-8AD7-DEFF6E8F581F",
+      "about": "liam",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 940
+      },
+      "time": "12:10",
+      "text": "Liam's room leaders made him a card signed by the whole group to take with him when the family moves."
+    },
+    {
+      "key": "erin-thank-you-call",
+      "guid": "2780FAF6-8922-4459-AA9A-1DEFB44ACE07",
+      "about": "erin",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 935
+      },
+      "time": "10:30",
+      "text": "Erin called to thank the staff before the move. She asked that we keep the family's record and send mail to their new address once they have one."
+    }
+  ]
+}

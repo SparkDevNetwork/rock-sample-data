@@ -19,6 +19,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 
+using HashidsNet;
+
 namespace RockSampleData.Loader.Database
 {
     /*
@@ -56,6 +58,7 @@ namespace RockSampleData.Loader.Database
         private readonly byte[] _passwordKey;
         private readonly byte[] _encryptionKey;
         private readonly byte[] _macKey;
+        private readonly Hashids _idHasher;
 
         private RockKeys( byte[] passwordKey, string dataEncryptionKey )
         {
@@ -64,6 +67,9 @@ namespace RockSampleData.Loader.Database
             {
                 return;
             }
+
+            // IdHasher: Hashids salted with the first 40 characters of the DataEncryptionKey, at least 10 characters long.
+            _idHasher = new Hashids( dataEncryptionKey.Length > 40 ? dataEncryptionKey.Substring( 0, 40 ) : dataEncryptionKey, 10 );
 
             // Encryption._dataEncryptionKeyBytes: PBKDF2 (SHA-1, 1,000 rounds) over the key text, then
             // DeriveKeys: HKDF-SHA256 with the same salt, split into an encryption key and a MAC key.
@@ -77,6 +83,12 @@ namespace RockSampleData.Loader.Database
         /// Whether the web.config had a DataEncryptionKey, so <see cref="EncryptString"/> works.
         /// </summary>
         public bool CanEncrypt => _encryptionKey != null;
+
+        /// <summary>
+        /// The same value as Rock's IdHasher for an Id (an IdKey), such as the identifier in a note mention.
+        /// Null when the web.config had no DataEncryptionKey.
+        /// </summary>
+        public string IdKey( int id ) => _idHasher?.Encode( id );
 
         /// <summary>
         /// Reads the PasswordKey (and the DataEncryptionKey, when present) from a Rock web.config.

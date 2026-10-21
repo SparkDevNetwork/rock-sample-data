@@ -16,6 +16,7 @@ The Cast is the set of hand-designed households: today **87 households and 185 p
 | File | Purpose |
 |---|---|
 | `households/*.json` | One file per household. Format: `household.schema.json`. These are the source of truth. |
+| `notes/*.json` | Hand-written notes on Cast people, one file per household. Format: `note.schema.json`. See [Cast notes](notes/README.md). |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |
 | `families/*.md` | Generated family pages. Never edit them; rerun `build-pages.js`. |
 | `INVENTORY.md` | What came over from the legacy sample data, what was added, open issues, and remaining gaps. |

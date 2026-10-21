@@ -50,7 +50,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Any failure stops the load before it writes anything.
 
-The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, Cast and business expectations, and check images.
+The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, notes, Cast and business expectations, and check images.
 
 ## What makes a load repeatable
 
@@ -226,7 +226,24 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
 | Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
-| People, the rest: person attributes, notes, logins, security roles, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
+| Notes on people: six note types with View security, hand-written Cast notes, and generated notes with replies, alerts, private and pinned notes, and mentions | Done |
+| Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
+| People, the rest: person attributes, logins, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
+
+## Notes
+
+`loading/NotesLoader.cs` sets up the six note types in `../configuration/notes.json`. Rock's own Personal, Pastoral, and Phone types are updated in place, and Follow-up, Counseling, and Safety Alert are added. Each type gets View rules (allow its roles, then deny all users), and the new types get matching Edit rules.
+
+Then it writes every note in one bulk copy with explicit Ids, so replies point at their parents:
+
+- **Cast notes** come from `../cast/notes`, exactly as written, with their own Guids.
+- **Generated notes** go only on generated households, so Cast notes stay the same for tests. Each person's chance of having notes, and how many, come from `personNotes.design` in the profile. The type comes from the type's weight for the person's audience (guest, attender, or child). The day of the week and the hour come from the profile's measured mixes. The text is an opener and up to four details from `../content/notes`, aiming for a length drawn from the profile's percentiles.
+- **Authors.** The main campus's notes come from the Cast staff, by each type's author weights. Other campuses' notes come from the campus pastor, except phone notes and safety alerts, which the church office writes. No one writes a note about themselves or their own family.
+- **Replies, alerts, private, pinned, and mentions** follow the design rates. Counseling is confidential: its notes mention no one, and only its own authors reply.
+
+Notes are stored the way Rock's note editor saves them: approved, with `EditedDateTime` set, a private note's caption set to Rock's "You - Personal Note", and text as HTML. A mention is Rock's `<span class="mention" data-identifier="...">` with the staff member's alias IdKey, which is keyed by the server's DataEncryptionKey. Without a web.config, mentions are plain names. `NotificationsSent` and `ApprovalsSent` are set, so Rock's Send Note Notifications job never emails staff about old sample notes.
+
+Speed: Full 7 writes about 61,000 notes and replies in about one second.
 
 ## Check images
 

@@ -29,7 +29,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Connection requests** that move through their states, including some waiting on a connector.
 - **Steps,** such as baptism and membership.
 - **Benevolence requests.**
-- **Reminders and notes** that staff would really write.
+- **Reminders** that staff would really set.
 
 ## Installing and quality
 

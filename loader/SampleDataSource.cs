@@ -57,6 +57,16 @@ namespace RockSampleData.Loader
         public AchievementConfiguration Achievements { get; }
 
         /// <summary>
+        /// The note types and note authors, or null in a package built before notes existed.
+        /// </summary>
+        public NotesConfiguration Notes { get; }
+
+        /// <summary>
+        /// How Cast role names map to Rock's security roles, or null in a package built before roles loaded.
+        /// </summary>
+        public SecurityRoleConfiguration SecurityRoles { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -70,6 +80,8 @@ namespace RockSampleData.Loader
             SmallGroups = Read<SmallGroupRules>( "configuration/small-groups.json" );
             GivingAlertTypes = Read<GivingAlertTypeConfiguration>( "configuration/giving-alert-types.json" );
             Achievements = Read<AchievementConfiguration>( "configuration/achievements.json" );
+            Notes = Files.Exists( NotesConfigurationPath ) ? Read<NotesConfiguration>( NotesConfigurationPath ) : null;
+            SecurityRoles = Files.Exists( SecurityRolesPath ) ? Read<SecurityRoleConfiguration>( SecurityRolesPath ) : null;
         }
 
         /// <summary>
@@ -112,6 +124,41 @@ namespace RockSampleData.Loader
         }
 
         public const string GroupPhotoManifestPath = "photos/groups/manifest.json";
+
+        public const string NotesConfigurationPath = "configuration/notes.json";
+
+        public const string SecurityRolesPath = "configuration/security-roles.json";
+
+        /// <summary>
+        /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
+        /// </summary>
+        public List<CastNoteFile> ReadCastNotes()
+        {
+            return Files.List( "cast/notes" )
+                .Where( f => f.EndsWith( ".json", StringComparison.Ordinal ) )
+                .Select( Read<CastNoteFile> )
+                .ToList();
+        }
+
+        /// <summary>
+        /// Reads one note type's text pool from content/notes/{key}.json, by audience. Keys that start
+        /// with $ (such as $comment) are not audiences.
+        /// </summary>
+        public Dictionary<string, NotePoolSection> ReadNotePool( string typeKey )
+        {
+            using var document = JsonDocument.Parse( Files.ReadText( $"content/notes/{typeKey}.json" ) );
+            return document.RootElement.EnumerateObject()
+                .Where( p => !p.Name.StartsWith( "$", StringComparison.Ordinal ) )
+                .ToDictionary( p => p.Name, p => p.Value.Deserialize<NotePoolSection>( JsonOptions ) );
+        }
+
+        /// <summary>
+        /// Reads content/notes/shared.json: staff replies and mention lines.
+        /// </summary>
+        public SharedNotePool ReadSharedNotePool()
+        {
+            return Read<SharedNotePool>( "content/notes/shared.json" );
+        }
 
         /// <summary>
         /// Reads configuration/prayer.json, or null for a package built before prayer requests existed.

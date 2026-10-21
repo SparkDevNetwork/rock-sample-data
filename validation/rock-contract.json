@@ -375,6 +375,40 @@
         "ValueChecksum": "int null"
       }
     },
+    "Auth": {
+      "written": [
+        "Action",
+        "AllowOrDeny",
+        "CreatedDateTime",
+        "EntityId",
+        "EntityTypeId",
+        "ForeignKey",
+        "GroupId",
+        "Guid",
+        "ModifiedDateTime",
+        "Order",
+        "SpecialRole"
+      ],
+      "rockColumns": {
+        "Action": "nvarchar(50) not null",
+        "AllowOrDeny": "nvarchar(1) not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int not null",
+        "PersonAliasId": "int null",
+        "SpecialRole": "int not null"
+      }
+    },
     "BinaryFile": {
       "written": [
         "BinaryFileTypeId",
@@ -1682,8 +1716,11 @@
       "written": [
         "ApprovalStatus",
         "ApprovalsSent",
+        "Caption",
         "CreatedByPersonAliasId",
         "CreatedDateTime",
+        "EditedByPersonAliasId",
+        "EditedDateTime",
         "EntityId",
         "ForeignKey",
         "Guid",
@@ -1726,6 +1763,65 @@
         "NotificationsSent": "bit not null",
         "ParentNoteId": "int null",
         "Text": "nvarchar(max) null"
+      }
+    },
+    "NoteType": {
+      "written": [
+        "AllowsAttachments",
+        "AllowsReplies",
+        "AllowsWatching",
+        "AutoWatchAuthors",
+        "CreatedDateTime",
+        "EntityTypeId",
+        "EntityTypeQualifierColumn",
+        "EntityTypeQualifierValue",
+        "ForeignKey",
+        "FormatType",
+        "Guid",
+        "IconCssClass",
+        "IsMentionEnabled",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "RequiresApprovals",
+        "SendApprovalNotifications",
+        "UserSelectable"
+      ],
+      "rockColumns": {
+        "AdditionalSettingsJson": "nvarchar(max) null",
+        "AllowsAttachments": "bit not null",
+        "AllowsReplies": "bit not null",
+        "AllowsWatching": "bit not null",
+        "ApprovalUrlTemplate": "nvarchar(max) null",
+        "AutoWatchAuthors": "bit not null",
+        "BackgroundColor": "nvarchar(100) null",
+        "BinaryFileTypeId": "int null",
+        "BorderColor": "nvarchar(100) null",
+        "Color": "nvarchar(100) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityTypeId": "int not null",
+        "EntityTypeQualifierColumn": "nvarchar(50) null",
+        "EntityTypeQualifierValue": "nvarchar(200) null",
+        "FontColor": "nvarchar(100) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "FormatType": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsMentionEnabled": "bit not null",
+        "IsSystem": "bit not null",
+        "MaxReplyDepth": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "RequiresApprovals": "bit not null",
+        "SendApprovalNotifications": "bit not null",
+        "UserSelectable": "bit not null"
       }
     },
     "Person": {
@@ -2252,6 +2348,8 @@
       "05D8CD17-E07D-4927-B9C4-5018F7C4B715",
       "0E99356C-0DEA-4F24-944E-21CD5FA83B9E",
       "174F0AFF-3A5E-4A20-AE8B-D8D83D43BACD",
+      "337EED57-D4AB-4EED-BBDB-0CB3A467DBCC",
+      "72657ED8-D16E-492E-AC12-144C5E7567E7",
       "90F5E87B-F0D5-4617-8AE9-EB57E673F36F",
       "9BBFDA11-0D22-40D5-902F-60ADFBC88987",
       "D953B0A5-0065-4624-8844-10010DE01E5C"
@@ -2269,8 +2367,21 @@
       "BAB250EE-CAE6-4A41-9756-AD9327408BE0"
     ],
     "Group": [
+      "1918E74F-C00D-4DDD-94C4-2E7209CE12C3",
+      "2539CF5D-E2CE-4706-8BBF-4A9DF8E763E9",
+      "26E7148C-2059-4F45-BCFE-32230A12F0DC",
+      "2A92086B-DFF0-4B9C-46CB-4DAD805615AF",
+      "2C112948-FF4C-46E7-981A-0257681EADF4",
+      "300BA2C8-49A3-44BA-A82A-82E3FD8C3745",
       "3CBC1A3F-DD26-430A-9B53-B476CB385ABC",
-      "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9"
+      "59DA53FC-AE18-4052-BC90-CE75B3979943",
+      "6246A7EF-B7A3-4C8C-B1E4-3FF114B84559",
+      "628C51A8-4613-43ED-A18D-4A6FB999273E",
+      "A6BCC49E-103F-46B0-8BAC-84EA03FF04D5",
+      "B1906B7D-1A1E-41B9-BBA4-F4482CECAF7B",
+      "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
+      "CDF68207-2795-42DE-B060-FE01C33BEAEA",
+      "FDA9D63F-B0B1-43E8-8B82-0255E5D99F26"
     ],
     "GroupType": [
       "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
@@ -2297,7 +2408,10 @@
       "3D49FB99-94D1-4F63-B1A2-30D4FEDE11E9"
     ],
     "NoteType": [
-      "0EBABD75-0890-4756-A9EE-62626282BB5D"
+      "0EBABD75-0890-4756-A9EE-62626282BB5D",
+      "5B7BE8F4-481B-4BA3-99A2-B26307A2BA42",
+      "66A1B9D7-7EFA-40F3-9415-E54437977D60",
+      "B54F9D90-9AF3-4E8A-8F33-9338C7C1287F"
     ],
     "Person": [
       "7EBC167B-512D-4683-9D80-98B6BB02E1B9",

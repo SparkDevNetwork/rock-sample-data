@@ -67,6 +67,7 @@ namespace RockSampleData.Builder
             AddFolder( "configuration", ".json" );
             AddFolder( "cast/households", ".json" );
             AddFolder( "cast/groups", ".json" );
+            AddFolder( "cast/notes", ".json" );
             AddFile( $"datasets/{dataset}.json" );
 
             // The profile is resolved here, so a load never blends calibration sources itself.
@@ -93,7 +94,8 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // Fonts for check images, with their licenses, the prayer text pools, and the license for the data itself.
+            // Fonts for check images, with their licenses, the prayer and note text pools, and the license for the data itself.
+            AddFolder( "content/notes", ".json" );
             AddFolder( "content/fonts" );
             AddFolder( "content/prayer", ".json" );
             AddFolder( "content/prayer/categories", ".json" );

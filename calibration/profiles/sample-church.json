@@ -11,14 +11,27 @@
     "prayer.requestsPerYearPerThousandActiveAdults": [ { "source": "source-1", "weight": 1 } ],
     "prayer.monthIndex": [ { "source": "source-1", "weight": 1 } ],
     "prayer.pctWithCategory": [ { "source": "source-2", "weight": 1 } ],
-    "prayer.avgTextLength": [ { "source": "source-2", "weight": 1 } ]
+    "prayer.avgTextLength": [ { "source": "source-2", "weight": 1 } ],
+    "personNotes": [ { "source": "source-3", "weight": 1 } ]
   },
   "excluded": [
     { "path": "giving.sourceMix.other", "reason": "Custom source type. The remaining source types are renormalized." },
     { "path": "engagement.newAdultsAfterOneYear", "reason": "Depends heavily on how records are created, so it is not used as a target." },
     { "path": "communications.communicationsPerMonthPerThousandActiveAdults", "reason": "Varies widely with workflow use. Communication volume comes from the communications design instead." },
     { "path": "communications.recipientsPerCommunication", "reason": "Varies widely with workflow use." },
-    { "path": "connections.requestsPerYearPerThousandActiveAdults", "reason": "Varies widely with workflow use." }
+    { "path": "connections.requestsPerYearPerThousandActiveAdults", "reason": "Varies widely with workflow use." },
+    { "path": "personNotes.kindMix", "reason": "Replaced by the note type weights in configuration/notes.json (decision D-notes-1)." },
+    { "path": "personNotes.types", "reason": "The sample church's note types are designed in configuration/notes.json (decision D-notes-1)." },
+    { "path": "personNotes.pctOnRockTypes", "reason": "The sample church's note types are designed in configuration/notes.json (decision D-notes-1)." },
+    { "path": "personNotes.pctImported", "reason": "Sample data has no imported notes." },
+    { "path": "personNotes.pctWithNoAuthor", "reason": "Notes without an author come from workflows and imports. Every sample note has a staff author." },
+    { "path": "personNotes.pctOfAllTimeNotesInLast24Months", "reason": "Depends on how long a church has used Rock. Older notes come from personNotes.design.olderNotesPerYearRatio." },
+    { "path": "personNotes.detail.pctEdited", "reason": "A Rock quirk, not edits: Rock's note editor sets EditedDateTime on every save, including the first. The loader sets it on every note." },
+    { "path": "personNotes.detail.pctWithCaption", "reason": "Older note editors filled the caption. Rock's current editor leaves it empty unless the note is private." },
+    { "path": "personNotes.detail.pctWithHtml", "reason": "Note text is plain text with mentions, as Rock's current editor writes it." },
+    { "path": "personNotes.detail.pctWrittenAtMidnight", "reason": "A record quirk, not a pattern." },
+    { "path": "personNotes.detail.pctAboutTheAuthor", "reason": "Staff do not write notes about themselves (decision D-notes-1)." },
+    { "path": "personNotes.monthIndex", "reason": "The measured months swing with one-time projects. Notes are spread evenly across the year." }
   ],
   "overrides": [
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
@@ -81,6 +94,29 @@
       }
     },
     {
+      "path": "personNotes.design",
+      "reason": "Design choice. Notes show what good use looks like, not the thin use most churches have today, so who gets notes, how many, and how often features are used are set above the measured rates (decision D-notes-1). The measured shape is kept for timing, authors, and who notes are about.",
+      "value": {
+        "pctNotedIn24MonthsByStatus": { "prospect": 30, "participant": 55, "known": 75, "connected": 50, "engaged": 70, "leading": 90, "child": 12 },
+        "notesPerNotedPersonMix": { "1": 35, "2-3": 32, "4-9": 25, "10+": 8 },
+        "olderNotesPerYearRatio": 0.5,
+        "pctPersonalNotesThatAreAlerts": 8,
+        "pctPrivateByType": { "counseling": 30, "personal": 3 },
+        "pctNotedPeopleWithPinnedNote": 4,
+        "pctTopLevelNotesWithReply": 10,
+        "pctRepliesWithSecondReply": 25,
+        "pctNotesWithMention": 6
+      }
+    },
+    { "path": "personNotes.detail.textLengthP10", "value": 45, "reason": "Design choice. Good notes say a little more than the measured ones (decision D-notes-1)." },
+    { "path": "personNotes.detail.textLengthP50", "value": 110, "reason": "Design choice. Good notes say a little more than the measured ones (decision D-notes-1)." },
+    { "path": "personNotes.detail.textLengthP90", "value": 260, "reason": "Design choice. Good notes say a little more than the measured ones (decision D-notes-1)." },
+    {
+      "path": "personNotes.hourBandMix",
+      "reason": "The measured shape, with the overnight band cut to almost nothing. Overnight notes in the source come from time zone and import quirks, and staff write notes during the day.",
+      "value": { "00-05": 0.5, "06-08": 12, "09-11": 29.5, "12-14": 27, "15-17": 19, "18-23": 12 }
+    },
+    {
       "path": "distance",
       "reason": "Coarse, rounded targets for straight-line miles from home to campus.",
       "value": {
@@ -95,6 +131,7 @@
     "The sample church has a midweek student service, so a share of check-ins happen on Wednesday.",
     "Christmas week shows almost no kids check-in, because many churches hold Christmas Eve services without children's ministry.",
     "Dollar amounts (annual totals, gift sizes) should be reviewed as sources are added.",
-    "Prayer volume and its monthly pattern come from source-1. Categories, text length, timing, and who asks come from source-2. The prayer team's activity is a design choice, not a measurement (decision 67)."
+    "Prayer volume and its monthly pattern come from source-1. Categories, text length, timing, and who asks come from source-2. The prayer team's activity is a design choice, not a measurement (decision 67).",
+    "Person notes take their timing, authors, and who notes are about from source-3. Who gets notes, how many, and how often features are used are a design choice set above the measured rates (decision D-notes-1)."
   ]
 }

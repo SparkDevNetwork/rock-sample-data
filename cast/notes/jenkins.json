@@ -1,0 +1,33 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "jenkins",
+  "notes": [
+    {
+      "key": "austin-last-name",
+      "guid": "B9286439-D698-42F9-8CD2-00D7C56142B5",
+      "about": "austin",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 65
+      },
+      "time": "10:30",
+      "text": "Austin's last name is Reed, not Jenkins. His grandparents, Gary and Barb, check him in.",
+      "isAlert": true,
+      "testPurpose": "A Personal Note alert on a child."
+    },
+    {
+      "key": "gary-barb-coffee",
+      "guid": "D945F95C-CF36-4D8E-9738-EA50AC6CE69B",
+      "about": "barbara",
+      "type": "pastoral",
+      "author": "ted",
+      "written": {
+        "daysAgo": 260
+      },
+      "time": "10:00",
+      "text": "Coffee with Gary and Barb. Raising Austin means a second round of school pickups and homework. They are tired but grateful, and their group has been a big help."
+    }
+  ]
+}

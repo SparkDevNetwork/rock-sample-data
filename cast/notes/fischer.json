@@ -1,0 +1,44 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "fischer",
+  "notes": [
+    {
+      "key": "ethan-student-night",
+      "guid": "C8EDD3A7-879C-485E-8B76-99B32C21F6D2",
+      "about": "ethan",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 900
+      },
+      "time": "20:30",
+      "text": "Ethan started coming to high school student night. Quiet at first, but he is already helping with sound.",
+      "testPurpose": "A note on a child written more than two years ago."
+    },
+    {
+      "key": "grace-midweek",
+      "guid": "AA8E4C0F-3884-4A77-8773-4A8939AB6D62",
+      "about": "grace",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 60
+      },
+      "time": "20:45",
+      "text": "Grace signed up for midweek student night and brought her own Bible, with notes in the margins."
+    },
+    {
+      "key": "ethan-after-graduation",
+      "guid": "7C0AE71D-6F5C-4FC7-92BB-56285B270A21",
+      "about": "ethan",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 12
+      },
+      "time": "15:00",
+      "text": "Talked with Ethan about plans after graduation. He is weighing Palo Verde Technical College and an apprenticeship. Invited him to the senior send-off."
+    }
+  ]
+}

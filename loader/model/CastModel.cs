@@ -230,8 +230,9 @@ namespace RockSampleData.Loader.Model
         public List<CastRelationship> Relationships { get; set; } = new List<CastRelationship>();
 
         /// <summary>
-        /// The security roles this person's story gives them. Only "Prayer Team" and "Prayer Administrators"
-        /// are used so far: they pick who prays for and approves prayer requests.
+        /// The security roles this person's story gives them, by the names in configuration/security-roles.json.
+        /// The person joins each name's Rock role. "Prayer Team" is not a Rock role; it and "Prayer Administrators"
+        /// also pick who prays for and approves prayer requests.
         /// </summary>
         public List<string> SecurityRoles { get; set; } = new List<string>();
 

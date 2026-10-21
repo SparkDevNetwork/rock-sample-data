@@ -1,0 +1,97 @@
+{
+  "$comment": "Note types on person records (decision D-notes-1). Three of Rock's own types are kept and updated in place (rockType true), and three are new. Every type gets View security, because most churches lock notes down and the measured source did on nearly every type. 'viewers' and 'editors' name security role groups by Guid; everyone else is denied. Each type's 'weights' give its share of generated notes, in percent, for each audience: 'guest' (Prospect, Participant, and Known adults), 'attender' (Connected, Engaged, and Leading adults), and 'child' (under 18). A type with no weight for an audience gets no generated notes for it. A confidential type's notes never mention other staff, and only its own authors reply to them, so nothing leaves the people allowed to view it. Replies to any note come from the type's other authors when it has them. Text pools live in content/notes/<key>.json. 'authors' lists who writes generated notes on the main campus, by Cast person Guid, with weights; every other campus's notes are written by its campus pastor (see campusPastor).",
+  "staffRoles": {
+    "rockAdministration": "628C51A8-4613-43ED-A18D-4A6FB999273E",
+    "staffWorkers": "2C112948-FF4C-46E7-981A-0257681EADF4",
+    "staffLikeWorkers": "300BA2C8-49A3-44BA-A82A-82E3FD8C3745",
+    "pastoralWorkers": "26E7148C-2059-4F45-BCFE-32230A12F0DC"
+  },
+  "staff": [
+    { "key": "pete", "name": "Pete Foster", "guid": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "role": "Senior Pastor" },
+    { "key": "ted", "name": "Ted Decker", "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "role": "Outreach Pastor" },
+    { "key": "alisha", "name": "Alisha Marble", "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "role": "Assistant" },
+    { "key": "daniel", "name": "Daniel Peak", "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "role": "Director of Communications" }
+  ],
+  "campusPastor": {
+    "$comment": "Each campus other than the main one has one campus pastor from its generated households: the oldest Leading adult, or the oldest Engaged adult when the campus has no Leading adult. The campus pastor writes that campus's notes, and joins the 'roles' (keys of staffRoles) so they can view them, including Counseling. Alisha still writes its phone notes and safety alerts, because the church office takes calls for every campus.",
+    "roles": [ "staffWorkers", "pastoralWorkers" ],
+    "officeTypes": [ "phone", "safetyAlert" ],
+    "officeAuthor": "alisha"
+  },
+  "types": [
+    {
+      "key": "personal",
+      "name": "Personal Note",
+      "guid": "66A1B9D7-7EFA-40F3-9415-E54437977D60",
+      "rockType": true,
+      "iconCssClass": "ti ti-message",
+      "order": 0,
+      "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "weights": { "guest": 25, "attender": 30, "child": 55 },
+      "authors": { "pete": 25, "ted": 35, "alisha": 30, "daniel": 10 }
+    },
+    {
+      "key": "pastoral",
+      "name": "Pastoral Note",
+      "guid": "5B7BE8F4-481B-4BA3-99A2-B26307A2BA42",
+      "rockType": true,
+      "iconCssClass": "ti ti-first-aid-kit",
+      "order": 1,
+      "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "weights": { "guest": 5, "attender": 30 },
+      "authors": { "pete": 55, "ted": 45 }
+    },
+    {
+      "key": "followUp",
+      "name": "Follow-up",
+      "guid": "1241BCF5-0686-4044-AD0F-45B949133A1E",
+      "rockType": false,
+      "iconCssClass": "ti ti-arrow-forward-up",
+      "order": 2,
+      "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "weights": { "guest": 45, "attender": 15, "child": 25 },
+      "authors": { "ted": 70, "alisha": 20, "pete": 10 }
+    },
+    {
+      "key": "phone",
+      "name": "Phone Note",
+      "guid": "B54F9D90-9AF3-4E8A-8F33-9338C7C1287F",
+      "rockType": true,
+      "iconCssClass": "ti ti-phone",
+      "order": 3,
+      "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "weights": { "guest": 25, "attender": 17 },
+      "authors": { "alisha": 80, "ted": 20 }
+    },
+    {
+      "key": "counseling",
+      "name": "Counseling",
+      "guid": "5028C91F-CED7-4EDE-B66A-7F705652DB53",
+      "rockType": false,
+      "iconCssClass": "ti ti-lock",
+      "order": 4,
+      "isConfidential": true,
+      "viewers": [ "pastoralWorkers", "rockAdministration" ],
+      "editors": [ "pastoralWorkers", "rockAdministration" ],
+      "weights": { "attender": 6 },
+      "authors": { "pete": 70, "ted": 30 }
+    },
+    {
+      "key": "safetyAlert",
+      "name": "Safety Alert",
+      "guid": "D5AE7FC7-5CDF-48CB-A92E-5FF03B3D04F9",
+      "rockType": false,
+      "iconCssClass": "ti ti-shield-exclamation",
+      "order": 5,
+      "isAlwaysAlert": true,
+      "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
+      "weights": { "attender": 2, "child": 20 },
+      "authors": { "alisha": 100 }
+    }
+  ]
+}

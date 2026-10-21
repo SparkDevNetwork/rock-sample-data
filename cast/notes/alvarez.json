@@ -1,0 +1,31 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "alvarez",
+  "notes": [
+    {
+      "key": "marco-setup-help",
+      "guid": "E9B88509-9BF6-4AA1-96E3-F58AEB02C7A9",
+      "about": "marco",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 300
+      },
+      "time": "12:45",
+      "text": "Marco offered to help with setup for the next family event. He and Elena are still fairly new to Phoenix and like meeting people this way."
+    },
+    {
+      "key": "sofia-preschool",
+      "guid": "2C7CB4C8-B7F2-4AEC-BFC2-3BAD995A1D24",
+      "about": "sofia",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 10
+      },
+      "time": "13:00",
+      "text": "Sofia is settling into the preschool room. She already knows every leader by name and likes to help pass out snacks."
+    }
+  ]
+}

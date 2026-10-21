@@ -165,3 +165,44 @@ WHERE [p].[ForeignKey] = @ForeignKey
 SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' AND [ForeignKey] <> @ForeignKey )
     + ( SELECT COUNT(*) FROM [Group] WHERE [ForeignKey] LIKE 'SampleData:%' AND [ForeignKey] <> @ForeignKey )
     + ( SELECT COUNT(*) FROM [FinancialTransaction] WHERE [ForeignKey] LIKE 'SampleData:%' AND [ForeignKey] <> @ForeignKey );
+
+-- check: note-is-on-a-person-of-this-dataset
+-- why: A person note's EntityId must point at a loaded person, or the note is an orphan Rock never shows.
+SELECT COUNT(*)
+FROM [Note] AS [n]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
+WHERE [n].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [n].[EntityId] AND [p].[ForeignKey] = @ForeignKey );
+
+-- check: note-reply-matches-its-parent
+-- why: Rock shows a reply under its parent, so it must be on the same entity, of the same type, and written after it.
+SELECT COUNT(*)
+FROM [Note] AS [r]
+INNER JOIN [Note] AS [n] ON [n].[Id] = [r].[ParentNoteId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [r].[EntityId] <> [n].[EntityId] OR [r].[NoteTypeId] <> [n].[NoteTypeId] OR [r].[CreatedDateTime] < [n].[CreatedDateTime] );
+
+-- check: note-author-is-not-the-noted-person
+-- why: Staff write notes about other people; a note about its own author looks like a load error.
+SELECT COUNT(*)
+FROM [Note] AS [n]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [n].[CreatedByPersonAliasId]
+WHERE [n].[ForeignKey] = @ForeignKey
+    AND [pa].[PersonId] = [n].[EntityId];
+
+-- check: person-note-looks-saved-by-rock
+-- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes.
+SELECT COUNT(*)
+FROM [Note] AS [n]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
+WHERE [n].[ForeignKey] = @ForeignKey
+    AND ( [n].[ApprovalStatus] <> 1
+        OR [n].[NotificationsSent] = 0
+        OR [n].[ApprovalsSent] = 0
+        OR [n].[EditedDateTime] IS NULL
+        OR [n].[CreatedByPersonAliasId] IS NULL
+        OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );

@@ -14,6 +14,8 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
+| `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
+| `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
 
 ## Service times
 
@@ -34,6 +36,23 @@ The student service meets at Sunday 10:30am at every campus. On each campus, Sun
 ## Funds
 
 General Fund and Building Fund each have a child account per campus (for example "Phoenix General Fund"), with Rock's `UsesCampusChildAccounts` turned on. Gifts post to the giver's campus account. Mission Fund and Event Registration have no child accounts.
+
+## Notes
+
+People have six note types (decision D-notes-1). Three are Rock's own, updated in place: Personal Note, Pastoral Note, and Phone Note. Rock ships Pastoral and Phone hidden from the "add a note" picker, so they are made selectable. Three are new: Follow-up, Counseling, and Safety Alert.
+
+| Type | Who can view | Used for |
+|---|---|---|
+| Personal Note | Staff | Everyday staff notes. |
+| Pastoral Note | Staff | Visits, hospital stays, and care calls. |
+| Follow-up | Staff | Next steps after a visit, a class, or a conversation. |
+| Phone Note | Staff | Call logs. |
+| Counseling | Pastoral workers only | Counseling sessions, in general terms. |
+| Safety Alert | Staff | Pickup restrictions, serious allergies, and serving restrictions. Every one is an alert. |
+
+"Staff" means Rock's Staff Workers and Staff Like Workers roles, plus Rock Administration. Everyone else is denied, so notes never show to someone who is not staff.
+
+Pete Foster, Ted Decker, Alisha Marble, and Daniel Peak write the main campus's notes. Every other campus has a campus pastor: its oldest Leading adult, or its oldest Engaged adult if it has none. Campus pastors join RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
 
 ## Check-in
 

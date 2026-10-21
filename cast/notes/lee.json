@@ -1,0 +1,43 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "lee",
+  "notes": [
+    {
+      "key": "james-online-group",
+      "guid": "6488C5AA-6194-460D-9E61-2CFD39581EF8",
+      "about": "james",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 2
+      },
+      "time": "10:00",
+      "text": "James is leading the online New to Faith group with real care. Several people in his group have asked about baptism. {@ted}, they may need a baptism class date soon.",
+      "testPurpose": "A recent note with a mention and a reply.",
+      "replies": [
+        {
+          "guid": "2175F502-4103-431F-898F-08A80C508AE8",
+          "author": "ted",
+          "written": {
+            "daysAgo": 1
+          },
+          "time": "08:40",
+          "text": "I'll send James the next class date today."
+        }
+      ]
+    },
+    {
+      "key": "ben-toddler-room",
+      "guid": "50F26F2A-B84E-4BE2-9CA1-E36A8AF2E15F",
+      "about": "benjamin",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 50
+      },
+      "time": "12:15",
+      "text": "Ben is helping in the toddler room during the early service, the same room as his sister Ruth. The leaders say he is great with the little ones."
+    }
+  ]
+}
