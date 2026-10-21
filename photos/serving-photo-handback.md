@@ -4,7 +4,7 @@ Prepared October 21, 2026 for the agent integrating the `serving` branch into `m
 
 ## Starting Point followup
 
-After handback commit `c627f74`, the user requested a Starting Point campaign design and then asked to apply it to the lobby. The new `graphics/initiatives/starting-point/starting-point-hero-v1.png` and its manifest are saved, and the canonical inward-facing lobby PNG/JPEG pair now incorporates that design. The church guide, manifest, and this handback reflect the change. These followup files are currently uncommitted; include and commit them together when bringing in the latest work. The branch hashes and divergence counts below describe the earlier handback snapshot.
+After handback commit `c627f74`, the user requested a Starting Point campaign design and then asked to apply it to the lobby. The new `graphics/initiatives/starting-point/starting-point-hero-v1.png` and its manifest are saved, and the canonical inward-facing lobby PNG/JPEG pair now incorporates that design. The church guide, manifest, and this handback reflect the change. These followup files landed on main on 2026-10-21 (merge ea6bf7c). The branch hashes and divergence counts below describe the earlier handback snapshot.
 
 ## Repository and branch
 
