@@ -1,6 +1,6 @@
 # Site
 
-The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision D-site-1).
+The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision 80).
 
 The site is built from the repository's own files, so it never keeps a copy of the Cast or the church. Change a household in `cast/households/`, and its page changes on the next build.
 
@@ -23,7 +23,7 @@ The [Publish site](../.github/workflows/pages.yml) workflow runs the same build 
 | Path | What it holds |
 |---|---|
 | `build.js` | Copies the photos, builds the downloads and their zips, and writes every page. |
-| `src/data.js` | Reads `cast/`, `configuration/`, and `photos/` into one model. It never reads `calibration/` (decision D-site-3). |
+| `src/data.js` | Reads `cast/`, `configuration/`, and `photos/` into one model. It never reads `calibration/` (decision 82). |
 | `src/layout.js` | The header, navigation, and footer every page shares. |
 | `src/components.js` | Shared pieces: section headings, portraits, household cards, downloads, and zoomable photos. |
 | `src/pages/` | One file per page. `cast.js` also writes one page per household. `contribute.js` reads the issue questions and the roadmap from `docs/`. |
@@ -32,7 +32,7 @@ The [Publish site](../.github/workflows/pages.yml) workflow runs the same build 
 
 ## Rules for the site
 
-- Never show a Cast address, email, or phone number (decision D-site-3).
+- Never show a Cast address, email, or phone number (decision 82).
 - Never name or describe a calibration source (decision 8). Describe calibration only as a method.
 - Say that every person and photo is fictional, and that the photos are AI-generated.
 - Write plain, short sentences with no em dashes, like the rest of the repository.

@@ -1,5 +1,5 @@
 # Builds the public site from the repository's data and publishes it to GitHub Pages
-# (decision D-site-1). Turn it on once in Settings > Pages by setting the source to GitHub Actions.
+# (decision 80). Turn it on once in Settings > Pages by setting the source to GitHub Actions.
 name: Publish site
 
 on:
