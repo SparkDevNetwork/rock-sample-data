@@ -107,7 +107,7 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 | Family salutations (`GroupSalutation`, `GroupSalutationFull`) | `GroupService.CalculateFamilySalutation`, from the person and group member save hooks. | A port of it (`loading/FamilySalutation.cs`), for example "Ted & Cindy Decker". |
 | Inactive families | Rock Cleanup marks a family inactive when every member's record is inactive, then dates it. | The same, dated at install (in the Cast, the Murphys and Jenny Greggs's family). |
 | An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
-| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. The table is keyed by name and shared, so these rows have no `ForeignKey`. |
+| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. SQL Server decides which names are new, as it does for Rock, so its collation matches "Strauß" to "Strauss". The table is keyed by name and shared, so these rows have no `ForeignKey`. |
 | A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.

@@ -1,8 +1,8 @@
 {
   "$comment": "Rock files whose logic the builder ports or depends on, with a fingerprint (SHA-256 of the text, line endings normalized) as of the last review. check-rock-lock.js compares them with Rock on GitHub. A section is the text from 'from' up to 'to', for files that are large and change for unrelated reasons.",
   "checkedRef": "develop",
-  "checkedCommit": "b34e15fc211b8593a29526f936f5cd830fc52b91",
-  "checkedDate": "2026-10-19",
+  "checkedCommit": "abb173621b36b0af65429cd48859549a63339f0a",
+  "checkedDate": "2026-10-21",
   "files": [
     {
       "path": "Rock/Jobs/GivingAutomation.cs",
@@ -446,6 +446,110 @@
         "loader/loading/FamilySalutation.cs"
       ],
       "sha256": "1cd7f1b311586a5a2879ac2b4760f1794ffaa4be664ea4300c0ca6ceab2a2244"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.Logic.cs",
+      "section": "CalculateFamilySalutationArgs",
+      "from": "public sealed class CalculateFamilySalutationArgs",
+      "to": "/// Calculates the family salutation.",
+      "why": "The salutation defaults the port hard-codes: the joiners, inactive members left out, and nick names rather than formal names.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "f7262602cd62a3c4fdd7eb82946783eefc33431a5f6d364eb1cda46d23dd95a2"
+    },
+    {
+      "path": "Rock/Model/Group/Group/GroupService.cs",
+      "section": "UpdateGroupSalutations",
+      "from": "public static bool UpdateGroupSalutations( int groupId, RockContext rockContext )",
+      "to": "/// Saves the new family to the database",
+      "why": "Which arguments each salutation uses (adults only, then with children) and the cut to 250 characters.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs",
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "74b31cf433c1892fea5321ab5ca6cb23ee6f3be97e615ac8d0d4597f261f0275"
+    },
+    {
+      "path": "Rock/Model/Group/GroupMember/GroupMemberService.cs",
+      "section": "Queryable( includeDeceased, includeArchived )",
+      "from": "public IQueryable<GroupMember> Queryable( bool includeDeceased, bool includeArchived )",
+      "to": "/// Returns a collection of all <see cref=\"Rock.Model.GroupMember\">GroupMembers</see> with eager loading",
+      "why": "The deceased and archived filter on the family members a salutation names.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "36cbd613c2b8dab703dccdbd4733bebde6196744392c29bfd9e5d6eb3b853f20"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.Logic.cs",
+      "section": "GetAge",
+      "from": "public static int? GetAge( DateTime? birthDate, DateTime? deceasedDate )",
+      "to": "/// Formats the age with unit",
+      "why": "Age in whole years, which sorts children in a salutation and sets age classification.",
+      "mirroredBy": [
+        "loader/loading/AnchorDates.cs",
+        "loader/loading/FamilySalutation.cs",
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "8395d924bd1c9d49ee53304ad880aef741ae93d22168e579236e5e9c4c1cfe96"
+    },
+    {
+      "path": "Rock.Common/ExtensionMethods/StringExtensions.cs",
+      "section": "Truncate( str, maxLength )",
+      "from": "public static string Truncate( this string str, int maxLength )",
+      "to": "public static string Truncate( this string str, int maxLength, bool addEllipsis )",
+      "why": "The short Truncate the salutation code calls turns the ellipsis on.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "2c1642ccfd526c1fb3d05aef8d3d8b65f31fe0a127700fa64e1214123a44be0b"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.SaveHook.cs",
+      "section": "PreSave metaphone trigger",
+      "from": "this.Entity.CalculateSignals();",
+      "to": "HistoryChanges = new History.HistoryChangeList();",
+      "why": "When a person save queues the metaphone names.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "ea34ec15223652262077fb0fd903b8c277a6eab07850c55af50c9f94dad86a6a"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.SaveHook.cs",
+      "section": "PostSave person updates",
+      "from": "// If the person was just added then the _primaryAliasId will be null ergo the value will be null",
+      "to": "if ( RockContext.IsRockToChatSyncEnabled && ChatHelper.IsChatEnabled )",
+      "why": "What a new person gets after saving: the primary alias, the family role by age, age classification, primary family, giving leader, and family salutations.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs",
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "9a58f798529078f94b018007988f33e746697ab4845f31e76b88f69c97ceecce"
+    },
+    {
+      "path": "Rock/Model/Group/GroupMember/GroupMember.SaveHook.cs",
+      "section": "PostSave family updates",
+      "from": "// if this is a GroupMember record on a Family, ensure that AgeClassification, PrimaryFamily,",
+      "to": "// Adds a LearningParticipant record with default values",
+      "why": "What a family member save updates: age classification, primary family, giving leader, and the family's salutations.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs",
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "16956647f4dcc3b673b5abfa0557c22ca41320edb8fa63468c35166a2e93cde1"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "GroupSalutationCleanup",
+      "from": "private int GroupSalutationCleanup()",
+      "to": "/// Updates <see cref=\"Group.ArchivedDateTime\" /> OR",
+      "why": "Rock Cleanup only fills missing salutations and never checks existing ones, so the loader's must match Rock exactly.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "2f25e96700ecba54c993dad62f7c9648a5a8e68e387b649cfb9b163890b89496"
     },
     {
       "path": "Rock/Model/CRM/Person/PersonService.cs",
