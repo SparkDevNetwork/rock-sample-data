@@ -210,8 +210,19 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
-      }
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "cables": "Visible signal cables routed in orderly runs; no loose coil pile",
+        "screens": "Sharp mixing interface and stage feeds, visually reviewed"
+      },
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "f6dd6a8",
+          "sourceImage": "photos/references/church/production-booth-wide.png",
+          "reason": "User requested organized visible cable runs instead of a tangle and sharper monitor content.",
+          "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: Rock Solid Church's empty production booth, 1536x1024 landscape.\nMake ONLY these two user-requested corrections.\n1. CABLE MANAGEMENT: at about x20.4%, y73.7%, the loose pile of coiled black wires beneath/beside the tripod and at the left side of the audio console is a tangled mess. Remove that tangle and replace it with several individually visible, neatly separated black signal/power cables running in orderly parallel paths along the booth's inner left/rear edge and then into a tidy under-desk cable tray. One camera cable follows the inside of a tripod leg with two small reusable black straps and a modest practical slack bend near its connection. Keep a few ordinary visible cables so this remains a working production booth. No messy coils, nests, crossings, dangling loops, thick rope bundle or clutter on the floor/worktop. Preserve all three actual tripod legs and realistic connections. Do not eliminate all wires.\n2. SHARP SCREEN CONTENT: the two desktop monitor screens, around x46.8%, y57.4%, look artificially blurred. Render BOTH sharply focused and detailed at the same focal clarity as the mixing desk and room: left screen shows a plausible organized audio mixing display with crisp separate colored meter columns, clear fine grids, channel strips and simple waveform shapes; right screen shows a crisp live camera feed of the SAME actual empty stage in this photograph, correctly matching its oak acoustic panels, microphones, keyboard left, drums left-center, guitar right and amber/violet lighting. The camera's small flip-out monitor should also show a clear miniature stage feed. Keep subtle realistic monitor luminance and fine pixel-scale UI detail, not soft colored blobs. No manufacturer names, fake large words, gibberish captions, logos or people on screens. No need for readable tiny text; sharp edges and coherent screen graphics are the goal, not blurred UI. Do not add new displays.\nPRESERVE everything else: exact booth geometry, oak worktop and charcoal half-wall, equipment placement, same audio console and regular rows of physical faders, task chair, tripod camera, auditorium chairs in three banks with two aisles, stage equipment, acoustic panels, ceiling, lighting, photographic exposure, camera position, framing and all building details. No architecture redesign, extra cables elsewhere, new instruments, people, watermark or labels. One full-size 3:2 photorealistic architectural image, preferably 1536x1024."
+        }
+      ]
     },
     {
       "key": "kids-classroom",
@@ -330,6 +341,7 @@
     "lobby": "Both directions show the larger gathering lobby, with a target approximately 2.5 times the earlier visual floor area. Doors and furniture retain human scale.",
     "connection": "Lobby central worship-center door pair leads through a short rear vestibule to auditorium entry pairs flanking the central rear booth.",
     "auditorium": "Three seating banks, two main aisles, central open rear booth, same stage and equipment orientation.",
-    "logo": "Approved Open Cross artwork; signage fits on one wall plane with clear margins."
+    "logo": "Approved Open Cross artwork; signage fits on one wall plane with clear margins.",
+    "productionDetails": "Visible cables should be neatly separated and routed along booth edges or under-desk management. Monitor graphics and matching stage feeds should be sharp rather than artificially blurred, unless a future brief requires obscuring text."
   }
 }
