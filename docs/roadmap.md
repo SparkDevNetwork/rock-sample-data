@@ -43,7 +43,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
 4. **Per-person attendance,** so a teen can attend more often than their parents.
 5. **Real Crowd names** from public-domain frequency data by birth decade.
-6. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. Every load checks them, like the giving expectations.
+6. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. 8 to 10 of them are always dated in the last few days before the install day, so even Core 1 and Core 3 show a full prayer list and prayer session (a small church gets only about 2 generated requests a week, and Rock hides requests after about two weeks). Every load checks them, like the giving expectations.
 
 ## To do (parked)
 
