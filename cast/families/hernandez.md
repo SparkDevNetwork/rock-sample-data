@@ -25,6 +25,10 @@ Gabriel Hernandez plays guitar on the worship team and almost never misses a Sun
 - **Attendance:** core, 92% of Sundays, since 3 years ago.
 - **Giving:** **weekly** by Gabe Hernandez: $50 General Fund per gift, gives in 92% of periods, started 3 years ago.
 
+## Prayer requests
+
+- **Waiting**, from Gabe Hernandez, 1 days ago (General): I have an audition with a local orchestra next week. I have been practicing every night. Pray that I play my best and that I trust God with the result either way.
+
 ## Address
 
 5254 N 61st Ave, Glendale, AZ 85301 (a real street with a house number that does not exist)

@@ -12,3 +12,6 @@ node_modules/
 
 # Dataset packages the builder writes (only at the root: loader/packages/ is source code)
 /packages/
+
+# The public site build (site/build.js writes it)
+/site/dist/

@@ -32,6 +32,10 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 - **Giving:** **quarterly** by Steve Morgan: $1,500 General Fund per gift, gives in 100% of periods, 80% chance of a year-end gift, started 15 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Waiting**, from Karen Morgan, 1 days ago (Travel): Steve and I are driving to Colorado this weekend to see our daughter and the grandkids. Safe travels, please, and a sweet visit.
+
 ## Address
 
 6296 W Willow Ave, Glendale, AZ 85304 (a real street with a house number that does not exist)

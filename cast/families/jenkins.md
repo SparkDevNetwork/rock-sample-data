@@ -38,6 +38,10 @@ Gary and Barbara Jenkins are raising their grandson, Austin Reed. Austin's last 
 - **Giving:** **monthly** by Gary Jenkins: $100 General Fund per gift, gives in 88% of periods, started 10 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Current**, from Barb Jenkins, 5 days ago (Family Issues, 6 prayers): Gary and I are raising our grandson Austin, and he has had a rough start at his new school. He comes home quiet and does not want to talk about it. Please pray for a good friend for him, and for wisdom for us as we help him through it.
+
 ## Address
 
 6368 W Villa Theresa Dr, Glendale, AZ 85308 (a real street with a house number that does not exist)

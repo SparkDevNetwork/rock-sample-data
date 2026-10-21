@@ -24,11 +24,10 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
-- **Cast prayer requests** tied to Cast stories, covering every prayer screen: waiting for approval, flagged, urgent, private, expired, answered, and shared with a group.
 - **Communications:** email and text history, with opens and clicks.
-- **Steps,** such as baptism and membership.
+- **Steps:** a seven-step Discipleship Path for adults (Starting Point Class, Small Group, Baptism, Foundations, Serve, Give, and Lead) and a four-step Student Path (Student Camp, Follow Jesus, Mission Trip, and Student Leader), with program completions. See [Steps](steps.md).
 - **Benevolence requests.**
-- **Reminders and notes** that staff would really write.
+- **Reminders** that staff would really set.
 
 ## Installing and quality
 

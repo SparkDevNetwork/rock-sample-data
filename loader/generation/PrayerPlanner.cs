@@ -69,7 +69,7 @@ namespace RockSampleData.Loader.Generation
             var total = ( int ) Math.Round( Number( "prayer.requestsPerYearPerThousandActiveAdults", 250 ) * active.Count / 1000 * years );
             var linked = ( int ) Math.Round( total * Number( "prayer.pctLinkedToPerson", 94 ) / 100 );
 
-            var slots = AssignRequesters( active, plan.Team, linked, years );
+            var slots = AssignRequesters( people.OrderBy( p => p.PersonId ).ToList(), plan.Team, linked, years );
             var guestCampuses = active.Select( p => p.CampusId ).ToList();
             var guests = new SeededRandom( $"{_seed}:prayer:guests" );
             for ( var i = slots.Count; i < total; i++ )
@@ -149,26 +149,33 @@ namespace RockSampleData.Loader.Generation
 
             Each age band and gender gets its quota of requests from the profile's mix of people who ask,
             filled by people in that group in a random order. A weighted draw alone flattens toward the
-            church's own mix, because about a third of active adults ask. A person's band is their age
-            halfway through the window, close to their age when they ask. Prayer team members come first
-            more often, five times as likely as others.
+            church's own mix, because a large share of adults ask. A person's band is their age halfway
+            through the window, close to their age when they ask. Prayer team members come first more
+            often, five times as likely as others.
+
+            Volume is counted per active adult, but anyone on an active record can ask. Adults who did not
+            attend, give, or join a group in the last year are about a third as likely to ask as active
+            ones, the way people on a church's edge ask for prayer in a hard season. Without them, the
+            profile's volume would have most active adults asking several times.
 
             Repeat counts run a little above the profile's 24-month mix, because the window is longer and
             the profile measures only part of it.
 
             Reason: The requester mix matches the profile at any volume.
         */
-        private List<PrayerPerson> AssignRequesters( List<PrayerPerson> active, List<PrayerTeamMember> team, int count, double years )
+        private const double LessConnectedAdultWeight = 0.35;
+
+        private List<PrayerPerson> AssignRequesters( List<PrayerPerson> adults, List<PrayerTeamMember> team, int count, double years )
         {
             var random = new SeededRandom( $"{_seed}:prayer:requesters" );
-            var ageTargets = Map( "prayer.requesters.ageMixAmongKnown" );
+            var ageTargets = Map( "prayer.requesters.ageMix" );
             var pctFemale = Number( "prayer.requesters.pctFemaleAmongKnown", 60 ) / 100;
             var askMix = Map( "prayer.requesters.requestsPerRequesterMix" );
             var teamIds = team.Select( t => t.Person.PersonId ).ToHashSet();
 
             double Share( (string Band, bool IsFemale) cell ) => ageTargets.GetValueOrDefault( cell.Band ) / 100 * ( cell.IsFemale ? pctFemale : 1 - pctFemale );
 
-            var cells = active
+            var cells = adults
                 .GroupBy( p => (Band: AgeBand( ( int ) Math.Round( p.Age - years / 2 ) ), p.IsFemale) )
                 .OrderBy( g => g.Key.Band, StringComparer.Ordinal )
                 .ThenBy( g => g.Key.IsFemale )
@@ -181,7 +188,7 @@ namespace RockSampleData.Loader.Generation
                 var quota = ( totalShare > 0 ? count * Share( cell.Key ) / totalShare : 0 ) + carried;
                 var filled = 0;
                 var askers = new List<PrayerPerson>();
-                foreach ( var person in WeightedOrder( random, cell, p => teamIds.Contains( p.PersonId ) ? 5.0 : 1.0 ) )
+                foreach ( var person in WeightedOrder( random, cell, p => teamIds.Contains( p.PersonId ) ? 5.0 : p.IsActive ? 1.0 : LessConnectedAdultWeight ) )
                 {
                     if ( filled >= Math.Round( quota ) )
                     {
@@ -213,7 +220,7 @@ namespace RockSampleData.Loader.Generation
                 carried = quota - filled;
             }
 
-            foreach ( var person in WeightedOrder( random, active, _ => 1.0 ).Take( Math.Max( 0, count - slots.Count ) ) )
+            foreach ( var person in WeightedOrder( random, adults, p => p.IsActive ? 1.0 : LessConnectedAdultWeight ).Take( Math.Max( 0, count - slots.Count ) ) )
             {
                 slots.Add( person );
             }
@@ -522,6 +529,106 @@ namespace RockSampleData.Loader.Generation
 
         #endregion
 
+        #region The Cast's requests
+
+        /*
+            10/21/26 - CLAUDE
+
+            The Cast's own requests (cast/prayer-requests.json) are written by hand, so their timing is fixed
+            by their state instead of drawn: approved two hours after entry, expiring 14 days later as Rock's
+            approval sets it, and prayed for at even steps through the time they were in the prayer session.
+            A flagged request was flagged halfway through, which unapproved it. The Cast's Prayer Team prays
+            first, taking turns from one request to the next, so their names show on these requests.
+
+            Reason: Demos and docs can rely on each Cast request showing the same state on every install.
+        */
+        private const int CastApprovalHours = 2;
+
+        private const int CastExpireDays = 14;
+
+        /// <summary>
+        /// Plans the Cast's requests. <paramref name="entered"/> is each request's resolved entry time, in order.
+        /// </summary>
+        public List<PlannedPrayerRequest> PlanCast( IReadOnlyList<CastPrayerRequest> requests, IReadOnlyList<DateTime> entered, Dictionary<Guid, PrayerPerson> people,
+            Dictionary<string, int> categoryIds, Dictionary<string, int> groupIds, PrayerPlan plan, int guestCampusId )
+        {
+            var castTeam = plan.Team.Where( t => t.Person.IsCastPrayerTeam ).Select( t => t.Person ).ToList();
+            var otherTeam = plan.Team.Where( t => !t.Person.IsCastPrayerTeam ).OrderByDescending( t => t.Busyness ).Select( t => t.Person ).ToList();
+            var planned = new List<PlannedPrayerRequest>();
+
+            for ( var index = 0; index < requests.Count; index++ )
+            {
+                var cast = requests[index];
+                var requester = cast.Requester.HasValue ? people[cast.Requester.Value] : null;
+                var request = new PlannedPrayerRequest
+                {
+                    Guid = cast.Guid,
+                    Person = requester,
+                    FirstName = requester != null ? requester.FirstName : cast.Guest.FirstName,
+                    LastName = requester != null ? requester.LastName : cast.Guest.LastName,
+                    Email = requester != null ? requester.Email : cast.Guest.Email,
+                    CampusId = requester != null ? requester.CampusId : guestCampusId,
+                    Entered = entered[index],
+                    CategoryId = categoryIds[cast.Category],
+                    Text = cast.Text,
+                    Answer = cast.State == "answered" ? cast.Answer : null,
+                    IsUrgent = cast.IsUrgent,
+                    IsPublic = !cast.IsPrivate,
+                    AllowComments = cast.AllowComments || cast.Comments.Count > 0,
+                    GroupId = cast.Group == null ? null : groupIds[cast.Group]
+                };
+                planned.Add( request );
+
+                if ( cast.State == "waiting" )
+                {
+                    continue;
+                }
+
+                request.IsApproved = true;
+                request.ApprovedOn = request.Entered.AddHours( CastApprovalHours );
+                request.ApprovedBy = plan.Admins.FirstOrDefault();
+                request.Expiration = request.ApprovedOn.Value.AddDays( CastExpireDays ).Date;
+
+                var end = ExpiresAt( request ) < _now ? ExpiresAt( request ) : _now;
+                if ( cast.State == "flagged" )
+                {
+                    end = request.ApprovedOn.Value.AddTicks( ( end - request.ApprovedOn.Value ).Ticks / 2 );
+                    request.FlagCount = 1;
+                    request.IsApproved = false;
+                }
+
+                // Cast Prayer Team members take turns going first, then the busiest of the rest. A small team
+                // prays for the same request again on later days, as real prayer teams do.
+                var turn = index % Math.Max( 1, castTeam.Count );
+                var team = castTeam.Skip( turn ).Concat( castTeam.Take( turn ) ).Concat( otherTeam )
+                    .Where( p => p.PersonId != requester?.PersonId )
+                    .Take( cast.Prayers )
+                    .ToList();
+                for ( var i = 0; i < cast.Prayers && team.Count > 0; i++ )
+                {
+                    var when = request.ApprovedOn.Value.AddTicks( ( long ) ( ( end - request.ApprovedOn.Value ).Ticks * ( i + 0.5 ) / cast.Prayers ) );
+                    request.Prayers.Add( (when, team[i % team.Count]) );
+                }
+
+                // Team comments follow the first prayers, an hour after each; a requester's reply follows the first comment.
+                var teamComments = cast.Comments.Where( c => c.By == "team" ).ToList();
+                for ( var i = 0; i < teamComments.Count && i < request.Prayers.Count; i++ )
+                {
+                    request.Comments.Add( new PlannedPrayerComment { When = request.Prayers[i].When.AddHours( 1 ), By = request.Prayers[i].By, Text = teamComments[i].Text } );
+                }
+
+                var reply = cast.Comments.FirstOrDefault( c => c.By == "requester" );
+                if ( reply != null && requester != null && request.Comments.Count > 0 )
+                {
+                    request.Comments.Add( new PlannedPrayerComment { When = request.Comments[0].When.AddHours( 3 ), By = requester, Text = reply.Text, IsReply = true } );
+                }
+            }
+
+            return planned;
+        }
+
+        #endregion
+
         #region Helpers
 
         private double Number( string path, double fallback ) => _profile.Number( path, fallback );
@@ -610,6 +717,11 @@ namespace RockSampleData.Loader.Generation
     {
         public int PersonId { get; set; }
 
+        /// <summary>
+        /// The person's Guid, which Cast prayer requests use to name their requester.
+        /// </summary>
+        public Guid Guid { get; set; }
+
         public int AliasId { get; set; }
 
         public int CampusId { get; set; }
@@ -674,6 +786,11 @@ namespace RockSampleData.Loader.Generation
     /// </summary>
     internal sealed class PlannedPrayerRequest
     {
+        /// <summary>
+        /// A Cast request's fixed Guid, or null for a generated request, which gets a seeded one.
+        /// </summary>
+        public Guid? Guid { get; set; }
+
         /// <summary>
         /// The requester, or null for a guest with no person record.
         /// </summary>

@@ -52,6 +52,10 @@ Jordan is nine and Tim's younger sister.
 - **Giving units:** the couple gives together as one giving unit.
 - **Giving:** none.
 
+## Prayer requests
+
+- **Answered**, from Lorraine Greggs, about 7 months ago (Comfort/Grief, 8 prayers, 1 comments): This week is the anniversary of losing our daughter Jenny. Bob and I still feel it every year, and our kids are old enough now to ask about her. Please pray for comfort, and for the right words when they ask. Answer: The week was gentle. We told the kids stories about Jenny, and we even laughed. Thank you for carrying us.
+
 ## Address
 
 10636 N 16th Ave, Phoenix, AZ 85029 (a real street with a house number that does not exist)

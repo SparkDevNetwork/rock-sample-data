@@ -1,0 +1,157 @@
+{
+  "source": "source-3",
+  "description": "Calibration source",
+  "collected": "2026-10",
+  "period": {
+    "start": "2024-10-01",
+    "endExclusive": "2026-10-01"
+  },
+  "notes": [
+    "Person note types are sorted into generic kinds inside part 6. Note type names and note text are never stored."
+  ],
+  "personNotes": {
+    "notesPerYearPerThousandActiveAdults": null,
+    "notedPeopleIn24MonthsPerThousandActiveAdults": null,
+    "notedPeopleAllTimePerThousandActiveAdults": null,
+    "pctOfAllTimeNotesInLast24Months": 21.3,
+    "pctOnRockTypes": 55.8,
+    "pctImported": 1,
+    "pctWithNoAuthor": 17.7,
+    "monthIndex": {
+      "10": 0.91,
+      "11": 1.01,
+      "12": 0.55,
+      "01": 1.31,
+      "02": 1.65,
+      "03": 0.88,
+      "04": 1.06,
+      "05": 0.71,
+      "06": 1,
+      "07": 0.9,
+      "08": 1.14,
+      "09": 0.89
+    },
+    "detail": {
+      "pctAlert": 0.5,
+      "pctPrivate": 0.1,
+      "pctPinned": 0.1,
+      "pctReplies": 0.6,
+      "pctEdited": 76.2,
+      "pctWithCaption": 69.8,
+      "pctWithMention": 0,
+      "pctWithHtml": 0.1,
+      "pctOnSecuredTypes": 99.9,
+      "pctAboutTheAuthor": 12.9,
+      "pctWrittenAtMidnight": 0,
+      "textLengthP10": 27,
+      "textLengthP50": 60,
+      "textLengthP90": 214,
+      "pctTopLevelNotesWithReply": 0.4
+    },
+    "kindMix": {
+      "personal": {
+        "pctNotes": 39.5,
+        "typesUsed": 1,
+        "pctAlert": 1.2,
+        "pctPrivate": 0,
+        "pctSecured": 100,
+        "pctByStaff": 70.4,
+        "textLengthP50": 68
+      },
+      "care": {
+        "pctNotes": 35.7,
+        "typesUsed": 1,
+        "pctAlert": 0,
+        "pctPrivate": 0.1,
+        "pctSecured": 100,
+        "pctByStaff": 67.2,
+        "textLengthP50": 69
+      },
+      "registration": {
+        "pctNotes": 16.2,
+        "typesUsed": 1,
+        "pctAlert": 0,
+        "pctPrivate": 0,
+        "pctSecured": 100,
+        "pctByStaff": 20.5,
+        "textLengthP50": 55
+      },
+      "other": {
+        "pctNotes": 8.5,
+        "typesUsed": 6,
+        "pctAlert": 0.6,
+        "pctPrivate": 0.1,
+        "pctSecured": 99.2,
+        "pctByStaff": 20.4,
+        "textLengthP50": 39
+      },
+      "quick": {
+        "pctNotes": 0.1,
+        "typesUsed": 1,
+        "pctAlert": 0.8,
+        "pctPrivate": 1.5,
+        "pctSecured": 100,
+        "pctByStaff": 99.2,
+        "textLengthP50": 84
+      }
+    },
+    "types": {
+      "typesDefined": 13,
+      "customTypesDefined": 8,
+      "userSelectableTypes": 10,
+      "typesUsed": 10,
+      "pctUsedTypesAllowReplies": 60,
+      "pctUsedTypesRequireApprovals": 0,
+      "pctUsedTypesAllowWatching": 50,
+      "pctUsedTypesMentionEnabled": 10,
+      "pctUsedTypesAllowAttachments": 0,
+      "pctUsedTypesWithViewSecurity": 90,
+      "pctInTopType": 39.5,
+      "pctInTop3Types": 91.4
+    },
+    "weekdayMix": {
+      "Mon": 26.9,
+      "Tue": 18.5,
+      "Wed": 17.5,
+      "Thu": 16.2,
+      "Fri": 4.4,
+      "Sat": 3.6,
+      "Sun": 12.9
+    },
+    "hourBandMix": {
+      "00-05": 4.3,
+      "06-08": 11.5,
+      "09-11": 28.1,
+      "12-14": 25.9,
+      "15-17": 18.4,
+      "18-23": 11.9
+    },
+    "authors": {
+      "authorsPerThousandActiveAdults": null,
+      "pctOfStaffWhoWroteNotes": 94.3,
+      "pctNotesByStaff": 69.2,
+      "notesPerAuthorP50": 2,
+      "notesPerAuthorP90": 10,
+      "pctNotesByTop10PctOfAuthors": 84.5
+    },
+    "notedPeople": {
+      "ageMixAmongKnown": {
+        "under13": 18,
+        "13-17": 12.8,
+        "18-29": 21,
+        "30-44": 25.2,
+        "45-64": 17.7,
+        "65+": 5.4
+      },
+      "pctFemaleAmongKnown": 59.6,
+      "pctAboutActiveRecords": 97.4,
+      "notesPerPersonMix": {
+        "1": 48.4,
+        "2-3": 25.4,
+        "4-9": 16.7,
+        "10+": 9.5
+      },
+      "pctWith2PlusKinds": 33.7
+    }
+  }
+}

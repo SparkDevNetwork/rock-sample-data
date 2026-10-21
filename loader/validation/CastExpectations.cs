@@ -129,8 +129,152 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckBusinesses( db, source, failures );
 
+            checks += CheckPrayerRequests( db, source, failures );
+
             return (checks, failures);
         }
+
+        /*
+            10/21/26 - CLAUDE
+
+            Each Cast prayer request must show the state its file names, because demos and docs point at them
+            ("Peggy Carter's request has a reply"). A current request must still be in Rock's prayer session on
+            the install day, which a daysAgo date gives back: the entry date plus its days ago. The check reads
+            only the database and the Cast file, so it also works on a database loaded days earlier.
+
+            Reason: The always-current requests keep every dataset's prayer list full, so a load must prove it.
+        */
+        private const int MinimumCurrentCastPrayerRequests = 8;
+
+        /// <summary>
+        /// Checks every Cast prayer request's state, prayers, comments, answer, group, and requester, and that
+        /// enough of them are in Rock's prayer session on the install day. Returns how many checks ran.
+        /// </summary>
+        private static int CheckPrayerRequests( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var requests = source.ReadCastPrayerRequests();
+            if ( requests.Count == 0 )
+            {
+                return 0;
+            }
+
+            var configuration = source.ReadPrayerConfiguration();
+            var categoryGuids = configuration.Categories.ToDictionary( c => c.Key, c => c.Guid );
+            var groupGuids = source.ReadCastSmallGroupPlans().ToDictionary( g => g.Key, g => g.Guid );
+            var checks = 0;
+            var inSession = 0;
+
+            foreach ( var request in requests )
+            {
+                checks++;
+                var name = $"Prayer request {request.Key}";
+                var row = db.Query( @"
+SELECT [pr].[IsApproved], [pr].[IsActive], [pr].[IsUrgent], [pr].[IsPublic], [pr].[AllowComments], ISNULL( [pr].[FlagCount], 0 ) AS [FlagCount], ISNULL( [pr].[PrayerCount], 0 ) AS [PrayerCount],
+    [pr].[Answer], [pr].[EnteredDateTime], [pr].[ExpirationDate], [c].[Guid] AS [CategoryGuid], [g].[Guid] AS [GroupGuid], [p].[Guid] AS [RequesterGuid], [pr].[FirstName],
+    ( SELECT COUNT( * ) FROM [InteractionComponent] AS [ic] INNER JOIN [Interaction] AS [i] ON [i].[InteractionComponentId] = [ic].[Id]
+        WHERE [ic].[EntityId] = [pr].[Id] AND [ic].[InteractionChannelId] = ( SELECT [Id] FROM [InteractionChannel] WHERE [Guid] = '3D49FB99-94D1-4F63-B1A2-30D4FEDE11E9' ) ) AS [Prayed],
+    ( SELECT COUNT( * ) FROM [Note] AS [n] WHERE [n].[EntityId] = [pr].[Id] AND [n].[NoteTypeId] = ( SELECT [Id] FROM [NoteType] WHERE [Guid] = '0EBABD75-0890-4756-A9EE-62626282BB5D' ) ) AS [Comments],
+    ( SELECT COUNT( * ) FROM [Note] AS [n] WHERE [n].[EntityId] = [pr].[Id] AND [n].[ParentNoteId] IS NOT NULL AND [n].[NoteTypeId] = ( SELECT [Id] FROM [NoteType] WHERE [Guid] = '0EBABD75-0890-4756-A9EE-62626282BB5D' ) ) AS [Replies]
+FROM [PrayerRequest] AS [pr]
+LEFT JOIN [Category] AS [c] ON [c].[Id] = [pr].[CategoryId]
+LEFT JOIN [Group] AS [g] ON [g].[Id] = [pr].[GroupId]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pr].[RequestedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
+
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: not in the database" );
+                    continue;
+                }
+
+                var problems = new List<string>();
+                var isApproved = ( bool? ) Nullable( row["IsApproved"] ) == true;
+                var isActive = ( bool? ) Nullable( row["IsActive"] ) == true;
+                var flagCount = Convert.ToInt32( row["FlagCount"] );
+                var expiration = ( DateTime? ) Nullable( row["ExpirationDate"] );
+                var answer = Nullable( row["Answer"] ) as string;
+
+                // The install day, when the entry date is days ago; otherwise today, for long-past requests.
+                var installDay = request.Entered?.DaysAgo is int daysAgo ? ( ( DateTime ) row["EnteredDateTime"] ).Date.AddDays( daysAgo ) : DateTime.Today;
+                var isInSession = isApproved && isActive && expiration.HasValue && expiration.Value >= installDay;
+
+                var stateHolds = request.State switch
+                {
+                    "current" => isInSession && flagCount == 0,
+                    "waiting" => !isApproved && flagCount == 0,
+                    "flagged" => !isApproved && flagCount > 0,
+                    "expired" or "answered" => isApproved && expiration.HasValue && expiration.Value < installDay,
+                    _ => false
+                };
+                if ( !stateHolds )
+                {
+                    problems.Add( $"is not {request.State} (approved {isApproved}, active {isActive}, flags {flagCount}, expires {expiration:yyyy-MM-dd})" );
+                }
+
+                if ( request.State == "current" && isInSession )
+                {
+                    inSession++;
+                }
+
+                var prayed = Convert.ToInt32( row["Prayed"] );
+                if ( prayed != request.Prayers && request.State != "waiting" || prayed != Convert.ToInt32( row["PrayerCount"] ) )
+                {
+                    problems.Add( $"has {prayed} prayers and a prayer count of {row["PrayerCount"]}, expected {request.Prayers}" );
+                }
+
+                if ( ( request.State == "answered" ) != !string.IsNullOrEmpty( answer ) )
+                {
+                    problems.Add( request.State == "answered" ? "has no answer" : "has an answer" );
+                }
+
+                if ( ( bool? ) Nullable( row["IsUrgent"] ) != request.IsUrgent || ( bool? ) Nullable( row["IsPublic"] ) != !request.IsPrivate )
+                {
+                    problems.Add( "has the wrong urgent or private setting" );
+                }
+
+                if ( Nullable( row["CategoryGuid"] ) as Guid? != categoryGuids.GetValueOrDefault( request.Category ) )
+                {
+                    problems.Add( $"is not in category {request.Category}" );
+                }
+
+                var expectedGroup = request.Group == null ? ( Guid? ) null : groupGuids.GetValueOrDefault( request.Group );
+                if ( Nullable( row["GroupGuid"] ) as Guid? != expectedGroup )
+                {
+                    problems.Add( request.Group == null ? "is shared with a group" : $"is not shared with {request.Group}" );
+                }
+
+                var requesterGuid = Nullable( row["RequesterGuid"] ) as Guid?;
+                if ( requesterGuid != request.Requester || ( request.Guest != null && ( string ) row["FirstName"] != request.Guest.FirstName ) )
+                {
+                    problems.Add( request.Guest != null ? "is not from the guest" : "is not from its requester" );
+                }
+
+                var replies = request.Comments.Count( c => c.By == "requester" );
+                if ( Convert.ToInt32( row["Comments"] ) != request.Comments.Count || Convert.ToInt32( row["Replies"] ) != replies )
+                {
+                    problems.Add( $"has {row["Comments"]} comments ({row["Replies"]} replies), expected {request.Comments.Count} ({replies})" );
+                }
+
+                if ( problems.Count > 0 )
+                {
+                    failures.Add( $"{name}: {string.Join( "; ", problems )}" );
+                }
+            }
+
+            checks++;
+            if ( inSession < MinimumCurrentCastPrayerRequests )
+            {
+                failures.Add( $"Prayer: {inSession} Cast requests are in the prayer session on the install day, fewer than {MinimumCurrentCastPrayerRequests}" );
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Turns a database null into a C# null.
+        /// </summary>
+        private static object Nullable( object value ) => value is DBNull ? null : value;
 
         /*
             10/19/26 - CLAUDE

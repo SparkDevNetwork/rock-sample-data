@@ -15,7 +15,7 @@ Alisha Marble is the church's Rock administrator. Her husband Bill was born on a
 
 Alisha is the church's Rock administrator and holds nearly every security role. She leads a women's group and is the person to log in as when you need full admin rights.
 
-- Age 48 · married · Assistant, Rock Solid Church · email alisha.marble@rocksolidchurchdemo.com · groups: Alisha Marble’s Group (leader), Marble Group, Foster Group (left) · 8 security roles
+- Age 48 · married · Assistant, Rock Solid Church · email alisha.marble@rocksolidchurchdemo.com · groups: Alisha Marble’s Group (leader), Marble Group, Foster Group (left) · 7 security roles
 - Person Guid `69DC0FDC-B451-4303-BD91-EF17C0015D23`
 
 ### Bill (William) Marble

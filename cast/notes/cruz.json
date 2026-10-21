@@ -1,0 +1,45 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "cruz",
+  "notes": [
+    {
+      "key": "adrian-vbs-thank-you",
+      "guid": "8B96BBDC-D63E-467D-8CBD-613B49ED986F",
+      "about": "adrian",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 85
+      },
+      "time": "11:00",
+      "text": "Adrian and Camila came to every night of VBS. Mailed the family a thank-you card with the kids' craft pages and an invitation to the next family night.",
+      "testPurpose": "Follow-up after a kids event."
+    },
+    {
+      "key": "gaby-lost-shirt",
+      "guid": "FA8D16F2-9200-40E4-A8A0-127005EB3911",
+      "about": "gabriela",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 82
+      },
+      "time": "15:40",
+      "text": "Gaby called to ask whether Adrian's VBS shirt turned up. It was at the welcome desk, and she will pick it up this week. She asked about the Sunday kids rooms, so I sent her the times."
+    },
+    {
+      "key": "jose-sunday-invite",
+      "guid": "2BECFD9E-6E56-46B6-99AA-2184D32E4662",
+      "about": "jose",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 60
+      },
+      "time": "18:10",
+      "text": "Called Jose to invite the family to a Sunday. He was friendly but said weekends are full with work right now. Left the door open and will invite them to the next kids event.",
+      "testPurpose": "A follow-up with a family that has not come on a Sunday."
+    }
+  ]
+}

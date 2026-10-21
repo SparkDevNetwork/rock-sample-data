@@ -1,0 +1,83 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "ramirez",
+  "notes": [
+    {
+      "key": "ana-connection-card",
+      "guid": "DD9CA444-4873-4274-9153-C15AD9D42154",
+      "about": "ana",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 14
+      },
+      "time": "12:15",
+      "text": "Entered Ana's connection card from the family's first Sunday. She asked about small groups and the kids rooms. Mailed a welcome packet to the house and emailed her the newcomers lunch date.",
+      "testPurpose": "A guest follow-up written on the day of a family's first visit."
+    },
+    {
+      "key": "lucas-first-check-in",
+      "guid": "5EEF70AC-C1BE-444C-A27C-F187CD8F5067",
+      "about": "lucas",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 14
+      },
+      "time": "13:30",
+      "text": "First check-in for Lucas in the elementary room. His leader said he jumped right into the game and asked if he could come back next week. Mia's leader said the same about her. Sent the parents the room times.",
+      "testPurpose": "A follow-up note about a child after a first check-in."
+    },
+    {
+      "key": "carlos-thank-you-call",
+      "guid": "64E42C40-2B0A-45DB-AC58-7E83E34FE986",
+      "about": "carlos",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 12
+      },
+      "time": "14:20",
+      "text": "Called Carlos to thank the family for visiting. He said the kids talked about their rooms all afternoon, and they plan to come back. He works most Saturdays, so Sunday mornings are their window.",
+      "testPurpose": "A follow-up call with a reply from another staff member.",
+      "replies": [
+        {
+          "guid": "A8C8EDC8-A6F7-4B7D-8D8E-8B073960FFF7",
+          "author": "alisha",
+          "written": {
+            "daysAgo": 12
+          },
+          "time": "16:05",
+          "text": "Ana already has the group list and the newcomers lunch date from her card, so they have both."
+        }
+      ]
+    },
+    {
+      "key": "carlos-second-visit",
+      "guid": "1AD102FF-F04F-467C-B5F4-DF46994A5C69",
+      "about": "carlos",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 6
+      },
+      "time": "12:50",
+      "text": "The Ramirez family came back for a second Sunday yesterday. Carlos and Ana stayed for coffee and asked what a next step looks like for a family. Invited them to the newcomers lunch. {@pete} would enjoy meeting them.",
+      "testPurpose": "A note from the last seven days with a mention."
+    },
+    {
+      "key": "mia-photo-release",
+      "guid": "0B23579C-F837-4064-BDBA-8D2E90C38973",
+      "about": "mia",
+      "type": "personal",
+      "author": "daniel",
+      "written": {
+        "daysAgo": 5
+      },
+      "time": "10:40",
+      "text": "Ana asked whether we post photos of the kids rooms online. Told her we never post a child without a signed release. The family has not signed one, so Mia and Lucas stay out of all photos for now.",
+      "testPurpose": "A personal note on a child, written by the communications director."
+    }
+  ]
+}

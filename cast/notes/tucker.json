@@ -1,0 +1,19 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "tucker",
+  "notes": [
+    {
+      "key": "dale-video-offer",
+      "guid": "EA2143D4-C1D1-48E1-AA54-8773AFF3C565",
+      "about": "dale",
+      "type": "personal",
+      "author": "daniel",
+      "written": {
+        "daysAgo": 40
+      },
+      "time": "11:15",
+      "text": "Dale offered to film baptism stories with his own video gear. We talked about a test shoot with one family next month."
+    }
+  ]
+}

@@ -16,7 +16,11 @@
     "groups.smallGroups",
     "groups.servingTeams",
     "connections",
-    "prayer"
+    "prayer",
+    "personNotes.weekdayMix",
+    "personNotes.hourBandMix",
+    "personNotes.detail.textLengthP50",
+    "personNotes.detail.textLengthP90"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
@@ -77,9 +81,6 @@
     },
     "attendance.kidsMonthIndex": {
       "relative": 0.1
-    },
-    "prayer.requesters.ageMixAmongKnown": {
-      "points": 3
     }
   }
 }

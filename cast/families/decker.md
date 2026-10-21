@@ -17,7 +17,7 @@ Ted and Cindy Decker and their two children are the church's best-known family. 
 
 Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, leads the Production Team, where he still runs a camera, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.
 
-- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 8 security roles
+- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 7 security roles
 - Person Guid `8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4`
 
 ### Cindy (Cynthia) Decker
@@ -54,6 +54,10 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 - **Attendance:** core, 80% of Sundays, 88% at their usual service, since 11 years ago.
 - **Giving:** **monthly** by Ted Decker: $175 General Fund + $125 Building Fund per gift, by card, gives in 100% of periods, grows 3% every 52 weeks, 50% chance of a year-end gift, started 10 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
 - **Giving units:** the couple gives together as one giving unit.
+
+## Prayer requests
+
+- **Answered**, from Ted Decker, 9 years ago (Hospitalization, urgent, 9 prayers): My mother was admitted to the hospital tonight with pneumonia. She is 71 and the doctors want to watch her closely for a few days. Please pray for healing, for her care team, and for our family as we take turns at her side. Answer: Mom came home after nine days and is getting stronger every week. Thank you to everyone who prayed and brought meals.
 
 ## Address
 

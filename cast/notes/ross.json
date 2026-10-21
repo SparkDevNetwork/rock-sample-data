@@ -1,0 +1,19 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "ross",
+  "notes": [
+    {
+      "key": "joan-mail-hold",
+      "guid": "45EDC924-5417-4FF2-BFA7-A28121AF7A4B",
+      "about": "joan",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 170
+      },
+      "time": "10:45",
+      "text": "Joan called to say she and Dick are heading back to Minnesota for the season. Paused their mail and asked her to call when they are back in town."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "note.schema.json",
+  "title": "Cast Notes",
+  "description": "Hand-written staff notes on the people of one Cast household (decision 78). Every dataset loads them on the main campus with the same Guids. Dates are relative to the anchor date. See notes/README.md.",
+  "type": "object",
+  "required": [ "schemaVersion", "household", "notes" ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "household": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "The household's key. Matches the file name." },
+    "notes": { "type": "array", "items": { "$ref": "#/$defs/note" }, "minItems": 1 }
+  },
+  "$defs": {
+    "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" },
+    "staffKey": { "type": "string", "pattern": "^[a-z0-9]+$", "description": "A staff key from the staff list in configuration/notes.json." },
+    "written": {
+      "type": "object",
+      "description": "When the note was written, counted back from the anchor date (install day).",
+      "required": [ "daysAgo" ],
+      "additionalProperties": false,
+      "properties": {
+        "daysAgo": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "time": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$", "description": "Time of day, HH:mm, 24-hour." },
+    "text": { "type": "string", "minLength": 1, "description": "The text. {@key} (a staff key) becomes a mention of that staff member." },
+    "note": {
+      "type": "object",
+      "required": [ "key", "guid", "about", "type", "author", "written", "time", "text" ],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Unique within the file." },
+        "guid": { "$ref": "#/$defs/guid", "description": "The note's Guid. Never changes; tests rely on it." },
+        "about": { "type": "string", "description": "The member key of the person the note is about, in this household." },
+        "type": { "type": "string", "description": "A note type key from configuration/notes.json." },
+        "author": { "$ref": "#/$defs/staffKey", "description": "The staff member who wrote the note. Never a member of this household." },
+        "written": { "$ref": "#/$defs/written" },
+        "time": { "$ref": "#/$defs/time" },
+        "text": { "$ref": "#/$defs/text" },
+        "isAlert": { "type": "boolean", "description": "Default false. A note of a type that is always an alert (Safety Alert) may not set it to false." },
+        "isPrivate": { "type": "boolean", "description": "Default false. A private note is seen only by its author, so it has no replies and no mentions." },
+        "isPinned": { "type": "boolean", "description": "Default false." },
+        "testPurpose": { "type": "string", "description": "What the note tests or shows." },
+        "replies": { "type": "array", "items": { "$ref": "#/$defs/reply" }, "minItems": 1 }
+      }
+    },
+    "reply": {
+      "type": "object",
+      "description": "A reply from a different staff member, written on or after the note's day.",
+      "required": [ "guid", "author", "written", "time", "text" ],
+      "additionalProperties": false,
+      "properties": {
+        "guid": { "$ref": "#/$defs/guid" },
+        "author": { "$ref": "#/$defs/staffKey" },
+        "written": { "$ref": "#/$defs/written" },
+        "time": { "$ref": "#/$defs/time" },
+        "text": { "$ref": "#/$defs/text" }
+      }
+    }
+  }
+}

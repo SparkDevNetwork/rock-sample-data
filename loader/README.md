@@ -25,7 +25,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7: about 23 seconds without, about 34 with). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
@@ -50,7 +50,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Any failure stops the load before it writes anything.
 
-The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, Cast and business expectations, and check images.
+The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, notes, Cast and business expectations, and check images.
 
 ## What makes a load repeatable
 
@@ -109,7 +109,7 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 | Family salutations (`GroupSalutation`, `GroupSalutationFull`) | `GroupService.CalculateFamilySalutation`, from the person and group member save hooks. | A port of it (`loading/FamilySalutation.cs`), for example "Ted & Cindy Decker". |
 | Inactive families | Rock Cleanup marks a family inactive when every member's record is inactive, then dates it. | The same, dated at install (in the Cast, the Murphys and Jenny Greggs's family). |
 | An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
-| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. The table is keyed by name and shared, so these rows have no `ForeignKey`. |
+| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. SQL Server decides which names are new, as it does for Rock, so its collation matches "Strauß" to "Strauss". The table is keyed by name and shared, so these rows have no `ForeignKey`. |
 | A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
@@ -190,6 +190,8 @@ Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 att
 
 The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night at 10pm, its default schedule. The job's last run is the night before the anchor. Rock's giving automation settings record that run, so Rock's next real run picks up only newer gifts.
 
+The giving step also sets each campus's tithe metric, as Rock Cleanup does every night: the census median family income for each giving family's postal code (from the post-install job's `AnalyticsSourcePostalCode`), averaged per campus, times 10%. Only tax-deductible gifts in the last 365 days count. The query is Rock's, run as one update (`GivingLoader.UpdateCampusTitheMetric`).
+
 - **Giving attributes** (`loading/GivingAnalyticsLoader.cs`), for every person in a giving unit: first and last gift, percent scheduled, preferred source and currency, gift frequency (mean, standard deviation, and label), next expected gift, median gift, its spread (IQR), and the last classification date. Rock reclassifies a unit only on a night after a new gift. So each unit's values are as of the night after its last gift, and a lapsed giver keeps the values from back then.
 - **Giving bin and percentile** come from Rock's own stored procedure (`spGivingAutomation_UpdateGivingBinsAndPercentiles`), run as of the job's last run.
 - **Journey stages** (Non-Giver, New, Consistent, Occasional, Lapsed, Former), with the previous stage and the change date. The loader replays Rock's weekly Tuesday runs for a year. Then it runs Rock's own procedure (`spGivingAutomation_UpdateGivingJourneyStages`) for the last Tuesday and checks that Rock made exactly the predicted changes. The load prints the result.
@@ -203,14 +205,15 @@ Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the al
 
 `generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.
 
-1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 250 requests a year per 1,000 of them. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
+1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 500 requests a year per 1,000 of them, about 10 a week. Anyone on an active record can ask, but adults who are not active are about a third as likely to. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
 2. **When and what.** Days follow the profile's month and weekday patterns, and times its hour bands. Each request gets a category by its weight in `configuration/prayer.json` and text from that category's pool in `content/prayer`: one request, some details, and sometimes a closing.
 3. **Approval.** The Cast's Prayer Administrator approves most requests within hours. Rock's approval stamps who and when, and sets the request to expire 14 days later, stored as a date. Requests whose approval would fall after install day still wait in the queue.
 4. **Prayer.** The prayer team is the Cast's Prayer Team plus about 3% of active adults, a few of them far busier than the rest. They pray through a request while it is approved and not expired, through the end of its expiration day, as Rock's prayer session shows it. Each prayer is a "Prayed" interaction in Rock's Prayer Events channel, with one interaction component per request, and `PrayerCount` is the number of them. Nobody prays for their own request.
 5. **Flags, comments, and answers.** About 2% are flagged partway through, which unapproves them, as Rock's flag limit does. Some requests that allow comments get Prayer Comment notes from people who prayed, and a few requesters reply. Some requests whose prayer window has ended get an answer, and a few are closed.
 6. **Daily counts.** Rock Cleanup keeps a daily count of interactions for channels with daily counts on, and Prayer Events is one. The loader runs Rock's own backfill and saves its last processed date, so Rock's first run finds nothing to do (`validation/rock-lock.json` tracks the Rock code).
+7. **The Cast's own requests.** `cast/prayer-requests.json` holds hand-written requests tied to Cast stories, loaded after the generated ones. Their timing comes from their state instead of a random draw: approved two hours after entry, expiring 14 days later, and prayed for at even steps while in the prayer session. The Cast's Prayer Team prays first, taking turns, and prays again on later days when the team is small. Ten are always entered 1 to 5 days before install, so even Core 1 and Core 3 show a full prayer list and prayer session.
 
-Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250 comments, and the step takes about 2 seconds. Core 1 has about 86 requests.
+Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,500 comments, and the step takes about 3 seconds. Core 1 has about 170 requests.
 
 ## Speed
 
@@ -218,7 +221,7 @@ Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250
 |---|---|---|---|---|
 | Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
 | Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
-| Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 23 seconds (about 34 with check images) |
+| Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 29 seconds (about 44 with check images) |
 
 The Full 7 times were measured on 2026-10-16, best of three, on a 16-core development machine with other work running. A Full 7 load with check images spends its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
 
@@ -254,7 +257,24 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, volunteer check-in, and scheduling history over the whole history window plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
 | Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
 | Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
-| People, the rest: person attributes, notes, logins, security roles, relationships, follows, and the Cast's general groups | Later (Phase 1) |
+| Notes on people: six note types with View security, hand-written Cast notes, and generated notes with replies, alerts, private and pinned notes, and mentions | Done |
+| Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
+| People, the rest: person attributes, logins, relationships, follows, and the Cast's general groups | Later (Phase 1) |
+
+## Notes
+
+`loading/NotesLoader.cs` sets up the six note types in `../configuration/notes.json`. Rock's own Personal, Pastoral, and Phone types are updated in place, and Follow-up, Counseling, and Safety Alert are added. Each type gets View rules (allow its roles, then deny all users), and the new types get matching Edit rules.
+
+Then it writes every note in one bulk copy with explicit Ids, so replies point at their parents:
+
+- **Cast notes** come from `../cast/notes`, exactly as written, with their own Guids.
+- **Generated notes** go only on generated households, so Cast notes stay the same for tests. Each person's chance of having notes, and how many, come from `personNotes.design` in the profile. The type comes from the type's weight for the person's audience (guest, attender, or child). The day of the week and the hour come from the profile's measured mixes. The text is an opener and up to four details from `../content/notes`, aiming for a length drawn from the profile's percentiles.
+- **Authors.** The main campus's notes come from the Cast staff, by each type's author weights. Other campuses' notes come from the campus pastor, except phone notes and safety alerts, which the church office writes. No one writes a note about themselves or their own family.
+- **Replies, alerts, private, pinned, and mentions** follow the design rates. Counseling is confidential: its notes mention no one, and only its own authors reply.
+
+Notes are stored the way Rock's note editor saves them: approved, with `EditedDateTime` set, a private note's caption set to Rock's "You - Personal Note", and text as HTML. A mention is Rock's `<span class="mention" data-identifier="...">` with the staff member's alias IdKey, which is keyed by the server's DataEncryptionKey. Without a web.config, mentions are plain names. `NotificationsSent` and `ApprovalsSent` are set, so Rock's Send Note Notifications job never emails staff about old sample notes.
+
+Speed: Full 7 writes about 61,000 notes and replies in about one second.
 
 ## Check images
 

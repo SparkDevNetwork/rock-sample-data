@@ -257,7 +257,21 @@ namespace RockSampleData.Loader.Loading
 
             var fileIds = WriteFiles( DefaultFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.OpportunityPhotoManifestPath );
             var values = string.Join( ", ", photos.Select( ( p, i ) => $"( {opportunityIds[p.Opportunity]}, {fileIds[i]} )" ) );
+            var replaced = string.Join( ", ", photos.Select( p => opportunityIds[p.Opportunity] ) );
+            var oldPhotoIds = _db.Query( $"SELECT [PhotoId] FROM [ConnectionOpportunity] WHERE [Id] IN ( {replaced} ) AND [PhotoId] IS NOT NULL" )
+                .Select( r => Convert.ToInt32( r["PhotoId"] ) )
+                .ToList();
             _db.Execute( $"UPDATE [o] SET [o].[PhotoId] = [v].[FileId] FROM [ConnectionOpportunity] AS [o] INNER JOIN ( VALUES {values} ) AS [v] ( [Id], [FileId] ) ON [v].[Id] = [o].[Id]" );
+
+            // Rock's photos for its three shipped opportunities are unused once replaced, and Rock Cleanup deletes
+            // them. The loader deletes them itself, so the data is already as Rock Cleanup would leave it.
+            if ( oldPhotoIds.Count > 0 )
+            {
+                var unused = string.Join( ", ", oldPhotoIds );
+                _db.Execute( $"DELETE FROM [BinaryFileData] WHERE [Id] IN ( {unused} )" );
+                _db.Execute( $"DELETE FROM [BinaryFile] WHERE [Id] IN ( {unused} )" );
+            }
+
             return photos.Count;
         }
 

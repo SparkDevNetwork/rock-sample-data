@@ -1,0 +1,35 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "dexter",
+  "notes": [
+    {
+      "key": "frank-serving-hold",
+      "guid": "0EC8172C-8F45-4AC0-9E13-D1C207653725",
+      "about": "frank",
+      "type": "safetyAlert",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 350
+      },
+      "time": "11:00",
+      "text": "Frank may not serve in kids or student ministry until his background review is complete. Questions go to {@pete}.",
+      "isAlert": true,
+      "testPurpose": "A Safety Alert serving restriction on an adult that does not say why."
+    },
+    {
+      "key": "frank-review-meeting",
+      "guid": "BDAA0006-3674-4936-A0A9-C4C339156C8F",
+      "about": "frank",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 20
+      },
+      "time": "16:45",
+      "text": "Meeting with Frank on Thursday to go over the background review. I want to hear his side before the staff conversation.",
+      "isPrivate": true,
+      "testPurpose": "A private note from the senior pastor."
+    }
+  ]
+}

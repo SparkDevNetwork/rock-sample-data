@@ -193,6 +193,10 @@ namespace RockSampleData.Loader
             people.Load( households );
             var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
             Console.WriteLine( $"  Business contacts: {contactCount:N0}" );
+
+            // Cast staff join the security roles their stories give them, all roles Rock ships.
+            var securityRoles = new SecurityRolesLoader( db, foreignKey );
+            Console.WriteLine( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
@@ -252,6 +256,9 @@ namespace RockSampleData.Loader
                 ? $"  Check scanner fields keyed from {options.RockWebConfigPath}"
                 : "  No Rock PasswordKey (give a Rock web.config); check scanner fields stay empty" );
             giving.Load( people.Households );
+
+            // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
+            Console.WriteLine( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // Giving attributes, bins, and journey stages, as if Rock's Giving Automation job had run every night.
@@ -275,6 +282,13 @@ namespace RockSampleData.Loader
 
             // Rock Cleanup's daily interaction counts, for every channel that keeps them. Run after the last step that writes interactions.
             prayer.UpdateDailyCounts();
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
+            // Note types with their security, the Cast's hand-written notes, and generated notes for generated households.
+            // Rock's DataEncryptionKey, read with the PasswordKey, turns staff mentions into real mentions.
+            step.Restart();
+            Console.WriteLine( "Notes" );
+            new NotesLoader( db, source, profile, dates, foreignKey, seed, years, giving.Keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.

@@ -1,0 +1,32 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "dawson",
+  "notes": [
+    {
+      "key": "kevin-co-parenting",
+      "guid": "E2B0605F-A140-4CEC-B3BF-00C56E49ACC3",
+      "about": "kevin",
+      "type": "counseling",
+      "author": "ted",
+      "written": {
+        "daysAgo": 320
+      },
+      "time": "19:00",
+      "text": "Met with Kevin about co-parenting after the divorce. Talked through weekend routines with Tyler and Emma. Next session in three weeks.",
+      "testPurpose": "A Counseling note written by the outreach pastor."
+    },
+    {
+      "key": "tyler-weekend-recap",
+      "guid": "1646C302-E1F5-489C-83A6-1E56DC2E8A94",
+      "about": "tyler",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 33
+      },
+      "time": "11:40",
+      "text": "Tyler is here every other weekend, so his small group leader now sends him a short recap of the weeks he misses. Kevin said it helps."
+    }
+  ]
+}

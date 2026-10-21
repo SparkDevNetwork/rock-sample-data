@@ -28,6 +28,10 @@ Peggy has attended for thirty years and always sits in the same row at the 9:00 
 - **Attendance:** regular, 90% of Sundays, 95% at their usual service, since 30 years ago.
 - **Giving:** **monthly** by Peggy Carter: $150 General Fund + $25 Mission Fund per gift, by check, gives in 100% of periods, 60% chance of a year-end gift, started 25 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
 
+## Prayer requests
+
+- **Current**, from Peggy Carter, 3 days ago (Comfort/Grief, 6 prayers, 3 comments): This Saturday would have been Walter's and my fifty-second anniversary. Most days I am all right, but this week has been heavy. I would be grateful for prayer for comfort, and for the friends who have been checking on me.
+
 ## Address
 
 16426 N 114th Dr, Surprise, AZ 85378 (a real street with a house number that does not exist)

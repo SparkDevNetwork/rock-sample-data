@@ -37,6 +37,10 @@ Kevin Dawson is divorced and has his kids every other weekend. They come when th
 - **Attendance:** occasional, 38% of Sundays, since 2 years ago.
 - **Giving:** **irregular** by Kevin Dawson: $50 General Fund per gift, gives in 80% of periods, started 2 years ago.
 
+## Prayer requests
+
+- **Flagged**, from Kevin Dawson, 6 days ago (Family Issues, 2 prayers): Pray for my ex-wife to stop changing the custody schedule at the last minute. I have asked her over and over and she keeps doing it, and the kids are the ones who lose. I am at the end of my rope with her.
+
 ## Address
 
 3803 W Bloomfield Rd, Phoenix, AZ 85029 (a real street with a house number that does not exist)

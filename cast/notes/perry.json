@@ -1,0 +1,44 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "perry",
+  "notes": [
+    {
+      "key": "dennis-comes-alone",
+      "guid": "AC33D0DB-B5FD-409D-A98E-675049A14FE7",
+      "about": "dennis",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 140
+      },
+      "time": "13:00",
+      "text": "Dennis comes on his own. His wife attends a church near her mother's care home, and he is always glad to talk about them both.",
+      "isAlert": true,
+      "testPurpose": "A Personal Note alert on an adult."
+    },
+    {
+      "key": "dennis-group-invite",
+      "guid": "3D7BB9C7-C78F-4353-B78E-9571CAEED207",
+      "about": "dennis",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 100
+      },
+      "time": "11:30",
+      "text": "Dennis asked about a group with other retirees. Invited him to Pastor Pete's Book of John group in the Fosters' home. {@pete}, he may come this week.",
+      "replies": [
+        {
+          "guid": "171EB898-47A0-4813-9FD7-4A135287CDEA",
+          "author": "pete",
+          "written": {
+            "daysAgo": 96
+          },
+          "time": "09:10",
+          "text": "He came and fit right in. He already volunteered to bring snacks."
+        }
+      ]
+    }
+  ]
+}
