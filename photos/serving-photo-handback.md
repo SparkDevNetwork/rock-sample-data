@@ -2,6 +2,10 @@
 
 Prepared October 21, 2026 for the agent integrating the `serving` branch into `main`. The user approved the delivered images and requested this handback so the receiving agent can bring in and merge the work. Photo production is complete: eight serving opportunity photos, twelve church reference photos, the approved logo, and retained logo explorations are saved in the repository. Merge the complete branch, reconcile its serving implementation with current main, and verify the result.
 
+## Starting Point followup
+
+After handback commit `c627f74`, the user requested a Starting Point campaign design and then asked to apply it to the lobby. The new `graphics/initiatives/starting-point/starting-point-hero-v1.png` and its manifest are saved, and the canonical inward-facing lobby PNG/JPEG pair now incorporates that design. The church guide, manifest, and this handback reflect the change. These followup files are currently uncommitted; include and commit them together when bringing in the latest work. The branch hashes and divergence counts below describe the earlier handback snapshot.
+
 ## Repository and branch
 
 | Item | Location or value |
@@ -21,6 +25,11 @@ Both worktrees were clean before this document was added. At that point, `main..
 Paths below are relative to the repository root. All twenty photo originals and their JPEG copies are 1536 by 1024 pixels, landscape 3:2. JPEG delivery copies were encoded at quality 90 with metadata removed. Church reference PNG originals intentionally live beside their JPEGs; do not relocate them to the opportunities originals folder.
 
 ```text
+graphics/
+  README.md
+  initiatives/starting-point/
+    starting-point-hero-v1.png
+    manifest.json
 photos/
   serving-photo-handback.md
   opportunity-brief.md
@@ -91,11 +100,12 @@ The lobby connection graphic reads:
 
 ```text
 YOU BELONG HERE.
-Turn Sunday visits into meaningful connections.
+STARTING POINT
+From a first hello to a place you belong.
 Enroll in Starting Point
 ```
 
-Do not restore the discarded New Here / Connection Event / Sign Up Today wording. Both lobby graphics stay outside the three-pair door bank, above seating, without covering doors, frames, or openings.
+The right wall adapts the new Starting Point campaign to a more upright layout: charcoal typography on warm ivory, teal and sea-glass curved forms gathering around a coral point, and a dark-teal invitation strip. Its key text is above the lounge seating; campaign fine print and the duplicate church logo are omitted. This replaces the earlier solid-teal panel and Turn Sunday visits into meaningful connections sentence. Do not restore the discarded New Here / Connection Event / Sign Up Today wording. Both lobby graphics stay outside the three-pair door bank, above seating, without covering doors, frames, or openings. The standalone campaign master is 1672 by 941 pixels; the twelve architectural photo pairs remain 1536 by 1024.
 
 The prayer-room graphic reads:
 
