@@ -35,6 +35,8 @@ These images establish visual continuity, not a measured floor plan. The lobby, 
 
 The user selected the original uppercase Open Cross design (option 08) on October 21, 2026. Use [the final logo artwork](branding/rock-solid-church-logo.png) and its [record](branding/manifest.json).
 
+Vector versions sit beside it: `rock-solid-church-logo.svg` (charcoal), `rock-solid-church-logo-white.svg`, and the symbol alone in both colors, plus transparent PNGs drawn from them. They were redrawn from the approved PNG and checked against it (decision D-site-2). For image generation, keep attaching the approved PNG.
+
 Attach that exact artwork whenever branding is visible. Preserve the four rounded forms, negative-space cross, uppercase ROCK SOLID and smaller tracked CHURCH, spacing and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white backing panel. The whole symbol, lettering and mounting shadows must fit on one wall plane with clearly visible blank wall on both sides. Never cross or wrap a wall corner.
 
 ## Approved environmental graphics

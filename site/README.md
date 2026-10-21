@@ -1,0 +1,39 @@
+# Site
+
+The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision D-site-1).
+
+The site is built from the repository's own files, so it never keeps a copy of the Cast or the church. Change a household in `cast/households/`, and its page changes on the next build.
+
+## Build and look at it
+
+You need Node.js 22 or later. No packages are installed.
+
+```
+node site/build.js
+```
+
+That writes the site to `site/dist/` (git ignores it). Open `site/dist/index.html` in a browser. Every link is relative, so the site works straight from disk. The fonts load from Google Fonts, so you need an internet connection to see them.
+
+## Publishing
+
+The [Publish site](../.github/workflows/pages.yml) workflow runs the same build and publishes `site/dist` when `main` changes the site, the Cast, the configuration, the photos, or the two docs the site reads. To turn it on once, set **Settings > Pages > Source** to **GitHub Actions**.
+
+## What is where
+
+| Path | What it holds |
+|---|---|
+| `build.js` | Copies the photos, builds the downloads and their zips, and writes every page. |
+| `src/data.js` | Reads `cast/`, `configuration/`, and `photos/` into one model. It never reads `calibration/` (decision D-site-3). |
+| `src/layout.js` | The header, navigation, and footer every page shares. |
+| `src/components.js` | Shared pieces: section headings, portraits, household cards, downloads, and zoomable photos. |
+| `src/pages/` | One file per page. `cast.js` also writes one page per household. `contribute.js` reads the issue questions and the roadmap from `docs/`. |
+| `src/zip.js` | Writes the download zips with Node's built-in zlib. |
+| `src/assets/` | The stylesheet, the small script, and the Rock RMS logos. |
+
+## Rules for the site
+
+- Never show a Cast address, email, or phone number (decision D-site-3).
+- Never name or describe a calibration source (decision 8). Describe calibration only as a method.
+- Say that every person and photo is fictional, and that the photos are AI-generated.
+- Write plain, short sentences with no em dashes, like the rest of the repository.
+- The Rock Solid Church logo files live in `photos/references/church/branding/`. The site copies them; it does not keep its own.
