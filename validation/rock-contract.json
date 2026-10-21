@@ -456,7 +456,8 @@
         "ModifiedDateTime",
         "Name",
         "Order",
-        "ShortCode"
+        "ShortCode",
+        "TitheMetric"
       ],
       "rockColumns": {
         "AverageWeekendAttendance": "int null",
