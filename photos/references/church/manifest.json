@@ -497,8 +497,10 @@
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
         "geometry": "Furniture, equipment and circulation visually reviewed",
-        "scale": "Larger room with generous floor/circulation and four-chair conversation circle",
-        "wallText": "Headline, complete verse, quotation marks and Philippians 4:13 visually checked"
+        "scale": "Doubled room retained, now six matching chairs with clear surrounding floor",
+        "wallText": "Existing headline, complete verse and Philippians 4:13 preserved and visually checked",
+        "seating": "Six chairs visually counted",
+        "doorway": "Both entrance edges removed; side window retained"
       },
       "edits": [
         {
@@ -507,12 +509,19 @@
           "sourceImage": "photos/references/church/prayer-room.png",
           "reason": "Double prayer room floor-area target and add the exact user-supplied headline, verse and attribution as a creative wall graphic.",
           "prompt": "Use case: precise-object-edit / architectural expansion and environmental graphics.\nThe supplied image is the edit target: Rock Solid Church's empty prayer room. Make TWO user-requested changes while retaining its calm warm modern Phoenix church identity.\n1. DOUBLE THE ACTUAL ROOM FLOOR AREA, approximately2.0 times the original footprint, roughly1.4 times wider and1.4 times deeper. This must look like a genuinely larger prayer room with more clear floor and breathing room around seating, not a fisheye/wider-lens trick or stretched furniture. Camera remains normal standing eye height at the open doorway, realistic24–28mm architectural perspective and straight verticals. Door and furniture retain normal human dimensions. Keep FOUR curved-back muted-teal armchairs with pale-oak legs in a comfortable open conversation circle, one low round pale-oak central table, a light neutral rug, the white ceramic lamp with cream shade on a side table, potted greenery, charcoal-framed side daylight window, warm-white walls, gray large-format tile and open pale-oak door with charcoal trim. Spread the same four chairs slightly to suit the enlarged room while preserving an intimate conversation grouping; do not make the circle so large people cannot speak comfortably. Leave a generous clear foreground and wide circulation on either side. Normal single-story ceiling height; no soaring atrium. Soft warm lamp light and filtered Phoenix morning light, clean/new surfaces.\n2. On the now-WIDER MAIN BACK WALL ABOVE THE REAR CHAIRS, create an elegant thoughtfully designed environmental wall graphic with EXACT user-supplied text. Applied matte vinyl/paint directly onto wall, not a framed poster, signboard, screen or giant billboard. A beautifully balanced airy composition in charcoal and muted teal coordinated with the chairs. Use confident refined contemporary sans-serif for most lettering, with the word \"strength\" in tasteful fluid hand-lettered script as a quiet creative emphasis, still unmistakably legible. Avoid ornate flourishes. Plenty of clear wall around text; all lettering stays inside the wall plane and above chair backs, with nothing obscured by furniture or lamp.\nHeadline EXACTLY: \"Find strength in prayer.\"\nIt can wrap naturally as \"Find strength\" / \"in prayer.\" but keep the words, capitalization and final period.\nBeneath, smaller crisp elegant readable verse, with this exact wording and quotation marks:\n\"“I can do all things through Christ who strengthens me.”\"\nThen the attribution EXACTLY:\n\"— Philippians 4:13\"\nSpell Philippians correctly, do NOT replace who with which, change wording or omit words. Balanced line breaks are allowed. Refined text hierarchy, headline largest, verse smaller with comfortable leading, attribution smaller below with a restrained thin rule or small teal accent. Keep the entire verse, both quotation marks, em dash, colon and verse numbers sharp and readable in the photo. No additional slogans, church logo, mission statement, labels, fake QR codes or other words.\nPreserve realistic furnishing/equipment geometry, original lamp and chair styles, clear access through doorway and intimate quiet atmosphere. No people, faces, portraits, reflections of people, candles, altar, extra doors or religious sculptures. One full-size landscape3:2 PHOTOREALISTIC architectural reference photo, preferably1536x1024 or larger native size."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "0edcc3c",
+          "sourceImage": "photos/references/church/prayer-room.png",
+          "reason": "Add two matching chairs for six total and remove visible doorway, jambs, hardware and door leaf from both foreground edges.",
+          "prompt": "Use case: precise-object-edit.\nThe supplied image is the EDIT TARGET, Rock Solid Church's enlarged prayer room with four teal armchairs and its approved strength-in-prayer wall graphic.\nMake ONLY TWO user changes:\n1. ADD EXACTLY TWO MORE MATCHING TEAL ARMCHAIRS, so the finished room contains SIX chairs TOTAL, not four, five, seven or eight. They must match the existing curved upholstered backs/arms, muted-teal fabric and pale-oak legs at ordinary human size. Retain the existing four chairs and add the two along the open foreground portion of the conversation circle, facing inward toward the round oak table. Space all six into a comfortable, visually countable open oval/circle with practical legroom and clear circulation. Modest repositioning of chairs and a slightly enlarged neutral rug is allowed to accommodate six without crowding. Do not add a second table, new chair styles, extra poufs or objects. Keep the room's already doubled floor area, same ceiling height and clear floor around the grouping.\n2. REMOVE THE FOREGROUND DOORWAY FROM BOTH SIDES OF THE PHOTO: eliminate the dark vertical entrance jamb/strike plate on the extreme LEFT, and eliminate the pale-oak door leaf, its handle, hinges and dark jamb on the extreme RIGHT. Reconstruct those foreground edges as natural unobstructed interior room view with matching warm-white wall, gray baseboard and floor as appropriate. The camera now reads as standing just INSIDE the prayer room; no doorway, door leaf, handles, hinge plates or entrance framing visible along either edge. Do NOT remove or change the actual charcoal-framed WINDOW on the inside-left wall. Keep its real window frames and Phoenix desert view.\nPRESERVE all other details: same larger room architecture, window, lamp with white ceramic base/cream shade, oak side table, round center table and plant, other greenery, floor tile, color, warm daylight and photographic camera direction. Especially preserve the EXACT approved wall lettering, layout, type styles and colors:\n\"Find strength in prayer.\"\n\"“I can do all things through Christ who strengthens me.”\"\n\"— Philippians 4:13\"\nNo spelling, capitalization, punctuation or verse changes. All lettering remains clearly readable above the SIX chairs with strength in muted-teal script. Do not crop the graphic or zoom the room to hide missing chairs. Empty room, no people or human reflections, no new text, logos, watermark, border or annotations. ONE full-size landscape3:2 photorealistic architectural reference, preferably1536x1024."
         }
       ],
       "visualScale": {
         "targetFloorAreaMultiplier": 2,
         "baselineRevision": "d6f3022",
-        "note": "Visual design target, not measured dimensions. Four chairs and door retain normal scale."
+        "note": "Doubled floor-area visual target retained; six chairs and other furniture remain ordinary size"
       },
       "environmentalGraphics": {
         "headline": "Find strength in prayer.",
@@ -520,7 +529,13 @@
         "attribution": "— Philippians 4:13",
         "placement": "Main back wall above rear chairs",
         "style": "Charcoal contemporary sans-serif with strength emphasized in muted-teal script; verse and attribution beneath"
-      }
+      },
+      "seating": {
+        "chairs": 6,
+        "style": "Curved-back muted-teal armchairs with pale-oak legs",
+        "layout": "Open inward-facing circle around one oak table"
+      },
+      "cameraView": "Unobstructed interior from just inside entrance; no doorway framing or door visible on either edge; actual side window preserved"
     },
     {
       "key": "first-aid-room",
@@ -578,10 +593,9 @@
     "lastRevision": {
       "date": "2026-10-21",
       "changedPhotoViews": [
-        "prayer-room",
-        "student-room"
+        "prayer-room"
       ],
-      "reason": "Double both room floor-area targets; prayer verse wall graphic; student identity and organized social/game space."
+      "reason": "Six chairs total; unobstructed interior view without doorway at either image edge"
     }
   },
   "continuity": {
@@ -593,7 +607,7 @@
     "referencePriority": "Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height.",
     "exteriorMassing": "Auditorium block set well back behind enlarged low lobby; restrained visible height/lower parapet. It is visible from the wide exterior but entirely hidden behind the low front roof from the close entrance camera.",
     "glazing": "Subtle tree/sky reflections, clearly visible empty lobby; no mirror-like tree images",
-    "prayerRoom": "Current prayer room supersedes smaller original: about2x floor area, four curved-back teal chairs, oak tables, white ceramic lamp, neutral rug and exact strength-in-prayer wall graphic.",
+    "prayerRoom": "Current larger room: about2x original floor area, SIX matching curved-back teal chairs around one oak table, white ceramic lamp, neutral rug, actual side window, exact prayer wall graphic, and no doorway/door framing visible at photo edges.",
     "studentRoom": "Current student room supersedes smaller original: about2x floor area, gray sofa/armchair lounge on blue/cream rug, teal/coral poufs, table-tennis zone, organized cubbies, string lights and Rock Solid Students wall graphic."
   },
   "environmentalGraphics": {

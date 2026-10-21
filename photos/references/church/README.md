@@ -77,7 +77,7 @@ Use the exact text **Rock Solid Students**, with smaller Rock Solid over a large
 - **Booth:** a low open charcoal desk with pale-oak cap, at the center rear of the ground-floor auditorium. Looking toward the stage, its tripod camera is left of the console. Looking from the stage, the camera is on the booth's right. Keep visible cables in neat separated runs along the booth edges and under-desk management, with small secured camera slack. Monitor interfaces and matching stage feeds should be sharp rather than artificially blurred, subject to each brief’s visible-text rules.
 - **Kids classroom:** coral/teal wall panels, child chairs and bins; low oak tables and cubbies; gray tile and charcoal-framed daylight windows.
 - **Student room:** current larger room targets twice the earlier floor area. Keep a gray-sofa/armchair conversation zone on the blue/cream rug, round oak table, teal/coral poufs, separate table-tennis area, neatly arranged cubbies and baskets, muted teal feature wall, coral accent and warm string lights. Preserve the exact Rock Solid Students wall identity.
-- **Prayer room:** the current larger room supersedes the smaller original, targeting twice its floor area. Keep four normal-size curved-back teal chairs in an intimate circle with generous surrounding circulation, white ceramic lamp, oak tables, neutral rug, soft daylight and the back-wall strength-in-prayer graphic.
+- **Prayer room:** the current larger room retains the twice-original floor-area target, now with SIX matching normal-size curved-back teal chairs around one oak table, generous circulation, white ceramic lamp, neutral rug, side window, soft daylight and the back-wall strength-in-prayer graphic. The camera is just inside the entrance: no door leaf, jambs or doorway hardware appears at either image edge.
 - **First-aid room:** gray padded cot left, white cabinets with black pulls and pale counter right, navy supply bag, and an open doorway giving a limited glimpse of the larger lobby.
 
 Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height. Use the older photos for people or supporting material details. From the rear, audience chair backs face the camera; from the stage, chair fronts face the camera. Preserve that direction in every view.
@@ -103,3 +103,5 @@ The latest lobby revision adds three door pairs and the approved mission/Startin
 The prayer-room revision doubles its visual floor-area target and adds the user-provided strength-in-prayer headline and Philippians 4:13 verse.
 
 The student-room revision doubles its visual floor-area target, adds the Rock Solid Students wall identity, and separates the organized social and game areas.
+
+The latest prayer-room revision adds two matching chairs for six total and removes the visible doorway from both foreground edges. Keep the actual side window and approved wall graphic.
