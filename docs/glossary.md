@@ -35,10 +35,12 @@ The words this project uses, in alphabetical order.
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
+| **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
+| **Step program** | A path of steps in Rock, such as the Discipleship Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |

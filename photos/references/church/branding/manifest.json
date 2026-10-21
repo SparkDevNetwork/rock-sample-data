@@ -16,5 +16,20 @@
   "appliedTo": [
     "../front-exterior-wide.png",
     "../front-exterior-wide.jpg"
-  ]
+  ],
+  "vector": {
+    "made": "2026-10-21",
+    "method": "Redrawn as true vector paths from the approved PNG, then checked by overlaying it on the PNG. The symbol keeps the measured Latin cross, with the crossbar above center. ROCK SOLID uses Figtree ExtraBold outlines and CHURCH uses Montserrat SemiBold outlines, each letter placed at its measured position. Both fonts are under the SIL Open Font License, which allows outlines in a logo. The approved PNG stays the reference.",
+    "color": "#202020",
+    "files": {
+      "rock-solid-church-logo.svg": "Full logo, charcoal",
+      "rock-solid-church-logo-white.svg": "Full logo, white, for dark backgrounds",
+      "rock-solid-church-symbol.svg": "Symbol only, charcoal",
+      "rock-solid-church-symbol-white.svg": "Symbol only, white",
+      "rock-solid-church-logo-transparent.png": "Full logo, charcoal, 3000 pixels wide, transparent background, drawn from the SVG",
+      "rock-solid-church-logo-white.png": "Full logo, white, 3000 pixels wide, transparent background, drawn from the SVG",
+      "rock-solid-church-symbol.png": "Symbol only, charcoal, 1024 pixels wide, transparent background",
+      "rock-solid-church-symbol-white.png": "Symbol only, white, 1024 pixels wide, transparent background"
+    }
+  }
 }
