@@ -25,6 +25,10 @@ Dennis Perry is 67 and recently retired. He started attending after his wife inv
 - **Attendance:** occasional, 35% of Sundays, since a year ago.
 - **Giving:** none.
 
+## Prayer requests
+
+- **Current**, from Dennis Perry, 2 days ago (Life Transitions, 3 prayers): Retirement is harder than I expected. After forty years of going to work every morning, I am not sure what my days are for. I would appreciate prayer for purpose in this new season.
+
 ## Address
 
 4470 N 27th Ave, Phoenix, AZ 85017 (a real street with a house number that does not exist)

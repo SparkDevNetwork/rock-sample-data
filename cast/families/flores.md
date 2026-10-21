@@ -37,6 +37,10 @@ Monica Flores has never married and is raising two kids on her own.
 - **Attendance:** occasional, 40% of Sundays, since 3 years ago.
 - **Giving:** **irregular** by Monica Flores: $25 General Fund per gift, gives in 70% of periods, started 2 years ago.
 
+## Prayer requests
+
+- **Answered**, from Monica Flores, about 3 months ago (Finances/Job, 7 prayers): I have a second interview Thursday for a job with better hours. Being home when my kids get out of school would change everything for us. Please pray for peace in the interview and for God's best. Answer: I got the job! I start next month, and I will be home every afternoon. Thank you, church family.
+
 ## Address
 
 4222 N 9th Ave, Phoenix, AZ 85013 (a real street with a house number that does not exist)

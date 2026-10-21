@@ -1,0 +1,18 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-worship-team",
+  "guid": "00582AEE-5CE6-458B-9ED4-99DABFC48BF0",
+  "name": "Worship Team",
+  "type": "serving",
+  "team": "worship-team",
+  "campus": "main",
+  "members": [
+    { "guid": "58612861-F929-43E0-9EB8-3075868A81B1", "name": "James Lee", "role": "Leader" },
+    { "guid": "9655AD2A-84AB-480F-9772-D5F438593450", "name": "Gabe Hernandez", "role": "Member" },
+    { "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718", "name": "Lorraine Greggs", "role": "Member" },
+    { "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145", "name": "Allie Song", "role": "Member" },
+    { "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "name": "Daniel Peak", "role": "Member" },
+    { "guid": "8424C30D-A967-4603-AFAB-10B8235DC371", "name": "Natalie Silva", "role": "Member" }
+  ]
+}

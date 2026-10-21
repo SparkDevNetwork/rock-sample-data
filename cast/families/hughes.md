@@ -16,12 +16,12 @@ Matthew and Jessica Hughes have three young kids: a kindergartner, a preschooler
 
 ### Matt (Matthew) Hughes
 
-- Age 35 · married · email matt.hughes@example.org · groups: Greggs Group, Hughes Group (leader, group ended)
+- Age 35 · married · email matt.hughes@example.org · groups: Greggs Group, Student Ministry, Hughes Group (leader, group ended)
 - Person Guid `CD3CA059-8D9D-40AB-87F0-667ECCAB600A`
 
 ### Jess (Jessica) Hughes
 
-- Age 34 · married · email jess.hughes@example.org · groups: Greggs Group, Hughes Group (host, group ended)
+- Age 34 · married · email jess.hughes@example.org · groups: Greggs Group, Kids Ministry, Hughes Group (host, group ended)
 - Person Guid `F7968EF9-34DA-4B7B-97E7-4BBC099269CD`
 
 ### Henry Hughes
@@ -49,6 +49,10 @@ Matthew and Jessica Hughes have three young kids: a kindergartner, a preschooler
 - **Attendance:** core, 85% of Sundays, since 6 years ago.
 - **Giving:** **weekly** by Matt Hughes: $110 General Fund per gift, gives in 96% of periods, started 5 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+
+## Prayer requests
+
+- **Current**, from Jess Hughes, 1 days ago (Hospitalization, urgent, 3 prayers): Our youngest is having ear tubes put in early tomorrow morning. It is a short procedure, but he is only one and I am nervous about the anesthesia. Please pray for a smooth surgery and a quick recovery.
 
 ## Address
 

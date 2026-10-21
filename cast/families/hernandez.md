@@ -12,18 +12,22 @@ Gabriel Hernandez plays guitar on the worship team and almost never misses a Sun
 
 ### Gabe (Gabriel) Hernandez
 
-- Age 28 · single · email gabe.hernandez@example.org · groups: Lee Group
+- Age 28 · single · email gabe.hernandez@example.org · groups: Lee Group, Worship Team
 - Person Guid `9655AD2A-84AB-480F-9772-D5F438593450`
 
 ## What this family tests
 
-- Young single volunteer (worship team in Phase 1).
+- Young single volunteer on the Phoenix Worship Team.
 - Weekly online giver.
 
 ## Activity
 
 - **Attendance:** core, 92% of Sundays, since 3 years ago.
 - **Giving:** **weekly** by Gabe Hernandez: $50 General Fund per gift, gives in 92% of periods, started 3 years ago.
+
+## Prayer requests
+
+- **Waiting**, from Gabe Hernandez, 1 days ago (General): I have an audition with a local orchestra next week. I have been practicing every night. Pray that I play my best and that I trust God with the result either way.
 
 ## Address
 

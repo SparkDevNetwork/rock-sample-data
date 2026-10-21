@@ -14,7 +14,7 @@ Tom Miller is a member who moved. Someone later created a second record for him 
 
 Tom is a long-time member who moved across town. His record is the original half of a duplicate pair.
 
-- Age 44 · single · email tom.miller@example.org · groups: Wright Group
+- Age 44 · single · email tom.miller@example.org · groups: Wright Group, Ushers
 - Person Guid `47A42BD0-38A3-49D6-A32A-0FCD5E386CC3`
 
 ## What this family tests

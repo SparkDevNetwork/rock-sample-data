@@ -77,4 +77,28 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public string Group { get; set; }
     }
+
+    /// <summary>
+    /// The contents of photos/opportunities/manifest.json: one photo per serving opportunity.
+    /// </summary>
+    internal sealed class OpportunityPhotoManifest
+    {
+        public List<OpportunityPhotoEntry> Images { get; set; } = new List<OpportunityPhotoEntry>();
+    }
+
+    /// <summary>
+    /// One delivered opportunity photo.
+    /// </summary>
+    internal sealed class OpportunityPhotoEntry
+    {
+        /// <summary>
+        /// The file, relative to the photos folder (for example "opportunities/greeters.jpg").
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The opportunity's team key, as in configuration/connections.json.
+        /// </summary>
+        public string Opportunity { get; set; }
+    }
 }

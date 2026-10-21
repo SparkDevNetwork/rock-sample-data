@@ -14,7 +14,7 @@ Phil Coffee first came to an Easter service because his neighbor Allie Song invi
 
 Phil's neighbor Allie Song invited him to an Easter service. He kept coming, joined the Greggs small group, and was baptized later that year. His record walks through a full invited-to-baptized journey.
 
-- Age 40 · single · email pcoffee@example.org · groups: Marble Group (host)
+- Age 40 · single · email pcoffee@example.org · groups: Marble Group (host), Production Team
 - Person Guid `3459286F-18C8-4548-9938-53DAC8483D01`
 
 ## What this family tests
@@ -27,6 +27,10 @@ Phil's neighbor Allie Song invited him to an Easter service. He kept coming, joi
 
 - **Attendance:** set by connection status.
 - **Giving:** none.
+
+## Prayer requests
+
+- **Expired**, from Phil Coffee, 40 days ago (Salvation/Rededication, 7 prayers, 1 comments): A coworker has been asking me about my baptism and why I started going to church. I never expected to be the one people ask about faith. Pray that I would answer honestly and kindly, and that he would come with me some Sunday.
 
 ## Address
 

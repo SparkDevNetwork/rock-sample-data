@@ -62,6 +62,10 @@ Every load checks them and prints the result. To check a database that is alread
 
 The Cast expectations hold at every anchor date tested. They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
+## Cast prayer expectations
+
+Every Cast prayer request in `cast/prayer-requests.json` names the state Rock should show: current, waiting, flagged, expired, or answered. Every load checks each one: its state, its prayers and prayer count, its answer, its urgent and private settings, its category, its group, its requester or guest, and its comments and reply. A current request must still be in Rock's prayer session on the install day, which its `daysAgo` date gives back, so a later `--check-cast` run gets the same answer. At least 8 must be, so every dataset's prayer list and prayer session have requests to pray through.
+
 ## Business expectations
 
 Every load also checks the businesses, Cast and generated alike, and prints the result after the Cast expectations:

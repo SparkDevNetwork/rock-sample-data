@@ -17,14 +17,14 @@ Robert and Lorraine Greggs lost their first child, Jenny, when she was three. Th
 
 Bob is an electrical engineer at Mesa Ridge Electronics. He and Lorraine host a small group in their home.
 
-- Age 36 · married · Electrical Engineer, Mesa Ridge Electronics · email rgreggs@example.org · groups: Greggs Group (leader), Russell Group (host, group archived)
+- Age 36 · married · Electrical Engineer, Mesa Ridge Electronics · email rgreggs@example.org · groups: Greggs Group (leader), First Aid Team, Russell Group (host, group archived)
 - Person Guid `28C4F2C0-0691-468F-B40E-550BD2976B9E`
 
 ### Lorraine Greggs
 
 Lorraine is a financial analyst at Mesa Ridge Electronics. She and Bob lost their first daughter, Jenny, at age three, and a staff note asks people to be gentle with her around that anniversary in September.
 
-- Age 36 · married · Financial Analyst, Mesa Ridge Electronics · email lgreggs@example.org · groups: Greggs Group (host), Russell Group (host, group archived)
+- Age 36 · married · Financial Analyst, Mesa Ridge Electronics · email lgreggs@example.org · groups: Greggs Group (host), Worship Team, Russell Group (host, group archived)
 - Person Guid `1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718`
 
 ### Tim (Timothy) Greggs
@@ -51,6 +51,10 @@ Jordan is nine and Tim's younger sister.
 - **Attendance:** set by connection status.
 - **Giving units:** the couple gives together as one giving unit.
 - **Giving:** none.
+
+## Prayer requests
+
+- **Answered**, from Lorraine Greggs, about 7 months ago (Comfort/Grief, 8 prayers, 1 comments): This week is the anniversary of losing our daughter Jenny. Bob and I still feel it every year, and our kids are old enough now to ask about her. Please pray for comfort, and for the right words when they ask. Answer: The week was gentle. We told the kids stories about Jenny, and we even laughed. Thank you for carrying us.
 
 ## Address
 

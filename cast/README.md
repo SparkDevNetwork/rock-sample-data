@@ -17,6 +17,7 @@ The Cast is the set of hand-designed households: today **87 households and 185 p
 |---|---|
 | `households/*.json` | One file per household. Format: `household.schema.json`. These are the source of truth. |
 | `notes/*.json` | Hand-written notes on Cast people, one file per household. Format: `note.schema.json`. See [Cast notes](notes/README.md). |
+| `prayer-requests.json` | The Cast's own prayer requests, tied to their stories, covering every prayer screen state, with at least 8 always current. Format: `prayer-requests.schema.json`. |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |
 | `families/*.md` | Generated family pages. Never edit them; rerun `build-pages.js`. |
 | `INVENTORY.md` | What came over from the legacy sample data, what was added, open issues, and remaining gaps. |
@@ -48,9 +49,15 @@ It rewrites every small group file and marks each new leader Leading in the hous
 
 - Legacy groups keep their keys and Guids. Pins in the configuration keep Ted Decker, Bill Marble, Pete Foster, and Bob Greggs as leaders, and keep the Greggs and Gilbert groups in those homes.
 - Groups in `cast.notInPattern` (Alisha Marble's group and the university group) keep their old shape and are not loaded.
-- Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. Other group types still mark leaders with `isLeader`.
+- Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. General groups still mark leaders with `isLeader`.
 - A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups.
 - People with an inactive record (the Murphys, who moved) appear only as former members of inactive or archived groups.
+
+## Serving teams and requests to serve
+
+Each of the main campus's eight serving teams has a roster in `groups/serving-{team}.json`: the team key from `configuration/serving.json`, the team's Guid, and its members, each a Leader or a Member. These rosters are hand-picked, so edit them directly; `validate-cast.js` checks each team key, name, and single leader. The loader adds each volunteer's rotation, preferences, and serving history. Generated households fill the teams at every campus.
+
+A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, and an optional background check result. The loader adds the activity history. See [Serving](../docs/serving.md).
 
 ## Bios and photos
 

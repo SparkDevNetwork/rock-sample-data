@@ -13,12 +13,12 @@ Robert and Linda Hayes have been married 46 years and members for 25. They never
 
 ### Bob (Robert) Hayes
 
-- Age 70 · married · email bob.hayes@example.org · groups: Marble Group
+- Age 70 · married · email bob.hayes@example.org · groups: Marble Group, Greeters
 - Person Guid `468247EF-7A8B-4E02-9F23-C3BA98C74837`
 
 ### Linda Hayes
 
-- Age 68 · married · email linda.hayes@example.org · groups: Marble Group
+- Age 68 · married · email linda.hayes@example.org · groups: Marble Group, Greeters
 - Person Guid `A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A`
 
 ## What this family tests
@@ -31,6 +31,10 @@ Robert and Linda Hayes have been married 46 years and members for 25. They never
 - **Attendance:** core, 86% of Sundays, 96% at their usual service, since 25 years ago.
 - **Giving:** **weekly** by Bob Hayes: $120 General Fund + $40 Mission Fund per gift, gives in 92% of periods, 30% chance of a year-end gift, started 24 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+
+## Prayer requests
+
+- **Expired**, from Linda Hayes, about 2 months ago (General, 6 prayers): Bob and I celebrate 46 years of marriage this month. We are thankful for God's faithfulness through every season, and for this church. Pray for many more years together.
 
 ## Address
 

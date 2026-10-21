@@ -71,6 +71,8 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:giving:{household guid}:{person}:{persona}:{start}` | That giving pattern's gifts |
 | `{seed}:wallet:{person guid}` | That giver's card, bank account, and checkbook |
 | `{seed}:small-groups:...` | Group planning, joins, leaders, and group attendance |
+| `{seed}:serving:...` | Who serves on which team, each volunteer's rotation and preferences, and their requests to serve |
+| `{seed}:connections:{campus}` | Who asks to serve at that campus, and each request's dates, status, connector, and activities |
 | `{seed}:addresses:{campus}` | The order of addresses per campus |
 | `{seed}:photos:{campus}` | Which pool faces go to which households |
 | `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
@@ -119,6 +121,7 @@ A February 29 birthday uses the nearest leap year, so that person's age can be o
 - **The Cast.** Every Cast person listed in `../photos/manifest.json` gets their delivered photo. People left out on purpose and businesses are not listed, so they get none.
 - **Generated households.** When the dataset manifest sets `photos.generatedHouseholdPercent` (Core 3 sets 50), about that share of each campus's generated households get faces from the 120-photo pool. A household gets faces only when one photo ethnicity has an unused face for every member's gender and age band, so a family looks like one family and no face repeats on a campus. In Core 3, these are the companion households at Peoria and Gilbert.
 - **Cast small groups.** After the small groups load, each group in `../photos/groups/manifest.json` gets its photo as the group's photo, stored the way Rock stores a photo uploaded on the group's page (the Default file type). Every dataset has all 12. The configuration step turns on Show Image on Rock's Group Finder page, so the cards show them (decision 62). A package without group photos still loads.
+- **Serving opportunities.** In the photos step, each opportunity in `../photos/opportunities/manifest.json` gets its photo, stored the same way, as the opportunity's photo. Every dataset has all eight, which replace the three Rock ships, and the public Serve page shows them. A package without opportunity photos still loads.
 
 Core 1 loads 175 photos in about a third of a second.
 
@@ -146,6 +149,29 @@ Every small group is a plan (`model/SmallGroupPlan.cs`): its leader and members,
 The configuration step sets up small groups in Rock (`loading/SmallGroupConfigurationLoader.cs`): the soft capacity rule, the Small Group purpose, the Host role, three group attributes, the ten topics, the inactive reasons, and a parent group per campus. The small groups step (`loading/SmallGroupLoader.cs`) bulk-copies schedules, groups, meeting locations at the host's home, members, and attribute values.
 
 Bulk copy skips Rock's save hooks, so the loader writes group history itself, the way Rock does: one row per state for each group, member, and meeting location, with the last row current. It also records weekly attendance on the church year. Groups meet in the fall and spring, stop after December 14, and meet in summer only when they say so. Holiday weeks are marked "did not meet". Spotty leaders record only some weeks. Nobody has attendance before they joined, after they left, or while their request is pending.
+
+## How serving loads
+
+Serving teams are set up in the configuration step from `../configuration/serving.json` (`loading/ServingConfigurationLoader.cs`): a "{campus} Serving Teams" parent per campus, every team at every campus, each team's rooms with its campus's service times and staffing, and the background check requirement. The same step sets up Rock's Involvement connection type and the eight serving opportunities from `../configuration/connections.json` (`loading/ConnectionConfigurationLoader.cs`).
+
+`generation/ServingPlanner.cs` plans the volunteers before people load, so a generated team's new leader loads as Leading.
+
+- **The Cast.** The Phoenix rosters are hand-picked in `../cast/groups/serving-*.json`, one file per team. Each file's Guid is the Phoenix team's Guid.
+- **Generated households.** Engaged and Leading adults in households that still attend serve at the profile's `pctServe` share of active adults. Each team gets a leader and at least two people, drawing on Connected, then Known, adults when a campus is small (decision 76). Couples often serve together.
+
+Every volunteer gets a rotation (one of Rock's four schedule templates), a join date, and usually a preferred service and room, seeded by the person. The serving step (`loading/ServingLoader.cs`) bulk-copies the members with their rotations and member history, the preferences as `GroupMemberAssignment` rows, a few blackout dates, and every request to serve as an `Attendance` row on the team's occurrence for that room, service, and Sunday. Serving history covers the whole history window, like Sunday attendance. Past requests follow the family: a volunteer served on a Sunday their family came. Otherwise they were often not scheduled at all, or they declined with a reason, never answered, or confirmed and did not come. Every time they served, they checked in at the kiosk a few minutes before the service, through Rock's Volunteer Check-in template. The next six weeks mix confirmed, pending, and declined. Every confirmation and reminder is marked sent. Kids and student volunteers get a passing background check and the requirement results Rock's job would have saved. A team too small for its configured staffing asks for about the people it usually has.
+
+## How connection requests load
+
+The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serving, because requests end in the memberships serving just loaded. The rules are in `../configuration/connections.json` under `requests`, and the measured targets come from the profile's `connections` values. The design is decision 75.
+
+- **Connected.** Every volunteer who joined in the last two years gets the request that put them on their team, ending the day they joined. Time to connect is log-normal around the profile's median and 90th percentile.
+- **Pending.** A few people per campus connected in the last few weeks. Each gets a Pending membership on their team, which waits for the team leader to make it Active.
+- **Active and inactive.** People who are not serving ask to serve in the profile's state mix around the connected requests, more often in the busy months of its month pattern. Each campus also has one future follow-up and one request transferred from another team.
+- **The Cast.** Requests in the household files (`connectionRequests`) tell the Cast's stories and count toward their campus's mix.
+
+Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date (7 days), due soon date (5 days), connected date, and on-time flag the way the hook does. It also writes the person history the hook writes (added, status changed, connected, and state changed), so each request shows on the person's History tab. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
+
 ## Streaks and achievements
 
 `loading/AchievementsLoader.cs` creates the Kids Check-in streak type and the seven achievement types in `../configuration/achievements.json` (decisions 57 to 60). Then it writes each child's streak and achievement attempts the way Rock would have computed them.
@@ -185,6 +211,7 @@ Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the al
 4. **Prayer.** The prayer team is the Cast's Prayer Team plus about 3% of active adults, a few of them far busier than the rest. They pray through a request while it is approved and not expired, through the end of its expiration day, as Rock's prayer session shows it. Each prayer is a "Prayed" interaction in Rock's Prayer Events channel, with one interaction component per request, and `PrayerCount` is the number of them. Nobody prays for their own request.
 5. **Flags, comments, and answers.** About 2% are flagged partway through, which unapproves them, as Rock's flag limit does. Some requests that allow comments get Prayer Comment notes from people who prayed, and a few requesters reply. Some requests whose prayer window has ended get an answer, and a few are closed.
 6. **Daily counts.** Rock Cleanup keeps a daily count of interactions for channels with daily counts on, and Prayer Events is one. The loader runs Rock's own backfill and saves its last processed date, so Rock's first run finds nothing to do (`validation/rock-lock.json` tracks the Rock code).
+7. **The Cast's own requests.** `cast/prayer-requests.json` holds hand-written requests tied to Cast stories, loaded after the generated ones. Their timing comes from their state instead of a random draw: approved two hours after entry, expiring 14 days later, and prayed for at even steps while in the prayer session. The Cast's Prayer Team prays first, taking turns, and prays again on later days when the team is small. Ten are always entered 1 to 5 days before install, so even Core 1 and Core 3 show a full prayer list and prayer session.
 
 Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,500 comments, and the step takes about 3 seconds. Core 1 has about 170 requests.
 
@@ -209,7 +236,7 @@ Trying to draw checks in the background, alongside giving analytics and alerts, 
 
 ## Validation
 
-See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%). Prayer added 87 graded values on 2026-10-20, and all pass: 347 of 380 pass (91%).
+See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%). Prayer added 87 graded values on 2026-10-20, and all pass: 347 of 380 pass (91%). Serving and connections added graded values on 2026-10-21: 373 of 412 pass (91%). The serving values pass; two holiday multipliers for adults (fall kickoff and Labor Day) and four months of the connection month pattern are a few points out. See [Serving](../docs/serving.md#how-the-numbers-compare) for the measures skipped on purpose.
 
 ## Steps
 
@@ -227,10 +254,12 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Validation with the calibration scripts | Done (91% of values pass) |
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
+| Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, volunteer check-in, and scheduling history over the whole history window plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
+| Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
 | Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
 | Notes on people: six note types with View security, hand-written Cast notes, and generated notes with replies, alerts, private and pinned notes, and mentions | Done |
 | Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
-| People, the rest: person attributes, logins, relationships, follows, connection requests, and the Cast's serving teams and general groups | Later (Phase 1) |
+| People, the rest: person attributes, logins, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
 ## Notes
 

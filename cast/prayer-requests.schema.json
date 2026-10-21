@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cast prayer requests",
+  "description": "The Cast's own prayer requests (cast/prayer-requests.json). validate-cast.js checks the rules a schema cannot: requesters, categories, groups, dates for each state, and that at least 8 are current.",
+  "type": "object",
+  "required": [ "requests" ],
+  "properties": {
+    "$comment": { "type": "string" },
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [ "key", "guid", "category", "entered", "state", "text" ],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "guid": { "$ref": "#/$defs/guid" },
+          "requester": { "$ref": "#/$defs/guid", "description": "A Cast person's Guid. Leave out for a guest." },
+          "guest": {
+            "type": "object",
+            "description": "Someone with no person record. Rock keeps only the name and email they typed.",
+            "required": [ "firstName", "lastName" ],
+            "additionalProperties": false,
+            "properties": { "firstName": { "type": "string" }, "lastName": { "type": "string" }, "email": { "type": "string" } }
+          },
+          "category": { "type": "string", "description": "A category key from configuration/prayer.json with a weight above 0." },
+          "entered": {
+            "type": "object",
+            "description": "When the request was entered: daysAgo for recent requests, or yearsAgo with a month and day.",
+            "properties": {
+              "daysAgo": { "type": "integer", "minimum": 1 },
+              "yearsAgo": { "type": "integer", "minimum": 0 },
+              "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+              "day": { "type": "integer", "minimum": 1, "maximum": 31 },
+              "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" }
+            }
+          },
+          "state": {
+            "enum": [ "current", "waiting", "flagged", "expired", "answered" ],
+            "description": "current: approved and in the prayer session (entered 1 to 5 days ago). waiting: not approved yet (1 to 5 days ago). flagged: flagged back to the approval queue (1 to 13 days ago). expired: past its 14 days. answered: expired, with an answer."
+          },
+          "isUrgent": { "type": "boolean" },
+          "isPrivate": { "type": "boolean", "description": "Private requests are not public in Rock." },
+          "allowComments": { "type": "boolean" },
+          "group": { "type": "string", "description": "The key of a Cast small group the requester is a current member of." },
+          "prayers": { "type": "integer", "minimum": 0, "description": "How many times the prayer team prayed for it. 0 for a waiting request." },
+          "text": { "type": "string", "minLength": 40, "maxLength": 450 },
+          "answer": { "type": "string", "description": "Only for answered requests." },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [ "by", "text" ],
+              "additionalProperties": false,
+              "properties": {
+                "by": { "enum": [ "team", "requester" ], "description": "team: a prayer team member who prayed for it. requester: a reply to the first team comment." },
+                "text": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" }
+  }
+}

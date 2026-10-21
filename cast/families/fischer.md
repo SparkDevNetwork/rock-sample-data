@@ -44,6 +44,10 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 - **Giving:** **monthly** by Mark Fischer: $250 General Fund per gift, gives in 95% of periods, started 5 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Current**, from Julie Fischer, 2 days ago (God's Will, shared with gilbert-group, 4 prayers): Ethan has his college applications due in a few weeks and is torn between staying close to home and a school out of state. Mark and I want him to choose well, not just choose what we want. Please pray for wisdom for Ethan and for us as parents.
+
 ## Address
 
 5089 W Davis Rd, Glendale, AZ 85306 (a real street with a house number that does not exist)

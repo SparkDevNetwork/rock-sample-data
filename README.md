@@ -41,7 +41,7 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 - **The Crowd** is generated from measured church patterns to give volume.
 - **Every campus has businesses** that give, each with one or two contacts. The main campus has at least 6 and every other campus at least 2.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
-- **Realism is measured.** The same scripts that measure real churches grade our data. Today 89% of measured values fall within tolerance.
+- **Realism is measured.** The same scripts that measure real churches grade our data. Today 91% of measured values fall within tolerance, including serving, connections, and prayer.
 - **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of its exact Rock release, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
 - **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today.
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.

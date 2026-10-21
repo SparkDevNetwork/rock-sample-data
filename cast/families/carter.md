@@ -14,7 +14,7 @@ Margaret Carter has attended for thirty years. Her husband, Walter, passed away 
 
 Peggy has attended for thirty years and always sits in the same row at the 9:00 service. Her husband Walter died three years ago, and a staff note asks for a call around that anniversary. She mails a check every month and gives at year end.
 
-- Age 78 · widowed · email peggy.carter@example.org · groups: Foster Group
+- Age 78 · widowed · email peggy.carter@example.org · groups: Foster Group, Prayer Team
 - Person Guid `7A3DD18D-BE93-4253-ACE3-B5CB02EDB087`
 
 ## What this family tests
@@ -27,6 +27,10 @@ Peggy has attended for thirty years and always sits in the same row at the 9:00 
 
 - **Attendance:** regular, 90% of Sundays, 95% at their usual service, since 30 years ago.
 - **Giving:** **monthly** by Peggy Carter: $150 General Fund + $25 Mission Fund per gift, by check, gives in 100% of periods, 60% chance of a year-end gift, started 25 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
+
+## Prayer requests
+
+- **Current**, from Peggy Carter, 3 days ago (Comfort/Grief, 6 prayers, 3 comments): This Saturday would have been Walter's and my fifty-second anniversary. Most days I am all right, but this week has been heavy. I would be grateful for prayer for comfort, and for the friends who have been checking on me.
 
 ## Address
 

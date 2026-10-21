@@ -90,6 +90,18 @@
           },
           "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
         }
+      ],
+      "connectionRequests": [
+        {
+          "opportunity": "production-team",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 75
+          },
+          "connector": false,
+          "comment": "I'm a developer and happy to help with tech on Sundays."
+        }
       ]
     }
   ]

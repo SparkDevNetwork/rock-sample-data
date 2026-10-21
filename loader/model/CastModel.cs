@@ -240,6 +240,47 @@ namespace RockSampleData.Loader.Model
         /// What Rock should show for this person after a load, or null. Checked after every load.
         /// </summary>
         public CastPersonExpect Expect { get; set; }
+
+        /// <summary>
+        /// Requests to serve that tell this person's story.
+        /// </summary>
+        public List<CastConnectionRequest> ConnectionRequests { get; set; } = new List<CastConnectionRequest>();
+    }
+
+    /// <summary>
+    /// One Cast request to serve. The loader adds its activity history.
+    /// </summary>
+    internal sealed class CastConnectionRequest
+    {
+        /// <summary>
+        /// The team key in serving.json; its opportunity is in connections.json.
+        /// </summary>
+        public string Opportunity { get; set; }
+
+        /// <summary>
+        /// Active, Inactive, FutureFollowUp, or Connected.
+        /// </summary>
+        public string State { get; set; }
+
+        public string Status { get; set; }
+
+        public RelativeDate Created { get; set; }
+
+        public RelativeDate Connected { get; set; }
+
+        public int? FollowUpInDays { get; set; }
+
+        /// <summary>
+        /// Whether the team's leader at the person's campus is the connector.
+        /// </summary>
+        public bool Connector { get; set; }
+
+        /// <summary>
+        /// A background check result recorded a week after the request, or null.
+        /// </summary>
+        public string BackgroundCheck { get; set; }
+
+        public string Comment { get; set; }
     }
 
     /// <summary>

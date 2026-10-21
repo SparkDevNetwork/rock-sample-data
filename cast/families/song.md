@@ -14,7 +14,7 @@ Allie Song invited her neighbor Phil Coffee to Easter. She was baptized the same
 
 Allie is a bank teller who invited her neighbor Phil Coffee to Easter. She was baptized the same day he was, and she is in the Greggs small group.
 
-- Age 36 · single · Bank Teller, First Bank of Union · email asong@example.org · groups: Marble Group
+- Age 36 · single · Bank Teller, First Bank of Union · email asong@example.org · groups: Marble Group, Worship Team
 - Person Guid `D593F194-9DC3-4936-A1C3-FB7E5CB09145`
 
 ## What this family tests

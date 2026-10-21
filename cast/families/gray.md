@@ -25,6 +25,10 @@ Emily Gray is an ER nurse whose shifts change every week, so she attends whichev
 - **Attendance:** regular, 50% of Sundays, 35% at their usual service, since 6 years ago.
 - **Giving:** **monthly** by Emily Gray: $100 General Fund per gift, by card, gives in 85% of periods, started 5 years ago, stopped about 7 months ago, and Rock shows the lapsed journey stage and a late gift alert.
 
+## Prayer requests
+
+- **Current**, from Emily Gray, 3 days ago (General, 4 prayers): Coming off four night shifts in the ER in a row. It has been a hard stretch with some very sick patients. Pray for strength for our whole team, and for the families we see on their worst days.
+
 ## Address
 
 3608 W Willow Ave, Phoenix, AZ 85029 (a real street with a house number that does not exist)

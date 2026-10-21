@@ -15,7 +15,7 @@ Mariah Jackson has sole custody of her daughter Madison Lowe. Madison's father, 
 
 Mariah is a single mom with sole custody of her daughter Madison. Madison's father, Craig Lowe, is allowed to check her in; another relative is not allowed contact, and that note appears on Madison's record.
 
-- Age 37 · single · email mariah.jackson@example.org · groups: Greggs Group
+- Age 37 · single · email mariah.jackson@example.org · groups: Greggs Group, Kids Ministry
 - Person Guid `9C2A020B-CF34-403E-A948-3E91FDFB958B`
 
 ### Maddie (Madison) Lowe

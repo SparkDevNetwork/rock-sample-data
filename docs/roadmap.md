@@ -26,7 +26,8 @@ Where the project stands: the team's working list. Update this page whenever som
 - Businesses at every campus: at least 6 on the main campus (all from the Cast) and at least 2 at each other campus, or the measured share of giving units when that is more. Every business has one or two contacts, loaded both ways as Rock known relationships, a work address, and gifts in the last 12 months. Every load checks all of it. Full 7 has 87 businesses, and both measured business values pass (decisions 63 to 65).
 - Every package passes the verify tool. The loader now sets what Rock's save hooks and Rock Cleanup would: primary aliases, age classification, family salutations, inactive families, an alternate Id and name metaphones for every person, and a Known Relationship group for every person (see [How people load](../loader/README.md#how-people-load)). The trusted base also runs Rock's first-night post-install job, without which Rock Cleanup blanks every age.
 
-- Prayer requests with an active prayer team (decision 67). Every dataset gets about 10 requests a week per 1,000 active adults, mostly from adults who attended, gave, or were in a small group, in Rock's own prayer categories, with text from `content/prayer`. The Cast's Prayer Administrator approves them, and the prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each one while it is active, as "Prayed" interactions with matching prayer counts. A few are flagged back to the approval queue, and some get comments, replies, and answers. Calibration part 5 grades it: all 87 prayer values pass on Full 7 with the crowd (about 11,100 requests and 67,000 prayers), and validation overall is 347 of 380 (91%).
+- Prayer requests with an active prayer team (decision 67). Every dataset gets about 10 requests a week per 1,000 active adults, mostly from adults who attended, gave, or were in a small group, in Rock's own prayer categories, with text from `content/prayer`. The Cast's Prayer Administrator approves them, and the prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each one while it is active, as "Prayed" interactions with matching prayer counts. A few are flagged back to the approval queue, and some get comments, replies, and answers. The Cast has its own requests too, covering every prayer screen state, with 10 always from the last few days so even the small datasets show a full prayer list; every load checks them. Calibration part 5 grades it: all 87 prayer values pass on Full 7 with the crowd (about 11,100 requests and 67,000 prayers), and validation overall is 347 of 380 (91%).
+- Serving teams and serving opportunities at every campus (decisions 68 to 77; see [Serving](serving.md)). Rock's Involvement connection type has eight polished opportunities with photos of real Cast volunteers, each placing people on its team at their campus. Every campus has eight teams with rooms, service times, staffing that fits the campus, and a background check for kids and student volunteers. Volunteers have rotations, preferences, and scheduling history over the whole history window plus six weeks ahead, and check in to serve. Connection requests in the measured mix lead to the teams, with activity history and person history. Validation grades serving and connections.
 - Notes on people (decision D-notes-1): six note types with View security (Rock's Personal, Pastoral, and Phone, plus Follow-up, Counseling, and Safety Alert), 67 hand-written Cast notes with 13 replies in 29 households, and generated notes from text pools. Calibration part 6 measures note use. The measured shape sets timing and length, and the volume and feature use are designed higher, because the sample church shows what good note use looks like. Full 7 has about 54,000 notes and 7,000 replies, and all 15 graded note values pass.
 - Security roles (decision D-notes-2): Cast people join the out-of-the-box roles their stories give them, mapped in `configuration/security-roles.json`, and each campus pastor joins RSR - Staff Workers and RSR - Pastoral Workers. The load creates no roles.
 
@@ -40,12 +41,10 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
-2. **Close validation gaps.** First-time visitors run low and teens run low.
-3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-4. **Per-person attendance,** so a teen can attend more often than their parents.
-5. **Real Crowd names** from public-domain frequency data by birth decade.
-6. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. 8 to 10 of them are always dated in the last few days before the install day, so even Core 1 and Core 3 show a full prayer list and prayer session (a small church gets only about 2 generated requests a week, and Rock hides requests after about two weeks). Every load checks them, like the giving expectations.
+1. **Close validation gaps.** First-time visitors run low and teens run low.
+2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+3. **Per-person attendance,** so a teen can attend more often than their parents.
+4. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)
 
@@ -61,6 +60,10 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 1. **Logins for Cast staff.** The Cast files list logins, but the loader does not load them yet, so no one can sign in as a Cast staff member. It needs a decision on demo passwords.
 2. **Cast group membership that disagrees with stories.** The Ortizes are active members of the Greggs group, though their story says they stopped coming six months ago, and the Ellises are in groups older than their first visit.
 3. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
+
+### Serving
+
+1. **A midweek student night.** Calibration shows about 31% of check-ins on Wednesday, and the sample church has no midweek service. Set aside on 2026-10-19 while serving is built.
 
 ### Packages and loaders
 
@@ -90,7 +93,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
+Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 
