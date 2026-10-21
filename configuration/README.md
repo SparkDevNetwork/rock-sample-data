@@ -18,6 +18,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
+| `church-app.json` | A stub for the Rock Solid Church App, the sample church's mobile app. The loader does not read it yet. See [Communications](../docs/communications.md). |
 
 ## Service times
 
