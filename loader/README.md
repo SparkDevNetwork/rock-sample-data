@@ -203,14 +203,14 @@ Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the al
 
 `generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.
 
-1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 250 requests a year per 1,000 of them. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
+1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 500 requests a year per 1,000 of them, about 10 a week. Anyone on an active record can ask, but adults who are not active are about a third as likely to. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
 2. **When and what.** Days follow the profile's month and weekday patterns, and times its hour bands. Each request gets a category by its weight in `configuration/prayer.json` and text from that category's pool in `content/prayer`: one request, some details, and sometimes a closing.
 3. **Approval.** The Cast's Prayer Administrator approves most requests within hours. Rock's approval stamps who and when, and sets the request to expire 14 days later, stored as a date. Requests whose approval would fall after install day still wait in the queue.
 4. **Prayer.** The prayer team is the Cast's Prayer Team plus about 3% of active adults, a few of them far busier than the rest. They pray through a request while it is approved and not expired, through the end of its expiration day, as Rock's prayer session shows it. Each prayer is a "Prayed" interaction in Rock's Prayer Events channel, with one interaction component per request, and `PrayerCount` is the number of them. Nobody prays for their own request.
 5. **Flags, comments, and answers.** About 2% are flagged partway through, which unapproves them, as Rock's flag limit does. Some requests that allow comments get Prayer Comment notes from people who prayed, and a few requesters reply. Some requests whose prayer window has ended get an answer, and a few are closed.
 6. **Daily counts.** Rock Cleanup keeps a daily count of interactions for channels with daily counts on, and Prayer Events is one. The loader runs Rock's own backfill and saves its last processed date, so Rock's first run finds nothing to do (`validation/rock-lock.json` tracks the Rock code).
 
-Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250 comments, and the step takes about 2 seconds. Core 1 has about 86 requests.
+Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,500 comments, and the step takes about 3 seconds. Core 1 has about 170 requests.
 
 ## Speed
 

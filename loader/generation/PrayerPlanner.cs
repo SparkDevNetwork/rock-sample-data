@@ -69,7 +69,7 @@ namespace RockSampleData.Loader.Generation
             var total = ( int ) Math.Round( Number( "prayer.requestsPerYearPerThousandActiveAdults", 250 ) * active.Count / 1000 * years );
             var linked = ( int ) Math.Round( total * Number( "prayer.pctLinkedToPerson", 94 ) / 100 );
 
-            var slots = AssignRequesters( active, plan.Team, linked, years );
+            var slots = AssignRequesters( people.OrderBy( p => p.PersonId ).ToList(), plan.Team, linked, years );
             var guestCampuses = active.Select( p => p.CampusId ).ToList();
             var guests = new SeededRandom( $"{_seed}:prayer:guests" );
             for ( var i = slots.Count; i < total; i++ )
@@ -149,26 +149,33 @@ namespace RockSampleData.Loader.Generation
 
             Each age band and gender gets its quota of requests from the profile's mix of people who ask,
             filled by people in that group in a random order. A weighted draw alone flattens toward the
-            church's own mix, because about a third of active adults ask. A person's band is their age
-            halfway through the window, close to their age when they ask. Prayer team members come first
-            more often, five times as likely as others.
+            church's own mix, because a large share of adults ask. A person's band is their age halfway
+            through the window, close to their age when they ask. Prayer team members come first more
+            often, five times as likely as others.
+
+            Volume is counted per active adult, but anyone on an active record can ask. Adults who did not
+            attend, give, or join a group in the last year are about a third as likely to ask as active
+            ones, the way people on a church's edge ask for prayer in a hard season. Without them, the
+            profile's volume would have most active adults asking several times.
 
             Repeat counts run a little above the profile's 24-month mix, because the window is longer and
             the profile measures only part of it.
 
             Reason: The requester mix matches the profile at any volume.
         */
-        private List<PrayerPerson> AssignRequesters( List<PrayerPerson> active, List<PrayerTeamMember> team, int count, double years )
+        private const double LessConnectedAdultWeight = 0.35;
+
+        private List<PrayerPerson> AssignRequesters( List<PrayerPerson> adults, List<PrayerTeamMember> team, int count, double years )
         {
             var random = new SeededRandom( $"{_seed}:prayer:requesters" );
-            var ageTargets = Map( "prayer.requesters.ageMixAmongKnown" );
+            var ageTargets = Map( "prayer.requesters.ageMix" );
             var pctFemale = Number( "prayer.requesters.pctFemaleAmongKnown", 60 ) / 100;
             var askMix = Map( "prayer.requesters.requestsPerRequesterMix" );
             var teamIds = team.Select( t => t.Person.PersonId ).ToHashSet();
 
             double Share( (string Band, bool IsFemale) cell ) => ageTargets.GetValueOrDefault( cell.Band ) / 100 * ( cell.IsFemale ? pctFemale : 1 - pctFemale );
 
-            var cells = active
+            var cells = adults
                 .GroupBy( p => (Band: AgeBand( ( int ) Math.Round( p.Age - years / 2 ) ), p.IsFemale) )
                 .OrderBy( g => g.Key.Band, StringComparer.Ordinal )
                 .ThenBy( g => g.Key.IsFemale )
@@ -181,7 +188,7 @@ namespace RockSampleData.Loader.Generation
                 var quota = ( totalShare > 0 ? count * Share( cell.Key ) / totalShare : 0 ) + carried;
                 var filled = 0;
                 var askers = new List<PrayerPerson>();
-                foreach ( var person in WeightedOrder( random, cell, p => teamIds.Contains( p.PersonId ) ? 5.0 : 1.0 ) )
+                foreach ( var person in WeightedOrder( random, cell, p => teamIds.Contains( p.PersonId ) ? 5.0 : p.IsActive ? 1.0 : LessConnectedAdultWeight ) )
                 {
                     if ( filled >= Math.Round( quota ) )
                     {
@@ -213,7 +220,7 @@ namespace RockSampleData.Loader.Generation
                 carried = quota - filled;
             }
 
-            foreach ( var person in WeightedOrder( random, active, _ => 1.0 ).Take( Math.Max( 0, count - slots.Count ) ) )
+            foreach ( var person in WeightedOrder( random, adults, p => p.IsActive ? 1.0 : LessConnectedAdultWeight ).Take( Math.Max( 0, count - slots.Count ) ) )
             {
                 slots.Add( person );
             }
