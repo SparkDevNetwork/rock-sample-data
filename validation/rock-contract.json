@@ -1684,6 +1684,8 @@
         "ApprovalsSent",
         "CreatedByPersonAliasId",
         "CreatedDateTime",
+        "EditedByPersonAliasId",
+        "EditedDateTime",
         "EntityId",
         "ForeignKey",
         "Guid",
