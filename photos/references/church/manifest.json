@@ -1,7 +1,7 @@
 {
   "church": "Rock Solid Church",
   "created": "2026-10-21",
-  "status": "Initial reference set for user review",
+  "status": "Complete set of 12 architectural photo views; additional views ready for review",
   "generator": "OpenAI built-in image_gen (underlying model identifier not exposed)",
   "images": [
     {
@@ -70,7 +70,228 @@
         "photos/references/church/front-exterior-wide.png"
       ],
       "seed": null,
-      "prompt": "Use case: photorealistic-natural. Asset: reusable architectural master reference for Rock Solid Church, Phoenix Valley, Arizona.\nCreate ONE high-resolution landscape 3:2 realistic EMPTY-LOBBY photograph, ideally 3072x2048 or largest supported. Three supplied images establish the SAME church:\nIMAGE 1, Greeters opportunity, is the primary reference for the main entrance's charcoal-framed double glass doors, long pulls, warm-white walls, light gray floor, pale oak accents and muted teal lobby seating. People are present ONLY in the source and must NOT appear in the output.\nIMAGE 2, First Aid opportunity, supports the actual clean lobby material palette visible THROUGH ITS OPEN DOORWAY: bright warm-white walls, pale oak vertical slat accent, clean light gray large-format tile and charcoal door trim. Do NOT reproduce the first-aid room or any medical equipment or people.\nIMAGE 3, the new front exterior wide, establishes the exact front facade, main entrance glazing, low canopy, palo verde and agave planting beds, concrete entry path and parking/drive beyond. The new lobby image must be a coherent REVERSE VIEW through THAT main entrance, not a different church.\nVIEW: stand well INSIDE THE MAIN LOBBY, near its rear center toward the worship-center connection, and look OUT TOWARD THE FRONT ENTRANCE. Wide eye-level architectural establishing photo with straight verticals and a natural 24mm view, sharp architecture front to back, no fisheye. Capture the full width of the main entrance zone, enough lobby floor and ceiling to reveal scale, and the furniture groups beside the main path.\nGLAZING: exactly ONE main central PAIR of charcoal-framed glass entrance doors with tall simple dark pulls, full-height fixed glass sidelights on either side and a simple horizontal glass transom above. Preserve its industrial-clean proportions from the greeters and exterior images. Through the glass, match the exterior's pale concrete approach, short stucco planters, pale gravel, agaves, barrel cactus, palo verde trees and ordinary parking pavement in bright Phoenix morning sun. Under the entry canopy it is shaded; beyond it the site is sunlit. No unrelated courtyard, lawn, forest, street scene or extra door banks.\nLOBBY: pristine new contemporary suburban church, flat warm-white ceiling with neat recessed round downlights, smooth warm-white walls, light gray large-format concrete-look porcelain floor tiles, charcoal window frames, natural pale oak vertical slat accent on an inside column/wall at the RIGHT edge. Two modest conversational seating groups off to the sides, using the muted teal straight upholstered sofas/armchairs with slim dark legs seen through the entrance in the references, and a couple of small simple round pale-oak side tables. A modest low pale-oak-and-white welcome counter can appear at far LEFT against a wall, no screens or printed displays. Clear broad central circulation path from camera to doors. Modest room size consistent with this moderate-size church, not a hotel atrium or shopping mall. No soaring multistory lobby, glass roof, grand stairs, fireplace, home bookshelves, chandeliers, or architectural redesign.\nLIGHT: bright but balanced morning daylight through front glass, soft warm-neutral interior fill, preserve window views without blown-out white glass, realistic clean material textures, natural photographic color, inviting and fresh. The exterior and greeters source must feel like the same Sunday morning and same entrance.\nAbsolutely EMPTY: NO people, silhouettes, human reflections, photographer, portraits, faces on screens, cutouts or mannequins. These are architectural continuity reference plates for future images. Keep the church's name Rock Solid Church in metadata/context, but do not invent interior branding; no readable text, banners, slogans, signs or logos in this lobby view, no reflected or reversed exterior lettering. No watermark, border or caption. One finished photograph, not a collage or reference sheet."
+      "prompt": "Use case: photorealistic-natural. Asset: reusable architectural master reference for Rock Solid Church, Phoenix Valley, Arizona.\nCreate ONE high-resolution landscape 3:2 realistic EMPTY-LOBBY photograph, ideally 3072x2048 or largest supported. Three supplied images establish the SAME church:\nIMAGE 1, Greeters opportunity, is the primary reference for the main entrance's charcoal-framed double glass doors, long pulls, warm-white walls, light gray floor, pale oak accents and muted teal lobby seating. People are present ONLY in the source and must NOT appear in the output.\nIMAGE 2, First Aid opportunity, supports the actual clean lobby material palette visible THROUGH ITS OPEN DOORWAY: bright warm-white walls, pale oak vertical slat accent, clean light gray large-format tile and charcoal door trim. Do NOT reproduce the first-aid room or any medical equipment or people.\nIMAGE 3, the new front exterior wide, establishes the exact front facade, main entrance glazing, low canopy, palo verde and agave planting beds, concrete entry path and parking/drive beyond. The new lobby image must be a coherent REVERSE VIEW through THAT main entrance, not a different church.\nVIEW: stand well INSIDE THE MAIN LOBBY, near its rear center toward the worship-center connection, and look OUT TOWARD THE FRONT ENTRANCE. Wide eye-level architectural establishing photo with straight verticals and a natural 24mm view, sharp architecture front to back, no fisheye. Capture the full width of the main entrance zone, enough lobby floor and ceiling to reveal scale, and the furniture groups beside the main path.\nGLAZING: exactly ONE main central PAIR of charcoal-framed glass entrance doors with tall simple dark pulls, full-height fixed glass sidelights on either side and a simple horizontal glass transom above. Preserve its industrial-clean proportions from the greeters and exterior images. Through the glass, match the exterior's pale concrete approach, short stucco planters, pale gravel, agaves, barrel cactus, palo verde trees and ordinary parking pavement in bright Phoenix morning sun. Under the entry canopy it is shaded; beyond it the site is sunlit. No unrelated courtyard, lawn, forest, street scene or extra door banks.\nLOBBY: pristine new contemporary suburban church, flat warm-white ceiling with neat recessed round downlights, smooth warm-white walls, light gray large-format concrete-look porcelain floor tiles, charcoal window frames, natural pale oak vertical slat accent on an inside column/wall at the RIGHT edge. Two modest conversational seating groups off to the sides, using the muted teal straight upholstered sofas/armchairs with slim dark legs seen through the entrance in the references, and a couple of small simple round pale-oak side tables. A modest low pale-oak-and-white welcome counter can appear at far LEFT against a wall, no screens or printed displays. Clear broad central circulation path from camera to doors. Modest room size consistent with this moderate-size church, not a hotel atrium or shopping mall. No soaring multistory lobby, glass roof, grand stairs, fireplace, home bookshelves, chandeliers, or architectural redesign.\nLIGHT: bright but balanced morning daylight through front glass, soft warm-neutral interior fill, preserve window views without blown-out white glass, realistic clean material textures, natural photographic color, inviting and fresh. The exterior and greeters source must feel like the same Sunday morning and same entrance.\nAbsolutely EMPTY: NO people, silhouettes, human reflections, photographer, portraits, faces on screens, cutouts or mannequins. These are architectural continuity reference plates for future images. Keep the church's name Rock Solid Church in metadata/context, but do not invent interior branding; no readable text, banners, slogans, signs or logos in this lobby view, no reflected or reversed exterior lettering. No watermark, border or caption. One finished photograph, not a collage or reference sheet.",
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "reason": "User requested a lobby two to three times larger; visual target approximately 2.5 times the earlier floor area, retaining normal entrance and furniture scale.",
+          "sourceRevision": "5e6b39f",
+          "sourceReferences": [
+            "photos/references/church/lobby-toward-entrance.png",
+            "photos/references/church/front-exterior-wide.png"
+          ],
+          "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. This is a USER-REQUESTED EXPANSION of the lobby in IMAGE 1, with IMAGE 2 the approved exterior constraining the existing front entrance. Enlarge the ACTUAL LOBBY FLOOR AREA to approximately 2.5 TIMES image 1, roughly 1.6 times wider AND 1.6 times deeper. Do not simply use a wider/fisheye lens on the old room. The camera is well back INSIDE the much larger lobby, looking OUT toward the SAME front entrance as image 1. Show a genuinely large, bright, open church gathering lobby with a generous deep central floor and broad side gathering zones, a scale suitable for mingling before and after service. Keep the ceiling ordinary single-story height around 3.5m so scale is believable; no grand atrium, mezzanine, chandeliers or shopping mall.\nKeep the existing central main PAIR of glass doors at normal human size, charcoal frames and tall pulls, matching transom and sidelights; NO new door banks. They should read noticeably SMALLER within the much wider/deeper room, not scaled up with the lobby. Preserve the external facade/entrance from image 2; widen interior gathering space into the adjacent existing low wings rather than inventing a new exterior. More open interior floor to either side; side windows echo existing charcoal frames. Through the door glazing show the same pale concrete approach, canopy oak soffit, gravel/agave/palo-verde landscape and Phoenix morning light.\nKeep original warm-white walls and flat ceiling, round recessed lights, light gray large-format tile with realistically sized repeated tiles, muted teal lounge chairs with slim dark legs, pale oak round side tables and white planters. Furniture and tiles retain normal size to make the larger room explicit. Place THREE restrained conversation groups (two near the front side windows and a third farther along a side) with abundant circulation, no rows of auditorium chairs. Keep the pale-oak-and-white welcome counter on the LEFT in this OUTWARD view, set along side circulation, and the oak slat column/wall on the RIGHT. Their sizes remain practical. Have the enlarged room remain airy, spare, clean and NEW, not crowded with extra furniture. Balanced bright daylight and warm neutral fill, sharp geometry throughout.\nNo added branding, text or posters in this interior view; no exterior lettering reversed through glass. Empty reference plate, absolutely no people. This enlarged room supersedes the smaller lobby reference and will anchor its reverse view."
+        }
+      ],
+      "visualScale": {
+        "targetFloorAreaMultiplier": 2.5,
+        "note": "Visual target, not measured dimensions"
+      }
+    },
+    {
+      "key": "main-entrance-close",
+      "title": "Main entrance, close",
+      "file": "main-entrance-close.png",
+      "jpeg": "main-entrance-close.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/references/church/front-exterior-wide.png",
+        "photos/references/church/branding/rock-solid-church-logo.png",
+        "photos/references/church/lobby-toward-entrance.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary exterior architecture and exact sign-placement reference; image 2 is the exact approved logo artwork; image 3 shows the same entrance glazing from indoors, supporting proportions only. Move the exterior camera closer to the main entrance; this is a tighter architectural photo, not a new facade. Show the COMPLETE main pair of closed charcoal aluminum-framed glass entrance doors, long dark pulls, both fixed sidelights, transom, complete shallow charcoal canopy with oak soffit and recessed downlights, and the entire narrow stucco wall panel on the LEFT carrying the existing approved sign. Some low concrete planters, agaves, gravel and pale concrete approach establish Phoenix setting. Keep the same slight three-quarter exterior view from image 1. The canopy remains attached to the SAME low white stucco portal; preserve exact door/sidelight divisions. Scale the camera view so entrance and canopy occupy most of frame, while the full sign wall and canopy edges have breathing room. Correct morning sun and reflections, teal lobby seats glimpsed through glass. Reproduce the existing small matte charcoal dimensional logo on that left wall exactly from image 2: four rounded pieces making a negative-space cross, uppercase ROCK SOLID beside it, smaller tracked CHURCH below. The WHOLE logo must sit on ONE flat front-facing wall panel, with generous blank stucco left and right; never wrap a corner, cross a wall edge, stretch it or add backing panel. Keep its small understated scale from image 1; do not enlarge sign relative to wall. No other lettering. No trees blocking door handles or logo. This photo establishes door hardware, portal dimensions, sign placement and the transition into the actual lobby.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "lobby-toward-worship-center",
+      "title": "Lobby toward the worship center",
+      "file": "lobby-toward-worship-center.png",
+      "jpeg": "lobby-toward-worship-center.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/references/church/lobby-toward-entrance.png",
+        "photos/references/church/worship-center-from-rear.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the exact primary lobby material/furniture reference, photographed looking OUT toward the front entrance. IMAGE 2 establishes the dark worship center that connects to the opposite side of this lobby. Create the REVERSE lobby view: camera just INSIDE the glass main entrance, facing INWARD toward the worship-center connection, so the exterior entrance glazing is BEHIND the camera, not on the far wall. This is the SAME modest single-story lobby, not a hotel atrium. Keep image 1's warm-white flat ceiling, recessed round lights, light gray large-format concrete-look floor tiles with the same grid, charcoal trim, muted teal square-arm lounge chairs on slim dark legs, small round pale-oak side tables and potted plants. Reverse the relationships logically: the oak slat column that is on the right in image 1 is on camera LEFT in this reverse view; the curved pale-oak-and-white welcome counter formerly at left is on camera RIGHT near the entrance, seen from its opposite side. Keep furniture at the two side windows, not in the broad central walking path. Establish the previously unseen interior wall with a modest central pair of closed dark charcoal acoustically solid worship-center doors, small narrow vertical vision panels, simple dark hardware. A restrained oak slat accent beside the door connection matches the auditorium. Short side circulation openings lead off to the ministry rooms, rather than an endless mall corridor. Flat ceiling of ordinary church height, warm natural light entering from behind camera and side windows. Preserve human scale; no soaring spaces, stairs, glass roof or extra grand entrance. No invented logos, room labels, signage, screens or text. Wide view showing clear floor circulation and whole door connection.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      },
+      "edits": [
+        {
+          "reason": "Replace initial smaller reverse-lobby draft to match user-requested larger lobby.",
+          "sourceDraft": "Initial smaller reverse-lobby generation, not delivered",
+          "sourceReferences": [
+            "photos/references/church/lobby-toward-entrance.png",
+            "photos/references/church/worship-center-from-rear.png"
+          ],
+          "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. USER-REQUESTED ENLARGED LOBBY, about 2.5 TIMES the original lobby floor area. IMAGE 1 is the PRIMARY UPDATED master: the newly enlarged lobby looking OUT through the main front doors. IMAGE 2 is the OLD SMALL reverse-lobby draft, useful ONLY for its worship-center doorway design and for which side holds the counter and oak column. Do NOT keep its small room size. IMAGE 3 supports auditorium acoustic finishes.\nCreate the REVERSE VIEW of IMAGE 1's NEW LARGE LOBBY. Stand just INSIDE the central exterior entrance (which is BEHIND camera) and look INWARD toward the worship-center connection. Match the enlarged image 1's wider AND deeper footprint, open pre/post-service gathering area, same ordinary 3.5m single-story ceiling, warm-white walls, recessed round lights, gray tile size/grid and extra side gathering space. This is NOT merely a wider lens on image 2 and not a huge tall atrium. Main central dark worship-center door pair at the FAR END remains normal human door size and is noticeably smaller relative to the much larger lobby. Keep that pair's narrow vertical glass vision panels, door pulls, charcoal surround with pale oak slat accents from image 2. Short ministry-room side passages flank that far wall. These doors lead through a short rear vestibule to the auditorium's rear entry pairs around the booth; no stage directly in the lobby.\nConsistent reverse orientation: pale oak slat column on camera LEFT foreground; pale-oak/white curved welcome counter on camera RIGHT along the side; muted teal square-arm lounge seats on slender dark legs, small round oak side tables, natural rugs and white plant pots in restrained side conversation groups. THREE seating groups overall like the enlarged image 1, leaving a broad deep central walking/gathering floor completely open. Furniture, door hardware and tile sizes stay realistic rather than becoming gigantic with the enlarged space. Bright Phoenix morning light enters FROM BEHIND camera and along side windows, matching outward master. Neutral warm fill, whole floor and ceiling readable, no fisheye. No front entrance glazing on the far wall, no extra main entrances, no second story, signs, text or logos. Empty of all people."
+        }
+      ],
+      "visualScale": {
+        "targetFloorAreaMultiplier": 2.5,
+        "note": "Matches enlarged outward lobby; visual target, not measured dimensions"
+      }
+    },
+    {
+      "key": "worship-center-from-stage",
+      "title": "Worship center from the stage",
+      "file": "worship-center-from-stage.png",
+      "jpeg": "worship-center-from-stage.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/references/church/worship-center-from-rear.png",
+        "photos/opportunities/production-team.jpg"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the exact auditorium reference viewed from REAR toward STAGE. IMAGE 2 supports the real low open production booth construction, pale-oak desk, equipment and eye-level sightline. People in image 2 are architecture context ONLY and must all be removed. Generate the opposite/reverse view from the CENTER FRONT EDGE OF THE SAME LOW STAGE looking back toward the audience seating and REAR wall. The STAGE IS BEHIND the camera; absolutely do not put a stage on the rear wall. The fronts/cushions of every charcoal fabric audience chair face the camera, because they face the stage. Preserve EXACTLY THREE seating banks and TWO main aisles, shallow gently fanned rows of the same individual padded charcoal chairs with black metal legs, same gray floor, modest approximately 250–300-seat scale, same dark exposed ceiling and round pendant/downlights. Side walls preserve alternating warm-gray/charcoal fields and pale oak vertical acoustic slat panels, with warm house lights on for clarity. Establish the previously unseen REAR WALL: one low OPEN production desk centrally behind the last row, pale-oak cap over charcoal half-height wall, camera on a tripod just left of console when viewed FROM THE BOOTH TOWARD STAGE. In this reversed stage view that camera is on the RIGHT side of the booth. Two modest dark acoustic rear entry doors flank the booth near the two main aisles. Booth monitors face stage/technicians and their dark backs may be seen from stage; no floating equipment or balcony. No mezzanine, stadium risers, windows, big screens, pulpit or new architectural theme. The reference's stage instruments remain behind camera, so no need to invent extra equipment in foreground. Photograph the full width of seating, both aisles, the rear booth and rear entry doors with realistic perspective. This is a new camera direction in the same room, not a mirrored copy of the reference.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "stage-from-side",
+      "title": "Stage from the side",
+      "file": "stage-from-side.png",
+      "jpeg": "stage-from-side.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/references/church/worship-center-from-rear.png",
+        "photos/opportunities/worship-team.jpg",
+        "photos/references/church/worship-center-from-stage.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary master for the SAME stage and ALL equipment placement. Image 2 supports close instrument materials, ordinary practical stage equipment and acoustic finishes ONLY; do not reproduce its people. Image 3 establishes the same audience seating and rear booth. New view: stand on the floor just off the audience-LEFT end of the low stage, beside the keyboard position, and look diagonally ACROSS the stage toward its audience-RIGHT end. A clear wide three-quarter side view showing stage depth, front edge, black stage floor, keyboard at near LEFT, transparent drum shield and ordinary drum kit just beyond it left of center, front microphone stands, low wedge monitors, and the acoustic guitar parked on a simple stand at far RIGHT. Keep locations consistent with image 1; do not mirror or duplicate equipment. Show tidy physically plausible cables routed along stage edges, black light fixtures on the existing overhead truss, pale oak acoustic slats alternating with charcoal wall sections. A modest portion of the nearest audience chairs can appear below/right, so the stage-audience relationship is clear. Preserve the LOW step-up platform (not a huge concert stage), existing handrail and side access. Same warm amber uplighting and gentle violet wash with sufficient neutral fill to read the gear. Do not add screens, logos, pulpit, drum riser, extra instruments, curtains, scenic sets or large touring rigs. Physical guitar with six tuning pegs, ordinary keyboard with normal repeated black/white keys, unwarped drum shells and stands. Empty, calm and new.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      },
+      "edits": [
+        {
+          "reason": "Remove unintended manufacturer lettering from keyboard and bass drum.",
+          "sourceDraft": "Initial side-stage generation, not delivered",
+          "prompt": "Precise localized edit to the supplied empty side-stage architectural photo of Rock Solid Church. Remove ONLY all visible manufacturer names, lettering and brand logos from the front edge of the keyboard and from the bass drum head. Replace these tiny labels with plain unmarked surfaces matching their surrounding materials. Keep the exact keyboard, drum kit, instruments, stands, entire stage, light, all architecture, framing, equipment positions, chairs and every other photographic detail unchanged. No replacement words or marks. Full-size landscape 3:2 photo."
+        }
+      ]
+    },
+    {
+      "key": "production-booth-wide",
+      "title": "Production booth, wide",
+      "file": "production-booth-wide.png",
+      "jpeg": "production-booth-wide.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/opportunities/production-team.jpg",
+        "photos/references/church/worship-center-from-rear.png",
+        "photos/references/church/worship-center-from-stage.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary equipment/desk reference showing the existing production booth with volunteers; remove EVERY person while keeping the same types of physical equipment. Image 2 locks stage, seating and ceiling architecture. Image 3 is the reverse master showing the booth's exact central position on the rear wall, low charcoal half-wall with pale oak cap, camera at booth's LEFT when LOOKING TOWARD STAGE, and rear entry pairs on either side. Create a wider empty photo from the REAR-LEFT CORNER INSIDE the production booth, looking diagonally over the oak worktop toward the SAME distant stage. Establish the whole workstation in the foreground and clear sightline over the seating. A real digital audio console of modest church size, regular ordered rows of faders/knobs, two desktop monitors displaying only abstract defocused meter bars and a small soft view of the stage, no readable labels or UI text, one ordinary office task chair, a neatly routed cable bundle. Camera on a stable three-legged video tripod to the LEFT of the console looking stageward. Nothing blocks the two main audience aisles; the camera stands inside booth, not amid audience chairs. All stage instruments stay in the original positions in the distance, keyboard audience-left, drums left of center, microphones center, guitar audience-right. Three seating banks, two aisles, charcoal chairs, oak slats, dark exposed ceiling, warm house lights and amber/violet stage light. Booth is a low OPEN desk at the back of THIS ground-floor auditorium, not an enclosed glass control room, balcony, oversized TV studio or dark closet. Show its modest footprint and practical working area, no added racks covering the view. Photographically believable equipment geometry, no brands, text or people.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "kids-classroom",
+      "title": "Kids classroom",
+      "file": "kids-classroom.png",
+      "jpeg": "kids-classroom.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/opportunities/kids-ministry.jpg",
+        "photos/references/church/lobby-toward-entrance.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary exact room palette, furniture and window reference; its fictional volunteers and children must all be removed. IMAGE 2 establishes shared church finishes only, not a lobby to reproduce. Pull back to show the whole modest elementary classroom from near the doorway at standing eye height. Keep the same warm-white walls, large coral and teal rectangular acoustic accent panels, black/charcoal-framed windows with ordinary bright Phoenix desert planting outside, light gray large-format tile with gray base trim, pale natural oak low cubby storage with matching CORAL AND TEAL plastic supply bins. Two child-height rectangular pale-wood activity tables with rounded corners, about six to eight simple coral/teal plastic child chairs around them; correct four-legged chair construction and table support, no broken or fused legs. A small selection of blank colored craft papers, crayons and glue in shallow trays neatly on one table; no scattered mess, no legible labels or drawings of people. A modest soft area rug may appear at the far teaching corner, but do not turn this into a home living room. Preserve the source's clean cheerful elementary setting, ordinary flat church ceiling with recessed lights, clear circulation for volunteers. Low shelves anchored against the wall, no towering furniture, no climbing equipment or elaborate playground. No names, alphabet posters, giant murals, branded toys, Bible verses or church logos. No people of any age, photos, hands, toys with faces or cutouts. Bright, soft natural morning light and realistic new furnishings.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "student-room",
+      "title": "Student room",
+      "file": "student-room.png",
+      "jpeg": "student-room.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/opportunities/student-ministry.jpg",
+        "photos/references/church/lobby-toward-entrance.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary existing student-room reference. Remove all fictional adults and teenagers while preserving the room identity, not their poses. IMAGE 2 supports shared church finishes only; this should be its own ministry room, not a second lobby. Pull back to a wide view near the doorway of the SAME modest youth conversation room, showing the whole seating circle and its windows. Gray upholstered sofas and simple gray armchairs with natural oak legs, one low round pale-oak coffee table at center, blue-and-cream patterned rug, warm-white walls and one muted teal rectangular acoustic wall panel. Keep the same charcoal-framed rectangular side windows with sunny Phoenix palo verde planting beyond, ordinary flat white ceiling with modest recessed lights, warm exposed-bulb string lights in one neatly attached run along the upper wall around the teal panel, a small white/oak storage shelf and potted plant. A friendly contemporary STUDENT room for discussion and small group Bible study, no arcade, stage, giant TV, banners, home fireplace, dorm beds or sports theme. Furniture arranged so people could face each other with clear access through doorway, no table intersecting chairs or rug trapping door. Realistic ordinary furniture scale, pleasant soft daytime light mixed with restrained warm string lights. No readable books, Bible pages, posters or product labels. No faces in art, photos, mannequins or people. Clean new room, calm and welcoming.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "prayer-room",
+      "title": "Prayer room",
+      "file": "prayer-room.png",
+      "jpeg": "prayer-room.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/opportunities/prayer-team.jpg",
+        "photos/references/church/lobby-toward-entrance.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the primary quiet prayer room reference; remove its three people. IMAGE 2 provides shared church wall/floor/trim finishes only. Pull back to photograph the whole modest prayer room from its doorway: four comfortable muted teal upholstered armchairs with curved backs and natural oak legs in a small open conversation circle around one small round oak side table. Keep warm-white walls, light gray floor, a simple light neutral rug, the reference's white ceramic table lamp with cream fabric shade, a small potted plant, and charcoal-framed side window with softly lit Phoenix desert trees beyond. Doorway has matching dark charcoal trim and a simple solid pale-oak door open into unobstructed circulation. Soft warm lamp light with calm filtered window daylight, no dramatic shafts or worship-stage colors. Preserve the source's furniture forms, lamp and intimate reassuring atmosphere, distinct from the bright large lobby and from the gray student lounge. No altar, candles, stained glass, pulpit, large religious sculpture, hospital equipment, wall slogans or invented church logo. Keep this a practical peaceful church care room, not a luxury house living room. Neat realistic furnishings, no clutter, open floor between chairs for people to sit and pray. Completely empty, no human reflections or portraits.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
+    },
+    {
+      "key": "first-aid-room",
+      "title": "First-aid room",
+      "file": "first-aid-room.png",
+      "jpeg": "first-aid-room.jpg",
+      "width": 1536,
+      "height": 1024,
+      "sourceReferences": [
+        "photos/opportunities/first-aid-team.jpg",
+        "photos/references/church/lobby-toward-entrance.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. IMAGE 1 is the PRIMARY first-aid station reference. Remove both volunteers entirely and preserve the small room's actual equipment and layout. IMAGE 2 is the newly ENLARGED lobby that this care room opens onto; use its gray tile, warm-white walls, oak slat accents and larger open floor through the doorway. Wide eye-level photograph from one inside corner of a modest first-aid room off the lobby, showing the complete gray vinyl padded examination cot on the LEFT, a narrow clear middle floor, and white storage cabinets plus pale countertop on the RIGHT. Match the primary source's plain flat white cabinet doors with black bar pulls, modest open white shelves holding neatly stacked plain gauze packets, folded dressings and white supply boxes without readable labels. One open navy soft first-aid bag with ordinary bandage/gauze compartments sits safely on the counter; one small radio may rest beside it. Realistic care station, not an operating theater or intensive-care unit. A charcoal-trimmed open doorway at BACK LEFT shows a coherent small glimpse of the actual larger church lobby, pale-oak slat column/white wall, gray floor and daylight, not an outdoor scene or a second hospital. Avoid putting a huge fully visible lobby inside the care room; just its doorway view. Normal flat warm-white ceiling, simple practical recessed lighting, clean fresh surfaces, cot and cabinet clearances usable. No wall medical diagrams, anatomical models, words, printed logos, branding, crosses, sharps, exposed medicine labels or complex medical apparatus. No people, bodies, hands or reflections. Sharp physically plausible equipment and modest suburban church scale.",
+      "created": "2026-10-21",
+      "review": {
+        "people": "None visible",
+        "architecture": "Visually reviewed against source references",
+        "geometry": "Furniture, equipment and circulation visually reviewed"
+      }
     }
   ],
   "branding": {
@@ -79,5 +300,36 @@
     "selectedConcept": "option-08-open-cross-uppercase",
     "file": "branding/rock-solid-church-logo.png",
     "manifest": "branding/manifest.json"
+  },
+  "updated": "2026-10-21",
+  "delivery": {
+    "newPhotoViews": 9,
+    "existingPhotoViewsUpdated": [
+      "lobby-toward-entrance"
+    ],
+    "totalPhotoViews": 12,
+    "masterFormat": "PNG, native size",
+    "jpegFormat": "Same-size quality-90 JPEG with metadata removed",
+    "generator": "OpenAI built-in image_gen",
+    "revisions": [
+      {
+        "key": "stage-from-side",
+        "reason": "Removed manufacturer lettering"
+      },
+      {
+        "key": "lobby-toward-worship-center",
+        "reason": "Regenerated to match user-requested larger lobby"
+      },
+      {
+        "key": "lobby-toward-entrance",
+        "reason": "Expanded existing lobby to match user request"
+      }
+    ]
+  },
+  "continuity": {
+    "lobby": "Both directions show the larger gathering lobby, with a target approximately 2.5 times the earlier visual floor area. Doors and furniture retain human scale.",
+    "connection": "Lobby central worship-center door pair leads through a short rear vestibule to auditorium entry pairs flanking the central rear booth.",
+    "auditorium": "Three seating banks, two main aisles, central open rear booth, same stage and equipment orientation.",
+    "logo": "Approved Open Cross artwork; signage fits on one wall plane with clear margins."
   }
 }
