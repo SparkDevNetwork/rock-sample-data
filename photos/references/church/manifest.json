@@ -233,7 +233,20 @@
         "architecture": "Visually reviewed against source references",
         "geometry": "Furniture, equipment and circulation visually reviewed",
         "doors": "Three complete pairs/six leaves visually verified; approaches clear",
-        "graphics": "Mission and Starting Point copy visually checked for exact words, capitalization and punctuation"
+        "graphics": "Mission wording retained. Starting Point title, From a first hello to a place you belong., and Enroll in Starting Point visually checked; campaign ribbons and coral center adapted to the right wall."
+      },
+      "visualScale": {
+        "targetFloorAreaMultiplier": 2.5,
+        "note": "Matches enlarged outward lobby; visual target, not measured dimensions"
+      },
+      "doorConnection": {
+        "doubleDoorPairs": 3,
+        "doorLeaves": 6,
+        "layout": "Original center pair plus one matching pair on either side, clear approaches, oak piers"
+      },
+      "environmentalGraphics": {
+        "mission": "Left of entire door bank, charcoal type on warm-white",
+        "connection": "Right of entire door bank, charcoal Starting Point typography on warm ivory, teal invitation strip, dimensional teal/sea-glass ribbons and coral center; key copy above lounge seating"
       },
       "edits": [
         {
@@ -260,21 +273,19 @@
           ],
           "reason": "Install the mission statement and user-selected Starting Point invitation with exact approved copy.",
           "prompt": "Use case: precise-object-edit / environmental graphics.\nIMAGE 1 is the EXACT architectural edit target: Rock Solid Church's enlarged lobby looking toward the worship center, with THREE matching charcoal double-door pairs (SIX leaves), oak piers, and two blank vertical graphic wall areas OUTSIDE the whole door bank. IMAGE 2 is the approved church logo, a typography/brand-style reference ONLY. Do not add a new logo.\nInstall two elegant contemporary environmental wall graphics ONLY in those two blank wall areas. Applied matte paint/vinyl and crisp professional sans-serif type directly on the wall, not framed posters, standing signs, banners, screen mockups or buttons. Optical balance, generous margins, clean and new, refined Apple-esque restraint. Keep all text geometrically aligned to its wall's perspective, sharply readable, with correct spelling and punctuation.\nLEFT area, to the LEFT of ALL THREE door pairs: warm-white wall with charcoal typography. Small heading \"OUR MISSION\". Then the exact user-approved mission statement, on three generous separate lines, preserving capitalization and periods:\n\"Love God.\"\n\"Love people.\"\n\"Share Jesus.\"\nMake those three phrases substantial and beautifully spaced. Do not change people to People, omit periods, or add a different mission statement.\nRIGHT area, to the RIGHT of ALL THREE door pairs: a deep muted teal painted field contained fully inside the reserved wall area, coordinated with the existing teal chairs. Warm-white/cream type. Use EXACTLY this user-approved copy:\n\"YOU BELONG HERE.\"\n\"Turn Sunday visits into meaningful connections.\"\n\"Enroll in Starting Point\"\nYOU BELONG HERE. is the bold uppercase headline, on two lines if needed. The sentence is smaller with natural balanced wrapping. Enroll in Starting Point is the stronger invitation below, preserving that exact title/sentence case. It may wrap over two lines. Keep the FULL sentence and invitation visible ABOVE the chair backs, not hidden by furniture. Fit the type to the available wall with whitespace so every word is legible. No \"NEW HERE\", \"CONNECTION EVENT\", \"SIGN UP TODAY\", dates, URLs, QR codes, arrows, extra descriptions, invented taglines or other copy.\nAll three complete door pairs must remain unchanged and clearly visible. No type or painted field may overlap a door, frame, oak pier, corridor opening or floor. Leave approaches to all six leaves clear. Do not change the lobby width/depth, ordinary ceiling, chairs/tables/plants, welcome counter RIGHT, oak foreground column LEFT, windows, tile grid, lighting, camera position or architectural finishes. Preserve the image's natural photorealistic detail. No people, reflected people, watermark, collage, border or explanatory captions. ONE finished full-size landscape3:2 architectural photo, ideally at least1536x1024 native resolution."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "c627f74",
+          "sourceImage": "photos/references/church/lobby-toward-worship-center.png",
+          "sourceReferences": [
+            "photos/references/church/lobby-toward-worship-center.png",
+            "graphics/initiatives/starting-point/starting-point-hero-v1.png"
+          ],
+          "reason": "Apply the new Starting Point campaign artwork to the right lobby wall, adapted to the architectural bay; preserve mission graphic and three double-door pairs.",
+          "prompt": "Use case: compositing / precise-object-edit.\nEdit target: IMAGE 1, the approved empty Rock Solid Church lobby photograph looking toward the worship center.\nSupporting artwork: IMAGE 2, the approved Starting Point campaign graphic. Apply THIS visual identity to the wall in the lobby, replacing the older teal connection-event text panel to the RIGHT of the three worship-center double-door pairs. User permits slight layout adjustments to accommodate it.\nCreate one full-size photorealistic architectural image, landscape 3:2 preferably 1536x1024. Preserve the actual same clean new contemporary Phoenix Valley lobby, generous floor area, standing-height camera, daylight and warm ceiling lights, warm-white architecture, charcoal door hardware, pale oak slats, gray tile, windows/desert view, teal seating and pale-oak welcome counter at foreground right, tall slatted column foreground left. Preserve EXACTLY THREE matching DOUBLE-DOOR PAIRS (six leaves) on the far wall, fully visible with all clear paths and handles, not covered by graphics. Preserve the left mission wall unchanged, including exact \"OUR MISSION\" and \"Love God.\" / \"Love people.\" / \"Share Jesus.\"\nOnly materially redesign the right Starting Point environmental graphic. Adapt image 2's LANDSCAPE layout to this more upright architectural wall bay. The typography and artwork should be composed for the wall, rather than squeezing the entire landscape image into a tiny poster. Use the wall's full available height, with its key information above the lounge-chair back height. A modest widening of that right graphics bay or small shift of the right lounge group is allowed if needed, but do not delete or obstruct any door, remove windows, shrink the large lobby, or radically alter architecture.\nRight wall design: warm ivory base rather than old solid teal. A beautifully scaled confident black/charcoal \"STARTING\" / \"POINT\" title on two lines; preserve the coral center in the O of POINT if possible. Above in small tracked black capitals \"YOU BELONG HERE.\" Below title, the exact sentence \"From a first hello to a place you belong.\" can wrap over short balanced lines. Then clear dark-teal rounded CTA strip with warm-white text \"Enroll in Starting Point\". Translate the striking dimensional deep-teal and sea-glass curved ribbons gathering toward a coral center point from image 2 into an elegant mural/low-relief environmental art component entering from the right and lower part of the wall graphic, without obscuring text. This art must be clearly recognizable as the same Starting Point design. Omit the small supplementary body sentence, footer slogan, and duplicate church logo from the wall adaptation if necessary for legibility. Do not add dates, QR codes, URLs, or different slogans.\nMake this look professionally fabricated and installed: tasteful direct-to-wall print / shallow matte relief, no bulky frame, accurately matched physical wall perspective, architectural scale, real light and soft shadows. All text fits WITHIN the wall bay and remains off doors, door frames, oak piers and adjoining corridor. Right seating can shift slightly forward or right so it does not hide the CTA. No people, no extra promotional panels, no changes to mission copy or door count. Keep the whole lobby composition and generous circulation."
         }
-      ],
-      "visualScale": {
-        "targetFloorAreaMultiplier": 2.5,
-        "note": "Matches enlarged outward lobby; visual target, not measured dimensions"
-      },
-      "doorConnection": {
-        "doubleDoorPairs": 3,
-        "doorLeaves": 6,
-        "layout": "Original center pair plus one matching pair on either side, clear approaches, oak piers"
-      },
-      "environmentalGraphics": {
-        "mission": "Left of entire door bank, charcoal type on warm-white",
-        "connection": "Right of entire door bank, warm-white type on muted teal"
-      }
+      ]
     },
     {
       "key": "worship-center-from-stage",
@@ -593,9 +604,9 @@
     "lastRevision": {
       "date": "2026-10-21",
       "changedPhotoViews": [
-        "prayer-room"
+        "lobby-toward-worship-center"
       ],
-      "reason": "Six chairs total; unobstructed interior view without doorway at either image edge"
+      "reason": "Apply the new Starting Point campaign artwork to the right lobby wall, adapted to the architectural bay; preserve mission graphic and three double-door pairs."
     }
   },
   "continuity": {
@@ -625,11 +636,15 @@
     },
     "connection": {
       "headline": "YOU BELONG HERE.",
-      "body": "Turn Sunday visits into meaningful connections.",
+      "program": "STARTING POINT",
+      "body": "From a first hello to a place you belong.",
       "invitation": "Enroll in Starting Point",
-      "placement": "Outer right of all three worship-center door pairs",
-      "background": "Muted teal",
-      "textColor": "Warm-white"
+      "placement": "Outer right of all three worship-center door pairs, adapted to the wall with key text above lounge seating",
+      "background": "Warm ivory",
+      "textColor": "Charcoal with warm-white CTA lettering",
+      "artwork": "Dimensional deep-teal and sea-glass curved ribbons gather around a warm coral point",
+      "sourceDesign": "graphics/initiatives/starting-point/starting-point-hero-v1.png",
+      "note": "Wall adaptation omits the campaign fine print and duplicate church logo for legibility; supersedes the earlier solid-teal connection graphic."
     },
     "prayerRoom": {
       "photo": "prayer-room.png",
