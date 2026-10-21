@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RockSampleData.RockRunner
 {
@@ -107,7 +108,7 @@ namespace RockSampleData.RockRunner
 
         /// <summary>
         /// Runs the start-up steps from RockApplicationStartupHelper that change the database, in Rock's order.
-        /// Steps that need a web server (block types from .ascx files, the message bus, Lava) are left out.
+        /// Steps that need a web server (block types from .ascx files, Lava) are left out.
         /// </summary>
         public string Startup()
         {
@@ -119,6 +120,9 @@ namespace RockSampleData.RockRunner
 
             CallStartup( "InitializeQueryableAttributeValues" );
             steps.Add( "attribute value views" );
+
+            StartMessageBus();
+            steps.Add( "the message bus" );
 
             /*
                 10/19/26 - CLAUDE
@@ -142,6 +146,7 @@ namespace RockSampleData.RockRunner
         public string Cleanup()
         {
             Start();
+            StartMessageBus();
             var jobType = _rock.GetType( "Rock.Jobs.RockCleanup", true );
             var job = Activator.CreateInstance( jobType );
             try
@@ -210,6 +215,36 @@ namespace RockSampleData.RockRunner
             var app = ( IServiceProvider ) rockAppType.GetProperty( "Current" ).GetValue( null );
             var databaseConfiguration = app.GetService( _rock.GetType( "Rock.Configuration.IDatabaseConfiguration", true ) );
             databaseConfiguration?.GetType().GetProperty( "IsDatabaseAvailable" )?.SetValue( databaseConfiguration, true );
+        }
+
+        /*
+            10/21/26 - CLAUDE
+
+            When a job updates something cached, Rock publishes a cache message on its message bus from a
+            background task. With the bus never started, that task logs a BusException ("could not be
+            published before the message bus was able to be ready") to the Exception Log, but only if it runs
+            before the runner unloads Rock. That race made Rock Cleanup's referee check fail now and then, with
+            anywhere from 0 to 65 new exceptions from the same data. Rock's own startup starts the bus after the
+            plugin migrations (RockApplicationStartupHelper.RunApplicationStartupStage1), and Global.asax then marks Rock
+            started. With no other transport set up, Rock uses its in-memory bus, as a single server does.
+
+            Reason: Every publish succeeds, as it does in a running Rock, so the Exception Log only shows real errors.
+        */
+        private void StartMessageBus()
+        {
+            var bus = _rock.GetType( "Rock.Bus.RockMessageBus", true );
+            var start = bus.GetMethod( "StartAsync", Hidden, null, Type.EmptyTypes, null )
+                ?? throw new InvalidOperationException( "This Rock has no RockMessageBus.StartAsync(). The runner needs updating for this Rock." );
+            try
+            {
+                ( ( Task ) start.Invoke( null, null ) ).Wait();
+            }
+            catch ( AggregateException ex )
+            {
+                throw new InvalidOperationException( $"The message bus did not start: {ex.GetBaseException().Message}", ex.GetBaseException() );
+            }
+
+            bus.GetProperty( "IsRockStarted", Hidden )?.SetValue( null, true );
         }
 
         private void CallStartup( string name )
