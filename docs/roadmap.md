@@ -47,6 +47,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Per-person attendance,** so a teen can attend more often than their parents.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
 5. **Steps.** Build the plan in [Steps](steps.md) (decisions 83 to 89): Rock's Discipleship Path built out to seven adult steps, and a four-step Student Path, every step made from records the data already has.
+6. **Pledges.** Build the plan in [Pledges](pledges.md) (decisions 97 to 105): Built on the Rock, a two-year building campaign about 38% through on install, with its own fund, pledges from about 12% of giving units and 30% of businesses, every follow-through state, and Cast stories for each one.
 
 ## To do (parked)
 

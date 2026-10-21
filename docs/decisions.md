@@ -168,3 +168,19 @@ The plan is in [Steps](steps.md). None of it is built yet.
 | 94 | 2026-10-21 | The sample church has its own app, the Rock Solid Church App (store name Rock Solid Church), stubbed in `configuration/church-app.json`. Rock ships no mobile application site. Push history and personal devices point at it. Its pages and content come in later work. | Push needs an app to point at, and a demo app should sound like a real church's app. |
 | 95 | 2026-10-21 | Nothing a load writes can ever send. Every communication is Approved with a `SendDateTime`, no recipient is Pending or Sending, and every communication flow instance is finished and inactive. The verify tool checks each of these. | Rock's send job picks up communications with no `SendDateTime`, and the flow job sends the next message of every active flow. Sample data must never reach anyone. |
 | 96 | 2026-10-21 | Once steps are built (decisions 83 to 89), step milestones get their own messages: an invitation to each monthly Starting Point Class, a follow-up after Baptism that invites the person to Foundations, Foundations reminders, and Student Camp and Mission Trip emails and texts. Everyone who completes Starting Point Class enters one finished Communication Flow, "After Starting Point" (a thank-you, then small group and serving invitations). The communications load runs after the steps load. | Communications and steps tell one story, and Rock's flow screens have data. |
+
+## Pledges
+
+The plan is in [Pledges](pledges.md). None of it is built yet.
+
+| # | Date | Decision | Why |
+|---|---|---|---|
+| 97 | 2026-10-21 | The sample church is in a two-year building campaign called Built on the Rock, for a Student Center at Phoenix and more kids rooms at every campus. Commitment Sunday is 40 weeks before install day, so the campaign is about 38% through. | Every pledge state shows on install, and Rock's progress screens are half full. |
+| 98 | 2026-10-21 | The campaign has its own top-level fund, with a child account per campus. Pledges go to the parent account. | Pledge Analytics counts every gift to the pledged account and its children with no date limit, so pledging to the Building Fund would count years of old gifts. Campus accounts follow decision 21. |
+| 99 | 2026-10-21 | The Building Fund keeps running for upkeep. Campaign gifts are new gifts or new lines on top. | The Cast's Building Fund stories and giving expectations stay true. |
+| 100 | 2026-10-21 | The (Public) Create Pledge page and Rock's default statement template point at the campaign fund. | Pledge entry and pledge statements work on install. |
+| 101 | 2026-10-21 | Pledge rates and follow-through are designed targets. The profile's 12% of giving units with a pledge is graded. | Calibration has too little pledge data to set targets, and the sample church must use the feature. This is the same direction as notes and steps (decisions 78 and 89). |
+| 102 | 2026-10-21 | Lead gifts from the top 2% of givers make up about 40% of pledged dollars. | Real campaigns depend on a few large gifts. |
+| 103 | 2026-10-21 | Each pledge has one follow-through pattern: ahead, on pace, behind, stopped, or not started. About 5% of non-pledgers give to the campaign anyway. | Pledge Analytics shows every state it has. |
+| 104 | 2026-10-21 | A pledger who gives on the same rhythm adds a campaign line to their usual gift and to their scheduled transaction. | That is how most people give to a campaign, and it shows on the Contributions tab. |
+| 105 | 2026-10-21 | About 30% of businesses pledge, and the Cast has business stories for a lead gift, paid in full, on pace, a gift without a pledge, and no pledge. | Businesses are a big part of real campaigns, and every campus already has businesses that give. |
