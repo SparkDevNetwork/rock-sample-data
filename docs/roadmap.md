@@ -9,7 +9,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The church setup as data: 7 campuses, Sunday service times, funds with campus accounts, check-in rooms, and connection statuses.
 - The Cast: 38 legacy families converted, plus 45 new families and 4 new businesses, for 87 households and 185 people. Featured families have a bio for each person, and every family has a page.
 - The address pool: 18,000 real-street addresses with house numbers that do not exist, and the Cast moved onto it.
-- The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 loads in about 23 seconds (about 34 with check images) and passes 89% of measured values.
+- The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 with a 17,000-household crowd loads in about 29 seconds (about 44 with check images) and passes 89% of measured values.
 - Photo rules, photo ethnicity for every Cast adult, and the image agent's brief.
 - All 45 legacy Cast portraits have been updated and approved. The temporary photo review is closed.
 - Every Cast photo is delivered: 130 new people and the 45 legacy redos (175 photos), plus the 120-photo Core 3 pool. All are in `photos/manifest.json`.

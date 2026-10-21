@@ -25,7 +25,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7: about 23 seconds without, about 34 with). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
@@ -194,7 +194,7 @@ Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250
 |---|---|---|---|---|
 | Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
 | Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
-| Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 23 seconds (about 34 with check images) |
+| Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 29 seconds (about 44 with check images) |
 
 The Full 7 times were measured on 2026-10-16, best of three, on a 16-core development machine with other work running. A Full 7 load with check images spends its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
 
