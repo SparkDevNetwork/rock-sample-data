@@ -1,0 +1,37 @@
+{
+  "$comment": "A stub for Rock Solid Church's mobile app (decision D-comms-5). Rock ships no mobile application site, so the sample church adds its own. The loader does not read this file yet: slice 6 in docs/communications.md writes the Site row (SiteType Mobile), its layout, and the personal devices, so push history has an app to point at. Pages, blocks, and app content come in later work. Device shares stay empty until calibration part 7 has data.",
+  "site": {
+    "name": "Rock Solid Church App",
+    "storeName": "Rock Solid Church",
+    "guid": "610E63F2-1B0D-4E4B-88A1-D38BEC3E3CE6",
+    "description": "Rock Solid Church's app for iPhone and Android: watch services, find events, give, join a group, and share prayer requests.",
+    "siteType": "Mobile",
+    "shellType": "Tabs",
+    "tabLocation": "Bottom",
+    "bundleIdentifier": "com.rocksolidchurchdemo.app",
+    "packageName": "com.rocksolidchurchdemo.app",
+    "deepLinkDomains": "rocksolidchurchdemo.com",
+    "launchedYearsAgo": 3
+  },
+  "layout": {
+    "name": "Main",
+    "guid": "C08625AD-D0C7-4A4F-A65B-B120CDA6B86C"
+  },
+  "plannedTabs": [
+    { "name": "Home", "purpose": "This week's announcements and the next service." },
+    { "name": "Watch", "purpose": "The live stream and past sermons." },
+    { "name": "Events", "purpose": "The church calendar and registrations." },
+    { "name": "Give", "purpose": "Online giving." },
+    { "name": "More", "purpose": "Groups, serving, prayer, and the person's profile." }
+  ],
+  "devices": {
+    "$comment": "Set from calibration part 7 when slice 6 is built. Platforms use Rock's personal device platform values.",
+    "pctOfActiveAdults": null,
+    "pctIos": null,
+    "pctNotificationsOn": null,
+    "platforms": {
+      "ios": "F00515E7-4EF3-480D-A45D-372CE3D80E69",
+      "android": "63464BB8-83E2-4914-B922-5075311758F9"
+    }
+  }
+}

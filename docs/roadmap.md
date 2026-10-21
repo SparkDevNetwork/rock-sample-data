@@ -33,7 +33,7 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-Nothing right now.
+- **Communications** (decisions D-comms-1 to D-comms-7; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 
 ## Waiting on a decision
 
@@ -93,7 +93,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
+Registrations, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 
