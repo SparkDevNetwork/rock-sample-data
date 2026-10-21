@@ -93,9 +93,10 @@ module.exports = function how( { model } ) {
     <div class="split-text reveal">
       <p class="eyebrow">Measured realism</p>
       <h2>Patterns from real churches. Never their people.</h2>
-      <p>Real churches have weekly, monthly, and erratic givers, Easter peaks, and summer dips. We measure those shapes and ratios, then grade the generated data with the same measurements.</p>
-      <p>Today, 91% of measured values fall within tolerance, including serving, connections, and prayer. Anything we skip on purpose is written down with the reason.</p>
-      <p>Only patterns are kept, never a church's size, setup, or people. We never name or describe where a measurement came from, and raw measurements never leave the machine that made them.</p>
+      <p>Real churches have weekly, monthly, and erratic givers, Easter peaks, and summer dips. To learn those patterns, we ran summary queries on real churches' Rock databases, only where each church gave us permission.</p>
+      <p>The queries return only totals and percentages, such as the share of givers who give monthly. They never return a name, an Id, or any record about a person, and they're read-only, so they change nothing. No personal data was ever taken.</p>
+      <p>We keep only the patterns, never a church's size, setup, or people. Then we grade the generated data with the same queries. Today, 91% of measured values fall within tolerance, and anything we skip on purpose is written down with the reason.</p>
+      <p>We never name or describe the churches that helped, and their totals never leave the machine that ran the queries.</p>
     </div>
     <div class="big-number reveal" aria-label="91 percent of measured values fall within tolerance">
       <span class="big-number-value">91<small>%</small></span>
