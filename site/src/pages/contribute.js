@@ -110,7 +110,7 @@ module.exports = function contribute( { model } ) {
       <p class="eyebrow">How to suggest a change</p>
       <h2>Open an issue.</h2>
       <p>For now, the way to contribute is to open an issue on GitHub. The team makes the changes, so we don't take pull requests yet.</p>
-      <p>Check the roadmap and the planned work first, since your idea may already be on it. Then answer these four questions, so we can see who needs the data and how common it is.</p>
+      <p>Answer these four questions, so we can see who needs the data and how common it is.</p>
       <p><a class="button button-dark" href="${issueUrl}">Open an issue</a></p>
     </div>
     <ol class="steps steps-plain reveal">
@@ -136,7 +136,6 @@ module.exports = function contribute( { model } ) {
     <ol class="roadmap">
       ${next.map( ( item, i ) => html`<li class="reveal"><span class="roadmap-number">${i + 1}</span><p><strong>${esc( item.title )}</strong> ${esc( item.text )}</p></li>` )}
     </ol>
-    <p class="fine"><a href="${repoUrl}/blob/main/docs/roadmap.md">Read the full roadmap</a> and the <a href="${repoUrl}/blob/main/docs/planned.md">planned work</a>.</p>
   </div>
 </section>
 `
