@@ -22,12 +22,16 @@
     D-example-1, and is cited by that placeholder everywhere ("decision D-example-1"). Branches never take
     real numbers, so two branches cannot claim the same one. When a branch merges into main, run this
     script: it numbers the placeholders from the next free number, in the order they appear in the
-    decision log, and replaces every mention in the repository's tracked text files.
+    decision log, and replaces every mention in the repository's tracked text files, of any type.
 
     Usage:
       node docs/number-decisions.js            Numbers every placeholder and rewrites the files.
       node docs/number-decisions.js --dry-run  Shows what it would do, and changes nothing.
-      node docs/number-decisions.js --check    Exits with 1 if any placeholder is left (for main).
+      node docs/number-decisions.js --check    Exits with 1 if any placeholder is left anywhere (for main).
+
+    --check looks at every tracked text file, not only the decision log, so a stale mention of a
+    placeholder elsewhere fails too. The samples in the docs use the reserved slug "example"
+    (D-example-1), which --check ignores and the script never numbers.
 */
 
 const fs = require( "fs" );
@@ -42,7 +46,9 @@ const isCheck = process.argv.includes( "--check" );
 // A placeholder: "D-", a lowercase slug, "-", and a number, such as D-example-1 or D-example-teams-12.
 const PLACEHOLDER = /D-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+/;
 const ROW = new RegExp( `^\\| (\\d+|${PLACEHOLDER.source}) \\|`, "gm" );
-const TEXT_EXTENSIONS = new Set( [ ".md", ".json", ".js", ".cs", ".sql", ".txt", ".ps1" ] );
+// Every tracked text file is searched, whatever its type, so a mention in a new kind of file (a workflow's
+// .yml, a site's .css) is never missed. Binary files are skipped by type, and by a null byte for any other.
+const BINARY_EXTENSIONS = new Set( [ ".jpg", ".jpeg", ".png", ".gif", ".webp", ".ico", ".ttf", ".otf", ".woff", ".woff2", ".xlsx", ".zip", ".pdf", ".bak" ] );
 
 const decisions = fs.readFileSync( decisionsPath, "utf8" );
 const numbers = [];
@@ -61,6 +67,21 @@ if ( isCheck ) {
         console.error( `Decisions still have placeholders: ${placeholders.join( ", " )}. Run node docs/number-decisions.js.` );
         process.exit( 1 );
     }
+
+    // A placeholder mentioned anywhere else, outside the reserved samples, was missed or is stale.
+    const mention = new RegExp( `(?<![A-Za-z0-9-])${PLACEHOLDER.source}(?![A-Za-z0-9])`, "g" );
+    const stale = [];
+    for ( const { file, text } of textFiles() ) {
+        const found = [ ...new Set( ( text.match( mention ) || [] ).filter( p => !p.startsWith( "D-example-" ) ) ) ];
+        if ( found.length ) {
+            stale.push( `${file}: ${found.join( ", " )}` );
+        }
+    }
+    if ( stale.length ) {
+        console.error( `Placeholders are still mentioned outside the decision log, so they were never numbered:\n  ${stale.join( "\n  " )}` );
+        process.exit( 1 );
+    }
+
     console.log( "Every decision has a number." );
     process.exit( 0 );
 }
@@ -84,17 +105,8 @@ for ( const [ placeholder, number ] of assigned ) {
 
 // Longest first, so D-example-12 is never rewritten as D-example-1 followed by "2".
 const pattern = new RegExp( `(?<![A-Za-z0-9-])(${[ ...assigned.keys() ].sort( ( a, b ) => b.length - a.length ).join( "|" )})(?![A-Za-z0-9])`, "g" );
-const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
-    .split( /\r?\n/ )
-    .filter( f => f && TEXT_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
-
 let changedFiles = 0;
-for ( const file of files ) {
-    const full = path.join( root, file );
-    if ( !fs.existsSync( full ) ) {
-        continue;
-    }
-    const text = fs.readFileSync( full, "utf8" );
+for ( const { file, full, text } of textFiles() ) {
     const updated = text.replace( pattern, p => assigned.get( p ) );
     if ( updated !== text ) {
         changedFiles++;
@@ -106,3 +118,22 @@ for ( const file of files ) {
 }
 
 console.log( `${assigned.size} decision${assigned.size === 1 ? "" : "s"} numbered in ${changedFiles} file${changedFiles === 1 ? "" : "s"}${isDryRun ? " (dry run, nothing changed)" : ""}.` );
+
+/**
+ * Every tracked text file, with its text. Binary files are skipped by type, and by a null byte for any other.
+ */
+function* textFiles() {
+    const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
+        .split( /\r?\n/ )
+        .filter( f => f && !BINARY_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
+    for ( const file of files ) {
+        const full = path.join( root, file );
+        if ( !fs.existsSync( full ) ) {
+            continue;
+        }
+        const bytes = fs.readFileSync( full );
+        if ( !bytes.includes( 0 ) ) {
+            yield { file, full, text: bytes.toString( "utf8" ) };
+        }
+    }
+}

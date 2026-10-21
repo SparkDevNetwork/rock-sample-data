@@ -2,6 +2,8 @@
 
 An image model makes the people photos from the [photo brief](brief.md). This folder holds the photo rules, the delivered photos, and the manifest the builder reads.
 
+Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.md), with one folder per initiative. The Starting Point campaign master lives there; its installed lobby appearance remains in [the church reference pack](references/church/README.md).
+
 ## Kinds of images
 
 | Kind | Rock field | Source |

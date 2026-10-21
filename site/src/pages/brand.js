@@ -23,13 +23,13 @@ const palette = [
     [ "Warm White", "#F7F3EC", "Stucco walls and page backgrounds." ],
     [ "Desert Sand", "#E9DECD", "Quiet panels and section backgrounds." ],
     [ "Pale Oak", "#CDB28A", "Slat walls, tables, and warm accents." ],
-    [ "Muted Teal", "#4C8581", "Seating, the connection wall, and highlights." ],
-    [ "Coral", "#E07B5F", "The student room accent. Use sparingly." ]
+    [ "Muted Teal", "#4C8581", "Seating, the Starting Point ribbons, and highlights." ],
+    [ "Coral", "#E07B5F", "The student room accent and the Starting Point center point. Use sparingly." ]
 ];
 
 const graphics = [
     [ "Lobby mission wall", "Charcoal type on warm white.", [ "OUR MISSION", "Love God.", "Love people.", "Share Jesus." ] ],
-    [ "Lobby connection wall", "Warm-white type on muted teal.", [ "YOU BELONG HERE.", "Turn Sunday visits into meaningful connections.", "Enroll in Starting Point" ] ],
+    [ "Lobby Starting Point wall", "Charcoal type on warm ivory, teal ribbons around a coral point, and a teal invitation strip.", [ "YOU BELONG HERE.", "STARTING POINT", "From a first hello to a place you belong.", "Enroll in Starting Point" ] ],
     [ "Prayer room wall", "Charcoal type, with \"strength\" in muted-teal script.", [ "Find strength in prayer.", "“I can do all things through Christ who strengthens me.” Philippians 4:13" ] ],
     [ "Student room wall", "Warm-white type on teal, with a coral underline.", [ "Rock Solid", "Students" ] ]
 ];

@@ -410,6 +410,8 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .wall-big { font-weight: 800; font-size: clamp(1.8rem, 1.2rem + 2vw, 2.8rem); line-height: 1.05; letter-spacing: -0.02em; }
 .wall-paper .wall-big em { font-family: var(--serif); font-style: italic; font-weight: 500; color: #4C8581; }
 .wall-strong { font-weight: 800; font-size: 1.15rem; }
+.wall-eyebrow { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.14em; }
+.wall-paper .wall-strong { color: #4C8581; }
 @media (max-width: 800px) { .walls { grid-template-columns: 1fr; } }
 
 /* Photo viewer */
