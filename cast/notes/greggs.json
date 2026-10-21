@@ -1,0 +1,42 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "greggs",
+  "notes": [
+    {
+      "key": "bob-grief-group",
+      "guid": "4B23C1A0-5307-42BD-86D1-E736E7E145CC",
+      "about": "bob",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 210
+      },
+      "time": "13:00",
+      "text": "Bob and Lorraine are hosting the grief and loss group in their home this season. They lead from their own experience with Jenny, and they do it gently.",
+      "replies": [
+        {
+          "guid": "5C740AB3-24A2-4848-8590-7955BF5ED412",
+          "author": "ted",
+          "written": {
+            "daysAgo": 209
+          },
+          "time": "09:15",
+          "text": "Two people from the care list asked about it. I'll send them Bob's way."
+        }
+      ]
+    },
+    {
+      "key": "lorraine-coffee",
+      "guid": "70C12FEA-2513-41F5-B92A-454A5DDE1633",
+      "about": "lorraine",
+      "type": "pastoral",
+      "author": "ted",
+      "written": {
+        "daysAgo": 100
+      },
+      "time": "10:30",
+      "text": "Coffee with Lorraine. She said leading the grief group has been healing and hard at the same time. Encouraged her to take a week off when she needs it, and offered to cover a night."
+    }
+  ]
+}

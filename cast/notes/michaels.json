@@ -1,0 +1,19 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "michaels",
+  "notes": [
+    {
+      "key": "jenny-event-contact",
+      "guid": "9014C6A9-F22E-400A-A45B-92AAE7C3F9D1",
+      "about": "jenny",
+      "type": "personal",
+      "author": "daniel",
+      "written": {
+        "daysAgo": 110
+      },
+      "time": "14:30",
+      "text": "Jenny sent the camp registration numbers and the car show volunteer list in one email. She is organized and easy to work with. Use her as the contact for both events."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "young",
+  "notes": [
+    {
+      "key": "destiny-diaper-drive",
+      "guid": "CB1213AC-925E-4D5E-99AC-290FA177FE6A",
+      "about": "destiny",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 45
+      },
+      "time": "14:00",
+      "text": "Met Destiny at the diaper drive with Jayden. She is a young mom doing a lot on her own. She was open to a text about the next community event but is not ready for a Sunday yet."
+    },
+    {
+      "key": "destiny-next-drive",
+      "guid": "9CEE3DCC-5D3E-4CAF-928C-E10082A0116A",
+      "about": "destiny",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 20
+      },
+      "time": "11:25",
+      "text": "Destiny called to ask whether another diaper drive is coming up. Gave her the date and mentioned that the nursery is open during every service if she ever wants to visit."
+    }
+  ]
+}

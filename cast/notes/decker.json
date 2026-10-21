@@ -1,0 +1,33 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "decker",
+  "notes": [
+    {
+      "key": "alex-peanut-allergy",
+      "guid": "3D604C42-E1DC-4E4B-B5C0-2A8047EB5DE0",
+      "about": "alex",
+      "type": "safetyAlert",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 700
+      },
+      "time": "09:30",
+      "text": "Alex has a severe peanut allergy. It prints on her check-in label. Keep peanut snacks out of her room, and make sure every leader knows her epinephrine pen is in her bag.",
+      "isAlert": true,
+      "isPinned": true,
+      "testPurpose": "A pinned Safety Alert for a serious allergy on a child, written by staff outside the family.",
+      "replies": [
+        {
+          "guid": "E73BF1A0-B40D-4422-91F6-BE13498B3C43",
+          "author": "pete",
+          "written": {
+            "daysAgo": 700
+          },
+          "time": "11:45",
+          "text": "Thanks. I let the snack coordinators know too."
+        }
+      ]
+    }
+  ]
+}

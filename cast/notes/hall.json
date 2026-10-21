@@ -1,0 +1,43 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "hall",
+  "notes": [
+    {
+      "key": "bri-serve-day",
+      "guid": "FE5BA2FD-C90B-46F8-A95A-72BE335A1B60",
+      "about": "brianna",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 35
+      },
+      "time": "16:30",
+      "text": "Bri helped at the community serve day with a group from her dorm. She worked the whole shift sorting school supplies and asked good questions about what the church does the rest of the year."
+    },
+    {
+      "key": "bri-group-request",
+      "guid": "CB93D3BF-3387-40B2-9454-8478480BAE77",
+      "about": "brianna",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 25
+      },
+      "time": "09:50",
+      "text": "Bri asked online to join Pastor Pete's group. Let her know it meets in the Fosters' home in the evening. {@pete} will reach out before her first visit.",
+      "testPurpose": "A follow-up with a mention and a reply from the mentioned staff member.",
+      "replies": [
+        {
+          "guid": "FDBBBF88-8174-4598-A3CB-530FBE8F20F4",
+          "author": "pete",
+          "written": {
+            "daysAgo": 24
+          },
+          "time": "08:30",
+          "text": "Thanks. I'll call her this week and offer her a ride if she needs one."
+        }
+      ]
+    }
+  ]
+}

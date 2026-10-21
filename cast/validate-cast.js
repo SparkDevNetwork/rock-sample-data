@@ -31,6 +31,10 @@ const castDir = __dirname;
 const GUID = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
 const KEY = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const STATUSES = [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ];
+
+// The sample church uses only the security roles Rock ships, so every role name must be mapped (decision 79).
+const securityRoleConfiguration = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "security-roles.json" ), "utf8" ) );
+const SECURITY_ROLE_NAMES = new Set( securityRoleConfiguration.roles.concat( securityRoleConfiguration.notRoles ).map( r => r.name ) );
 const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchdemo.com" ];
 
 const errors = [];
@@ -117,6 +121,11 @@ for ( const { file, data: h } of households ) {
         }
         if ( !STATUSES.includes( p.connectionStatus ) ) {
             errors.push( `${owner}: connection status "${p.connectionStatus}" is not one of ${STATUSES.join( ", " )}.` );
+        }
+        for ( const role of p.securityRoles || [] ) {
+            if ( !SECURITY_ROLE_NAMES.has( role ) ) {
+                errors.push( `${owner}: security role "${role}" is not in configuration/security-roles.json. Only roles Rock ships are used.` );
+            }
         }
         // Photo ethnicity lives only in photo.ethnicity, and nothing about race or ethnicity may reach Rock.
         if ( p.appearanceGroup !== undefined ) {
@@ -390,6 +399,165 @@ for ( const { file, data: h } of households ) {
 }
 
 /*
+    Notes (decision 78). Each file in notes/ holds one household's hand-written staff notes. Types
+    and staff come from configuration/notes.json, and the allowed fields from note.schema.json.
+    Staff never write about their own household, a reply comes from someone else on or after the
+    note's day, and a private note, which only its author sees, has no replies and no mentions.
+*/
+const noteConfiguration = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "notes.json" ), "utf8" ) );
+const NOTE_TYPES = new Map( noteConfiguration.types.map( t => [ t.key, t ] ) );
+const STAFF = new Map( noteConfiguration.staff.map( s => [ s.key, s ] ) );
+const noteSchema = JSON.parse( fs.readFileSync( path.join( castDir, "note.schema.json" ), "utf8" ) );
+const TIME = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+const MENTION = /\{@([^}]*)\}/g;
+const noteFiles = readFolder( "notes" );
+let noteCount = 0;
+
+/**
+ * Checks an object's fields against a definition in note.schema.json: required fields are present and no others appear.
+ */
+function checkFields( owner, value, definition ) {
+    if ( !value || typeof value !== "object" || Array.isArray( value ) ) {
+        errors.push( `${owner}: must be an object.` );
+        return false;
+    }
+    for ( const field of definition.required ) {
+        if ( value[ field ] === undefined ) {
+            errors.push( `${owner}: missing ${field}.` );
+        }
+    }
+    for ( const field of Object.keys( value ) ) {
+        if ( !( field in definition.properties ) ) {
+            errors.push( `${owner}: unknown field "${field}".` );
+        }
+    }
+    return true;
+}
+
+/**
+ * Checks what a note and its replies share: Guid, a staff author outside the household, the date, the time, the text, and mentions.
+ * Returns the staff keys the text mentions.
+ */
+function checkWrittenEntry( owner, entry, householdGuids ) {
+    claimGuid( entry.guid, owner );
+    const staff = STAFF.get( entry.author );
+    if ( !staff ) {
+        errors.push( `${owner}: author "${entry.author}" is not a staff key in configuration/notes.json.` );
+    }
+    else if ( householdGuids.has( staff.guid ) ) {
+        errors.push( `${owner}: ${staff.name} is a member of this household, and staff never write notes about their own household.` );
+    }
+    const daysAgo = entry.written && entry.written.daysAgo;
+    if ( !entry.written || Object.keys( entry.written ).join() !== "daysAgo" || !Number.isInteger( daysAgo ) || daysAgo < 0 ) {
+        errors.push( `${owner}: written must be { "daysAgo": n } with a whole number of days, 0 or more.` );
+    }
+    if ( !TIME.test( entry.time || "" ) ) {
+        errors.push( `${owner}: time "${entry.time}" is not HH:mm on a 24-hour clock.` );
+    }
+    const text = typeof entry.text === "string" ? entry.text : "";
+    if ( !text.trim() ) {
+        errors.push( `${owner}: text is empty.` );
+    }
+    // Writing rule 7 in content/notes/README.md: straight quotes, no dashes as punctuation, no emoji.
+    if ( /[^ -~]/.test( text ) || text.includes( "--" ) ) {
+        errors.push( `${owner}: text has characters that are not plain. Use straight quotes, commas, or periods.` );
+    }
+    const mentions = [ ...text.matchAll( MENTION ) ].map( m => m[ 1 ] );
+    for ( const key of mentions.filter( k => !STAFF.has( k ) ) ) {
+        errors.push( `${owner}: mention {@${key}} is not a staff key in configuration/notes.json.` );
+    }
+    return mentions;
+}
+
+for ( const { file, data: n } of noteFiles ) {
+    if ( !checkFields( file, n, noteSchema ) ) {
+        continue;
+    }
+    if ( n.schemaVersion !== 1 ) {
+        errors.push( `${file}: schemaVersion must be 1.` );
+    }
+    if ( `${n.household}.json` !== path.basename( file ) ) {
+        errors.push( `${file}: household "${n.household}" does not match the file name.` );
+    }
+    const household = households.find( h => h.data.key === n.household );
+    if ( !household ) {
+        errors.push( `${file}: household "${n.household}" is not a Cast household.` );
+        continue;
+    }
+    const members = new Map( household.data.members.map( p => [ p.key, p ] ) );
+    const householdGuids = new Set( household.data.members.map( p => p.guid ) );
+    if ( !Array.isArray( n.notes ) || n.notes.length === 0 ) {
+        errors.push( `${file}: notes must be a non-empty list.` );
+        continue;
+    }
+
+    const noteKeys = new Set();
+    for ( const note of n.notes ) {
+        noteCount++;
+        const owner = `${file} (${note.key})`;
+        if ( !checkFields( owner, note, noteSchema.$defs.note ) ) {
+            continue;
+        }
+        if ( !KEY.test( note.key || "" ) ) {
+            errors.push( `${owner}: key is not a lowercase kebab-case slug.` );
+        }
+        if ( noteKeys.has( note.key ) ) {
+            errors.push( `${owner}: note key is used twice in this file.` );
+        }
+        noteKeys.add( note.key );
+        if ( !members.has( note.about ) ) {
+            errors.push( `${owner}: about "${note.about}" is not a member of household "${n.household}".` );
+        }
+        const type = NOTE_TYPES.get( note.type );
+        if ( !type ) {
+            errors.push( `${owner}: type "${note.type}" is not a note type in configuration/notes.json.` );
+        }
+        else if ( type.isAlwaysAlert && note.isAlert === false ) {
+            errors.push( `${owner}: a ${type.name} note is always an alert, so isAlert may not be false.` );
+        }
+        for ( const flag of [ "isAlert", "isPrivate", "isPinned" ] ) {
+            if ( note[ flag ] !== undefined && typeof note[ flag ] !== "boolean" ) {
+                errors.push( `${owner}: ${flag} must be true or false.` );
+            }
+        }
+
+        const mentions = checkWrittenEntry( owner, note, householdGuids );
+        const replies = note.replies || [];
+        if ( note.isPrivate && ( replies.length || mentions.length ) ) {
+            errors.push( `${owner}: a private note is seen only by its author, so it has no replies or mentions.` );
+        }
+
+        // A confidential type (Counseling) is viewed by only a few roles, so nothing may pull in other staff.
+        const isConfidential = type && type.isConfidential;
+        if ( isConfidential && !( note.author in type.authors ) ) {
+            errors.push( `${owner}: only the ${type.name} type's own authors write its notes.` );
+        }
+        if ( isConfidential && mentions.length ) {
+            errors.push( `${owner}: a ${type.name} note is confidential, so it mentions no one.` );
+        }
+        for ( const [ index, reply ] of replies.entries() ) {
+            const replyOwner = `${owner} reply ${index + 1}`;
+            if ( !checkFields( replyOwner, reply, noteSchema.$defs.reply ) ) {
+                continue;
+            }
+            const replyMentions = checkWrittenEntry( replyOwner, reply, householdGuids );
+            if ( isConfidential && ( replyMentions.length || !( reply.author in type.authors ) ) ) {
+                errors.push( `${replyOwner}: a ${type.name} note is confidential, so only its own authors reply, and mention no one.` );
+            }
+            if ( reply.author === note.author ) {
+                errors.push( `${replyOwner}: a reply comes from a different staff member than the note's author.` );
+            }
+            const noteDay = note.written && note.written.daysAgo;
+            const replyDay = reply.written && reply.written.daysAgo;
+            const isBeforeNote = replyDay > noteDay || ( replyDay === noteDay && reply.time < note.time );
+            if ( isBeforeNote ) {
+                errors.push( `${replyOwner}: written before the note it answers.` );
+            }
+        }
+    }
+}
+
+/*
     Businesses. A church keeps a business record because the business gives, so every Cast
     business has a contact and giving that has not stopped. The main campus has at least six
     businesses, and the Cast supplies all of them for Core 1 and Core 3 (the loader's
@@ -614,5 +782,6 @@ for ( const w of warnings ) {
 for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
-console.log( `\n${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests. ${errors.length} errors, ${warnings.length} warnings.` );
+console.log( `
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );
