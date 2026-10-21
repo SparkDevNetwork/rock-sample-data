@@ -1,43 +1,107 @@
 # Rock Solid Church visual references
 
-Initial reference set created October 21, 2026 for user review. These images establish a clean, new, contemporary church in the Phoenix Valley, extending the architecture and finishes in the existing serving opportunity photos.
+Twelve empty architectural photo views for Rock Solid Church, created October 21, 2026. The pack extends the architecture and finishes in the serving opportunity photos, with the approved final logo, larger lobby, and expanded higher-ceiling auditorium requested by the user. The additional views are ready for review.
 
 ## Reference images
 
 | View | Master | Upload copy |
 | --- | --- | --- |
-| Worship center from the rear | [PNG](worship-center-from-rear.png) | [JPEG](worship-center-from-rear.jpg) |
-| Front exterior, wide | [PNG](front-exterior-wide.png) | [JPEG](front-exterior-wide.jpg) |
+| Front exterior wide | [PNG](front-exterior-wide.png) | [JPEG](front-exterior-wide.jpg) |
+| Main entrance, close | [PNG](main-entrance-close.png) | [JPEG](main-entrance-close.jpg) |
 | Lobby toward the entrance | [PNG](lobby-toward-entrance.png) | [JPEG](lobby-toward-entrance.jpg) |
+| Lobby toward the worship center | [PNG](lobby-toward-worship-center.png) | [JPEG](lobby-toward-worship-center.jpg) |
+| Worship center from the rear | [PNG](worship-center-from-rear.png) | [JPEG](worship-center-from-rear.jpg) |
+| Worship center from the stage | [PNG](worship-center-from-stage.png) | [JPEG](worship-center-from-stage.jpg) |
+| Stage from the side | [PNG](stage-from-side.png) | [JPEG](stage-from-side.jpg) |
+| Production booth, wide | [PNG](production-booth-wide.png) | [JPEG](production-booth-wide.jpg) |
+| Kids classroom | [PNG](kids-classroom.png) | [JPEG](kids-classroom.jpg) |
+| Student room | [PNG](student-room.png) | [JPEG](student-room.jpg) |
+| Prayer room | [PNG](prayer-room.png) | [JPEG](prayer-room.jpg) |
+| First-aid room | [PNG](first-aid-room.png) | [JPEG](first-aid-room.jpg) |
 
-Each image is native 1536 × 1024 pixels, with a full-size PNG master and a same-size quality-90 JPEG with metadata removed. [manifest.json](manifest.json) records generation prompts, edits, and source references.
+Each image is native 1536 × 1024 pixels, with a full-size PNG master and a same-size quality-90 JPEG with metadata removed. [manifest.json](manifest.json) records the exact generation and revision prompts, source references, and review notes. Generation used the OpenAI built-in image generator.
 
 ## Details to preserve
 
-- **Exterior:** low warm-white stucco volumes with a taller worship-center volume behind, charcoal trim and entrance canopy, pale oak soffit, and charcoal-framed glass entrance doors with sidelights and a transom. Exterior signage uses the approved Open Cross symbol beside uppercase “ROCK SOLID” and smaller “CHURCH,” in dark dimensional lettering directly on stucco.
-- **Site:** pale concrete approach, low stucco planters, gravel landscaping, palo verde trees, agaves and cacti, and a desert parking area.
-- **Lobby:** warm-white walls and ceiling, recessed lights, light gray tile, charcoal entrance glazing, pale oak accents and welcome counter, muted teal seating at the sides, and an open central path.
-- **Worship center:** charcoal individual chairs in three seating banks with two aisles, low dark stage, pale oak acoustic slats with charcoal wall sections, exposed dark ceiling, and warm house lights with amber and violet stage lighting.
-- **Stage orientation:** viewed from the rear toward the stage, keyboard on the left, drum shield left of center, microphones across the front, and guitar on the right.
+- **Exterior:** low warm-white lobby/entrance volumes with the taller rectangular auditorium set well back behind the larger lobby. Its visible height/parapet is restrained. The rear volume is seen in the wide exterior and fully occluded by the low roof in the close entrance view. Preserve charcoal canopy/trim, oak soffit, door glazing and the small safely inset approved logo. Glass has subtle tree/sky reflections with clear lobby views.
+- **Site:** pale concrete approach, low stucco planters, gravel, palo verde trees, agaves, cacti and ordinary desert parking.
+- **Lobby:** the two current views supersede the smaller initial lobby. Preserve the much larger gathering floor, targeting roughly 2.5 times the earlier visual floor area, with ordinary single-story ceiling height and normal-size doors, tiles and furniture. Retain warm-white walls, recessed lights, gray tile, charcoal glazing, pale oak, teal side seating groups and a broad clear center.
+- **Auditorium:** the current views supersede the smaller, lower-ceiling room. Target approximately 60% more floor area (1.6 times the earlier reference), with a clearly higher exposed dark ceiling (visual target about 40% higher). Keep normal-size charcoal chairs in three banks with two aisles, a low dark stage, taller charcoal/warm-gray walls with pale oak slats, warm house lights and amber/violet stage lighting. The stage, booth and two exterior views share this enlarged room envelope.
+- **Stage orientation:** looking toward the stage from the rear, keyboard left, drum shield left of center, microphones across the front, guitar right. Do not mirror or duplicate the equipment.
 
-These are visual continuity references, not a measured floor plan. Do not infer exact dimensions or seating capacity.
+These images establish visual continuity, not a measured floor plan. The lobby, auditorium, prayer-room and student-room multipliers are visual design targets; do not infer exact dimensions or seating capacity.
 
 ## Approved logo
 
-The user selected the original uppercase Open Cross design (option 08) on October 21, 2026. Use [the final logo artwork](branding/rock-solid-church-logo.png) and its [record](branding/manifest.json) for future branding. The exterior reference now shows this logo in place of the previous title-case lettering. The lobby and worship-center views have no church signage to replace.
+The user selected the original uppercase Open Cross design (option 08) on October 21, 2026. Use [the final logo artwork](branding/rock-solid-church-logo.png) and its [record](branding/manifest.json).
 
-Attach the final artwork alongside the relevant architectural reference whenever branding is visible. Preserve its four rounded corner forms, negative-space cross, uppercase lettering, spacing, and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white rectangular backing. Follow individual future briefs when visible text is prohibited.
+Attach that exact artwork whenever branding is visible. Preserve the four rounded forms, negative-space cross, uppercase ROCK SOLID and smaller tracked CHURCH, spacing and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white backing panel. The whole symbol, lettering and mounting shadows must fit on one wall plane with clearly visible blank wall on both sides. Never cross or wrap a wall corner.
+
+## Approved environmental graphics
+
+The inward-facing lobby view has two integrated wall graphics, outside the entire three-pair door bank. Keep all copy off the doors, frames and corridor openings, and above the seating. The user approved this exact wording on October 21, 2026.
+
+**Left mission wall:** charcoal type directly on warm-white, with the small heading OUR MISSION.
+
+**Love God. Love people. Share Jesus.**
+
+Set the three phrases on separate lines, retaining their capitalization and periods.
+
+**Right connection wall:** warm-white typography on muted teal, with this hierarchy:
+
+- **YOU BELONG HERE.**
+- Turn Sunday visits into meaningful connections.
+- **Enroll in Starting Point**
+
+Preserve the exact wording and case; line wrapping may follow the available wall space. Do not substitute the earlier New Here/Connection Event/Sign Up Today draft, add dates or invent URLs/QR codes. The exact copy is also in the manifest.
+
+### Prayer-room wall graphic
+
+The main back wall above the chairs carries this exact user-provided text:
+
+**Find strength in prayer.**
+
+“I can do all things through Christ who strengthens me.” — Philippians 4:13
+
+Use charcoal contemporary lettering, with strength emphasized in restrained muted-teal script. Keep the complete verse and attribution sharp, inside the wall margins and above the chairs. Preserve the wording, punctuation and Philippians spelling.
+
+### Student-room wall identity
+
+Use the exact text **Rock Solid Students**, with smaller Rock Solid over a large Students line. Warm-white bold friendly sans-serif on the teal feature wall, a restrained coral underline and neatly attached warm string lights create the identity. Keep the words above the sofa and inside the wall margins. No added slogans or competing logos.
+
+## Room and camera continuity
+
+- **Entrance:** use the close view for the same complete canopy, door hardware, sidelights, sign and transition into the lobby.
+- **Lobby:** toward the entrance, the welcome counter is left and the oak slat column is right. Toward the worship center, those relationships reverse. Keep the larger room footprint in both directions.
+- **Worship-center connection:** the lobby wall has three matching charcoal double-door pairs (six leaves), separated by oak piers, with clear approaches. The shared rear vestibule connects to auditorium rear entries around the booth. This is a visual continuity convention, not a measured plan.
+- **Booth:** a low open charcoal desk with pale-oak cap, at the center rear of the ground-floor auditorium. Looking toward the stage, its tripod camera is left of the console. Looking from the stage, the camera is on the booth's right. Keep visible cables in neat separated runs along the booth edges and under-desk management, with small secured camera slack. Monitor interfaces and matching stage feeds should be sharp rather than artificially blurred, subject to each brief’s visible-text rules.
+- **Kids classroom:** coral/teal wall panels, child chairs and bins; low oak tables and cubbies; gray tile and charcoal-framed daylight windows.
+- **Student room:** current larger room targets twice the earlier floor area. Keep a gray-sofa/armchair conversation zone on the blue/cream rug, round oak table, teal/coral poufs, separate table-tennis area, neatly arranged cubbies and baskets, muted teal feature wall, coral accent and warm string lights. Preserve the exact Rock Solid Students wall identity.
+- **Prayer room:** the current larger room retains the twice-original floor-area target, now with SIX matching normal-size curved-back teal chairs around one oak table, generous circulation, white ceramic lamp, neutral rug, side window, soft daylight and the back-wall strength-in-prayer graphic. The camera is just inside the entrance: no door leaf, jambs or doorway hardware appears at either image edge.
+- **First-aid room:** gray padded cot left, white cabinets with black pulls and pale counter right, navy supply bag, and an open doorway giving a limited glimpse of the larger lobby.
+
+Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height. Use the older photos for people or supporting material details. From the rear, audience chair backs face the camera; from the stage, chair fronts face the camera. Preserve that direction in every view.
 
 ## Using the references
 
-Attach the relevant image as an actual image input when requesting future photos. Use the exterior and lobby together for entrance scenes; use the worship-center view for usher, worship, and production scenes. State the camera direction and preserve left/right relationships without mirroring. Attach Cast portraits separately when a future brief requires particular people.
+Attach the relevant photo as an actual image input. Use exterior and entrance views together for arrival scenes; pair the two lobby views for interior circulation; use the auditorium and booth views for usher, worship and production scenes. State the camera direction and preserve left/right relationships. Attach Cast portraits separately when particular people are needed.
 
 Suggested instruction:
 
-> Use the attached Rock Solid Church architectural reference. Preserve the building layout, materials, furniture, equipment placement, and scale. Create the requested scene in this same clean, new, contemporary Phoenix Valley church. Change people, activity, camera position, and lighting only as requested.
+> Use the attached Rock Solid Church architectural reference. Preserve the room layout, materials, furniture, equipment placement and scale. Create the requested scene in this same clean, new, contemporary Phoenix Valley church. Keep the larger lobby and expanded higher-ceiling auditorium where shown. Change people, activity, camera position and lighting only as requested.
 
-Follow each future brief's rules for visible text. When text is prohibited, frame out or obscure the church name and incidental signs. Avoid adding unrelated logos, slogans, or architectural styles.
+Follow each future brief's visible-text rules. Where text is prohibited, frame out or obscure church branding, environmental graphics, incidental signs and equipment labels. Avoid unrelated logos, slogans or architectural styles.
 
-## Source continuity
+## Source continuity and review
 
-The worship-center reference draws from the production-team and usher opportunity photos. The exterior draws from the greeter photo. The lobby draws from the greeter and first-aid photos plus the new exterior reference. Existing opportunity photos were left unchanged.
+The initial references used the existing greeter, usher, production and first-aid opportunity photos. Each additional ministry-room reference uses its corresponding serving photo as the main room reference. Reverse views and the booth/side-stage views also use the established empty-room masters. Existing opportunity photos were left unchanged.
+
+All delivered photos were visually reviewed for empty rooms, reference continuity, and plausible furniture, equipment and circulation. The side-stage image was corrected to remove manufacturer lettering. Both lobby directions were enlarged after the user requested two to three times the initial size. The auditorium was then expanded by a 60% floor-area target with a higher ceiling across both room directions, side stage, booth and the two exterior views. A draft with incorrect chair orientation was corrected before delivery. Initial and revision prompts are retained in the manifest.
+
+The latest lobby revision adds three door pairs and the approved mission/Starting Point graphics. Exterior revisions set the rear auditorium farther behind the larger lobby, reduce its visible prominence, hide its roof entirely in the close entrance view, and soften tree reflections in both exterior views.
+
+The prayer-room revision doubles its visual floor-area target and adds the user-provided strength-in-prayer headline and Philippians 4:13 verse.
+
+The student-room revision doubles its visual floor-area target, adds the Rock Solid Students wall identity, and separates the organized social and game areas.
+
+The latest prayer-room revision adds two matching chairs for six total and removes the visible doorway from both foreground edges. Keep the actual side window and approved wall graphic.
