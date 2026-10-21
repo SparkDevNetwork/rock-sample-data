@@ -141,8 +141,7 @@
         "Staff Users",
         "Website Administrators",
         "RSR - Calendar Administration",
-        "RSR - Event Registration Administration",
-        "RSR - Involvement Administration"
+        "RSR - Event Registration Administration"
       ],
       "follows": [
         {

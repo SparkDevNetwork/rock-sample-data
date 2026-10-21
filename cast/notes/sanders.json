@@ -1,0 +1,46 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "sanders",
+  "notes": [
+    {
+      "key": "josh-coworker",
+      "guid": "925B26C2-7DC2-4181-BF84-ACB3C508212C",
+      "about": "josh",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 270
+      },
+      "time": "12:30",
+      "text": "Josh has been coming with a coworker from Ocotillo Market for a while now. He asked me what baptism actually means, so we are meeting for coffee next week."
+    },
+    {
+      "key": "josh-after-baptism",
+      "guid": "FA46496A-DCC2-4415-8C26-D2330DE93E57",
+      "about": "josh",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 58
+      },
+      "time": "14:10",
+      "text": "Followed up with Josh after his baptism. He wants to keep growing, so I introduced him to Mike and Jen Rivera and their group.",
+      "testPurpose": "A follow-up after a baptism."
+    },
+    {
+      "key": "josh-baptism-story",
+      "guid": "0111E7D7-D7D9-422D-9543-FA90F5EFEDAB",
+      "about": "josh",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 15
+      },
+      "time": "09:20",
+      "text": "Ask Josh in person whether he would share his story at the next baptism Sunday. He is shy, so not in front of anyone else.",
+      "isPrivate": true,
+      "testPurpose": "A private reminder, seen only by its author."
+    }
+  ]
+}

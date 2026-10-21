@@ -1,0 +1,20 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "bennett",
+  "notes": [
+    {
+      "key": "nick-soccer-season",
+      "guid": "B67DB094-8E73-4967-A854-EBFF84745AF1",
+      "about": "nick",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 30
+      },
+      "time": "17:30",
+      "text": "Checked in with Tom and Becca about Nick. He misses Sundays when travel soccer is in season, so I invited him to midweek student night instead. He is giving it a try.",
+      "testPurpose": "A follow-up on a student whose Sunday attendance drops."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "shaw",
+  "notes": [
+    {
+      "key": "andy-coffee",
+      "guid": "E67415BA-86A1-429F-8EF5-81C363F986E0",
+      "about": "andrew",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 230
+      },
+      "time": "10:00",
+      "text": "Coffee with Andy and Lauren. They moved from Denver for Andy's job and were members of a church there for ten years. They are looking for a place to serve, not just attend."
+    },
+    {
+      "key": "owen-first-sunday",
+      "guid": "152F19C4-3D8B-4328-95B9-B3644413D548",
+      "about": "owen",
+      "type": "followUp",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 225
+      },
+      "time": "13:10",
+      "text": "Owen's first Sunday in the kids wing. He was nervous at drop-off but found a friend by the end. Sent his parents a note."
+    },
+    {
+      "key": "lauren-membership",
+      "guid": "A1D229DF-CC76-44E0-ADA7-51E7092266F0",
+      "about": "lauren",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 150
+      },
+      "time": "12:20",
+      "text": "Lauren asked about the membership class. She said they tried a few churches after the move, and this one felt like home quickly."
+    }
+  ]
+}

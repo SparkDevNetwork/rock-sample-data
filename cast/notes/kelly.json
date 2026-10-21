@@ -1,0 +1,69 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "kelly",
+  "notes": [
+    {
+      "key": "ashley-rent-call",
+      "guid": "7CED292F-1AA6-4F7B-B7FA-47A50FB71286",
+      "about": "ashley",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 270
+      },
+      "time": "09:40",
+      "text": "Ashley called asking whether the church could help with rent this month. Took her information for the benevolence team. {@ted} will call her back today.",
+      "testPurpose": "A phone note with a mention."
+    },
+    {
+      "key": "ashley-benevolence",
+      "guid": "931300EC-587B-4776-91F6-C6365E6DBCD9",
+      "about": "ashley",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 268
+      },
+      "time": "15:00",
+      "text": "Met with Ashley about the rent request. The benevolence team approved one month's rent, paid directly to her landlord. Shared the budgeting class dates, and she may come once her work schedule settles.",
+      "replies": [
+        {
+          "guid": "95F5D6D9-0CDB-4154-B103-3ED3CF3F352F",
+          "author": "pete",
+          "written": {
+            "daysAgo": 267
+          },
+          "time": "08:45",
+          "text": "Thank you for handling this with care."
+        }
+      ]
+    },
+    {
+      "key": "ashley-private-reminder",
+      "guid": "AB5ABE4C-FE25-4507-A4F1-EDAE40DC3BEB",
+      "about": "ashley",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 120
+      },
+      "time": "17:20",
+      "text": "Reminder for me: check in with Ashley near the first of the month. Last time she said things were tight again but did not want to ask.",
+      "isPrivate": true,
+      "testPurpose": "A private note, seen only by its author."
+    },
+    {
+      "key": "mason-big-brother",
+      "guid": "FCDA9FD9-758B-4784-AD09-722C8BDE45C6",
+      "about": "mason",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 30
+      },
+      "time": "12:30",
+      "text": "Mason walked his sister to the preschool door and told the leader to take good care of her. Sweet kid."
+    }
+  ]
+}

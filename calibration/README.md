@@ -35,6 +35,18 @@ Every per-request measure stands alone. Yearly volumes (requests and prayers per
 node normalize.js source-2 "Calibration source" raw/source-2-part-5.tsv
 ```
 
+## Part 6: notes on people
+
+Part 6 measures how staff use notes on person records: which kinds of note types they use, note length, how often notes are alerts, private, pinned, or replies, when notes are written, who writes them, and who they are about. It returns no note text and no note type names. The script sorts each note type into a generic kind (care, hospital, counseling, follow-up, and so on) and returns only the kind.
+
+Like part 5, yearly volumes need part 2 from the same database. Every other measure stands alone:
+
+```
+node normalize.js source-2 "Calibration source" raw/source-2-part-2.tsv raw/source-2-part-6.tsv
+```
+
+The normalizer writes the result to the `personNotes` section, because `notes` already holds each source file's explanations.
+
 ## Tools
 
 | Tool | Purpose |
@@ -53,6 +65,7 @@ node normalize.js source-2 "Calibration source" raw/source-2-part-5.tsv
 | `sql/Report_SampleDataCalibration_3_RegistrationsPrayerCommsConnections.sql` | Rock's SQL editor or SSMS |
 | `sql/Report_SampleDataCalibration_4_DistanceToCampus.sql` | Rock's SQL editor or SSMS. Returns grid-cell counts, not statistics (see above). |
 | `sql/Report_SampleDataCalibration_5_Prayer.sql` | Rock's SQL editor or SSMS. Prayer in detail (see above). |
+| `sql/Report_SampleDataCalibration_6_PersonNotes.sql` | Rock's SQL editor or SSMS. Notes on people (see above). |
 | `sql/Report_SampleDataCalibrationStats.sql` | SSMS only (parts 1 to 3 in one run; run part 4 separately) |
 
 The scripts are read-only. They write only to temp tables, and Rock's SQL editor rolls everything back. Each one returns anonymous aggregates with no names or Ids.

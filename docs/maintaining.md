@@ -35,10 +35,10 @@ Merge `main` into your branch often: when you start, before each verify run, and
 Two branches that each take "the next number" collide. So a branch never takes one. A new decision gets a placeholder: `D-`, a slug for the branch, and a counter.
 
 ```
-| D-notes-1 | 2026-10-21 | People have notes. ... | ... |
+| D-example-1 | 2026-10-21 | The example decision. ... | ... |
 ```
 
-Cite it the same way everywhere, for example "(decision D-notes-1)". Just before the branch merges, the integrator runs:
+Cite it the same way everywhere, for example "(decision D-example-1)". Just before the branch merges, the integrator runs:
 
 ```
 node docs/number-decisions.js --dry-run

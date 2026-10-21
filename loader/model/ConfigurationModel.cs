@@ -421,4 +421,31 @@ namespace RockSampleData.Loader.Model
 
         public bool IsConsecutive => Component == "consecutive";
     }
+
+    /// <summary>
+    /// The contents of security-roles.json: how Cast role names map to the security roles Rock ships.
+    /// </summary>
+    internal sealed class SecurityRoleConfiguration
+    {
+        public List<SecurityRoleMapping> Roles { get; set; } = new List<SecurityRoleMapping>();
+
+        /// <summary>
+        /// Names Cast files list that are not Rock security roles. No one joins a role for them.
+        /// </summary>
+        public List<SecurityRoleMapping> NotRoles { get; set; } = new List<SecurityRoleMapping>();
+    }
+
+    /// <summary>
+    /// One Cast role name and the Rock security role group it means.
+    /// </summary>
+    internal sealed class SecurityRoleMapping
+    {
+        public string Name { get; set; }
+
+        public string RockRole { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Reason { get; set; }
+    }
 }

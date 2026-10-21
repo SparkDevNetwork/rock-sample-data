@@ -1,0 +1,55 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "ellis",
+  "notes": [
+    {
+      "key": "jordan-first-visit",
+      "guid": "C6C56D7E-7175-4AD3-A079-164E52B9CF98",
+      "about": "jordan",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 120
+      },
+      "time": "12:40",
+      "text": "Met Jordan and Hannah at the welcome center on their first Sunday. They married last year and are looking for a church to grow in together. Sent the newcomers email and the Starting Point dates.",
+      "testPurpose": "A follow-up on a new couple's first visit."
+    },
+    {
+      "key": "hannah-online-giving",
+      "guid": "6404E081-91AB-4F7B-B95F-9BC3173DD66E",
+      "about": "hannah",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 71
+      },
+      "time": "10:05",
+      "text": "Hannah called to ask how to set up online giving for the two of them. Walked her through the giving page, and Jordan set up a gift every other week while we were on the phone."
+    },
+    {
+      "key": "hannah-kids-ministry",
+      "guid": "BA0EB23E-C276-4216-8CBD-35E9A8C74029",
+      "about": "hannah",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 30
+      },
+      "time": "13:15",
+      "text": "Hannah mentioned that she teaches second grade and would love to help in kids ministry once they feel settled. No rush on our end.",
+      "replies": [
+        {
+          "guid": "6C220F9A-CB4C-4975-B578-523FE8FE371C",
+          "author": "ted",
+          "written": {
+            "daysAgo": 29
+          },
+          "time": "09:30",
+          "text": "I'll make sure she hears about the next kids team orientation."
+        }
+      ]
+    }
+  ]
+}
