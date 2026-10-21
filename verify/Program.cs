@@ -29,7 +29,7 @@ using RockSampleData.Verify;
 
     Usage:
       rock-sample-data-verify --rock <built Rock checkout> [--dataset core-1|all] [--packages <folder>] [--server localhost]
-                              [--base RockSampleVerify-base] [--anchor yyyy-MM-dd] [--seed text] [--record-contract] [--keep]
+                              [--base RockSampleVerify-base] [--run <tag>] [--anchor yyyy-MM-dd] [--seed text] [--record-contract] [--keep]
       rock-sample-data-verify --check-receipts [<packages folder>]
 */
 
@@ -57,6 +57,9 @@ try
     var rock = RockRelease.Read( options.GetValueOrDefault( "rock" ) ?? Environment.GetEnvironmentVariable( "ROCK_PATH" ) );
     var sql = new SqlServer( options.GetValueOrDefault( "server", "localhost" ) );
     var baseDatabase = options.GetValueOrDefault( "base", $"{SqlServer.DatabasePrefix}-base" );
+
+    // Each run's own databases carry its tag (by default its worktree's name), so runs from different worktrees never meet.
+    var runPrefix = $"{SqlServer.DatabasePrefix}-{RunTag( options.GetValueOrDefault( "run" ) ?? Path.GetFileName( root ) )}";
     var anchor = options.TryGetValue( "anchor", out var anchorText ) ? DateTime.Parse( anchorText ) : DateTime.Today;
     var seed = options.GetValueOrDefault( "seed", "rock-sample-data" );
     var isRecording = options.ContainsKey( "record-contract" );
@@ -69,19 +72,31 @@ try
         throw new InvalidOperationException( "--record-contract needs every dataset, so the contract covers everything the loader writes." );
     }
 
-    Console.WriteLine( $"Verifying {string.Join( ", ", datasets )} on Rock {rock.Version} (newest migration {rock.NewestMigration})" );
+    Console.WriteLine( $"Verifying {string.Join( ", ", datasets )} on Rock {rock.Version} (newest migration {rock.NewestMigration}) in {runPrefix}-* databases" );
 
     // 1. The content standards, which need no database.
     var standards = ContentStandards.Run( root );
     standards.Print();
 
-    // 2. The trusted base. An existing one is reused only if it still certifies for this checkout.
+    // 2. The trusted base. An existing one is reused only if it still certifies for this checkout. Runs share it,
+    //    so this run holds a shared lock on it until it ends, and takes an exclusive lock only to rebuild it.
+    using var baseLock = new BaseLock( sql, baseDatabase );
+    baseLock.Take( "Shared" );
     var (baseCheck, certificate) = TrustedBase.Certify( sql, baseDatabase, rock );
     if ( !baseCheck.Passed )
     {
-        Console.WriteLine( $"  {baseDatabase} is missing or stale: {string.Join( " ", baseCheck.Details.Take( 2 ) )}" );
-        TrustedBase.Create( sql, baseDatabase, rock );
+        baseLock.Take( "Exclusive" );
+
+        // Another run may have rebuilt it while this one waited.
         (baseCheck, certificate) = TrustedBase.Certify( sql, baseDatabase, rock );
+        if ( !baseCheck.Passed )
+        {
+            Console.WriteLine( $"  {baseDatabase} is missing or stale: {string.Join( " ", baseCheck.Details.Take( 2 ) )}" );
+            TrustedBase.Create( sql, baseDatabase, rock );
+            (baseCheck, certificate) = TrustedBase.Certify( sql, baseDatabase, rock );
+        }
+
+        baseLock.Take( "Shared" );
     }
 
     baseCheck.Print();
@@ -94,7 +109,7 @@ try
     // 3. Each dataset: load it into a copy of the base while recording what it writes, then check the result.
     var contractPath = Path.Combine( root, "validation", "rock-contract.json" );
     var recorder = new WriteRecorder();
-    var referee = new CleanupReferee( sql, rock, Path.Combine( root, "validation", "cleanup-accepted.json" ) );
+    var referee = new CleanupReferee( sql, rock, Path.Combine( root, "validation", "cleanup-accepted.json" ), runPrefix );
     // The receipt binds the bytes and the commit read now, before the long run, and checks at the end that neither moved.
     var verifier = Git.Source( root );
     var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks)>();
@@ -114,7 +129,7 @@ try
         }
 
         Console.WriteLine( $"\n{dataset}" );
-        var database = $"{SqlServer.DatabasePrefix}-{dataset}";
+        var database = $"{runPrefix}-{dataset}";
         var connection = sql.ConnectionString( database );
         var foreignKey = $"SampleData:{dataset}";
         var checks = new List<CheckResult>();
@@ -228,6 +243,18 @@ catch ( Exception ex ) when ( ex is InvalidOperationException || ex is IOExcepti
 {
     Console.Error.WriteLine( $"Verification stopped. {ex.Message}" );
     return 1;
+}
+
+/// <summary>
+/// The run tag in this run's database names: the worktree folder without its "rock-sample-data-" prefix
+/// (the main checkout is "main"), in lowercase letters, digits, and hyphens.
+/// </summary>
+static string RunTag( string name )
+{
+    var tag = name.ToLowerInvariant();
+    tag = tag == "rock-sample-data" ? "main" : tag.StartsWith( "rock-sample-data-", StringComparison.Ordinal ) ? tag.Substring( "rock-sample-data-".Length ) : tag;
+    tag = new string( tag.Select( c => char.IsAsciiLetterOrDigit( c ) ? c : '-' ).ToArray() ).Trim( '-' );
+    return tag.Length == 0 ? "run" : tag.Length > 40 ? tag.Substring( 0, 40 ) : tag;
 }
 
 /// <summary>

@@ -14,7 +14,7 @@ Build the packages first (see the [builder](../builder/README.md)), from the sam
 dotnet run -- --rock C:\Development\Rock
 ```
 
-It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Rock checkout (`RockWeb\bin` must hold `Rock.dll`). It makes and drops its own databases, all named `RockSampleVerify...`, and never touches any other database. Run one verification at a time on a server: two runs would drop each other's databases.
+It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Rock checkout (`RockWeb\bin` must hold `Rock.dll`). It makes and drops its own databases, all named `RockSampleVerify-<run tag>-...`, and never touches any other database. The run tag is the worktree's folder name without "rock-sample-data-" (the main checkout is `main`), so runs from different worktrees can share a server. They share the trusted base, which a run locks while it uses it (see [Working in parallel](../docs/maintaining.md#shared-machine-resources)).
 
 | Option | Meaning |
 |---|---|
@@ -23,9 +23,10 @@ It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Ro
 | `--packages <folder>` | Where the packages are. Defaults to `../packages`. Receipts are written next to them. |
 | `--server` | The SQL Server. Defaults to `localhost`. |
 | `--base` | The trusted base's name. Defaults to `RockSampleVerify-base`. |
+| `--run <tag>` | The run tag in this run's database names. Defaults to the worktree's name. |
 | `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today and `rock-sample-data`. |
 | `--record-contract` | Records `validation/rock-contract.json` from these loads, instead of only checking it. Needs every dataset. |
-| `--keep` | Keeps each loaded database (`RockSampleVerify-core-1` and so on) for a look afterward. |
+| `--keep` | Keeps each loaded database (`RockSampleVerify-<run tag>-core-1` and so on) for a look afterward. |
 | `--check-receipts [folder]` | Runs nothing else. The publishing gate: exits with 1 unless every package has a passing receipt. |
 
 A full run takes about 5 minutes. Making a new trusted base adds about 9 minutes, once for each Rock release.
