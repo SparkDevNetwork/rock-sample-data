@@ -87,7 +87,18 @@ namespace RockSampleData.Verify
 
         public void Save( string path )
         {
-            File.WriteAllText( path, JsonSerializer.Serialize( this, Json ).Replace( "\r\n", "\n" ) + "\n" );
+            var text = JsonSerializer.Serialize( this, Json ).Replace( "\r\n", "\n" ) + "\n";
+
+            // A contract that differs only in line endings is unchanged. Rewriting it would mark the file modified,
+            // and the receipt's unchanged-during-run check would fail for nothing. A changed contract keeps the line
+            // endings the checkout already uses.
+            var existing = File.Exists( path ) ? File.ReadAllText( path ) : null;
+            if ( existing?.Replace( "\r\n", "\n" ) == text )
+            {
+                return;
+            }
+
+            File.WriteAllText( path, existing?.Contains( "\r\n" ) == true ? text.Replace( "\n", "\r\n" ) : text );
         }
 
         /// <summary>
