@@ -68,7 +68,7 @@ namespace RockSampleData.Loader
             var source = new SampleDataSource( package );
             var parts = SampleDataParts.WithDependencies( options.Parts ?? SampleDataParts.All.Select( p => p.Part ).ToList() );
             var keys = ReadKeys( options );
-            var log = new LoadLog( options.Progress );
+            var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) ) };
 
             // Every relative date counts back from the anchor. Tests pin it.
             var dates = new AnchorDates( options.Anchor ?? DateTime.Today );
@@ -158,24 +158,21 @@ namespace RockSampleData.Loader
         private static void CheckReadiness( RockDatabase db, PackageManifest manifest, bool isAnyVersionAllowed )
         {
             var readiness = DatabaseReadiness.Read( db, manifest );
-            var problems = readiness.Problems.ToList();
-            if ( readiness.IsMigrationMismatch )
+            var mismatch = readiness.IsMigrationMismatch ? DatabaseReadiness.MismatchMessage( manifest, readiness.NewestMigration ) : null;
+            var problems = readiness.Problems.Where( p => !( isAnyVersionAllowed && p == mismatch ) ).ToList();
+            if ( problems.Count == 1 && problems[0] == mismatch )
             {
-                var mismatch = DatabaseReadiness.MismatchMessage( manifest, readiness.NewestMigration );
-                if ( isAnyVersionAllowed )
-                {
-                    problems.Remove( mismatch );
-                    db.Log.Write( $"Warning: {mismatch} Loading anyway." );
-                }
-                else if ( problems.Count == 1 )
-                {
-                    throw new RockVersionMismatchException( $"{mismatch} Use a package built for this Rock." );
-                }
+                throw new RockVersionMismatchException( $"{mismatch} Use a package built for this Rock." );
             }
 
             if ( problems.Count > 0 )
             {
                 throw new DatabaseNotReadyException( problems );
+            }
+
+            if ( mismatch != null )
+            {
+                db.Log.Write( $"Warning: {mismatch} Loading anyway." );
             }
         }
 
@@ -391,6 +388,11 @@ namespace RockSampleData.Loader
             steps.Finish();
         }
 
+        /// <summary>
+        /// Whether a step of this part runs. A step with no part always runs.
+        /// </summary>
+        private static bool IsLoaded( SampleDataPart? part, IReadOnlyCollection<SampleDataPart> parts ) => part == null || parts.Contains( part.Value );
+
         private static string ShortCommit( PackageManifest manifest )
         {
             var commit = manifest.Source?.Commit ?? "unknown";
@@ -412,7 +414,6 @@ namespace RockSampleData.Loader
             {
                 _log = log;
                 _parts = parts;
-                _log.TotalSteps = Steps.Count( s => IsLoaded( s.Part ) );
             }
 
             /// <summary>
@@ -434,7 +435,7 @@ namespace RockSampleData.Loader
                 }
 
                 _next++;
-                if ( !IsLoaded( step.Part ) )
+                if ( !IsLoaded( step.Part, _parts ) )
                 {
                     _log.Write( name );
                     _log.Write( skippedLine );
@@ -458,8 +459,6 @@ namespace RockSampleData.Loader
                     throw new InvalidOperationException( $"The load stopped before step \"{Steps[_next].Name}\"." );
                 }
             }
-
-            private bool IsLoaded( SampleDataPart? part ) => part == null || _parts.Contains( part.Value );
 
             private void FinishRunningStep()
             {
