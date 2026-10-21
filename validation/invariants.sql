@@ -114,7 +114,7 @@ WHERE [g].[ForeignKey] = @ForeignKey
 
 -- check: nothing-dated-in-the-future
 -- why: The timeline counts back from the install day. A future gift or check-in shows up in "upcoming" places.
---      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 75).
+--      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 74).
 SELECT ( SELECT COUNT(*) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [StartDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) AND NOT ( [RequestedToAttend] = 1 AND [DidAttend] = 0 ) )
     + ( SELECT COUNT(*) FROM [FinancialTransaction] WHERE [ForeignKey] = @ForeignKey AND [TransactionDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) );
 
