@@ -45,6 +45,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
 3. **Per-person attendance,** so a teen can attend more often than their parents.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
+5. **Steps.** Build the plan in [Steps](steps.md) (decisions D-steps-1 to D-steps-7): Rock's Discipleship Path built out to seven adult steps, and a four-step Student Path, every step made from records the data already has.
 
 ## To do (parked)
 
@@ -93,7 +94,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
+Registrations, prayer requests, communications, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 
