@@ -14,13 +14,19 @@ Each image is native 1536 × 1024 pixels, with a full-size PNG master and a same
 
 ## Details to preserve
 
-- **Exterior:** low warm-white stucco volumes with a taller worship-center volume behind, charcoal trim and entrance canopy, pale oak soffit, and charcoal-framed glass entrance doors with sidelights and a transom. Exterior lettering reads “Rock Solid Church.”
+- **Exterior:** low warm-white stucco volumes with a taller worship-center volume behind, charcoal trim and entrance canopy, pale oak soffit, and charcoal-framed glass entrance doors with sidelights and a transom. Exterior signage uses the approved Open Cross symbol beside uppercase “ROCK SOLID” and smaller “CHURCH,” in dark dimensional lettering directly on stucco.
 - **Site:** pale concrete approach, low stucco planters, gravel landscaping, palo verde trees, agaves and cacti, and a desert parking area.
 - **Lobby:** warm-white walls and ceiling, recessed lights, light gray tile, charcoal entrance glazing, pale oak accents and welcome counter, muted teal seating at the sides, and an open central path.
 - **Worship center:** charcoal individual chairs in three seating banks with two aisles, low dark stage, pale oak acoustic slats with charcoal wall sections, exposed dark ceiling, and warm house lights with amber and violet stage lighting.
 - **Stage orientation:** viewed from the rear toward the stage, keyboard on the left, drum shield left of center, microphones across the front, and guitar on the right.
 
 These are visual continuity references, not a measured floor plan. Do not infer exact dimensions or seating capacity.
+
+## Approved logo
+
+The user selected the original uppercase Open Cross design (option 08) on October 21, 2026. Use [the final logo artwork](branding/rock-solid-church-logo.png) and its [record](branding/manifest.json) for future branding. The exterior reference now shows this logo in place of the previous title-case lettering. The lobby and worship-center views have no church signage to replace.
+
+Attach the final artwork alongside the relevant architectural reference whenever branding is visible. Preserve its four rounded corner forms, negative-space cross, uppercase lettering, spacing, and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white rectangular backing. Follow individual future briefs when visible text is prohibited.
 
 ## Using the references
 
