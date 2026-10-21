@@ -1,0 +1,27 @@
+{
+  "church": "Rock Solid Church",
+  "status": "Three initial logo concepts for review; no option selected",
+  "created": "2026-10-21",
+  "generator": "OpenAI built-in image_gen",
+  "format": "PNG logo concept on white background",
+  "options": [
+    {
+      "key": "option-01-keystone",
+      "name": "Keystone",
+      "file": "option-01-keystone.png",
+      "prompt": "Use case: logo-brand. Create one polished original logo proposal for \"Rock Solid Church\", a modern contemporary church in the Phoenix Valley. The desired sensibility is Apple-esque: extraordinary simplicity, optical balance, confident proportions, beautifully restrained and precise, with an original identity of its own. Flat vector-like graphic design, crisp edges, solid charcoal-black ink on pure white background. No mockups, photography, texture, gradients, lighting effects, shadows, bevels, metallic materials, or decorative flourishes. One generously spaced centered logo lockup only: symbol above the exact words \"Rock Solid\" with \"CHURCH\" in smaller widely tracked capitals beneath. Refined contemporary sans-serif typography, excellent kerning, clear legibility. Broad white margins. Do not include option numbers, descriptive captions, slogans, or any additional text. Design should remain clear at small icon scale and translate naturally to building signage. Direction: a compact, bold, geometric stone/keystone silhouette, subtly asymmetric with an expertly proportioned negative-space Christian cross cut into the solid shape. A single strong recognizable silhouette with a stable flat foundation and softly eased corners. The cross should feel structurally integrated, spacious and precise, never a pasted-on ornament. Architectural rather than illustrative. Avoid mountains, landscapes, stacked stones, and church-building illustrations."
+    },
+    {
+      "key": "option-02-rs-monogram",
+      "name": "RS Monogram",
+      "file": "option-02-rs-monogram.png",
+      "prompt": "Use case: logo-brand. Create one polished original logo proposal for \"Rock Solid Church\", a modern contemporary church in the Phoenix Valley. The desired sensibility is Apple-esque: extraordinary simplicity, optical balance, confident proportions, beautifully restrained and precise, with an original identity of its own. Flat vector-like graphic design, crisp edges, solid charcoal-black ink on pure white background. No mockups, photography, texture, gradients, lighting effects, shadows, bevels, metallic materials, or decorative flourishes. One generously spaced centered logo lockup only: symbol above the exact words \"Rock Solid\" with \"CHURCH\" in smaller widely tracked capitals beneath. Refined contemporary sans-serif typography, excellent kerning, clear legibility. Broad white margins. Do not include option numbers, descriptive captions, slogans, or any additional text. Design should remain clear at small icon scale and translate naturally to building signage. Direction: an exceptional custom geometric RS monogram. A single unified compact symbol cleverly joins a recognizable R and S through shared clean geometry and negative space, with substantial strokes and subtly softened corners. Convey strength, stability and welcome. The letters must remain intelligible, the symbol balanced and uncluttered. No enclosing badge or circle, no stone drawing, no mountain, no cross; this is the typographic direction. The accompanying \"Rock Solid\" wordmark should be modern and carefully drawn, with understated human warmth."
+    },
+    {
+      "key": "option-03-open-door",
+      "name": "Open Door",
+      "file": "option-03-open-door.png",
+      "prompt": "Use case: logo-brand. Create one polished original logo proposal for \"Rock Solid Church\", a modern contemporary church in the Phoenix Valley. The desired sensibility is Apple-esque: extraordinary simplicity, optical balance, confident proportions, beautifully restrained and precise, with an original identity of its own. Flat vector-like graphic design, crisp edges, solid charcoal-black ink on pure white background. No mockups, photography, texture, gradients, lighting effects, shadows, bevels, metallic materials, or decorative flourishes. One generously spaced centered logo lockup only: symbol above the exact words \"Rock Solid\" with \"CHURCH\" in smaller widely tracked capitals beneath. Refined contemporary sans-serif typography, excellent kerning, clear legibility. Broad white margins. Do not include option numbers, descriptive captions, slogans, or any additional text. Design should remain clear at small icon scale and translate naturally to building signage. Direction: a minimal architectural open-door symbol, made from two sturdy upright stone-like supports and one simple rounded lintel, with generous doorway negative space. Very few shapes, expertly balanced thickness and corner radii, stable and grounded. The compact silhouette suggests a welcome and a solid foundation without resembling a literal house. Original contemporary form, not an ornamental arch. No steps, bricks, masonry lines, rays, crosses, letters inside the symbol, mountains, circles, or illustration. The wordmark should complement the soft architectural geometry."
+    }
+  ]
+}
