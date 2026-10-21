@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs before git merge commits (see AGENTS.md). Merges into main are allowed, but decisions must
+# arrive with real numbers, so run node docs/number-decisions.js on the branch before merging.
+
+branch=$(git symbolic-ref --short -q HEAD)
+[ "$branch" = "main" ] || exit 0
+node docs/number-decisions.js --check || exit 1
+exit 0

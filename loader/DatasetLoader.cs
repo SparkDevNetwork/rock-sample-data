@@ -237,6 +237,9 @@ namespace RockSampleData.Loader
                 ? $"  Check scanner fields keyed from {options.RockWebConfigPath}"
                 : "  No Rock PasswordKey (give a Rock web.config); check scanner fields stay empty" );
             giving.Load( people.Households );
+
+            // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
+            Console.WriteLine( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             // Giving attributes, bins, and journey stages, as if Rock's Giving Automation job had run every night.

@@ -9,7 +9,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The church setup as data: 7 campuses, Sunday service times, funds with campus accounts, check-in rooms, and connection statuses.
 - The Cast: 38 legacy families converted, plus 45 new families and 4 new businesses, for 87 households and 185 people. Featured families have a bio for each person, and every family has a page.
 - The address pool: 18,000 real-street addresses with house numbers that do not exist, and the Cast moved onto it.
-- The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 loads in about 23 seconds (about 34 with check images) and passes 89% of measured values.
+- The Phase 0 builder: configuration, people, Sunday attendance and kids check-in, giving history, a generated crowd, and validation. Core 1 loads in about 4 seconds. Full 7 with a 17,000-household crowd loads in about 29 seconds (about 44 with check images) and passes 89% of measured values.
 - Photo rules, photo ethnicity for every Cast adult, and the image agent's brief.
 - All 45 legacy Cast portraits have been updated and approved. The temporary photo review is closed.
 - Every Cast photo is delivered: 130 new people and the 45 legacy redos (175 photos), plus the 120-photo Core 3 pool. All are in `photos/manifest.json`.
@@ -45,7 +45,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
 4. **Per-person attendance,** so a teen can attend more often than their parents.
 5. **Real Crowd names** from public-domain frequency data by birth decade.
-6. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. Every load checks them, like the giving expectations.
+6. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. 8 to 10 of them are always dated in the last few days before the install day, so even Core 1 and Core 3 show a full prayer list and prayer session (a small church gets only about 2 generated requests a week, and Rock hides requests after about two weeks). Every load checks them, like the giving expectations.
 
 ## To do (parked)
 

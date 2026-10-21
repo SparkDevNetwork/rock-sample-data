@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -35,7 +36,7 @@ namespace RockSampleData.RockRunner
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
-    /// RockWeb\bin, so Rock's assemblies load exactly as they do under IIS. Exits with 0 when the task ran,
+    /// the RockWeb folder, with assemblies from bin, as under IIS. Exits with 0 when the task ran,
     /// even if some cleanup tasks reported errors; the caller reads the output.
     /// </summary>
     internal static class Program
@@ -51,9 +52,20 @@ namespace RockSampleData.RockRunner
                 return 2;
             }
 
+            /*
+                10/21/26 - CLAUDE
+
+                Rock reads some files relative to its AppDomain base, such as the census data that the post-install
+                job loads into AnalyticsSourcePostalCode (App_Data\Formatted_Census_Data.xlsx). Under IIS the base
+                is the site folder and assemblies come from bin. With bin as the base, Rock found no census file and
+                quietly left the postal code table empty.
+
+                Reason: Match IIS so Rock finds its App_Data files.
+            */
             var setup = new AppDomainSetup
             {
-                ApplicationBase = rockBin,
+                ApplicationBase = Path.GetDirectoryName( Path.GetFullPath( rockBin ).TrimEnd( '\\', '/' ) ),
+                PrivateBinPath = "bin",
                 ConfigurationFile = config
             };
 

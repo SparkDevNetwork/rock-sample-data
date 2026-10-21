@@ -154,7 +154,7 @@ WHERE [g].[GroupTypeId] = @GroupTypeId
             var interactionRows = TableFactory.Create( "InteractionDateTime:date", "Operation:string", "InteractionComponentId:int", "PersonAliasId:int", "InteractionSummary:string", "InteractionDateKey:int",
                 "CreatedDateTime:date", "ModifiedDateTime:date", "Guid:guid", "ForeignKey:string" );
             var noteRows = TableFactory.Create( "Id:int", "IsSystem:bool", "NoteTypeId:int", "EntityId:int", "Text:string", "IsAlert:bool", "IsPrivateNote:bool", "ParentNoteId:int", "ApprovalStatus:int",
-                "NotificationsSent:bool", "ApprovalsSent:bool", "IsPinned:bool", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int", "Guid:guid", "ForeignKey:string" );
+                "NotificationsSent:bool", "ApprovalsSent:bool", "IsPinned:bool", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int", "EditedDateTime:date", "EditedByPersonAliasId:int", "Guid:guid", "ForeignKey:string" );
 
             object Value( object value ) => value ?? DBNull.Value;
 
@@ -188,9 +188,10 @@ WHERE [g].[GroupTypeId] = @GroupTypeId
                     var parentId = comment.IsReply ? firstNoteId : null;
                     firstNoteId ??= noteId;
 
-                    // Notifications and approvals count as sent, so Rock's note jobs send nothing for past comments.
+                    // Notifications and approvals count as sent, so Rock's note jobs send nothing for past comments. Rock's prayer session saves a
+                    // comment through NoteClientService, which stamps EditedDateTime and EditedByPersonAliasId on every save, the first included.
                     noteRows.Rows.Add( noteId, false, noteTypeId, requestId, comment.Text, false, false, Value( parentId ), 1, true, true, false,
-                        comment.When, comment.When, comment.By.AliasId, comment.By.AliasId, random.NextGuid(), _foreignKey );
+                        comment.When, comment.When, comment.By.AliasId, comment.By.AliasId, comment.When, comment.By.AliasId, random.NextGuid(), _foreignKey );
                 }
             }
 

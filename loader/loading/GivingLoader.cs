@@ -290,6 +290,70 @@ namespace RockSampleData.Loader.Loading
             Console.WriteLine( $"  Gifts: {transactions.Rows.Count:N0} (${dollars:N0}) in {batches.Rows.Count:N0} batches, scheduled gifts: {schedules.Rows.Count:N0}" );
         }
 
+        /*
+            10/21/26 - CLAUDE
+
+            Rock Cleanup sets each campus's tithe metric every night: the census median family income for the
+            postal code of each family that gave tax-deductible gifts in the last 365 days, averaged per campus
+            and multiplied by 10%. Rock fills a temp table and walks the campuses with a cursor; this is the same
+            query as one UPDATE. Rock's temp table has INT columns, so the income and the giving amount are cut
+            to whole numbers after its filters and before its math, and the average is integer division, as in
+            Rock. The window ends on the anchor date, which is the install day Rock Cleanup would see.
+
+            Reason: Mirrors RockCleanup.UpdateCampusTitheMetric (see validation/rock-lock.json).
+        */
+
+        /// <summary>
+        /// Sets each campus's tithe metric as Rock Cleanup would, and returns how many campuses got one.
+        /// </summary>
+        public int UpdateCampusTitheMetric()
+        {
+            return _db.Execute( @"
+WITH [Families] AS (
+    SELECT [p].[PrimaryCampusId]
+        , [p].[PrimaryFamilyId]
+        , SUM( [ftd].[Amount] ) AS [GivingAmount]
+        , ( SELECT TOP 1 LEFT( [l].[PostalCode], 5 )
+            FROM [Location] AS [l]
+            INNER JOIN [GroupLocation] AS [gl] ON [gl].[LocationId] = [l].[Id] AND [gl].[GroupId] = [p].[PrimaryFamilyId] AND [gl].[IsMappedLocation] = 1 ) AS [PostalCode]
+    FROM [Person] AS [p]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [p].[Id]
+    INNER JOIN [FinancialTransaction] AS [ft] ON [ft].[AuthorizedPersonAliasId] = [pa].[Id]
+    INNER JOIN [FinancialTransactionDetail] AS [ftd] ON [ftd].[TransactionId] = [ft].[Id]
+    INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [ftd].[AccountId]
+    INNER JOIN [AnalyticsSourceDate] AS [asd] ON [asd].[DateKey] = [ft].[TransactionDateKey]
+    WHERE [fa].[IsTaxDeductible] = 1
+        AND [asd].[DateKey] >= @StartDateKey AND [asd].[DateKey] <= @EndDateKey
+        AND [p].[RecordTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' )
+    GROUP BY [p].[PrimaryCampusId], [p].[PrimaryFamilyId]
+), [WithIncome] AS (
+    SELECT [f].[PrimaryCampusId]
+        , [f].[GivingAmount]
+        , [f].[PostalCode]
+        , ( SELECT [aspc].[FamiliesMedianIncome] FROM [AnalyticsSourcePostalCode] AS [aspc] WHERE [aspc].[PostalCode] = [f].[PostalCode] ) AS [FamiliesMedianTithe]
+    FROM [Families] AS [f]
+), [GivingFamilies] AS (
+    SELECT [PrimaryCampusId]
+        , CAST( [FamiliesMedianTithe] AS INT ) AS [FamiliesMedianTithe]
+        , CAST( [GivingAmount] AS INT ) AS [GivingAmount]
+    FROM [WithIncome]
+    WHERE [PostalCode] IS NOT NULL AND [PostalCode] != '' AND [FamiliesMedianTithe] IS NOT NULL AND [FamiliesMedianTithe] > 0
+        AND [PrimaryCampusId] IS NOT NULL
+)
+UPDATE [c]
+SET [c].[TitheMetric] = ( [g].[TotalMedianIncome] / [g].[HasGivenCount] ) * 0.1
+FROM [Campus] AS [c]
+INNER JOIN (
+    SELECT [PrimaryCampusId]
+        , SUM( CASE WHEN [GivingAmount] >= 0 THEN 1 ELSE 0 END ) AS [HasGivenCount]
+        , SUM( [FamiliesMedianTithe] ) AS [TotalMedianIncome]
+    FROM [GivingFamilies]
+    GROUP BY [PrimaryCampusId]
+) AS [g] ON [g].[PrimaryCampusId] = [c].[Id];",
+                RockDatabase.P( "@StartDateKey", int.Parse( _dates.Anchor.AddDays( -365 ).ToString( "yyyyMMdd" ) ) ),
+                RockDatabase.P( "@EndDateKey", int.Parse( _dates.Anchor.ToString( "yyyyMMdd" ) ) ) );
+        }
+
         /// <summary>
         /// How a giving pattern gives: scheduled online, one-time online, or onsite.
         /// </summary>
