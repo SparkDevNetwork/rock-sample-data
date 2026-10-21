@@ -29,7 +29,7 @@ Each image is native 1536 × 1024 pixels, with a full-size PNG master and a same
 - **Auditorium:** the current views supersede the smaller, lower-ceiling room. Target approximately 60% more floor area (1.6 times the earlier reference), with a clearly higher exposed dark ceiling (visual target about 40% higher). Keep normal-size charcoal chairs in three banks with two aisles, a low dark stage, taller charcoal/warm-gray walls with pale oak slats, warm house lights and amber/violet stage lighting. The stage, booth and two exterior views share this enlarged room envelope.
 - **Stage orientation:** looking toward the stage from the rear, keyboard left, drum shield left of center, microphones across the front, guitar right. Do not mirror or duplicate the equipment.
 
-These images establish visual continuity, not a measured floor plan. The lobby and auditorium multipliers are visual design targets; do not infer exact dimensions or seating capacity.
+These images establish visual continuity, not a measured floor plan. The lobby, auditorium, prayer-room and student-room multipliers are visual design targets; do not infer exact dimensions or seating capacity.
 
 ## Approved logo
 
@@ -55,6 +55,20 @@ Set the three phrases on separate lines, retaining their capitalization and peri
 
 Preserve the exact wording and case; line wrapping may follow the available wall space. Do not substitute the earlier New Here/Connection Event/Sign Up Today draft, add dates or invent URLs/QR codes. The exact copy is also in the manifest.
 
+### Prayer-room wall graphic
+
+The main back wall above the chairs carries this exact user-provided text:
+
+**Find strength in prayer.**
+
+“I can do all things through Christ who strengthens me.” — Philippians 4:13
+
+Use charcoal contemporary lettering, with strength emphasized in restrained muted-teal script. Keep the complete verse and attribution sharp, inside the wall margins and above the chairs. Preserve the wording, punctuation and Philippians spelling.
+
+### Student-room wall identity
+
+Use the exact text **Rock Solid Students**, with smaller Rock Solid over a large Students line. Warm-white bold friendly sans-serif on the teal feature wall, a restrained coral underline and neatly attached warm string lights create the identity. Keep the words above the sofa and inside the wall margins. No added slogans or competing logos.
+
 ## Room and camera continuity
 
 - **Entrance:** use the close view for the same complete canopy, door hardware, sidelights, sign and transition into the lobby.
@@ -62,8 +76,8 @@ Preserve the exact wording and case; line wrapping may follow the available wall
 - **Worship-center connection:** the lobby wall has three matching charcoal double-door pairs (six leaves), separated by oak piers, with clear approaches. The shared rear vestibule connects to auditorium rear entries around the booth. This is a visual continuity convention, not a measured plan.
 - **Booth:** a low open charcoal desk with pale-oak cap, at the center rear of the ground-floor auditorium. Looking toward the stage, its tripod camera is left of the console. Looking from the stage, the camera is on the booth's right. Keep visible cables in neat separated runs along the booth edges and under-desk management, with small secured camera slack. Monitor interfaces and matching stage feeds should be sharp rather than artificially blurred, subject to each brief’s visible-text rules.
 - **Kids classroom:** coral/teal wall panels, child chairs and bins; low oak tables and cubbies; gray tile and charcoal-framed daylight windows.
-- **Student room:** gray sofas and armchairs with oak legs, blue/cream patterned rug, round oak table, muted teal wall panel and warm string lights.
-- **Prayer room:** a small quiet circle of curved-back teal chairs, white ceramic lamp, oak tables, neutral rug and soft window light.
+- **Student room:** current larger room targets twice the earlier floor area. Keep a gray-sofa/armchair conversation zone on the blue/cream rug, round oak table, teal/coral poufs, separate table-tennis area, neatly arranged cubbies and baskets, muted teal feature wall, coral accent and warm string lights. Preserve the exact Rock Solid Students wall identity.
+- **Prayer room:** the current larger room supersedes the smaller original, targeting twice its floor area. Keep four normal-size curved-back teal chairs in an intimate circle with generous surrounding circulation, white ceramic lamp, oak tables, neutral rug, soft daylight and the back-wall strength-in-prayer graphic.
 - **First-aid room:** gray padded cot left, white cabinets with black pulls and pale counter right, navy supply bag, and an open doorway giving a limited glimpse of the larger lobby.
 
 Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height. Use the older photos for people or supporting material details. From the rear, audience chair backs face the camera; from the stage, chair fronts face the camera. Preserve that direction in every view.
@@ -85,3 +99,7 @@ The initial references used the existing greeter, usher, production and first-ai
 All delivered photos were visually reviewed for empty rooms, reference continuity, and plausible furniture, equipment and circulation. The side-stage image was corrected to remove manufacturer lettering. Both lobby directions were enlarged after the user requested two to three times the initial size. The auditorium was then expanded by a 60% floor-area target with a higher ceiling across both room directions, side stage, booth and the two exterior views. A draft with incorrect chair orientation was corrected before delivery. Initial and revision prompts are retained in the manifest.
 
 The latest lobby revision adds three door pairs and the approved mission/Starting Point graphics. Exterior revisions set the rear auditorium farther behind the larger lobby, reduce its visible prominence, hide its roof entirely in the close entrance view, and soften tree reflections in both exterior views.
+
+The prayer-room revision doubles its visual floor-area target and adds the user-provided strength-in-prayer headline and Philippians 4:13 verse.
+
+The student-room revision doubles its visual floor-area target, adds the Rock Solid Students wall identity, and separates the organized social and game areas.

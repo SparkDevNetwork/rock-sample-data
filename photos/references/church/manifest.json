@@ -450,7 +450,33 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "scale": "Expanded hangout space with distinct conversation/game areas",
+        "wallText": "Rock Solid Students visually checked",
+        "organization": "Ordered cubby storage, coordinated seating/poufs, separate table-tennis area and clear circulation"
+      },
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "d6f3022",
+          "sourceImage": "photos/references/church/student-room.png",
+          "reason": "Double student room floor-area target, add Rock Solid Students feature-wall graphic, and create fun, clean, organized conversation/game zones.",
+          "prompt": "Use case: precise-object-edit / architectural expansion and student lounge design.\nThe supplied image is the existing Rock Solid Church student room, the edit target and identity reference. The user wants this room DOUBLE its current size, its wall branded \"Rock Solid Students\", and a more FUN, CLEAN, ORGANIZED place that middle/high-school students would choose to hang out.\nEnlarge the ACTUAL floor area to approximately2.0 times the original, roughly1.4 times wider AND deeper. Show the whole larger room in a wide natural eye-height architectural photograph, straight verticals and realistic24–28mm lens, no fisheye, stretched furniture or miniature objects. Keep the ceiling ordinary single-story height and windows/door furniture at normal human scale. Same clean modern Phoenix Valley church: warm-white walls/ceiling, charcoal window frames, oak accents, bright desert daylight, muted teal and blue with restrained coral accents. Retain the recognizable existing gray sofa/armchair forms, oak legs, round pale-oak table, blue/cream rug, teal feature wall and warm string lights, but make the larger space feel intentionally designed for students rather than a formal adult waiting room.\nCreate TWO clear functional hangout zones with generous clear walking space between:\n- Inviting conversation area anchored by the two gray sofas, a few gray armchairs, the existing blue/cream rug and round oak coffee table. Add a couple of neat low teal/coral upholstered poufs and a few coordinated cushions for casual youthful energy; no piles of pillows. Keep an open path into and around the grouping.\n- A modest separate game area in the added side/back floor space, with ONE ordinary full-size table-tennis table, straight rectangular blue/charcoal top, believable legs and central taut net. Clear player space at both ends, no seating jammed against it. A pair of paddles and balls neatly kept in an adjacent open cubby/bin rather than scattered on the floor. This is not a gym, arcade or sports hall.\nSimple pale-oak/white cubby storage along a wall with evenly arranged matching baskets/bins for games and supplies. Keep a tidy organized appearance, a little greenery, a few plain unbranded books/games with no readable cover text. Warm string lights neatly attached along the feature wall only, no dangling cable mess, club lighting or neon strips.\nOn the main teal feature wall at the user's marked position, create a polished energetic environmental graphic with EXACT text \"Rock Solid Students\", preserving capitalization and spelling. It can be arranged as smaller \"Rock Solid\" above a large confident \"Students\". Clear bold friendly contemporary sans-serif lettering, warm-white with a restrained coral geometric underline/accent, carefully spaced and highly legible. Contemporary teen identity, not a nursery mural, graffiti jumble or corporate reception sign. Keep the words wholly inside the wall panel with generous margins and above sofa backs. No other slogans, logos, words, Bible verse, QR code, poster faces, portraits, video screens or fake brands.\nAbundant pleasant daylight and soft warm string lights; clean new finishes, welcoming, genuinely usable hangout room. No people, reflections of people, human hands, mannequins or faces in artwork. Keep all furniture and game equipment physically credible and organized. One full-size landscape3:2 photorealistic architectural reference, preferably1536x1024 or larger native size."
+        }
+      ],
+      "visualScale": {
+        "targetFloorAreaMultiplier": 2,
+        "baselineRevision": "d6f3022",
+        "note": "Visual design target, not measured dimensions; normal-size furniture and game equipment"
+      },
+      "environmentalGraphics": {
+        "text": "Rock Solid Students",
+        "lines": [
+          "Rock Solid",
+          "Students"
+        ],
+        "placement": "Teal main feature wall above sofa",
+        "style": "Warm-white friendly bold sans-serif, large Students line, restrained coral underline"
       }
     },
     {
@@ -470,7 +496,30 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "scale": "Larger room with generous floor/circulation and four-chair conversation circle",
+        "wallText": "Headline, complete verse, quotation marks and Philippians 4:13 visually checked"
+      },
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "d6f3022",
+          "sourceImage": "photos/references/church/prayer-room.png",
+          "reason": "Double prayer room floor-area target and add the exact user-supplied headline, verse and attribution as a creative wall graphic.",
+          "prompt": "Use case: precise-object-edit / architectural expansion and environmental graphics.\nThe supplied image is the edit target: Rock Solid Church's empty prayer room. Make TWO user-requested changes while retaining its calm warm modern Phoenix church identity.\n1. DOUBLE THE ACTUAL ROOM FLOOR AREA, approximately2.0 times the original footprint, roughly1.4 times wider and1.4 times deeper. This must look like a genuinely larger prayer room with more clear floor and breathing room around seating, not a fisheye/wider-lens trick or stretched furniture. Camera remains normal standing eye height at the open doorway, realistic24–28mm architectural perspective and straight verticals. Door and furniture retain normal human dimensions. Keep FOUR curved-back muted-teal armchairs with pale-oak legs in a comfortable open conversation circle, one low round pale-oak central table, a light neutral rug, the white ceramic lamp with cream shade on a side table, potted greenery, charcoal-framed side daylight window, warm-white walls, gray large-format tile and open pale-oak door with charcoal trim. Spread the same four chairs slightly to suit the enlarged room while preserving an intimate conversation grouping; do not make the circle so large people cannot speak comfortably. Leave a generous clear foreground and wide circulation on either side. Normal single-story ceiling height; no soaring atrium. Soft warm lamp light and filtered Phoenix morning light, clean/new surfaces.\n2. On the now-WIDER MAIN BACK WALL ABOVE THE REAR CHAIRS, create an elegant thoughtfully designed environmental wall graphic with EXACT user-supplied text. Applied matte vinyl/paint directly onto wall, not a framed poster, signboard, screen or giant billboard. A beautifully balanced airy composition in charcoal and muted teal coordinated with the chairs. Use confident refined contemporary sans-serif for most lettering, with the word \"strength\" in tasteful fluid hand-lettered script as a quiet creative emphasis, still unmistakably legible. Avoid ornate flourishes. Plenty of clear wall around text; all lettering stays inside the wall plane and above chair backs, with nothing obscured by furniture or lamp.\nHeadline EXACTLY: \"Find strength in prayer.\"\nIt can wrap naturally as \"Find strength\" / \"in prayer.\" but keep the words, capitalization and final period.\nBeneath, smaller crisp elegant readable verse, with this exact wording and quotation marks:\n\"“I can do all things through Christ who strengthens me.”\"\nThen the attribution EXACTLY:\n\"— Philippians 4:13\"\nSpell Philippians correctly, do NOT replace who with which, change wording or omit words. Balanced line breaks are allowed. Refined text hierarchy, headline largest, verse smaller with comfortable leading, attribution smaller below with a restrained thin rule or small teal accent. Keep the entire verse, both quotation marks, em dash, colon and verse numbers sharp and readable in the photo. No additional slogans, church logo, mission statement, labels, fake QR codes or other words.\nPreserve realistic furnishing/equipment geometry, original lamp and chair styles, clear access through doorway and intimate quiet atmosphere. No people, faces, portraits, reflections of people, candles, altar, extra doors or religious sculptures. One full-size landscape3:2 PHOTOREALISTIC architectural reference photo, preferably1536x1024 or larger native size."
+        }
+      ],
+      "visualScale": {
+        "targetFloorAreaMultiplier": 2,
+        "baselineRevision": "d6f3022",
+        "note": "Visual design target, not measured dimensions. Four chairs and door retain normal scale."
+      },
+      "environmentalGraphics": {
+        "headline": "Find strength in prayer.",
+        "verse": "“I can do all things through Christ who strengthens me.”",
+        "attribution": "— Philippians 4:13",
+        "placement": "Main back wall above rear chairs",
+        "style": "Charcoal contemporary sans-serif with strength emphasized in muted-teal script; verse and attribution beneath"
       }
     },
     {
@@ -529,11 +578,10 @@
     "lastRevision": {
       "date": "2026-10-21",
       "changedPhotoViews": [
-        "lobby-toward-worship-center",
-        "front-exterior-wide",
-        "main-entrance-close"
+        "prayer-room",
+        "student-room"
       ],
-      "reason": "Three lobby door pairs, approved environmental graphics, rear auditorium setback, hidden rear roof in close-up and reduced glass reflections."
+      "reason": "Double both room floor-area targets; prayer verse wall graphic; student identity and organized social/game space."
     }
   },
   "continuity": {
@@ -544,7 +592,9 @@
     "productionDetails": "Visible cables should be neatly separated and routed along booth edges or under-desk management. Monitor graphics and matching stage feeds should be sharp rather than artificially blurred, unless a future brief requires obscuring text.",
     "referencePriority": "Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height.",
     "exteriorMassing": "Auditorium block set well back behind enlarged low lobby; restrained visible height/lower parapet. It is visible from the wide exterior but entirely hidden behind the low front roof from the close entrance camera.",
-    "glazing": "Subtle tree/sky reflections, clearly visible empty lobby; no mirror-like tree images"
+    "glazing": "Subtle tree/sky reflections, clearly visible empty lobby; no mirror-like tree images",
+    "prayerRoom": "Current prayer room supersedes smaller original: about2x floor area, four curved-back teal chairs, oak tables, white ceramic lamp, neutral rug and exact strength-in-prayer wall graphic.",
+    "studentRoom": "Current student room supersedes smaller original: about2x floor area, gray sofa/armchair lounge on blue/cream rug, teal/coral poufs, table-tennis zone, organized cubbies, string lights and Rock Solid Students wall graphic."
   },
   "environmentalGraphics": {
     "copyApproved": "2026-10-21",
@@ -566,6 +616,26 @@
       "placement": "Outer right of all three worship-center door pairs",
       "background": "Muted teal",
       "textColor": "Warm-white"
+    },
+    "prayerRoom": {
+      "photo": "prayer-room.png",
+      "copyProvided": "2026-10-21",
+      "headline": "Find strength in prayer.",
+      "verse": "“I can do all things through Christ who strengthens me.”",
+      "attribution": "— Philippians 4:13",
+      "placement": "Main back wall above rear chairs",
+      "style": "Charcoal contemporary sans-serif with strength emphasized in muted-teal script; verse and attribution beneath"
+    },
+    "studentRoom": {
+      "photo": "student-room.png",
+      "copyProvided": "2026-10-21",
+      "text": "Rock Solid Students",
+      "lines": [
+        "Rock Solid",
+        "Students"
+      ],
+      "placement": "Teal main feature wall above sofa",
+      "style": "Warm-white friendly bold sans-serif, large Students line, restrained coral underline"
     }
   }
 }
