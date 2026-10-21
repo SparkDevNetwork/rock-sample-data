@@ -93,7 +93,9 @@ jobs:
   packages:
     name: Packages for Rock ${{ matrix.rock.version }}
     needs: plan
-    runs-on: windows-2025
+    # A GitHub-hosted runner by default. vars.PACKAGES_RUNNER, a JSON list of labels such as
+    # ["self-hosted","windows","rock-build"], moves it to a self-hosted runner (docs/maintaining.md).
+    runs-on: ${{ vars.PACKAGES_RUNNER && fromJSON(vars.PACKAGES_RUNNER) || 'windows-2025' }}
     timeout-minutes: 300
     strategy:
       fail-fast: false
@@ -139,7 +141,9 @@ jobs:
         working-directory: ${{ env.ROCK_PATH }}
         run: msbuild Rock.sln -m -restore -p:RestorePackagesConfig=true -v:minimal -nologo
 
+      # A self-hosted runner has its own SQL Server, where the runner's account is a sysadmin.
       - name: Start SQL Server
+        if: runner.environment == 'github-hosted'
         uses: potatoqualitee/mssqlsuite@bc850f242e5fe551e36cea6fa4bed608c58fa489 # v2
         with:
           install: sqlengine
