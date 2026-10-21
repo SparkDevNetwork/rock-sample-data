@@ -58,7 +58,7 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
-          if [ "$EVENT" = "push" ]; then
+          if [[ "$EVENT" = "push" && "$REF" == refs/tags/* ]]; then
             version="${REF_NAME#v}"
             publish=true
           else
