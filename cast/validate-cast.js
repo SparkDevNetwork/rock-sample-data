@@ -499,6 +499,110 @@ for ( const { file, data: h } of households ) {
     }
 }
 
+// Pass 5: the Cast's prayer requests (decision 67). Each names a real Cast adult or a guest, a prayer category
+// that gets requests, and a state whose dates make sense. At least 8 are always current, so every dataset's
+// prayer list and prayer session have requests to pray through.
+const PRAYER_STATES = [ "current", "waiting", "flagged", "expired", "answered" ];
+const MINIMUM_CURRENT_PRAYER_REQUESTS = 8;
+const prayerFile = path.join( castDir, "prayer-requests.json" );
+let prayerRequestCount = 0;
+if ( fs.existsSync( prayerFile ) ) {
+    const prayerCategories = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "prayer.json" ), "utf8" ) ).categories.filter( c => c.weight > 0 ).map( c => c.key ) );
+    const requests = JSON.parse( fs.readFileSync( prayerFile, "utf8" ) ).requests || [];
+    const requestKeys = new Set();
+    prayerRequestCount = requests.length;
+    for ( const r of requests ) {
+        const owner = `prayer-requests.json (${r.key})`;
+        if ( !KEY.test( r.key || "" ) || requestKeys.has( r.key ) ) {
+            errors.push( `${owner}: key must be a unique lowercase slug.` );
+        }
+        requestKeys.add( r.key );
+        claimGuid( r.guid, owner );
+        if ( !!r.requester === !!r.guest ) {
+            errors.push( `${owner}: needs exactly one of requester or guest.` );
+        }
+        const requester = r.requester ? people.get( r.requester ) : null;
+        if ( r.requester && !requester ) {
+            errors.push( `${owner}: requester ${r.requester} is not a Cast person.` );
+        }
+        else if ( requester && ( requester.person.familyRole !== "adult" || requester.person.isDeceased || [ "inactive", "pending" ].includes( requester.person.recordStatus ) || requester.household.duplicateOf ) ) {
+            errors.push( `${owner}: requester must be a living adult on an active record who is not a duplicate.` );
+        }
+        if ( r.guest && ( !r.guest.firstName || !r.guest.lastName || ( r.guest.email && !ALLOWED_EMAIL_DOMAINS.includes( r.guest.email.split( "@" )[ 1 ] ) ) ) ) {
+            errors.push( `${owner}: a guest needs a first and last name, and any email must use a reserved domain.` );
+        }
+        if ( !prayerCategories.has( r.category ) ) {
+            errors.push( `${owner}: category "${r.category}" is not a prayer category that gets requests in configuration/prayer.json.` );
+        }
+        if ( !PRAYER_STATES.includes( r.state ) ) {
+            errors.push( `${owner}: state "${r.state}" is not one of ${PRAYER_STATES.join( ", " )}.` );
+        }
+
+        // A current or waiting request is a few days old, a flagged one was flagged within its 14 days, and an
+        // expired or answered one is past its 14 days.
+        const daysAgo = r.entered && r.entered.daysAgo;
+        const maximumDaysAgo = r.state === "flagged" ? 13 : 5;
+        if ( [ "current", "waiting", "flagged" ].includes( r.state ) && !( Number.isInteger( daysAgo ) && daysAgo >= 1 && daysAgo <= maximumDaysAgo ) ) {
+            errors.push( `${owner}: a ${r.state} request must be entered 1 to ${maximumDaysAgo} days ago (entered.daysAgo).` );
+        }
+        if ( [ "expired", "answered" ].includes( r.state ) && Number.isInteger( daysAgo ) && daysAgo < 20 ) {
+            errors.push( `${owner}: an ${r.state} request must be entered at least 20 days ago.` );
+        }
+        if ( ( r.state === "answered" ) !== !!r.answer ) {
+            errors.push( `${owner}: only answered requests have an answer, and every answered request has one.` );
+        }
+        if ( r.state === "waiting" ? ( r.prayers || 0 ) !== 0 : !( r.prayers >= 1 ) ) {
+            errors.push( `${owner}: a waiting request has no prayers; every other request has at least one.` );
+        }
+
+        const comments = r.comments || [];
+        if ( comments.some( c => ![ "team", "requester" ].includes( c.by ) || !c.text ) ) {
+            errors.push( `${owner}: each comment needs text and is by "team" or "requester".` );
+        }
+        if ( comments.some( c => c.by === "requester" ) && ( !r.requester || !comments.some( c => c.by === "team" ) ) ) {
+            errors.push( `${owner}: a requester reply needs a Cast requester and a team comment to reply to.` );
+        }
+        if ( comments.filter( c => c.by === "requester" ).length > 1 ) {
+            errors.push( `${owner}: a request has at most one requester reply.` );
+        }
+        if ( comments.filter( c => c.by === "team" ).length > ( r.prayers || 0 ) ) {
+            errors.push( `${owner}: each team comment follows a prayer, so there cannot be more team comments than prayers.` );
+        }
+        if ( comments.length && ( !r.allowComments || r.state === "waiting" ) ) {
+            errors.push( `${owner}: comments need allowComments and an approved request.` );
+        }
+
+        if ( r.group ) {
+            const group = groups.find( g => g.data.key === r.group );
+            if ( !group ) {
+                errors.push( `${owner}: group "${r.group}" is not a Cast group.` );
+            }
+            else if ( !( group.data.members || [] ).some( m => m.guid === r.requester && !m.left ) ) {
+                errors.push( `${owner}: the requester is not a current member of group "${r.group}".` );
+            }
+        }
+
+        for ( const text of [ r.text, r.answer, ...comments.map( c => c.text ) ].filter( Boolean ) ) {
+            if ( /[–—‘’“”]/.test( text ) ) {
+                errors.push( `${owner}: use plain dashes and straight quotes.` );
+            }
+        }
+        if ( !r.text || r.text.length < 40 || r.text.length > 450 ) {
+            errors.push( `${owner}: text must be 40 to 450 characters.` );
+        }
+    }
+
+    const current = requests.filter( r => r.state === "current" ).length;
+    if ( current < MINIMUM_CURRENT_PRAYER_REQUESTS ) {
+        errors.push( `prayer-requests.json: ${current} current requests; at least ${MINIMUM_CURRENT_PRAYER_REQUESTS} keep every dataset's prayer list full.` );
+    }
+    for ( const state of PRAYER_STATES ) {
+        if ( !requests.some( r => r.state === state ) ) {
+            errors.push( `prayer-requests.json: no request is ${state}, so that prayer screen state is not covered.` );
+        }
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -510,5 +614,5 @@ for ( const w of warnings ) {
 for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
-console.log( `\n${households.length} households, ${people.size} people, ${groups.length} groups. ${errors.length} errors, ${warnings.length} warnings.` );
+console.log( `\n${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

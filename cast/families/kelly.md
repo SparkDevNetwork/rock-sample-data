@@ -44,6 +44,10 @@ Chloe is four and in the preschool room.
 - **Attendance:** occasional, 30% of Sundays, since a year ago.
 - **Giving:** none.
 
+## Prayer requests
+
+- **Current**, from Ashley Kelly, 1 days ago (Finances/Job, urgent, private, 3 prayers): My hours were cut again this month and rent is due on the first. I have talked to my landlord and I am picking up extra shifts where I can. Please pray for a way through this month, and for my kids not to worry.
+
 ## Address
 
 14198 N 146th Ln, Surprise, AZ 85379 (a real street with a house number that does not exist)

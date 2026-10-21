@@ -32,6 +32,10 @@ Robert and Linda Hayes have been married 46 years and members for 25. They never
 - **Giving:** **weekly** by Bob Hayes: $120 General Fund + $40 Mission Fund per gift, gives in 92% of periods, 30% chance of a year-end gift, started 24 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Expired**, from Linda Hayes, about 2 months ago (General, 6 prayers): Bob and I celebrate 46 years of marriage this month. We are thankful for God's faithfulness through every season, and for this church. Pray for many more years together.
+
 ## Address
 
 4581 E Horseshoe Rd, Phoenix, AZ 85028 (a real street with a house number that does not exist)
