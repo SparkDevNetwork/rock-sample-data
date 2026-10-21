@@ -402,7 +402,7 @@ if ( s.prayerDetail && out.prayer ) {
     const knownGenders = ( requesters.pctMale || 0 ) + ( requesters.pctFemale || 0 );
     out.prayer.requesters = {
         pctOfActiveAdultsWhoAskedIn24Months: ofActiveAdults( requesters.requesters ),
-        ageMixAmongKnown: knownAges ? Object.fromEntries( Object.entries( ageBands ).map( ( [ k, v ] ) => [ k, pct( v || 0, knownAges ) ] ) ) : null,
+        ageMix: knownAges ? Object.fromEntries( Object.entries( ageBands ).map( ( [ k, v ] ) => [ k, pct( v || 0, knownAges ) ] ) ) : null,
         pctFemaleAmongKnown: knownGenders ? pct( requesters.pctFemale || 0, knownGenders ) : null,
         requestsPerRequesterMix: { 1: requesters.pctRequestersWith1Request, "2-3": requesters.pctRequestersWith2To3Requests, "4+": requesters.pctRequestersWith4PlusRequests },
         pctRequestersWhoAlsoPrayed: requesters.pctRequestersWhoAlsoPrayed

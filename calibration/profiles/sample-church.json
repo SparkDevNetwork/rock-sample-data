@@ -29,7 +29,7 @@
     { "path": "prayer.pctAnswered", "value": 15, "reason": "Assumption. The sample data must exercise answered prayers." },
     { "path": "prayer.pctAllowComments", "value": 40, "reason": "Assumption. The sample data must exercise prayer comments." },
     { "path": "prayer.pctUrgent", "value": 5, "reason": "Assumption. The sample data must exercise urgent requests." },
-    { "path": "prayer.requestsPerYearPerThousandActiveAdults", "value": 250, "reason": "Design choice. At the measured requests per requester, the measured volume would need more requesters than active adults. 250 a year lets about a third of active adults ask over two years (decision 67)." },
+    { "path": "prayer.requestsPerYearPerThousandActiveAdults", "value": 500, "reason": "Design choice. About 10 requests a week per 1,000 active adults, so prayer screens stay busy in every dataset. The measured volume would need more requesters than active adults at the measured requests per requester (decision 67)." },
     { "path": "prayer.detail.pctWithExpiration", "value": 100, "reason": "Design choice. Rock sets an expiration date whenever a request is approved, and the prayer team approves every request it keeps (decision 67)." },
     { "path": "prayer.detail.textLengthP90", "value": 500, "reason": "Design choice. Long requests are built from a request and its details, and past about 500 characters they read as repetition (decision 67)." },
     { "path": "prayer.pctApproved", "value": 97, "reason": "Design choice. The prayer team approves nearly every request, and a few wait in the approval queue (decision 67)." },
@@ -48,7 +48,7 @@
     { "path": "prayer.detail.prayerCountP50", "value": 5, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
     { "path": "prayer.detail.prayerCountP90", "value": 12, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
     { "path": "prayer.detail.answerLengthP50", "value": 70, "reason": "Design choice. An answer is a short note from the requester, as written in content/prayer (decision 67)." },
-    { "path": "prayer.requesters.pctRequestersWhoAlsoPrayed", "value": 6, "reason": "Design choice. Prayer team members ask for prayer too. A team of 3% of active adults can be at most about 8% of the third of active adults who ask (decision 67)." },
+    { "path": "prayer.requesters.pctRequestersWhoAlsoPrayed", "value": 4, "reason": "Design choice. Prayer team members ask for prayer too. A team of 3% of active adults can be at most about 4.5% of everyone who asks at this volume (decision 67)." },
     {
       "path": "prayer.team",
       "reason": "Design choice. An active prayer team prays through requests in Rock (decision 67). Prayers per year follow from request volume times prayers per request, so they are not set here.",
