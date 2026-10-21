@@ -78,19 +78,29 @@ module.exports = function contribute( { model } ) {
   <div class="wrap narrow">
     <p class="eyebrow">Contribute</p>
     <h1 class="display">Help us build <em>the church.</em></h1>
-    <p class="lede">Good sample data comes from people who know what churches look like and what Rock needs to show. Tell us what's missing, and we'll build it into the church everyone shares.</p>
-    <div class="actions"><a class="button button-gradient" href="${issueUrl}">Open an issue</a><a class="button button-ghost" href="${repoUrl}">Browse the repository</a></div>
+    <p class="lede">The most helpful thing you can tell us is a use case we're missing: something churches do in Rock every week that the sample data can't show yet. Tell us, and we'll build it into the church everyone shares.</p>
+    <div class="actions"><a class="button button-gradient" href="${issueUrl}">Share a use case</a><a class="button button-ghost" href="${repoUrl}">Browse the repository</a></div>
   </div>
 </section>
 
 <section class="section section-tight">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Ways to help", title: "Three good places to start." } )}
-    <div class="card-grid">
-      <div class="card reveal"><h3>Suggest a family</h3><p>Is there a kind of household Rock should show, such as a grandparent raising grandkids or a family new to the country? Describe who they are and what they'd test.</p></div>
-      <div class="card reveal"><h3>Find an empty screen</h3><p>Open a Rock feature on a sample install. If its lists, charts, or reports look empty or wrong, tell us which screen and what it should show.</p></div>
-      <div class="card reveal"><h3>Share a use case</h3><p>Writing a help article, a class, or a test? Tell us what you need the data to show, and whether you need to name a specific person.</p></div>
+    ${sectionHead( { eyebrow: "What we're looking for", title: "Big, common use cases first.", lede: "The sample data is meant to show each Rock feature the way most churches use it. Especially now, while the church is young, we're looking for the large patterns that touch many screens, not every small detail." } )}
+    <div class="rules rules-light">
+      <div class="rule reveal"><h3>A great fit</h3><ul class="checks">
+        <li><strong>A whole feature that looks empty.</strong> A Rock feature whose lists, charts, and reports would all be blank on a sample install.</li>
+        <li><strong>A common kind of family.</strong> "Grandparents raising grandkids are common, and Rock should show how check-in and giving work for them."</li>
+        <li><strong>A pattern most churches see.</strong> "Most churches see giving dip in summer and jump at year end."</li>
+        <li><strong>Something a class or help article needs.</strong> "Our training on follow-up needs a few people who visited twice and never came back."</li>
+      </ul></div>
+      <div class="rule rule-dont reveal"><h3>Better in your own test database</h3><ul class="crosses">
+        <li><strong>Rare combinations of settings</strong> that only a few churches use.</li>
+        <li><strong>One-off situations</strong> you need for a single test or bug.</li>
+        <li><strong>Small tweaks</strong> to one person's details, such as a different birthday or phone number.</li>
+        <li><strong>Exact numbers from your own church.</strong> Every church is different, and the data aims for what's typical.</li>
+      </ul></div>
     </div>
+    <p class="fine reveal">Not sure where your idea fits? Open an issue anyway and say how common you think it is. We'd rather hear it.</p>
   </div>
 </section>
 
@@ -100,7 +110,7 @@ module.exports = function contribute( { model } ) {
       <p class="eyebrow">How to suggest a change</p>
       <h2>Open an issue.</h2>
       <p>For now, the way to contribute is to open an issue on GitHub. The team makes the changes, so we don't take pull requests yet.</p>
-      <p>We aim for the broad reach of Rock's features: each one working the way most churches use it. A rare edge case is better set up by hand in your own test database.</p>
+      <p>Check the roadmap and the planned work first, since your idea may already be on it. Then answer these four questions, so we can see who needs the data and how common it is.</p>
       <p><a class="button button-dark" href="${issueUrl}">Open an issue</a></p>
     </div>
     <ol class="steps steps-plain reveal">

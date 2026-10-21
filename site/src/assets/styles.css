@@ -657,3 +657,6 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
     .hero-image { transform: none; }
     .js .reveal { opacity: 1; transform: none; }
 }
+.rules-light .rule { background: var(--card); box-shadow: var(--shadow); }
+.rules-light .rule li { color: var(--ink-2); }
+.rules-light .rule li strong { color: var(--ink); }
