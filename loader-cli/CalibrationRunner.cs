@@ -20,7 +20,7 @@ using Microsoft.Data.SqlClient;
 namespace RockSampleData.LoaderCli
 {
     /// <summary>
-    /// Runs the calibration scripts (parts 1 to 3, and part 5 for prayer) against a database and writes their
+    /// Runs the calibration scripts (parts 1 to 3, part 5 for prayer, and part 6 for notes) against a database and writes their
     /// "Section, Json" rows as tab-separated lines, the same raw format normalize.js reads.
     /// </summary>
     internal static class CalibrationRunner
@@ -30,7 +30,8 @@ namespace RockSampleData.LoaderCli
             "Report_SampleDataCalibration_1_PeopleAndGiving.sql",
             "Report_SampleDataCalibration_2_AttendanceAndGroups.sql",
             "Report_SampleDataCalibration_3_RegistrationsPrayerCommsConnections.sql",
-            "Report_SampleDataCalibration_5_Prayer.sql"
+            "Report_SampleDataCalibration_5_Prayer.sql",
+            "Report_SampleDataCalibration_6_PersonNotes.sql"
         };
 
         /// <summary>

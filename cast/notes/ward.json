@@ -1,0 +1,56 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "ward",
+  "notes": [
+    {
+      "key": "derek-hard-year",
+      "guid": "BC68456B-2C8E-448C-A38F-D2446D0FBD80",
+      "about": "derek",
+      "type": "pastoral",
+      "author": "pete",
+      "written": {
+        "daysAgo": 600
+      },
+      "time": "12:30",
+      "text": "Met with Derek and Kayla after the service. Derek's hours were cut again, and they are behind on bills. Prayed together. {@ted} will walk them through the benevolence process.",
+      "testPurpose": "A pastoral note with a mention and a reply.",
+      "replies": [
+        {
+          "guid": "EB68844C-AE9E-4744-B655-1D2C64D90DBA",
+          "author": "ted",
+          "written": {
+            "daysAgo": 599
+          },
+          "time": "16:00",
+          "text": "Talked with them today. The team is covering the electric bill and next month's groceries."
+        }
+      ]
+    },
+    {
+      "key": "derek-counseling-second",
+      "guid": "742AD332-EC6D-4553-8AC3-55DCD9DCD176",
+      "about": "derek",
+      "type": "counseling",
+      "author": "pete",
+      "written": {
+        "daysAgo": 560
+      },
+      "time": "18:30",
+      "text": "Session two with Derek on stress and work uncertainty. He is sleeping better and applying for steadier jobs. Next meeting in two weeks.",
+      "testPurpose": "A Counseling note, seen only by pastoral staff."
+    },
+    {
+      "key": "derek-counseling-closed",
+      "guid": "B58AA0CF-E734-48B0-9094-3C8D3C347A37",
+      "about": "derek",
+      "type": "counseling",
+      "author": "pete",
+      "written": {
+        "daysAgo": 470
+      },
+      "time": "18:30",
+      "text": "Closed out counseling with Derek after five sessions. He has steady work again and a plan for the family budget. Will check in once in three months."
+    }
+  ]
+}

@@ -19,7 +19,7 @@
     Gives placeholder decisions their real numbers. See AGENTS.md and docs/maintaining.md.
 
     On a branch, a new decision in docs/decisions.md gets a placeholder in its # column, such as
-    D-notes-1, and is cited by that placeholder everywhere ("decision D-notes-1"). Branches never take
+    D-example-1, and is cited by that placeholder everywhere ("decision D-example-1"). Branches never take
     real numbers, so two branches cannot claim the same one. When a branch merges into main, run this
     script: it numbers the placeholders from the next free number, in the order they appear in the
     decision log, and replaces every mention in the repository's tracked text files.
@@ -39,7 +39,7 @@ const decisionsPath = path.join( __dirname, "decisions.md" );
 const isDryRun = process.argv.includes( "--dry-run" );
 const isCheck = process.argv.includes( "--check" );
 
-// A placeholder: "D-", a lowercase slug, "-", and a number, such as D-notes-1 or D-serving-teams-12.
+// A placeholder: "D-", a lowercase slug, "-", and a number, such as D-example-1 or D-example-teams-12.
 const PLACEHOLDER = /D-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+/;
 const ROW = new RegExp( `^\\| (\\d+|${PLACEHOLDER.source}) \\|`, "gm" );
 const TEXT_EXTENSIONS = new Set( [ ".md", ".json", ".js", ".cs", ".sql", ".txt", ".ps1" ] );
@@ -82,7 +82,7 @@ for ( const [ placeholder, number ] of assigned ) {
     console.log( `${placeholder} -> ${number}` );
 }
 
-// Longest first, so D-notes-12 is never rewritten as D-notes-1 followed by "2".
+// Longest first, so D-example-12 is never rewritten as D-example-1 followed by "2".
 const pattern = new RegExp( `(?<![A-Za-z0-9-])(${[ ...assigned.keys() ].sort( ( a, b ) => b.length - a.length ).join( "|" )})(?![A-Za-z0-9])`, "g" );
 const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
     .split( /\r?\n/ )

@@ -1,0 +1,43 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "washington",
+  "notes": [
+    {
+      "key": "jasmine-worship-team",
+      "guid": "D5E9E515-9DF1-454E-8185-A76F007BD71F",
+      "about": "jasmine",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 1500
+      },
+      "time": "19:30",
+      "text": "Jasmine joined the student worship team. She sings with confidence and helps the younger students learn their parts.",
+      "testPurpose": "A note on a child written more than two years ago."
+    },
+    {
+      "key": "jasmine-graduation-card",
+      "guid": "7E6F9FF0-5BBD-4935-A1F4-06FB7C8E804D",
+      "about": "jasmine",
+      "type": "followUp",
+      "author": "pete",
+      "written": {
+        "daysAgo": 75
+      },
+      "time": "11:00",
+      "text": "Sent Jasmine a graduation card from the pastors. Marcus said she will start college soon and wants to find a church near campus.",
+      "replies": [
+        {
+          "guid": "D993AD4D-983F-42F5-B356-3EBBF581DF4C",
+          "author": "ted",
+          "written": {
+            "daysAgo": 74
+          },
+          "time": "10:15",
+          "text": "I'll send her a short list of churches near her school."
+        }
+      ]
+    }
+  ]
+}

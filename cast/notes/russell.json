@@ -1,0 +1,48 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "russell",
+  "notes": [
+    {
+      "key": "hal-communion-visits",
+      "guid": "FE6ACB1D-192E-4D91-BBDE-69FB9E657398",
+      "about": "harold",
+      "type": "pastoral",
+      "author": "ted",
+      "written": {
+        "daysAgo": 200
+      },
+      "time": "09:00",
+      "text": "Hal is on the monthly communion visit list. Two volunteers bring communion on the first Saturday of the month. He likes to have coffee ready, so call ahead.",
+      "isPinned": true,
+      "testPurpose": "A pinned note that stays at the top of Hal's notes."
+    },
+    {
+      "key": "hal-call-ahead",
+      "guid": "A0A34727-806E-4857-BE34-B7A248EE1354",
+      "about": "harold",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 150
+      },
+      "time": "11:10",
+      "text": "Hal is homebound. Call his home phone before any visit and let it ring a while.",
+      "isAlert": true,
+      "testPurpose": "A Personal Note alert on an adult."
+    },
+    {
+      "key": "hal-visit",
+      "guid": "154A12B9-7628-4F18-9101-958EFBCF6834",
+      "about": "harold",
+      "type": "pastoral",
+      "author": "pete",
+      "written": {
+        "daysAgo": 3
+      },
+      "time": "15:30",
+      "text": "Stopped by to see Hal. He is in good spirits and still mails his check every month, even though I told him we would gladly pick it up. He asked about the old Book of John group, one person at a time.",
+      "testPurpose": "A note from the last seven days."
+    }
+  ]
+}

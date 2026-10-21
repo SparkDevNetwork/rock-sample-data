@@ -1,0 +1,55 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "carter",
+  "notes": [
+    {
+      "key": "walter-funeral",
+      "guid": "22580630-2C09-4BCA-BC9F-9A309C74970D",
+      "about": "margaret",
+      "type": "pastoral",
+      "author": "pete",
+      "written": {
+        "daysAgo": 1092
+      },
+      "time": "16:00",
+      "text": "Officiated Walter's funeral today. Peggy was steady and thanked everyone by name. The care team has meals covered for two weeks, and I'll visit her next week.",
+      "testPurpose": "A pastoral note written more than two years ago."
+    },
+    {
+      "key": "peggy-home-visit",
+      "guid": "21586BCF-4D27-49AF-B517-84770822E05C",
+      "about": "margaret",
+      "type": "pastoral",
+      "author": "pete",
+      "written": {
+        "daysAgo": 1084
+      },
+      "time": "14:30",
+      "text": "Visited Peggy at home. She is tired but surrounded by friends from the 9:00 service. She plans to keep sitting in the same row, because that is where she and Walter always sat.",
+      "replies": [
+        {
+          "guid": "04B24AE8-3F39-4EF4-B281-C48471B1C23C",
+          "author": "ted",
+          "written": {
+            "daysAgo": 1083
+          },
+          "time": "10:00",
+          "text": "I'll ask the ushers to keep that row open for her."
+        }
+      ]
+    },
+    {
+      "key": "peggy-check-arrived",
+      "guid": "D197BDD5-40AD-4BEC-9D70-7F747DFF5A0E",
+      "about": "margaret",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 40
+      },
+      "time": "10:20",
+      "text": "Peggy called to make sure her monthly check arrived, since the mail has been slow. It came in on Tuesday and is recorded. She asked us to say hello to Pastor Pete."
+    }
+  ]
+}

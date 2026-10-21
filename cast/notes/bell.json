@@ -1,0 +1,43 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "bell",
+  "notes": [
+    {
+      "key": "larry-deb-greeters",
+      "guid": "7E363797-E1BB-460D-91AE-C319DDB39848",
+      "about": "larry",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 180
+      },
+      "time": "13:00",
+      "text": "Larry and Deb have greeted at the front doors almost every Sunday for years. Larry remembers a guest's name the second time they come. A thank-you lunch is overdue.",
+      "replies": [
+        {
+          "guid": "177E1FC8-D4F8-4766-894C-0CB1A8B2A75F",
+          "author": "alisha",
+          "written": {
+            "daysAgo": 179
+          },
+          "time": "09:00",
+          "text": "Booked them both for the volunteer appreciation lunch."
+        }
+      ]
+    },
+    {
+      "key": "deb-away-sunday",
+      "guid": "197EB4F0-776C-4100-84A5-A716B30A4B28",
+      "about": "debra",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 6
+      },
+      "time": "09:30",
+      "text": "Deb called to say she and Larry will be away next Sunday and asked for someone to cover the front doors. Let the guest services lead know.",
+      "testPurpose": "A recent phone note."
+    }
+  ]
+}

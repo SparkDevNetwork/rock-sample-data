@@ -1,0 +1,32 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "torres",
+  "notes": [
+    {
+      "key": "valeria-student-night",
+      "guid": "532E3573-F1E2-43C0-B27B-4EB23F1C3712",
+      "about": "valeria",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 4
+      },
+      "time": "21:15",
+      "text": "Valeria brought two friends to student night again. She is a natural connector and asked about helping at the welcome table for students.",
+      "testPurpose": "A recent note on a teen who is more involved than her parents."
+    },
+    {
+      "key": "rosa-pickup-time",
+      "guid": "9BEB494E-0B06-417D-9CCA-3717F2532C1C",
+      "about": "rosa",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 45
+      },
+      "time": "16:05",
+      "text": "Rosa called to ask what time student night ends so she can plan pickup for Valeria. Gave her the time and the student pastor's email."
+    }
+  ]
+}

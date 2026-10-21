@@ -28,6 +28,8 @@ Where the project stands: the team's working list. Update this page whenever som
 
 - Prayer requests with an active prayer team (decision 67). Every dataset gets about 10 requests a week per 1,000 active adults, mostly from adults who attended, gave, or were in a small group, in Rock's own prayer categories, with text from `content/prayer`. The Cast's Prayer Administrator approves them, and the prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each one while it is active, as "Prayed" interactions with matching prayer counts. A few are flagged back to the approval queue, and some get comments, replies, and answers. The Cast has its own requests too, covering every prayer screen state, with 10 always from the last few days so even the small datasets show a full prayer list; every load checks them. Calibration part 5 grades it: all 87 prayer values pass on Full 7 with the crowd (about 11,100 requests and 67,000 prayers), and validation overall is 347 of 380 (91%).
 - Serving teams and serving opportunities at every campus (decisions 68 to 77; see [Serving](serving.md)). Rock's Involvement connection type has eight polished opportunities with photos of real Cast volunteers, each placing people on its team at their campus. Every campus has eight teams with rooms, service times, staffing that fits the campus, and a background check for kids and student volunteers. Volunteers have rotations, preferences, and scheduling history over the whole history window plus six weeks ahead, and check in to serve. Connection requests in the measured mix lead to the teams, with activity history and person history. Validation grades serving and connections.
+- Notes on people (decision 78): six note types with View security (Rock's Personal, Pastoral, and Phone, plus Follow-up, Counseling, and Safety Alert), 67 hand-written Cast notes with 13 replies in 29 households, and generated notes from text pools. Calibration part 6 measures note use. The measured shape sets timing and length, and the volume and feature use are designed higher, because the sample church shows what good note use looks like. Full 7 has about 54,000 notes and 7,000 replies, and all 15 graded note values pass.
+- Security roles (decision 79): Cast people join the out-of-the-box roles their stories give them, mapped in `configuration/security-roles.json`, and each campus pastor joins RSR - Staff Workers and RSR - Pastoral Workers. The load creates no roles.
 
 ## In progress
 
@@ -55,7 +57,9 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 ### People
 
-1. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
+1. **Logins for Cast staff.** The Cast files list logins, but the loader does not load them yet, so no one can sign in as a Cast staff member. It needs a decision on demo passwords.
+2. **Cast group membership that disagrees with stories.** The Ortizes are active members of the Greggs group, though their story says they stopped coming six months ago, and the Ellises are in groups older than their first visit.
+3. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
 
 ### Serving
 
@@ -89,7 +93,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, notes, and person attributes for the Crowd.
+Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 

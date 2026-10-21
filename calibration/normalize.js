@@ -22,7 +22,7 @@
 
     Raw files are either:
       - .json: the single JSON document from Report_SampleDataCalibrationStats.sql, or
-      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3 and 5 (see xlsx-to-tsv.ps1).
+      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3, 5, and 6 (see xlsx-to-tsv.ps1).
 
     Output: profiles/sources/<source-id>.json, or the --out file (validation uses this).
 
@@ -358,6 +358,12 @@ if ( s.engagement ) {
 // The count itself is not written out, because an exact size can identify a church.
 const activeAdults = s.engagement ? sum( list( s.engagement ).filter( e => e.gives || e.attends || e.inGroup || e.serves ).map( e => e.adults ) ) : null;
 const perThousand = ( count, months ) => activeAdults ? round( count * 12 / months * 1000 / activeAdults ) : null;
+const ofActiveAdults = count => activeAdults ? pct( count, activeAdults ) : null;
+const without = ( o, ...keys ) => {
+    const copy = { ...o };
+    keys.forEach( k => delete copy[ k ] );
+    return copy;
+};
 
 if ( s.registrations ) {
     const r = s.registrations;
@@ -377,12 +383,6 @@ if ( s.prayerSummary ) {
 
 // Part 5 measures how the prayer team works. Its windows are 24 months.
 if ( s.prayerDetail && out.prayer ) {
-    const without = ( o, ...keys ) => {
-        const copy = { ...o };
-        keys.forEach( k => delete copy[ k ] );
-        return copy;
-    };
-    const ofActiveAdults = count => activeAdults ? pct( count, activeAdults ) : null;
     const requesters = s.prayerRequesters || {};
     const team = s.prayerTeam || {};
 
@@ -439,6 +439,49 @@ if ( s.connections ) {
         daysToConnect: { p50: c.daysToConnectP50, p90: c.daysToConnectP90 },
         monthIndex: monthIndex( list( s.connectionsByMonth ).map( m => [ m.month, m.requests ] ) )
     };
+}
+
+// Part 6 measures notes on person records. Its window is 24 months.
+// The section is named personNotes because out.notes holds this file's explanations.
+if ( s.noteSummary ) {
+    const n = s.noteSummary;
+    const authors = s.noteAuthors || {};
+    const people = s.notedPeople || {};
+    const perThousandActiveAdults = count => activeAdults && count != null ? round( count * 1000 / activeAdults ) : null;
+
+    // Ages and genders are shares of notes whose person's value is known, because missing birth dates are a record quirk.
+    const ageBands = { under13: people.pctAgeUnder13, "13-17": people.pctAge13To17, "18-29": people.pctAge18To29, "30-44": people.pctAge30To44, "45-64": people.pctAge45To64, "65+": people.pctAge65Plus };
+    const knownAges = sum( Object.values( ageBands ).map( v => v || 0 ) );
+    const knownGenders = ( people.pctMale || 0 ) + ( people.pctFemale || 0 );
+
+    out.personNotes = {
+        notesPerYearPerThousandActiveAdults: perThousand( n.notes, 24 ),
+        notedPeopleIn24MonthsPerThousandActiveAdults: perThousandActiveAdults( n.notedPeople ),
+        notedPeopleAllTimePerThousandActiveAdults: perThousandActiveAdults( n.notedPeopleAllTime ),
+        pctOfAllTimeNotesInLast24Months: pct( n.notes, n.notesAllTime ),
+        pctOnRockTypes: n.pctOnRockTypes ?? null,
+        pctImported: n.pctImported ?? null,
+        pctWithNoAuthor: n.pctWithNoAuthor ?? null,
+        monthIndex: monthIndex( list( s.notesByMonth ).map( m => [ m.month, m.notes ] ) ),
+        detail: s.noteDetail || null,
+        kindMix: Object.fromEntries( list( s.notesByKind ).map( k => [ k.kind, without( k, "kind" ) ] ) ),
+        types: s.noteTypes || null,
+        weekdayMix: Object.fromEntries( list( s.notesByWeekday ).map( w => [ w.weekday, w.pctNotes ] ) ),
+        hourBandMix: Object.fromEntries( list( s.notesByHourBand ).map( h => [ h.hourBand, h.pctNotes ] ) ),
+        authors: {
+            authorsPerThousandActiveAdults: perThousandActiveAdults( authors.authors ),
+            pctOfStaffWhoWroteNotes: pct( authors.staffAuthors || 0, authors.staff ),
+            ...without( authors, "authors", "staffAuthors", "staff" )
+        },
+        notedPeople: {
+            ageMixAmongKnown: knownAges ? Object.fromEntries( Object.entries( ageBands ).map( ( [ k, v ] ) => [ k, pct( v || 0, knownAges ) ] ) ) : null,
+            pctFemaleAmongKnown: knownGenders ? pct( people.pctFemale || 0, knownGenders ) : null,
+            pctAboutActiveRecords: people.pctAboutActiveRecords ?? null,
+            notesPerPersonMix: { 1: people.pctNotedPeopleWith1Note, "2-3": people.pctNotedPeopleWith2To3Notes, "4-9": people.pctNotedPeopleWith4To9Notes, "10+": people.pctNotedPeopleWith10PlusNotes },
+            pctWith2PlusKinds: people.pctNotedPeopleWith2PlusKinds ?? null
+        }
+    };
+    out.notes.push( "Person note types are sorted into generic kinds inside part 6. Note type names and note text are never stored." );
 }
 
 // #endregion Other features

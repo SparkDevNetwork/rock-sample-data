@@ -1,0 +1,45 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "jackson",
+  "notes": [
+    {
+      "key": "maddie-pickup",
+      "guid": "C1DC7E71-319A-4F37-932E-8B6EBF596156",
+      "about": "maddie",
+      "type": "safetyAlert",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 400
+      },
+      "time": "10:00",
+      "text": "Maddie may be released only to her mom, Mariah Jackson, or her dad, Craig Lowe. Match the pickup tag every time. Details are in the legal note on her record.",
+      "isAlert": true,
+      "isPinned": true,
+      "testPurpose": "A pinned Safety Alert pickup restriction on a child that does not say why.",
+      "replies": [
+        {
+          "guid": "260DBC3C-F0CA-4D92-A3D6-D713A29D7C98",
+          "author": "ted",
+          "written": {
+            "daysAgo": 399
+          },
+          "time": "09:00",
+          "text": "Shared this with her room leaders and the check-in team."
+        }
+      ]
+    },
+    {
+      "key": "mariah-group",
+      "guid": "B5C7DA5B-BD6B-4A4B-8061-E1DB2C50EC32",
+      "about": "mariah",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 90
+      },
+      "time": "14:00",
+      "text": "Mariah has become a steady part of the Greggs group. She said work has been busy, but Sundays and group night are the calm part of her week."
+    }
+  ]
+}

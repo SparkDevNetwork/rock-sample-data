@@ -20,7 +20,7 @@ The first line turns on the hooks that guard `main`. The second makes every merg
 
 ## Decisions
 
-5. **Never take a decision number on a branch.** Give a new decision a placeholder in the # column of `docs/decisions.md`: `D-`, a short slug for your branch, and a counter, such as `D-notes-1`. Cite it by the placeholder everywhere ("decision D-notes-1").
+5. **Never take a decision number on a branch.** Give a new decision a placeholder in the # column of `docs/decisions.md`: `D-`, a short slug for your branch, and a counter, such as `D-example-1`. Cite it by the placeholder everywhere ("decision D-example-1"). Docs use the slug `example` in their samples, so never name a real branch's placeholders `D-example-...`.
 6. **Numbers are assigned at merge.** The integrator runs `node docs/number-decisions.js` on the branch just before merging. It numbers each placeholder from the next free number and rewrites every mention. The merge hook refuses a merge into `main` that still has a placeholder.
 
 ## Generated files
