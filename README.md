@@ -25,7 +25,7 @@ Read these in order. Together they take about 35 minutes.
 8. [Roadmap](docs/roadmap.md): the team's working list: what is done, what is next, and what we are waiting on.
 9. [Contributing](docs/contributing.md): how to suggest a use case or point out a gap.
 
-Changing the repository yourself, or with AI agents? Read [AGENTS.md](AGENTS.md) first: several agents often work here at once, and its rules keep them from colliding.
+Changing the repository yourself, or with AI agents? Read [AGENTS.md](AGENTS.md) first: several agents often work here at once, and its rules keep them from colliding. [Working with AI agents](#working-with-ai-agents) below says what to tell them.
 
 Need a word explained? See the [glossary](docs/glossary.md). Curious how generated people behave? See [The Crowd and personas](docs/crowd.md). Want the original design? See the [design spec](docs/design-spec.md).
 
@@ -101,6 +101,16 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    ```
    node cast/build-pages.js
    ```
+
+## Working with AI agents
+
+AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follow its rules. This section says what to tell them. The how-to is in [Working in parallel](docs/maintaining.md#working-in-parallel).
+
+1. **Set up once per clone.** Run the two `git config` lines in [AGENTS.md](AGENTS.md#setup-once-per-clone). They turn on the hooks that keep `main` merge-only.
+2. **Start feature work in its own worktree.** Tell the agent, for example: "Make a worktree for the `notes` branch and work there. Hand it to the integrator when it is ready."
+3. **Start an integrator when two or more sessions will change the repository.** Open one more session and tell it: "You are the integrator for this repository. Read AGENTS.md and the Working in parallel section of docs/maintaining.md. Land branches on `main` as sessions hand them to you." It merges one branch at a time, numbers decisions, runs verify, and merges into `main`.
+4. **Use solo mode when only one session is working.** Tell it: "You are the only session working. Land it yourself." It then does the integrator's steps itself. A change to documentation only can skip the package build and verify. An agent never turns on solo mode by itself, because it cannot see other sessions.
+5. **Expect to be asked.** The integrator asks you before it pushes `main`. It also brings you any judgment call, such as dropping a branch that `main` already covers.
 
 ## Ground rules
 

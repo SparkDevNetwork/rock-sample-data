@@ -72,8 +72,12 @@ One session or person, the integrator, lands work on `main`. Feature work ends w
 1. Merge `main` into the branch, and resolve conflicts. Take either side of a generated file.
 2. Run `node docs/number-decisions.js` on the branch.
 3. Rebuild the packages, run the verify tool with `--record-contract`, then run it again without it for a clean pass.
-4. Commit on the branch, merge it into `main`, and push.
+4. Commit on the branch, and merge it into `main`. Push once the person running the integrator agrees.
 5. Tell the other sessions that `main` moved, so they merge it.
+
+Start an integrator whenever two or more sessions will change the repository at once. It handles the steps above, but a person still makes the judgment calls, such as dropping a branch that `main` already covers.
+
+When only one session is working, it can be its own integrator (solo mode, rule 12 in [AGENTS.md](../AGENTS.md#handing-off)). The person turns it on by saying so. A session never assumes it, because it cannot see other sessions. A branch that changes only documentation (`.md` files outside `cast/` and `content/`) can skip the package build and verify, since docs cannot break a package.
 
 ## Add a Cast household
 
