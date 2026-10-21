@@ -135,8 +135,17 @@ jobs:
 
       - uses: microsoft/setup-msbuild@v2
 
+      - uses: NuGet/setup-nuget@v2
+
+      # RockWeb is a website, so MSBuild's restore skips its packages.config, and "nuget restore
+      # Rock.sln" skips it too. Without these packages RockWeb's App_Code cannot compile. They also
+      # hold ef6.exe, which the verify tool needs.
+      - name: Restore RockWeb's packages
+        working-directory: ${{ env.ROCK_PATH }}
+        run: nuget restore RockWeb/packages.config -SolutionDirectory . -NonInteractive
+
       # dotnet build cannot build RockWeb (MSB4249), so use Visual Studio's MSBuild. The verify tool
-      # needs RockWeb\bin, and ef6.exe from the restored packages.
+      # needs RockWeb\bin.
       - name: Build Rock
         working-directory: ${{ env.ROCK_PATH }}
         run: msbuild Rock.sln -m -restore -p:RestorePackagesConfig=true -v:minimal -nologo
