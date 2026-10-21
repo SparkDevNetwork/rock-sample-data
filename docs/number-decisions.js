@@ -22,7 +22,7 @@
     D-example-1, and is cited by that placeholder everywhere ("decision D-example-1"). Branches never take
     real numbers, so two branches cannot claim the same one. When a branch merges into main, run this
     script: it numbers the placeholders from the next free number, in the order they appear in the
-    decision log, and replaces every mention in the repository's tracked text files.
+    decision log, and replaces every mention in the repository's tracked text files, of any type.
 
     Usage:
       node docs/number-decisions.js            Numbers every placeholder and rewrites the files.
@@ -42,7 +42,9 @@ const isCheck = process.argv.includes( "--check" );
 // A placeholder: "D-", a lowercase slug, "-", and a number, such as D-example-1 or D-example-teams-12.
 const PLACEHOLDER = /D-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+/;
 const ROW = new RegExp( `^\\| (\\d+|${PLACEHOLDER.source}) \\|`, "gm" );
-const TEXT_EXTENSIONS = new Set( [ ".md", ".json", ".js", ".cs", ".sql", ".txt", ".ps1" ] );
+// Every tracked text file is searched, whatever its type, so a mention in a new kind of file (a workflow's
+// .yml, a site's .css) is never missed. Binary files are skipped by type, and by a null byte for any other.
+const BINARY_EXTENSIONS = new Set( [ ".jpg", ".jpeg", ".png", ".gif", ".webp", ".ico", ".ttf", ".otf", ".woff", ".woff2", ".xlsx", ".zip", ".pdf", ".bak" ] );
 
 const decisions = fs.readFileSync( decisionsPath, "utf8" );
 const numbers = [];
@@ -86,7 +88,7 @@ for ( const [ placeholder, number ] of assigned ) {
 const pattern = new RegExp( `(?<![A-Za-z0-9-])(${[ ...assigned.keys() ].sort( ( a, b ) => b.length - a.length ).join( "|" )})(?![A-Za-z0-9])`, "g" );
 const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
     .split( /\r?\n/ )
-    .filter( f => f && TEXT_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
+    .filter( f => f && !BINARY_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
 
 let changedFiles = 0;
 for ( const file of files ) {
@@ -94,7 +96,11 @@ for ( const file of files ) {
     if ( !fs.existsSync( full ) ) {
         continue;
     }
-    const text = fs.readFileSync( full, "utf8" );
+    const bytes = fs.readFileSync( full );
+    if ( bytes.includes( 0 ) ) {
+        continue;
+    }
+    const text = bytes.toString( "utf8" );
     const updated = text.replace( pattern, p => assigned.get( p ) );
     if ( updated !== text ) {
         changedFiles++;
