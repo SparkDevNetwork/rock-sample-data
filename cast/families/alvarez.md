@@ -52,6 +52,10 @@ Mateo was born this year and is the youngest person in the Cast.
 - **Giving:** **bi-weekly** by Marco Alvarez: $60 General Fund per gift, gives in 92% of periods, started 2 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Current**, from Elena Alvarez, 2 days ago (General, 5 prayers): Mateo is three months old and still not sleeping more than two hours at a time, and Sofia is having a hard time with all the changes at home. We are so thankful for both of them, and we are also exhausted. Please pray for rest, patience, and a little more sleep for all four of us.
+
 ## Address
 
 11733 N 40th Pl, Phoenix, AZ 85028 (a real street with a house number that does not exist)

@@ -1,0 +1,205 @@
+{
+  "$comment": "The Cast's own prayer requests, tied to their stories (decision 67). Together they cover every Rock prayer screen state, and every load checks that each one shows its state. Ten are always current: entered 1 to 5 days before the install day, approved, and not expired, so every dataset's prayer list and prayer session have requests to pray through. A requester is a Cast person's Guid; a guest has only the name and email Rock keeps. The state sets the rest: 'current' is approved and being prayed for, 'waiting' is not approved yet, 'flagged' was flagged back to the approval queue, 'expired' is past its 14 days, and 'answered' is expired with an answer. Prayers and comments come from the prayer team, Cast members first.",
+  "requests": [
+    {
+      "key": "alvarez-new-baby",
+      "guid": "86229F2B-A583-4667-952E-312348AF6F6E",
+      "requester": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
+      "category": "general",
+      "entered": { "daysAgo": 2, "time": "06:40" },
+      "state": "current",
+      "prayers": 5,
+      "text": "Mateo is three months old and still not sleeping more than two hours at a time, and Sofia is having a hard time with all the changes at home. We are so thankful for both of them, and we are also exhausted. Please pray for rest, patience, and a little more sleep for all four of us."
+    },
+    {
+      "key": "carter-walter-anniversary",
+      "guid": "1BA61528-5F61-445C-AA12-139796B4963E",
+      "requester": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "category": "comfort-grief",
+      "entered": { "daysAgo": 3, "time": "08:15" },
+      "state": "current",
+      "allowComments": true,
+      "prayers": 6,
+      "text": "This Saturday would have been Walter's and my fifty-second anniversary. Most days I am all right, but this week has been heavy. I would be grateful for prayer for comfort, and for the friends who have been checking on me.",
+      "comments": [
+        { "by": "team", "text": "Praying for you this morning, Peggy. Walter is so missed, and so are you on the hard days." },
+        { "by": "team", "text": "Lifted you up with our team tonight. We are glad you are part of this church family." },
+        { "by": "requester", "text": "Thank you both. I read these twice. It helps to know I am not carrying this alone." }
+      ]
+    },
+    {
+      "key": "kelly-rent",
+      "guid": "FC136C8A-48E4-4E7D-AFD8-C1A504E40633",
+      "requester": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "category": "finances-job",
+      "entered": { "daysAgo": 1, "time": "22:05" },
+      "state": "current",
+      "isUrgent": true,
+      "isPrivate": true,
+      "prayers": 3,
+      "text": "My hours were cut again this month and rent is due on the first. I have talked to my landlord and I am picking up extra shifts where I can. Please pray for a way through this month, and for my kids not to worry."
+    },
+    {
+      "key": "fischer-college-decision",
+      "guid": "06A45F88-1B46-4069-9D8A-45D20522380D",
+      "requester": "CED31D85-2D3F-430A-ACC0-34E436220044",
+      "category": "gods-will",
+      "entered": { "daysAgo": 2, "time": "21:30" },
+      "state": "current",
+      "group": "gilbert-group",
+      "prayers": 4,
+      "text": "Ethan has his college applications due in a few weeks and is torn between staying close to home and a school out of state. Mark and I want him to choose well, not just choose what we want. Please pray for wisdom for Ethan and for us as parents."
+    },
+    {
+      "key": "ramos-new-city",
+      "guid": "3F4EE766-8C85-4747-8E0E-FFB2C8CF1D20",
+      "requester": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "category": "life-transitions",
+      "entered": { "daysAgo": 4, "time": "19:50" },
+      "state": "current",
+      "prayers": 5,
+      "text": "I moved to Phoenix this year for work and do not know many people yet. My young adults group has been a gift. Pray that I would find real friends here, and that this city would start to feel like home."
+    },
+    {
+      "key": "jenkins-grandson-school",
+      "guid": "FAA3540D-2557-498E-A7FC-60E395D1CD72",
+      "requester": "6B190521-2A32-4B46-A02B-618174709D59",
+      "category": "family-issues",
+      "entered": { "daysAgo": 5, "time": "10:20" },
+      "state": "current",
+      "prayers": 6,
+      "text": "Gary and I are raising our grandson Austin, and he has had a rough start at his new school. He comes home quiet and does not want to talk about it. Please pray for a good friend for him, and for wisdom for us as we help him through it."
+    },
+    {
+      "key": "gray-er-shifts",
+      "guid": "53DA0529-A83F-4CDB-83A7-6563B9CE34D1",
+      "requester": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "category": "general",
+      "entered": { "daysAgo": 3, "time": "07:55" },
+      "state": "current",
+      "prayers": 4,
+      "text": "Coming off four night shifts in the ER in a row. It has been a hard stretch with some very sick patients. Pray for strength for our whole team, and for the families we see on their worst days."
+    },
+    {
+      "key": "perry-retirement",
+      "guid": "E2A201A0-EFB1-4A0A-9F7F-380069BB616D",
+      "requester": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "category": "life-transitions",
+      "entered": { "daysAgo": 2, "time": "14:10" },
+      "state": "current",
+      "prayers": 3,
+      "text": "Retirement is harder than I expected. After forty years of going to work every morning, I am not sure what my days are for. I would appreciate prayer for purpose in this new season."
+    },
+    {
+      "key": "hughes-ear-tubes",
+      "guid": "F075FC2E-592A-4F56-BBF1-63A2BC4002E9",
+      "requester": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "category": "hospitalization",
+      "entered": { "daysAgo": 1, "time": "20:45" },
+      "state": "current",
+      "isUrgent": true,
+      "prayers": 3,
+      "text": "Our youngest is having ear tubes put in early tomorrow morning. It is a short procedure, but he is only one and I am nervous about the anesthesia. Please pray for a smooth surgery and a quick recovery."
+    },
+    {
+      "key": "guest-sister-treatment",
+      "guid": "091C48B3-DF7B-4E2C-93B6-F3AE5AF8BB0C",
+      "guest": { "firstName": "Angela", "lastName": "Ward", "email": "angela.ward@example.org" },
+      "category": "health-issues",
+      "entered": { "daysAgo": 3, "time": "12:35" },
+      "state": "current",
+      "prayers": 4,
+      "text": "A coworker told me your church prays for people, so I am asking. My sister in Tucson starts treatment next week, and our whole family is scared. I do not go to church, but I would be grateful for prayer for her."
+    },
+    {
+      "key": "hernandez-audition",
+      "guid": "5CF659A7-016A-40F2-9115-2566E0C35E7D",
+      "requester": "9655AD2A-84AB-480F-9772-D5F438593450",
+      "category": "general",
+      "entered": { "daysAgo": 1, "time": "16:25" },
+      "state": "waiting",
+      "text": "I have an audition with a local orchestra next week. I have been practicing every night. Pray that I play my best and that I trust God with the result either way."
+    },
+    {
+      "key": "morgan-road-trip",
+      "guid": "6E58933E-9EDA-4A20-B560-AFBCD9413512",
+      "requester": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "category": "travel",
+      "entered": { "daysAgo": 1, "time": "18:00" },
+      "state": "waiting",
+      "text": "Steve and I are driving to Colorado this weekend to see our daughter and the grandkids. Safe travels, please, and a sweet visit."
+    },
+    {
+      "key": "dawson-custody",
+      "guid": "06667F18-D5C0-4294-B971-C527ACD6A8F6",
+      "requester": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "category": "family-issues",
+      "entered": { "daysAgo": 6, "time": "23:10" },
+      "state": "flagged",
+      "prayers": 2,
+      "text": "Pray for my ex-wife to stop changing the custody schedule at the last minute. I have asked her over and over and she keeps doing it, and the kids are the ones who lose. I am at the end of my rope with her."
+    },
+    {
+      "key": "coffee-coworker",
+      "guid": "34F391A6-3C10-444E-80E0-0B6E7B5064C2",
+      "requester": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "category": "salvation-rededication",
+      "entered": { "daysAgo": 40, "time": "12:05" },
+      "state": "expired",
+      "allowComments": true,
+      "prayers": 7,
+      "text": "A coworker has been asking me about my baptism and why I started going to church. I never expected to be the one people ask about faith. Pray that I would answer honestly and kindly, and that he would come with me some Sunday.",
+      "comments": [
+        { "by": "team", "text": "What a gift that he is asking. Praying for good conversations, Phil." }
+      ]
+    },
+    {
+      "key": "hayes-anniversary",
+      "guid": "40DF8512-7E01-457A-849E-2D33CDA4BCE9",
+      "requester": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "category": "general",
+      "entered": { "daysAgo": 60, "time": "09:30" },
+      "state": "expired",
+      "prayers": 6,
+      "text": "Bob and I celebrate 46 years of marriage this month. We are thankful for God's faithfulness through every season, and for this church. Pray for many more years together."
+    },
+    {
+      "key": "decker-mother-hospital",
+      "guid": "B3C03B5F-A12C-44A6-873F-27225BEC836F",
+      "requester": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "category": "hospitalization",
+      "entered": { "yearsAgo": 9, "month": 4, "day": 2, "time": "23:30" },
+      "state": "answered",
+      "isUrgent": true,
+      "prayers": 9,
+      "text": "My mother was admitted to the hospital tonight with pneumonia. She is 71 and the doctors want to watch her closely for a few days. Please pray for healing, for her care team, and for our family as we take turns at her side.",
+      "answer": "Mom came home after nine days and is getting stronger every week. Thank you to everyone who prayed and brought meals."
+    },
+    {
+      "key": "greggs-jenny-anniversary",
+      "guid": "02DDBE76-05B5-4006-A9C5-14378E69FD2A",
+      "requester": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "category": "comfort-grief",
+      "entered": { "daysAgo": 200, "time": "21:00" },
+      "state": "answered",
+      "allowComments": true,
+      "prayers": 8,
+      "text": "This week is the anniversary of losing our daughter Jenny. Bob and I still feel it every year, and our kids are old enough now to ask about her. Please pray for comfort, and for the right words when they ask.",
+      "answer": "The week was gentle. We told the kids stories about Jenny, and we even laughed. Thank you for carrying us.",
+      "comments": [
+        { "by": "team", "text": "Holding your family close in prayer this week. Jenny is remembered here too." }
+      ]
+    },
+    {
+      "key": "flores-new-job",
+      "guid": "612749BB-88A5-4211-94E9-C2003941DF0A",
+      "requester": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "category": "finances-job",
+      "entered": { "daysAgo": 90, "time": "07:20" },
+      "state": "answered",
+      "prayers": 7,
+      "text": "I have a second interview Thursday for a job with better hours. Being home when my kids get out of school would change everything for us. Please pray for peace in the interview and for God's best.",
+      "answer": "I got the job! I start next month, and I will be home every afternoon. Thank you, church family."
+    }
+  ]
+}

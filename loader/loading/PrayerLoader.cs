@@ -74,13 +74,27 @@ namespace RockSampleData.Loader.Loading
                 .ToList();
 
             var people = People( households, familySundays, gifts, smallGroupTypeId );
-            var plan = new PrayerPlanner( profile, _seed, historyStart, _dates.Anchor ).Plan( people, categories, text );
+            var planner = new PrayerPlanner( profile, _seed, historyStart, _dates.Anchor );
+            var plan = planner.Plan( people, categories, text );
+
+            // The Cast's own requests come after the generated ones, so the generated rows keep their seeded Guids.
+            var castRequests = _source.ReadCastPrayerRequests();
+            if ( castRequests.Count > 0 )
+            {
+                var groupGuids = _source.ReadCastSmallGroupPlans().ToDictionary( g => g.Key, g => g.Guid );
+                var groupIds = castRequests.Where( r => r.Group != null ).Select( r => r.Group ).Distinct()
+                    .ToDictionary( key => key, key => _db.RequireIdByGuid( "Group", groupGuids[key] ) );
+                var entered = castRequests.Select( r => _dates.Resolve( r.Entered ).Value ).ToList();
+                var guestCampusId = plan.Admins.FirstOrDefault()?.CampusId ?? people.First().CampusId;
+                plan.Requests.AddRange( planner.PlanCast( castRequests, entered, people.ToDictionary( p => p.Guid ), categories.ToDictionary( c => c.Key, c => c.Id ), groupIds, plan, guestCampusId ) );
+            }
+
             Write( plan.Requests );
 
             var prayers = plan.Requests.Sum( r => r.Prayers.Count );
             var comments = plan.Requests.Sum( r => r.Comments.Count );
             var waiting = plan.Requests.Count( r => !r.IsApproved );
-            Console.WriteLine( $"  Prayer requests: {plan.Requests.Count:N0} from {plan.ActiveAdults:N0} active adults ({waiting:N0} waiting for approval, {plan.Requests.Count( r => r.Answer != null ):N0} answered)" );
+            Console.WriteLine( $"  Prayer requests: {plan.Requests.Count:N0} from {plan.ActiveAdults:N0} active adults, {castRequests.Count} of them the Cast's own ({waiting:N0} waiting for approval, {plan.Requests.Count( r => r.Answer != null ):N0} answered)" );
             Console.WriteLine( $"  Prayer team: {plan.Team.Count:N0} people prayed {prayers:N0} times and left {comments:N0} comments" );
         }
 
@@ -114,6 +128,7 @@ WHERE [g].[GroupTypeId] = @GroupTypeId
                     people.Add( new PrayerPerson
                     {
                         PersonId = person.PersonId,
+                        Guid = person.Cast.Guid,
                         AliasId = person.AliasId,
                         CampusId = person.CampusId,
                         FirstName = person.Cast.NickName ?? person.Cast.FirstName,
@@ -167,7 +182,7 @@ WHERE [g].[GroupTypeId] = @GroupTypeId
                 requestRows.Rows.Add( requestId, request.FirstName, Value( request.LastName ), Value( request.Email ), Value( requesterAlias ), request.CategoryId, request.Text, Value( request.Answer ),
                     request.Entered, Value( request.Expiration ), Value( request.GroupId ), request.AllowComments, request.IsUrgent, request.IsPublic, request.IsActive, request.IsApproved,
                     request.FlagCount, request.Prayers.Count, Value( request.ApprovedBy?.AliasId ), request.CampusId, Value( request.ApprovedOn ), 0, request.Entered, modified,
-                    Value( requesterAlias ), Value( ( object ) request.ApprovedBy?.AliasId ?? requesterAlias ), random.NextGuid(), _foreignKey );
+                    Value( requesterAlias ), Value( ( object ) request.ApprovedBy?.AliasId ?? requesterAlias ), request.Guid ?? random.NextGuid(), _foreignKey );
 
                 // Rock makes a request's component the first time someone prays for it, named "First Last - MM/dd/yy".
                 if ( request.Prayers.Count > 0 )

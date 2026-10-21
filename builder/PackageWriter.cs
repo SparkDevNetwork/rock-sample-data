@@ -67,6 +67,11 @@ namespace RockSampleData.Builder
             AddFolder( "configuration", ".json" );
             AddFolder( "cast/households", ".json" );
             AddFolder( "cast/groups", ".json" );
+            if ( repository.Exists( SampleDataSource.CastPrayerRequestsPath ) )
+            {
+                AddFile( SampleDataSource.CastPrayerRequestsPath );
+            }
+
             AddFile( $"datasets/{dataset}.json" );
 
             // The profile is resolved here, so a load never blends calibration sources itself.
