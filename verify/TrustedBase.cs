@@ -110,6 +110,10 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
             {
                 problems.Add( "Rock's post-install job has not run on it (AnalyticsSourceDate is empty)." );
             }
+            else if ( Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [AnalyticsSourcePostalCode]" ) ) == 0 )
+            {
+                problems.Add( "Rock's post-install job did not find its census data (AnalyticsSourcePostalCode is empty)." );
+            }
 
             var exceptions = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [ExceptionLog]" ) );
             if ( exceptions > 0 )

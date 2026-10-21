@@ -1,0 +1,17 @@
+#!/bin/sh
+# Guards main (see AGENTS.md). Work happens on branches in their own worktrees; main only takes merges.
+# Turn the hooks on once per clone: git config core.hooksPath .githooks
+
+branch=$(git symbolic-ref --short -q HEAD)
+[ "$branch" = "main" ] || exit 0
+
+git_dir=$(git rev-parse --git-dir)
+if [ ! -f "$git_dir/MERGE_HEAD" ] && [ "$ALLOW_MAIN_COMMIT" != "1" ]; then
+    echo "Blocked: main only takes merges. Commit on a branch in its own worktree, then merge it into main." >&2
+    echo "A person who truly needs a direct commit can set ALLOW_MAIN_COMMIT=1 for that one command." >&2
+    exit 1
+fi
+
+# Decisions merge with real numbers only.
+node docs/number-decisions.js --check || exit 1
+exit 0

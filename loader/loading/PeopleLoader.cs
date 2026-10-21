@@ -283,11 +283,11 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "GroupLocation", groupLocations, keepIdentity: true );
             _db.BulkInsert( "PhoneNumber", phones, keepIdentity: true );
             _db.BulkInsert( "PersonSearchKey", searchKeys, keepIdentity: false );
-            _db.BulkInsert( "Metaphone", metaphones, keepIdentity: false );
+            var newMetaphoneNames = AddNewMetaphones( metaphones );
             SetGeoPoints( geo );
 
             Console.WriteLine( $"  Families: {households.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
-                + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {metaphones.Rows.Count}" );
+                + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {newMetaphoneNames}" );
         }
 
         /// <summary>
@@ -351,8 +351,9 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// Rock's age classification (PersonService.UpdatePersonAgeClassifications): Adult (1) when the
-        /// person is 18 or older or an adult in any family, otherwise Child (2). Rock's update skips
-        /// businesses and the deceased, so they keep the family role's classification.
+        /// person is 18 or older or an adult in any family, otherwise Child (2). Rock's update skips the
+        /// deceased, so they keep the family role's classification. Its nightly pass also skips businesses;
+        /// a business holds the Adult role, so it is Adult either way.
         /// </summary>
         private static int AgeClassification( CastPerson person, bool isAdult, bool isBusiness, int? age )
         {
@@ -450,30 +451,27 @@ namespace RockSampleData.Loader.Loading
             Rock's person save hook queues SaveMetaphoneTransaction (Rock/Transactions/SaveMetaphoneTransaction.cs),
             which adds each new first, nick, and last name to the Metaphone table with its two Double Metaphone
             keys. Rock's duplicate finder and sounds-like person search read them. The table is keyed by name
-            and shared by everyone, so only names Rock does not have yet are added, compared the way SQL Server's
-            default collation compares them. Metaphone has no ForeignKey column, so these rows are not marked
-            as sample data; they hold only names, and Rock keeps them after a person is deleted too.
+            and shared by everyone, so only names Rock does not have yet are added. Rock asks SQL Server whether
+            a name is there, so the database's collation decides which names match: it treats "Strauß" and
+            "Strauss" as one name, which no .NET string comparer does the same way. So SQL Server makes that
+            choice here too. Metaphone has no ForeignKey column, so these rows are not marked as sample data;
+            they hold only names, and Rock keeps them after a person is deleted too.
 
             Reason: Bulk copy skips what Rock adds for each person.
         */
 
         /// <summary>
-        /// The metaphone rows for every name Rock does not have yet.
+        /// The candidate metaphone rows, one per distinct name in person order. SQL Server decides which are new.
         /// </summary>
         private DataTable Metaphones()
         {
-            var known = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
-            foreach ( var row in _db.Query( "SELECT [Name] FROM [Metaphone]" ) )
-            {
-                known.Add( ( ( string ) row["Name"] ).TrimEnd() );
-            }
-
-            var metaphones = NewTable( "Name:string", "Metaphone1:string", "Metaphone2:string" );
+            var seen = new HashSet<string>( StringComparer.Ordinal );
+            var metaphones = NewTable( "Order:int", "Name:string", "Metaphone1:string", "Metaphone2:string" );
             foreach ( var person in People.Values.Select( p => p.Cast ) )
             {
                 foreach ( var name in new[] { person.FirstName, person.NickName ?? person.FirstName, person.LastName } )
                 {
-                    if ( string.IsNullOrWhiteSpace( name ) || !known.Add( name.Trim() ) )
+                    if ( string.IsNullOrWhiteSpace( name ) || !seen.Add( name.Trim() ) )
                     {
                         continue;
                     }
@@ -481,11 +479,27 @@ namespace RockSampleData.Loader.Loading
                     string primary = null;
                     string alternate = null;
                     DoubleMetaphone.doubleMetaphone( name.Trim(), ref primary, ref alternate );
-                    metaphones.Rows.Add( name.Trim(), primary ?? ( object ) DBNull.Value, alternate ?? ( object ) DBNull.Value );
+                    metaphones.Rows.Add( metaphones.Rows.Count, name.Trim(), primary ?? ( object ) DBNull.Value, alternate ?? ( object ) DBNull.Value );
                 }
             }
 
             return metaphones;
+        }
+
+        /// <summary>
+        /// Adds the names Rock does not have yet, and returns how many. When the collation treats two new names
+        /// as one, the first person's spelling is kept, as Rock keeps the first one saved.
+        /// </summary>
+        private int AddNewMetaphones( DataTable metaphones )
+        {
+            _db.Execute( "CREATE TABLE #Metaphone ( [Order] INT PRIMARY KEY, [Name] NVARCHAR(50) COLLATE DATABASE_DEFAULT, [Metaphone1] NVARCHAR(4) COLLATE DATABASE_DEFAULT, [Metaphone2] NVARCHAR(4) COLLATE DATABASE_DEFAULT )" );
+            _db.BulkInsert( "#Metaphone", metaphones, keepIdentity: false );
+            return _db.Execute( @"
+INSERT INTO [Metaphone] ( [Name], [Metaphone1], [Metaphone2] )
+SELECT [n].[Name], [n].[Metaphone1], [n].[Metaphone2]
+FROM ( SELECT [Name], [Metaphone1], [Metaphone2], ROW_NUMBER() OVER ( PARTITION BY [Name] ORDER BY [Order] ) AS [Rank] FROM #Metaphone ) AS [n]
+WHERE [n].[Rank] = 1 AND NOT EXISTS ( SELECT 1 FROM [Metaphone] AS [m] WHERE [m].[Name] = [n].[Name] );
+DROP TABLE #Metaphone;" );
         }
 
         /// <summary>

@@ -47,14 +47,16 @@ namespace RockSampleData.Verify
         private readonly SqlServer _sql;
         private readonly RockRelease _rock;
         private readonly string _acceptedPath;
+        private readonly string _runPrefix;
         private string _baseDatabase;
         private Measurement _baseline;
 
-        public CleanupReferee( SqlServer sql, RockRelease rock, string acceptedPath )
+        public CleanupReferee( SqlServer sql, RockRelease rock, string acceptedPath, string runPrefix )
         {
             _sql = sql;
             _rock = rock;
             _acceptedPath = acceptedPath;
+            _runPrefix = runPrefix;
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace RockSampleData.Verify
             _baseDatabase = baseDatabase;
             if ( _baseline == null )
             {
-                var baselineDatabase = $"{SqlServer.DatabasePrefix}-cleanup-baseline";
+                var baselineDatabase = $"{_runPrefix}-cleanup-baseline";
                 _sql.Copy( baseDatabase, baselineDatabase );
                 try
                 {
