@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "note.schema.json",
   "title": "Cast Notes",
-  "description": "Hand-written staff notes on the people of one Cast household (decision D-notes-1). Every dataset loads them on the main campus with the same Guids. Dates are relative to the anchor date. See notes/README.md.",
+  "description": "Hand-written staff notes on the people of one Cast household (decision 78). Every dataset loads them on the main campus with the same Guids. Dates are relative to the anchor date. See notes/README.md.",
   "type": "object",
   "required": [ "schemaVersion", "household", "notes" ],
   "additionalProperties": false,

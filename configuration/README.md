@@ -41,7 +41,7 @@ General Fund and Building Fund each have a child account per campus (for example
 
 ## Notes
 
-People have six note types (decision D-notes-1). Three are Rock's own, updated in place: Personal Note, Pastoral Note, and Phone Note. Rock ships Pastoral and Phone hidden from the "add a note" picker, so they are made selectable. Three are new: Follow-up, Counseling, and Safety Alert.
+People have six note types (decision 78). Three are Rock's own, updated in place: Personal Note, Pastoral Note, and Phone Note. Rock ships Pastoral and Phone hidden from the "add a note" picker, so they are made selectable. Three are new: Follow-up, Counseling, and Safety Alert.
 
 | Type | Who can view | Used for |
 |---|---|---|

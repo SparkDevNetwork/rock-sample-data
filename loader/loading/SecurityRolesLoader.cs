@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
         a GroupMember row in the role's group, with the Security Role group type's default role, as
         Rock's role editor adds it. Security role groups keep no history, so nothing else is written.
 
-        Reason: Cast staff can sign in and see what their roles allow, such as notes (decision D-notes-2).
+        Reason: Cast staff can sign in and see what their roles allow, such as notes (decision 79).
     */
 
     /// <summary>

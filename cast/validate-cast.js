@@ -32,7 +32,7 @@ const GUID = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
 const KEY = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const STATUSES = [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ];
 
-// The sample church uses only the security roles Rock ships, so every role name must be mapped (decision D-notes-2).
+// The sample church uses only the security roles Rock ships, so every role name must be mapped (decision 79).
 const securityRoleConfiguration = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "security-roles.json" ), "utf8" ) );
 const SECURITY_ROLE_NAMES = new Set( securityRoleConfiguration.roles.concat( securityRoleConfiguration.notRoles ).map( r => r.name ) );
 const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchdemo.com" ];
@@ -399,7 +399,7 @@ for ( const { file, data: h } of households ) {
 }
 
 /*
-    Notes (decision D-notes-1). Each file in notes/ holds one household's hand-written staff notes. Types
+    Notes (decision 78). Each file in notes/ holds one household's hand-written staff notes. Types
     and staff come from configuration/notes.json, and the allowed fields from note.schema.json.
     Staff never write about their own household, a reply comes from someone else on or after the
     note's day, and a private note, which only its author sees, has no replies and no mentions.

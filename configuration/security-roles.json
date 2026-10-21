@@ -1,5 +1,5 @@
 {
-  "$comment": "The security roles Cast people belong to (decision D-notes-2). The sample church uses only the security roles Rock ships; the loader never creates one. Each Cast role name (the 'securityRoles' list in cast/households) maps to one of Rock's role groups by Guid, and the loader adds the person to it as an active member. 'notRoles' are names Cast files list that are not Rock security roles: the loader adds no one to a role for them, and other loaders may read them. Any other name fails the Cast validator and the load.",
+  "$comment": "The security roles Cast people belong to (decision 79). The sample church uses only the security roles Rock ships; the loader never creates one. Each Cast role name (the 'securityRoles' list in cast/households) maps to one of Rock's role groups by Guid, and the loader adds the person to it as an active member. 'notRoles' are names Cast files list that are not Rock security roles: the loader adds no one to a role for them, and other loaders may read them. Any other name fails the Cast validator and the load.",
   "roles": [
     { "name": "Rock Administrators", "rockRole": "RSR - Rock Administration", "guid": "628C51A8-4613-43ED-A18D-4A6FB999273E" },
     { "name": "Staff Users", "rockRole": "RSR - Staff Workers", "guid": "2C112948-FF4C-46E7-981A-0257681EADF4" },

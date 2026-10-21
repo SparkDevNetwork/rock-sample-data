@@ -2,7 +2,7 @@
 
 Hand-written notes on Cast people, one file per household, named for the household's key. Every dataset loads them on the main campus, the same way every time, so tests can find them by Guid. Generated households get generated notes instead (see [content/notes](../../content/notes/README.md)).
 
-Each note ties to the household's story in [cast/households](../households/). Together the files cover every state Rock's notes show: each of the six note types, alerts, private notes, pinned notes, replies, mentions, and the restricted Counseling type (see decision D-notes-1).
+Each note ties to the household's story in [cast/households](../households/). Together the files cover every state Rock's notes show: each of the six note types, alerts, private notes, pinned notes, replies, mentions, and the restricted Counseling type (see decision 78).
 
 ## Format
 

@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
 {
     /// <summary>
     /// Sets up the note types on person records and loads notes: the Cast's hand-written notes, and
-    /// generated notes for generated households (decision D-notes-1).
+    /// generated notes for generated households (decision 78).
     /// </summary>
     internal sealed class NotesLoader
     {
@@ -129,7 +129,7 @@ namespace RockSampleData.Loader.Loading
             measured source locked viewing down on nearly every type, and good practice keeps care and
             counseling notes from anyone who is not staff.
 
-            Reason: Six note types with the security a well-run church gives them (decision D-notes-1).
+            Reason: Six note types with the security a well-run church gives them (decision 78).
         */
 
         /// <summary>
@@ -307,7 +307,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             come from personNotes.design in the profile, which is set above the measured rates on
             purpose: the sample church shows what good note use looks like, not what most churches do.
 
-            Reason: Stable Cast notes for tests, and a full notes timeline for demos (decision D-notes-1).
+            Reason: Stable Cast notes for tests, and a full notes timeline for demos (decision 78).
         */
 
         /// <summary>
