@@ -27,7 +27,11 @@
     Usage:
       node docs/number-decisions.js            Numbers every placeholder and rewrites the files.
       node docs/number-decisions.js --dry-run  Shows what it would do, and changes nothing.
-      node docs/number-decisions.js --check    Exits with 1 if any placeholder is left (for main).
+      node docs/number-decisions.js --check    Exits with 1 if any placeholder is left anywhere (for main).
+
+    --check looks at every tracked text file, not only the decision log, so a stale mention of a
+    placeholder elsewhere fails too. The samples in the docs use the reserved slug "example"
+    (D-example-1), which --check ignores and the script never numbers.
 */
 
 const fs = require( "fs" );
@@ -63,6 +67,21 @@ if ( isCheck ) {
         console.error( `Decisions still have placeholders: ${placeholders.join( ", " )}. Run node docs/number-decisions.js.` );
         process.exit( 1 );
     }
+
+    // A placeholder mentioned anywhere else, outside the reserved samples, was missed or is stale.
+    const mention = new RegExp( `(?<![A-Za-z0-9-])${PLACEHOLDER.source}(?![A-Za-z0-9])`, "g" );
+    const stale = [];
+    for ( const { file, text } of textFiles() ) {
+        const found = [ ...new Set( ( text.match( mention ) || [] ).filter( p => !p.startsWith( "D-example-" ) ) ) ];
+        if ( found.length ) {
+            stale.push( `${file}: ${found.join( ", " )}` );
+        }
+    }
+    if ( stale.length ) {
+        console.error( `Placeholders are still mentioned outside the decision log, so they were never numbered:\n  ${stale.join( "\n  " )}` );
+        process.exit( 1 );
+    }
+
     console.log( "Every decision has a number." );
     process.exit( 0 );
 }
@@ -86,21 +105,8 @@ for ( const [ placeholder, number ] of assigned ) {
 
 // Longest first, so D-example-12 is never rewritten as D-example-1 followed by "2".
 const pattern = new RegExp( `(?<![A-Za-z0-9-])(${[ ...assigned.keys() ].sort( ( a, b ) => b.length - a.length ).join( "|" )})(?![A-Za-z0-9])`, "g" );
-const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
-    .split( /\r?\n/ )
-    .filter( f => f && !BINARY_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
-
 let changedFiles = 0;
-for ( const file of files ) {
-    const full = path.join( root, file );
-    if ( !fs.existsSync( full ) ) {
-        continue;
-    }
-    const bytes = fs.readFileSync( full );
-    if ( bytes.includes( 0 ) ) {
-        continue;
-    }
-    const text = bytes.toString( "utf8" );
+for ( const { file, full, text } of textFiles() ) {
     const updated = text.replace( pattern, p => assigned.get( p ) );
     if ( updated !== text ) {
         changedFiles++;
@@ -112,3 +118,22 @@ for ( const file of files ) {
 }
 
 console.log( `${assigned.size} decision${assigned.size === 1 ? "" : "s"} numbered in ${changedFiles} file${changedFiles === 1 ? "" : "s"}${isDryRun ? " (dry run, nothing changed)" : ""}.` );
+
+/**
+ * Every tracked text file, with its text. Binary files are skipped by type, and by a null byte for any other.
+ */
+function* textFiles() {
+    const files = execFileSync( "git", [ "ls-files" ], { cwd: root, encoding: "utf8" } )
+        .split( /\r?\n/ )
+        .filter( f => f && !BINARY_EXTENSIONS.has( path.extname( f ).toLowerCase() ) );
+    for ( const file of files ) {
+        const full = path.join( root, file );
+        if ( !fs.existsSync( full ) ) {
+            continue;
+        }
+        const bytes = fs.readFileSync( full );
+        if ( !bytes.includes( 0 ) ) {
+            yield { file, full, text: bytes.toString( "utf8" ) };
+        }
+    }
+}
