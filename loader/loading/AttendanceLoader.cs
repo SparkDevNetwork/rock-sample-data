@@ -39,7 +39,7 @@ namespace RockSampleData.Loader.Loading
     /// </summary>
     internal sealed class AttendanceLoader
     {
-        private static readonly Guid PhoneSearchTypeGuid = new Guid( "F3F66040-C50F-4D13-9652-780305FFFE23" );
+        internal static readonly Guid PhoneSearchTypeGuid = new Guid( "F3F66040-C50F-4D13-9652-780305FFFE23" );
         private const string CodeCharacters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
         private readonly RockDatabase _db;

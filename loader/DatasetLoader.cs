@@ -131,6 +131,8 @@ namespace RockSampleData.Loader
             var configuration = new ConfigurationLoader( db, source, dataset, foreignKey );
             configuration.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
+            var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
+            var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             var profile = source.ReadProfile();
@@ -184,6 +186,9 @@ namespace RockSampleData.Loader
                 Console.WriteLine( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
             }
 
+            // Serving is planned before people load too, so new team leaders load as Leading.
+            var servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
             people.Load( households );
             var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
@@ -194,11 +199,13 @@ namespace RockSampleData.Loader
             step.Restart();
             Console.WriteLine( "Photos" );
             var photoPercent = manifest?.Photos?.GeneratedHouseholdPercent ?? 0;
-            new PhotoLoader( db, source, foreignKey, seed ).Load( people.Households, castHouseholdKeys, photoPercent );
+            var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
+            photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
+            Console.WriteLine( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
-            // Sunday attendance and small group attendance both copy into Attendance. Its indexes are
-            // rebuilt once, after both copies; nothing reads Attendance in between.
+            // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its
+            // indexes are rebuilt once, after every copy; nothing reads Attendance in between.
             db.DeferIndexRebuild( "Attendance" );
 
             step.Restart();
@@ -219,7 +226,19 @@ namespace RockSampleData.Loader
             new SmallGroupLoader( db, source.SmallGroups, smallGroupSetup, calendar, dates, foreignKey, seed, mainCampusKey, configuration.CampusIds ).Load( groupPlans, people );
             var groupPhotoCount = new PhotoLoader( db, source, foreignKey, seed ).LoadGroupPhotos( groupPlans );
             Console.WriteLine( $"  Group photos: {groupPhotoCount}" );
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
+            // Volunteers serve on the Sundays their family came, so serving follows Sunday attendance.
+            step.Restart();
+            Console.WriteLine( "Serving" );
+            new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, configuration.KioskDeviceId, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
             db.RebuildDeferredIndexes();
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
+            // Requests to serve end in the team memberships serving just loaded, so they follow it.
+            step.Restart();
+            Console.WriteLine( "Connection requests" );
+            new ConnectionRequestLoader( db, source, connectionSetup, servingSetup, profile, dates, foreignKey, seed ).Load( servingPlans, people );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
             step.Restart();

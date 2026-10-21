@@ -224,15 +224,21 @@
         },
         "connectionRequests": {
           "type": "array",
+          "description": "Requests to serve that tell this person's story (decision 75). The loader adds the activity history. A Connected request adds the person to the team as Pending.",
           "items": {
             "type": "object",
-            "required": [ "type", "opportunity" ],
+            "required": [ "opportunity", "state", "status", "created", "connector", "comment" ],
             "additionalProperties": false,
             "properties": {
-              "type": { "type": "string" },
-              "opportunity": { "type": "string" },
-              "comment": { "type": "string" },
-              "date": { "$ref": "#/$defs/relativeDate" }
+              "opportunity": { "type": "string", "description": "A team key from configuration/serving.json; its opportunity is in configuration/connections.json." },
+              "state": { "enum": [ "Active", "Inactive", "FutureFollowUp", "Connected" ] },
+              "status": { "type": "string", "description": "A request status name from configuration/connections.json." },
+              "created": { "$ref": "#/$defs/relativeDate" },
+              "connected": { "$ref": "#/$defs/relativeDate", "description": "When a Connected request connected." },
+              "followUpInDays": { "type": "integer", "minimum": 1, "description": "Days after the anchor a FutureFollowUp request comes back." },
+              "connector": { "type": "boolean", "description": "Whether the team's leader at the person's campus is the connector." },
+              "backgroundCheck": { "enum": [ "Pass", "Fail" ], "description": "A background check result recorded a week after the request." },
+              "comment": { "type": "string" }
             }
           }
         },

@@ -19,12 +19,12 @@ James and Sarah Lee have six children, from a high school sophomore to a toddler
 
 ### James Lee
 
-- Age 40 · married · email james.lee@example.org · groups: Lee Group (leader)
+- Age 40 · married · email james.lee@example.org · groups: Lee Group (leader), Worship Team (leader)
 - Person Guid `58612861-F929-43E0-9EB8-3075868A81B1`
 
 ### Sarah Lee
 
-- Age 38 · married · email sarah.lee@example.org · groups: Lee Group
+- Age 38 · married · email sarah.lee@example.org · groups: Lee Group, Kids Ministry
 - Person Guid `9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2`
 
 ### Ben (Benjamin) Lee

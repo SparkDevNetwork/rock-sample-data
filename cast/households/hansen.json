@@ -50,14 +50,14 @@
       },
       "connectionRequests": [
         {
-          "type": "Involvement",
-          "opportunity": "Usher",
-          "comment": "I can help if needed.",
-          "date": {
-            "yearsAgo": 8,
-            "month": 9,
-            "day": 25
-          }
+          "opportunity": "ushers",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 6
+          },
+          "connector": false,
+          "comment": "I'd like to help as an usher, any service works for me."
         }
       ]
     }

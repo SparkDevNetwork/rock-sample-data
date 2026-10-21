@@ -1,0 +1,18 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-ushers",
+  "guid": "6FAF2721-3E26-40D0-936E-29157328A37B",
+  "name": "Ushers",
+  "type": "serving",
+  "team": "ushers",
+  "campus": "main",
+  "members": [
+    { "guid": "1EA811BB-3118-42D1-B020-32A82BC8081A", "name": "Bill Marble", "role": "Leader" },
+    { "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C", "name": "Steve Morgan", "role": "Member" },
+    { "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF", "name": "Karen Morgan", "role": "Member" },
+    { "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30", "name": "Marcus Washington", "role": "Member" },
+    { "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5", "name": "Bill Price", "role": "Member" },
+    { "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3", "name": "Tom Miller", "role": "Member" }
+  ]
+}

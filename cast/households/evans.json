@@ -58,14 +58,14 @@
       },
       "connectionRequests": [
         {
-          "type": "Involvement",
-          "opportunity": "Children's",
-          "comment": "I would love to help teach kids about Jesus.",
-          "date": {
-            "yearsAgo": 8,
-            "month": 10,
-            "day": 11
-          }
+          "opportunity": "kids-ministry",
+          "state": "Active",
+          "status": "Background Check",
+          "created": {
+            "daysAgo": 25
+          },
+          "connector": true,
+          "comment": "I'm a retired teacher and would love to help in the kids area."
         }
       ]
     }

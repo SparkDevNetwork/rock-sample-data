@@ -56,6 +56,10 @@ namespace RockSampleData.Loader
 
         public AchievementConfiguration Achievements { get; }
 
+        public ServingConfiguration Serving { get; }
+
+        public ConnectionsConfiguration Connections { get; }
+
         /// <summary>
         /// Reads every configuration file.
         /// </summary>
@@ -70,6 +74,8 @@ namespace RockSampleData.Loader
             SmallGroups = Read<SmallGroupRules>( "configuration/small-groups.json" );
             GivingAlertTypes = Read<GivingAlertTypeConfiguration>( "configuration/giving-alert-types.json" );
             Achievements = Read<AchievementConfiguration>( "configuration/achievements.json" );
+            Serving = Read<ServingConfiguration>( "configuration/serving.json" );
+            Connections = Read<ConnectionsConfiguration>( "configuration/connections.json" );
         }
 
         /// <summary>
@@ -103,6 +109,17 @@ namespace RockSampleData.Loader
         }
 
         /// <summary>
+        /// Reads the Cast's serving team rosters (cast/groups/serving-*.json), by team key.
+        /// </summary>
+        public Dictionary<string, CastServingTeam> ReadCastServingTeams()
+        {
+            return Files.List( "cast/groups" )
+                .Where( f => Path.GetFileName( f ).StartsWith( "serving-", StringComparison.Ordinal ) && f.EndsWith( ".json", StringComparison.Ordinal ) )
+                .Select( Read<CastServingTeam> )
+                .ToDictionary( t => t.Team );
+        }
+
+        /// <summary>
         /// Reads photos/groups/manifest.json, the Cast small group photos. A package built before
         /// group photos existed has none.
         /// </summary>
@@ -112,6 +129,17 @@ namespace RockSampleData.Loader
         }
 
         public const string GroupPhotoManifestPath = "photos/groups/manifest.json";
+
+        /// <summary>
+        /// Reads photos/opportunities/manifest.json, the serving opportunity photos. A package built before
+        /// opportunity photos existed has none.
+        /// </summary>
+        public OpportunityPhotoManifest ReadOpportunityPhotoManifest()
+        {
+            return Files.Exists( OpportunityPhotoManifestPath ) ? Read<OpportunityPhotoManifest>( OpportunityPhotoManifestPath ) : new OpportunityPhotoManifest();
+        }
+
+        public const string OpportunityPhotoManifestPath = "photos/opportunities/manifest.json";
 
         /// <summary>
         /// Reads configuration/prayer.json, or null for a package built before prayer requests existed.

@@ -1,0 +1,20 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-greeters",
+  "guid": "39FA00EE-25DD-47A3-942B-BFCF1975D661",
+  "name": "Greeters",
+  "type": "serving",
+  "team": "greeters",
+  "campus": "main",
+  "members": [
+    { "guid": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2", "name": "Jerry Wright", "role": "Leader" },
+    { "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA", "name": "Dot Wright", "role": "Member" },
+    { "guid": "65B88091-00EE-4E28-9136-42B45E0C7188", "name": "Larry Bell", "role": "Member" },
+    { "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD", "name": "Deb Bell", "role": "Member" },
+    { "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837", "name": "Bob Hayes", "role": "Member" },
+    { "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A", "name": "Linda Hayes", "role": "Member" },
+    { "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD", "name": "Chris Sullivan", "role": "Member" },
+    { "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572", "name": "Amanda Sullivan", "role": "Member" }
+  ]
+}

@@ -14,12 +14,12 @@ Marcus and Denise Washington's daughter Jasmine graduated from high school this 
 
 ### Marcus Washington
 
-- Age 52 · married · email marcus.washington@example.org · groups: Rivera Group, Russell Group (group archived)
+- Age 52 · married · email marcus.washington@example.org · groups: Rivera Group, Ushers, Russell Group (group archived)
 - Person Guid `DDB9DE7A-977F-4A44-8097-2F5A00DD7C30`
 
 ### Denise Washington
 
-- Age 50 · married · email denise.washington@example.org · groups: Rivera Group, Russell Group (group archived)
+- Age 50 · married · email denise.washington@example.org · groups: Rivera Group, Kids Ministry, Russell Group (group archived)
 - Person Guid `613519D8-909C-4E3B-9553-B7C345159C7A`
 
 ### Jasmine Washington

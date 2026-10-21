@@ -8,6 +8,7 @@ An image model makes the people photos from the [photo brief](brief.md). This fo
 |---|---|---|
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
 | Cast small groups | `Group.PhotoId` | AI-generated group photos of each group's real members, made from their profile photos, from the [group photo brief](group-brief.md) (decision 56) |
+| Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
 | Scenes | Other groups' `Group.PhotoId`, event items, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
 | Scanned checks | `FinancialTransactionImage` | Drawn at install from fictional check templates, for the months each [dataset](../datasets/README.md) sets |
 
@@ -67,6 +68,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Cast (in every dataset) | Every adult and child, except a few omitted on purpose (duplicate records and a deceased child). The 45 legacy portraits have approved replacements. Businesses get no portrait. |
 | Core 3 companions | About half, from a pool of 120 photos. |
 | Cast small groups (in every dataset) | All 12, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
+| Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos
@@ -82,4 +84,6 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `brief.md` | The brief for the image model | Yes |
 | `group-brief.md` | The brief for the Cast small group photos. `node photos/build-group-brief.js` rewrites its member lists | Yes |
 | `groups/` | Delivered group photos, `{group-key}.jpg`, and their `manifest.json` | Yes |
+| `opportunity-brief.md` | The brief for the serving opportunity photos | Yes |
+| `opportunities/` | Delivered opportunity photos, `{team}.jpg`, and their `manifest.json` | Yes |
 | `originals/` | The image model's full-size originals of both, same names, in the format the model made (JPEG or PNG) | Yes |

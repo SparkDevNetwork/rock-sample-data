@@ -6,13 +6,13 @@ Michelle Nguyen is a single nurse who gives online every week and serves on the 
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| <img src="../../photos/cast/nguyen-michelle.jpg" width="96" alt="Michelle Nguyen"> | Michelle Nguyen | 33 | adult | Engaged |
+| <img src="../../photos/cast/nguyen-michelle.jpg" width="96" alt="Michelle Nguyen"> | Michelle Nguyen | 33 | adult | Leading |
 
 ## People
 
 ### Michelle Nguyen
 
-- Age 33 · single · Valley Water District · email michelle.nguyen@example.org · groups: Foster Group (left), Rivera Group (left)
+- Age 33 · single · Valley Water District · email michelle.nguyen@example.org · groups: First Aid Team (leader), Foster Group (left), Rivera Group (left)
 - Person Guid `42E18942-04CB-49BC-A72B-5D121514520E`
 
 ## What this family tests

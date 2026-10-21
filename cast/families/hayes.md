@@ -13,12 +13,12 @@ Robert and Linda Hayes have been married 46 years and members for 25. They never
 
 ### Bob (Robert) Hayes
 
-- Age 70 · married · email bob.hayes@example.org · groups: Marble Group
+- Age 70 · married · email bob.hayes@example.org · groups: Marble Group, Greeters
 - Person Guid `468247EF-7A8B-4E02-9F23-C3BA98C74837`
 
 ### Linda Hayes
 
-- Age 68 · married · email linda.hayes@example.org · groups: Marble Group
+- Age 68 · married · email linda.hayes@example.org · groups: Marble Group, Greeters
 - Person Guid `A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A`
 
 ## What this family tests
