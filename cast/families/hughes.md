@@ -50,6 +50,10 @@ Matthew and Jessica Hughes have three young kids: a kindergartner, a preschooler
 - **Giving:** **weekly** by Matt Hughes: $110 General Fund per gift, gives in 96% of periods, started 5 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Current**, from Jess Hughes, 1 days ago (Hospitalization, urgent, 3 prayers): Our youngest is having ear tubes put in early tomorrow morning. It is a short procedure, but he is only one and I am nervous about the anesthesia. Please pray for a smooth surgery and a quick recovery.
+
 ## Address
 
 14886 N 3rd Ave, Phoenix, AZ 85023 (a real street with a house number that does not exist)

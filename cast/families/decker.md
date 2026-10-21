@@ -55,6 +55,10 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 - **Giving:** **monthly** by Ted Decker: $175 General Fund + $125 Building Fund per gift, by card, gives in 100% of periods, grows 3% every 52 weeks, 50% chance of a year-end gift, started 10 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
 - **Giving units:** the couple gives together as one giving unit.
 
+## Prayer requests
+
+- **Answered**, from Ted Decker, 9 years ago (Hospitalization, urgent, 9 prayers): My mother was admitted to the hospital tonight with pneumonia. She is 71 and the doctors want to watch her closely for a few days. Please pray for healing, for her care team, and for our family as we take turns at her side. Answer: Mom came home after nine days and is getting stronger every week. Thank you to everyone who prayed and brought meals.
+
 ## Address
 
 11622 N 31st Dr, Phoenix, AZ 85029 (a real street with a house number that does not exist)

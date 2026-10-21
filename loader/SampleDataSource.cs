@@ -121,6 +121,16 @@ namespace RockSampleData.Loader
             return Files.Exists( "configuration/prayer.json" ) ? Read<PrayerConfiguration>( "configuration/prayer.json" ) : null;
         }
 
+        public const string CastPrayerRequestsPath = "cast/prayer-requests.json";
+
+        /// <summary>
+        /// Reads the Cast's own prayer requests, or none for a package built before they existed.
+        /// </summary>
+        public List<CastPrayerRequest> ReadCastPrayerRequests()
+        {
+            return Files.Exists( CastPrayerRequestsPath ) ? Read<CastPrayerRequestFile>( CastPrayerRequestsPath ).Requests : new List<CastPrayerRequest>();
+        }
+
         /// <summary>
         /// Reads the prayer text pools in content/prayer: one file per category with a weight above 0,
         /// plus the comments and closings.

@@ -25,6 +25,10 @@ Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before 
 - **Attendance:** occasional, 20% of Sundays, since about 3 months ago.
 - **Giving:** none.
 
+## Prayer requests
+
+- **Current**, from Tori Ramos, 4 days ago (Life Transitions, 5 prayers): I moved to Phoenix this year for work and do not know many people yet. My young adults group has been a gift. Pray that I would find real friends here, and that this city would start to feel like home.
+
 ## Address
 
 10567 W Kingswood Cir, Sun City, AZ 85351 (a real street with a house number that does not exist)

@@ -33,6 +33,9 @@ const photoDir = path.join( castDir, "..", "photos", "cast" );
 const campuses = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses;
 const achievementNames = new Map( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( a => [ a.key, a.name ] ) );
 const mainCampus = campuses.find( c => c.rockDefault ).name;
+const prayerFile = path.join( castDir, "prayer-requests.json" );
+const prayerRequests = fs.existsSync( prayerFile ) ? JSON.parse( fs.readFileSync( prayerFile, "utf8" ) ).requests : [];
+const prayerCategoryNames = new Map( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "prayer.json" ), "utf8" ) ).categories.map( c => [ c.key, c.name ] ) );
 
 const readFolder = folder => fs.readdirSync( path.join( castDir, folder ) ).filter( f => f.endsWith( ".json" ) ).sort()
     .map( f => JSON.parse( fs.readFileSync( path.join( castDir, folder, f ), "utf8" ) ) );
@@ -259,6 +262,19 @@ function familyPage( h ) {
         lines.push( "- **Giving:** none." );
     }
     lines.push( "" );
+
+    // The family's own prayer requests (cast/prayer-requests.json), with the state each one shows in Rock.
+    const familyRequests = prayerRequests.filter( r => people.some( p => p.guid === r.requester ) );
+    if ( familyRequests.length ) {
+        lines.push( "## Prayer requests", "" );
+        for ( const r of familyRequests ) {
+            const asker = people.find( p => p.guid === r.requester );
+            const comments = ( r.comments || [] ).length;
+            const details = [ prayerCategoryNames.get( r.category ), r.isUrgent && "urgent", r.isPrivate && "private", r.group && `shared with ${r.group}`, r.prayers && `${r.prayers} prayers`, comments && `${comments} comments` ].filter( Boolean );
+            lines.push( `- **${r.state[ 0 ].toUpperCase()}${r.state.slice( 1 )}**, from ${shortName( asker )}, ${ago( r.entered )} (${details.join( ", " )}): ${r.text}${r.answer ? ` Answer: ${r.answer}` : ""}` );
+        }
+        lines.push( "" );
+    }
 
     if ( h.address ) {
         lines.push( "## Address", "", `${h.address.street1}, ${h.address.city}, ${h.address.state} ${h.address.postalCode} (a real street with a house number that does not exist)`, "" );

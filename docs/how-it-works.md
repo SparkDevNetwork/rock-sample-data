@@ -33,6 +33,7 @@ flowchart LR
 | Files | What they say | Who edits them |
 |---|---|---|
 | `cast/households/*.json` | Each Cast family: people, ages, statuses, story, test purposes, attendance and giving patterns, address, photo inputs | People designing test cases |
+| `cast/prayer-requests.json` | The Cast's own prayer requests and the state each shows in Rock | People designing test cases |
 | `cast/groups/*.json` | Cast groups and their members. Small groups are plans that the builder writes with `--plan-cast-groups`. | People designing test cases; the builder for small groups |
 | `configuration/*.json` | Campuses, service times, funds, check-in rooms, connection statuses, kids achievements, every small group rule, and prayer category weights | People shaping the church setup |
 | `content/prayer/*` | Text pools for prayer requests, answers, and prayer team comments, checked by `check-pools.js` | People writing sample text |

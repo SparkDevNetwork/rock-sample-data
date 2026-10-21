@@ -28,6 +28,10 @@ Phil's neighbor Allie Song invited him to an Easter service. He kept coming, joi
 - **Attendance:** set by connection status.
 - **Giving:** none.
 
+## Prayer requests
+
+- **Expired**, from Phil Coffee, 40 days ago (Salvation/Rededication, 7 prayers, 1 comments): A coworker has been asking me about my baptism and why I started going to church. I never expected to be the one people ask about faith. Pray that I would answer honestly and kindly, and that he would come with me some Sunday.
+
 ## Address
 
 3723 W Shangri la Rd, Phoenix, AZ 85029 (a real street with a house number that does not exist)
