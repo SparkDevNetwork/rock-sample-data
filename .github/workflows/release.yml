@@ -144,6 +144,23 @@ jobs:
         working-directory: ${{ env.ROCK_PATH }}
         run: nuget restore RockWeb/packages.config -SolutionDirectory . -NonInteractive
 
+      # Each RockWeb\Bin\*.refresh names a restored DLL for Bin. Visual Studio copies them, but a
+      # command-line website build cannot resolve the netstandard2.0 ones (MSB3268), so Ical.Net and
+      # others never reach Bin and App_Code fails to compile. Copy them first, as Visual Studio does.
+      # A .refresh for a package RockWeb no longer lists is skipped.
+      - name: Copy RockWeb's referenced DLLs into Bin
+        working-directory: ${{ env.ROCK_PATH }}
+        run: |
+          $copied = 0
+          Get-ChildItem RockWeb\Bin -Filter *.refresh | ForEach-Object {
+              $dll = Join-Path $_.DirectoryName $_.BaseName
+              $source = Join-Path (Resolve-Path RockWeb) (Get-Content $_.FullName -Raw).Trim()
+              if (Test-Path $dll) { return }
+              if (Test-Path $source) { Copy-Item $source $dll; $copied++ }
+              else { Write-Output "Skipped $($_.Name): $source is not restored." }
+          }
+          Write-Output "Copied $copied DLLs into RockWeb\Bin."
+
       # dotnet build cannot build RockWeb (MSB4249), so use Visual Studio's MSBuild. The verify tool
       # needs RockWeb\bin.
       - name: Build Rock
