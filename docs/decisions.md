@@ -2,7 +2,7 @@
 
 The decisions behind the sample data: what it contains, what patterns it follows, and why. This log covers strategy, not implementation. How the builder does its work lives in [How it works](how-it-works.md) and the [builder README](../builder/README.md).
 
-Each row is the current decision. When a decision changes, update its row and its date, and say what changed. Add new decisions at the end of the right section with the next number.
+Each row is the current decision. When a decision changes, update its row and its date, and say what changed. Add new decisions at the end of the right section. On a branch, a new decision takes a placeholder such as `D-notes-1`, never a number; it gets its number when the branch merges (see [Working in parallel](maintaining.md#decision-numbers)).
 
 This log wins over the [design spec](design-spec.md) wherever the two disagree.
 

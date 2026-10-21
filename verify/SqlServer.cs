@@ -140,8 +140,9 @@ namespace RockSampleData.Verify
             Drop( target );
             var backupFolder = ( string ) Scalar( "master", "SELECT CAST( SERVERPROPERTY( 'InstanceDefaultBackupPath' ) AS NVARCHAR(400) )" );
             var dataFolder = ( string ) Scalar( "master", "SELECT CAST( SERVERPROPERTY( 'InstanceDefaultDataPath' ) AS NVARCHAR(400) )" );
-            // One backup file per source, overwritten each time, so nothing piles up in the server's backup folder.
-            var backup = Path.Combine( backupFolder, $"{DatabasePrefix}-copy-of-{source}.bak" );
+            // One backup file per target, overwritten each time, so nothing piles up in the server's backup folder.
+            // The target carries the run's tag, so parallel runs copying the same source never share a file.
+            var backup = Path.Combine( backupFolder, $"{target}.bak" );
             Execute( "master", $"BACKUP DATABASE [{source}] TO DISK = N'{backup}' WITH COPY_ONLY, INIT, COMPRESSION;" );
 
             var moves = Query( "master", "SELECT [name], [type] FROM sys.master_files WHERE [database_id] = DB_ID( @Name )", new SqlParameter( "@Name", source ) )
