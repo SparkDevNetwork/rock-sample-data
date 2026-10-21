@@ -127,9 +127,20 @@ namespace RockSampleData.Loader.Loading
         public RockKeys Keys { get; set; }
 
         /// <summary>
-        /// Plans every gift, then writes the financial tables in foreign key order.
+        /// The planned rows, in foreign key order, which <see cref="Write"/> writes.
         /// </summary>
-        public void Load( List<LoadedHousehold> households )
+        private List<(string Table, DataTable Rows)> _planned;
+
+        /// <summary>
+        /// The line that names the open check batch, reported when the gifts are written.
+        /// </summary>
+        private string _openBatchLine;
+
+        /// <summary>
+        /// Plans every gift and fills <see cref="CheckGifts"/> and <see cref="QualifyingGifts"/>. Prayer reads
+        /// the plan even when giving is not written, so planning never depends on the parts chosen.
+        /// </summary>
+        public void Plan( List<LoadedHousehold> households )
         {
             var now = DateTime.Now;
             var contributionId = DefinedValueId( ContributionGuid );
@@ -177,16 +188,17 @@ namespace RockSampleData.Loader.Loading
                         var paymentId = nextPaymentId++;
                         paymentDetails.Rows.Add( paymentId, DefinedValueId( CurrencyGuids[channel.Currency] ), CardBrand( channel.Currency, wallet ), wallet.Masked( channel.Currency ) ?? ( object ) DBNull.Value, Guid.NewGuid(), _foreignKey, gifts[0].When, now );
                         var isActive = ended == null || ended > _calendar.HistoryEnd;
+                        var lastGift = gifts[gifts.Count - 1];
                         var (frequency, next) = pattern.Persona switch
                         {
-                            "weekly" => (WeeklyFrequencyGuid, gifts[^1].When.Date.AddDays( 7 )),
-                            "bi-weekly" => (BiWeeklyFrequencyGuid, gifts[^1].When.Date.AddDays( 14 )),
-                            "quarterly" => (QuarterlyFrequencyGuid, gifts[^1].When.Date.AddMonths( 3 )),
-                            _ => (MonthlyFrequencyGuid, gifts[^1].When.Date.AddMonths( 1 ))
+                            "weekly" => (WeeklyFrequencyGuid, lastGift.When.Date.AddDays( 7 )),
+                            "bi-weekly" => (BiWeeklyFrequencyGuid, lastGift.When.Date.AddDays( 14 )),
+                            "quarterly" => (QuarterlyFrequencyGuid, lastGift.When.Date.AddMonths( 3 )),
+                            _ => (MonthlyFrequencyGuid, lastGift.When.Date.AddMonths( 1 ))
                         };
-                        schedules.Rows.Add( scheduleId, DefinedValueId( frequency ), gifts[0].When.Date, isActive ? DBNull.Value : ( object ) gifts[^1].When.Date, isActive ? ( object ) next : DBNull.Value, isActive,
+                        schedules.Rows.Add( scheduleId, DefinedValueId( frequency ), gifts[0].When.Date, isActive ? DBNull.Value : ( object ) lastGift.When.Date, isActive ? ( object ) next : DBNull.Value, isActive,
                             giver.AliasId, gatewayId ?? DBNull.Value, paymentId, DefinedValueId( WebsiteSourceGuid ), contributionId, $"SCH{scheduleId:D7}", Guid.NewGuid(), _foreignKey, gifts[0].When, now );
-                        foreach ( var amount in gifts[^1].Amounts )
+                        foreach ( var amount in lastGift.Amounts )
                         {
                             scheduleDetails.Rows.Add( nextScheduleDetailId++, scheduleId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gifts[0].When, now );
                         }
@@ -275,19 +287,39 @@ namespace RockSampleData.Loader.Loading
                 row["ControlItemCount"] = totals.Count;
             }
 
-            _db.BulkInsert( "FinancialBatch", batches, keepIdentity: true );
-            _db.BulkInsert( "FinancialPaymentDetail", paymentDetails, keepIdentity: true );
-            _db.BulkInsert( "FinancialScheduledTransaction", schedules, keepIdentity: true );
-            _db.BulkInsert( "FinancialScheduledTransactionDetail", scheduleDetails, keepIdentity: true );
-            _db.BulkInsert( "FinancialTransaction", transactions, keepIdentity: true );
-            _db.BulkInsert( "FinancialTransactionDetail", details, keepIdentity: true );
+            _planned = new List<(string, DataTable)>
+            {
+                ("FinancialBatch", batches),
+                ("FinancialPaymentDetail", paymentDetails),
+                ("FinancialScheduledTransaction", schedules),
+                ("FinancialScheduledTransactionDetail", scheduleDetails),
+                ("FinancialTransaction", transactions),
+                ("FinancialTransactionDetail", details)
+            };
             if ( bankAccounts != null )
             {
-                _db.BulkInsert( "FinancialPersonBankAccount", bankAccounts, keepIdentity: true );
+                _planned.Add( ("FinancialPersonBankAccount", bankAccounts) );
+            }
+        }
+
+        /// <summary>
+        /// Writes the gifts <see cref="Plan"/> planned, in foreign key order.
+        /// </summary>
+        public void Write()
+        {
+            if ( _openBatchLine != null )
+            {
+                _db.Log.Write( _openBatchLine );
             }
 
-            var dollars = details.AsEnumerable().Sum( r => ( decimal ) r["Amount"] );
-            Console.WriteLine( $"  Gifts: {transactions.Rows.Count:N0} (${dollars:N0}) in {batches.Rows.Count:N0} batches, scheduled gifts: {schedules.Rows.Count:N0}" );
+            foreach ( var (table, rows) in _planned )
+            {
+                _db.BulkInsert( table, rows, keepIdentity: true );
+            }
+
+            var tables = _planned.ToDictionary( p => p.Table, p => p.Rows );
+            var dollars = tables["FinancialTransactionDetail"].AsEnumerable().Sum( r => ( decimal ) r["Amount"] );
+            _db.Log.Write( $"  Gifts: {tables["FinancialTransaction"].Rows.Count:N0} (${dollars:N0}) in {tables["FinancialBatch"].Rows.Count:N0} batches, scheduled gifts: {tables["FinancialScheduledTransaction"].Rows.Count:N0}" );
         }
 
         /*
@@ -434,7 +466,7 @@ INNER JOIN (
         /// </summary>
         private static double SizeWeight( double sizeRatio, double exponent )
         {
-            return Math.Clamp( Math.Pow( Math.Max( 0.01, sizeRatio ), exponent ), 0.25, 4 );
+            return Math.Min( Math.Max( Math.Pow( Math.Max( 0.01, sizeRatio ), exponent ), 0.25 ), 4 );
         }
 
         /// <summary>
@@ -665,7 +697,7 @@ INNER JOIN (
                             else
                             {
                                 // Monthly givers who give by hand (online or a mailed check) do it around the same day each month.
-                                var day = random.Chance( UsualWeekdayShare ) ? Math.Clamp( channel.DayOfMonth + random.Between( -3, 3 ), 1, 28 ) : random.Between( 1, 28 );
+                                var day = random.Chance( UsualWeekdayShare ) ? Math.Min( Math.Max( channel.DayOfMonth + random.Between( -3, 3 ), 1 ), 28 ) : random.Between( 1, 28 );
                                 Add( month.AddDays( day - 1 ).AddHours( random.Between( 6, 22 ) ), false, channel.Currency, null );
                             }
                         }
@@ -1081,7 +1113,7 @@ INNER JOIN (
                 unmatched.Add( check.TransactionId );
             }
 
-            Console.WriteLine( $"  Open batch: {batch["Name"]}, with {unmatched.Count:N0} unmatched check(s) for transaction matching" );
+            _openBatchLine = $"  Open batch: {batch["Name"]}, with {unmatched.Count:N0} unmatched check(s) for transaction matching";
             return unmatched;
         }
 

@@ -1,0 +1,167 @@
+// <copyright>
+// Copyright by the Spark Development Network
+//
+// Licensed under the Rock Community License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.rockrms.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+//
+
+namespace RockSampleData.Loader
+{
+    /// <summary>
+    /// The parts of a dataset a person can choose. Church setup and people always load.
+    /// <see cref="SampleDataParts.All"/> names and describes each one and says what it needs.
+    /// </summary>
+    public enum SampleDataPart
+    {
+        /// <summary>
+        /// Profile photos and serving opportunity photos.
+        /// </summary>
+        Photos,
+
+        /// <summary>
+        /// Sunday attendance and kids check-in, with check-in streaks and achievements.
+        /// </summary>
+        Attendance,
+
+        /// <summary>
+        /// Small groups with members, meeting places, photos, history, and weekly attendance.
+        /// </summary>
+        SmallGroups,
+
+        /// <summary>
+        /// Serving team volunteers, their schedules, and requests to serve.
+        /// </summary>
+        Serving,
+
+        /// <summary>
+        /// Gifts, scheduled gifts, batches, giving analytics, and giving alerts.
+        /// </summary>
+        Giving,
+
+        /// <summary>
+        /// Scanned images of recent check gifts.
+        /// </summary>
+        CheckImages,
+
+        /// <summary>
+        /// Prayer requests and the prayer team's activity.
+        /// </summary>
+        Prayer,
+
+        /// <summary>
+        /// Notes on people.
+        /// </summary>
+        Notes
+    }
+
+    /// <summary>
+    /// One part of a dataset: its name, what it adds, and the parts it needs.
+    /// </summary>
+    public sealed class SampleDataPartInfo
+    {
+        internal SampleDataPartInfo( SampleDataPart part, string name, string description, params SampleDataPart[] dependsOn )
+        {
+            Part = part;
+            Name = name;
+            Description = description;
+            DependsOn = dependsOn;
+        }
+
+        /// <summary>
+        /// The part.
+        /// </summary>
+        public SampleDataPart Part { get; }
+
+        /// <summary>
+        /// The name to show a person, for example "Attendance and check-in".
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// One plain sentence that says what the part adds.
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
+        /// The parts this part needs. Choosing this part loads them too.
+        /// </summary>
+        public IReadOnlyList<SampleDataPart> DependsOn { get; }
+    }
+
+    /// <summary>
+    /// Every part, with what each needs (decision D-rock-loader-2).
+    /// </summary>
+    public static class SampleDataParts
+    {
+        /*
+            10/21/26 - CLAUDE
+
+            A part depends on another only when its rows need that part's rows. Parts that only read
+            another part's plan do not, because the loader plans everything in memory and skips only
+            the writes, so a skipped part never changes another part's rows. Serving and giving read
+            the attendance plan, and prayer reads the giving plan, so none of them needs those parts.
+
+            Check images are pictures of check gifts: each image row points at its gift. Prayer needs
+            small groups: some Cast prayer requests are shared with a small group, and who asks for
+            prayer depends on who is in a group. Group photos belong to small groups and serving
+            opportunity photos to photos, so no other part's choice changes the photos part's rows.
+
+            Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
+        */
+
+        /// <summary>
+        /// Every part, in the order the loader loads them.
+        /// </summary>
+        public static IReadOnlyList<SampleDataPartInfo> All { get; } = new[]
+        {
+            new SampleDataPartInfo( SampleDataPart.Photos, "Photos", "Profile photos for the Cast and some generated families, and photos for the serving opportunities." ),
+            new SampleDataPartInfo( SampleDataPart.Attendance, "Attendance and check-in", "Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements." ),
+            new SampleDataPartInfo( SampleDataPart.SmallGroups, "Small groups", "Small groups with leaders, members, meeting places, photos, history, and weekly attendance." ),
+            new SampleDataPartInfo( SampleDataPart.Serving, "Serving teams", "Volunteers on every serving team, with schedules, check-ins, and requests to serve." ),
+            new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts." ),
+            new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
+            new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
+            new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
+        };
+
+        /// <summary>
+        /// The chosen parts plus every part they need, in load order.
+        /// </summary>
+        public static IReadOnlyCollection<SampleDataPart> WithDependencies( IEnumerable<SampleDataPart> parts )
+        {
+            var chosen = new HashSet<SampleDataPart>();
+            var pending = new Stack<SampleDataPart>( parts );
+            while ( pending.Count > 0 )
+            {
+                var part = pending.Pop();
+                if ( chosen.Add( part ) )
+                {
+                    foreach ( var needed in Info( part ).DependsOn )
+                    {
+                        pending.Push( needed );
+                    }
+                }
+            }
+
+            return All.Select( i => i.Part ).Where( chosen.Contains ).ToList();
+        }
+
+        /// <summary>
+        /// The row for one part.
+        /// </summary>
+        internal static SampleDataPartInfo Info( SampleDataPart part )
+        {
+            return All.FirstOrDefault( i => i.Part == part ) ?? throw new ArgumentOutOfRangeException( nameof( part ), part, "Not a sample data part." );
+        }
+    }
+}

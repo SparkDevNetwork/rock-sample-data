@@ -45,9 +45,16 @@ namespace RockSampleData.Loader
         public int? CrowdHouseholds { get; set; }
 
         /// <summary>
-        /// True draws scanned check images for check gifts. It is the slowest step, so it is off by default.
+        /// The parts to load. Null loads every part. The load adds the parts the chosen ones need
+        /// (see <see cref="SampleDataParts.WithDependencies"/>). Church setup and people always load.
         /// </summary>
-        public bool IsCheckImagesDrawn { get; set; }
+        public ICollection<SampleDataPart> Parts { get; set; }
+
+        /// <summary>
+        /// Receives each line of the load's progress. Null reports nothing. Reports are made on the
+        /// loading thread as the load goes; <see cref="Progress{T}"/> posts them to its own context.
+        /// </summary>
+        public IProgress<LoadProgressReport> Progress { get; set; }
 
         /// <summary>
         /// Months of check gifts, counting back from the anchor, that get images. Null uses the
@@ -61,10 +68,23 @@ namespace RockSampleData.Loader
         public string CheckImageCopyFolder { get; set; }
 
         /// <summary>
-        /// A Rock web.config whose PasswordKey fills the check scanner's matching fields. Null
-        /// leaves those fields empty; everything else still loads.
+        /// A Rock web.config whose PasswordKey and DataEncryptionKey key the check scanner's matching
+        /// fields and note mentions. Null, with no <see cref="PasswordKey"/>, leaves those fields empty
+        /// and mentions as plain names; everything else still loads.
         /// </summary>
         public string RockWebConfigPath { get; set; }
+
+        /// <summary>
+        /// Rock's PasswordKey, in hex as web.config holds it. When set, it is used instead of the one in
+        /// <see cref="RockWebConfigPath"/>. Rock passes its own, so check scanning finds the sample givers.
+        /// </summary>
+        public string PasswordKey { get; set; }
+
+        /// <summary>
+        /// Rock's DataEncryptionKey, as web.config holds it. When set, it is used instead of the one in
+        /// <see cref="RockWebConfigPath"/>. It encrypts the check bank lines and keys note mentions.
+        /// </summary>
+        public string DataEncryptionKey { get; set; }
 
         /// <summary>
         /// True rolls everything back at the end, which is handy for testing.

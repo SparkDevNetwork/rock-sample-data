@@ -142,7 +142,7 @@ try
             {
                 Anchor = anchor,
                 Seed = seed,
-                IsCheckImagesDrawn = true,
+                Progress = new ConsoleProgress(),
                 RockWebConfigPath = rock.WebConfigPath,
                 Recorder = recorder
             } );
@@ -151,7 +151,7 @@ try
             stage = "cast-expectations";
             using ( var db = new RockDatabase( connection ) )
             {
-                var (expectations, failures) = CastExpectations.Evaluate( db, new SampleDataSource( package ) );
+                var (expectations, failures) = CastExpectations.Evaluate( db, new SampleDataSource( package ), SampleDataParts.All.Select( p => p.Part ).ToList() );
                 checks.Add( CheckResult.From( stage, $"{expectations - failures.Count} of {expectations} Cast expectations hold", failures ) );
             }
 

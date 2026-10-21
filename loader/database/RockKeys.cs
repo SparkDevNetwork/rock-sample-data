@@ -21,6 +21,8 @@ using System.Xml.Linq;
 
 using HashidsNet;
 
+using RockSampleData.Loader.Compat;
+
 namespace RockSampleData.Loader.Database
 {
     /*
@@ -73,10 +75,10 @@ namespace RockSampleData.Loader.Database
 
             // Encryption._dataEncryptionKeyBytes: PBKDF2 (SHA-1, 1,000 rounds) over the key text, then
             // DeriveKeys: HKDF-SHA256 with the same salt, split into an encryption key and a MAC key.
-            var keyBytes = Rfc2898DeriveBytes.Pbkdf2( Encoding.UTF8.GetBytes( dataEncryptionKey ), Salt, 1000, HashAlgorithmName.SHA1, 32 );
-            var okm = HKDF.DeriveKey( HashAlgorithmName.SHA256, keyBytes, 64, Salt, HkdfInfo );
-            _encryptionKey = okm[..32];
-            _macKey = okm[32..];
+            var keyBytes = KeyDerivation.Pbkdf2( Encoding.UTF8.GetBytes( dataEncryptionKey ), Salt, 1000, HashAlgorithmName.SHA1, 32 );
+            var okm = KeyDerivation.HkdfSha256( keyBytes, 64, Salt, HkdfInfo );
+            _encryptionKey = okm.Take( 32 ).ToArray();
+            _macKey = okm.Skip( 32 ).ToArray();
         }
 
         /// <summary>
@@ -91,21 +93,39 @@ namespace RockSampleData.Loader.Database
         public string IdKey( int id ) => _idHasher?.Encode( id );
 
         /// <summary>
-        /// Reads the PasswordKey (and the DataEncryptionKey, when present) from a Rock web.config.
-        /// Returns null when the file or the PasswordKey is missing.
+        /// Reads the PasswordKey and the DataEncryptionKey from a Rock web.config. Either is null when the
+        /// file or that setting is missing.
         /// </summary>
-        public static RockKeys Load( string webConfigPath )
+        public static (string PasswordKey, string DataEncryptionKey) ReadWebConfig( string webConfigPath )
         {
             if ( !File.Exists( webConfigPath ) )
             {
-                return null;
+                return (null, null);
             }
 
             var settings = XDocument.Load( webConfigPath ).Descendants( "appSettings" ).Elements( "add" ).ToList();
             string Setting( string name ) => settings.FirstOrDefault( e => ( string ) e.Attribute( "key" ) == name )?.Attribute( "value" )?.Value;
+            return (Setting( "PasswordKey" ), Setting( "DataEncryptionKey" ));
+        }
 
-            var key = Setting( "PasswordKey" );
-            return string.IsNullOrWhiteSpace( key ) ? null : new RockKeys( Convert.FromHexString( key ), Setting( "DataEncryptionKey" ) );
+        /// <summary>
+        /// The keys as Rock's web.config holds them: the PasswordKey in hex, and the DataEncryptionKey as text.
+        /// Returns null when there is no PasswordKey. The DataEncryptionKey may be null.
+        /// </summary>
+        /// <exception cref="ArgumentException">The PasswordKey is not hex.</exception>
+        public static RockKeys FromKeys( string passwordKey, string dataEncryptionKey )
+        {
+            return string.IsNullOrWhiteSpace( passwordKey ) ? null : new RockKeys( ParseHex( passwordKey.Trim() ), dataEncryptionKey );
+        }
+
+        private static byte[] ParseHex( string hex )
+        {
+            if ( hex.Length % 2 != 0 || !hex.All( Uri.IsHexDigit ) )
+            {
+                throw new ArgumentException( "The PasswordKey must be hex, as it is in Rock's web.config." );
+            }
+
+            return Enumerable.Range( 0, hex.Length / 2 ).Select( i => Convert.ToByte( hex.Substring( i * 2, 2 ), 16 ) ).ToArray();
         }
 
         /// <summary>
@@ -138,8 +158,9 @@ namespace RockSampleData.Loader.Database
 
             var data = output.ToArray();
             using var hmac = new HMACSHA256( _macKey );
-            output.Write( hmac.ComputeHash( data ) );
-            output.Write( V2Footer );
+            var tag = hmac.ComputeHash( data );
+            output.Write( tag, 0, tag.Length );
+            output.Write( V2Footer, 0, V2Footer.Length );
             return Convert.ToBase64String( output.ToArray() );
         }
 

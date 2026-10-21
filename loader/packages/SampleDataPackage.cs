@@ -115,7 +115,11 @@ namespace RockSampleData.Loader.Packages
         /// <summary>
         /// The lowercase hex SHA-256 of some bytes, as package.json records it.
         /// </summary>
-        internal static string Sha256( byte[] bytes ) => Convert.ToHexStringLower( SHA256.HashData( bytes ) );
+        internal static string Sha256( byte[] bytes )
+        {
+            using var sha256 = SHA256.Create();
+            return BitConverter.ToString( sha256.ComputeHash( bytes ) ).Replace( "-", string.Empty ).ToLowerInvariant();
+        }
 
         bool IPackageFiles.Exists( string path ) => _files.ContainsKey( path );
 

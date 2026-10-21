@@ -106,7 +106,7 @@ namespace RockSampleData.Loader.Generation
                 var recipe = dotted.Value.AsArray();
                 var values = recipe.Select( b => parts.Aggregate( ( JsonNode ) sources[b["source"].GetValue<string>()], ( node, part ) => node?[part] ) ).ToList();
                 var weights = recipe.Select( b => b["weight"].GetValue<double>() ).ToList();
-                parent[parts[^1]] = Blend( values, weights );
+                parent[parts[parts.Length - 1]] = Blend( values, weights );
             }
 
             foreach ( var excluded in ( profile["excluded"] as JsonArray ) ?? new JsonArray() )
@@ -208,7 +208,7 @@ namespace RockSampleData.Loader.Generation
         {
             var parts = path.Split( '.' );
             var parent = parts.Take( parts.Length - 1 ).Aggregate( ( JsonNode ) root, ( node, part ) => node?[part] ) as JsonObject;
-            if ( parent == null || !parent.Remove( parts[^1] ) )
+            if ( parent == null || !parent.Remove( parts[parts.Length - 1] ) )
             {
                 return;
             }
@@ -250,7 +250,7 @@ namespace RockSampleData.Loader.Generation
                 node = child;
             }
 
-            node[parts[^1]] = value;
+            node[parts[parts.Length - 1]] = value;
         }
     }
 }

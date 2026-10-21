@@ -24,9 +24,9 @@ using RockSampleData.LoaderCli;
     harnesses. Rock's own installer uses the same loader library.
 
     Usage:
-      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--any-rock] [--dry-run]
+      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--parts Photos,Giving,...] [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--any-rock] [--dry-run]
       rock-sample-data-load --connection "<connection string>" --calibrate <output file>
-      rock-sample-data-load --connection "<connection string>" --package core-1.zip --check-cast
+      rock-sample-data-load --connection "<connection string>" --package core-1.zip --check-cast [--parts Photos,Giving,...]
       rock-sample-data-load --connection "<connection string>" --giving-parity [--dataset core-1]
 */
 
@@ -53,7 +53,7 @@ try
     {
         var parityDataset = options.GetValueOrDefault( "dataset" ) ?? ( options.TryGetValue( "package", out var parityPackage ) ? SampleDataPackage.Open( parityPackage ).Manifest.Dataset : "core-1" );
         Console.WriteLine( $"Checking giving attributes against Rock's job (SampleData:{parityDataset})" );
-        return DatasetLoader.CheckGivingParity( connectionString, parityDataset ) == 0 ? 0 : 1;
+        return DatasetLoader.CheckGivingParity( connectionString, parityDataset, new ConsoleProgress() ) == 0 ? 0 : 1;
     }
 
     if ( !options.TryGetValue( "package", out var packagePath ) )
@@ -64,11 +64,22 @@ try
 
     var package = SampleDataPackage.Open( packagePath );
 
+    // --parts names the parts to load, by SampleDataPart name, comma separated. Without it every part loads,
+    // except check images, the slowest step, which --check-images and the two options below turn on.
+    var isCheckImagesDrawn = options.ContainsKey( "check-images" ) || options.ContainsKey( "check-image-months" ) || options.ContainsKey( "check-image-copies" );
+    var parts = options.TryGetValue( "parts", out var partNames )
+        ? ParseParts( partNames )
+        : SampleDataParts.All.Select( p => p.Part ).Where( p => p != SampleDataPart.CheckImages ).ToList();
+    if ( isCheckImagesDrawn && !parts.Contains( SampleDataPart.CheckImages ) )
+    {
+        parts.Add( SampleDataPart.CheckImages );
+    }
+
     // --check-cast checks the package's Cast expectations (giving and achievements) against an already loaded database.
     if ( options.ContainsKey( "check-cast" ) )
     {
         Console.WriteLine( "Checking Cast expectations" );
-        return DatasetLoader.CheckCastExpectations( connectionString, package ) == 0 ? 0 : 1;
+        return DatasetLoader.CheckCastExpectations( connectionString, package, parts, new ConsoleProgress() ) == 0 ? 0 : 1;
     }
 
     // Rock's PasswordKey fills the check scanner's matching fields. It comes from a Rock checkout's
@@ -83,10 +94,8 @@ try
         Seed = options.GetValueOrDefault( "seed", "rock-sample-data" ),
         HistoryYears = int.Parse( options.GetValueOrDefault( "years", "3" ) ),
         CrowdHouseholds = options.TryGetValue( "crowd", out var crowd ) ? int.Parse( crowd ) : null,
-
-        // Scanned check images are opt-in, because drawing them is the slowest step. --check-image-months
-        // and --check-image-copies imply --check-images.
-        IsCheckImagesDrawn = options.ContainsKey( "check-images" ) || options.ContainsKey( "check-image-months" ) || options.ContainsKey( "check-image-copies" ),
+        Parts = parts,
+        Progress = new ConsoleProgress(),
         CheckImageMonths = options.TryGetValue( "check-image-months", out var months ) ? int.Parse( months ) : null,
         CheckImageCopyFolder = options.GetValueOrDefault( "check-image-copies" ),
         RockWebConfigPath = webConfig,
@@ -105,10 +114,39 @@ catch ( RockVersionMismatchException ex )
     Console.Error.WriteLine( $"Nothing was loaded. {ex.Message} For a development database, pass --any-rock to load anyway." );
     return 1;
 }
+catch ( DatabaseNotReadyException ex )
+{
+    Console.Error.WriteLine( $"Nothing was loaded. {ex.Message}" );
+    return 1;
+}
+catch ( ArgumentException ex )
+{
+    Console.Error.WriteLine( ex.Message );
+    return 1;
+}
 catch ( Exception ex )
 {
     Console.Error.WriteLine( $"Load failed and was rolled back: {ex.Message}" );
     return 1;
+}
+
+/// <summary>
+/// Reads a comma-separated list of part names, such as "Photos,SmallGroups", in any case.
+/// </summary>
+static List<SampleDataPart> ParseParts( string names )
+{
+    var parts = new List<SampleDataPart>();
+    foreach ( var name in names.Split( ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ) )
+    {
+        if ( !Enum.TryParse<SampleDataPart>( name, true, out var part ) || !Enum.IsDefined( part ) )
+        {
+            throw new ArgumentException( $"--parts has \"{name}\", which is not a part. The parts are {string.Join( ", ", SampleDataParts.All.Select( p => p.Part ) )}." );
+        }
+
+        parts.Add( part );
+    }
+
+    return parts;
 }
 
 /// <summary>

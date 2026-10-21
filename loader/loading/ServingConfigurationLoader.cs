@@ -105,7 +105,7 @@ namespace RockSampleData.Loader.Loading
                 }
             }
 
-            Console.WriteLine( $"  Serving teams: {config.Teams.Count} at each of {setup.CampusParentIds.Count} campus(es), {positions} positions" );
+            _db.Log.Write( $"  Serving teams: {config.Teams.Count} at each of {setup.CampusParentIds.Count} campus(es), {positions} positions" );
             return setup;
         }
 

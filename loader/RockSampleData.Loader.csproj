@@ -1,20 +1,53 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- The loader library: reads a dataset package, generates the timeline for the install day, and bulk-loads it into Rock. -->
+  <!--
+    The loader library: reads a dataset package, generates the timeline for the install day, and bulk-loads it into Rock.
+    It builds for .NET 10 (the builder, CLI, and verify tool) and for .NET Framework 4.7.2 (Rock, through the
+    RockSampleData.Loader NuGet package). The net472 build depends on the exact package versions Rock ships, and
+    compat/ fills the gaps in .NET Framework (decision D-rock-loader-1).
+  -->
   <PropertyGroup>
+    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net10.0;net472</TargetFrameworks>
+    <LangVersion>14</LangVersion>
     <OutputType>Library</OutputType>
     <RootNamespace>RockSampleData.Loader</RootNamespace>
     <AssemblyName>RockSampleData.Loader</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>RockSampleData.Loader</PackageId>
+    <Version>0.1.0-alpha.1</Version>
+    <Authors>Spark Development Network</Authors>
+    <Description>Installs a Rock Sample Data dataset package into a fresh Rock database.</Description>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Hashids.net" Version="1.7.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
-    <!-- Pinned above the vulnerable version that Microsoft.Data.SqlClient pulls in. -->
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <!-- The same ImageSharp versions Rock ships, so check image code moves into Rock unchanged. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <!-- Pinned above the vulnerable version that Microsoft.Data.SqlClient pulls in. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+  </ItemGroup>
+
+  <!-- Rock's own versions, so the package brings no new assembly versions into RockWeb/bin. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +55,7 @@
     <InternalsVisibleTo Include="rock-sample-data-build" />
     <InternalsVisibleTo Include="rock-sample-data-load" />
     <InternalsVisibleTo Include="rock-sample-data-verify" />
+    <InternalsVisibleTo Include="rock-sample-data-compat-check" />
   </ItemGroup>
 
 </Project>

@@ -194,12 +194,12 @@ namespace RockSampleData.Loader.Generation
             using var back = _back.Clone( x =>
             {
                 // The church's endorsement stamp, turned the way a stamp is pressed onto a check back.
-                var stampAt = Matrix3x2.CreateRotation( -MathF.PI / 2 + ( ( check.HandwritingIndex % 5 ) - 2 ) * 0.02f, new Vector2( 150, 300 ) );
+                var stampAt = Matrix3x2.CreateRotation( -( float ) Math.PI / 2 + ( ( check.HandwritingIndex % 5 ) - 2 ) * 0.02f, new Vector2( 150, 300 ) );
                 var stampText = $"FOR DEPOSIT ONLY\n{check.Payee.ToUpperInvariant()}\nACCT ****{check.DepositAccountLast4}";
                 x.DrawText( new DrawingOptions { Transform = stampAt }, stampText, _stamp, Color.FromRgb( 70, 70, 120 ), new PointF( 40, 250 ) );
 
                 // The bank's processing line, printed across the check when it was deposited.
-                var processingAt = Matrix3x2.CreateRotation( -MathF.PI / 2, new Vector2( 640, 470 ) );
+                var processingAt = Matrix3x2.CreateRotation( -( float ) Math.PI / 2, new Vector2( 640, 470 ) );
                 var processing = $"{check.DepositDate:MMddyyyy} {check.DepositBank.ToUpperInvariant()} >{check.RoutingNumber}< {check.SequenceNumber:D10}";
                 x.DrawText( new DrawingOptions { Transform = processingAt }, processing, _small, Color.FromRgb( 90, 90, 90 ), new PointF( 640, 470 ) );
             } );

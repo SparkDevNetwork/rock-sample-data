@@ -162,7 +162,7 @@ namespace RockSampleData.Loader.Loading
             ShowOnCheckIn( definitions, now );
 
             var counts = definitions.Select( d => $"{d.Name} {attemptCounts[d.Key]:N0}" );
-            Console.WriteLine( $"  Streaks: {streaks.Rows.Count:N0} kids over {checkInSundays.Count} weeks, attempts: {attempts.Rows.Count:N0} ({string.Join( ", ", counts )})" );
+            _db.Log.Write( $"  Streaks: {streaks.Rows.Count:N0} kids over {checkInSundays.Count} weeks, attempts: {attempts.Rows.Count:N0} ({string.Join( ", ", counts )})" );
         }
 
         /// <summary>

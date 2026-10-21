@@ -64,7 +64,7 @@ namespace RockSampleData.Loader.Loading
             var selected = checks.Where( c => c.When >= cutoff ).OrderBy( c => c.TransactionId ).ToList();
             if ( selected.Count == 0 )
             {
-                Console.WriteLine( "  No check gifts in range." );
+                _db.Log.Write( "  No check gifts in range." );
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace RockSampleData.Loader.Loading
             var renderer = new CheckImageRenderer( _files );
             var images = new ConcurrentDictionary<int, (byte[] Front, byte[] Back)>();
             Parallel.ForEach( selected, check => images[check.TransactionId] = renderer.Render( ImageData( check, payee ) ) );
-            Console.WriteLine( $"  Drew {selected.Count:N0} checks (front and back) in {timer.ElapsedMilliseconds:N0} ms" );
+            _db.Log.Write( $"  Drew {selected.Count:N0} checks (front and back) in {timer.ElapsedMilliseconds:N0} ms" );
 
             var fileTypeId = _db.RequireIdByGuid( "BinaryFileType", TransactionImageFileTypeGuid );
             var storageTypeId = Convert.ToInt32( _db.Scalar( "SELECT [StorageEntityTypeId] FROM [BinaryFileType] WHERE [Id] = @Id", RockDatabase.P( "@Id", fileTypeId ) ) );
@@ -111,7 +111,7 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "FinancialTransactionImage", links, keepIdentity: true );
 
             var megabytes = images.Values.Sum( i => ( long ) i.Front.Length + i.Back.Length ) / 1024.0 / 1024.0;
-            Console.WriteLine( $"  Check images: {selected.Count:N0} checks, {files.Rows.Count:N0} images, {megabytes:N1} MB" );
+            _db.Log.Write( $"  Check images: {selected.Count:N0} checks, {files.Rows.Count:N0} images, {megabytes:N1} MB" );
         }
 
         /// <summary>

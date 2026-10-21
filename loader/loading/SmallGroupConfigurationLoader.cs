@@ -95,7 +95,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             UpsertAttributeValue( attributeId, blockId, "True" );
-            Console.WriteLine( "  Group Finder: shows group photos" );
+            _db.Log.Write( "  Group Finder: shows group photos" );
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ ELSE
             var historyWasOn = Convert.ToBoolean( _db.Scalar( "SELECT [EnableGroupHistory] FROM [GroupType] WHERE [Id] = @Id", P( "@Id", setup.GroupTypeId ) ) );
             _db.Execute( "UPDATE [GroupType] SET [GroupCapacityRule] = @Rule, [GroupTypePurposeValueId] = @Purpose, [EnableInactiveReason] = 1, [EnableGroupHistory] = 1 WHERE [Id] = @Id",
                 P( "@Rule", capacityRule ), P( "@Purpose", purposeId ), P( "@Id", setup.GroupTypeId ) );
-            Console.WriteLine( $"  {setup.GroupTypeName}: capacity rule {rules.GroupType.CapacityRule}, purpose {rules.GroupType.Purpose.Value}, group history {( historyWasOn ? "already on" : "turned on" )}" );
+            _db.Log.Write( $"  {setup.GroupTypeName}: capacity rule {rules.GroupType.CapacityRule}, purpose {rules.GroupType.Purpose.Value}, group history {( historyWasOn ? "already on" : "turned on" )}" );
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ WHERE [m].[Guid] = @MemberGuid",
                 setup.Roles[role] = new SmallGroupRoleInfo( Convert.ToInt32( row["Id"] ), ( string ) row["Name"], Convert.ToBoolean( row["IsLeader"] ) );
             }
 
-            Console.WriteLine( $"  Roles: {string.Join( ", ", setup.Roles.Values.Select( r => r.Name ) )}" );
+            _db.Log.Write( $"  Roles: {string.Join( ", ", setup.Roles.Values.Select( r => r.Name ) )}" );
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ WHERE [m].[Guid] = @MemberGuid",
             setup.MeetingStyleAttributeId = EnsureAttribute( setup, attributes.MeetingStyle, SingleSelectFieldTypeGuid, 2, attributes.MeetingStyle.Values[0],
                 new Dictionary<string, string> { ["values"] = string.Join( ",", attributes.MeetingStyle.Values ), ["fieldtype"] = "ddl" } );
             setup.MeetingLinkAttributeId = EnsureAttribute( setup, attributes.MeetingLink, UrlLinkFieldTypeGuid, 3, string.Empty, new Dictionary<string, string>() );
-            Console.WriteLine( $"  Attributes: {attributes.ChildCareProvided.Name}, {attributes.MeetingStyle.Name}, {attributes.MeetingLink.Name}" );
+            _db.Log.Write( $"  Attributes: {attributes.ChildCareProvided.Name}, {attributes.MeetingStyle.Name}, {attributes.MeetingLink.Name}" );
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), ( SELECT
                 setup.TopicGuids[topic.Value] = topic.Guid;
             }
 
-            Console.WriteLine( $"  Topics: {rules.Topics.Count}{( removed > 0 ? $" (replaced {removed} existing)" : string.Empty )}" );
+            _db.Log.Write( $"  Topics: {rules.Topics.Count}{( removed > 0 ? $" (replaced {removed} existing)" : string.Empty )}" );
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), ( SELECT
                 }
             }
 
-            Console.WriteLine( $"  Inactive reasons: {string.Join( ", ", rules.InactiveReasons.Select( r => r.Value ) )}" );
+            _db.Log.Write( $"  Inactive reasons: {string.Join( ", ", rules.InactiveReasons.Select( r => r.Value ) )}" );
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), ( SELECT
                 setup.CampusParentIds[campus.Key] = EnsureParent( parents.Campuses[campus.Key], name, sectionTypeId, setup.RootParentId, _campusIds[campus.Key] );
             }
 
-            Console.WriteLine( $"  Parent groups: {parents.Root.Name} and {setup.CampusParentIds.Count} campus group(s)" );
+            _db.Log.Write( $"  Parent groups: {parents.Root.Name} and {setup.CampusParentIds.Count} campus group(s)" );
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ WHERE [Guid] = @Guid
 
             if ( removed.Count > 0 )
             {
-                Console.WriteLine( $"  Removed starter sections: {string.Join( ", ", removed )}" );
+                _db.Log.Write( $"  Removed starter sections: {string.Join( ", ", removed )}" );
             }
         }
 

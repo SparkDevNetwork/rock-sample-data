@@ -110,7 +110,7 @@ namespace RockSampleData.Loader.Loading
                 UpsertDefinedValue( _db, _foreignKey, definedTypeId, status.Guid, status.Name, status.Description, status.Order );
             }
 
-            Console.WriteLine( $"  Connection statuses: {statuses.Count}" );
+            _db.Log.Write( $"  Connection statuses: {statuses.Count}" );
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ VALUES ( @Name, @Calendar, @CheckInStart, @CheckInEnd, '2013-05-01', @CategoryId
                 slotIds[slot.Key] = id.Value;
             }
 
-            Console.WriteLine( $"  Service time slots: {slotIds.Count}" );
+            _db.Log.Write( $"  Service time slots: {slotIds.Count}" );
             return slotIds;
         }
 
@@ -213,7 +213,7 @@ VALUES ( 0, @Name, @ShortCode, @LocationId, @StatusId, @TypeId, 1, @Order, @Guid
                 order++;
             }
 
-            Console.WriteLine( $"  Campuses: {string.Join( ", ", campuses.Select( c => c.Name ) )}" );
+            _db.Log.Write( $"  Campuses: {string.Join( ", ", campuses.Select( c => c.Name ) )}" );
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ VALUES ( @CampusId, @ScheduleId, @TypeId, @Order, NEWID(), @ForeignKey, GETDATE(
                 }
             }
 
-            Console.WriteLine( $"  Campus schedules: {count}" );
+            _db.Log.Write( $"  Campus schedules: {count}" );
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ VALUES ( @Name, @PublicName, @ParentId, @CampusId, @TaxDeductible, @Order, 1, 1,
                 }
             }
 
-            Console.WriteLine( $"  Campus child accounts added: {count}" );
+            _db.Log.Write( $"  Campus child accounts added: {count}" );
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ ORDER BY [d].[Id]" );
                 SetGroupLocationSchedules( _db, worshipLocationId, weekendSlots );
             }
 
-            Console.WriteLine( $"  Check-in room placements: {placements} across {campuses.Count} campus(es), plus {_source.Serving.Rooms.Count} serving rooms per campus" );
+            _db.Log.Write( $"  Check-in room placements: {placements} across {campuses.Count} campus(es), plus {_source.Serving.Rooms.Count} serving rooms per campus" );
         }
 
         /// <summary>

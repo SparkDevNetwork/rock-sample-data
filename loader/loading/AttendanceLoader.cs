@@ -75,9 +75,15 @@ namespace RockSampleData.Loader.Loading
         public SortedSet<DateTime> CheckInSundays { get; } = new SortedSet<DateTime>();
 
         /// <summary>
-        /// Plans and writes attendance for every household.
+        /// The planned rows, which <see cref="Write"/> writes.
         /// </summary>
-        public void Load( List<LoadedHousehold> households )
+        private (DataTable Occurrences, DataTable Codes, DataTable Attendance) _planned;
+
+        /// <summary>
+        /// Plans attendance for every household and fills the plans that later steps read. Other parts
+        /// read them even when attendance is not written, so planning never depends on the parts chosen.
+        /// </summary>
+        public void Plan( List<LoadedHousehold> households )
         {
             var now = DateTime.Now;
             var searchTypeId = _db.IdByGuid( "DefinedValue", PhoneSearchTypeGuid );
@@ -201,12 +207,21 @@ namespace RockSampleData.Loader.Loading
                 }
             }
 
+            _planned = (occurrences, codes, attendance);
+        }
+
+        /// <summary>
+        /// Writes the attendance <see cref="Plan"/> planned.
+        /// </summary>
+        public void Write()
+        {
+            var (occurrences, codes, attendance) = _planned;
             _db.BulkInsert( "AttendanceOccurrence", occurrences, keepIdentity: true );
             _db.BulkInsert( "AttendanceCode", codes, keepIdentity: true );
             _db.BulkInsert( "Attendance", attendance, keepIdentity: true );
 
             var checkIns = attendance.AsEnumerable().Count( r => r["AttendanceCodeId"] != DBNull.Value );
-            Console.WriteLine( $"  Sundays: {_calendar.Sundays.Count}, occurrences: {occurrences.Rows.Count:N0}, attendance: {attendance.Rows.Count:N0} ({checkIns:N0} kids check-ins)" );
+            _db.Log.Write( $"  Sundays: {_calendar.Sundays.Count}, occurrences: {occurrences.Rows.Count:N0}, attendance: {attendance.Rows.Count:N0} ({checkIns:N0} kids check-ins)" );
         }
 
         /// <summary>

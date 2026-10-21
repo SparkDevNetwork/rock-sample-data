@@ -149,7 +149,7 @@ namespace RockSampleData.Loader.Generation
             var isChildAlone = size == 1 && random.Chance( _profile.Number( "people.familySizeMix.1.avgChildren", 0 ) );
             var adultCount = isChildAlone ? 0
                 : size == 1 ? 1
-                : Math.Clamp( ( int ) Math.Floor( averageAdults ) + ( random.Chance( averageAdults % 1 ) ? 1 : 0 ), 1, Math.Min( 2, size ) );
+                : Math.Min( Math.Max( ( int ) Math.Floor( averageAdults ) + ( random.Chance( averageAdults % 1 ) ? 1 : 0 ), 1 ), Math.Min( 2, size ) );
 
             var household = new CastHousehold
             {
@@ -583,7 +583,7 @@ namespace RockSampleData.Loader.Generation
                 .Select( p => (Point: double.Parse( p.Key.Substring( 1 ) ) / 100, p.Value) )
                 .OrderBy( p => p.Point )
                 .ToList();
-            var max = _profile.Number( $"{path}.max", curve[^1].Value * 1.5 );
+            var max = _profile.Number( $"{path}.max", curve[curve.Count - 1].Value * 1.5 );
             curve.Insert( 0, (0, Math.Min( floor, curve[0].Value )) );
             curve.Add( (1, max) );
 

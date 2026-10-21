@@ -286,7 +286,7 @@ namespace RockSampleData.Loader.Loading
             var newMetaphoneNames = AddNewMetaphones( metaphones );
             SetGeoPoints( geo );
 
-            Console.WriteLine( $"  Families: {households.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
+            _db.Log.Write( $"  Families: {households.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
                 + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {newMetaphoneNames}" );
         }
 

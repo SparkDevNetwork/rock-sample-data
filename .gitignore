@@ -15,3 +15,6 @@ node_modules/
 
 # The public site build (site/build.js writes it)
 /site/dist/
+
+# The loader NuGet package dotnet pack writes
+/artifacts/

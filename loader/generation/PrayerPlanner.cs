@@ -701,7 +701,7 @@ namespace RockSampleData.Loader.Generation
 
             public DateTime Pick( SeededRandom random )
             {
-                var roll = random.Between( 0.0, _cumulative[^1] );
+                var roll = random.Between( 0.0, _cumulative[_cumulative.Count - 1] );
                 var index = _cumulative.BinarySearch( roll );
                 return _days[Math.Min( _days.Count - 1, index < 0 ? ~index : index )];
             }

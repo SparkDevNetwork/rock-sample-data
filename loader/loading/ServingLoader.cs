@@ -151,8 +151,8 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                         }
 
                         var outcome = sunday <= today
-                            ? familySundays.TryGetValue( person.FamilyId, out var attended ) && attended.Contains( sunday ) ? Outcome.Attended : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.WhenAbsent ), true )
-                            : Enum.Parse<Outcome>( random.Pick( _config.Scheduling.Future ), true );
+                            ? familySundays.TryGetValue( person.FamilyId, out var attended ) && attended.Contains( sunday ) ? Outcome.Attended : ( Outcome ) Enum.Parse( typeof( Outcome ), random.Pick( _config.Scheduling.WhenAbsent ), true )
+                            : ( Outcome ) Enum.Parse( typeof( Outcome ), random.Pick( _config.Scheduling.Future ), true );
                         if ( outcome == Outcome.NotScheduled )
                         {
                             continue;
@@ -170,7 +170,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             }
 
             tables.Write( _db );
-            Console.WriteLine( $"  Serving: {plans.Sum( p => p.Members.Count ):N0} volunteers on {plans.Count:N0} teams, {tables.Assignments.Rows.Count:N0} preferences, {tables.Exclusions.Rows.Count:N0} blackout dates; "
+            _db.Log.Write( $"  Serving: {plans.Sum( p => p.Members.Count ):N0} volunteers on {plans.Count:N0} teams, {tables.Assignments.Rows.Count:N0} preferences, {tables.Exclusions.Rows.Count:N0} blackout dates; "
                 + $"occurrences: {tables.Occurrences.Rows.Count:N0}, schedule requests: {tables.Attendance.Rows.Count:N0}" );
         }
 
