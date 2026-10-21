@@ -31,10 +31,10 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 
 ## At a glance
 
-| Dataset | People | Campuses | Install time |
+| Dataset | People | Campuses | Load time |
 |---|---|---|---|
 | **Core 1** | The Cast (87 households, 185 people) | 1 | About 4 seconds |
-| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | Seconds |
+| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | Under 10 seconds |
 | **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | 20 to 40 seconds |
 
 - **The Cast** is hand-designed, the same in every dataset, and safe for tests to rely on by Guid. Every Cast person has a profile photo, except a few left without one on purpose.
@@ -50,7 +50,8 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 
 | Folder | What it holds |
 |---|---|
-| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, communications, the Crowd and personas, and the design spec. |
+| [site/](site/README.md) | The public site: why the sample data matters, the church, the Cast, the datasets, and the brand kit and photo downloads. GitHub Pages publishes it from `main`. |
+| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the Crowd and personas, and the design spec. |
 | [cast/](cast/README.md) | The hand-designed households and groups, their schemas, the validator, and the [family pages](cast/families/README.md). |
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |

@@ -84,14 +84,15 @@ Most messages a real church sends go to one person. These come from data that is
 
 ## Messages tied to steps
 
-Once steps land, step milestones get their own messages (decision D-comms-7):
+The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Once steps are built, their milestones get their own messages (decision D-comms-7):
 
-- A "next steps" email after someone shows interest in baptism.
-- A welcome email after a membership step.
-- Texts to students in the student step program.
-- One finished Communication Flow, such as a new member series, with each person's instance complete, so Rock's flow screens have data.
+- **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters one finished Communication Flow, "After Starting Point": a thank-you the next day, a small group invitation a week later, and a serving invitation three weeks later. Each person's flow instance is complete, so Rock's flow screens have data.
+- **Baptism.** Baptism Sunday gets a mass invitation. Each person baptized gets a follow-up email that invites them to Foundations.
+- **Foundations.** Weekly reminder emails and texts to the people in each six-week course.
+- **Student Path.** Student Camp and Mission Trip get registration emails and reminder texts to students and their parents on the student line.
+- **Serve and Lead.** These already get serving reminders (see One-to-one messages).
 
-This needs the step type Guids and each person's step completion dates from the steps work. The communications load runs after the steps load.
+This needs the step type Guids and each person's step dates from the steps work. The communications load runs after the steps load.
 
 ## Volume and the history window
 
