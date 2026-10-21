@@ -94,11 +94,33 @@
           ],
           "reason": "Raise and modestly expand the rear worship-center building volume to contain the larger, higher-ceiling auditorium.",
           "prompt": "Use case: precise-object-edit / architectural continuity. User requested Rock Solid Church's auditorium about 60% larger in floor area (1.6x) with a visibly higher ceiling (visual target about 40% higher). Keep ordinary-size chairs, doors and equipment, same modern Phoenix church identity, warm-white/charcoal/pale-oak palette, no people, no new branding, words or watermark. Full-size photorealistic landscape 3:2 photo, preferably 1536x1024. IMAGE 1 is the EDIT TARGET exterior and locks all entrance, sign, site and camera details. IMAGE 2 is the NEW expanded higher-ceiling auditorium for interior scale context only. Localized architectural update: raise the flat roof/parapet of ONLY the taller rectangular worship-center block BEHIND the low lobby and entrance, so this rear volume realistically contains the now-larger auditorium with a roof/ceiling about40% higher overall. The rear worship-center block must clearly rise farther above the existing low front lobby; its visible height above the low roofs should roughly double rather than leave the old roofline. Extend that same rear mass modestly toward the back and widen it about25% while keeping its restrained rectangular warm-white stucco architecture. Keep the LOW FRONT FACADE, entrance portal, canopy and low side wings at exactly their existing height and size. Preserve the approved small Open Cross/ROCK SOLID/CHURCH dimensional sign entirely within its left stucco panel with safe blank margins: DO NOT alter, enlarge, move or wrap the logo. Preserve doors, sidelights/transom, charcoal canopy/oak soffit, concrete approach, planters, agaves, trees, parking pavement, mountains, morning light, camera angle and all landscaping. Do not expand the lobby again or change the sign/entrance to fit the new rear volume. Enough original sky remains above the new rear roofline. No new windows, mechanical plant, towers, spires, floors, people or vehicles. One same wide exterior with only the rear auditorium envelope adjusted."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "5d417c0",
+          "sourceImage": "photos/references/church/front-exterior-wide.png",
+          "sourceReferences": [
+            "photos/references/church/front-exterior-wide.png"
+          ],
+          "reason": "Set auditorium volume farther behind enlarged lobby and reduce its exposed height/prominence.",
+          "prompt": "Use case: precise-object-edit / architectural massing correction. The supplied image is the edit target: Rock Solid Church wide front exterior.\nThe user says the lobby is now much larger, so the tall auditorium block must be set farther BACK, and it should not look quite so tall.\nChange ONLY the rear auditorium block above/behind the low front lobby. Move this tall volume substantially deeper into the site, approximately one generous lobby-depth farther behind the front entrance, so there is a clear broad expanse of LOW LOBBY ROOF between entrance and auditorium. Its front wall must no longer appear directly stacked over the entrance portal. Also modestly lower its roof/parapet and make its EXPOSED WALL HEIGHT above the low lobby about35–40% LESS than image 1. It must still be the taller rear worship-center volume, able to suggest the spacious high-ceiling auditorium, but visibly more restrained and distant instead of a towering blank box over the lobby. Achieve the reduced prominence mainly through the deeper setback and lower parapet, with coherent perspective and wall edges. Keep the same simple warm-white stucco rectangular flat-roof design and dark trim; no new architectural style, step tower, second-story windows, domes or added floors.\nPRESERVE the entire low front facade and entrance geometry, its ordinary height, all glass doors/sidelights/transom, charcoal canopy and oak soffit, low side wings, white stucco texture, landscaping, trees, agaves, planters, pale concrete approach, parking lot, mountains, sky color, morning sunlight and exact camera angle/framing. Keep the approved small Open Cross/ROCK SOLID/CHURCH dimensional sign untouched and entirely inside its left wall panel with safe blank margins. Do NOT enlarge, move, wrap or redesign the logo or change its wording. Do not shrink the lobby to move the tall block. No people, new objects, vehicles, lettering, graphic annotations, watermarks or captions. One full-size photorealistic landscape3:2 architectural photo, preferably1536x1024."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceDraft": "Setback exterior draft before glass/visibility refinement",
+          "sourceReferences": [
+            "photos/references/church/front-exterior-wide.png",
+            "photos/references/church/lobby-toward-worship-center.png"
+          ],
+          "reason": "Reduce window and entrance-glass tree reflections while retaining subtle natural highlights and visible lobby.",
+          "prompt": "Use case: precise-object-edit.\nIMAGE 1 is the exact edit target: Rock Solid Church's WIDE exterior AFTER the user-approved massing revision, with the rear auditorium block set farther back behind the enlarged low lobby and visually restrained in height. IMAGE 2 is the current actual large lobby looking toward its three worship-center double-door pairs, for interior glimpses only.\nUSER CHANGE: lessen the reflections visible in the exterior windows and entrance glass, especially the entrance glazing around x44.4%, y50.3%. Reduce tree reflection strength by roughly60–70% across the entrance door panes, sidelights, transom and adjacent front lobby windows. They should read as clear, lightly reflective architectural glass, with subtle low-contrast traces of trees/sky, not bright mirror images. Keep natural soft specular highlights and actual glass surfaces, never empty unglazed openings. Make the lobby's warm-white finishes, gray floor, pale oak and muted teal furniture easier to see THROUGH the panes. If far internal doors are visible, keep the actual three matching pairs as in image2, at realistic scale and perspective. Do not paste a flat image or add new text on the windows.\nPRESERVE EVERYTHING ELSE: exact wider/deeper low lobby/front facade, rear auditorium SETBACK and restrained roof height/outline, all wall planes/rooflines, charcoal canopy and oak soffit, exact door/sidelight divisions and handles, small approved Open Cross/ROCK SOLID/CHURCH dimensional logo safely within its left stucco panel, actual trees outside, agaves/cacti, planters, gravel, concrete paving, asphalt/markings, mountains, sky, sunlight and fixed camera framing. Do not remove actual trees to reduce their reflections. Do not bring the rear block forward or raise it again. No new people, cars, signage, watermarks or other changes. One full-size photorealistic landscape3:2 architectural photograph, preferably1536x1024."
         }
       ],
-      "auditoriumEnvelope": "Rear worship-center mass updated to contain the expanded higher-ceiling auditorium; low lobby and entrance retained.",
+      "auditoriumEnvelope": "Rear auditorium farther behind the enlarged low lobby, with lower parapet and reduced visible prominence.",
       "review": {
-        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
+        "scale": "Current restrained exterior massing supersedes earlier towering rear-block version",
+        "massing": "Setback and less prominent rear volume visually reviewed",
+        "glass": "Subtle low-contrast tree reflections; visible empty lobby, no reflected people"
       }
     },
     {
@@ -151,7 +173,10 @@
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
         "geometry": "Furniture, equipment and circulation visually reviewed",
-        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
+        "scale": "Current restrained exterior massing supersedes earlier towering rear-block version",
+        "massing": "Setback and less prominent rear volume visually reviewed",
+        "glass": "Subtle low-contrast tree reflections; visible empty lobby, no reflected people",
+        "roofVisibility": "No worship-center roof/top visible above low entrance roof"
       },
       "edits": [
         {
@@ -164,9 +189,30 @@
           ],
           "reason": "Match the taller rear auditorium volume in the close entrance view.",
           "prompt": "Use case: precise-object-edit, architectural continuity. IMAGE 1 is the EDIT TARGET, the close main entrance photo of Rock Solid Church. IMAGE 2 is the NEW approved wide exterior with the raised and enlarged rear auditorium volume. Update ONLY the rear worship-center building mass visible above/behind the low entrance canopy in image 1 to match image 2's substantially higher warm-white rectangular auditorium envelope. This now encloses the room whose floor area grew about60% and ceiling is higher. Keep the SAME close camera framing; the taller back volume may naturally continue beyond the top edge of this close crop, without showing its whole roof. Keep the low entrance portal, canopy/oak soffit, glass door pair, sidelights, hardware, stucco sign panel, entire small approved Open Cross/ROCK SOLID/CHURCH dimensional sign, plantings, sky/reflections and daylight exactly as they are. The logo must remain fully inside its existing wall panel with generous blank margins; do not change any logo artwork, lettering, scale or placement. Do not raise the low lobby roof or canopy, enlarge doors or alter surrounding landscape. Same view, clean new modern contemporary Phoenix church. No new objects, people, signs, words, balconies or extra floors. One full-size landscape 3:2 realistic architectural photograph, preferably1536x1024."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "5d417c0",
+          "sourceImage": "photos/references/church/main-entrance-close.png",
+          "sourceReferences": [
+            "photos/references/church/main-entrance-close.png",
+            "photos/references/church/front-exterior-wide.png"
+          ],
+          "reason": "Match the setback, less prominent rear auditorium volume in the close entrance view.",
+          "prompt": "Use case: precise-object-edit / architectural continuity.\nIMAGE 1 is the edit target, Rock Solid Church's close front entrance photo. IMAGE 2 is the UPDATED authoritative wide exterior: its rear auditorium block is now set MUCH FARTHER BACK behind the enlarged low lobby and looks less tall/prominent.\nBring ONLY image 1's BACKGROUND AUDITORIUM MASS into agreement with image 2. Remove the present huge tall blank block that looms directly over the canopy and runs out the top of the frame. The auditorium now stands about one full generous lobby-depth farther to the REAR; its roofline/parapet is somewhat lower and more restrained. Because this is a close low entrance view, much of that distant block should be naturally OCCLUDED by the foreground low lobby/portal roof. Show only a modest distant portion of the rear warm-white rectangle above the lobby if physically visible, with noticeably more blue sky and breathing room, NOT a tall wall filling the whole top of the photo. Match image 2's setback and restrained massing, not the former tall directly stacked block.\nKeep the entire original close camera position/framing and every FRONT architectural element intact: low stucco entrance portal and side wings, charcoal canopy at same height, oak soffit and downlights, exact glass entrance door pair, sidelights/transom and dark handles, small approved Open Cross/ROCK SOLID/CHURCH dimensional sign at same scale and location safely within the left wall panel. Preserve landscaping, concrete paving, glass reflections, bright Phoenix morning light and clean new finishes. Do not alter the logo or add a backing panel. Do not move the lobby back or shrink it. No new floors, windows, signs, people, objects, vehicles or architectural decoration. One full-size landscape3:2 photorealistic architectural reference, preferably1536x1024."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceDraft": "Setback exterior draft before glass/visibility refinement",
+          "sourceReferences": [
+            "photos/references/church/main-entrance-close.png",
+            "photos/references/church/lobby-toward-worship-center.png"
+          ],
+          "reason": "Hide the worship-center roof completely from the close exterior view and soften tree reflections so the actual lobby is visible.",
+          "prompt": "Use case: precise-object-edit.\nIMAGE 1 is the edit target, the close-up exterior entrance photo of Rock Solid Church AFTER the rear auditorium setback. IMAGE 2 is the actual updated large lobby facing inward, supporting the view through the glazing only.\nMake TWO exact user corrections to image 1:\n1. From THIS CLOSE EXTERIOR CAMERA, NONE of the worship-center building's rear roof/top should be visible. Completely remove the remaining tall rear block/roof silhouette above and behind the LOW entrance/lobby roof, replacing that whole exposed background block with the natural existing BLUE SKY. Do not remove or alter the low front lobby, entrance portal or canopy roofline. The worship center still exists farther behind the deeper lobby, but is entirely OCCLUDED from this close view; do not invent a smaller little bump, tower or parapet sticking above the visible low front roof. Keep the same close camera framing and perspective, no zoom-out.\n2. The reflections of the palo verde trees on the entrance glass are much too strong. Reduce those TREE REFLECTIONS by about65–75% so they are subtle low-contrast hints and the glass reads as clear, lightly reflective architectural glazing. Keep plausible soft sky highlights and natural glass detail; not a mirror and not no-glass empty openings. Make the EMPTY lobby through the existing door panes/sidelights appreciably easier to see: its warm-white walls, light gray floor, pale oak, muted teal seating and open gathering scale should be consistent with image2. Keep correct perspective through the existing frames, not a pasted-on flat lobby picture. If the far worship-center wall is visible inside it has the same three charcoal double-door pairs; no invented extra exterior entrance behind the front doors. Interior wall graphics may be naturally too small/distant to read; do not add new words on the glass.\nPRESERVE the actual outdoor trees and all desert landscaping unchanged; reduce their reflections, not the trees themselves. Preserve exact foreground architecture and low roof heights, charcoal canopy, oak soffit/downlights, glass door pair, sidelight/transom divisions, handles, concrete approach, daylight/color and sign. The complete approved small Open Cross/ROCK SOLID/CHURCH dimensional logo must stay unchanged on its left stucco wall, safely inside its margins. No people, new objects, exterior signage, vehicles, watermarks, borders or other edits. One full-size photorealistic landscape3:2 architectural photo, preferably1536x1024."
         }
       ],
-      "auditoriumEnvelope": "Rear worship-center mass updated to contain the expanded higher-ceiling auditorium; low lobby and entrance retained."
+      "auditoriumEnvelope": "Rear auditorium entirely occluded by low lobby/portal roof in this close camera view."
     },
     {
       "key": "lobby-toward-worship-center",
@@ -185,7 +231,9 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "doors": "Three complete pairs/six leaves visually verified; approaches clear",
+        "graphics": "Mission and Starting Point copy visually checked for exact words, capitalization and punctuation"
       },
       "edits": [
         {
@@ -196,11 +244,36 @@
             "photos/references/church/worship-center-from-rear.png"
           ],
           "prompt": "Use case: photorealistic-natural. Reusable EMPTY architectural reference photograph for Rock Solid Church, a clean, new, modern contemporary church in Phoenix Valley, Arizona. Generate ONE full-size landscape 3:2 photo, ideally 1536x1024 or larger native size. Natural professional architectural photography, adult eye-height, straight verticals, realistic scale and materials, normal 24–28mm lens without fisheye. Faithfully extend the supplied building references; these are the SAME building, not alternative designs. No people, silhouettes, human reflections, faces, portraits, photographer, mannequins or crowds. No watermarks, borders, collage or captions. Keep furnishings and fittings physically plausible, useful space and uncluttered circulation. No other brand marks or incidental readable text. USER-REQUESTED ENLARGED LOBBY, about 2.5 TIMES the original lobby floor area. IMAGE 1 is the PRIMARY UPDATED master: the newly enlarged lobby looking OUT through the main front doors. IMAGE 2 is the OLD SMALL reverse-lobby draft, useful ONLY for its worship-center doorway design and for which side holds the counter and oak column. Do NOT keep its small room size. IMAGE 3 supports auditorium acoustic finishes.\nCreate the REVERSE VIEW of IMAGE 1's NEW LARGE LOBBY. Stand just INSIDE the central exterior entrance (which is BEHIND camera) and look INWARD toward the worship-center connection. Match the enlarged image 1's wider AND deeper footprint, open pre/post-service gathering area, same ordinary 3.5m single-story ceiling, warm-white walls, recessed round lights, gray tile size/grid and extra side gathering space. This is NOT merely a wider lens on image 2 and not a huge tall atrium. Main central dark worship-center door pair at the FAR END remains normal human door size and is noticeably smaller relative to the much larger lobby. Keep that pair's narrow vertical glass vision panels, door pulls, charcoal surround with pale oak slat accents from image 2. Short ministry-room side passages flank that far wall. These doors lead through a short rear vestibule to the auditorium's rear entry pairs around the booth; no stage directly in the lobby.\nConsistent reverse orientation: pale oak slat column on camera LEFT foreground; pale-oak/white curved welcome counter on camera RIGHT along the side; muted teal square-arm lounge seats on slender dark legs, small round oak side tables, natural rugs and white plant pots in restrained side conversation groups. THREE seating groups overall like the enlarged image 1, leaving a broad deep central walking/gathering floor completely open. Furniture, door hardware and tile sizes stay realistic rather than becoming gigantic with the enlarged space. Bright Phoenix morning light enters FROM BEHIND camera and along side windows, matching outward master. Neutral warm fill, whole floor and ceiling readable, no fisheye. No front entrance glazing on the far wall, no extra main entrances, no second story, signs, text or logos. Empty of all people."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "5d417c0",
+          "sourceImage": "photos/references/church/lobby-toward-worship-center.png",
+          "reason": "Add two matching double-door pairs, giving three pairs/six leaves, and reserve flanking wall areas for graphics.",
+          "prompt": "Use case: precise-object-edit / architectural layout revision.\nThe supplied image is the EDIT TARGET: Rock Solid Church's LARGE lobby viewed from entrance TOWARD worship center. Preserve this exact enlarged room, camera position, ordinary ceiling height, bright Phoenix daylight, warm-white walls, light gray tile/grid, teal side seating, oak column on LEFT foreground, curved oak/white welcome counter on RIGHT foreground, windows and furnishings.\nUSER CHANGE 1: on the FAR worship-center wall, retain the existing central charcoal DOUBLE DOOR pair, and ADD TWO MORE SETS OF MATCHING DOUBLE DOORS, one immediately to its LEFT and one to its RIGHT. The finished main connection must show EXACTLY THREE complete door pairs, SIX full-size door leaves, all on the same back wall plane with matching tops, normal human height, each leaf with one narrow vertical vision panel and appropriate dark hardware. Preserve the center pair as the center. Space the three pairs evenly with slim pale-oak slat wall piers between them and a charcoal wall treatment around them. Each door pair has a clear unobstructed route into the large open lobby. Do not place plants, chairs, tables, counters, columns or graphics in any doorway or its approach. Reconfigure only the far connection wall as needed to accommodate the two added pairs, keeping side ministry circulation at the outer edges. Do not create huge hangar doors, folding wall panels, outdoor glass entrances, a second story, or extra uncontrolled door pairs.\nUSER CHANGE 2: reserve TWO generous vertical wall areas for future environmental graphics, on the far wall flanking the WHOLE three-pair door bank: one to the OUTER LEFT of all doors, one to the OUTER RIGHT. They must be clearly visible, approximately equal size, professionally integrated with pale oak/white finishes, and not overlap door leaves, door frames, vision panels or corridor openings. For THIS ARCHITECTURAL LAYOUT PASS ONLY keep those two graphic wall areas unprinted, smooth warm-white, each with a restrained small spotlight from above so they are ready for typography in the next pass. Do not invent any mission wording, filler lines, fake QR code, URL or signage text. Leave these areas as clean flat wall surfaces with generous room for large clear typography later. All six door leaves must remain visible, not concealed by these areas.\nKeep the lobby's full generous floor area (about2.5x earlier small lobby), central circulation, normal-size doors/furniture, architectural finishes and clear floor paths. No people, faces, reflections of people, new objects in foreground, logos, text, captions, border or watermark. One full-size landscape3:2 photorealistic architectural photo, preferably1536x1024."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceDraft": "Three-pair lobby layout with blank graphic wall areas",
+          "sourceReferences": [
+            "photos/references/church/branding/rock-solid-church-logo.png"
+          ],
+          "reason": "Install the mission statement and user-selected Starting Point invitation with exact approved copy.",
+          "prompt": "Use case: precise-object-edit / environmental graphics.\nIMAGE 1 is the EXACT architectural edit target: Rock Solid Church's enlarged lobby looking toward the worship center, with THREE matching charcoal double-door pairs (SIX leaves), oak piers, and two blank vertical graphic wall areas OUTSIDE the whole door bank. IMAGE 2 is the approved church logo, a typography/brand-style reference ONLY. Do not add a new logo.\nInstall two elegant contemporary environmental wall graphics ONLY in those two blank wall areas. Applied matte paint/vinyl and crisp professional sans-serif type directly on the wall, not framed posters, standing signs, banners, screen mockups or buttons. Optical balance, generous margins, clean and new, refined Apple-esque restraint. Keep all text geometrically aligned to its wall's perspective, sharply readable, with correct spelling and punctuation.\nLEFT area, to the LEFT of ALL THREE door pairs: warm-white wall with charcoal typography. Small heading \"OUR MISSION\". Then the exact user-approved mission statement, on three generous separate lines, preserving capitalization and periods:\n\"Love God.\"\n\"Love people.\"\n\"Share Jesus.\"\nMake those three phrases substantial and beautifully spaced. Do not change people to People, omit periods, or add a different mission statement.\nRIGHT area, to the RIGHT of ALL THREE door pairs: a deep muted teal painted field contained fully inside the reserved wall area, coordinated with the existing teal chairs. Warm-white/cream type. Use EXACTLY this user-approved copy:\n\"YOU BELONG HERE.\"\n\"Turn Sunday visits into meaningful connections.\"\n\"Enroll in Starting Point\"\nYOU BELONG HERE. is the bold uppercase headline, on two lines if needed. The sentence is smaller with natural balanced wrapping. Enroll in Starting Point is the stronger invitation below, preserving that exact title/sentence case. It may wrap over two lines. Keep the FULL sentence and invitation visible ABOVE the chair backs, not hidden by furniture. Fit the type to the available wall with whitespace so every word is legible. No \"NEW HERE\", \"CONNECTION EVENT\", \"SIGN UP TODAY\", dates, URLs, QR codes, arrows, extra descriptions, invented taglines or other copy.\nAll three complete door pairs must remain unchanged and clearly visible. No type or painted field may overlap a door, frame, oak pier, corridor opening or floor. Leave approaches to all six leaves clear. Do not change the lobby width/depth, ordinary ceiling, chairs/tables/plants, welcome counter RIGHT, oak foreground column LEFT, windows, tile grid, lighting, camera position or architectural finishes. Preserve the image's natural photorealistic detail. No people, reflected people, watermark, collage, border or explanatory captions. ONE finished full-size landscape3:2 architectural photo, ideally at least1536x1024 native resolution."
         }
       ],
       "visualScale": {
         "targetFloorAreaMultiplier": 2.5,
         "note": "Matches enlarged outward lobby; visual target, not measured dimensions"
+      },
+      "doorConnection": {
+        "doubleDoorPairs": 3,
+        "doorLeaves": 6,
+        "layout": "Original center pair plus one matching pair on either side, clear approaches, oak piers"
+      },
+      "environmentalGraphics": {
+        "mission": "Left of entire door bank, charcoal type on warm-white",
+        "connection": "Right of entire door bank, warm-white type on muted teal"
       }
     },
     {
@@ -426,7 +499,8 @@
     "approved": "2026-10-21",
     "selectedConcept": "option-08-open-cross-uppercase",
     "file": "branding/rock-solid-church-logo.png",
-    "manifest": "branding/manifest.json"
+    "manifest": "branding/manifest.json",
+    "missionStatement": "Love God. Love people. Share Jesus."
   },
   "updated": "2026-10-21",
   "delivery": {
@@ -455,23 +529,43 @@
     "lastRevision": {
       "date": "2026-10-21",
       "changedPhotoViews": [
-        "worship-center-from-stage",
-        "worship-center-from-rear",
-        "stage-from-side",
+        "lobby-toward-worship-center",
         "front-exterior-wide",
-        "main-entrance-close",
-        "production-booth-wide"
+        "main-entrance-close"
       ],
-      "reason": "User requested auditorium 60% larger with higher ceiling; propagated to related interiors and exterior envelope.",
-      "qualityCorrection": "Reoriented chair backs in rear-to-stage view"
+      "reason": "Three lobby door pairs, approved environmental graphics, rear auditorium setback, hidden rear roof in close-up and reduced glass reflections."
     }
   },
   "continuity": {
     "lobby": "Both directions show the larger gathering lobby, with a target approximately 2.5 times the earlier visual floor area. Doors and furniture retain human scale.",
-    "connection": "Lobby central worship-center door pair leads through a short rear vestibule to auditorium entry pairs flanking the central rear booth.",
-    "auditorium": "Expanded floor-area target 1.6x the fc48489 reference, ceiling target about1.4x higher, normal-size furnishings, three seating banks, two aisles, low stage and central open rear booth. Opposite views show opposite chair surfaces. Raised rear exterior envelope matches.",
+    "connection": "Lobby has three matching worship-center double-door pairs with clear approaches; shared rear vestibule connects to auditorium rear entries around the production booth.",
+    "auditorium": "Expanded floor-area target 1.6x the fc48489 reference, ceiling target about1.4x higher, normal-size furnishings, three seating banks, two aisles, low stage and central open rear booth. Opposite views show opposite chair surfaces. Exterior uses the revised deeper setback and restrained visible rear mass.",
     "logo": "Approved Open Cross artwork; signage fits on one wall plane with clear margins.",
     "productionDetails": "Visible cables should be neatly separated and routed along booth edges or under-desk management. Monitor graphics and matching stage feeds should be sharp rather than artificially blurred, unless a future brief requires obscuring text.",
-    "referencePriority": "Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height."
+    "referencePriority": "Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height.",
+    "exteriorMassing": "Auditorium block set well back behind enlarged low lobby; restrained visible height/lower parapet. It is visible from the wide exterior but entirely hidden behind the low front roof from the close entrance camera.",
+    "glazing": "Subtle tree/sky reflections, clearly visible empty lobby; no mirror-like tree images"
+  },
+  "environmentalGraphics": {
+    "copyApproved": "2026-10-21",
+    "photo": "lobby-toward-worship-center.png",
+    "mission": {
+      "heading": "OUR MISSION",
+      "text": "Love God. Love people. Share Jesus.",
+      "lines": [
+        "Love God.",
+        "Love people.",
+        "Share Jesus."
+      ],
+      "placement": "Outer left of all three worship-center door pairs"
+    },
+    "connection": {
+      "headline": "YOU BELONG HERE.",
+      "body": "Turn Sunday visits into meaningful connections.",
+      "invitation": "Enroll in Starting Point",
+      "placement": "Outer right of all three worship-center door pairs",
+      "background": "Muted teal",
+      "textColor": "Warm-white"
+    }
   }
 }
