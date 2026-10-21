@@ -1,6 +1,6 @@
 # Pledges
 
-The plan for pledges in the sample data, and why. Nothing here is built yet. The decisions are D-pledges-1 to D-pledges-9 in [Decisions](decisions.md). When the build starts, the numbers here move to `configuration/campaign.json`, so they can be tuned in one place.
+The plan for pledges in the sample data, and why. Nothing here is built yet. The decisions are 97 to 105 in [Decisions](decisions.md). When the build starts, the numbers here move to `configuration/campaign.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -22,7 +22,7 @@ Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amoun
 | (Public) Create Pledge page | Rock's shipped Pledge Entry block | The block's Account and Pledge Date Range settings |
 | Contribution statements | The statement template's pledge settings | The pledge accounts, and "include gifts to child accounts" |
 
-One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. The sample church has more than ten years of Building Fund gifts. If people pledged to the Building Fund, every pledge would show hundreds of percent complete. So the campaign gets its own fund (decision D-pledges-2).
+One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. The sample church has more than ten years of Building Fund gifts. If people pledged to the Building Fund, every pledge would show hundreds of percent complete. So the campaign gets its own fund (decision 98).
 
 ## The campaign
 
@@ -44,7 +44,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 
 - A new top-level account, **Built on the Rock**, after the Building Fund. It is public and tax deductible, with a description and the campaign dates as the account's start and end dates.
 - It has one child account per campus, like the General and Building Funds (decision 21). Pledges go to the parent account. Gifts post to the giver's campus account. Pledge Analytics and statements both roll child accounts up into the parent.
-- The **Building Fund keeps running** for upkeep. Givers who give to it today still do. Campaign gifts are new gifts or new lines on top (decision D-pledges-3).
+- The **Building Fund keeps running** for upkeep. Givers who give to it today still do. Campaign gifts are new gifts or new lines on top (decision 99).
 
 ### Rock settings
 
@@ -58,7 +58,7 @@ Every pledge is a pledge plus the gifts that follow it. The gifts come from the 
 
 ### Who pledges
 
-These are designed targets, not measured ones (decision D-pledges-5). Today's calibration profile already sets 12% of giving units with a pledge, as an assumption that the sample data must use pledges.
+These are designed targets, not measured ones (decision 101). Today's calibration profile already sets 12% of giving units with a pledge, as an assumption that the sample data must use pledges.
 
 | Who | Share who pledge |
 |---|---|
