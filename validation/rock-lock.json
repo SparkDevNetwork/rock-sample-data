@@ -594,6 +594,17 @@
         "loader/loading/PrayerLoader.cs"
       ],
       "sha256": "c0245b170731c9b0d88991fb90beaae75357ac0357bba8362af02efa1f840746"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "UpdateCampusTitheMetric",
+      "from": "private int UpdateCampusTitheMetric()",
+      "to": "/// Deletes expired short links from the database.",
+      "why": "The campus tithe metric Rock Cleanup sets every night from giving families' postal codes and census median incomes.",
+      "mirroredBy": [
+        "loader/loading/GivingLoader.cs"
+      ],
+      "sha256": "9e722007d417a6a56761d42f1284b2f618493c14a708662a32cde3ead2280d46"
     }
   ]
 }

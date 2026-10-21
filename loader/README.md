@@ -164,6 +164,8 @@ Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 att
 
 The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night at 10pm, its default schedule. The job's last run is the night before the anchor. Rock's giving automation settings record that run, so Rock's next real run picks up only newer gifts.
 
+The giving step also sets each campus's tithe metric, as Rock Cleanup does every night: the census median family income for each giving family's postal code (from the post-install job's `AnalyticsSourcePostalCode`), averaged per campus, times 10%. Only tax-deductible gifts in the last 365 days count. The query is Rock's, run as one update (`GivingLoader.UpdateCampusTitheMetric`).
+
 - **Giving attributes** (`loading/GivingAnalyticsLoader.cs`), for every person in a giving unit: first and last gift, percent scheduled, preferred source and currency, gift frequency (mean, standard deviation, and label), next expected gift, median gift, its spread (IQR), and the last classification date. Rock reclassifies a unit only on a night after a new gift. So each unit's values are as of the night after its last gift, and a lapsed giver keeps the values from back then.
 - **Giving bin and percentile** come from Rock's own stored procedure (`spGivingAutomation_UpdateGivingBinsAndPercentiles`), run as of the job's last run.
 - **Journey stages** (Non-Giver, New, Consistent, Occasional, Lapsed, Former), with the previous stage and the change date. The loader replays Rock's weekly Tuesday runs for a year. Then it runs Rock's own procedure (`spGivingAutomation_UpdateGivingJourneyStages`) for the last Tuesday and checks that Rock made exactly the predicted changes. The load prints the result.
