@@ -121,6 +121,7 @@
         "CampusId",
         "CheckedInByPersonAliasId",
         "CreatedDateTime",
+        "DeclineReasonValueId",
         "DeviceId",
         "DidAttend",
         "ForeignKey",
@@ -131,6 +132,13 @@
         "OccurrenceId",
         "PersonAliasId",
         "PresentDateTime",
+        "RSVP",
+        "RSVPDateTime",
+        "RequestedToAttend",
+        "ScheduleConfirmationSent",
+        "ScheduleReminderSent",
+        "ScheduledByPersonAliasId",
+        "ScheduledToAttend",
         "SearchTypeValueId",
         "StartDateTime"
       ],
@@ -347,7 +355,8 @@
         "IsSystem",
         "ModifiedDateTime",
         "Value",
-        "ValueAsBoolean"
+        "ValueAsBoolean",
+        "ValueAsDateTime"
       ],
       "rockColumns": {
         "AttributeId": "int not null",
@@ -516,6 +525,352 @@
         "Order": "int not null",
         "ScheduleId": "int not null",
         "ScheduleTypeValueId": "int not null"
+      }
+    },
+    "ConnectionActivityType": {
+      "written": [
+        "ConnectionTypeId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsActive",
+        "ModifiedDateTime",
+        "Name"
+      ],
+      "rockColumns": {
+        "ConnectionTypeId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "PersonNoteCreationBehavior": "int null",
+        "PersonNoteTypeId": "int null"
+      }
+    },
+    "ConnectionOpportunity": {
+      "written": [
+        "ConnectionTypeId",
+        "CreatedDateTime",
+        "Description",
+        "ForeignKey",
+        "Guid",
+        "IconCssClass",
+        "IsActive",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "PhotoId",
+        "PublicName",
+        "ShowCampusOnTransfer",
+        "ShowConnectButton",
+        "ShowStatusOnTransfer",
+        "Summary"
+      ],
+      "rockColumns": {
+        "AdditionalSettingsJson": "nvarchar(max) null",
+        "ConnectionTypeId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "Order": "int not null",
+        "PhotoId": "int null",
+        "PublicName": "nvarchar(50) not null",
+        "RequestDueDateOffsetInDays": "int null",
+        "RequestDueSoonOffsetInDays": "int null",
+        "ShowCampusOnTransfer": "bit not null",
+        "ShowConnectButton": "bit not null",
+        "ShowStatusOnTransfer": "bit not null",
+        "Summary": "nvarchar(max) null"
+      }
+    },
+    "ConnectionOpportunityCampus": {
+      "written": [
+        "CampusId",
+        "ConnectionOpportunityId",
+        "CreatedDateTime",
+        "DefaultConnectorPersonAliasId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "CampusId": "int not null",
+        "ConnectionOpportunityId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DefaultConnectorPersonAliasId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
+    "ConnectionOpportunityConnectorGroup": {
+      "written": [
+        "ConnectionOpportunityId",
+        "ConnectorGroupId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "CampusId": "int null",
+        "ConnectionOpportunityId": "int not null",
+        "ConnectorGroupId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
+    "ConnectionOpportunityGroup": {
+      "written": [
+        "ConnectionOpportunityId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "GroupId",
+        "Guid",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "ConnectionOpportunityId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
+    "ConnectionOpportunityGroupConfig": {
+      "written": [
+        "ConnectionOpportunityId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "GroupMemberRoleId",
+        "GroupMemberStatus",
+        "GroupTypeId",
+        "Guid",
+        "ModifiedDateTime",
+        "UseAllGroupsOfType"
+      ],
+      "rockColumns": {
+        "ConnectionOpportunityId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupMemberRoleId": "int null",
+        "GroupMemberStatus": "int not null",
+        "GroupTypeId": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "UseAllGroupsOfType": "bit not null"
+      }
+    },
+    "ConnectionRequest": {
+      "written": [
+        "AssignedGroupId",
+        "AssignedGroupMemberRoleId",
+        "AssignedGroupMemberStatus",
+        "CampusId",
+        "Comments",
+        "ConnectedDateTime",
+        "ConnectionOpportunityId",
+        "ConnectionState",
+        "ConnectionStatusId",
+        "ConnectionTypeId",
+        "ConnectorPersonAliasId",
+        "CreatedDateKey",
+        "CreatedDateTime",
+        "DueDate",
+        "DueSoonDate",
+        "FollowupDate",
+        "ForeignKey",
+        "Guid",
+        "Id",
+        "ModifiedDateTime",
+        "Order",
+        "PersonAliasId",
+        "WasCompletedOnTime"
+      ],
+      "rockColumns": {
+        "AssignedGroupId": "int null",
+        "AssignedGroupMemberAttributeValues": "nvarchar(max) null",
+        "AssignedGroupMemberRoleId": "int null",
+        "AssignedGroupMemberStatus": "int null",
+        "CampusId": "int null",
+        "Comments": "nvarchar(max) null",
+        "ConnectedDateTime": "datetime null",
+        "ConnectionOpportunityId": "int not null",
+        "ConnectionState": "int not null",
+        "ConnectionStatusId": "int not null",
+        "ConnectionTypeId": "int not null",
+        "ConnectionTypeSourceId": "int null",
+        "ConnectorPersonAliasId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateKey": "int null",
+        "CreatedDateTime": "datetime null",
+        "DueDate": "date null",
+        "DueSoonDate": "date null",
+        "FollowupDate": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int not null",
+        "PersonAliasId": "int not null",
+        "WasCompletedOnTime": "bit not null"
+      }
+    },
+    "ConnectionRequestActivity": {
+      "written": [
+        "ConnectionActivityTypeId",
+        "ConnectionOpportunityId",
+        "ConnectionRequestId",
+        "ConnectorPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "Note"
+      ],
+      "rockColumns": {
+        "ConnectionActivityTypeId": "int not null",
+        "ConnectionOpportunityId": "int not null",
+        "ConnectionRequestId": "int not null",
+        "ConnectorPersonAliasId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Note": "nvarchar(max) null"
+      }
+    },
+    "ConnectionStatus": {
+      "written": [
+        "AutoInactivateState",
+        "ConnectionTypeId",
+        "CreatedDateTime",
+        "Description",
+        "ForeignKey",
+        "Guid",
+        "HighlightColor",
+        "IsActive",
+        "IsCritical",
+        "IsDefault",
+        "ModifiedDateTime",
+        "Name",
+        "Order"
+      ],
+      "rockColumns": {
+        "AutoFutureFollowUpPauseInDays": "int null",
+        "AutoInactivateState": "bit not null",
+        "ConnectionTypeId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HighlightColor": "nvarchar(50) null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "IsCritical": "bit not null",
+        "IsDefault": "bit not null",
+        "IsNoteRequiredOnCompletion": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "Order": "int not null",
+        "RequestStatusDueDateOffsetInDays": "int null",
+        "RequestStatusDueSoonOffsetInDays": "int null"
+      }
+    },
+    "ConnectionType": {
+      "written": [
+        "Description",
+        "IconCssClass",
+        "IsActive",
+        "Name",
+        "RequiresPlacementGroupToConnect"
+      ],
+      "rockColumns": {
+        "AdditionalSettingsJson": "nvarchar(max) null",
+        "ConnectionRequestDetailPageId": "int null",
+        "ConnectionRequestDetailPageRouteId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DaysUntilRequestIdle": "int not null",
+        "DefaultView": "int not null",
+        "Description": "nvarchar(max) null",
+        "DueDateCalculationMode": "int not null",
+        "EnableFullActivityList": "bit not null",
+        "EnableFutureFollowup": "bit not null",
+        "EnableRequestSecurity": "bit not null",
+        "EnabledFeatures": "int not null",
+        "EnabledViews": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "IsSequentialStatusEnforced": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "Order": "int not null",
+        "OwnerPersonAliasId": "int null",
+        "RequestBadgeLava": "nvarchar(max) null",
+        "RequestDueDateOffsetInDays": "int null",
+        "RequestDueSoonOffsetInDays": "int null",
+        "RequestHeaderLava": "nvarchar(max) null",
+        "RequiresPlacementGroupToConnect": "bit not null",
+        "SnippetCategoryId": "int null"
       }
     },
     "DefinedValue": {
@@ -1016,6 +1371,7 @@
       "written": [
         "ArchivedByPersonAliasId",
         "ArchivedDateTime",
+        "AttendanceRecordRequiredForCheckIn",
         "CampusId",
         "CreatedDateTime",
         "Description",
@@ -1038,7 +1394,8 @@
         "Order",
         "ParentGroupId",
         "PhotoId",
-        "ScheduleId"
+        "ScheduleId",
+        "SchedulingMustMeetRequirements"
       ],
       "rockColumns": {
         "AllowGuests": "bit null",
@@ -1247,6 +1604,25 @@
         "ScheduleId": "int not null"
       }
     },
+    "GroupLocationScheduleConfig": {
+      "written": [
+        "DesiredCapacity",
+        "GroupLocationId",
+        "MaximumCapacity",
+        "MinimumCapacity",
+        "ScheduleId"
+      ],
+      "rockColumns": {
+        "ConfigurationName": "nvarchar(100) null",
+        "ConfirmationAdditionalDetails": "nvarchar(max) null",
+        "DesiredCapacity": "int null",
+        "GroupLocationId": "int not null",
+        "MaximumCapacity": "int null",
+        "MinimumCapacity": "int null",
+        "ReminderAdditionalDetails": "nvarchar(max) null",
+        "ScheduleId": "int not null"
+      }
+    },
     "GroupMember": {
       "written": [
         "ArchivedByPersonAliasId",
@@ -1264,7 +1640,9 @@
         "IsArchived",
         "IsSystem",
         "ModifiedDateTime",
-        "PersonId"
+        "PersonId",
+        "ScheduleStartDate",
+        "ScheduleTemplateId"
       ],
       "rockColumns": {
         "ArchivedByPersonAliasId": "int null",
@@ -1297,6 +1675,35 @@
         "ScheduleReminderEmailOffsetDays": "int null",
         "ScheduleStartDate": "date null",
         "ScheduleTemplateId": "int null"
+      }
+    },
+    "GroupMemberAssignment": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "GroupId",
+        "GroupMemberId",
+        "Guid",
+        "LocationId",
+        "ModifiedDateTime",
+        "ScheduleId"
+      ],
+      "rockColumns": {
+        "ConfirmationSentDateTime": "datetime null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int not null",
+        "GroupMemberId": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "LastReminderSentDateTime": "datetime null",
+        "LocationId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ScheduleId": "int null"
       }
     },
     "GroupMemberHistorical": {
@@ -1342,6 +1749,82 @@
         "IsLeader": "bit not null",
         "ModifiedByPersonAliasId": "int null",
         "ModifiedDateTime": "datetime null"
+      }
+    },
+    "GroupMemberRequirement": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "GroupMemberId",
+        "GroupMemberRequirementState",
+        "GroupRequirementId",
+        "Guid",
+        "LastRequirementCheckDateTime",
+        "ModifiedDateTime",
+        "RequirementMetDateTime",
+        "WasManuallyCompleted",
+        "WasOverridden"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DoesNotMeetWorkflowId": "int null",
+        "DueDate": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupMemberId": "int not null",
+        "GroupMemberRequirementState": "int not null",
+        "GroupRequirementId": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "LastRequirementCheckDateTime": "datetime null",
+        "ManuallyCompletedByPersonAliasId": "int null",
+        "ManuallyCompletedDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "OverriddenByPersonAliasId": "int null",
+        "OverriddenDateTime": "datetime null",
+        "RequirementFailDateTime": "datetime null",
+        "RequirementMetDateTime": "datetime null",
+        "RequirementWarningDateTime": "datetime null",
+        "WarningWorkflowId": "int null",
+        "WasManuallyCompleted": "bit not null",
+        "WasOverridden": "bit not null"
+      }
+    },
+    "GroupRequirement": {
+      "written": [
+        "AllowLeadersToOverride",
+        "AppliesToAgeClassification",
+        "CreatedDateTime",
+        "ForeignKey",
+        "GroupId",
+        "GroupRequirementTypeId",
+        "Guid",
+        "ModifiedDateTime",
+        "MustMeetRequirementToAddMember"
+      ],
+      "rockColumns": {
+        "AllowLeadersToOverride": "bit not null",
+        "AppliesToAgeClassification": "int not null",
+        "AppliesToDataViewId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DueDateAttributeId": "int null",
+        "DueDateStaticDate": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int null",
+        "GroupRequirementTypeId": "int not null",
+        "GroupRoleId": "int null",
+        "GroupTypeId": "int null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "MustMeetRequirementToAddMember": "bit not null"
       }
     },
     "GroupType": {
@@ -1492,6 +1975,54 @@
         "Name": "nvarchar(100) not null",
         "Order": "int not null",
         "ReceiveRequirementsNotifications": "bit not null"
+      }
+    },
+    "History": {
+      "written": [
+        "Caption",
+        "CategoryId",
+        "ChangeType",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntityId",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IsSensitive",
+        "IsSystem",
+        "ModifiedDateTime",
+        "RelatedEntityId",
+        "RelatedEntityTypeId",
+        "ValueName",
+        "Verb"
+      ],
+      "rockColumns": {
+        "Caption": "nvarchar(200) null",
+        "CategoryId": "int not null",
+        "ChangeType": "nvarchar(20) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int not null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsSensitive": "bit null",
+        "IsSystem": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "NewRawValue": "nvarchar(250) null",
+        "NewValue": "nvarchar(max) null",
+        "OldRawValue": "nvarchar(250) null",
+        "OldValue": "nvarchar(max) null",
+        "RelatedData": "nvarchar(max) null",
+        "RelatedEntityId": "int null",
+        "RelatedEntityTypeId": "int null",
+        "SourceOfChange": "nvarchar(max) null",
+        "ValueName": "nvarchar(250) null",
+        "Verb": "nvarchar(50) null"
       }
     },
     "Interaction": {
@@ -1878,6 +2409,35 @@
         "PersonId": "int not null"
       }
     },
+    "PersonScheduleExclusion": {
+      "written": [
+        "CreatedDateTime",
+        "EndDate",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "PersonAliasId",
+        "StartDate",
+        "Title"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EndDate": "date not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ParentPersonScheduleExclusionId": "int null",
+        "PersonAliasId": "int not null",
+        "StartDate": "date not null",
+        "Title": "nvarchar(100) null"
+      }
+    },
     "PersonSearchKey": {
       "written": [
         "CreatedDateTime",
@@ -2144,6 +2704,8 @@
     }
   },
   "deletes": [
+    "BinaryFile",
+    "BinaryFileData",
     "CampusSchedule",
     "DefinedValue",
     "Group",
@@ -2160,6 +2722,7 @@
       "1D5E4356-DC66-4067-BEF1-3560E61150BD",
       "327F1CFF-A013-42B5-80A7-5922A40480EC",
       "65D7CF79-BD80-44B2-9F5F-96D81B9B4990",
+      "6DC6E992-4CAF-4C9F-B11D-5918D244BD40",
       "7220B230-03CE-4D1E-985B-26AA28BE06F8",
       "77A5F7DE-9096-45C8-9051-9D8EE50E3C2F",
       "7FBB63CC-F4FC-4F7E-A8C5-44DC3D0F0720",
@@ -2193,6 +2756,7 @@
       "3465AF21-0F66-465E-97F8-DBC18792986B",
       "3CB239E5-101B-4190-85C9-74C7EDBF2A06",
       "4B2D88F5-6E45-4B4B-8776-11118C8E8269",
+      "4B472C6A-1ACF-481E-A2D4-9C44436BBCF5",
       "4C4C9EC6-C3E4-4E06-B003-0F7701217EE9",
       "50B8C809-DFFD-42D5-B127-6FCFD80A10B0",
       "5412E4C8-6E51-4CA8-98A9-49AAC91486B5",
@@ -2209,7 +2773,20 @@
       "D12837CF-EEE7-4822-9899-36E8884CD848",
       "FB4A609E-3A7D-4AD0-A55A-D707638A35F5"
     ],
+    "ConnectionOpportunity": [
+      "2C09211F-E19E-4685-9B67-4EDAA9945A97",
+      "6C7925A1-A87D-4F9D-82A3-4E835522325F",
+      "864DC2CD-C03F-4DDB-903B-C490AAC80B48"
+    ],
+    "ConnectionStatus": [
+      "828D8744-B412-4B09-A00F-FC51BBE220F6",
+      "901E1A6A-0E91-4F42-880F-47C061C24E0C"
+    ],
+    "ConnectionType": [
+      "DD565087-A4BE-4943-B123-BF22777E8426"
+    ],
     "DefinedType": [
+      "70C9F9C4-20CC-43DD-888D-9243853A0E52",
       "B23F1E45-BC26-4E82-BEB3-9B191FE5CCC3",
       "D4111631-6B42-1CBD-4019-427D6BC6F475",
       "EB5D9839-F770-4E22-8B56-0B09397307D9"
@@ -2272,10 +2849,19 @@
       "BAB250EE-CAE6-4A41-9756-AD9327408BE0"
     ],
     "Group": [
+      "31730962-4C7B-425B-BD73-4185331F37EF",
+      "39FA00EE-25DD-47A3-942B-BFCF1975D661",
       "3CBC1A3F-DD26-430A-9B53-B476CB385ABC",
-      "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9"
+      "6FAF2721-3E26-40D0-936E-29157328A37B",
+      "7A2AFC10-BCFA-4CCF-9B6C-C2367D6BE7BE",
+      "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
+      "E82BD99E-7DC1-483C-A4F2-09017088C55E"
+    ],
+    "GroupRequirementType": [
+      "1C21C346-A861-4A9A-BD6D-BAA7D92419D5"
     ],
     "GroupType": [
+      "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4",
       "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
       "77713830-AE5E-4B1A-94FA-E145DFF85035",
       "790E3215-3B10-442B-AF69-616C0DCB998E",
@@ -2293,8 +2879,10 @@
       "6D798EFA-0110-41D5-BCE4-30ACEFE4317E",
       "7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42",
       "7FC58BB2-7C1E-4C5C-B2B3-4738258A0BE0",
+      "8F63AB81-A2F7-4D69-82E9-158FDD92DB3D",
       "C8B1814F-6AA7-4055-B2D7-48FE20429CB9",
-      "F0806058-7E5D-4CA9-9C04-3BDF92739462"
+      "F0806058-7E5D-4CA9-9C04-3BDF92739462",
+      "F6CECB48-52C1-4D25-9411-F1465755EB70"
     ],
     "InteractionChannel": [
       "3D49FB99-94D1-4F63-B1A2-30D4FEDE11E9"
