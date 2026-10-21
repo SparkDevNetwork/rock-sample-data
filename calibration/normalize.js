@@ -22,7 +22,7 @@
 
     Raw files are either:
       - .json: the single JSON document from Report_SampleDataCalibrationStats.sql, or
-      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3 (see xlsx-to-tsv.ps1).
+      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3 and 5 (see xlsx-to-tsv.ps1).
 
     Output: profiles/sources/<source-id>.json, or the --out file (validation uses this).
 
@@ -373,6 +373,46 @@ if ( s.prayerSummary ) {
     const months = list( s.prayerByMonth );
     delete p.requests;
     out.prayer = { requestsPerYearPerThousandActiveAdults: perThousand( s.prayerSummary.requests, Math.max( months.length, 1 ) ), ...p, monthIndex: monthIndex( months.map( m => [ m.month, m.requests ] ) ) };
+}
+
+// Part 5 measures how the prayer team works. Its windows are 24 months.
+if ( s.prayerDetail && out.prayer ) {
+    const without = ( o, ...keys ) => {
+        const copy = { ...o };
+        keys.forEach( k => delete copy[ k ] );
+        return copy;
+    };
+    const ofActiveAdults = count => activeAdults ? pct( count, activeAdults ) : null;
+    const requesters = s.prayerRequesters || {};
+    const team = s.prayerTeam || {};
+
+    // The share of requests by how many times people prayed for them, as one mix.
+    const bands = { 0: "pctPrayerCount0", 1: "pctPrayerCount1", "2-4": "pctPrayerCount2To4", "5-9": "pctPrayerCount5To9", "10-19": "pctPrayerCount10To19", "20+": "pctPrayerCount20Plus" };
+    out.prayer.detail = {
+        ...without( s.prayerDetail, ...Object.values( bands ) ),
+        prayerCountMix: Object.fromEntries( Object.entries( bands ).map( ( [ k, field ] ) => [ k, s.prayerDetail[ field ] ] ) )
+    };
+    out.prayer.weekdayMix = Object.fromEntries( list( s.prayerByWeekday ).map( w => [ w.weekday, w.pctRequests ] ) );
+    out.prayer.hourBandMix = Object.fromEntries( list( s.prayerByHourBand ).map( h => [ h.hourBand, h.pctRequests ] ) );
+    out.prayer.categories = s.prayerCategories || null;
+
+    // Ages and genders are shares of requests whose requester's value is known, because missing birth dates are a record quirk.
+    const ageBands = { under18: requesters.pctAgeUnder18, "18-29": requesters.pctAge18To29, "30-44": requesters.pctAge30To44, "45-64": requesters.pctAge45To64, "65+": requesters.pctAge65Plus };
+    const knownAges = sum( Object.values( ageBands ).map( v => v || 0 ) );
+    const knownGenders = ( requesters.pctMale || 0 ) + ( requesters.pctFemale || 0 );
+    out.prayer.requesters = {
+        pctOfActiveAdultsWhoAskedIn24Months: ofActiveAdults( requesters.requesters ),
+        ageMixAmongKnown: knownAges ? Object.fromEntries( Object.entries( ageBands ).map( ( [ k, v ] ) => [ k, pct( v || 0, knownAges ) ] ) ) : null,
+        pctFemaleAmongKnown: knownGenders ? pct( requesters.pctFemale || 0, knownGenders ) : null,
+        requestsPerRequesterMix: { 1: requesters.pctRequestersWith1Request, "2-3": requesters.pctRequestersWith2To3Requests, "4+": requesters.pctRequestersWith4PlusRequests },
+        pctRequestersWhoAlsoPrayed: requesters.pctRequestersWhoAlsoPrayed
+    };
+    out.prayer.team = {
+        prayersPerYearPerThousandActiveAdults: perThousand( team.prayers || 0, 24 ),
+        pctOfActiveAdultsWhoPrayedIn24Months: ofActiveAdults( team.prayingPeople ),
+        ...without( team, "prayers", "prayingPeople", "prayerComponents" )
+    };
+    out.prayer.comments = s.prayerComments ? without( s.prayerComments, "comments" ) : null;
 }
 
 if ( s.communicationSummary ) {

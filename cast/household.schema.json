@@ -224,7 +224,7 @@
         },
         "connectionRequests": {
           "type": "array",
-          "description": "Requests to serve that tell this person's story (decision 74). The loader adds the activity history. A Connected request adds the person to the team as Pending.",
+          "description": "Requests to serve that tell this person's story (decision 75). The loader adds the activity history. A Connected request adds the person to the team as Pending.",
           "items": {
             "type": "object",
             "required": [ "opportunity", "state", "status", "created", "connector", "comment" ],

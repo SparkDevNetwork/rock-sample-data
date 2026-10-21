@@ -1,6 +1,6 @@
 # Serving
 
-How serving teams, group scheduling, and requests to serve look in the sample data, and why. The numbers live in [configuration/serving.json](../configuration/serving.json) and [configuration/connections.json](../configuration/connections.json), so they can be tuned in one place. The decisions are 67 to 76 in [Decisions](decisions.md).
+How serving teams, group scheduling, and requests to serve look in the sample data, and why. The numbers live in [configuration/serving.json](../configuration/serving.json) and [configuration/connections.json](../configuration/connections.json), so they can be tuned in one place. The decisions are 68 to 77 in [Decisions](decisions.md).
 
 ## The teams
 
@@ -74,7 +74,7 @@ Three measures are skipped on purpose, and [tolerances.json](../validation/toler
 - **Adult check-in frequency.** Measured from the same adult check-ins.
 - **Team size.** Eight teams per campus make a large campus's teams large, by design.
 
-Still outside tolerance, by a few points: three holiday multipliers for adults (fall kickoff, Labor Day, and July 4) and five months of the connection month pattern.
+Still outside tolerance, by a few points: two holiday multipliers for adults (fall kickoff and Labor Day) and four months of the connection month pattern.
 
 ## Later
 

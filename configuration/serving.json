@@ -1,5 +1,5 @@
 {
-  "$comment": "Serving teams in every dataset: the parent groups, the rooms teams serve in, and each team's positions, service times, and staffing (decisions 69, 70, and 72). Every campus in the dataset gets every team. connections.json links each team to its serving opportunity.",
+  "$comment": "Serving teams in every dataset: the parent groups, the rooms teams serve in, and each team's positions, service times, and staffing (decisions 70, 71, and 73). Every campus in the dataset gets every team. connections.json links each team to its serving opportunity.",
   "groupType": {
     "guid": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4",
     "$comment": "Rock's Serving Team type. Scheduling is on and its purpose is Serving Area, which is how calibration finds serving teams."
@@ -25,7 +25,7 @@
   "rooms": [ "Main Entrance", "Kids Entrance", "Worship Center", "Production Booth", "Prayer Room", "First Aid Station" ],
   "backgroundCheckRequirementTypeGuid": "1C21C346-A861-4A9A-BD6D-BAA7D92419D5",
   "volunteers": {
-    "$comment": "Who serves and how (decision 73). The Cast's volunteers are hand-picked in cast/groups/serving-*.json. Generated households serve at the profile's share of active adults, chosen from Engaged and Leading adults; every team at every campus gets at least minimumTeamSize, and its leader becomes Leading.",
+    "$comment": "Who serves and how (decision 74). The Cast's volunteers are hand-picked in cast/groups/serving-*.json. Generated households serve at the profile's share of active adults, chosen from Engaged and Leading adults; every team at every campus gets at least minimumTeamSize, and its leader becomes Leading.",
     "generatedProfilePath": "engagement.amongActiveAdults.pctServe",
     "leadersProfilePath": "groups.servingTeams.pctLeaders",
     "$joinedComment": "Volunteers who joined in the last joinedMonthIndexDays connected through a request, so their join dates follow the month pattern of connection requests.",
@@ -54,7 +54,7 @@
     "arrivesMinutesEarly": { "min": 5, "max": 30 }
   },
   "scheduling": {
-    "$comment": "Serving history covers the dataset's whole history window, plus the weeks ahead (decision 73). A volunteer serves when the family came that Sunday. Otherwise they were often not scheduled at all, since the family planned to be away, or the request ends one of the other absent ways. Every confirmation and reminder is marked sent so Rock's job never emails sample people.",
+    "$comment": "Serving history covers the dataset's whole history window, plus the weeks ahead (decision 74). A volunteer serves when the family came that Sunday. Otherwise they were often not scheduled at all, since the family planned to be away, or the request ends one of the other absent ways. Every confirmation and reminder is marked sent so Rock's job never emails sample people.",
     "futureWeeks": 6,
     "whenAbsent": { "notScheduled": 20, "declined": 45, "noResponse": 20, "confirmedNoShow": 15 },
     "future": { "confirmed": 60, "pending": 30, "declined": 10 },

@@ -1,5 +1,5 @@
 {
-  "$comment": "Requests to serve (decisions 67, 68, and 71). Rock's Involvement connection type keeps its name and gets a real description and icon. Each opportunity places people on its serving team (serving.json) at the requester's campus. These are request statuses, not the person connection statuses in connection-statuses.json.",
+  "$comment": "Requests to serve (decisions 68, 69, and 72). Rock's Involvement connection type keeps its name and gets a real description and icon. Each opportunity places people on its serving team (serving.json) at the requester's campus. These are request statuses, not the person connection statuses in connection-statuses.json.",
   "connectionType": {
     "guid": "DD565087-A4BE-4943-B123-BF22777E8426",
     "name": "Involvement",
@@ -18,14 +18,14 @@
     { "guid": "98EA1590-5E18-4B93-A94C-13482A19FA63", "name": "Shadowed a Team" },
     { "guid": "0BAAEE94-F862-4C7A-8CA8-4D32ABEBF16C", "name": "Met the Team Leader" }
   ],
-  "$placementComment": "Connecting someone adds them to the team with this role and status. Pending is Rock's default; the team leader makes them Active after onboarding (decision 71).",
+  "$placementComment": "Connecting someone adds them to the team with this role and status. Pending is Rock's default; the team leader makes them Active after onboarding (decision 72).",
   "placement": { "role": "member", "status": "Pending" },
   "$attributeOptionsComment": "Rock ships three opportunity attributes on Involvement, used as filters on the public Serve page. Preference Area's options become the serving areas; keys 1 and 2 keep their meaning (Children's and First Impressions). Each opportunity's attributes give its values by attribute key.",
   "attributeOptions": {
     "PreferenceArea": "1^Kids, 2^Guest Services, 3^Students, 4^Worship and Production, 5^Prayer and Care"
   },
   "requests": {
-    "$comment": "Requests to serve (decision 74). Every volunteer who joined in the last historyDays came through a connected request that ends on the day they joined. Active and inactive requests come from people who are not serving, in the profile's state mix around the connected ones. A few people per campus connected in the last few weeks and wait on the team leader as Pending (decision 71). The Cast's own requests are in their household files.",
+    "$comment": "Requests to serve (decision 75). Every volunteer who joined in the last historyDays came through a connected request that ends on the day they joined. Active and inactive requests come from people who are not serving, in the profile's state mix around the connected ones. A few people per campus connected in the last few weeks and wait on the team leader as Pending (decision 72). The Cast's own requests are in their household files.",
     "historyDays": 730,
     "stateMixProfilePath": "connections.stateMix",
     "daysToConnectProfilePath": "connections.daysToConnect",

@@ -230,6 +230,12 @@ namespace RockSampleData.Loader.Model
         public List<CastRelationship> Relationships { get; set; } = new List<CastRelationship>();
 
         /// <summary>
+        /// The security roles this person's story gives them. Only "Prayer Team" and "Prayer Administrators"
+        /// are used so far: they pick who prays for and approves prayer requests.
+        /// </summary>
+        public List<string> SecurityRoles { get; set; } = new List<string>();
+
+        /// <summary>
         /// What Rock should show for this person after a load, or null. Checked after every load.
         /// </summary>
         public CastPersonExpect Expect { get; set; }

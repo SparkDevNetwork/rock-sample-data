@@ -24,7 +24,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
-| `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3 against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
+| `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
 | `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7: about 23 seconds without, about 34 with). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
@@ -34,7 +34,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
-The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`.
+The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` rows, which have no such column (see [How people load](#how-people-load)).
 
 ## Which Rock a package is for
 
@@ -100,6 +100,18 @@ These differ between installs, by design:
 
 People are bulk-copied with Ids assigned up front (the table's current maximum plus one, and up), so every foreign key is known before anything is written. Bulk copy skips Rock's save hooks, so the loader fills in what they would set: birth date and key, age and age bracket, graduation year (using Rock's June 1 grade transition), giving Id and giving leader, primary family and campus, and formatted phone numbers. These are the "post-load fix-ups" from the plan; they happen during the load, so no separate step is needed.
 
+It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup referee showed was missing. Each follows Rock's own code, named in a note above the loader code that ports it:
+
+| What | How Rock sets it | How the loader sets it |
+|---|---|---|
+| `Person.PrimaryAliasId` and `PrimaryAliasGuid` | The person save hook, after it adds the alias. | From the alias it writes for the person. |
+| Age classification | `PersonService.UpdatePersonAgeClassifications`. | Adult for anyone 18 or older or an adult in any family, otherwise Child. Jasmine Washington, 18, stays a child in her family on purpose, so she is a Child by role and an Adult by classification, the way Rock leaves a child who turns 18. |
+| Family salutations (`GroupSalutation`, `GroupSalutationFull`) | `GroupService.CalculateFamilySalutation`, from the person and group member save hooks. | A port of it (`loading/FamilySalutation.cs`), for example "Ted & Cindy Decker". |
+| Inactive families | Rock Cleanup marks a family inactive when every member's record is inactive, then dates it. | The same, dated at install (in the Cast, the Murphys and Jenny Greggs's family). |
+| An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
+| Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. The table is keyed by name and shared, so these rows have no `ForeignKey`. |
+| A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
+
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 
 ## How photos load
@@ -145,13 +157,13 @@ Serving teams are set up in the configuration step from `../configuration/servin
 `generation/ServingPlanner.cs` plans the volunteers before people load, so a generated team's new leader loads as Leading.
 
 - **The Cast.** The Phoenix rosters are hand-picked in `../cast/groups/serving-*.json`, one file per team. Each file's Guid is the Phoenix team's Guid.
-- **Generated households.** Engaged and Leading adults in households that still attend serve at the profile's `pctServe` share of active adults. Each team gets a leader and at least two people, drawing on Connected, then Known, adults when a campus is small (decision 75). Couples often serve together.
+- **Generated households.** Engaged and Leading adults in households that still attend serve at the profile's `pctServe` share of active adults. Each team gets a leader and at least two people, drawing on Connected, then Known, adults when a campus is small (decision 76). Couples often serve together.
 
 Every volunteer gets a rotation (one of Rock's four schedule templates), a join date, and usually a preferred service and room, seeded by the person. The serving step (`loading/ServingLoader.cs`) bulk-copies the members with their rotations and member history, the preferences as `GroupMemberAssignment` rows, a few blackout dates, and every request to serve as an `Attendance` row on the team's occurrence for that room, service, and Sunday. Serving history covers the whole history window, like Sunday attendance. Past requests follow the family: a volunteer served on a Sunday their family came. Otherwise they were often not scheduled at all, or they declined with a reason, never answered, or confirmed and did not come. Every time they served, they checked in at the kiosk a few minutes before the service, through Rock's Volunteer Check-in template. The next six weeks mix confirmed, pending, and declined. Every confirmation and reminder is marked sent. Kids and student volunteers get a passing background check and the requirement results Rock's job would have saved. A team too small for its configured staffing asks for about the people it usually has.
 
 ## How connection requests load
 
-The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serving, because requests end in the memberships serving just loaded. The rules are in `../configuration/connections.json` under `requests`, and the measured targets come from the profile's `connections` values. The design is decision 74.
+The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serving, because requests end in the memberships serving just loaded. The rules are in `../configuration/connections.json` under `requests`, and the measured targets come from the profile's `connections` values. The design is decision 75.
 
 - **Connected.** Every volunteer who joined in the last two years gets the request that put them on their team, ending the day they joined. Time to connect is log-normal around the profile's median and 90th percentile.
 - **Pending.** A few people per campus connected in the last few weeks. Each gets a Pending membership on their team, which waits for the team leader to make it Active.
@@ -187,6 +199,19 @@ The math for attributes and alerts lives in Rock's C#, so `loading/RockGivingAut
 
 Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the alerts about 2. Core 1 takes under 1 second for each. Full 7 raises about 1,500 alerts a year: about 300 large gifts, 300 smaller than usual, and 900 late gifts (about one per giver who stops). Core 1 raises about 20.
 
+## Prayer requests
+
+`generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.
+
+1. **Who asks.** Adults who attended, gave, or were in a small group in the last year are active. Volume is 250 requests a year per 1,000 of them. Each age band and gender gets its quota from the profile's mix of people who ask, and most people ask once. About 6% of requests come from guests with no person record, who leave only a name and email.
+2. **When and what.** Days follow the profile's month and weekday patterns, and times its hour bands. Each request gets a category by its weight in `configuration/prayer.json` and text from that category's pool in `content/prayer`: one request, some details, and sometimes a closing.
+3. **Approval.** The Cast's Prayer Administrator approves most requests within hours. Rock's approval stamps who and when, and sets the request to expire 14 days later, stored as a date. Requests whose approval would fall after install day still wait in the queue.
+4. **Prayer.** The prayer team is the Cast's Prayer Team plus about 3% of active adults, a few of them far busier than the rest. They pray through a request while it is approved and not expired, through the end of its expiration day, as Rock's prayer session shows it. Each prayer is a "Prayed" interaction in Rock's Prayer Events channel, with one interaction component per request, and `PrayerCount` is the number of them. Nobody prays for their own request.
+5. **Flags, comments, and answers.** About 2% are flagged partway through, which unapproves them, as Rock's flag limit does. Some requests that allow comments get Prayer Comment notes from people who prayed, and a few requesters reply. Some requests whose prayer window has ended get an answer, and a few are closed.
+6. **Daily counts.** Rock Cleanup keeps a daily count of interactions for channels with daily counts on, and Prayer Events is one. The loader runs Rock's own backfill and saves its last processed date, so Rock's first run finds nothing to do (`validation/rock-lock.json` tracks the Rock code).
+
+Speed: Full 7 with the crowd has about 5,600 requests, 33,000 prayers, and 1,250 comments, and the step takes about 2 seconds. Core 1 has about 86 requests.
+
 ## Speed
 
 | Load | People | Attendance rows (Sunday plus group) | Gifts | Time |
@@ -208,7 +233,7 @@ Trying to draw checks in the background, alongside giving analytics and alerts, 
 
 ## Validation
 
-See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%). Serving and connections added graded values on 2026-10-20: 284 of 325 pass (87%). The serving values pass; three holiday multipliers for adults and five months of the connection month pattern are a few points out. See [Serving](../docs/serving.md#how-the-numbers-compare) for the three measures skipped on purpose.
+See [validation/](../validation/README.md). The first Full 7 run passed 55% of profile values. After one tuning pass it passed 74%, and 76% after the Cast grew to 83 households. The giving tuning on 2026-10-16 took it to 90%. Small groups added four graded values. With both, 260 of 291 pass (89%); giving passes 191 of 196, and small groups 3 of 3. Businesses added two graded values on 2026-10-19 (their share of giving units and of dollars): 261 of 293 pass (89%). Prayer added 87 graded values on 2026-10-20, and all pass: 347 of 380 pass (91%). Serving and connections added graded values on 2026-10-21: 373 of 412 pass (91%). The serving values pass; two holiday multipliers for adults (fall kickoff and Labor Day) and four months of the connection month pattern are a few points out. See [Serving](../docs/serving.md#how-the-numbers-compare) for the measures skipped on purpose.
 
 ## Steps
 
@@ -223,11 +248,12 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Post-load fix-ups (primary family, giving leader, age brackets) | Done, during the load |
 | Spike crowd for speed tests and validation | Done |
 | Scanned check images, matching each gift, stored as Rock transaction images | Done |
-| Validation with the calibration scripts | Done (89% of values pass) |
+| Validation with the calibration scripts | Done (91% of values pass) |
 | Giving analytics: giving attributes, bins and percentiles, journey stages with history, and a year of giving alerts, the way Rock computes them | Done |
 | Kids check-in streaks and achievements, the way Rock computes them, shown at check-in | Done |
-| Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, and 26 weeks of scheduling history plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
+| Serving: teams at every campus with volunteers, rotations, preferences, staffing, background checks, volunteer check-in, and scheduling history over the whole history window plus 6 weeks ahead; the Involvement connection type and eight serving opportunities | Done |
 | Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
+| Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
 | People, the rest: person attributes, notes, logins, security roles, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
 ## Check images

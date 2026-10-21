@@ -28,8 +28,9 @@ namespace RockSampleData.RockRunner
     /// Usage: rock-runner --task startup|cleanup --rock-bin <RockWeb\bin folder> --config <config file>
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
-    ///            hotfix migrations, and the attribute value views. The trusted base runs it once after EF's migrations,
-    ///            so it matches a Rock that has started, not just a migrated database.
+    ///            hotfix migrations, and the attribute value views, then Rock's one-time post-install job, which a new
+    ///            install runs on its first night. The trusted base runs it once after EF's migrations, so it matches
+    ///            a Rock that has started, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
@@ -107,6 +108,19 @@ namespace RockSampleData.RockRunner
             CallStartup( "InitializeQueryableAttributeValues" );
             steps.Add( "attribute value views" );
 
+            /*
+                10/19/26 - CLAUDE
+
+                A new install schedules Rock's PostInstallDataMigrations job for 2am on its first night. It fills
+                AnalyticsSourceDate (150 years back to 100 ahead) and the identity verification codes. Rock Cleanup's
+                age step reads each person's age from AnalyticsSourceDate, so without it Rock Cleanup sets every
+                age to null, which no church database that has run a night does.
+
+                Reason: The trusted base must match a Rock that has run its first night's one-time job.
+            */
+            RunJob( "Rock.Jobs.PostInstallDataMigrations" );
+            steps.Add( "and the post-install job (analytics dates and identity verification codes)" );
+
             return $"Ran Rock's start-up steps: the RockGetDate function, {string.Join( ", ", steps )}.";
         }
 
@@ -118,14 +132,9 @@ namespace RockSampleData.RockRunner
             Start();
             var jobType = _rock.GetType( "Rock.Jobs.RockCleanup", true );
             var job = Activator.CreateInstance( jobType );
-
-            // RockJob.ExecuteInternal( Dictionary ) is how Rock's own tests run a job: a new job definition
-            // with its default attribute values, then Execute.
-            var execute = _rock.GetType( "Rock.Jobs.RockJob", true ).GetMethod( "ExecuteInternal", Hidden, null, new[] { typeof( Dictionary<string, string> ) }, null )
-                ?? throw new InvalidOperationException( "This Rock.dll has no RockJob.ExecuteInternal( Dictionary ). The runner needs updating for this Rock." );
             try
             {
-                execute.Invoke( job, new object[] { new Dictionary<string, string>() } );
+                Execute( job );
             }
             catch ( TargetInvocationException ex ) when ( ex.InnerException?.GetType().Name == "RockJobWarningException" && ex.InnerException.InnerException is AggregateException errors )
             {
@@ -137,6 +146,32 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs one Rock job with its default settings. Any failure stops the caller.
+        /// </summary>
+        private void RunJob( string typeName )
+        {
+            try
+            {
+                Execute( Activator.CreateInstance( _rock.GetType( typeName, true ) ) );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                throw new InvalidOperationException( $"{typeName} failed: {ex.GetBaseException().Message}", ex.InnerException );
+            }
+        }
+
+        /// <summary>
+        /// RockJob.ExecuteInternal( Dictionary ) is how Rock's own tests run a job: a new job definition
+        /// with its default attribute values, then Execute.
+        /// </summary>
+        private void Execute( object job )
+        {
+            var execute = _rock.GetType( "Rock.Jobs.RockJob", true ).GetMethod( "ExecuteInternal", Hidden, null, new[] { typeof( Dictionary<string, string> ) }, null )
+                ?? throw new InvalidOperationException( "This Rock.dll has no RockJob.ExecuteInternal( Dictionary ). The runner needs updating for this Rock." );
+            execute.Invoke( job, new object[] { new Dictionary<string, string>() } );
         }
 
         /// <summary>

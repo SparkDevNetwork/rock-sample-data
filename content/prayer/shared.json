@@ -1,0 +1,30 @@
+{
+  "$comment": "Closing lines that can end a prayer request in any category.",
+  "closings": [
+    "Thank you, church family.",
+    "Grateful for this church.",
+    "Thanks for praying with us.",
+    "Thank you for your prayers.",
+    "We appreciate every prayer.",
+    "Thanks so much.",
+    "God bless you all.",
+    "In Jesus' name, amen.",
+    "Thank you for standing with us.",
+    "Your prayers mean so much to us.",
+    "Thanks in advance for praying.",
+    "Blessings to each of you.",
+    "Grateful for all of you.",
+    "Thank you, prayer team.",
+    "Much love and thanks.",
+    "Thanks for carrying this with me.",
+    "I will post an update when I can.",
+    "Trusting God with all of it.",
+    "Appreciate you all.",
+    "With a thankful heart.",
+    "Please keep us in your prayers.",
+    "So thankful for this community.",
+    "Thank you for caring.",
+    "Praying for all of you too.",
+    "He is faithful. Thank you."
+  ]
+}

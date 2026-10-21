@@ -15,7 +15,8 @@
     "engagement.amongActiveAdults.pctServe",
     "groups.smallGroups",
     "groups.servingTeams",
-    "connections"
+    "connections",
+    "prayer"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
@@ -28,18 +29,26 @@
     "groups.servingTeams.groupTypes",
     "attendance.adultCheckInsPerChildCheckIn",
     "attendance.adultFrequencyMixOf26Weeks",
-    "groups.servingTeams.weightedMedianSize"
+    "groups.servingTeams.weightedMedianSize",
+    "prayer.avgTextLength",
+    "prayer.categories.categoriesUsed",
+    "prayer.categories.pctOfUsedCategoriesWithAParent",
+    "prayer.requesters.pctOfActiveAdultsWhoAskedIn24Months"
   ],
   "$skipReasons": {
     "attendance.sundayHourMix": "Service times come from configuration/schedules.json, not the profile.",
+    "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. It has no midweek programs, adult classes, or events where adults check in (see the midweek item in the roadmap).",
+    "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see attendance.adultCheckInsPerChildCheckIn. Volunteers check in on their rotation, and there are no one-time adult check-ins.",
     "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
     "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
     "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
     "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several.",
+    "prayer.avgTextLength": "The measured mean is pulled up by a few very long requests. Generated requests stop near 500 characters (decision 67), so the length percentiles are graded instead.",
+    "prayer.categories.categoriesUsed": "The sample church uses every prayer category Rock ships, so demos show each one (decision 67).",
+    "prayer.categories.pctOfUsedCategoriesWithAParent": "Rock ships every prayer category under All Church, so all of them have a parent.",
+    "prayer.requesters.pctOfActiveAdultsWhoAskedIn24Months": "Follows from volume and the requests per requester mix, so it is not a target of its own.",
     "groups.servingTeams.groupTypes": "The sample church has one Serving Team type by design, with a parent group per campus.",
-    "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. It has no midweek programs, adult classes, or events where adults check in (see the midweek item in the roadmap).",
-    "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see attendance.adultCheckInsPerChildCheckIn. Volunteers check in on their rotation, and there are no one-time adult check-ins.",
-    "groups.servingTeams.weightedMedianSize": "Each campus has eight serving teams by design (decision 69), so a large campus has large teams."
+    "groups.servingTeams.weightedMedianSize": "Each campus has eight serving teams by design (decision 70), so a large campus has large teams."
   },
   "missingPassesBelow": 1,
   "rules": {
@@ -68,6 +77,9 @@
     },
     "attendance.kidsMonthIndex": {
       "relative": 0.1
+    },
+    "prayer.requesters.ageMixAmongKnown": {
+      "points": 3
     }
   }
 }

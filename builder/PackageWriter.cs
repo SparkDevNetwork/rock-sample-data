@@ -103,8 +103,10 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // Fonts for check images, with their licenses, and the license for the data itself.
+            // Fonts for check images, with their licenses, the prayer text pools, and the license for the data itself.
             AddFolder( "content/fonts" );
+            AddFolder( "content/prayer", ".json" );
+            AddFolder( "content/prayer/categories", ".json" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what

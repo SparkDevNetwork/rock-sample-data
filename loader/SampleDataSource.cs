@@ -142,6 +142,34 @@ namespace RockSampleData.Loader
         public const string OpportunityPhotoManifestPath = "photos/opportunities/manifest.json";
 
         /// <summary>
+        /// Reads configuration/prayer.json, or null for a package built before prayer requests existed.
+        /// </summary>
+        public PrayerConfiguration ReadPrayerConfiguration()
+        {
+            return Files.Exists( "configuration/prayer.json" ) ? Read<PrayerConfiguration>( "configuration/prayer.json" ) : null;
+        }
+
+        /// <summary>
+        /// Reads the prayer text pools in content/prayer: one file per category with a weight above 0,
+        /// plus the comments and closings.
+        /// </summary>
+        public PrayerText ReadPrayerText( PrayerConfiguration configuration )
+        {
+            var text = new PrayerText
+            {
+                Comments = Read<PrayerCommentText>( "content/prayer/comments.json" ),
+                Shared = Read<PrayerSharedText>( "content/prayer/shared.json" )
+            };
+
+            foreach ( var category in configuration.Categories.Where( c => c.Weight > 0 ) )
+            {
+                text.Categories[category.Key] = Read<PrayerCategoryText>( $"content/prayer/categories/{category.Key}.json" );
+            }
+
+            return text;
+        }
+
+        /// <summary>
         /// Reads the Cast's small group plans from cast/groups, in file name order. Groups the
         /// configuration lists as not in the pattern, and other group types, are skipped.
         /// </summary>

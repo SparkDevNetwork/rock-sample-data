@@ -378,6 +378,118 @@
         "loader/loading/RockStreaks.cs"
       ],
       "sha256": "c06897b9352543b720eb767d8b57df0c35e1f485feab5ef85a40e1b5c8e03d57"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.SaveHook.cs",
+      "section": "The new person's alternate Id",
+      "from": "// ensure a new person has an Alternate Id",
+      "to": "case EntityContextState.Modified:",
+      "why": "Every new person gets an alternate Id search key on their alias.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "6cb0747e3e71d459d48faf190c6833a858e39b0e37ee242e58e42d2a393380dc"
+    },
+    {
+      "path": "Rock/Model/CRM/PersonSearchKey/PersonSearchKeyService.cs",
+      "why": "The alternate Id's format: 7 hex digits, a dash, and 7 more.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "5b1e54eb912371eb817942585c13223894911959fb43851d6a85f24b2cd3e9bf"
+    },
+    {
+      "path": "Rock/Transactions/SaveMetaphoneTransaction.cs",
+      "why": "Which names get metaphones (first, nick, and last, trimmed) and when a name is already there.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "1c2d2cba767d37a0ba5ff259fa7a2d9308a72d0efa6d8fa5ce90e04f996d78cb"
+    },
+    {
+      "path": "Rock/Utility/DoubleMetaphone.cs",
+      "why": "The Double Metaphone keys, copied unchanged.",
+      "mirroredBy": [
+        "loader/generation/DoubleMetaphone.cs"
+      ],
+      "sha256": "4284cec0d755eb73732580f902bd6e7a7b6f38ee2705dbb827bf4aaf3c7cfda1"
+    },
+    {
+      "path": "Rock/Model/Group/Group/GroupService.cs",
+      "section": "CalculateFamilySalutation",
+      "from": "public static string CalculateFamilySalutation( Group group, Person.CalculateFamilySalutationArgs calculateFamilySalutationArgs )",
+      "to": "public static bool UpdateGroupSalutations( int groupId, RockContext rockContext )",
+      "why": "Family salutations: who is named, in what order, and how.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "0ce8464bc76313790b933b7981e19e37efb81fc7c98efd6835db0043df8abf5a"
+    },
+    {
+      "path": "Rock.Common/ExtensionMethods/StringExtensions.cs",
+      "section": "Truncate",
+      "from": "public static string Truncate( this string str, int maxLength, bool addEllipsis )",
+      "to": "/// Removes any non-numeric characters.",
+      "why": "How a long salutation is cut to 250 characters.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "a7771c6797beeb187b56cc37ac8a9a14e6e8266af90cb63ebac030e6f04cf7bc"
+    },
+    {
+      "path": "Rock.Common/ExtensionMethods/StringExtensions.cs",
+      "section": "ReplaceLastOccurrence",
+      "from": "public static string ReplaceLastOccurrence( this string source, string find, string replace )",
+      "to": "/// Replaces the first occurrence of a given string with a new value",
+      "why": "The salutation's final separator.",
+      "mirroredBy": [
+        "loader/loading/FamilySalutation.cs"
+      ],
+      "sha256": "1cd7f1b311586a5a2879ac2b4760f1794ffaa4be664ea4300c0ca6ceab2a2244"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/PersonService.cs",
+      "section": "UpdatePersonAgeClassifications",
+      "from": "private static int UpdatePersonAgeClassifications( int? personId, RockContext rockContext )",
+      "to": "/// Ensures the PrimaryFamily is correct for the specified person",
+      "why": "Age classification: Adult at 18 or as an adult in any family, otherwise Child.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "f39b8d3ccc112fb856cba7ef942e701cf9e21ecada7c0f2061a26717806bece0"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "PersonCleanup",
+      "from": "internal int PersonCleanup()",
+      "to": "/// Removes any UserLogin records associated with the Anonymous Giver.",
+      "why": "What Rock Cleanup fixes on people: aliases, alternate Ids, metaphones, age classification, Known Relationship groups, and families with no active members.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "1940a57fc9e07d5e2cd2abab0dcb6e958bd04d896ef7c25c523554e6022b8062"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "AddMissingRelationshipGroups",
+      "from": "private static int AddMissingRelationshipGroups( GroupTypeCache relationshipGroupType, Guid ownerRoleGuid, int commandTimeout )",
+      "to": "private int CleanupTemporaryBinaryFiles()",
+      "why": "The Known Relationship group each person owns: its name, type, and Owner member.",
+      "mirroredBy": [
+        "loader/loading/PeopleLoader.cs"
+      ],
+      "sha256": "95287cc4442d4538c7194ec32f3bb8e27d93f4e92b5d82b2b2c4d5d794c87764"
+    },
+    {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "UpdateInteractionComponentDailyCounts and its INSERT",
+      "from": "private int UpdateInteractionComponentDailyCounts()",
+      "to": "/// Removes any expired saved accounts",
+      "why": "The daily interaction counts Rock Cleanup backfills on its first run, and the system setting that records the last day processed.",
+      "mirroredBy": [
+        "loader/loading/PrayerLoader.cs"
+      ],
+      "sha256": "c0245b170731c9b0d88991fb90beaae75357ac0357bba8362af02efa1f840746"
     }
   ]
 }

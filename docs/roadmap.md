@@ -23,19 +23,15 @@ Where the project stands: the team's working list. Update this page whenever som
 - Kids check-in streaks and achievements: one Kids Check-in streak type, seven achievement types from High Five to Century Club, and each child's streak and attempts the way Rock computes them. Next-gen check-in shows them (decisions 57 to 61). Cast achievement expectations are checked on every load, the version guard covers the ported code, and a parity test runs Rock's own code on loaded data. Core 1 and Full 7 match Rock exactly.
 - Group photos: each of the Cast's 12 small groups has a photo of its real members, made from their profile photos from the [group photo brief](../photos/group-brief.md). Every dataset sets them as the groups' photos, and Group Finder shows them on its cards (decisions 56 and 62).
 - The [verify tool](../verify/README.md) (decision 66): a trusted base made from the Rock release by its migrations and start-up steps, a contract recorded from real loads, invariants, Rock's own Rock Cleanup job as a referee, the content standards as checks, and a receipt per package with a publishing gate.
-
 - Businesses at every campus: at least 6 on the main campus (all from the Cast) and at least 2 at each other campus, or the measured share of giving units when that is more. Every business has one or two contacts, loaded both ways as Rock known relationships, a work address, and gifts in the last 12 months. Every load checks all of it. Full 7 has 87 businesses, and both measured business values pass (decisions 63 to 65).
+- Every package passes the verify tool. The loader now sets what Rock's save hooks and Rock Cleanup would: primary aliases, age classification, family salutations, inactive families, an alternate Id and name metaphones for every person, and a Known Relationship group for every person (see [How people load](../loader/README.md#how-people-load)). The trusted base also runs Rock's first-night post-install job, without which Rock Cleanup blanks every age.
+
+- Prayer requests with an active prayer team (decision 67). Every dataset gets requests from adults who attended, gave, or were in a small group, in Rock's own prayer categories, with text from `content/prayer`. The Cast's Prayer Administrator approves them, and the prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each one while it is active, as "Prayed" interactions with matching prayer counts. A few are flagged back to the approval queue, and some get comments, replies, and answers. Calibration part 5 grades it: all 87 prayer values pass on Full 7 with the crowd (5,558 requests and about 33,000 prayers), and validation overall is 347 of 380 (91%).
+- Serving teams and serving opportunities at every campus (decisions 68 to 77; see [Serving](serving.md)). Rock's Involvement connection type has eight polished opportunities with photos of real Cast volunteers, each placing people on its team at their campus. Every campus has eight teams with rooms, service times, staffing that fits the campus, and a background check for kids and student volunteers. Volunteers have rotations, preferences, and scheduling history over the whole history window plus six weeks ahead, and check in to serve. Connection requests in the measured mix lead to the teams, with activity history and person history. Validation grades serving and connections.
 
 ## In progress
 
-**Serving and connections (Phase 1),** on the `serving` branch (decisions 67 to 76). Eight serving opportunities in Rock's Involvement connection type, backed by serving teams at every campus, with group scheduling and connection requests that tell one story. The steps, in order:
-
-1. Done: configuration. The connection type, statuses, opportunities, and their Serve page filters; the serving team parents, teams, rooms, service times, and staffing; and the background check requirement.
-2. Done: serving teams with volunteers at every campus (decision 75). The Cast's 47 volunteers are in `cast/groups/serving-*.json`, which replaced the legacy A/V Team.
-3. Done: scheduling. Rotations, preferences, history tied to family attendance, 6 weeks ahead, blackout dates, staffing that fits each campus, and background checks for kids and student volunteers.
-4. Done: connection requests (decision 74). A connected request behind every volunteer who joined in the last two years, people waiting as Pending, and active and inactive requests in the measured mix, plus the Cast's stories. Each team leader is the default connector.
-5. Done: volunteer check-in and serving validation (decision 76). Serving history spans the whole history window, volunteers check in to serve, and validation grades serving and connections. Full 7 passes 284 of 325 values. Still out by a few points: three holiday multipliers for adults and five months of the connection month pattern.
-6. Done: the [Serving](serving.md) guide, the glossary, and the person history Rock writes for connection requests. Also done: photos for all eight opportunities from the [opportunity photo brief](../photos/opportunity-brief.md), which replace Rock's three and show on the Serve page.
+Nothing right now.
 
 ## Waiting on a decision
 
@@ -43,19 +39,11 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Fix what the verify tool found.** Every package fails verification today, for real gaps. The loader must set what Rock's save hooks set:
-   - `Person.PrimaryAliasId` and `PrimaryAliasGuid` for every person.
-   - A known-relationships group (and its owner member) for every person.
-   - A `PersonSearchKey` row and `Metaphone` entries for every person, which person search and duplicate finding use.
-   - Family salutations (`GroupSalutation` and `GroupSalutationFull`).
-   - `InactiveDateTime` on inactive groups, and the archived group whose `IsActive` Rock changes.
-   - Age and age bracket for some generated people in Core 3, one group member's role, and one person's age classification.
-
-   Then run the verify tool until every receipt passes.
-2. **Close validation gaps.** First-time visitors run low and teens run low.
-3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-4. **Per-person attendance,** so a teen can attend more often than their parents.
-5. **Real Crowd names** from public-domain frequency data by birth decade.
+1. **Close validation gaps.** First-time visitors run low and teens run low.
+2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+3. **Per-person attendance,** so a teen can attend more often than their parents.
+4. **Real Crowd names** from public-domain frequency data by birth decade.
+5. **Cast prayer requests.** Hand-written requests tied to Cast stories (for example, Ted Decker's mother in the hospital), covering each prayer screen state: waiting for approval, flagged, urgent, private, expired, answered, with comments, from a guest, and shared with a group. Every load checks them, like the giving expectations.
 
 ## To do (parked)
 

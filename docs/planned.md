@@ -24,7 +24,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
-- **Prayer requests,** with prayer team activity.
+- **Cast prayer requests** tied to Cast stories, covering every prayer screen: waiting for approval, flagged, urgent, private, expired, answered, and shared with a group.
 - **Communications:** email and text history, with opens and clicks.
 - **Steps,** such as baptism and membership.
 - **Benevolence requests.**

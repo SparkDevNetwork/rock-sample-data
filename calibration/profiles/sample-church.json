@@ -6,6 +6,13 @@
   "blend": [
     { "source": "source-1", "weight": 1 }
   ],
+  "sectionBlend": {
+    "prayer": [ { "source": "source-1", "weight": 1 }, { "source": "source-2", "weight": 1 } ],
+    "prayer.requestsPerYearPerThousandActiveAdults": [ { "source": "source-1", "weight": 1 } ],
+    "prayer.monthIndex": [ { "source": "source-1", "weight": 1 } ],
+    "prayer.pctWithCategory": [ { "source": "source-2", "weight": 1 } ],
+    "prayer.avgTextLength": [ { "source": "source-2", "weight": 1 } ]
+  },
   "excluded": [
     { "path": "giving.sourceMix.other", "reason": "Custom source type. The remaining source types are renormalized." },
     { "path": "engagement.newAdultsAfterOneYear", "reason": "Depends heavily on how records are created, so it is not used as a target." },
@@ -20,10 +27,59 @@
     { "path": "engagement.pctAdultRecordsWithAnyActivity", "value": 45, "reason": "Assumption. A healthy sample church shows a high share of active records." },
     { "path": "giving.pctUnitsWithPledge", "value": 12, "reason": "Assumption. The sample data must exercise pledge features." },
     { "path": "prayer.pctAnswered", "value": 15, "reason": "Assumption. The sample data must exercise answered prayers." },
-    { "path": "prayer.pctWithCategory", "value": 85, "reason": "Assumption. The sample data must exercise prayer categories." },
     { "path": "prayer.pctAllowComments", "value": 40, "reason": "Assumption. The sample data must exercise prayer comments." },
     { "path": "prayer.pctUrgent", "value": 5, "reason": "Assumption. The sample data must exercise urgent requests." },
-    { "path": "prayer.avgPrayerCount", "value": 6, "reason": "Assumption. The sample data must show prayer counts." },
+    { "path": "prayer.requestsPerYearPerThousandActiveAdults", "value": 250, "reason": "Design choice. At the measured requests per requester, the measured volume would need more requesters than active adults. 250 a year lets about a third of active adults ask over two years (decision 67)." },
+    { "path": "prayer.detail.pctWithExpiration", "value": 100, "reason": "Design choice. Rock sets an expiration date whenever a request is approved, and the prayer team approves every request it keeps (decision 67)." },
+    { "path": "prayer.detail.textLengthP90", "value": 500, "reason": "Design choice. Long requests are built from a request and its details, and past about 500 characters they read as repetition (decision 67)." },
+    { "path": "prayer.pctApproved", "value": 97, "reason": "Design choice. The prayer team approves nearly every request, and a few wait in the approval queue (decision 67)." },
+    { "path": "prayer.avgPrayerCount", "value": 6, "reason": "Design choice. The prayer team prays through requests (decision 67)." },
+    { "path": "prayer.detail.pctWithGroup", "value": 8, "reason": "Design choice. A few requests are shared with a small group, so group prayer screens have data (decision 67)." },
+    { "path": "prayer.detail.pctWithCampus", "value": 100, "reason": "Design choice. Every request carries the requester's campus, so campus filters have data (decision 67)." },
+    { "path": "prayer.detail.pctFlagged", "value": 2, "reason": "Design choice. The prayer team flags a few requests (decision 67)." },
+    { "path": "prayer.detail.pctApprovedByAPerson", "value": 95, "reason": "Design choice. A prayer administrator approves almost every request by hand (decision 67)." },
+    { "path": "prayer.detail.hoursToApproveP50", "value": 6, "reason": "Design choice. The prayer team approves requests the same day (decision 67)." },
+    { "path": "prayer.detail.hoursToApproveP90", "value": 36, "reason": "Design choice. Weekend requests wait until a weekday (decision 67)." },
+    {
+      "path": "prayer.detail.prayerCountMix",
+      "reason": "Design choice. The share of requests by how many times the team prayed for them. The average is about 6 (decision 67).",
+      "value": { "0": 5, "1": 10, "2-4": 35, "5-9": 35, "10-19": 12, "20+": 3 }
+    },
+    { "path": "prayer.detail.prayerCountP50", "value": 5, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
+    { "path": "prayer.detail.prayerCountP90", "value": 12, "reason": "Design choice. Matches the prayer count mix (decision 67)." },
+    { "path": "prayer.detail.answerLengthP50", "value": 70, "reason": "Design choice. An answer is a short note from the requester, as written in content/prayer (decision 67)." },
+    { "path": "prayer.requesters.pctRequestersWhoAlsoPrayed", "value": 6, "reason": "Design choice. Prayer team members ask for prayer too. A team of 3% of active adults can be at most about 8% of the third of active adults who ask (decision 67)." },
+    {
+      "path": "prayer.team",
+      "reason": "Design choice. An active prayer team prays through requests in Rock (decision 67). Prayers per year follow from request volume times prayers per request, so they are not set here.",
+      "value": {
+        "pctOfActiveAdultsWhoPrayedIn24Months": 3,
+        "pctPrayersWithAPerson": 100,
+        "pctPrayersByTop10PctOfPrayingPeople": 35,
+        "pctRequestsPrayedFor": 95,
+        "avgPrayedInteractionsPerRequest": 6,
+        "avgPrayerCountPerRequest": 6,
+        "prayersPerPrayedRequestP50": 5,
+        "prayersPerPrayedRequestP90": 12,
+        "hoursToFirstPrayerP50": 18,
+        "hoursToFirstPrayerP90": 72,
+        "daysToLastPrayerP50": 10,
+        "daysToLastPrayerP90": 14
+      }
+    },
+    {
+      "path": "prayer.comments",
+      "reason": "Design choice. The prayer team leaves short encouragements, as written in content/prayer, and a few requesters reply (decision 67).",
+      "value": {
+        "pctRequestsWithComment": 15,
+        "pctCommentsThatAreReplies": 10,
+        "pctCommentsByRequester": 10,
+        "commentsPerCommentedRequestP50": 1,
+        "commentsPerCommentedRequestP90": 3,
+        "hoursToFirstCommentP50": 24,
+        "commentLengthP50": 65
+      }
+    },
     {
       "path": "distance",
       "reason": "Coarse, rounded targets for straight-line miles from home to campus.",
@@ -38,6 +94,7 @@
   "notes": [
     "The sample church has a midweek student service, so a share of check-ins happen on Wednesday.",
     "Christmas week shows almost no kids check-in, because many churches hold Christmas Eve services without children's ministry.",
-    "Dollar amounts (annual totals, gift sizes) should be reviewed as sources are added."
+    "Dollar amounts (annual totals, gift sizes) should be reviewed as sources are added.",
+    "Prayer volume and its monthly pattern come from source-1. Categories, text length, timing, and who asks come from source-2. The prayer team's activity is a design choice, not a measurement (decision 67)."
   ]
 }

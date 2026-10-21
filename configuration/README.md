@@ -15,6 +15,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 | `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
 | `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
+| `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 
 ## Service times
 
@@ -59,6 +60,10 @@ Each entry in `achievements.json` has a key, a Guid, a name, a description for k
 ## Serving and connections
 
 Every campus gets eight serving teams under a "{campus} Serving Teams" parent, and each team has a serving opportunity in Rock's Involvement connection type. The main campus teams take their Guids from the Cast rosters in `cast/groups/serving-*.json`; every other team's Guid comes from its campus and key. See [Serving](../docs/serving.md) for the design and the reasons.
+
+## Prayer categories
+
+Prayer requests use the 19 categories Rock ships under All Church, unchanged (decision 67). Each has a weight: its share of generated requests. General holds 65%, and the top 5 hold about 89%, which matches the measured shape. The rest share what is left, from Finances/Job at 2.2% down to Current Events and Nation at 0.3%. Suicidal Tendencies has weight 0, because that text is too heavy for sample data shown in demos. The category stays in Rock, empty. Each category's text pool is in [content/prayer](../content/prayer/README.md).
 
 ## Campuses
 

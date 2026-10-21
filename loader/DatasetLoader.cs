@@ -267,6 +267,16 @@ namespace RockSampleData.Loader
             new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
+            // Prayer requests and the prayer team's activity. Who asks depends on who attended, gave, or is in a group.
+            step.Restart();
+            Console.WriteLine( "Prayer" );
+            var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
+            prayer.Load( people.Households, attendance.FamilySundays, giving.QualifyingGifts, smallGroupSetup.GroupTypeId, calendar.HistoryStart, profile );
+
+            // Rock Cleanup's daily interaction counts, for every channel that keeps them. Run after the last step that writes interactions.
+            prayer.UpdateDailyCounts();
+            Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
+
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             step.Restart();
             Console.WriteLine( "Cast expectations" );
