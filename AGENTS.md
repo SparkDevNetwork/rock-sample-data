@@ -35,10 +35,17 @@ The first line turns on the hooks that guard `main`. The second makes every merg
 ## Handing off
 
 10. **Hand finished work to the integrator.** When your branch is ready, message the integrator session with the branch name, what changed, and the checks you ran. The integrator merges `main` into the branch, numbers decisions, re-records the contract, runs verify, merges into `main`, and pushes once the person running it agrees. Feature sessions do not merge into `main`, except in solo mode (rule 12).
-11. **Before you hand off,** run `node cast/validate-cast.js`, `node validation/check-standards.js`, any checker for content you changed, and the verify tool on your branch. Update `docs/decisions.md` (with placeholders), `docs/roadmap.md`, and any README your change affects.
+11. **Before you hand off,** run `node cast/validate-cast.js`, `node validation/check-standards.js`, any checker for content you changed, and the verify tool on your branch. Update `docs/decisions.md` (with placeholders), `docs/roadmap.md`, any README your change affects, and the docs and site pages in rule 15.
 12. **Solo mode.** When only one session is working in the repository, the person may tell it to land its own branch, for example: "You are the only session working. Land it yourself." The session then follows the integrator's steps itself. Never assume solo mode. A session cannot see other sessions, so only the person can turn it on. A branch that changes only documentation (`.md` files outside `cast/` and `content/`) may skip the package build and verify.
 
 ## Writing
 
 13. Follow the [content standards](docs/content-standards.md) for data, and plain, short sentences for docs: no em dashes, no jargon without a definition.
 14. Never name or describe a calibration source anywhere. Use neutral labels such as `source-1`.
+
+## Docs and the public site
+
+15. **Keep the docs and the public site current.** If your change affects anything the docs in `docs/` describe, or anything the public site in `site/` shows, update those pages on the same branch. A change is not finished until they match it.
+    - **Docs.** Search `docs/` for the feature, numbers, and file names you changed, and fix every page that describes them, such as [How it works](docs/how-it-works.md), [Verification](docs/verification.md), [Planned work](docs/planned.md), and the glossary.
+    - **The site.** Most of the site is built from `cast/`, `configuration/`, `photos/`, `docs/contributing.md`, and `docs/roadmap.md`, so those parts follow your change on the next build. The pages in `site/src/pages/` are hand-written, though. If one describes what you changed, such as the datasets, load times, or a feature, edit it.
+    - **Check it.** After any change to those folders or the site, run `node site/build.js` and look at the pages your change touches. See the [site README](site/README.md) for its rules.
