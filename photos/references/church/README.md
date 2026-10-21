@@ -1,6 +1,6 @@
 # Rock Solid Church visual references
 
-Twelve empty architectural photo views for Rock Solid Church, created October 21, 2026. The pack extends the architecture and finishes in the serving opportunity photos, with the approved final logo and the larger lobby requested by the user. The additional views are ready for review.
+Twelve empty architectural photo views for Rock Solid Church, created October 21, 2026. The pack extends the architecture and finishes in the serving opportunity photos, with the approved final logo, larger lobby, and expanded higher-ceiling auditorium requested by the user. The additional views are ready for review.
 
 ## Reference images
 
@@ -23,13 +23,13 @@ Each image is native 1536 × 1024 pixels, with a full-size PNG master and a same
 
 ## Details to preserve
 
-- **Exterior:** low warm-white stucco volumes with a taller worship-center volume behind, charcoal canopy and trim, pale oak soffit, and charcoal-framed glass entrance doors, sidelights and transom. The approved logo appears as small dark dimensional signage on the wall left of the entrance.
+- **Exterior:** low warm-white lobby/entrance volumes with the now-higher, wider rectangular auditorium volume behind, charcoal canopy and trim, pale oak soffit, and charcoal-framed glass entrance doors, sidelights and transom. The approved small dimensional logo remains safely inside the wall left of the entrance.
 - **Site:** pale concrete approach, low stucco planters, gravel, palo verde trees, agaves, cacti and ordinary desert parking.
 - **Lobby:** the two current views supersede the smaller initial lobby. Preserve the much larger gathering floor, targeting roughly 2.5 times the earlier visual floor area, with ordinary single-story ceiling height and normal-size doors, tiles and furniture. Retain warm-white walls, recessed lights, gray tile, charcoal glazing, pale oak, teal side seating groups and a broad clear center.
-- **Auditorium:** charcoal individual chairs in three banks with two aisles, low dark stage, pale oak acoustic slats with charcoal wall sections, exposed dark ceiling, warm house lights and amber/violet stage lighting.
+- **Auditorium:** the current views supersede the smaller, lower-ceiling room. Target approximately 60% more floor area (1.6 times the earlier reference), with a clearly higher exposed dark ceiling (visual target about 40% higher). Keep normal-size charcoal chairs in three banks with two aisles, a low dark stage, taller charcoal/warm-gray walls with pale oak slats, warm house lights and amber/violet stage lighting. The stage, booth and two exterior views share this enlarged room envelope.
 - **Stage orientation:** looking toward the stage from the rear, keyboard left, drum shield left of center, microphones across the front, guitar right. Do not mirror or duplicate the equipment.
 
-These images establish visual continuity, not a measured floor plan. The lobby multiplier is a visual design target; do not infer exact dimensions or seating capacity.
+These images establish visual continuity, not a measured floor plan. The lobby and auditorium multipliers are visual design targets; do not infer exact dimensions or seating capacity.
 
 ## Approved logo
 
@@ -48,13 +48,15 @@ Attach that exact artwork whenever branding is visible. Preserve the four rounde
 - **Prayer room:** a small quiet circle of curved-back teal chairs, white ceramic lamp, oak tables, neutral rug and soft window light.
 - **First-aid room:** gray padded cot left, white cabinets with black pulls and pale counter right, navy supply bag, and an open doorway giving a limited glimpse of the larger lobby.
 
+Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height. Use the older photos for people or supporting material details. From the rear, audience chair backs face the camera; from the stage, chair fronts face the camera. Preserve that direction in every view.
+
 ## Using the references
 
 Attach the relevant photo as an actual image input. Use exterior and entrance views together for arrival scenes; pair the two lobby views for interior circulation; use the auditorium and booth views for usher, worship and production scenes. State the camera direction and preserve left/right relationships. Attach Cast portraits separately when particular people are needed.
 
 Suggested instruction:
 
-> Use the attached Rock Solid Church architectural reference. Preserve the room layout, materials, furniture, equipment placement and scale. Create the requested scene in this same clean, new, contemporary Phoenix Valley church. Keep the larger lobby where shown. Change people, activity, camera position and lighting only as requested.
+> Use the attached Rock Solid Church architectural reference. Preserve the room layout, materials, furniture, equipment placement and scale. Create the requested scene in this same clean, new, contemporary Phoenix Valley church. Keep the larger lobby and expanded higher-ceiling auditorium where shown. Change people, activity, camera position and lighting only as requested.
 
 Follow each future brief's visible-text rules. Where text is prohibited, frame out or obscure church branding, incidental signs and equipment labels. Avoid unrelated logos, slogans or architectural styles.
 
@@ -62,4 +64,4 @@ Follow each future brief's visible-text rules. Where text is prohibited, frame o
 
 The initial references used the existing greeter, usher, production and first-aid opportunity photos. Each additional ministry-room reference uses its corresponding serving photo as the main room reference. Reverse views and the booth/side-stage views also use the established empty-room masters. Existing opportunity photos were left unchanged.
 
-All delivered photos were visually reviewed for empty rooms, reference continuity, and plausible furniture, equipment and circulation. The side-stage image was corrected to remove manufacturer lettering. Both lobby directions were enlarged after the user requested two to three times the initial size. Initial and revision prompts are retained in the manifest.
+All delivered photos were visually reviewed for empty rooms, reference continuity, and plausible furniture, equipment and circulation. The side-stage image was corrected to remove manufacturer lettering. Both lobby directions were enlarged after the user requested two to three times the initial size. The auditorium was then expanded by a 60% floor-area target with a higher ceiling across both room directions, side stage, booth and the two exterior views. A draft with incorrect chair orientation was corrected before delivery. Initial and revision prompts are retained in the manifest.

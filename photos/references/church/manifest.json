@@ -16,7 +16,36 @@
         "photos/opportunities/ushers.jpg"
       ],
       "seed": null,
-      "prompt": "Use case: photorealistic-natural. Asset: reusable architectural reference photograph for Rock Solid Church, Phoenix Valley, Arizona.\nCreate ONE high-resolution landscape 3:2 photograph, ideally 3072x2048 or the largest supported size. The TWO supplied photos show this church's existing worship center during volunteer service. They are architectural continuity references ONLY. Remove all people and foreground volunteer equipment from the new view; retain the BUILDING IDENTITY. Image 1 production-team is the primary reference for the stage arrangement, oak slat acoustic walls, charcoal chairs, room proportions, lighting and exposed ceiling. Image 2 ushers supports the actual chair style, aisle feel, warm side walls and stage treatment.\nVIEW: a clean, empty, wide architectural establishing photograph from the REAR OF THE WORSHIP CENTER, at standing eye height just in front of the production booth, looking straight toward the stage. Show the whole stage, the full width of the auditorium, the seating banks, walking aisles, floor, side walls and generous ceiling. Normal 24mm architectural lens, straight verticals, no fisheye, no dramatic exaggerated cathedral scale. A new contemporary suburban Phoenix church of moderate size, approximately 250–300 chairs, not a stadium or megachurch.\nLOCK TO REFERENCES: orderly rows of individual dark charcoal fabric padded chairs on dark metal legs, three seating banks divided by two main aisles, light gray concrete-look aisle floor; low broad black stage; natural pale oak vertical acoustic slat panels separated by broad charcoal wall sections across the stage and side walls; dark exposed structural ceiling with neat black stage-light trusses and simple downlights. Keep the intimate modern room's material proportions and detailing from the supplied opportunities. Stage equipment arranged logically: a modest drum kit behind a clear acoustic shield just left of center, a keyboard on a simple black stand at far stage-left, ordinary microphone stands across the front, an acoustic guitar on a stand at stage-right, a couple of low wedge monitors and tidy cables. No instruments with visible branding. Do not add a giant video wall, central cross, pulpit, stained glass, balcony, pews or extra architectural theme absent from the references.\nLIGHT: before-service/rehearsal state from the originals, warm neutral house lights bright enough to clearly show the chairs, floor and construction, gentle warm amber uplighting on oak slats and restrained violet stage wash. Realistic photographic exposure, shadows and materials, understated and welcoming. Clean and new, freshly maintained finishes and tidy equipment, no clutter or wear.\nThis is an EMPTY BUILDING REFERENCE PLATE. Absolutely no people, audience, silhouettes, faces, reflections of people, photographer, portraits or screens showing people. All reusable architecture clearly readable, sharp across the room, neutral realistic camera color, no artificial CGI gloss. No words, letters, numerals, signs, banners, logos, labels, lyric slides, watermarks, borders or captions. The church identity is Rock Solid Church, but this interior view contains no readable signage. One finished realistic photo, not a collage or contact sheet."
+      "prompt": "Use case: photorealistic-natural. Asset: reusable architectural reference photograph for Rock Solid Church, Phoenix Valley, Arizona.\nCreate ONE high-resolution landscape 3:2 photograph, ideally 3072x2048 or the largest supported size. The TWO supplied photos show this church's existing worship center during volunteer service. They are architectural continuity references ONLY. Remove all people and foreground volunteer equipment from the new view; retain the BUILDING IDENTITY. Image 1 production-team is the primary reference for the stage arrangement, oak slat acoustic walls, charcoal chairs, room proportions, lighting and exposed ceiling. Image 2 ushers supports the actual chair style, aisle feel, warm side walls and stage treatment.\nVIEW: a clean, empty, wide architectural establishing photograph from the REAR OF THE WORSHIP CENTER, at standing eye height just in front of the production booth, looking straight toward the stage. Show the whole stage, the full width of the auditorium, the seating banks, walking aisles, floor, side walls and generous ceiling. Normal 24mm architectural lens, straight verticals, no fisheye, no dramatic exaggerated cathedral scale. A new contemporary suburban Phoenix church of moderate size, approximately 250–300 chairs, not a stadium or megachurch.\nLOCK TO REFERENCES: orderly rows of individual dark charcoal fabric padded chairs on dark metal legs, three seating banks divided by two main aisles, light gray concrete-look aisle floor; low broad black stage; natural pale oak vertical acoustic slat panels separated by broad charcoal wall sections across the stage and side walls; dark exposed structural ceiling with neat black stage-light trusses and simple downlights. Keep the intimate modern room's material proportions and detailing from the supplied opportunities. Stage equipment arranged logically: a modest drum kit behind a clear acoustic shield just left of center, a keyboard on a simple black stand at far stage-left, ordinary microphone stands across the front, an acoustic guitar on a stand at stage-right, a couple of low wedge monitors and tidy cables. No instruments with visible branding. Do not add a giant video wall, central cross, pulpit, stained glass, balcony, pews or extra architectural theme absent from the references.\nLIGHT: before-service/rehearsal state from the originals, warm neutral house lights bright enough to clearly show the chairs, floor and construction, gentle warm amber uplighting on oak slats and restrained violet stage wash. Realistic photographic exposure, shadows and materials, understated and welcoming. Clean and new, freshly maintained finishes and tidy equipment, no clutter or wear.\nThis is an EMPTY BUILDING REFERENCE PLATE. Absolutely no people, audience, silhouettes, faces, reflections of people, photographer, portraits or screens showing people. All reusable architecture clearly readable, sharp across the room, neutral realistic camera color, no artificial CGI gloss. No words, letters, numerals, signs, banners, logos, labels, lyric slides, watermarks, borders or captions. The church identity is Rock Solid Church, but this interior view contains no readable signage. One finished realistic photo, not a collage or contact sheet.",
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/worship-center-from-rear.png",
+          "sourceReferences": [
+            "photos/references/church/worship-center-from-rear.png",
+            "photos/references/church/worship-center-from-stage.png"
+          ],
+          "reason": "Match the expanded auditorium and raised ceiling in the reverse master.",
+          "prompt": "Use case: precise-object-edit / architectural continuity. User requested Rock Solid Church's auditorium about 60% larger in floor area (1.6x) with a visibly higher ceiling (visual target about 40% higher). Keep ordinary-size chairs, doors and equipment, same modern Phoenix church identity, warm-white/charcoal/pale-oak palette, no people, no new branding, words or watermark. Full-size photorealistic landscape 3:2 photo, preferably 1536x1024. IMAGE 1 is the target rear-to-stage photo and locks the STAGE design/equipment. IMAGE 2 is the NEW enlarged reverse master viewed from the stage, and is authoritative for the larger room dimensions, high ceiling, taller side walls, chairs and aisles. Create the rear-to-stage direction of THAT SAME enlarged room. Enlarge actual room width about 25% and depth about 28%, preserving EXACTLY THREE audience chair banks and TWO main aisles, adding normal-size chairs and rows rather than enlarging seats. Raise exposed steel ceiling/light plane about40%, matching image 2's much taller warm-gray/charcoal wall zones over pale-oak acoustic slats. Do not merely change lens or camera height. The camera remains standing eye height at REAR, so chair BACKS are seen and the same original low stage is at FAR FRONT. Keep original stage arrangement: keyboard at audience-left, clear drum shield left of center, microphones across front, acoustic guitar on stand audience-right, same wedge monitors and tidy cable routing. Retain low black platform and side access; stage can span the expanded room proportionally but instruments stay normal-size and in the same relative places. Preserve oak/charcoal stage-wall panel composition at believable height with new calm taller charcoal upper wall above it, amber uplights and soft violet wash, no raised drum platform or extra instruments. Stage-to-rear reverse master image 2's rear booth is now BEHIND camera, so do not add a booth onstage. Show the high ceiling, expanded seating, both aisles and entire stage. Clean physically realistic same church, no balcony, tiered stadium seats, giant screens or new architectural theme."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceDraft": "Expanded rear-to-stage draft, not delivered",
+          "reason": "Correct all chairs to face the stage, so their backs face the rear camera.",
+          "prompt": "Precise local furniture-orientation edit to the supplied expanded high-ceiling Rock Solid Church auditorium photograph. The camera is at the REAR looking TOWARD THE STAGE. The chairs currently face the wrong way. Rotate EVERY AUDIENCE CHAIR 180 degrees IN PLACE so every seat faces the STAGE at the far end, away from the camera. We must see upholstered chair BACKS in the foreground, NOT the front cushions and front openings. Match ordinary dark charcoal padded auditorium chair back construction; broad chair-back rear surfaces hide most seat cushions from this rear vantage. Keep the same chair count, three seating banks, two aisles, row positions, room dimensions, high ceiling, all walls/panels, stage, instruments, light, camera framing and floor unchanged. Do not move or rotate the camera and do not put a new stage behind it. Only correct the seats' physical direction. All chairs face the distant visible stage. No people, lettering or logos. Full-size 3:2 photorealistic image."
+        }
+      ],
+      "visualScale": {
+        "auditoriumFloorAreaMultiplier": 1.6,
+        "ceilingHeightMultiplierTarget": 1.4,
+        "baselineRevision": "fc48489",
+        "note": "Visual design targets, not measured dimensions. Retain normal-size chairs, doors and equipment."
+      },
+      "review": {
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master",
+        "seating": "Chair backs face rear camera; all chairs face the distant stage"
+      }
     },
     {
       "key": "front-exterior-wide",
@@ -54,8 +83,23 @@
             "photos/references/church/branding/rock-solid-church-logo.png"
           ],
           "prompt": "Use case: precise-object-edit.\nImage 1 is the edit target, the 1536x1024 wide exterior reference of Rock Solid Church. Image 2 is the approved logo artwork, reference only.\nCorrect ONE placement defect: the existing dimensional logo immediately LEFT of the glass entrance is too wide and runs past the right edge/corner of its stucco wall plane. Remove the current oversized logo completely and restore the underlying stucco where needed. Reinstall the SAME complete approved horizontal logo about 30–35 percent SMALLER, centered entirely on the FRONT-FACING flat stucco panel to the left of the entrance, with generous visibly blank stucco on BOTH its left and right sides. NO part of the sign, letters, symbol or mounting shadow may touch, overhang, wrap around or cross a wall corner or the entrance reveal.\nConcrete placement guide at input resolution 1536x1024: contain the COMPLETE sign, including its dimensional shadows, approximately within x=460 to x=554 and y=467 to y=493. The left stucco panel's outer edge is around x=440 and its right plane change is around x=575. The sign must stay well away from both edges. This is a SMALL tasteful sign on the same wall, not a larger sign above the canopy. Keep all logo proportions; do not compress or stretch it.\nPreserve the supplied exact four-part rounded Open Cross icon on the left; bold uppercase ROCK SOLID to its right and smaller tracked uppercase CHURCH below. Matte charcoal dimensional metal directly on stucco, with subtle realistic shallow shadows in the existing sunlight. No plaque or rectangular white backing. Do not redesign the logo.\nEverything outside this small sign correction must remain as unchanged as possible: architecture, all wall edges, canopy and soffit, doors, glass, trees, shrubs, mountains, sky, parking lot, light, exposure, camera framing. Do not enlarge the wall to fit the sign. No people or new objects. Output one full-size realistic landscape architectural photo with the same 3:2 framing and preferably 1536x1024 native dimensions."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/front-exterior-wide.png",
+          "sourceReferences": [
+            "photos/references/church/front-exterior-wide.png",
+            "photos/references/church/worship-center-from-stage.png"
+          ],
+          "reason": "Raise and modestly expand the rear worship-center building volume to contain the larger, higher-ceiling auditorium.",
+          "prompt": "Use case: precise-object-edit / architectural continuity. User requested Rock Solid Church's auditorium about 60% larger in floor area (1.6x) with a visibly higher ceiling (visual target about 40% higher). Keep ordinary-size chairs, doors and equipment, same modern Phoenix church identity, warm-white/charcoal/pale-oak palette, no people, no new branding, words or watermark. Full-size photorealistic landscape 3:2 photo, preferably 1536x1024. IMAGE 1 is the EDIT TARGET exterior and locks all entrance, sign, site and camera details. IMAGE 2 is the NEW expanded higher-ceiling auditorium for interior scale context only. Localized architectural update: raise the flat roof/parapet of ONLY the taller rectangular worship-center block BEHIND the low lobby and entrance, so this rear volume realistically contains the now-larger auditorium with a roof/ceiling about40% higher overall. The rear worship-center block must clearly rise farther above the existing low front lobby; its visible height above the low roofs should roughly double rather than leave the old roofline. Extend that same rear mass modestly toward the back and widen it about25% while keeping its restrained rectangular warm-white stucco architecture. Keep the LOW FRONT FACADE, entrance portal, canopy and low side wings at exactly their existing height and size. Preserve the approved small Open Cross/ROCK SOLID/CHURCH dimensional sign entirely within its left stucco panel with safe blank margins: DO NOT alter, enlarge, move or wrap the logo. Preserve doors, sidelights/transom, charcoal canopy/oak soffit, concrete approach, planters, agaves, trees, parking pavement, mountains, morning light, camera angle and all landscaping. Do not expand the lobby again or change the sign/entrance to fit the new rear volume. Enough original sky remains above the new rear roofline. No new windows, mechanical plant, towers, spires, floors, people or vehicles. One same wide exterior with only the rear auditorium envelope adjusted."
         }
-      ]
+      ],
+      "auditoriumEnvelope": "Rear worship-center mass updated to contain the expanded higher-ceiling auditorium; low lobby and entrance retained.",
+      "review": {
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
+      }
     },
     {
       "key": "lobby-toward-entrance",
@@ -106,8 +150,23 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
-      }
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
+      },
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/main-entrance-close.png",
+          "sourceReferences": [
+            "photos/references/church/main-entrance-close.png",
+            "photos/references/church/front-exterior-wide.png"
+          ],
+          "reason": "Match the taller rear auditorium volume in the close entrance view.",
+          "prompt": "Use case: precise-object-edit, architectural continuity. IMAGE 1 is the EDIT TARGET, the close main entrance photo of Rock Solid Church. IMAGE 2 is the NEW approved wide exterior with the raised and enlarged rear auditorium volume. Update ONLY the rear worship-center building mass visible above/behind the low entrance canopy in image 1 to match image 2's substantially higher warm-white rectangular auditorium envelope. This now encloses the room whose floor area grew about60% and ceiling is higher. Keep the SAME close camera framing; the taller back volume may naturally continue beyond the top edge of this close crop, without showing its whole roof. Keep the low entrance portal, canopy/oak soffit, glass door pair, sidelights, hardware, stucco sign panel, entire small approved Open Cross/ROCK SOLID/CHURCH dimensional sign, plantings, sky/reflections and daylight exactly as they are. The logo must remain fully inside its existing wall panel with generous blank margins; do not change any logo artwork, lettering, scale or placement. Do not raise the low lobby roof or canopy, enlarge doors or alter surrounding landscape. Same view, clean new modern contemporary Phoenix church. No new objects, people, signs, words, balconies or extra floors. One full-size landscape 3:2 realistic architectural photograph, preferably1536x1024."
+        }
+      ],
+      "auditoriumEnvelope": "Rear worship-center mass updated to contain the expanded higher-ceiling auditorium; low lobby and entrance retained."
     },
     {
       "key": "lobby-toward-worship-center",
@@ -161,7 +220,28 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master",
+        "seating": "Chair fronts face the stage camera; three banks and two aisles"
+      },
+      "edits": [
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/worship-center-from-stage.png",
+          "sourceReferences": [
+            "photos/references/church/worship-center-from-stage.png",
+            "photos/references/church/worship-center-from-rear.png"
+          ],
+          "reason": "Expand auditorium floor-area target by 60% and raise ceiling target about 40%, preserving stage-to-rear orientation.",
+          "prompt": "Use case: precise-object-edit / architectural expansion.\nIMAGE 1 is the EDIT TARGET and camera-direction master: Rock Solid Church's empty auditorium viewed FROM THE STAGE looking back toward the audience seating and rear production booth. IMAGE 2 shows the opposite direction and is a materials/identity reference ONLY.\nUSER CHANGE: expand the ACTUAL auditorium floor area by approximately SIXTY PERCENT (1.6 times the previous footprint) and make its ceiling clearly higher, about 40% above its former height. Enlarge width roughly 25% and depth roughly 28% to achieve the 1.6x area. This is a real room expansion, not simply a wider lens, lowered camera, stretched image or miniature chairs. Keep the camera at normal adult eye height near the same stage front-center position, pointing toward the REAR WALL.\nShow more normal-size charcoal padded chairs and additional rows in EXACTLY THREE seating banks with TWO generous main aisles. All chair FRONTS face the camera/stage. Do not add a central aisle, fourth bank, balcony or stadium tiers. Maintain practical same-size chairs, door hardware and equipment so the increased room scale is apparent.\nRaise the dark exposed roof structure and lighting plane visibly. Extend the walls upward with a taller calm charcoal/warm-gray zone above the same pale-oak acoustic slat treatments; do not stretch doors and furniture to skyscraper proportions. Give a noticeably more spacious contemporary auditorium with more air above the seating, while retaining the original intimate clean modern church identity, not an arena or a cathedral. Keep the simple black exposed steel ceiling structure, orderly lights and clean construction.\nRear wall remains at the FAR END with the SAME central low OPEN production desk, charcoal half wall and pale-oak cap, two rear entry door pairs flanking it aligned with the main aisles, and camera on the RIGHT side of the booth in this FROM-STAGE view. Booth/doors retain ordinary human scale; more distance to rear wall as the room grows. No stage on the rear wall: actual stage stays behind camera. Preserve warm house lights and natural amber accents, shared materials, realistic perspective, straight verticals, same photographic color.\nNo people, reflections of people, new screens, signage, logos, words, architectural theme or arbitrary equipment. One full-size landscape 3:2 photorealistic architectural photo, preferably 1536x1024. The result will anchor all other auditorium directions."
+        }
+      ],
+      "visualScale": {
+        "auditoriumFloorAreaMultiplier": 1.6,
+        "ceilingHeightMultiplierTarget": 1.4,
+        "baselineRevision": "fc48489",
+        "note": "Visual design targets, not measured dimensions. Retain normal-size chairs, doors and equipment."
       }
     },
     {
@@ -182,15 +262,33 @@
       "review": {
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
-        "geometry": "Furniture, equipment and circulation visually reviewed"
+        "geometry": "Furniture, equipment and circulation visually reviewed",
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
       },
       "edits": [
         {
           "reason": "Remove unintended manufacturer lettering from keyboard and bass drum.",
           "sourceDraft": "Initial side-stage generation, not delivered",
           "prompt": "Precise localized edit to the supplied empty side-stage architectural photo of Rock Solid Church. Remove ONLY all visible manufacturer names, lettering and brand logos from the front edge of the keyboard and from the bass drum head. Replace these tiny labels with plain unmarked surfaces matching their surrounding materials. Keep the exact keyboard, drum kit, instruments, stands, entire stage, light, all architecture, framing, equipment positions, chairs and every other photographic detail unchanged. No replacement words or marks. Full-size landscape 3:2 photo."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/stage-from-side.png",
+          "sourceReferences": [
+            "photos/references/church/stage-from-side.png",
+            "photos/references/church/worship-center-from-stage.png"
+          ],
+          "reason": "Raise stage-side roof and wall proportions to match the larger auditorium while retaining equipment placement.",
+          "prompt": "Use case: precise-object-edit / architectural continuity. User requested Rock Solid Church's auditorium about 60% larger in floor area (1.6x) with a visibly higher ceiling (visual target about 40% higher). Keep ordinary-size chairs, doors and equipment, same modern Phoenix church identity, warm-white/charcoal/pale-oak palette, no people, no new branding, words or watermark. Full-size photorealistic landscape 3:2 photo, preferably 1536x1024. IMAGE 1 is the target side-stage photo; preserve its exact camera side, low stage edge/steps/handrails, individual unbranded instruments, tidy cables and microphone placement. IMAGE 2 is the NEW authoritative enlarged auditorium master showing higher exposed ceiling, taller walls, three seating banks and two aisles. Update image 1 to belong to that SAME expanded, higher-ceiling auditorium: lift the dark roof/lighting structure around40%, add generous tall charcoal/warm-gray wall space above/between the existing pale-oak acoustic panel treatment, and allow the room/stage width to extend subtly to reflect about25% greater room width with deeper seating beyond. Keep keyboard near left, clear drum shield just beyond left of center, microphones across middle, guitar at far audience-right exactly in their original relationships. Equipment must not become taller, wider, doubled or warped; no brand lettering on keyboard or drum. Same camera view from floor off audience-left looking diagonally across the low stage, show more vertical volume above stage using natural architectural framing, not fish-eye. Normal-sized front row chairs below/right and low modest stage height. Preserve clear normal-size steps/handrail, amber oak uplights, restrained violet wash, realistic clean materials. No additional instruments, speakers, screens, backstage doors or theatrical scenery. Higher ceiling and room scale are the only architectural changes."
         }
-      ]
+      ],
+      "visualScale": {
+        "auditoriumFloorAreaMultiplier": 1.6,
+        "ceilingHeightMultiplierTarget": 1.4,
+        "baselineRevision": "fc48489",
+        "note": "Visual design targets, not measured dimensions. Retain normal-size chairs, doors and equipment."
+      }
     },
     {
       "key": "production-booth-wide",
@@ -211,8 +309,9 @@
         "people": "None visible",
         "architecture": "Visually reviewed against source references",
         "geometry": "Furniture, equipment and circulation visually reviewed",
-        "cables": "Visible signal cables routed in orderly runs; no loose coil pile",
-        "screens": "Sharp mixing interface and stage feeds, visually reviewed"
+        "cables": "Organized runs retained",
+        "screens": "Sharp mixing interface and updated stage feeds retained",
+        "scale": "Expanded room/high roof visually reviewed against the updated from-stage master"
       },
       "edits": [
         {
@@ -221,8 +320,25 @@
           "sourceImage": "photos/references/church/production-booth-wide.png",
           "reason": "User requested organized visible cable runs instead of a tangle and sharper monitor content.",
           "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: Rock Solid Church's empty production booth, 1536x1024 landscape.\nMake ONLY these two user-requested corrections.\n1. CABLE MANAGEMENT: at about x20.4%, y73.7%, the loose pile of coiled black wires beneath/beside the tripod and at the left side of the audio console is a tangled mess. Remove that tangle and replace it with several individually visible, neatly separated black signal/power cables running in orderly parallel paths along the booth's inner left/rear edge and then into a tidy under-desk cable tray. One camera cable follows the inside of a tripod leg with two small reusable black straps and a modest practical slack bend near its connection. Keep a few ordinary visible cables so this remains a working production booth. No messy coils, nests, crossings, dangling loops, thick rope bundle or clutter on the floor/worktop. Preserve all three actual tripod legs and realistic connections. Do not eliminate all wires.\n2. SHARP SCREEN CONTENT: the two desktop monitor screens, around x46.8%, y57.4%, look artificially blurred. Render BOTH sharply focused and detailed at the same focal clarity as the mixing desk and room: left screen shows a plausible organized audio mixing display with crisp separate colored meter columns, clear fine grids, channel strips and simple waveform shapes; right screen shows a crisp live camera feed of the SAME actual empty stage in this photograph, correctly matching its oak acoustic panels, microphones, keyboard left, drums left-center, guitar right and amber/violet lighting. The camera's small flip-out monitor should also show a clear miniature stage feed. Keep subtle realistic monitor luminance and fine pixel-scale UI detail, not soft colored blobs. No manufacturer names, fake large words, gibberish captions, logos or people on screens. No need for readable tiny text; sharp edges and coherent screen graphics are the goal, not blurred UI. Do not add new displays.\nPRESERVE everything else: exact booth geometry, oak worktop and charcoal half-wall, equipment placement, same audio console and regular rows of physical faders, task chair, tripod camera, auditorium chairs in three banks with two aisles, stage equipment, acoustic panels, ceiling, lighting, photographic exposure, camera position, framing and all building details. No architecture redesign, extra cables elsewhere, new instruments, people, watermark or labels. One full-size 3:2 photorealistic architectural image, preferably 1536x1024."
+        },
+        {
+          "date": "2026-10-21",
+          "sourceRevision": "fc48489",
+          "sourceImage": "photos/references/church/production-booth-wide.png",
+          "sourceReferences": [
+            "photos/references/church/production-booth-wide.png",
+            "photos/references/church/worship-center-from-rear.png"
+          ],
+          "reason": "Match the expanded higher-ceiling auditorium and updated stage feeds, retaining organized cables and sharp displays.",
+          "prompt": "Use case: precise-object-edit / architectural continuity.\nIMAGE 1 is the EDIT TARGET, Rock Solid Church production-booth photo AFTER the user-approved cable management and monitor-sharpness corrections. IMAGE 2 is the NEW authoritative rear-to-stage auditorium reference after a 60% floor-area expansion and higher ceiling.\nUpdate the auditorium BEYOND THE BOOTH to match IMAGE 2: actual room footprint about1.6 times original, roughly25% wider and28% deeper, ceiling/lighting plane roughly40% higher, taller charcoal/warm-gray walls with pale-oak acoustic treatments, more normal-size chairs and rows in EXACTLY THREE banks with TWO main aisles, same distant low stage and instrument arrangement. All chair BACKS face the booth camera; chairs face the far stage. Keep ordinary doors and equipment size to convey real enlargement, not a lens trick or miniature objects. The booth remains centrally at the rear of the same ground-floor room.\nCRITICALLY PRESERVE the entire foreground workstation and previous user fixes: pale-oak cap/worktop and charcoal half-wall, audio console/faders, task chair, video camera on three-legged tripod left of console, orderly separated black cables routed along inner edges and under desk, camera cable secured to its leg, no cable nests or loose coil piles. No extra screens, instruments or people. Do not reblur the two desktop monitors or camera flip screen. Keep sharp credible audio mixer channel graphics on the left monitor and a clear live camera feed of the NEW HIGHER auditorium's same actual stage on the right and camera monitor; update stage feed composition to match IMAGE 2. No manufacturer names, large text or gibberish overlays.\nMaintain camera position, foreground framing, charcoal chairs, warm house lights and amber/violet stage lighting, natural high-detail photographic color. Raising the roof/ceiling and moving the distant room surfaces to match the expanded master are the only architecture changes. Straight verticals, no fisheye, balcony, stadium tiers or giant video wall. Full-size landscape3:2 photograph, preferably1536x1024."
         }
-      ]
+      ],
+      "visualScale": {
+        "auditoriumFloorAreaMultiplier": 1.6,
+        "ceilingHeightMultiplierTarget": 1.4,
+        "baselineRevision": "fc48489",
+        "note": "Visual design targets, not measured dimensions. Retain normal-size chairs, doors and equipment."
+      }
     },
     {
       "key": "kids-classroom",
@@ -335,13 +451,27 @@
         "key": "lobby-toward-entrance",
         "reason": "Expanded existing lobby to match user request"
       }
-    ]
+    ],
+    "lastRevision": {
+      "date": "2026-10-21",
+      "changedPhotoViews": [
+        "worship-center-from-stage",
+        "worship-center-from-rear",
+        "stage-from-side",
+        "front-exterior-wide",
+        "main-entrance-close",
+        "production-booth-wide"
+      ],
+      "reason": "User requested auditorium 60% larger with higher ceiling; propagated to related interiors and exterior envelope.",
+      "qualityCorrection": "Reoriented chair backs in rear-to-stage view"
+    }
   },
   "continuity": {
     "lobby": "Both directions show the larger gathering lobby, with a target approximately 2.5 times the earlier visual floor area. Doors and furniture retain human scale.",
     "connection": "Lobby central worship-center door pair leads through a short rear vestibule to auditorium entry pairs flanking the central rear booth.",
-    "auditorium": "Three seating banks, two main aisles, central open rear booth, same stage and equipment orientation.",
+    "auditorium": "Expanded floor-area target 1.6x the fc48489 reference, ceiling target about1.4x higher, normal-size furnishings, three seating banks, two aisles, low stage and central open rear booth. Opposite views show opposite chair surfaces. Raised rear exterior envelope matches.",
     "logo": "Approved Open Cross artwork; signage fits on one wall plane with clear margins.",
-    "productionDetails": "Visible cables should be neatly separated and routed along booth edges or under-desk management. Monitor graphics and matching stage feeds should be sharp rather than artificially blurred, unless a future brief requires obscuring text."
+    "productionDetails": "Visible cables should be neatly separated and routed along booth edges or under-desk management. Monitor graphics and matching stage feeds should be sharp rather than artificially blurred, unless a future brief requires obscuring text.",
+    "referencePriority": "Current empty-room masters take precedence over earlier opportunity photos for room size and ceiling/roof height."
   }
 }
