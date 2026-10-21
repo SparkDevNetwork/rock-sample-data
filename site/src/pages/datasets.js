@@ -42,7 +42,7 @@ module.exports = function datasets( { model } ) {
   <div class="wrap narrow">
     <p class="eyebrow">Datasets</p>
     <h1 class="display">Three sizes. <em>One church.</em></h1>
-    <p class="lede">Pick the size that fits the job. Every dataset has the same Cast on the same main campus, so what you learn on one carries to the others.</p>
+    <p class="lede">Pick the size that fits the job. Every dataset has the same Cast at the same broadcast campus, so what you learn on one carries to the others.</p>
   </div>
 </section>
 

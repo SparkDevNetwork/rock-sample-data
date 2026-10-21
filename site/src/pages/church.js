@@ -88,11 +88,11 @@ module.exports = function church( { model, r } ) {
 
 <section class="section section-sand">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Seven campuses", title: "One church across the Valley.", lede: "Core 1 has the main campus. Core 3 adds Peoria and Gilbert. Full 7 has all seven, each with its own people and character." } )}
+    ${sectionHead( { eyebrow: "Seven campuses", title: "One church across the Valley.", lede: "Core 1 has the broadcast campus in Phoenix. Core 3 adds Peoria and Gilbert. Full 7 has all seven, each with its own people and character." } )}
     <div class="campus-grid">
       ${model.campuses.map( ( c, i ) => html`<div class="campus reveal${c.rockDefault ? " campus-main" : ""}">
         <span class="campus-number">${String( i + 1 ).padStart( 2, "0" )}</span>
-        <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Main campus</span>` : ""}</h3>
+        <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Broadcast campus</span>` : ""}</h3>
         <p>${esc( c.rockDefault ? "North Phoenix, where the Cast lives. The original and largest campus." : c.notes )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>

@@ -350,12 +350,14 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .campus-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .campus { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); position: relative; }
 .campus-main { grid-column: span 2; background: var(--night); color: var(--on-night); }
-.campus-main p, .campus-main .campus-meta { color: var(--on-night-2); }
-.campus-main h3 { color: var(--on-night); }
+
 .campus-number { font-family: var(--serif); font-size: 2.2rem; line-height: 1; display: block; margin-bottom: 14px; background: var(--rock-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .campus h3 { font-size: 1.35rem; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .campus p { font-size: 0.98rem; color: var(--ink-2); margin-bottom: 8px; }
 .campus .campus-meta { font-size: 0.85rem; color: var(--muted); margin: 0; }
+.campus.campus-main p { color: var(--on-night-2); }
+.campus.campus-main .campus-meta { color: #A8A096; }
+.campus.campus-main h3 { color: var(--on-night); }
 @media (max-width: 1000px) { .campus-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .campus-grid { grid-template-columns: 1fr; } .campus-main { grid-column: auto; } }
 
