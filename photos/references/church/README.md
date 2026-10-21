@@ -26,7 +26,7 @@ These are visual continuity references, not a measured floor plan. Do not infer 
 
 The user selected the original uppercase Open Cross design (option 08) on October 21, 2026. Use [the final logo artwork](branding/rock-solid-church-logo.png) and its [record](branding/manifest.json) for future branding. The exterior reference now shows this logo in place of the previous title-case lettering. The lobby and worship-center views have no church signage to replace.
 
-Attach the final artwork alongside the relevant architectural reference whenever branding is visible. Preserve its four rounded corner forms, negative-space cross, uppercase lettering, spacing, and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white rectangular backing. Follow individual future briefs when visible text is prohibited.
+Attach the final artwork alongside the relevant architectural reference whenever branding is visible. Preserve its four rounded corner forms, negative-space cross, uppercase lettering, spacing, and horizontal arrangement. Exterior signage uses matte charcoal dimensional elements mounted directly on stucco, with no white rectangular backing. Scale the complete logo to fit entirely on one flat stucco wall plane, with clearly visible blank wall on both sides. No symbol, letter, or mounting shadow may cross or wrap around a wall edge. Follow individual future briefs when visible text is prohibited.
 
 ## Using the references
 
