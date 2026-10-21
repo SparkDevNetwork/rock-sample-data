@@ -4,7 +4,7 @@ The loader installs a dataset package (made by the [builder](../builder/README.m
 
 There are two parts:
 
-- **The loader library** (`loader/`, `RockSampleData.Loader`). `SampleDataPackage.Open` reads a package and checks every file against its checksum. `DatasetLoader.Load` installs it, with a `DatasetLoadOptions` for the anchor, seed, check images, and the rest. A Rock block will call the same two methods.
+- **The loader library** (`loader/`, `RockSampleData.Loader`). `SampleDataPackage.Open` reads a package and checks every file against its checksum. `DatasetLoader.Load` installs it, with a `DatasetLoadOptions` for the anchor, seed, parts, progress, keys, and the rest. It builds for .NET 10 and for .NET Framework 4.7.2, and Rock's block uses it through the `RockSampleData.Loader` NuGet package (see [Using the library](#using-the-library)).
 - **The loader CLI** (`../loader-cli/`, `rock-sample-data-load`), for developers and test harnesses.
 
 ## Loading a package
@@ -19,18 +19,19 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, and `Notes`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts. Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
-| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving and achievements) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. |
+| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving and achievements) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
@@ -46,11 +47,121 @@ On the develop branch, new migrations land often, so the check would block devel
 
 1. The package's format is one this loader reads (format 1).
 2. Every file matches its SHA-256 in `package.json`, no listed file is missing, and nothing unlisted was added.
-3. The database is the Rock the package is for (see above).
+3. No other sample data load is running on the database. The load takes an exclusive SQL Server application lock (`sp_getapplock`, owned by its transaction) before it checks anything else, so two loads started at once, even from two web servers, cannot both go on.
+4. The database has no people beyond the five a new Rock install creates (decision D-rock-loader-3). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too.
+5. The database is the Rock the package is for (see above).
 
-Any failure stops the load before it writes anything.
+Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, notes, Cast and business expectations, and check images.
+The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+
+## Parts
+
+A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. `SampleDataParts.All` is the one table of parts, in load order:
+
+| Part | Name | What it adds | Needs |
+|---|---|---|---|
+| `Photos` | Photos | Profile photos for the Cast and some generated families, and photos for the serving opportunities | |
+| `Attendance` | Attendance and check-in | Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements | |
+| `SmallGroups` | Small groups | Small groups with leaders, members, meeting places, photos, history, and weekly attendance | |
+| `Serving` | Serving teams | Volunteers on every serving team, with schedules, check-ins, and requests to serve | |
+| `Giving` | Giving | Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts | |
+| `Prayer` | Prayer requests | Prayer requests with the prayer team's prayers, comments, and answers | Small groups |
+| `Notes` | Notes | Notes on people in six note types, secured to staff | |
+| `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
+
+`SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at that part's rows:
+
+1. **Check images need giving.** Each image row points at its gift.
+2. **Prayer needs small groups.** Some Cast prayer requests are shared with their small group, and who asks for prayer depends on who is in a group, which the prayer step reads from the loaded groups.
+
+Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), and prayer reads the giving plan. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows.
+
+Cast expectations check only the parts that loaded: giving stories need `Giving`, achievement stories need `Attendance`, and prayer requests need `Prayer`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+
+On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same.
+
+## Using the library
+
+Rock's Sample Data Installer block calls the library through the `RockSampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision D-rock-loader-1). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`.
+
+```csharp
+var package = SampleDataPackage.Open( uploadedZipStream );
+var readiness = DatasetLoader.CheckDatabase( connectionString, package );
+if ( !readiness.IsReady )
+{
+    // Show readiness.Problems, one plain sentence each.
+}
+
+DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
+{
+    Parts = new[] { SampleDataPart.Giving, SampleDataPart.Prayer },
+    Progress = progress,
+    PasswordKey = passwordKey,
+    DataEncryptionKey = dataEncryptionKey
+} );
+```
+
+| Option | Meaning |
+|---|---|
+| `Parts` | The parts to load. Null loads every part. The load adds the parts they need. |
+| `Progress` | An `IProgress<LoadProgressReport>` that gets every line the CLI prints. Each report has the `Message`, the `StepName` when the line starts a step (null for a detail line), and `CompletedSteps` of `TotalSteps`. `TotalSteps` counts only the steps this load runs. Reports come on the loading thread, in order. The library never writes to the console. |
+| `PasswordKey`, `DataEncryptionKey` | Rock's keys, as its web.config holds them (the PasswordKey in hex). Each one is used instead of the one in `RockWebConfigPath`. Inside Rock, pass the server's own, so check scanning and note mentions work on that server. |
+| `IsAnyRockVersionAllowed` | Loads on another Rock with a warning. `CheckDatabase` never honors it. Rock's block leaves it false. |
+
+`Load` throws `DatabaseNotReadyException` (with every problem in `Problems` and the message) when the database has people or another load is running, and `RockVersionMismatchException` when the only problem is the Rock version. Nothing is written in either case. The loader bulk-copies past Rock's services, so Rock's caches are stale after a load, and the block clears them.
+
+### The .NET Framework build
+
+The .NET Framework build depends on the exact versions Rock ships: Microsoft.Data.SqlClient 6.1.4, System.Text.Json 10.0.0, SixLabors.ImageSharp 2.1.12, SixLabors.ImageSharp.Drawing 1.0.0, Hashids.net 1.7.0, and System.IO.Compression 4.3.0. A newer version would add a second version of an assembly to RockWeb/bin. A .NET Framework program that uses the package needs Rock's binding redirects for System.Memory and System.Numerics.Vectors, which Rock's web.config already has.
+
+`compat/` holds the few .NET 10 features .NET Framework lacks, as internal types under `#if NETFRAMEWORK`: the init-only marker, `GetValueOrDefault` and key-value pair deconstruction, and the two key derivations behind Rock's encryption (`KeyDerivation`: PBKDF2, and HKDF written out from RFC 5869). Everything else is written a way both understand, such as `list[list.Count - 1]` instead of `list[^1]`.
+
+The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. Run it for each build, and both must pass:
+
+```
+dotnet run --project loader-compat-check -f net10.0
+dotnet run --project loader-compat-check -f net472
+```
+
+The two builds load the same rows, with one known difference. .NET Framework rounds `DateTime.AddMinutes` and the other `Add` methods that take a fraction to the nearest millisecond, and .NET 10 does not. So a few generated times, such as when a prayer request was approved, can differ by under a millisecond. On 2026-10-21, a .NET Framework load and a .NET 10 load of the same parts matched in every table when times were compared to the second.
+
+## The package index
+
+The hosted list of packages is `index.json` (decision D-rock-loader-4). The publishing workflow in the [roadmap](../docs/roadmap.md#publishing) uploads it last, beside the versioned packages. `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
+
+```json
+{
+  "formatVersion": 1,
+  "packages": [
+    {
+      "dataset": "core-1",
+      "name": "Core 1",
+      "description": "The Cast: 87 households and 185 people at one campus.",
+      "people": 185,
+      "campuses": 1,
+      "version": "1.2.0",
+      "url": "v1.2.0/core-1.zip",
+      "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
+      "size": 15086598,
+      "rockVersion": "21.0.2",
+      "rockMigration": "202610141827486_CodeGenerated_20261014"
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `formatVersion` | The index format. This loader reads format 1. Required. |
+| `packages` | Every package, in the order to show them. A dataset can appear once per Rock version. |
+| `dataset`, `name` | The dataset key and its name. Required. |
+| `description` | A sentence or two about the dataset. Optional. |
+| `people`, `campuses` | About how many people the dataset loads, and its campuses. |
+| `version` | The package release, from the release tag. Required. |
+| `url` | Where to download the package: absolute, or relative to the index's own URL. Required. |
+| `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
+| `rockVersion`, `rockMigration` | The Rock the package is for, the same values as its `package.json`. A caller can hide packages for another Rock without downloading them. Required. |
 
 ## What makes a load repeatable
 
@@ -295,7 +406,6 @@ Speed: Core 1 draws its 390 or so checks in about 3.5 seconds. Full 7 draws abou
 These are deliberate, and they go away in the real loader:
 
 1. Configuration is written with SQL. The real loader saves configuration through Rock's services, so Rock's save hooks and caches run.
-2. The library writes its progress to the console. The Rock block needs it to report through a logger instead.
-3. The spike crowd uses placeholder names. The real Crowd uses the Content name lists. Addresses already come from the address pool (`../addresses/pool.json`); a placeholder street is used only if a campus runs out.
-4. The spike keys the check scanner fields with a Rock checkout's web.config. The real loader must use the server's own PasswordKey and DataEncryptionKey. Inside Rock it can call `Encryption.EncryptString` itself instead of the copy in `RockKeys.cs`.
-5. The real loader runs inside Rock, so it can call Rock's own math (`GivingAutomationHelper`) instead of the port in `RockGivingAutomation.cs`. It still needs the replay, because Rock's job only computes values as of today. The stored procedures are already Rock's own. The same goes for `RockStreaks.cs`: Rock's own streak and achievement code can run as of each child's last check-in, as the achievements parity test does.
+2. The spike crowd uses placeholder names. The real Crowd uses the Content name lists. Addresses already come from the address pool (`../addresses/pool.json`); a placeholder street is used only if a campus runs out.
+3. The loader keeps its own copy of Rock's encryption in `RockKeys.cs`. Rock passes its own PasswordKey and DataEncryptionKey through `DatasetLoadOptions`, so the fields match the server, but inside Rock the loader could call `Encryption.EncryptString` itself.
+4. The real loader runs inside Rock, so it can call Rock's own math (`GivingAutomationHelper`) instead of the port in `RockGivingAutomation.cs`. It still needs the replay, because Rock's job only computes values as of today. The stored procedures are already Rock's own. The same goes for `RockStreaks.cs`: Rock's own streak and achievement code can run as of each child's last check-in, as the achievements parity test does.

@@ -25,7 +25,7 @@ The words this project uses, in alphabetical order.
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
-| **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it today; a Rock block will use it next. |
+| **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `RockSampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Package** | A zip the builder writes for one dataset and one exact Rock: data files only, never SQL, with a checksum for every file in `package.json`. |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |

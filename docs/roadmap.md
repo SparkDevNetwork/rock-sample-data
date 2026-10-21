@@ -31,10 +31,11 @@ Where the project stands: the team's working list. Update this page whenever som
 - Notes on people (decision 78): six note types with View security (Rock's Personal, Pastoral, and Phone, plus Follow-up, Counseling, and Safety Alert), 67 hand-written Cast notes with 13 replies in 29 households, and generated notes from text pools. Calibration part 6 measures note use. The measured shape sets timing and length, and the volume and feature use are designed higher, because the sample church shows what good note use looks like. Full 7 has about 54,000 notes and 7,000 replies, and all 15 graded note values pass.
 - Security roles (decision 79): Cast people join the out-of-the-box roles their stories give them, mapped in `configuration/security-roles.json`, and each campus pastor joins RSR - Staff Workers and RSR - Pastoral Workers. The load creates no roles.
 - The public site (decisions 80 to 82; see [site/](../site/README.md)): why the sample data matters, Rock Solid Church and its building tour, a page for every Cast household, the datasets, how it's built, and how to contribute. It is built from the repository's own files with no packages, and the brand page offers the logo as SVG and PNG, the palette, and every photo set as a zip. The logo now has vector versions, redrawn from the approved artwork.
+- The loader library is ready for Rock (decisions D-rock-loader-1 to D-rock-loader-4; see [Using the library](../loader/README.md#using-the-library)). It builds for .NET Framework 4.7.2 too, on Rock's own package versions, and packs as the `RockSampleData.Loader` NuGet package (0.1.0-alpha.1, a local file for now). A load can choose its parts, reports progress instead of writing to the console, takes the server's PasswordKey and DataEncryptionKey, and refuses a database with people beyond a new Rock install under an application lock. `SampleDataPackageIndex` reads the hosted `index.json`. `loader-compat-check/` proves the key derivations give the same bytes on both builds.
 
 ## In progress
 
-Nothing right now.
+- **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It lists packages from a hosted `index.json` or takes an uploaded package, beside the old sample data block.
 
 ## Waiting on a decision
 
@@ -71,13 +72,11 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 The builder and loader are split (see Done). What is left:
 
-1. **The loader inside Rock.** A Rock block that calls the same library, saving configuration through Rock's services instead of SQL. It needs:
-   - A build of the library for the .NET Framework version Rock runs on.
-   - Progress reported through a logger instead of the console.
-   - The server's own PasswordKey and DataEncryptionKey for the check scanner fields.
-2. **Download a package by version** in the loader CLI (`--version 1.2.0 --dataset core-1`), once packages are hosted (see Publishing).
-3. **Publish the loader to NuGet when we tag a release.** In the same tag-triggered GitHub Action as the Azure upload:
-   - `dotnet pack` the loader library with the version taken from the tag, then `dotnet nuget push` to nuget.org (not GitHub Packages, which needs a sign-in even to download).
+1. **Configuration through Rock's services.** The library now runs inside Rock (see Done and In progress), but it still writes configuration with SQL. Saving it through Rock's services would run Rock's save hooks.
+2. **A steps part.** When steps are built (see [Steps](steps.md)), they come from small group, serving, and giving records, so a steps part would need those parts in `SampleDataParts.All`.
+3. **Download a package by version** in the loader CLI (`--version 1.2.0 --dataset core-1`), once packages are hosted (see Publishing).
+4. **Publish the loader to NuGet when we tag a release.** In the same tag-triggered GitHub Action as the Azure upload:
+   - The project already packs both builds (`dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts`). The Action passes the version from the tag (`-p:Version=1.3.0`), then runs `dotnet nuget push` to nuget.org (not GitHub Packages, which needs a sign-in even to download).
    - Sign in with nuget.org trusted publishing (OpenID Connect, no stored key), or a push-only API key limited to this package, with an expiry date, stored as an Actions secret.
    - Tags like `v1.3.0-beta.1` publish as NuGet prereleases. Include Source Link and symbols for debugging.
    - Dataset packages record the loader version that built them; the package format keeps its own version so a loader can tell what it can read.
@@ -88,7 +87,7 @@ The builder and loader are split (see Done). What is left:
    - The builder already writes the packages (`dotnet run -- --rock <Rock checkout>` in `builder/`). The Action runs it once per supported Rock release, since each package is for one exact Rock (decision 52).
    - Then it runs the [verify tool](../verify/README.md) on the same built Rock checkout, and `--check-receipts` before any upload (decision 66). The runner needs Windows, SQL Server, and a built Rock, so it is a self-hosted runner, or a Windows runner that builds Rock and starts SQL Server first. Upload each receipt beside its package.
    - Azure sign-in with OpenID Connect (preferred: the repository gets "Storage Blob Data Contributor" on that one container, so no secret is stored), or a SAS token limited to that container, write-only, with an expiry date, stored as an Actions secret.
-   - Versioned paths (for example `sampledata/v1.2.0/core-1.zip`), plus an `index.json` uploaded last with a short cache time, listing each package, its checksum, and the Rock version and migration it is for.
+   - Versioned paths (for example `sampledata/v1.2.0/core-1.zip`), plus an `index.json` uploaded last with a short cache time, listing each package, its checksum, and the Rock version and migration it is for, in the format the [loader README](../loader/README.md#the-package-index) defines (decision D-rock-loader-4).
    - Publish only from tags or a manual run on `main`, optionally behind a GitHub environment that needs approval.
    - First, confirm that `storage.rockrms.com` is an Azure blob container (or a CDN in front of one) and which container holds sample data.
 2. **Get the repository ready to be public.** Squash the history to one commit before the first push. The code and data use the Rock Community License (decided 2026-10-16).

@@ -37,13 +37,17 @@ namespace RockSampleData.Loader
             someone's data, or sample data already, and a load must never mix into that. RestUser records
             are API keys, not people, and an admin may add one before loading, so they never count.
 
+            Admin has no fixed Guid. Rock's first migration inserts it as Person Id 1, and its Guid
+            differs between installs (the trusted base and RockSample-base have different ones), so
+            Admin is known by its Id. The other three have Rock SystemGuids.
+
             Reason: Sample data must never land in a database with real people in it.
         */
+        private const int AdminPersonId = 1;
+
         private static readonly Guid[] FreshInstallPersonGuids =
         {
-            new Guid( "7D68D707-2460-4DF6-8DEA-90AE836086AA" ),
             new Guid( "802235DC-3CA5-94B0-4326-AACE71180F48" ),
-            new Guid( "86CF11D9-66BC-4CE0-9037-F8AFCBCD608A" ),
             new Guid( "7EBC167B-512D-4683-9D80-98B6BB02E1B9" ),
             new Guid( "817E7C25-6CB1-4ED0-B224-FF3C4DA0B716" )
         };
@@ -101,7 +105,8 @@ namespace RockSampleData.Loader
             var existingPeople = Convert.ToInt32( db.Scalar( $@"
 SELECT COUNT( * )
 FROM [Person] AS [p]
-WHERE [p].[Guid] NOT IN ( {string.Join( ", ", parameters.Take( FreshInstallPersonGuids.Length ).Select( p => p.ParameterName ) )} )
+WHERE [p].[Id] <> {AdminPersonId}
+    AND [p].[Guid] NOT IN ( {string.Join( ", ", parameters.Take( FreshInstallPersonGuids.Length ).Select( p => p.ParameterName ) )} )
     AND ( [p].[RecordTypeValueId] IS NULL OR [p].[RecordTypeValueId] <> ISNULL( ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = @RestUser ), 0 ) )", parameters.ToArray() ) );
 
             if ( existingPeople > 0 )

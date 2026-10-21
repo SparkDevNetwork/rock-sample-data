@@ -88,4 +88,4 @@ The loader runs the steps below in one database transaction. A failure rolls eve
 
 ## Where the loader goes
 
-Today the loader CLI installs packages for developers and test harnesses. Next, a block inside Rock will call the same loader library, saving configuration through Rock's own services. Rock will never depend on this repository; everything it needs arrives in the package.
+The loader CLI installs packages for developers and test harnesses. A block inside Rock calls the same loader library through the `RockSampleData.Loader` NuGet package, which builds for the .NET Framework Rock runs on. A person picks the parts to load, and the loader refuses a database that already has people (decisions D-rock-loader-1 to D-rock-loader-3). Later, configuration will save through Rock's own services. Rock will never depend on this repository; everything it needs arrives in the package.

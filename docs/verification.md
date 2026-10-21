@@ -30,7 +30,8 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
-| [Install-time checks](#when-a-church-installs) | Every install | The package is intact and meant for this database. |
+| [Install-time checks](#when-a-church-installs) | Every install | The package is intact, meant for this Rock, and going into a database with no people yet. |
+| [Loader compatibility check](#loader-compatibility-check) | When the loader library changes | The .NET Framework build Rock runs computes the same keys and values as the .NET 10 build. |
 | [Realism grading](#realism-grading) | When generation changes | The data looks like a real church. |
 | [Rock lock check](#rock-lock-check) | Any time, and before a release | The Rock code the loader copies has not changed. |
 | [Giving parity test](#giving-parity-test) | Before each release | The loader's giving math matches Rock's own job. |
@@ -158,15 +159,25 @@ Each run writes `{dataset}.verify.json` next to each package. A receipt records 
 
 ## When a church installs
 
-The loader runs three short checks before it writes anything, and stops the install if any fails:
+The loader runs five short checks before it writes anything, and stops the install if any fails:
 
 1. The package's format is one this loader reads.
 2. Every file matches its SHA-256 in `package.json`, nothing is missing, and nothing was added.
-3. The database's newest migration is the one the package was built for (decision 52).
+3. No other sample data load is running on the database. The load holds an exclusive SQL Server application lock for its whole transaction.
+4. The database has no people beyond the five a new Rock install creates, so it holds no real people and no sample data yet (decision D-rock-loader-3).
+5. The database's newest migration is the one the package was built for (decision 52).
 
-During the load it also checks the Cast expectations, and it runs Rock's own journey stage procedure for the last week to confirm Rock makes exactly the changes the loader predicted. See [Loader](../loader/README.md#what-the-loader-checks-before-loading).
+Checks 3 to 5 run inside the load's transaction, so two loads started at once cannot both pass. During the load it also checks the Cast expectations of the parts it loaded, and it runs Rock's own journey stage procedure for the last week to confirm Rock makes exactly the changes the loader predicted. See [Loader](../loader/README.md#what-the-loader-checks-before-loading).
 
-**Why they're there.** These are the only checks that run on a church's server, so they are fast and protect only against a damaged package or the wrong Rock. Everything slower happened before the package was published.
+**Why they're there.** These are the only checks that run on a church's server, so they are fast and protect only against a damaged package, the wrong database, or the wrong Rock. Everything slower happened before the package was published.
+
+## When the loader library changes
+
+### Loader compatibility check
+
+**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
+
+**Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision D-rock-loader-1). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
 
 ## Realism and Rock's math
 
