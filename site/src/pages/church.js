@@ -157,9 +157,10 @@ module.exports = function church( { model, r } ) {
 
 <section class="section">
   <div class="wrap walls">
-    <div class="wall wall-teal reveal">
-      <span class="wall-big">YOU BELONG HERE.</span>
-      <span>Turn Sunday visits into meaningful connections.</span>
+    <div class="wall wall-paper reveal">
+      <span class="wall-eyebrow">YOU BELONG HERE.</span>
+      <span class="wall-big">STARTING POINT</span>
+      <span>From a first hello to a place you belong.</span>
       <span class="wall-strong">Enroll in Starting Point</span>
     </div>
     <div class="wall wall-paper reveal">

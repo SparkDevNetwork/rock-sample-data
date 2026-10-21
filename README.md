@@ -57,6 +57,7 @@ Need a word explained? See the [glossary](docs/glossary.md). Curious how generat
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |
 | [addresses/](addresses/README.md) | The address pool: real streets with house numbers that do not exist. |
 | [photos/](photos/README.md) | The photo rules, the manifest, and the delivered Cast and pool photos. |
+| [graphics/](graphics/README.md) | Reusable church initiative and campaign artwork, beginning with Starting Point. |
 | [builder/](builder/README.md) | The .NET tool that turns this repository into one dataset package per dataset. |
 | [loader/](loader/README.md), `loader-cli/` | The loader library that installs a package into a Rock database, and its command line for developers and test harnesses. |
 | [validation/](validation/README.md) | Tolerances and the script that grades generated data, plus the invariants, contract, and standards check the verify tool uses. |

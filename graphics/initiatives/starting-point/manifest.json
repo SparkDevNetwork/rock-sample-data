@@ -1,0 +1,40 @@
+{
+  "program": "Starting Point",
+  "church": "Rock Solid Church",
+  "created": "2026-10-21",
+  "status": "Selected by user for lobby application",
+  "generator": "OpenAI built-in image_gen",
+  "images": [
+    {
+      "file": "starting-point-hero-v1.png",
+      "width": 1672,
+      "height": 941,
+      "purpose": "Campaign graphic for church screens, website hero, and invitations",
+      "reference": "../../../photos/references/church/branding/rock-solid-church-logo.png",
+      "concept": "Separate teal forms gather around a warm coral point to express belonging and becoming known.",
+      "copy": [
+        "YOU BELONG HERE.",
+        "STARTING POINT",
+        "From a first hello to a place you belong.",
+        "Get to know the church. Find your people. Take your next step.",
+        "Enroll in Starting Point",
+        "BELONGING BEGINS WITH BEING KNOWN."
+      ],
+      "prompt": "Use case: ads-marketing.\nAsset type: finished premium church program campaign key visual, flat landscape 16:9 graphic suitable for a worship screen, website hero and invitation campaign. Create ONE exquisite finished design, not a board of variants, not a mockup, no device frame.\nPrimary request: Starting Point is Rock Solid Church's warm first step for newcomers to get to know the church, move from unknown to known, belong and become. This must feel welcoming, meaningful and extraordinarily well designed, contemporary Apple-caliber craft with confident Swiss editorial typography and a distinctive memorable visual identity.\nInput image 1 is the APPROVED Rock Solid Church logo, a supporting brand artwork reference. Preserve its four rounded shapes forming a negative-space cross, ROCK SOLID uppercase with smaller tracked CHURCH below, horizontal proportions. Place an accurate modest charcoal logo lockup at bottom left directly on warm white, with no white image rectangle or distortion. Do not invent a new church logo.\nCreative direction: very large bold beautifully kerned contemporary grotesk STARTING / POINT on the left, with a subtle custom circular point detail in the typography if tasteful. Powerful asymmetrical grid with generous negative space. Left roughly 55% is warm ivory with charcoal typography. Right is an art-directed sculptural gathering motif: several separate elegant broad matte teal curved ribbons or open circular arcs sweep toward a single warm coral center point, resolving into a welcoming open circle/threshold. This is a metaphor for individual stories finding connection, not a chart. Make it visually striking, tactile, warm, refined, with soft architectural daylight, subtle dimensional shadows and superbly controlled deep teal, muted sea-glass, warm cream and one small coral accent. Blend illustration into the ivory background rather than rigidly splitting two rectangles. Nothing resembling a road, map pin, corporate flowchart or tech dashboard. No crosses other than the real church logo. No people or stock photography.\nTypographic hierarchy and exact copy, all legible, no extra invented copy:\nSmall restrained uppercase eyebrow near upper left: \"YOU BELONG HERE.\"\nDominant headline on two lines: \"STARTING\" / \"POINT\"\nMedium supporting headline beneath: \"From a first hello to a place you belong.\"\nSmall supporting copy: \"Get to know the church. Find your people. Take your next step.\"\nClear elegant deep-teal CTA with warm-white text, aligned with left column: \"Enroll in Starting Point\"\nA delicate small tracked line near the visual or above the bottom margin: \"BELONGING BEGINS WITH BEING KNOWN.\"\nBottom-left small approved church logo from reference.\nKeep adequate breathing room so title, supporting copy, CTA and logo are clearly separated. The graphic must read instantly from a distance and reward closer inspection. Use crisp professional typography, no awkward line breaks, meticulous margins, no text over busy sculpture. Avoid generic church flyers, grunge, gradients behind text, glowing effects, fake QR codes, URLs, dates, schedules, decorative starbursts, excessive ornaments, labels explaining the concept, watermarks or extraneous text. Excellent finish, warm and human rather than cold or salesy. Prefer high resolution landscape 16:9.",
+      "review": [
+        "Visually checked full graphic, spelling, typography, CTA, and brand palette.",
+        "PNG preserved at native generated resolution; not resampled.",
+        "No dates, URLs, QR codes, or event details invented."
+      ],
+      "seed": null
+    }
+  ],
+  "applications": [
+    {
+      "file": "../../../photos/references/church/lobby-toward-worship-center.png",
+      "jpeg": "../../../photos/references/church/lobby-toward-worship-center.jpg",
+      "date": "2026-10-21",
+      "use": "User-requested lobby wall adaptation of the campaign graphic"
+    }
+  ]
+}

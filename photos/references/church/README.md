@@ -49,13 +49,14 @@ The inward-facing lobby view has two integrated wall graphics, outside the entir
 
 Set the three phrases on separate lines, retaining their capitalization and periods.
 
-**Right connection wall:** warm-white typography on muted teal, with this hierarchy:
+**Right Starting Point wall:** the new [Starting Point campaign](../../../graphics/initiatives/starting-point/starting-point-hero-v1.png) is adapted to the architectural bay with charcoal typography on warm ivory, deep-teal and sea-glass curved forms gathering around a coral point, and a teal invitation strip. Use this hierarchy:
 
 - **YOU BELONG HERE.**
-- Turn Sunday visits into meaningful connections.
+- **STARTING POINT**
+- From a first hello to a place you belong.
 - **Enroll in Starting Point**
 
-Preserve the exact wording and case; line wrapping may follow the available wall space. Do not substitute the earlier New Here/Connection Event/Sign Up Today draft, add dates or invent URLs/QR codes. The exact copy is also in the manifest.
+Preserve the exact wording and case; line wrapping may follow the available wall space. Keep the key copy above the lounge seating. The wall adaptation omits the campaign's fine print and duplicate church logo for legibility. It supersedes the previous solid-teal connection graphic and its Turn Sunday visits into meaningful connections sentence. Do not substitute the earlier New Here/Connection Event/Sign Up Today draft, add dates or invent URLs/QR codes. The exact copy and edit prompt are also in the manifest.
 
 ### Prayer-room wall graphic
 
@@ -107,3 +108,5 @@ The prayer-room revision doubles its visual floor-area target and adds the user-
 The student-room revision doubles its visual floor-area target, adds the Rock Solid Students wall identity, and separates the organized social and game areas.
 
 The latest prayer-room revision adds two matching chairs for six total and removes the visible doorway from both foreground edges. Keep the actual side window and approved wall graphic.
+
+The subsequent Starting Point lobby revision applies the campaign's warm-ivory, teal-ribbon and coral-point design to the right-hand wall, adapting the type and artwork to the available bay. The mission graphic and all three double-door pairs remain visible, and the right lounge group sits clear of the invitation.
