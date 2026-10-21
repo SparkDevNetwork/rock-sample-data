@@ -1,0 +1,16 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-production-team",
+  "guid": "0BA93D66-21B1-4229-979D-F76CEB57666D",
+  "name": "Production Team",
+  "type": "serving",
+  "team": "production-team",
+  "campus": "main",
+  "members": [
+    { "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "role": "Leader" },
+    { "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33", "name": "Jim Simmons", "role": "Member" },
+    { "guid": "3459286F-18C8-4548-9938-53DAC8483D01", "name": "Phil Coffee", "role": "Member" },
+    { "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith", "role": "Member" }
+  ]
+}

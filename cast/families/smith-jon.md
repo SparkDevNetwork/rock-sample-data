@@ -14,7 +14,7 @@ Jon Smith is the original record in a set of three duplicates created over time 
 
 Jon is the original record in a set of three duplicates. The other two were created over time as "John Smith" with his home phone saved as a mobile or work number.
 
-- Age 43 · single · record pending · email jon.smith@example.org · groups: Foster Group
+- Age 43 · single · record pending · email jon.smith@example.org · groups: Foster Group, Production Team
 - Person Guid `077F2901-A51E-43F9-A35A-98CC97C4D465`
 
 ## What this family tests

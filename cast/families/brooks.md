@@ -7,7 +7,7 @@ The Brooks family has been at the church for nine years. Ava is in high school a
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
 | <img src="../../photos/cast/brooks-nathan.jpg" width="96" alt="Nathan Brooks"> | Nathan Brooks | 42 | adult | Engaged |
-| <img src="../../photos/cast/brooks-rachel.jpg" width="96" alt="Rachel Brooks"> | Rachel Brooks | 41 | adult | Engaged |
+| <img src="../../photos/cast/brooks-rachel.jpg" width="96" alt="Rachel Brooks"> | Rachel Brooks | 41 | adult | Leading |
 | <img src="../../photos/cast/brooks-ava.jpg" width="96" alt="Ava Brooks"> | Ava Brooks | 14 | child | Engaged |
 | <img src="../../photos/cast/brooks-caleb.jpg" width="96" alt="Caleb Brooks"> | Caleb Brooks | 11 | child | Engaged |
 | <img src="../../photos/cast/brooks-lily.jpg" width="96" alt="Lily Brooks"> | Lily Brooks | 8 | child | Engaged |
@@ -18,14 +18,14 @@ The Brooks family has been at the church for nine years. Ava is in high school a
 
 Nathan has been at the church nine years and gives every week to the General and Building funds. He is the example of a steady, growing weekly giver.
 
-- Age 42 · married · email nathan.brooks@example.org · groups: Decker Group, Lee Group (left, archived)
+- Age 42 · married · email nathan.brooks@example.org · groups: Decker Group, Kids Ministry, Lee Group (left, archived)
 - Person Guid `CADE3046-BF77-4131-9527-D52E4700E038`
 
 ### Rachel Brooks
 
 Rachel is Nathan's wife. Sunday mornings she gets three kids to three different check-in rooms.
 
-- Age 41 · married · no email · groups: Decker Group, Lee Group (left, archived)
+- Age 41 · married · no email · groups: Decker Group, Kids Ministry (leader), Lee Group (left, archived)
 - Person Guid `9AA2688D-534C-4FC2-9C7D-DAA224041338`
 
 ### Ava Brooks

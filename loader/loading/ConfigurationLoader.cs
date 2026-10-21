@@ -336,18 +336,23 @@ ORDER BY [d].[Id]" );
                 {
                     var threshold = checkIn.RoomSoftThreshold.TryGetValue( group.Key, out var value ) ? value : ( int? ) null;
                     var roomId = ChildLocationId( buildingId, group.Room ) ?? InsertLocation( group.Room, buildingId, roomTypeId, Guid.NewGuid(), null, null, threshold );
-                    var groupLocationId = EnsureGroupLocation( groupIds[group.Key], roomId );
-                    SetGroupLocationSchedules( groupLocationId, group.Schedules == "student" ? studentSlots : weekendSlots );
+                    var groupLocationId = EnsureGroupLocation( _db, _foreignKey, groupIds[group.Key], roomId );
+                    SetGroupLocationSchedules( _db, groupLocationId, group.Schedules == "student" ? studentSlots : weekendSlots );
                     plan.RoomIds[group.Key] = roomId;
                     placements++;
                 }
 
+                foreach ( var room in _source.Serving.Rooms )
+                {
+                    plan.ServingRoomIds[room] = ChildLocationId( buildingId, room ) ?? InsertLocation( room, buildingId, roomTypeId, Guid.NewGuid(), null, null, null );
+                }
+
                 // Adult worship attendance is recorded against the campus itself.
-                var worshipLocationId = EnsureGroupLocation( worshipGroupId, campusLocationId );
-                SetGroupLocationSchedules( worshipLocationId, weekendSlots );
+                var worshipLocationId = EnsureGroupLocation( _db, _foreignKey, worshipGroupId, campusLocationId );
+                SetGroupLocationSchedules( _db, worshipLocationId, weekendSlots );
             }
 
-            Console.WriteLine( $"  Check-in room placements: {placements} across {campuses.Count} campus(es)" );
+            Console.WriteLine( $"  Check-in room placements: {placements} across {campuses.Count} campus(es), plus {_source.Serving.Rooms.Count} serving rooms per campus" );
         }
 
         /// <summary>
@@ -436,30 +441,30 @@ VALUES ( @ParentId, @Name, 1, @TypeId, {geo}, @Threshold, @Guid, @ForeignKey, GE
         /// <summary>
         /// Returns the Id of the group's location row, adding it when missing.
         /// </summary>
-        private int EnsureGroupLocation( int groupId, int locationId )
+        internal static int EnsureGroupLocation( RockDatabase db, string foreignKey, int groupId, int locationId )
         {
-            var id = _db.Scalar( "SELECT TOP 1 [Id] FROM [GroupLocation] WHERE [GroupId] = @GroupId AND [LocationId] = @LocationId", P( "@GroupId", groupId ), P( "@LocationId", locationId ) );
+            var id = db.Scalar( "SELECT TOP 1 [Id] FROM [GroupLocation] WHERE [GroupId] = @GroupId AND [LocationId] = @LocationId", P( "@GroupId", groupId ), P( "@LocationId", locationId ) );
             if ( id != null )
             {
                 return Convert.ToInt32( id );
             }
 
-            return Convert.ToInt32( _db.Scalar( @"
+            return Convert.ToInt32( db.Scalar( @"
 INSERT INTO [GroupLocation] ( [GroupId], [LocationId], [IsMailingLocation], [IsMappedLocation], [Order], [IsOverflowLocation], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
 VALUES ( @GroupId, @LocationId, 0, 0, 0, 0, NEWID(), @ForeignKey, GETDATE(), GETDATE() )",
-                P( "@GroupId", groupId ), P( "@LocationId", locationId ), P( "@ForeignKey", _foreignKey ) ) );
+                P( "@GroupId", groupId ), P( "@LocationId", locationId ), P( "@ForeignKey", foreignKey ) ) );
         }
 
         /// <summary>
-        /// Replaces a group location's schedules with the given service times.
+        /// Replaces a group location's schedules (and their capacity settings) with the given service times.
         /// </summary>
-        private void SetGroupLocationSchedules( int groupLocationId, List<int> scheduleIds )
+        internal static void SetGroupLocationSchedules( RockDatabase db, int groupLocationId, List<int> scheduleIds )
         {
-            _db.Execute( "DELETE FROM [GroupLocationScheduleConfig] WHERE [GroupLocationId] = @Id; DELETE FROM [GroupLocationSchedule] WHERE [GroupLocationId] = @Id", P( "@Id", groupLocationId ) );
+            db.Execute( "DELETE FROM [GroupLocationScheduleConfig] WHERE [GroupLocationId] = @Id; DELETE FROM [GroupLocationSchedule] WHERE [GroupLocationId] = @Id", P( "@Id", groupLocationId ) );
             foreach ( var scheduleId in scheduleIds.Distinct() )
             {
-                _db.Execute( "INSERT INTO [GroupLocationSchedule] ( [GroupLocationId], [ScheduleId] ) VALUES ( @GroupLocationId, @ScheduleId )",
+                db.Execute( "INSERT INTO [GroupLocationSchedule] ( [GroupLocationId], [ScheduleId] ) VALUES ( @GroupLocationId, @ScheduleId )",
                     P( "@GroupLocationId", groupLocationId ), P( "@ScheduleId", scheduleId ) );
             }
         }
@@ -524,6 +529,11 @@ namespace RockSampleData.Loader.Loading
         /// Room location Ids by check-in group key.
         /// </summary>
         public Dictionary<string, int> RoomIds { get; } = new Dictionary<string, int>();
+
+        /// <summary>
+        /// The rooms serving teams use beyond the check-in rooms (serving.json), by room name.
+        /// </summary>
+        public Dictionary<string, int> ServingRoomIds { get; } = new Dictionary<string, int>();
     }
 
     /// <summary>

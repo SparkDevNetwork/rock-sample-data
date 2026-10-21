@@ -13,6 +13,8 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
+| `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
+| `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 
 ## Service times
@@ -54,6 +56,10 @@ One weekly streak type, Kids Check-in, counts every check-in under the Weekly Se
 | Century Club | 100 check-ins, after Half Century | Once |
 
 Each entry in `achievements.json` has a key, a Guid, a name, a description for kids, a component (`consecutive` or `accumulative`), a target, how many times it can be earned (`null` is unlimited), an optional prerequisite, a Font Awesome icon, and a highlight color. A prerequisite must come before the types that need it. Rock's own Weekly Attendance streak type and its two achievement types stay as Rock ships them.
+
+## Serving and connections
+
+Every campus gets eight serving teams under a "{campus} Serving Teams" parent, and each team has a serving opportunity in Rock's Involvement connection type. The main campus teams take their Guids from the Cast rosters in `cast/groups/serving-*.json`; every other team's Guid comes from its campus and key. See [Serving](../docs/serving.md) for the design and the reasons.
 
 ## Prayer categories
 

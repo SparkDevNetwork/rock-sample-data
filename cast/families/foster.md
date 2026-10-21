@@ -15,14 +15,14 @@ Peter Foster is the senior pastor. His wife Adelle goes by Pamela. Both serve on
 
 Pete is the Senior Pastor. He leads his own small group and has pastoral and staff security roles.
 
-- Age 50 · married · Senior Pastor, Rock Solid Church · email peter@rocksolidchurchdemo.com · groups: Foster Group (leader) · 3 security roles
+- Age 50 · married · Senior Pastor, Rock Solid Church · email peter@rocksolidchurchdemo.com · groups: Foster Group (leader), Prayer Team (leader) · 3 security roles
 - Person Guid `BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C`
 
 ### Pamela (Adelle) Foster
 
 Pamela (legal first name Adelle) is Pete's wife. She serves on the prayer team. Her record tests a nickname that is very different from the legal first name.
 
-- Age 50 · married · email pamela@example.org · groups: Foster Group (host) · 2 security roles
+- Age 50 · married · email pamela@example.org · groups: Foster Group (host), Prayer Team · 2 security roles
 - Person Guid `F4450E80-F221-4556-881D-CB92B008C2DA`
 
 ## What this family tests

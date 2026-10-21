@@ -239,6 +239,43 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// Stores each serving opportunity's photo the way Rock stores one uploaded on the opportunity's page,
+        /// and sets it as the opportunity's photo, replacing the photos Rock ships for its first three.
+        /// Returns how many opportunities got a photo.
+        /// </summary>
+        /// <param name="opportunityIds">Opportunity Ids by team key.</param>
+        public int LoadOpportunityPhotos( IReadOnlyDictionary<string, int> opportunityIds )
+        {
+            var photos = _source.ReadOpportunityPhotoManifest().Images
+                .Where( p => opportunityIds.ContainsKey( p.Opportunity ) )
+                .OrderBy( p => p.Opportunity, StringComparer.Ordinal )
+                .ToList();
+            if ( photos.Count == 0 )
+            {
+                return 0;
+            }
+
+            var fileIds = WriteFiles( DefaultFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.OpportunityPhotoManifestPath );
+            var values = string.Join( ", ", photos.Select( ( p, i ) => $"( {opportunityIds[p.Opportunity]}, {fileIds[i]} )" ) );
+            var replaced = string.Join( ", ", photos.Select( p => opportunityIds[p.Opportunity] ) );
+            var oldPhotoIds = _db.Query( $"SELECT [PhotoId] FROM [ConnectionOpportunity] WHERE [Id] IN ( {replaced} ) AND [PhotoId] IS NOT NULL" )
+                .Select( r => Convert.ToInt32( r["PhotoId"] ) )
+                .ToList();
+            _db.Execute( $"UPDATE [o] SET [o].[PhotoId] = [v].[FileId] FROM [ConnectionOpportunity] AS [o] INNER JOIN ( VALUES {values} ) AS [v] ( [Id], [FileId] ) ON [v].[Id] = [o].[Id]" );
+
+            // Rock's photos for its three shipped opportunities are unused once replaced, and Rock Cleanup deletes
+            // them. The loader deletes them itself, so the data is already as Rock Cleanup would leave it.
+            if ( oldPhotoIds.Count > 0 )
+            {
+                var unused = string.Join( ", ", oldPhotoIds );
+                _db.Execute( $"DELETE FROM [BinaryFileData] WHERE [Id] IN ( {unused} )" );
+                _db.Execute( $"DELETE FROM [BinaryFile] WHERE [Id] IN ( {unused} )" );
+            }
+
+            return photos.Count;
+        }
+
+        /// <summary>
         /// Writes one JPEG file per item, in order, stored in the database, and returns their Ids in the same
         /// order. Files are not temporary, the same as Rock leaves an image once it is saved to a record.
         /// </summary>

@@ -14,7 +14,7 @@ Daniel Peak is the Director of Communications and an experienced web developer.
 
 Daniel is the Director of Communications and an experienced web developer. He has website and communication administrator roles.
 
-- Age 36 · single · Director of Communications, Rock Solid Church · email daniel.peak@example.org · groups: Marble Group, Foster Group (left), Russell Group (group archived) · 3 security roles · background check: Pass
+- Age 36 · single · Director of Communications, Rock Solid Church · email daniel.peak@example.org · groups: Marble Group, Worship Team, Foster Group (left), Russell Group (group archived) · 3 security roles · background check: Pass
 - Person Guid `C5E4C66A-B836-4A8B-AD02-43F841B94BE9`
 
 ## What this family tests

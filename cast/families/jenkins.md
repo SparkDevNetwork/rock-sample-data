@@ -14,12 +14,12 @@ Gary and Barbara Jenkins are raising their grandson, Austin Reed. Austin's last 
 
 ### Gary Jenkins
 
-- Age 66 · married · email gary.jenkins@example.org · groups: Decker Group, Jenkins Group (leader, group archived)
+- Age 66 · married · email gary.jenkins@example.org · groups: Decker Group, Prayer Team, Jenkins Group (leader, group archived)
 - Person Guid `086C4989-5D61-4F4B-BD41-B2B1FE0556DE`
 
 ### Barb (Barbara) Jenkins
 
-- Age 63 · married · email barb.jenkins@example.org · groups: Decker Group, Jenkins Group (host, group archived)
+- Age 63 · married · email barb.jenkins@example.org · groups: Decker Group, Prayer Team, Jenkins Group (host, group archived)
 - Person Guid `6B190521-2A32-4B46-A02B-618174709D59`
 
 ### Austin Reed

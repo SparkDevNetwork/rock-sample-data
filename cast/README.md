@@ -48,9 +48,15 @@ It rewrites every small group file and marks each new leader Leading in the hous
 
 - Legacy groups keep their keys and Guids. Pins in the configuration keep Ted Decker, Bill Marble, Pete Foster, and Bob Greggs as leaders, and keep the Greggs and Gilbert groups in those homes.
 - Groups in `cast.notInPattern` (Alisha Marble's group and the university group) keep their old shape and are not loaded.
-- Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. Other group types still mark leaders with `isLeader`.
+- Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. General groups still mark leaders with `isLeader`.
 - A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups.
 - People with an inactive record (the Murphys, who moved) appear only as former members of inactive or archived groups.
+
+## Serving teams and requests to serve
+
+Each of the main campus's eight serving teams has a roster in `groups/serving-{team}.json`: the team key from `configuration/serving.json`, the team's Guid, and its members, each a Leader or a Member. These rosters are hand-picked, so edit them directly; `validate-cast.js` checks each team key, name, and single leader. The loader adds each volunteer's rotation, preferences, and serving history. Generated households fill the teams at every campus.
+
+A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, and an optional background check result. The loader adds the activity history. See [Serving](../docs/serving.md).
 
 ## Bios and photos
 

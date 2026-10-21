@@ -49,7 +49,22 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "greeters",
+          "state": "Connected",
+          "status": "Shadowing",
+          "created": {
+            "daysAgo": 30
+          },
+          "connected": {
+            "daysAgo": 10
+          },
+          "connector": true,
+          "comment": "I loved the serve day and want to keep helping. Greeting sounds fun."
+        }
+      ]
     }
   ]
 }

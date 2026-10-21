@@ -1,0 +1,20 @@
+{
+  "church": "Rock Solid Church",
+  "status": "Approved by user",
+  "approved": "2026-10-21",
+  "selectedConcept": "option-08-open-cross-uppercase",
+  "file": "rock-solid-church-logo.png",
+  "width": 1051,
+  "height": 271,
+  "source": "User-supplied final logo attachment; copied without alteration",
+  "text": [
+    "ROCK SOLID",
+    "CHURCH"
+  ],
+  "layout": "Open Cross symbol left; uppercase wordmark right",
+  "usage": "Attach this exact artwork as an image reference for visible church branding. Preserve the symbol, uppercase lettering, proportions and horizontal arrangement.",
+  "appliedTo": [
+    "../front-exterior-wide.png",
+    "../front-exterior-wide.jpg"
+  ]
+}

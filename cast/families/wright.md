@@ -13,12 +13,12 @@ Gerald and Dorothy Wright are retired teachers who have attended for twenty year
 
 ### Jerry (Gerald) Wright
 
-- Age 74 · married · email jerry.wright@example.org · groups: Wright Group (leader)
+- Age 74 · married · email jerry.wright@example.org · groups: Wright Group (leader), Greeters (leader)
 - Person Guid `4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2`
 
 ### Dot (Dorothy) Wright
 
-- Age 73 · married · email dot.wright@example.org · groups: Wright Group
+- Age 73 · married · email dot.wright@example.org · groups: Wright Group, Greeters
 - Person Guid `A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA`
 
 ## What this family tests

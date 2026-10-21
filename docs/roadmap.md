@@ -27,6 +27,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - Every package passes the verify tool. The loader now sets what Rock's save hooks and Rock Cleanup would: primary aliases, age classification, family salutations, inactive families, an alternate Id and name metaphones for every person, and a Known Relationship group for every person (see [How people load](../loader/README.md#how-people-load)). The trusted base also runs Rock's first-night post-install job, without which Rock Cleanup blanks every age.
 
 - Prayer requests with an active prayer team (decision 67). Every dataset gets about 10 requests a week per 1,000 active adults, mostly from adults who attended, gave, or were in a small group, in Rock's own prayer categories, with text from `content/prayer`. The Cast's Prayer Administrator approves them, and the prayer team (the Cast's Prayer Team plus about 3% of active adults) prays through each one while it is active, as "Prayed" interactions with matching prayer counts. A few are flagged back to the approval queue, and some get comments, replies, and answers. The Cast has its own requests too, covering every prayer screen state, with 10 always from the last few days so even the small datasets show a full prayer list; every load checks them. Calibration part 5 grades it: all 87 prayer values pass on Full 7 with the crowd (about 11,100 requests and 67,000 prayers), and validation overall is 347 of 380 (91%).
+- Serving teams and serving opportunities at every campus (decisions 68 to 77; see [Serving](serving.md)). Rock's Involvement connection type has eight polished opportunities with photos of real Cast volunteers, each placing people on its team at their campus. Every campus has eight teams with rooms, service times, staffing that fits the campus, and a background check for kids and student volunteers. Volunteers have rotations, preferences, and scheduling history over the whole history window plus six weeks ahead, and check in to serve. Connection requests in the measured mix lead to the teams, with activity history and person history. Validation grades serving and connections.
 
 ## In progress
 
@@ -38,11 +39,10 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Serving (Phase 1).** Add serving teams (kids, guest services, worship, students) with schedules, and generate serving check-ins. This fills the adult check-in gap in validation.
-2. **Close validation gaps.** First-time visitors run low and teens run low.
-3. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-4. **Per-person attendance,** so a teen can attend more often than their parents.
-5. **Real Crowd names** from public-domain frequency data by birth decade.
+1. **Close validation gaps.** First-time visitors run low and teens run low.
+2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
+3. **Per-person attendance,** so a teen can attend more often than their parents.
+4. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)
 
@@ -56,6 +56,10 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 ### People
 
 1. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
+
+### Serving
+
+1. **A midweek student night.** Calibration shows about 31% of check-ins on Wednesday, and the sample church has no midweek service. Set aside on 2026-10-19 while serving is built.
 
 ### Packages and loaders
 
@@ -85,7 +89,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests, steps, learning (LMS), benevolence, reminders, notes, and person attributes for the Crowd.
+Registrations, prayer requests, communications, connection requests beyond serving, steps, learning (LMS), benevolence, reminders, notes, and person attributes for the Crowd.
 
 ## Open questions
 

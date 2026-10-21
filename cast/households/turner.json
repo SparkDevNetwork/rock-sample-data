@@ -51,14 +51,14 @@
       },
       "connectionRequests": [
         {
-          "type": "Involvement",
-          "opportunity": "Usher",
-          "comment": "I can help people find seats in a crowded place.",
-          "date": {
-            "yearsAgo": 8,
-            "month": 9,
-            "day": 25
-          }
+          "opportunity": "ushers",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 20
+          },
+          "connector": false,
+          "comment": "I used to usher at my old church and would love to help here."
         }
       ]
     }

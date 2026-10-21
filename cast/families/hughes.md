@@ -16,12 +16,12 @@ Matthew and Jessica Hughes have three young kids: a kindergartner, a preschooler
 
 ### Matt (Matthew) Hughes
 
-- Age 35 · married · email matt.hughes@example.org · groups: Greggs Group, Hughes Group (leader, group ended)
+- Age 35 · married · email matt.hughes@example.org · groups: Greggs Group, Student Ministry, Hughes Group (leader, group ended)
 - Person Guid `CD3CA059-8D9D-40AB-87F0-667ECCAB600A`
 
 ### Jess (Jessica) Hughes
 
-- Age 34 · married · email jess.hughes@example.org · groups: Greggs Group, Hughes Group (host, group ended)
+- Age 34 · married · email jess.hughes@example.org · groups: Greggs Group, Kids Ministry, Hughes Group (host, group ended)
 - Person Guid `F7968EF9-34DA-4B7B-97E7-4BBC099269CD`
 
 ### Henry Hughes

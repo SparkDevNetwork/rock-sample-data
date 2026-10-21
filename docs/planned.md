@@ -6,7 +6,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Women's groups,** led by women, with a women's Bible study topic.
 - **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
-- **Serving teams** for kids, guest services, worship, and students, with schedules and volunteers who check in to serve.
+- **Serving teams** at every campus (guest services, kids, worship, production, students, prayer, and first aid), with group scheduling and volunteers who check in to serve. People join them through eight serving opportunities in connections.
 
 ## People and attendance
 
@@ -25,7 +25,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
 - **Communications:** email and text history, with opens and clicks.
-- **Connection requests** that move through their states, including some waiting on a connector.
 - **Steps,** such as baptism and membership.
 - **Benevolence requests.**
 - **Reminders and notes** that staff would really write.

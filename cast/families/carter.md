@@ -14,7 +14,7 @@ Margaret Carter has attended for thirty years. Her husband, Walter, passed away 
 
 Peggy has attended for thirty years and always sits in the same row at the 9:00 service. Her husband Walter died three years ago, and a staff note asks for a call around that anniversary. She mails a check every month and gives at year end.
 
-- Age 78 · widowed · email peggy.carter@example.org · groups: Foster Group
+- Age 78 · widowed · email peggy.carter@example.org · groups: Foster Group, Prayer Team
 - Person Guid `7A3DD18D-BE93-4253-ACE3-B5CB02EDB087`
 
 ## What this family tests

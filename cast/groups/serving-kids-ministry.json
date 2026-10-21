@@ -1,0 +1,22 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-kids-ministry",
+  "guid": "E82BD99E-7DC1-483C-A4F2-09017088C55E",
+  "name": "Kids Ministry",
+  "type": "serving",
+  "team": "kids-ministry",
+  "campus": "main",
+  "members": [
+    { "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "role": "Leader" },
+    { "guid": "CADE3046-BF77-4131-9527-D52E4700E038", "name": "Nathan Brooks", "role": "Member" },
+    { "guid": "9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2", "name": "Sarah Lee", "role": "Member" },
+    { "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD", "name": "Jess Hughes", "role": "Member" },
+    { "guid": "1AD452EF-23CE-4250-A1B1-34836452DEFB", "name": "Maria Garcia", "role": "Member" },
+    { "guid": "83DAAFFE-41B0-4439-A958-F854589887E6", "name": "Daniel Garcia", "role": "Member" },
+    { "guid": "613519D8-909C-4E3B-9553-B7C345159C7A", "name": "Denise Washington", "role": "Member" },
+    { "guid": "8424C30D-A967-4603-AFAB-10B8235DC371", "name": "Natalie Silva", "role": "Member" },
+    { "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E", "name": "Cathy Price", "role": "Member" },
+    { "guid": "9C2A020B-CF34-403E-A948-3E91FDFB958B", "name": "Mariah Jackson", "role": "Member" }
+  ]
+}

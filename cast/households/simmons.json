@@ -12,7 +12,7 @@
     "Blended family with a child shared with another household.",
     "Previous last name (Sarah was a Jones).",
     "Core attender who almost always uses one service time.",
-    "Serving team member (A/V Team)."
+    "Serving team member (Production Team)."
   ],
   "address": {
     "type": "home",
@@ -47,7 +47,7 @@
       "firstName": "James",
       "nickName": "Jim",
       "lastName": "Simmons",
-      "bio": "Jim married Sarah after her divorce and is stepdad to Brian. He serves on the A/V Team and is in Pastor Pete's small group.",
+      "bio": "Jim married Sarah after her divorce and is stepdad to Brian. He serves on the Production Team and is in Pastor Pete's small group.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {

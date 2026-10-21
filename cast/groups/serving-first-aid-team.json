@@ -1,0 +1,15 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "serving-first-aid-team",
+  "guid": "B96547D3-8D3C-425E-8D9D-D9230D8EAD42",
+  "name": "First Aid Team",
+  "type": "serving",
+  "team": "first-aid-team",
+  "campus": "main",
+  "members": [
+    { "guid": "42E18942-04CB-49BC-A72B-5D121514520E", "name": "Michelle Nguyen", "role": "Leader" },
+    { "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E", "name": "Bob Greggs", "role": "Member" },
+    { "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F", "name": "Sarah Simmons", "role": "Member" }
+  ]
+}

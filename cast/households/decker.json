@@ -7,7 +7,7 @@
   "kind": "family",
   "origin": "legacy-1.14.1",
   "campusSlot": "main",
-  "story": "Ted and Cindy Decker and their two children are the church's best-known family. Ted is the Outreach Pastor, leads a small group, and serves on the A/V Team. The kids attend about 80% of weekends.",
+  "story": "Ted and Cindy Decker and their two children are the church's best-known family. Ted is the Outreach Pastor, leads a small group, and leads the Production Team. The kids attend about 80% of weekends.",
   "testPurposes": [
     "Primary demo family used in documentation and screenshots.",
     "Two adults and two children; kids check-in with an allergy attribute.",
@@ -67,7 +67,7 @@
       "firstName": "Theodore",
       "nickName": "Ted",
       "lastName": "Decker",
-      "bio": "Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, runs cameras on the A/V Team, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.",
+      "bio": "Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, leads the Production Team, where he still runs a camera, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {
