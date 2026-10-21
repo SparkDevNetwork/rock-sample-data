@@ -7,3 +7,9 @@
 *.png binary
 *.ttf binary
 *.xlsx binary
+
+# Git hooks are shell scripts, which fail with Windows line endings.
+.githooks/* text eol=lf
+
+# Written by the verify tool. On a merge conflict, take either side and re-record it (AGENTS.md).
+validation/rock-contract.json linguist-generated=true

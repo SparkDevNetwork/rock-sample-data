@@ -25,6 +25,8 @@ Read these in order. Together they take about 35 minutes.
 8. [Roadmap](docs/roadmap.md): the team's working list: what is done, what is next, and what we are waiting on.
 9. [Contributing](docs/contributing.md): how to suggest a use case or point out a gap.
 
+Changing the repository yourself, or with AI agents? Read [AGENTS.md](AGENTS.md) first: several agents often work here at once, and its rules keep them from colliding.
+
 Need a word explained? See the [glossary](docs/glossary.md). Curious how generated people behave? See [The Crowd and personas](docs/crowd.md). Want the original design? See the [design spec](docs/design-spec.md).
 
 ## At a glance

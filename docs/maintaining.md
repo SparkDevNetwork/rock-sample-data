@@ -12,7 +12,68 @@ Before you start, read the [content standards](content-standards.md). Every chan
 | Change the church setup (campuses, funds, rooms, times) | Edit `configuration/` and explain why in the decision log. |
 | Add a calibration source | Run the calibration scripts on a database you may use. See [Calibration](../calibration/README.md). |
 | Change how data is generated | Change the builder, then show the validation result did not get worse. |
-| Make a decision | Add a row to [decisions.md](decisions.md). |
+| Make a decision | Add a row to [decisions.md](decisions.md) with a placeholder number. See "Working in parallel." |
+
+## Working in parallel
+
+Several people and AI agents often change this repository at the same time. The short rules are in [AGENTS.md](../AGENTS.md), which agents read automatically. This section explains how the pieces fit.
+
+### One worktree per piece of work
+
+Each piece of work gets its own branch in its own folder (a git worktree), so no one edits another's files:
+
+```
+git worktree add -b notes ../rock-sample-data-notes main
+```
+
+The main checkout, `rock-sample-data`, only takes merges. The hooks in `.githooks` enforce it: `pre-commit` refuses an ordinary commit on `main`, and `pre-merge-commit` refuses a merge into `main` that still has a placeholder decision. Turn them on once per clone (see [AGENTS.md](../AGENTS.md#setup-once-per-clone)). A person who truly needs a direct commit on `main` can set `ALLOW_MAIN_COMMIT=1` for that one command.
+
+Merge `main` into your branch often: when you start, before each verify run, and before you hand off. Small pieces that land the same day rarely conflict.
+
+### Decision numbers
+
+Two branches that each take "the next number" collide. So a branch never takes one. A new decision gets a placeholder: `D-`, a slug for the branch, and a counter.
+
+```
+| D-notes-1 | 2026-10-21 | People have notes. ... | ... |
+```
+
+Cite it the same way everywhere, for example "(decision D-notes-1)". Just before the branch merges, the integrator runs:
+
+```
+node docs/number-decisions.js --dry-run
+node docs/number-decisions.js
+```
+
+It numbers the placeholders from the next free number, in the order they appear in the log, and rewrites every mention in the repository's tracked text files. `--check` exits with 1 when a placeholder is left; the merge hook runs it.
+
+### Generated files
+
+Some files are written by tools, never by hand. Two branches each write a correct version, and git sees a conflict. Never merge them line by line. Take either side, finish the merge, then rebuild:
+
+| File | Rebuild with |
+|---|---|
+| `validation/rock-contract.json` | The verify tool with `--record-contract` |
+| `cast/families/*.md` | `node cast/build-pages.js` |
+| `packages/` (ignored by git) | The builder |
+
+The contract is the list of every Rock table, column, Guid, and stored procedure the loader writes or depends on, recorded from real loads. The verify tool checks it against each Rock release, so a Rock change that would break the loader is caught before a package ships.
+
+### Shared machine resources
+
+The verify tool names its own databases after the worktree it runs from (`RockSampleVerify-notes-core-1`, or `RockSampleVerify-main-core-1` from the main checkout), so runs from different worktrees never touch each other. They all copy from one trusted base, `RockSampleVerify-base`. A run holds a shared lock on it while it runs, and takes an exclusive lock only to rebuild a stale base, so a rebuild waits for every running verification. `--run <tag>` sets the tag by hand.
+
+Scratch databases for your own loads follow the same idea: name them after your branch, and never touch one another session made.
+
+### The integrator
+
+One session or person, the integrator, lands work on `main`. Feature work ends with a message to the integrator: the branch, what changed, and the checks that ran. The integrator lands one branch at a time:
+
+1. Merge `main` into the branch, and resolve conflicts. Take either side of a generated file.
+2. Run `node docs/number-decisions.js` on the branch.
+3. Rebuild the packages, run the verify tool with `--record-contract`, then run it again without it for a clean pass.
+4. Commit on the branch, merge it into `main`, and push.
+5. Tell the other sessions that `main` moved, so they merge it.
 
 ## Add a Cast household
 
@@ -63,5 +124,5 @@ Write commit messages that start with a past-tense verb and say what changed, fo
 - [ ] For a builder or loader change, the [verify tool](../verify/README.md) passes, and any change to `validation/rock-contract.json` is explained. See [Verification](verification.md).
 - [ ] Family pages rebuilt if a Cast file changed.
 - [ ] The Core 1 package builds and loads with `--dry-run`.
-- [ ] New decisions added to [decisions.md](decisions.md).
+- [ ] New decisions added to [decisions.md](decisions.md), with placeholder numbers on a branch.
 - [ ] [Roadmap](roadmap.md) and [cast/INVENTORY.md](../cast/INVENTORY.md) updated if a gap opened or closed.
