@@ -36,6 +36,10 @@ Where the project stands: the team's working list. Update this page whenever som
 ## In progress
 
 - **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It lists packages from a hosted `index.json` or takes an uploaded package, beside the old sample data block.
+- **The release workflow** (decisions D-release-1 to D-release-4; see [Publishing a release](maintaining.md#publishing-a-release)). `.github/workflows/release.yml` builds each Rock release in `release/rock-releases.json`, writes and verifies every package, and runs the publishing gate. On a version tag it pushes the loader to nuget.org and uploads the packages, receipts, and index to Azure, the index last. What is left:
+  - The one-time setup in [Maintaining](maintaining.md#one-time-setup): Actions billing for the organization, the Azure identity and its role, nuget.org trusted publishing, and the `release` environment with its approvers and variables.
+  - A dry run on GitHub's Windows runners, to prove they can build Rock and run SQL Server for verify. Until then, a self-hosted runner is the fallback.
+  - Change the Rock 21.0.2 entry from a develop commit to its tag once Rock tags it.
 
 ## Waiting on a decision
 
@@ -75,22 +79,15 @@ The builder and loader are split (see Done). What is left:
 1. **Configuration through Rock's services.** The library now runs inside Rock (see Done and In progress), but it still writes configuration with SQL. Saving it through Rock's services would run Rock's save hooks.
 2. **A steps part.** When steps are built (see [Steps](steps.md)), they come from small group, serving, and giving records, so a steps part would need those parts in `SampleDataParts.All`.
 3. **Download a package by version** in the loader CLI (`--version 1.2.0 --dataset core-1`), once packages are hosted (see Publishing).
-4. **Publish the loader to NuGet when we tag a release.** In the same tag-triggered GitHub Action as the Azure upload:
-   - The project already packs both builds (`dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts`). The Action passes the version from the tag (`-p:Version=1.3.0`), then runs `dotnet nuget push` to nuget.org (not GitHub Packages, which needs a sign-in even to download).
-   - Sign in with nuget.org trusted publishing (OpenID Connect, no stored key), or a push-only API key limited to this package, with an expiry date, stored as an Actions secret.
-   - Tags like `v1.3.0-beta.1` publish as NuGet prereleases. Include Source Link and symbols for debugging.
-   - Dataset packages record the loader version that built them; the package format keeps its own version so a loader can tell what it can read.
+4. **Record the loader version in each package.** Dataset packages should record the loader version that built them. The package format keeps its own version, so a loader can tell what it can read.
+
+Publishing the loader to NuGet is in the release workflow (see In progress).
 
 ### Publishing
 
-1. **Publish packages to Azure Storage when we tag a release.** A GitHub Action runs on a version tag (or a manual run from `main`), builds one package per dataset, and uploads them to the sample data container behind `storage.rockrms.com`. Pieces:
-   - The builder already writes the packages (`dotnet run -- --rock <Rock checkout>` in `builder/`). The Action runs it once per supported Rock release, since each package is for one exact Rock (decision 52).
-   - Then it runs the [verify tool](../verify/README.md) on the same built Rock checkout, and `--check-receipts` before any upload (decision 66). The runner needs Windows, SQL Server, and a built Rock, so it is a self-hosted runner, or a Windows runner that builds Rock and starts SQL Server first. Upload each receipt beside its package.
-   - Azure sign-in with OpenID Connect (preferred: the repository gets "Storage Blob Data Contributor" on that one container, so no secret is stored), or a SAS token limited to that container, write-only, with an expiry date, stored as an Actions secret.
-   - Versioned paths (for example `sampledata/v1.2.0/core-1.zip`), plus an `index.json` uploaded last with a short cache time, listing each package, its checksum, and the Rock version and migration it is for, in the format the [loader README](../loader/README.md#the-package-index) defines (decision D-rock-loader-4).
-   - Publish only from tags or a manual run on `main`, optionally behind a GitHub environment that needs approval.
-   - First, confirm that `storage.rockrms.com` is an Azure blob container (or a CDN in front of one) and which container holds sample data.
-2. **Get the repository ready to be public.** Squash the history to one commit before the first push. The code and data use the Rock Community License (decided 2026-10-16).
+Publishing packages to Azure is in the release workflow (see In progress).
+
+1. **Get the repository ready to be public.** Squash the history to one commit before the first push. The code and data use the Rock Community License (decided 2026-10-16).
 
 ## Later (Phase 1 and beyond)
 

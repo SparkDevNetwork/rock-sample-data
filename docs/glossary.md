@@ -28,6 +28,7 @@ The words this project uses, in alphabetical order.
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `RockSampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Package** | A zip the builder writes for one dataset and one exact Rock: data files only, never SQL, with a checksum for every file in `package.json`. |
+| **Package index** | `index.json`, the hosted list of packages that Rock's installer block reads, at `storage.rockrms.com/sampledata/packages/`. The release workflow merges each release into it and uploads it last (decision D-release-2). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
@@ -35,6 +36,7 @@ The words this project uses, in alphabetical order.
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
+| **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision D-release-1). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |

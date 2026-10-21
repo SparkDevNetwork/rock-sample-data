@@ -13,6 +13,7 @@ Before you start, read the [content standards](content-standards.md). Every chan
 | Add a calibration source | Run the calibration scripts on a database you may use. See [Calibration](../calibration/README.md). |
 | Change how data is generated | Change the builder, then show the validation result did not get worse. |
 | Make a decision | Add a row to [decisions.md](decisions.md) with a placeholder number. See "Working in parallel." |
+| Publish packages and the loader | Tag a version. See "Publishing a release." |
 
 ## Working in parallel
 
@@ -116,6 +117,155 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 - Keep packages data only. A file the loader needs goes into the package through the builder, and the loader reads it through the package, never from the repository.
 - If a change alters the package layout in a way an older loader cannot read, raise the package format version.
 - Run validation on Full 7 before and after your change. A change should not lower the share of values within tolerance without a written reason. See [Validation](../validation/README.md).
+
+## Publishing a release
+
+The release workflow, `.github/workflows/release.yml`, publishes everything (decisions D-release-1 to D-release-4). It has four jobs:
+
+| Job | Where | What it does |
+|---|---|---|
+| Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`. |
+| Packages for Rock X | Windows, once per Rock release | Checks out that Rock, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
+| Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs `RockSampleData.Loader` with the release version, Source Link, symbols, the license, and the README. |
+| Publish | Windows, in the `release` environment | Runs the gate again, pushes the loader to nuget.org, uploads the packages and receipts, then merges and uploads the index last. |
+
+A run without "publish" stops after the first three jobs. That is a dry run.
+
+### Release a version
+
+1. Make sure `main` has what you want to ship, and that `release/rock-releases.json` lists every Rock release to support.
+2. Do a dry run first: in GitHub, open Actions > Release > Run workflow, pick `main`, and leave "publish" off.
+3. Tag `main` and push the tag:
+
+   ```
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+4. Approve the Publish job when GitHub asks.
+
+A tag with a label, such as `v1.1.0-beta.1`, is a prerelease. NuGet lists the loader as a prerelease, and only `packages/index-prerelease.json` changes (decision D-release-3). To try one in Rock, point the installer block at `https://storage.rockrms.com/sampledata/packages/index-prerelease.json`.
+
+A manual run can also publish: run it on `main`, give a version, and tick "publish". Use this when a tag's run failed for a reason outside the repository. A run that failed partway can be run again: files already uploaded with the same bytes are skipped, and a version already on nuget.org is skipped.
+
+### Add or change a Rock release
+
+Each entry in `release/rock-releases.json` is a Rock version and the `ref` to check out from SparkDevNetwork/Rock: a release tag, or a full commit hash before Rock tags the release. The workflow stops if the ref's `Directory.Build.props` names a different version. When Rock publishes the tag for a pinned commit, change the `ref` to the tag.
+
+### Where files go
+
+Everything goes in the `sampledata` container, which `storage.rockrms.com` serves through Azure Front Door.
+
+| Path | What it is | Cache |
+|---|---|---|
+| `packages/v1.0.0/rock-21.0.2/core-1.zip` | A package. Never changes. | One year |
+| `packages/v1.0.0/rock-21.0.2/core-1.verify.json` | Its receipt. Never changes. | One year |
+| `packages/index.json` | The index Rock reads (format in the [loader README](../loader/README.md#the-package-index)). | 5 minutes |
+| `packages/index-prerelease.json` | The stable index plus the newest prerelease. | 5 minutes |
+
+`release/merge-index.js` builds the index from the receipts and `datasets/*.json`. You can run it yourself on a folder of packages to see what a release would publish.
+
+### One-time setup
+
+The workflow needs the following before it can publish. A dry run needs only the first item.
+
+#### 1. GitHub Actions minutes
+
+The repository is private, so every job uses the organization's Actions minutes, and Windows minutes cost more than Linux ones. On 2026-10-21 GitHub refused to start any job in this repository because "recent account payments have failed or your spending limit needs to be increased." An organization owner must fix this in the organization's Settings > Billing and plans, and allow a budget for Actions. A full run needs about two hours of Windows time for each Rock release.
+
+#### 2. The Azure identity
+
+Run these in Azure Cloud Shell (Bash), or any shell with the Azure CLI. Fill in the first four values.
+
+```
+TENANT=<tenant id>
+SUBSCRIPTION=<subscription id>
+RESOURCE_GROUP=<resource group of the storage account>
+ACCOUNT=<storage account behind storage.rockrms.com>
+REPOSITORY=SparkDevNetwork/rock-sample-data
+
+az login --tenant "$TENANT"
+az account set --subscription "$SUBSCRIPTION"
+
+# The app registration the workflow signs in as.
+APP_ID=$(az ad app create --display-name "rock-sample-data release" --query appId -o tsv)
+PRINCIPAL_ID=$(az ad sp create --id "$APP_ID" --query id -o tsv)
+
+# Trust GitHub's tokens only for jobs in the release environment of this repository.
+cat > credential.json <<EOF
+{
+  "name": "rock-sample-data-release-environment",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:$REPOSITORY:environment:release",
+  "description": "The Publish job of .github/workflows/release.yml",
+  "audiences": ["api://AzureADTokenExchange"]
+}
+EOF
+az ad app federated-credential create --id "$APP_ID" --parameters credential.json
+
+# Let it write blobs in the sampledata container, and nowhere else.
+SCOPE="$(az storage account show -n "$ACCOUNT" -g "$RESOURCE_GROUP" --query id -o tsv)/blobServices/default/containers/sampledata"
+az role assignment create --assignee-object-id "$PRINCIPAL_ID" --assignee-principal-type ServicePrincipal \
+  --role "Storage Blob Data Contributor" --scope "$SCOPE"
+
+echo "AZURE_CLIENT_ID=$APP_ID"
+```
+
+Check that the container exists before the first release: `az storage container show --account-name "$ACCOUNT" -n sampledata --auth-mode login`. The identity has no other role, so it cannot read the account's keys, change its settings, or purge Front Door.
+
+Front Door must pass on the blobs' own `Cache-Control` headers, or the index stays cached longer than 5 minutes. If its caching rule overrides them, add a rule for `/sampledata/packages/index*.json` that honors the origin's header.
+
+#### 3. nuget.org trusted publishing
+
+Sign in to nuget.org as an owner of `RockSampleData.Loader` (or of the account that will own it), open your user name > Trusted Publishing, and add a GitHub Actions policy:
+
+| Field | Value |
+|---|---|
+| Package owner | The nuget.org account or organization that owns the package |
+| Repository owner | `SparkDevNetwork` |
+| Repository | `rock-sample-data` |
+| Workflow file | `release.yml` |
+| Environment | `release` |
+
+The workflow signs in as the nuget.org user named in `NUGET_USER`: the profile name of the user who made the policy, not an email address. If nuget.org marks the policy as temporarily active, publish once before it expires, or make it again.
+
+#### 4. The release environment and its variables
+
+An administrator of the repository runs these with the GitHub CLI. Fill in the approvers' GitHub user names.
+
+```
+REPOSITORY=SparkDevNetwork/rock-sample-data
+APPROVERS="<github-user> <github-user>"
+
+reviewers=$(for user in $APPROVERS; do gh api "users/$user" -q '{type: "User", id: .id}'; done | jq -s .)
+jq -n --argjson reviewers "$reviewers" \
+  '{reviewers: $reviewers, prevent_self_review: false, deployment_branch_policy: {protected_branches: false, custom_branch_policies: true}}' \
+  | gh api -X PUT "repos/$REPOSITORY/environments/release" --input -
+
+# Only main and version tags may deploy to it.
+gh api -X POST "repos/$REPOSITORY/environments/release/deployment-branch-policies" -f name=main -f type=branch
+gh api -X POST "repos/$REPOSITORY/environments/release/deployment-branch-policies" -f name='v*' -f type=tag
+
+# The values the Publish job reads. They are not secrets, so they are environment variables.
+gh variable set AZURE_CLIENT_ID       -R "$REPOSITORY" --env release -b "<APP_ID from step 2>"
+gh variable set AZURE_TENANT_ID       -R "$REPOSITORY" --env release -b "<tenant id>"
+gh variable set AZURE_SUBSCRIPTION_ID -R "$REPOSITORY" --env release -b "<subscription id>"
+gh variable set AZURE_STORAGE_ACCOUNT -R "$REPOSITORY" --env release -b "<storage account>"
+gh variable set NUGET_USER            -R "$REPOSITORY" --env release -b "<nuget.org user name>"
+```
+
+Set `prevent_self_review` to `true` if the person who tags a release should not approve it too.
+
+### A self-hosted runner instead
+
+The Packages job runs on GitHub's `windows-2025` image by default. To run it on your own Windows machine instead, for example to keep the trusted base between runs or when the hosted image cannot build Rock:
+
+1. Install Visual Studio 2022 or later (or its Build Tools) with the ASP.NET and web development workload, the .NET 10 SDK, Node.js 24, and Git. Run `git config --system core.longpaths true`.
+2. Install SQL Server (Developer edition is fine) on the default instance, with the account the runner runs as in the sysadmin role.
+3. In the repository's Settings > Actions > Runners, add a self-hosted Windows runner with the label `rock-build`, and install it as a service under that account.
+4. Set the repository variable that moves the job: `gh variable set PACKAGES_RUNNER -R SparkDevNetwork/rock-sample-data -b '["self-hosted","windows","rock-build"]'`. Delete it to move back.
+
+On a self-hosted runner the workflow skips installing SQL Server. Use a runner only for this private repository: once the repository is public, a self-hosted runner must sit in a runner group limited to this workflow, because it runs whatever code a job gives it.
 
 ## Commits
 
