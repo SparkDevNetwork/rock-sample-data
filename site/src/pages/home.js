@@ -66,7 +66,7 @@ module.exports = function home( { model, r } ) {
     <div class="stat reveal"><span class="stat-value">7</span><span class="stat-label">campuses across the Phoenix Valley</span></div>
     <div class="stat reveal"><span class="stat-value">${c.households}</span><span class="stat-label">hand-designed Cast households</span></div>
     <div class="stat reveal"><span class="stat-value">25,000</span><span class="stat-label">people in the largest dataset</span></div>
-    <div class="stat reveal"><span class="stat-value">4<small>s</small></span><span class="stat-label">to install the Cast</span></div>
+    <div class="stat reveal"><span class="stat-value">4<small>s</small></span><span class="stat-label">to load the Cast into Rock</span></div>
   </div>
 </section>
 
