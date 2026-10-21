@@ -31,7 +31,7 @@ A package is a zip of data, never SQL (decision 41). Files keep their paths from
 | `package.json` | The format version, the dataset, the source commit, the one Rock it is for (decision 52), and the SHA-256 of every other file. |
 | `configuration/*.json` | The church setup, unchanged. |
 | `cast/households/*.json`, `cast/groups/*.json` | The Cast and its small group plans, unchanged. |
-| `datasets/{key}.json` | The dataset's settings. |
+| `datasets/{key}.json` | The dataset's settings and its [card](../datasets/README.md#the-dataset-card). |
 | `profile.json` | The calibration profile, already resolved from its sources, so a load never blends sources itself. |
 | `addresses/pool.json` | The address pool for the dataset's campuses only. Each campus's list is unchanged, so generated households get the same addresses. |
 | `photos/manifest.json`, `photos/cast/`, `photos/pool/` | The Cast photos, plus the pool when the dataset gives generated households faces (Core 3). |
@@ -40,7 +40,7 @@ A package is a zip of data, never SQL (decision 41). Files keep their paths from
 
 No timeline is stored: the loader generates every gift, attendance, and alert for the install day. Text files use LF line endings, and every zip entry has the same fixed time, so packing the same commit twice gives byte-identical packages.
 
-Before writing a package, the builder opens it the way the loader does and reads every file a load reads, so a package that would fail to load is never written.
+Before writing a package, the builder opens it the way the loader does and reads every file a load reads, so a package that would fail to load is never written. It also refuses a manifest without its full dataset card.
 
 ## Other commands
 

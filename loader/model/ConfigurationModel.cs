@@ -272,6 +272,21 @@ namespace RockSampleData.Loader.Model
         public DatasetPhotos Photos { get; set; }
 
         public DatasetGeneratedHouseholds GeneratedHouseholds { get; set; }
+
+        // The dataset card. SampleDataDatasets reads these and requires every one.
+        public string Summary { get; set; }
+
+        public string BestFor { get; set; }
+
+        public List<string> Highlights { get; set; }
+
+        public int People { get; set; }
+
+        public int Households { get; set; }
+
+        public int Campuses { get; set; }
+
+        public int TypicalInstallSeconds { get; set; }
     }
 
     /// <summary>
