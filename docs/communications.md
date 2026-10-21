@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are D-comms-1 to D-comms-7 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -28,7 +28,7 @@ The loader writes rows straight into Rock's tables, so it has to write what Rock
 
 ## Nothing ever sends
 
-A loaded database must never email, text, or push to anyone, even though every address is fictional (decision D-comms-6).
+A loaded database must never email, text, or push to anyone, even though every address is fictional (decision 95).
 
 - Every communication is Approved with a `SendDateTime`. Rock's send job only picks up communications with no `SendDateTime`.
 - No recipient is Pending or Sending.
@@ -40,7 +40,7 @@ A loaded database must never email, text, or push to anyone, even though every a
 1. **System phone numbers.** A main church line, a student ministry line, and one personal number assigned to a Cast pastor, all in the reserved 555-0100 to 555-0199 range and not used by any Cast person.
 2. **Communication lists.** A weekly newsletter list per campus, plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders. Members come from people already loaded, so the Volunteers list matches the serving teams and the Small Group Leaders list matches the groups. People who chose "No mass emails" stay off the lists.
 3. **Templates.** Rock's shipped templates, plus one sample church template with the approved logo.
-4. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision D-comms-5). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
+4. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
 5. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them.
 
 ## The message library
@@ -65,7 +65,7 @@ Bulk email is where the very large sends come from.
 ## Texts and SMS conversations
 
 - **Bulk texts** go out from the main line and the student line. Some ask for a reply ("Reply YES if you're coming"), and those replies link back to the text through `RelatedCommunicationId`.
-- **The Cast's threads.** About 15 hand-written threads tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a long back-and-forth, a STOP opt-out, a thread on the student line, and threads on the pastor's personal number. A few are always from the last 1 to 3 days before install, so even Core 1 opens to a live inbox (decision D-comms-4).
+- **The Cast's threads.** About 15 hand-written threads tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a long back-and-forth, a STOP opt-out, a thread on the student line, and threads on the pastor's personal number. A few are always from the last 1 to 3 days before install, so even Core 1 opens to a live inbox (decision 93).
 - **Generated threads.** Short threads built from text pools, at the measured reply rate and reply delay.
 
 ## Push
@@ -84,7 +84,7 @@ Most messages a real church sends go to one person. These come from data that is
 
 ## Messages tied to steps
 
-The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Once steps are built, their milestones get their own messages (decision D-comms-7):
+The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Once steps are built, their milestones get their own messages (decision 96):
 
 - **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters one finished Communication Flow, "After Starting Point": a thank-you the next day, a small group invitation a week later, and a serving invitation three weeks later. Each person's flow instance is complete, so Rock's flow screens have data.
 - **Baptism.** Baptism Sunday gets a mass invitation. Each person baptized gets a follow-up email that invites them to Foundations.
@@ -96,13 +96,13 @@ This needs the step type Guids and each person's step dates from the steps work.
 
 ## Volume and the history window
 
-Communication history covers the last 2 years, not the 3-year attendance window (decision D-comms-1). On Full 7 that is roughly 1.5 to 2 million recipient rows (an estimate), mostly from weekly newsletters. Three years would push it past 3 million and slow both the load and verify. Core 1 and Core 3 get the same messages with smaller lists.
+Communication history covers the last 2 years, not the 3-year attendance window (decision 90). On Full 7 that is roughly 1.5 to 2 million recipient rows (an estimate), mostly from weekly newsletters. Three years would push it past 3 million and slow both the load and verify. Core 1 and Core 3 get the same messages with smaller lists.
 
 ## Calibration
 
 Calibration part 3 already measures communications, but only one source has data, and that data is almost all one-to-one workflow messages (a median of 1 recipient, 0.1% bulk). It cannot shape bulk sends.
 
-**Calibration part 7** ([the script](../calibration/sql/Report_SampleDataCalibration_7_Communications.sql)) measures mass sends (25 or more recipients) and text conversations (decision D-comms-2):
+**Calibration part 7** ([the script](../calibration/sql/Report_SampleDataCalibration_7_Communications.sql)) measures mass sends (25 or more recipients) and text conversations (decision 91):
 
 - Mass sends per month, by medium, and the share of sends and recipients they make up.
 - Audience size as a share of adults, size bands, and how often sends use a list, segments, a template, or a topic.

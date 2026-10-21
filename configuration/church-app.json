@@ -1,5 +1,5 @@
 {
-  "$comment": "A stub for Rock Solid Church's mobile app (decision D-comms-5). Rock ships no mobile application site, so the sample church adds its own. The loader does not read this file yet: slice 6 in docs/communications.md writes the Site row (SiteType Mobile), its layout, and the personal devices, so push history has an app to point at. Pages, blocks, and app content come in later work. Device shares stay empty until calibration part 7 has data.",
+  "$comment": "A stub for Rock Solid Church's mobile app (decision 94). Rock ships no mobile application site, so the sample church adds its own. The loader does not read this file yet: slice 6 in docs/communications.md writes the Site row (SiteType Mobile), its layout, and the personal devices, so push history has an app to point at. Pages, blocks, and app content come in later work. Device shares stay empty until calibration part 7 has data.",
   "site": {
     "name": "Rock Solid Church App",
     "storeName": "Rock Solid Church",
