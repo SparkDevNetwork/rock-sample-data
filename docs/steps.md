@@ -1,6 +1,6 @@
 # Steps
 
-The plan for steps in the sample data, and why. Nothing here is built yet. The decisions are D-steps-1 to D-steps-7 in [Decisions](decisions.md). When the build starts, the numbers move to `configuration/steps.json`, so they can be tuned in one place.
+The plan for steps in the sample data, and why. Nothing here is built yet. The decisions are 83 to 89 in [Decisions](decisions.md). When the build starts, the numbers move to `configuration/steps.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -47,7 +47,7 @@ Seven steps, in the Ministry by Design order. The completion flow is Rock's **Li
 
 ### Give as a step
 
-Most published pathways treat giving as an outcome, not a step. Ministry by Design lists generosity under Contribute, though, and the sample data already has a full giving journey for every giver. So Give is a step (decision D-steps-3). It starts the day a giver becomes Consistent and ends the day they become Lapsed. A giver who comes back gets a new Give step.
+Most published pathways treat giving as an outcome, not a step. Ministry by Design lists generosity under Contribute, though, and the sample data already has a full giving journey for every giver. So Give is a step (decision 85). It starts the day a giver becomes Consistent and ends the day they become Lapsed. A giver who comes back gets a new Give step.
 
 ## Student program: Student Path
 
@@ -60,13 +60,13 @@ Four steps, the same arc in a smaller form. It is for students who check in to t
 | 3 | Mission Trip | Contribute | Rhythm, can repeat | Activation | 4 | High school only. A week over spring break or in the summer. |
 | 4 | Student Leader | Lead | Rhythm | Activation | 5 | Juniors and seniors who help lead younger students |
 
-- **Baptism stays in one place.** A church has one Baptism step type, so a student's baptism goes on the Discipleship Path's Baptism step (decision D-steps-5). It still shows on the student's Steps tab.
+- **Baptism stays in one place.** A church has one Baptism step type, so a student's baptism goes on the Discipleship Path's Baptism step (decision 87). It still shows on the student's Steps tab.
 - **No group step yet.** Small groups are adults only today. When student groups exist, the Student Path can add one.
 - **Graduates keep their history.** A student who graduates keeps their Student Path steps.
 
 ## How steps are made
 
-Every step comes from a record the data already has (decision D-steps-4). Steps and the rest of the data always agree.
+Every step comes from a record the data already has (decision 86). Steps and the rest of the data always agree.
 
 ### Rhythm steps
 
@@ -84,7 +84,7 @@ Every step comes from a record the data already has (decision D-steps-4). Steps 
 
 ### How many
 
-These are designed targets, not measured rates (decision D-steps-7). The sample church shows what healthy use of steps looks like, the same direction the notes take (decision 78). If calibration measures step use later, the measured data sets only the timing.
+These are designed targets, not measured rates (decision 89). The sample church shows what healthy use of steps looks like, the same direction the notes take (decision 78). If calibration measures step use later, the measured data sets only the timing.
 
 | Step | Who has one |
 |---|---|
