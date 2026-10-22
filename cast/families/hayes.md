@@ -31,6 +31,7 @@ Robert and Linda Hayes have been married 46 years and members for 25. They never
 - **Attendance:** core, 86% of Sundays, 96% at their usual service, since 25 years ago.
 - **Giving:** **weekly** by Bob Hayes: $120 General Fund + $40 Mission Fund per gift, gives in 92% of periods, 30% chance of a year-end gift, started 24 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Bob Hayes pledged $10,400 weekly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Prayer requests
 

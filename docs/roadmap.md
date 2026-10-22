@@ -37,7 +37,7 @@ Where the project stands: the team's working list. Update this page whenever som
 ## In progress
 
 - **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It shows Core 1, Core 3, and Full 7 as cards from the dataset catalog and downloads the chosen package from a hosted `index.json`, beside the old sample data block.
-- **Pledges** (decisions 97 to 105 and 109; see [Pledges](pledges.md)). Piece 1 is built: the Built on the Rock fund with its campus accounts and campaign dates, both pledge pages, and the contribution statement's pledge settings. Next: the Cast's pledges and campaign gifts.
+- **Pledges** (decisions 97 to 105 and 109 to 112; see [Pledges](pledges.md)). Pieces 1 and 2 are built: the Built on the Rock fund with its campus accounts and campaign dates, both pledge pages, and the contribution statement's pledge settings, then 15 Cast pledges and 3 givers with campaign gifts and no pledge, each story checked every load. The pledges and campaign gifts load with the loader's Giving part (decision D-rock-loader-7). Next: pledges from the Crowd and businesses.
 - **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 
 ## Waiting on a decision

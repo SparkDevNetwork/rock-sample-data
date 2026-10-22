@@ -5,6 +5,17 @@
   "description": "Built on the Rock is our two-year campaign to build a Student Center at the Phoenix campus and add kids rooms at every campus. Like the wise builder in Matthew 7, we want to build on a foundation that lasts.",
   "commitmentSundayWeeksBeforeInstall": 40,
   "lengthYears": 2,
+  "quietPhaseWeeks": {
+    "min": 6,
+    "max": 10
+  },
+  "$lineFactors": "Each pledge with a frequency gives a campaign line on the giver's usual gifts. The line is the pace that pays the pledge on the campaign's last day, times this factor. A stopped pledge gives on pace until it stops.",
+  "lineFactors": {
+    "ahead": 1.5,
+    "on-pace": 1,
+    "behind": 0.55,
+    "stopped": 1
+  },
   "pledgeEntry": {
     "$comment": "Rock's two pages with a Pledge Entry block: (Public) Create Pledge in Rock RMS, and Pledge under Give on the external website. Rock ships the WebForms block, and a Rock job later swaps it for the Obsidian block with a new block Guid, so the loader finds the block on each page by either block type.",
     "pageGuids": [

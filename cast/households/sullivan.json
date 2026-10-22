@@ -65,6 +65,28 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "chris",
+      "pledge": 3600,
+      "frequency": "monthly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    },
+    {
+      "person": "amanda",
+      "gifts": [
+        {
+          "weeksAfterCommitment": 8,
+          "amount": 150
+        },
+        {
+          "weeksAfterCommitment": 30,
+          "amount": 150
+        }
+      ]
+    }
+  ],
   "members": [
     {
       "key": "chris",

@@ -67,6 +67,7 @@ James and Sarah Lee have six children, from a high school sophomore to a toddler
 - **Attendance:** core, 88% of Sundays, 92% at their usual service, since 8 years ago.
 - **Giving:** **weekly** by James Lee: $150 General Fund + $50 Building Fund per gift, gives in 90% of periods, 35% chance of a year-end gift, started 7 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** James Lee pledged $5,200 weekly on Commitment Sunday, and the pledge is **behind**.
 
 ## Address
 

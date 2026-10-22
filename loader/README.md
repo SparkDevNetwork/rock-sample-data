@@ -31,7 +31,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
-| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
+| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, campaign, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
@@ -53,11 +53,11 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the Cast's pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
 
 ## Parts
 
-A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. The building campaign is church setup: its fund, campus accounts, campaign dates, Create Pledge page, and statement settings load in every load (decision D-rock-loader-7). Pledges and campaign gifts, when they are built, belong to `Giving`. `SampleDataParts.All` is the one table of parts, in load order:
+A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. The building campaign is church setup: its fund, campus accounts, campaign dates, Create Pledge page, and statement settings load in every load (decision D-rock-loader-7). The Cast's pledges and campaign gifts belong to `Giving`: the giving step writes them, so they load only with giving. `SampleDataParts.All` is the one table of parts, in load order:
 
 | Part | Name | What it adds | Needs |
 |---|---|---|---|
@@ -65,7 +65,7 @@ A load can choose its parts (decision D-rock-loader-2). Church setup and people 
 | `Attendance` | Attendance and check-in | Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements | |
 | `SmallGroups` | Small groups | Small groups with leaders, members, meeting places, photos, history, and weekly attendance | |
 | `Serving` | Serving teams | Volunteers on every serving team, with schedules, check-ins, and requests to serve | |
-| `Giving` | Giving | Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts | |
+| `Giving` | Giving | Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges | |
 | `Prayer` | Prayer requests | Prayer requests with the prayer team's prayers, comments, and answers | Small groups |
 | `Notes` | Notes | Notes on people in six note types, secured to staff | |
 | `Steps` | Steps | Adult steps on Rock's Discipleship Path, from baptism and classes to small groups, serving, giving, and leading, with the Baptism Date on each baptized person and program completions | Small groups, serving teams, giving |
@@ -77,9 +77,9 @@ A load can choose its parts (decision D-rock-loader-2). Church setup and people 
 2. **Prayer needs small groups.** Some Cast prayer requests are shared with their small group, and who asks for prayer depends on who is in a group, which the prayer step reads from the loaded groups.
 3. **Steps need small groups, serving teams, and giving** (decision D-rock-loader-6). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes.
 
-Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), and prayer reads the giving plan. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows, not plans, so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
+Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows, not plans, so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
-Cast expectations check only the parts that loaded: giving stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, and step stories need `Steps`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, and step stories need `Steps`. A business's contacts are always checked, and its recent gifts only with `Giving`.
 
 On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same. After steps joined, a full Core 1 load matched main's load table by table, and so did Core 3 and Full 7. Core 1 without `Steps` differed from the full load only in the step tables (`Step`, `StepProgramCompletion`, `StepType`, and `StepProgram`) and in the 192 Baptism Date and Baptized Here values. Core 1 with `--parts Steps`, which adds small groups, serving teams, and giving, had the same steps, step values, memberships, gifts, and small group and serving attendance as the full load.
 
@@ -333,6 +333,14 @@ Each request gets the activity history a connector would leave: assigned, calls 
 The math lives in Rock's C#, so `loading/RockStreaks.cs` is a line-for-line port: the bit maps, week alignment, the streak counts, and the consecutive and accumulative components. Its header lists the Rock files it mirrors. The step runs right after attendance. It reads the check-ins the attendance step planned, held in memory, because Attendance's indexes are not rebuilt until after small groups. No later step reads what it writes.
 
 Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 attempts, and the step takes about 1.3 seconds. Core 1 has 49 kids and 5,009 attempts. Most attempts are failed tries at Back-to-Back, Four-Peat, and Unstoppable, because each broken streak closes one.
+
+## Pledges
+
+The building campaign (see [Pledges](../docs/pledges.md)) runs in three places:
+
+1. **Configuration.** `loading/CampaignLoader.cs` gives the campaign's fund and campus accounts the campaign dates, and points Rock's two pledge pages and default contribution statement at the fund.
+2. **The plan, before giving.** `loading/PledgeLoader.cs` turns each household's `campaign` entries into a pledge and a `CampaignGiving` for the giving pattern that pays it: a line factor, a stop date for a stopped pledge, and extra gifts.
+3. **Giving, then pledges.** `GivingLoader` plans each pattern's gifts as before, then adds the campaign. The line is the pledge's share for the time since it started, spread over the usual gifts the pattern really gave, times the line factor. Extra gifts ride on the next usual hand-given gift within a month, or are gifts of their own. The campaign uses no random numbers, so every other gift is the same as without it. After giving writes its gifts, `PledgeLoader` writes the pledges. Both writes happen only when the `Giving` part loads (decision D-rock-loader-7).
 
 ## Giving analytics
 

@@ -75,9 +75,8 @@ namespace RockSampleData.Loader.Loading
                 ?? throw new InvalidOperationException( $"configuration/campaign.json names the fund '{campaign.Fund}', which is not in configuration/accounts.json." );
             var fundId = _db.RequireIdByGuid( "FinancialAccount", fund.Guid );
 
-            var installSunday = _dates.Anchor.AddDays( -( int ) _dates.Anchor.DayOfWeek );
-            var start = installSunday.AddDays( -7 * campaign.CommitmentSundayWeeksBeforeInstall );
-            var end = start.AddYears( campaign.LengthYears ).AddDays( -1 );
+            var start = campaign.CommitmentSunday( _dates.Anchor );
+            var end = campaign.End( start );
 
             _db.Execute( "UPDATE [FinancialAccount] SET [StartDate] = @Start, [EndDate] = @End WHERE [Id] = @Id OR [ParentAccountId] = @Id",
                 P( "@Start", start ), P( "@End", end ), P( "@Id", fundId ) );
@@ -95,6 +94,11 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         private void LoadPledgeEntry( CampaignPledgeEntry pledgeEntry, Guid fundGuid, DateTime start, DateTime end )
         {
+            if ( pledgeEntry.PageGuids.Count == 0 || pledgeEntry.BlockTypeGuids.Count == 0 )
+            {
+                throw new InvalidOperationException( "configuration/campaign.json names no pledge pages or Pledge Entry block types. A package built before decision 100 changed has an old campaign.json; rebuild the package." );
+            }
+
             var values = new Dictionary<string, string>
             {
                 ["Account"] = fundGuid.ToString(),

@@ -59,6 +59,7 @@ Lily is eight and in the Grades 2-3 room.
 - **Attendance:** core, 84% of Sundays, 90% at their usual service, since 9 years ago.
 - **Giving:** **weekly** by Nathan Brooks: $100 General Fund + $25 Building Fund per gift, gives in 85% of periods, grows 3% every 52 weeks, 40% chance of a year-end gift, started 8 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Nathan Brooks pledged $2,600 weekly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

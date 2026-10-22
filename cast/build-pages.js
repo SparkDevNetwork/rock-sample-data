@@ -123,6 +123,21 @@ function photoFor( h, p, size ) {
     return p.photo && p.photo.isOmitted ? "(no photo, on purpose)" : "(photo coming)";
 }
 
+/**
+ * One campaign entry as a sentence: the pledge and how it is going, or the campaign gifts with no pledge.
+ */
+function describeCampaign( c, people ) {
+    const giver = people.find( p => p.key === c.person );
+    const who = giver ? shortName( giver ) : c.person;
+    const gifts = ( c.gifts || [] ).map( g => `${money( g.amount )}${g.stock ? " in stock" : ""} ${g.weeksAfterCommitment} weeks after Commitment Sunday` );
+    if ( c.pledge === undefined ) {
+        return `${who} gave ${gifts.join( " and " )}, with no pledge`;
+    }
+    const when = c.pledged === "quiet-phase" ? "in the quiet phase" : c.pledged === "commitment-sunday" ? "on Commitment Sunday" : `${c.pledged.weeksAfterCommitment} weeks after Commitment Sunday`;
+    const state = c.expect || ( c.followThrough === "paid-in-full" ? "complete" : c.followThrough );
+    return `${who} pledged ${money( c.pledge )}${c.frequency ? ` ${c.frequency}` : " with no frequency"} ${when}${gifts.length ? `, plus ${gifts.join( " and " )}` : ""}, and the pledge is **${state.replace( /-/g, " " )}**`;
+}
+
 function describeGiving( g, people ) {
     const giver = people.find( p => p.key === g.person );
     const funds = Object.entries( g.funds ).map( ( [ f, a ] ) => `${money( a )} ${f}` ).join( " + " );
@@ -271,6 +286,9 @@ function familyPage( h ) {
     }
     if ( !( h.giving || [] ).length ) {
         lines.push( "- **Giving:** none." );
+    }
+    for ( const c of h.campaign || [] ) {
+        lines.push( `- **Built on the Rock:** ${describeCampaign( c, people )}.` );
     }
     lines.push( "" );
 

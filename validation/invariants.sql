@@ -388,3 +388,43 @@ INNER JOIN [FinancialAccount] AS [fund] ON [fund].[Id] = [child].[ParentAccountI
 WHERE [child].[ForeignKey] = @ForeignKey AND [child].[CampusId] IS NOT NULL
     AND ( ISNULL( [child].[StartDate], '1900-01-01' ) <> ISNULL( [fund].[StartDate], '1900-01-01' )
         OR ISNULL( [child].[EndDate], '1900-01-01' ) <> ISNULL( [fund].[EndDate], '1900-01-01' ) );
+
+-- check: pledge-is-on-a-top-level-fund
+-- why: Rock's Pledge Analytics and statements count gifts to the pledged account and its child accounts. A pledge on a campus account would miss gifts to the fund's other campus accounts.
+SELECT COUNT(*)
+FROM [FinancialPledge] AS [fp]
+INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [fp].[AccountId]
+WHERE [fp].[ForeignKey] = @ForeignKey AND [fa].[ParentAccountId] IS NOT NULL;
+
+-- check: pledge-dates-fit-the-fund
+-- why: Rock saves the date keys from the dates, and a pledge runs inside its fund's dates. Pledge Analytics and statements filter on both.
+SELECT COUNT(*)
+FROM [FinancialPledge] AS [fp]
+INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [fp].[AccountId]
+WHERE [fp].[ForeignKey] = @ForeignKey
+    AND ( [fp].[StartDate] > [fp].[EndDate]
+        OR [fp].[StartDateKey] <> CONVERT( INT, FORMAT( [fp].[StartDate], 'yyyyMMdd' ) )
+        OR [fp].[EndDateKey] <> CONVERT( INT, FORMAT( [fp].[EndDate], 'yyyyMMdd' ) )
+        OR [fp].[StartDate] < ISNULL( [fa].[StartDate], [fp].[StartDate] )
+        OR [fp].[EndDate] > ISNULL( [fa].[EndDate], [fp].[EndDate] ) );
+
+-- check: one-pledge-per-giving-unit-and-fund
+-- why: Pledge Analytics adds up pledges by giving unit. Two pledges to one fund from one unit would double the amount it shows as pledged.
+SELECT COUNT(*)
+FROM (
+    SELECT [p].[GivingId], [fp].[AccountId]
+    FROM [FinancialPledge] AS [fp]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [fp].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    WHERE [fp].[ForeignKey] = @ForeignKey
+    GROUP BY [p].[GivingId], [fp].[AccountId]
+    HAVING COUNT(*) > 1
+) AS [x];
+
+-- check: gift-posts-to-campus-account
+-- why: A fund with campus accounts takes gifts only through them, so campus giving reports add up. A gift to the fund itself would count toward no campus.
+SELECT COUNT(*)
+FROM [FinancialTransactionDetail] AS [ftd]
+INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [ftd].[AccountId]
+WHERE [ftd].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [FinancialAccount] AS [child] WHERE [child].[ParentAccountId] = [fa].[Id] AND [child].[CampusId] IS NOT NULL );

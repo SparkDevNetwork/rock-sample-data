@@ -338,11 +338,16 @@ namespace RockSampleData.Loader
                     : options.PasswordKey == null ? $"  Check scanner fields keyed from {options.RockWebConfigPath}" : "  Check scanner fields keyed from the given PasswordKey" );
             }
 
-            var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys };
+            // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
+            // The pledges and campaign gifts are the giving part's rows (decision D-rock-loader-7).
+            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, dates, foreignKey, seed );
+            pledges?.Plan( people.Households );
+            var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving };
             giving.Plan( people.Households );
             if ( isGivingLoaded )
             {
                 giving.Write();
+                pledges?.Write( source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid );
 
                 // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
                 log.Write( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );

@@ -42,7 +42,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Cast validator
 
-**What it does.** `node cast/validate-cast.js` reads every Cast household and group file. It checks required fields, Guid format and uniqueness, every cross-reference (members, groups, hosts, relationships, follows, notes), connection statuses, giving expectations, small group rules, and email domains. It also checks every delivered photo: each is a 400 by 400 JPEG with an original, named for its person, and matching that person's gender.
+**What it does.** `node cast/validate-cast.js` reads every Cast household and group file. It checks required fields, Guid format and uniqueness, every cross-reference (members, groups, hosts, relationships, follows, notes), connection statuses, giving expectations, campaign pledges and gifts, small group rules, and email domains. It also checks every delivered photo: each is a 400 by 400 JPEG with an original, named for its person, and matching that person's gender.
 
 **Why it's there.** Tests and documentation rely on Cast people by Guid. A broken reference or a reused Guid would break them quietly, long after the change that caused it.
 
@@ -101,7 +101,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 

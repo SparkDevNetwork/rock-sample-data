@@ -36,6 +36,7 @@ Kevin Dawson is divorced and has his kids every other weekend. They come when th
 
 - **Attendance:** occasional, 38% of Sundays, since 2 years ago.
 - **Giving:** **irregular** by Kevin Dawson: $50 General Fund per gift, gives in 80% of periods, started 2 years ago.
+- **Built on the Rock:** Kevin Dawson pledged $520 with no frequency on Commitment Sunday, and the pledge is **not started**.
 
 ## Prayer requests
 

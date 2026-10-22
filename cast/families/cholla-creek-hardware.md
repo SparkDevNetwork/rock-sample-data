@@ -24,6 +24,7 @@ A local hardware store that gives to the church. Len Hollis owns it and signs th
 
 - **Attendance:** none. A business does not attend.
 - **Giving:** **monthly** by Len Cholla Creek Hardware: $250 General Fund per gift, by check, gives in 95% of periods.
+- **Built on the Rock:** Len Cholla Creek Hardware gave $500 10 weeks after Commitment Sunday, with no pledge.
 
 ## Address
 

@@ -45,6 +45,17 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "larry",
+      "gifts": [
+        {
+          "weeksAfterCommitment": 6,
+          "amount": 1000
+        }
+      ]
+    }
+  ],
   "members": [
     {
       "key": "larry",

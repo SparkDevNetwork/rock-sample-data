@@ -24,6 +24,15 @@
       "signer": "Steve Morgan"
     }
   ],
+  "campaign": [
+    {
+      "person": "business",
+      "pledge": 10000,
+      "frequency": "one-time",
+      "pledged": "commitment-sunday",
+      "followThrough": "paid-in-full"
+    }
+  ],
   "address": {
     "type": "work",
     "street1": "4512 N 9th Ave",

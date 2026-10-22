@@ -32,6 +32,15 @@
       "signer": "Bill Marble"
     }
   ],
+  "campaign": [
+    {
+      "person": "bill",
+      "pledge": 16000,
+      "frequency": "quarterly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    }
+  ],
   "members": [
     {
       "key": "bill",
