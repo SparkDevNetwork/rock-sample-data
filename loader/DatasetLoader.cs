@@ -196,6 +196,7 @@ namespace RockSampleData.Loader
             prayer, and steps read those plans. A part another part's rows need is added by SampleDataParts.
             Steps are the one exception to planning everything: they plan from rows that small groups,
             serving, and giving wrote, so they plan only when they load, and they need those parts.
+            Their student check-ins come from the attendance plan, so they do not need attendance.
             Nothing after them reads what they plan or write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
@@ -386,13 +387,14 @@ namespace RockSampleData.Loader
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             }
 
-            // The adult step program. Every step comes from a record the earlier steps wrote: group and team
-            // memberships, the giving journey, and the Baptism Date (decision 86).
-            // Steps need giving (SampleDataParts.All), so the giving analytics have run whenever steps load.
+            // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and
+            // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
+            // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
+            // steps load. The check-ins come from the plan, so steps do not need the Attendance part.
             if ( steps.Begin( "Steps" ) )
             {
                 new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance.FamilySundays, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.

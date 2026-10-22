@@ -1,6 +1,6 @@
 # Washington Family
 
-New household · 3 people · Phoenix campus · [source](../households/washington.json)
+**Featured** · New household · 3 people · Phoenix campus · [source](../households/washington.json)
 
 Marcus and Denise Washington's daughter Jasmine graduated from high school this year and still lives at home before college.
 
@@ -24,7 +24,9 @@ Marcus and Denise Washington's daughter Jasmine graduated from high school this 
 
 ### Jasmine Washington
 
-- Age 18 · no email
+Jasmine graduated from high school this past May. She sang on the student worship team and finished the whole Student Path.
+
+- Age 18 · no email · Rock shows Student Camp complete, Follow Jesus complete, Mission Trip complete, Student Leader complete, the Student Path completed
 - Person Guid `FF7ED641-A05A-4863-9DB9-7985E8A234FF`
 
 ## What this family tests

@@ -48,9 +48,10 @@ The words this project uses, in alphabetical order.
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
-| **Step program** | A path of steps in Rock, such as the Discipleship Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
+| **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
+| **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |

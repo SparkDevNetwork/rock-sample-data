@@ -101,6 +101,7 @@
       "guid": "FF7ED641-A05A-4863-9DB9-7985E8A234FF",
       "firstName": "Jasmine",
       "lastName": "Washington",
+      "bio": "Jasmine graduated from high school this past May. She sang on the student worship team and finished the whole Student Path.",
       "gender": "female",
       "familyRole": "child",
       "birth": {
@@ -108,8 +109,40 @@
         "month": 9,
         "day": 12
       },
+      "graduation": {
+        "yearsAgo": 0,
+        "month": 5,
+        "day": 22
+      },
       "recordStatus": "active",
-      "connectionStatus": "Engaged"
+      "connectionStatus": "Engaged",
+      "steps": {
+        "student-camp": {
+          "taken": true
+        },
+        "follow-jesus": {
+          "taken": true
+        },
+        "mission-trip": {
+          "taken": true
+        },
+        "student-leader": {
+          "taken": true
+        }
+      },
+      "expect": {
+        "steps": {
+          "complete": [
+            "student-camp",
+            "follow-jesus",
+            "mission-trip",
+            "student-leader"
+          ],
+          "programCompletions": [
+            "student-path"
+          ]
+        }
+      }
     }
   ]
 }

@@ -20,7 +20,7 @@ const { sectionHead } = require( "../components" );
 
 const inside = [
     [ "People and households", "The Cast in every dataset, plus generated households in Core 3 and Full 7. Every Cast person has a photo, except a few left without one on purpose." ],
-    [ "Attendance and check-in", "Years of Sundays, with kids checked in by family security code and students checking in midweek." ],
+    [ "Attendance and check-in", "Years of Sundays, with kids checked in by family security code and students checking in to the Sunday student service." ],
     [ "Giving", "Gifts on each giver's rhythm, through scheduled, online, and Sunday channels, in batches, with scanned checks that match each gift." ],
     [ "Giving analytics", "Giving attributes, journey stages, and a year of giving alerts, filled in the way Rock computes them." ],
     [ "Small groups", "Groups with leaders, hosts, topics, history, photos, and Group Finder test cases at every campus." ],
@@ -28,7 +28,7 @@ const inside = [
     [ "Connections", "Requests to serve that follow each household's journey, with activities and placements." ],
     [ "Prayer", "Requests in every state, the prayer team's prayers and comments, and the Cast's own requests tied to their stories." ],
     [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions." ],
-    [ "Steps", "Rock's Discipleship Path built out to seven steps, each made from a record the data already has, with classes in progress at every campus and program completions." ],
+    [ "Steps", "Rock's Discipleship Path built out to seven steps and a four-step Student Path, each step made from a record the data already has, with classes in progress at every campus, camps and mission trips from student check-ins, and program completions." ],
     [ "Achievements", "The Kids Check-in streak and its seven achievements, so check-in shows real progress." ],
     [ "Businesses", "Businesses at every campus that give, each with one or two contacts." ]
 ];

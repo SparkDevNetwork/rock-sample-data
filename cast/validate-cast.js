@@ -58,9 +58,9 @@ const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "
 const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
 const CAMPAIGN_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.campaign.properties;
 const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campaign.json" ), "utf8" ) ).commitmentSundayWeeksBeforeInstall;
-const STEP_TYPES = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).stepTypes;
-const STEP_TYPE_KEYS = STEP_TYPES.map( t => t.key );
-const CLASS_STEP_TYPE_KEYS = STEP_TYPES.filter( t => t.source.kind === "class" ).map( t => t.key );
+const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
+const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
+const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
 const adultsWithoutPhotoEthnicity = [];
 
 /**
@@ -368,20 +368,54 @@ for ( const { file, data: h } of households ) {
             }
         }
 
-        // Steps: expectations name step types, and a story can set only classes; every other step comes from records.
+        // Steps: expectations name step types and programs. A story can set classes, student events, a decision, and
+        // school years; group, team, giving, and baptism steps come from the person's other records.
         for ( const list of [ "complete", "inProgress" ] ) {
             for ( const key of p.expect?.steps?.[list] || [] ) {
-                if ( !STEP_TYPE_KEYS.includes( key ) ) {
+                if ( !STEP_TYPES.has( key ) ) {
                     errors.push( `${file}: "${p.key}" expects step type "${key}", which is not in configuration/steps.json.` );
                 }
             }
         }
-        for ( const [ key, choice ] of Object.entries( p.steps || {} ) ) {
-            if ( !CLASS_STEP_TYPE_KEYS.includes( key ) ) {
-                errors.push( `${file}: "${p.key}" sets step "${key}", which is not a class in configuration/steps.json. Only classes can be set; other steps come from the person's records.` );
+        for ( const key of p.expect?.steps?.programCompletions || [] ) {
+            if ( !STEP_PROGRAM_KEYS.includes( key ) ) {
+                errors.push( `${file}: "${p.key}" expects a completion of program "${key}", which is not in configuration/steps.json.` );
             }
-            if ( ( choice.classesAgo === undefined ) === ( choice.taken !== true ) ) {
-                errors.push( `${file}: "${p.key}" step "${key}" needs either classesAgo or taken: true.` );
+        }
+        for ( const [ key, choice ] of Object.entries( p.steps || {} ) ) {
+            const kind = STEP_TYPES.get( key )?.source.kind;
+            if ( ![ "class", "event", "decision", "school-years" ].includes( kind ) ) {
+                errors.push( `${file}: "${p.key}" sets step "${key}", which is not a class, event, decision, or school-years step in configuration/steps.json. Other steps come from the person's records.` );
+                continue;
+            }
+            const set = [ choice.classesAgo !== undefined, choice.events !== undefined, choice.taken === true ].filter( Boolean ).length;
+            if ( Array.isArray( choice.events ) && choice.events.length === 0 ) {
+                errors.push( `${file}: "${p.key}" step "${key}" lists no events. Name at least one, or use taken: true.` );
+            }
+            if ( set !== 1 ) {
+                errors.push( `${file}: "${p.key}" step "${key}" needs exactly one of classesAgo, events, or taken: true.` );
+            }
+            if ( choice.classesAgo !== undefined && kind !== "class" ) {
+                errors.push( `${file}: "${p.key}" step "${key}" sets classesAgo, which only a class can have.` );
+            }
+            if ( choice.events !== undefined ) {
+                // A decision names the one event it was made at, which the person must have gone to.
+                const eventKey = kind === "decision" ? STEP_TYPES.get( key ).source.atEvent.stepType : key;
+                const seasons = ( STEP_TYPES.get( eventKey )?.source.seasons || [] ).map( s => s.key );
+                if ( kind !== "event" && kind !== "decision" ) {
+                    errors.push( `${file}: "${p.key}" step "${key}" sets events, which only an event or decision step can have.` );
+                }
+                for ( const e of choice.events ) {
+                    if ( !seasons.includes( e.season ) ) {
+                        errors.push( `${file}: "${p.key}" step "${key}" names season "${e.season}", which ${eventKey} does not hold.` );
+                    }
+                }
+                if ( kind === "decision" ) {
+                    const went = p.steps[eventKey]?.events || [];
+                    if ( choice.events.length !== 1 || !went.some( e => e.season === choice.events[0].season && e.yearsAgo === choice.events[0].yearsAgo ) ) {
+                        errors.push( `${file}: "${p.key}" step "${key}" must name one event from the person's own ${eventKey} events.` );
+                    }
+                }
             }
         }
     }

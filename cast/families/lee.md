@@ -1,6 +1,6 @@
 # Lee Family
 
-New household · 8 people · Phoenix campus · [source](../households/lee.json)
+**Featured** · New household · 8 people · Phoenix campus · [source](../households/lee.json)
 
 James and Sarah Lee have six children, from a high school sophomore to a toddler. Sunday check-in for the Lees touches nearly every room.
 
@@ -29,7 +29,9 @@ James and Sarah Lee have six children, from a high school sophomore to a toddler
 
 ### Ben (Benjamin) Lee
 
-- Age 16 · no email
+Ben is in high school. He has gone to Student Camp the last two summers and went on a mission trip last spring.
+
+- Age 16 · no email · Rock shows Student Camp complete, Mission Trip complete
 - Person Guid `800B232F-C3FF-4F5C-A24A-07B317AB1596`
 
 ### Abby (Abigail) Lee

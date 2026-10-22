@@ -22,7 +22,7 @@
 
     Raw files are either:
       - .json: the single JSON document from Report_SampleDataCalibrationStats.sql, or
-      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3, 5, and 6 (see xlsx-to-tsv.ps1).
+      - .tsv/.txt: "Section<TAB>Json" lines from parts 1 to 3 and 5 to 7 (see xlsx-to-tsv.ps1).
 
     Output: profiles/sources/<source-id>.json, or the --out file (validation uses this).
 
@@ -63,7 +63,12 @@ function readSections( paths ) {
             }
             const json = line.substring( tab + 1 ).trim();
             if ( json.startsWith( "{" ) || json.startsWith( "[" ) ) {
-                sections[ line.substring( 0, tab ).trim() ] = JSON.parse( json );
+                const name = line.substring( 0, tab ).trim();
+                const value = JSON.parse( json );
+
+                // Part 7 covers 12 months, not the 24 of the other parts, so its meta
+                // must not replace theirs as the source's period.
+                sections[ name === "meta" && value.part === 7 ? "communicationMeta" : name ] = value;
             }
         }
     }
@@ -482,6 +487,81 @@ if ( s.noteSummary ) {
         }
     };
     out.notes.push( "Person note types are sorted into generic kinds inside part 6. Note type names and note text are never stored." );
+}
+
+// Part 7 measures mass sends (25 or more recipients) and text conversations over 12 months.
+// Raw counts become rates per 1,000 active adults (from part 2) or shares, never totals.
+// Small setup counts (lists, phone numbers, flows) get no rate: a count that small is
+// easy to guess, and the guess would reveal the number of active adults.
+if ( s.communicationMeta ) {
+    const meta = s.communicationMeta;
+    const mediums = list( s.massSendsByMedium ).map( m => m.medium );
+    const byMedium = ( rows, valueOf ) => Object.fromEntries( mediums
+        .map( medium => [ medium, rows.filter( r => r.medium === medium ) ] )
+        .filter( ( [ , r ] ) => r.length )
+        .map( ( [ medium, r ] ) => [ medium, valueOf( r ) ] ) );
+    const mix = ( rows, key, value ) => Object.fromEntries( rows.map( r => [ r[ key ], r[ value ] ] ) );
+    const months = list( s.massSendsByMonth );
+    const inbound = list( s.smsInboundByMonth );
+    const timing = list( s.smsInboundTiming );
+    const lists = s.communicationLists || {};
+    const numbers = s.systemPhoneNumbers || {};
+    const flows = s.communicationFlows || {};
+
+    out.communicationDetail = {
+        period: { start: meta.periodStart, endExclusive: meta.periodEndExclusive, recipientSampleStart: meta.recipientPeriodStart },
+        sample: {
+            massSendMinRecipients: meta.massSendMinRecipients,
+            sendsPerMedium: meta.sampleSendsPerMedium ?? null,
+            recipientsPerSend: meta.sampleRecipientsPerSend ?? null,
+            texters: meta.sampleTexters ?? null,
+            massSectionsSkipped: meta.skipped ? true : false
+        },
+        massSends: {
+            sendsPerYearPerThousandActiveAdults: perThousand( sum( months.map( m => m.sends ) ), 12 ),
+            ...( s.massSendSummary || {} ),
+            monthIndex: monthIndex( Object.entries( months.reduce( ( t, m ) => ( t[ m.month ] = ( t[ m.month ] || 0 ) + m.sends, t ), {} ) ) ),
+            byMedium: Object.fromEntries( list( s.massSendsByMedium ).map( m => [ m.medium, {
+                pctOfMassSends: m.pctOfMassSends,
+                sendsPerYearPerThousandActiveAdults: perThousand( sum( months.filter( x => x.medium === m.medium ).map( x => x.sends ) ), 12 ),
+                audiencePctOfAdults: { p50: m.audiencePctOfAdultsP50, p90: m.audiencePctOfAdultsP90, max: m.audiencePctOfAdultsMax }
+            } ] ) ),
+            sizeBandMix: byMedium( list( s.massSendSizeBands ), r => mix( r, "sizeBand", "pctOfMediumSends" ) ),
+            weekdayMix: byMedium( list( s.massSendsByWeekday ), r => mix( r, "weekday", "pctOfMediumSends" ) ),
+            hourBandMix: byMedium( list( s.massSendsByHourBand ), r => mix( r, "hourBand", "pctOfMediumSends" ) )
+        },
+        communicationLists: {
+            membersPctOfAdultsP50: lists.membersPctOfAdultsP50 ?? null,
+            membersPctOfAdultsP90: lists.membersPctOfAdultsP90 ?? null
+        },
+        outcomes: Object.fromEntries( list( s.massOutcomes ).map( o => [ o.medium, without( o, "medium" ) ] ) ),
+        engagement: Object.fromEntries( list( s.massEngagement ).map( e => [ e.medium, without( e, "medium" ) ] ) ),
+        links: s.massLinks || null,
+        responseDelay: byMedium( list( s.massResponseDelay ), r => Object.fromEntries(
+            [ ...new Set( r.map( x => x.operation ) ) ].map( op => [ op, mix( r.filter( x => x.operation === op ), "delayBand", "pctOfFirsts" ) ] ) ) ),
+        unsubscribes: Object.fromEntries( list( s.massUnsubscribes ).map( u => [ u.medium, without( u, "medium" ) ] ) ),
+        people: s.communicationPeople || null,
+        appDevices: s.appDevices || null,
+        sms: {
+            inboundPerYearPerThousandActiveAdults: perThousand( sum( inbound.map( m => m.texts ) ), 12 ),
+            inbound: s.smsInbound || null,
+            inboundMonthIndex: monthIndex( inbound.map( m => [ m.month, m.texts ] ) ),
+            inboundWeekdayMix: mix( timing.filter( t => t.kind === "weekday" ), "value", "pctTexts" ),
+            inboundHourBandMix: mix( timing.filter( t => t.kind === "hourBand" ), "value", "pctTexts" ),
+            massReplies: s.smsMassReplies || null,
+            threads: s.smsThreads || null,
+            replyDelay: Object.fromEntries( list( s.smsReplyDelay ).map( d => [ d.direction, without( d, "direction" ) ] ) ),
+            outboundLength: s.smsOutboundLength || null,
+            pctSystemNumbersSmsEnabled: pct( numbers.smsEnabledNumbers || 0, numbers.activeNumbers ),
+            pctSystemNumbersPersonal: pct( numbers.personalNumbers || 0, numbers.activeNumbers )
+        },
+        flows: flows.flows == null ? null : {
+            hasFlows: flows.flows > 0,
+            pctActive: pct( flows.activeFlows || 0, flows.flows ),
+            communicationsPerFlowP50: flows.communicationsPerFlowP50 ?? null
+        }
+    };
+    out.notes.push( "Part 7 measures mass sends of 25 or more recipients and text conversations over 12 months. Delivery and unsubscribes come from a recipient sample of recent sends, and text thread measures from a sample of people who texted in. Message text, list names, phone numbers, and URLs are never stored." );
 }
 
 // #endregion Other features

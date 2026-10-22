@@ -22,34 +22,46 @@ namespace RockSampleData.Loader.Model
     */
 
     /// <summary>
-    /// The contents of configuration/steps.json: the adult step program, its statuses, and its step types,
-    /// each with the record its steps come from.
+    /// The contents of configuration/steps.json: the step programs, each with its statuses and its step types,
+    /// and each step type with the record its steps come from.
     /// </summary>
     internal sealed class StepsConfiguration
     {
-        public StepProgramDefinition Program { get; set; }
-
-        public StepStatusGuids Statuses { get; set; }
-
         /// <summary>
         /// Rock's Organizational Objective defined value Guids by the key the step types use.
         /// </summary>
         public Dictionary<string, Guid> Objectives { get; set; } = new Dictionary<string, Guid>();
 
-        public List<StepPrerequisiteDefinition> Prerequisites { get; set; } = new List<StepPrerequisiteDefinition>();
+        public List<StepProgramDefinition> Programs { get; set; } = new List<StepProgramDefinition>();
 
         /// <summary>
-        /// The step types in path order.
+        /// Every program's step types, program by program in path order. Keys are unique across programs.
         /// </summary>
-        public List<StepTypeDefinition> StepTypes { get; set; } = new List<StepTypeDefinition>();
+        public IEnumerable<StepTypeDefinition> StepTypes => Programs.SelectMany( p => p.StepTypes );
     }
 
     internal sealed class StepProgramDefinition
     {
-        /// <summary>
-        /// Rock's Discipleship Path program.
-        /// </summary>
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
         public Guid Guid { get; set; }
+
+        /// <summary>
+        /// True for a program Rock ships, which is kept and updated in place. Otherwise the loader adds it.
+        /// </summary>
+        public bool RockProgram { get; set; }
+
+        /// <summary>
+        /// The Rock category a new program is filed in, or null.
+        /// </summary>
+        public Guid? CategoryGuid { get; set; }
+
+        /// <summary>
+        /// A new program's icon. A Rock program keeps its own.
+        /// </summary>
+        public string IconCssClass { get; set; }
 
         public string Description { get; set; }
 
@@ -57,6 +69,44 @@ namespace RockSampleData.Loader.Model
         /// One of Rock's CompletionFlow names, such as LinearPreferred.
         /// </summary>
         public string CompletionFlow { get; set; }
+
+        public StepStatusGuids Statuses { get; set; }
+
+        public List<StepPrerequisiteDefinition> Prerequisites { get; set; } = new List<StepPrerequisiteDefinition>();
+
+        /// <summary>
+        /// Who a student program is for, or null for a program that is not about students.
+        /// </summary>
+        public StudentRule Students { get; set; }
+
+        /// <summary>
+        /// The step types in path order.
+        /// </summary>
+        public List<StepTypeDefinition> StepTypes { get; set; } = new List<StepTypeDefinition>();
+    }
+
+    /// <summary>
+    /// Who counts as a student: someone who checks in to the student service.
+    /// </summary>
+    internal sealed class StudentRule
+    {
+        /// <summary>
+        /// The student service's check-in group keys from configuration/checkin.json.
+        /// </summary>
+        public List<string> CheckInGroups { get; set; } = new List<string>();
+
+        public AttendingRule Attending { get; set; }
+    }
+
+    /// <summary>
+    /// A student has been attending on a day when they checked in to the student service at least
+    /// <see cref="CheckIns"/> times in the <see cref="WithinDays"/> days before it.
+    /// </summary>
+    internal sealed class AttendingRule
+    {
+        public int CheckIns { get; set; }
+
+        public int WithinDays { get; set; }
     }
 
     internal sealed class StepStatusGuids
@@ -139,7 +189,7 @@ namespace RockSampleData.Loader.Model
     internal sealed class StepSource
     {
         /// <summary>
-        /// class, membership, baptism, or giving-journey.
+        /// class, membership, baptism, giving-journey, event, decision, or school-years.
         /// </summary>
         public string Kind { get; set; }
 
@@ -245,6 +295,55 @@ namespace RockSampleData.Loader.Model
 
         public int YearsBack { get; set; }
 
+        /// <summary>
+        /// How students are baptized, or null when only adults are.
+        /// </summary>
+        public StudentBaptismRule Students { get; set; }
+
+        #endregion
+
+        #region event, decision, and school-years
+
+        /// <summary>
+        /// The school grades a student is in on the step's start, by the June 1 grade rule.
+        /// </summary>
+        public IntRange Grades { get; set; }
+
+        /// <summary>
+        /// For an event, the chance a student who went goes again in each later year they could.
+        /// </summary>
+        public double AgainPercent { get; set; }
+
+        /// <summary>
+        /// For an event, the times of year it is held.
+        /// </summary>
+        public List<EventSeason> Seasons { get; set; } = new List<EventSeason>();
+
+        /// <summary>
+        /// The share of the students who could take the step who take it: for an event, who go at least once.
+        /// </summary>
+        public double PercentOfStudents { get; set; }
+
+        /// <summary>
+        /// For a decision, the event step where many decisions are made.
+        /// </summary>
+        public DecisionAtEvent AtEvent { get; set; }
+
+        /// <summary>
+        /// For a decision not made at an event, the chance it falls on an Easter the student came.
+        /// </summary>
+        public double EasterPercent { get; set; }
+
+        /// <summary>
+        /// For school years, the day a school year starts.
+        /// </summary>
+        public MonthWeek StartsOn { get; set; }
+
+        /// <summary>
+        /// For school years, graduation day in the student's graduation year.
+        /// </summary>
+        public MonthWeek EndsOn { get; set; }
+
         #endregion
 
         #region giving-journey
@@ -286,13 +385,59 @@ namespace RockSampleData.Loader.Model
         public int DaysAfter { get; set; }
     }
 
-    internal sealed class MonthWeek
+    /// <summary>
+    /// A day such as the third Sunday of July.
+    /// </summary>
+    internal class MonthWeek
     {
         public int Month { get; set; }
 
         /// <summary>
-        /// Which Sunday of the month, from 1.
+        /// Which such weekday of the month, from 1.
         /// </summary>
         public int Week { get; set; }
+
+        public string Weekday { get; set; } = nameof( DayOfWeek.Sunday );
+
+        /// <summary>
+        /// The day in the given year.
+        /// </summary>
+        public DateTime In( int year )
+        {
+            var first = new DateTime( year, Month, 1 );
+            var weekday = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), Weekday, true );
+            return first.AddDays( ( ( 7 + ( int ) weekday - ( int ) first.DayOfWeek ) % 7 ) + ( 7 * ( Week - 1 ) ) );
+        }
+    }
+
+    /// <summary>
+    /// One time of year an event is held: it starts on the given day and lasts <see cref="Days"/> days.
+    /// </summary>
+    internal sealed class EventSeason : MonthWeek
+    {
+        public string Key { get; set; }
+
+        public int Days { get; set; }
+    }
+
+    internal sealed class DecisionAtEvent
+    {
+        public string StepType { get; set; }
+
+        public double Percent { get; set; }
+    }
+
+    /// <summary>
+    /// How students are baptized: some time after a step (the decision to follow Jesus), or at a lower rate without one.
+    /// </summary>
+    internal sealed class StudentBaptismRule
+    {
+        public string AfterStepType { get; set; }
+
+        public double AfterPercent { get; set; }
+
+        public int MinimumDaysAfter { get; set; }
+
+        public double PercentOfOtherStudents { get; set; }
     }
 }

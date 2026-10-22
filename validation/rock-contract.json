@@ -2825,9 +2825,20 @@
     },
     "StepProgram": {
       "written": [
+        "CategoryId",
         "CompletionFlow",
+        "CreatedDateTime",
+        "DefaultListView",
         "Description",
-        "ModifiedDateTime"
+        "ForeignKey",
+        "Guid",
+        "IconCssClass",
+        "IsActive",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "StepTerm"
       ],
       "rockColumns": {
         "CategoryId": "int null",
@@ -2882,6 +2893,39 @@
         "PersonAliasId": "int not null",
         "StartDateKey": "int not null",
         "StartDateTime": "datetime not null",
+        "StepProgramId": "int not null"
+      }
+    },
+    "StepStatus": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsActive",
+        "IsCompleteStatus",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "StatusColor",
+        "StepProgramId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "IsCompleteStatus": "bit not null",
+        "IsSystem": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "Order": "int not null",
+        "StatusColor": "nvarchar(100) null",
         "StepProgramId": "int not null"
       }
     },
@@ -3131,6 +3175,7 @@
       "AF51A735-59EF-4713-B9BD-604EBB86CA13",
       "B08F10AA-CA78-4527-93BF-A0D5640E4549",
       "C35752E2-A575-4182-8B5A-8AE9D0694B97",
+      "C47AD7D0-DDD0-4BE6-AE1D-D69D72B13842",
       "D12837CF-EEE7-4822-9899-36E8884CD848",
       "FB4A609E-3A7D-4AD0-A55A-D707638A35F5"
     ],
