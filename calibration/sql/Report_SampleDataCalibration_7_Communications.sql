@@ -1,0 +1,823 @@
+SET NOCOUNT ON;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+-- =============================================
+-- Description: Sample data calibration, part 7: communications in detail.
+--
+--              Part 3 counts every communication, and most of those go to
+--              one person from a workflow. Part 7 measures the shape of mass
+--              sends (25 or more recipients) and of text conversations:
+--              how often a church sends, to how many, on which days and
+--              hours, how many people open and click and how fast, who
+--              unsubscribes, how people reply to texts, how long text
+--              threads run, how fast staff answer, and how many people
+--              have the church's app with notifications on.
+--
+--              Collects anonymous, aggregate statistics from a live Rock
+--              database. Returns no names, no Ids, no list names, no message
+--              text, no phone numbers, and no clicked URLs. Links are
+--              compared by checksum only.
+--
+--              Every rate stands alone. Run part 2 on the same database only
+--              if you also want monthly volumes, which are scaled by part
+--              2's active adult count.
+--
+--              HOW TO RUN IN ROCK:
+--              1. Open Admin Tools > Settings > Power Tools > SQL Command.
+--              2. Leave "Selection Query?" set to Yes. Rock runs the script in
+--                 a transaction and rolls it back, so nothing can change.
+--              3. Paste this whole file and click Run.
+--              4. Rock shows a yellow warning that the query "modifies data."
+--                 That is expected. The script only uses temp tables, and Rock
+--                 rolled them back.
+--              5. Export the grid to Excel, or copy the rows. Send the result.
+--
+--              On a church with a very large communication history, this
+--              script can run longer than Rock's 180 second limit. If it
+--              times out, run it in SSMS instead.
+--
+--              Use the same @ChurchLabel as in part 2.
+--              Requires Rock 15 or later and SQL Server 2016 or later.
+--              Unsubscribe and spam rates need Rock 17 or later, and
+--              communication flows need Rock 18 or later. On older Rock
+--              those sections come back empty.
+-- Date: 2026-10-21
+-- =============================================
+
+-- Settings
+DECLARE @ChurchLabel NVARCHAR(50) = 'Unlabeled'; -- Use a neutral label like source-2, never a church name.
+
+-- A mass send has at least this many recipients.
+DECLARE @MassSendMinRecipients INT = 25;
+
+-- Sends and texts use the last 12 complete months. Recipient outcomes,
+-- opens, clicks, and unsubscribes use the last 3, because they read the
+-- largest tables. The current month is excluded.
+DECLARE @EndDate DATE = DATEFROMPARTS( YEAR( GETDATE() ), MONTH( GETDATE() ), 1 );
+DECLARE @Start12 DATE = DATEADD( MONTH, -12, @EndDate );
+DECLARE @Start3 DATE = DATEADD( MONTH, -3, @EndDate );
+
+-- Lookups
+DECLARE @SmsMediumId INT = ( SELECT TOP 1 [Id] FROM [EntityType] WHERE [Guid] = '4BC02764-512A-4A10-ACDE-586F71D8A8BD' );
+DECLARE @CommunicationChannelId INT = ( SELECT TOP 1 [Id] FROM [InteractionChannel] WHERE [Guid] = 'C88A187F-0343-4E7C-AF3F-79A8989DFA65' );
+DECLARE @ActiveRecordStatusId INT = ( SELECT TOP 1 [Id] FROM [DefinedValue] WHERE [Guid] = '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E' );
+DECLARE @PersonRecordTypeId INT = ( SELECT TOP 1 [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' );
+DECLARE @CommunicationListGroupTypeId INT = ( SELECT TOP 1 [Id] FROM [GroupType] WHERE [Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' );
+
+-- Clean up temp tables from an earlier run in the same SSMS session.
+DROP TABLE IF EXISTS #CommId, #Comm, #Size, #Mass, #MassOutcome, #Component, #Int, #Unsub, #Adult, #Resp, #SmsOut, #Flow;
+
+-- =============================================
+-- Sends (last 12 months)
+-- =============================================
+
+-- Communication rows hold the full message body, so read the Ids from the
+-- SendDateTime index first, then fetch only the needed columns by primary key.
+SELECT [c].[Id] AS [CommunicationId]
+INTO #CommId
+FROM [Communication] AS [c]
+WHERE [c].[SendDateTime] >= @Start12 AND [c].[SendDateTime] < @EndDate;
+
+-- Communication type: 0 Recipient preference, 1 Email, 2 SMS, 3 Push.
+SELECT
+    [c].[Id] AS [CommunicationId],
+    [c].[CommunicationType],
+    CASE [c].[CommunicationType] WHEN 1 THEN 'Email' WHEN 2 THEN 'SMS' WHEN 3 THEN 'Push' ELSE 'Recipient preference' END AS [Medium],
+    [c].[SendDateTime],
+    [c].[IsBulkCommunication],
+    CASE WHEN [c].[ListGroupId] IS NOT NULL THEN 1 ELSE 0 END AS [HasList],
+    CASE WHEN ISNULL( [c].[Segments], '' ) <> '' THEN 1 ELSE 0 END AS [HasSegments],
+    CASE WHEN [c].[CommunicationTemplateId] IS NOT NULL THEN 1 ELSE 0 END AS [HasTemplate],
+    CASE WHEN [c].[CommunicationTopicValueId] IS NOT NULL THEN 1 ELSE 0 END AS [HasTopic],
+    [c].[SmsFromSystemPhoneNumberId]
+INTO #Comm
+FROM #CommId AS [ci]
+INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [ci].[CommunicationId];
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Comm ( [CommunicationId] );
+
+/*
+    10/21/26 - CLAUDE
+
+    CommunicationRecipient is often the largest table in the database, and
+    each row holds a copy of the sent message. Counting rows per
+    communication reads only the CommunicationId index, never the full rows.
+
+    Reason: Reading full recipient rows timed out on a large church (part 3).
+*/
+SELECT
+    [c].[CommunicationId],
+    COUNT( * ) AS [Recipients]
+INTO #Size
+FROM #Comm AS [c]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [c].[CommunicationId]
+GROUP BY [c].[CommunicationId];
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Size ( [CommunicationId] );
+
+SELECT
+    [c].[CommunicationId],
+    [c].[Medium],
+    [c].[SendDateTime],
+    [s].[Recipients],
+    [c].[IsBulkCommunication],
+    [c].[HasList],
+    [c].[HasSegments],
+    [c].[HasTemplate],
+    [c].[HasTopic]
+INTO #Mass
+FROM #Comm AS [c]
+INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [c].[CommunicationId]
+WHERE [s].[Recipients] >= @MassSendMinRecipients;
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Mass ( [CommunicationId] );
+
+-- Living adults on active person records. Rates about people use them as
+-- the base. Their count is never returned.
+SELECT
+    [p].[Id] AS [PersonId],
+    CASE WHEN ISNULL( [p].[Email], '' ) <> '' THEN 1 ELSE 0 END AS [HasEmail],
+    [p].[IsEmailActive],
+    [p].[EmailPreference],
+    [p].[CommunicationPreference]
+INTO #Adult
+FROM [Person] AS [p]
+WHERE [p].[RecordTypeValueId] = @PersonRecordTypeId
+    AND [p].[RecordStatusValueId] = @ActiveRecordStatusId
+    AND [p].[IsDeceased] = 0
+    AND [p].[AgeClassification] = 1;
+
+CREATE CLUSTERED INDEX [IX_PersonId] ON #Adult ( [PersonId] );
+
+DECLARE @Adults INT = ( SELECT COUNT( * ) FROM #Adult );
+
+DECLARE @JMassSendSummary NVARCHAR(MAX) = (
+    SELECT
+        CAST( ( SELECT COUNT( * ) FROM #Mass ) * 100.0 / NULLIF( ( SELECT COUNT( * ) FROM #Comm ), 0 ) AS DECIMAL(5,1) ) AS [pctOfSendsThatAreMass],
+        CAST( ( SELECT SUM( CAST( [Recipients] AS BIGINT ) ) FROM #Mass ) * 100.0 / NULLIF( ( SELECT SUM( CAST( [Recipients] AS BIGINT ) ) FROM #Size ), 0 ) AS DECIMAL(5,1) ) AS [pctOfRecipientsInMassSends],
+        CAST( ( SELECT AVG( CASE WHEN [IsBulkCommunication] = 1 THEN 100.0 ELSE 0.0 END ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassFlaggedBulk],
+        CAST( ( SELECT AVG( [HasList] * 100.0 ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassWithList],
+        CAST( ( SELECT AVG( [HasSegments] * 100.0 ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassWithSegments],
+        CAST( ( SELECT AVG( [HasTemplate] * 100.0 ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassWithTemplate],
+        CAST( ( SELECT AVG( [HasTopic] * 100.0 ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassWithTopic]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- Audience size is a share of living adults on active records, so it says
+-- nothing about the church's size.
+DECLARE @JMassSendsByMedium NVARCHAR(MAX) = (
+    SELECT DISTINCT
+        [m].[Medium] AS [medium],
+        CAST( COUNT( * ) OVER ( PARTITION BY [m].[Medium] ) * 100.0 / NULLIF( ( SELECT COUNT( * ) FROM #Mass ), 0 ) AS DECIMAL(5,1) ) AS [pctOfMassSends],
+        CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [m].[Recipients] * 100.0 / NULLIF( @Adults, 0 ) ) OVER ( PARTITION BY [m].[Medium] ) AS DECIMAL(6,1) ) AS [audiencePctOfAdultsP50],
+        CAST( PERCENTILE_CONT( 0.90 ) WITHIN GROUP ( ORDER BY [m].[Recipients] * 100.0 / NULLIF( @Adults, 0 ) ) OVER ( PARTITION BY [m].[Medium] ) AS DECIMAL(6,1) ) AS [audiencePctOfAdultsP90],
+        CAST( MAX( [m].[Recipients] * 100.0 / NULLIF( @Adults, 0 ) ) OVER ( PARTITION BY [m].[Medium] ) AS DECIMAL(6,1) ) AS [audiencePctOfAdultsMax]
+    FROM #Mass AS [m]
+    FOR JSON PATH
+);
+
+DECLARE @JMassSendSizeBands NVARCHAR(MAX) = (
+    SELECT
+        [b].[Medium] AS [medium],
+        [b].[SizeBand] AS [sizeBand],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER ( PARTITION BY [b].[Medium] ) AS DECIMAL(5,1) ) AS [pctOfMediumSends]
+    FROM (
+        SELECT
+            [m].[Medium],
+            CASE
+                WHEN [m].[Recipients] < 100 THEN '0025-0099'
+                WHEN [m].[Recipients] < 500 THEN '0100-0499'
+                WHEN [m].[Recipients] < 2000 THEN '0500-1999'
+                WHEN [m].[Recipients] < 10000 THEN '2000-9999'
+                ELSE '10000+'
+            END AS [SizeBand]
+        FROM #Mass AS [m]
+    ) AS [b]
+    GROUP BY [b].[Medium], [b].[SizeBand]
+    ORDER BY [b].[Medium], [b].[SizeBand]
+    FOR JSON PATH
+);
+
+DECLARE @JMassSendsByMonth NVARCHAR(MAX) = (
+    SELECT
+        CONVERT( CHAR(7), [m].[SendDateTime], 120 ) AS [month],
+        [m].[Medium] AS [medium],
+        COUNT( * ) AS [sends]
+    FROM #Mass AS [m]
+    GROUP BY CONVERT( CHAR(7), [m].[SendDateTime], 120 ), [m].[Medium]
+    ORDER BY CONVERT( CHAR(7), [m].[SendDateTime], 120 ), [m].[Medium]
+    FOR JSON PATH
+);
+
+-- Day 0 of DATEDIFF from 1900-01-01 is a Monday, so this works under any
+-- server language setting.
+DECLARE @JMassSendsByWeekday NVARCHAR(MAX) = (
+    SELECT
+        [w].[Medium] AS [medium],
+        [w].[Weekday] AS [weekday],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER ( PARTITION BY [w].[Medium] ) AS DECIMAL(5,1) ) AS [pctOfMediumSends]
+    FROM (
+        SELECT
+            [m].[Medium],
+            CHOOSE( DATEDIFF( DAY, '19000101', [m].[SendDateTime] ) % 7 + 1, '1-Mon', '2-Tue', '3-Wed', '4-Thu', '5-Fri', '6-Sat', '7-Sun' ) AS [Weekday]
+        FROM #Mass AS [m]
+    ) AS [w]
+    GROUP BY [w].[Medium], [w].[Weekday]
+    ORDER BY [w].[Medium], [w].[Weekday]
+    FOR JSON PATH
+);
+
+DECLARE @JMassSendsByHourBand NVARCHAR(MAX) = (
+    SELECT
+        [h].[Medium] AS [medium],
+        [h].[HourBand] AS [hourBand],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER ( PARTITION BY [h].[Medium] ) AS DECIMAL(5,1) ) AS [pctOfMediumSends]
+    FROM (
+        SELECT
+            [m].[Medium],
+            CASE
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 6 THEN '00-05'
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 9 THEN '06-08'
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 12 THEN '09-11'
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 15 THEN '12-14'
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 18 THEN '15-17'
+                WHEN DATEPART( HOUR, [m].[SendDateTime] ) < 21 THEN '18-20'
+                ELSE '21-23'
+            END AS [HourBand]
+        FROM #Mass AS [m]
+    ) AS [h]
+    GROUP BY [h].[Medium], [h].[HourBand]
+    ORDER BY [h].[Medium], [h].[HourBand]
+    FOR JSON PATH
+);
+
+-- Communication lists: sizes are shares of adults, never counts of people.
+DECLARE @JCommunicationLists NVARCHAR(MAX) = (
+    SELECT TOP 1
+        COUNT( * ) OVER () AS [activeLists],
+        CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [l].[Members] * 100.0 / NULLIF( @Adults, 0 ) ) OVER () AS DECIMAL(6,1) ) AS [membersPctOfAdultsP50],
+        CAST( PERCENTILE_CONT( 0.90 ) WITHIN GROUP ( ORDER BY [l].[Members] * 100.0 / NULLIF( @Adults, 0 ) ) OVER () AS DECIMAL(6,1) ) AS [membersPctOfAdultsP90]
+    FROM (
+        SELECT
+            [g].[Id],
+            ( SELECT COUNT( * ) FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [g].[Id] AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 ) AS [Members]
+        FROM [Group] AS [g]
+        WHERE [g].[GroupTypeId] = @CommunicationListGroupTypeId
+            AND [g].[IsActive] = 1
+            AND [g].[IsArchived] = 0
+    ) AS [l]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- =============================================
+-- Recipient outcomes (mass sends, last 3 months)
+-- =============================================
+
+-- Recipient status: 0 Pending, 1 Delivered, 2 Failed, 3 Cancelled, 4 Opened, 5 Sending.
+-- Uses only the columns in the IX_CommunicationId index, as part 3 does.
+SELECT
+    [m].[CommunicationId],
+    [m].[Medium],
+    COUNT( * ) AS [Recipients],
+    SUM( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END ) AS [Delivered],
+    SUM( CASE WHEN [cr].[Status] = 4 OR [cr].[OpenedDateTime] IS NOT NULL THEN 1 ELSE 0 END ) AS [Opened],
+    SUM( CASE WHEN [cr].[Status] = 2 THEN 1 ELSE 0 END ) AS [Failed],
+    SUM( CASE WHEN [cr].[Status] = 3 THEN 1 ELSE 0 END ) AS [Cancelled]
+INTO #MassOutcome
+FROM #Mass AS [m]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [m].[CommunicationId]
+WHERE [m].[SendDateTime] >= @Start3
+GROUP BY [m].[CommunicationId], [m].[Medium];
+
+DECLARE @JMassOutcomes NVARCHAR(MAX) = (
+    SELECT
+        [o].[Medium] AS [medium],
+        CAST( SUM( [o].[Delivered] ) * 100.0 / NULLIF( SUM( [o].[Recipients] ), 0 ) AS DECIMAL(5,1) ) AS [pctDelivered],
+        CAST( SUM( [o].[Opened] ) * 100.0 / NULLIF( SUM( [o].[Delivered] ), 0 ) AS DECIMAL(5,1) ) AS [pctOpenedOfDelivered],
+        CAST( SUM( [o].[Failed] ) * 100.0 / NULLIF( SUM( [o].[Recipients] ), 0 ) AS DECIMAL(5,1) ) AS [pctFailed],
+        CAST( SUM( [o].[Cancelled] ) * 100.0 / NULLIF( SUM( [o].[Recipients] ), 0 ) AS DECIMAL(5,1) ) AS [pctCancelled]
+    FROM #MassOutcome AS [o]
+    GROUP BY [o].[Medium]
+    FOR JSON PATH
+);
+
+-- =============================================
+-- Opens and clicks (mass sends, last 3 months)
+-- =============================================
+
+-- Each communication has one interaction component whose EntityId is the
+-- communication. Each interaction's EntityId is the recipient.
+SELECT
+    [ic].[Id] AS [InteractionComponentId],
+    [m].[CommunicationId]
+INTO #Component
+FROM #Mass AS [m]
+INNER JOIN [InteractionComponent] AS [ic] ON [ic].[EntityId] = [m].[CommunicationId] AND [ic].[InteractionChannelId] = @CommunicationChannelId
+WHERE [m].[SendDateTime] >= @Start3;
+
+/*
+    10/21/26 - CLAUDE
+
+    A click's InteractionData is its URL, which can name the church and its
+    pages. Only a checksum of the URL is kept, to count distinct links and
+    the share of clicks on the most clicked link, plus a flag for Rock's
+    unsubscribe links. The URL itself never leaves the database.
+
+    Reason: Measure link behavior without exposing the church's site.
+*/
+SELECT
+    [c].[CommunicationId],
+    [i].[EntityId] AS [RecipientId],
+    [i].[Operation],
+    [i].[InteractionDateTime],
+    CASE WHEN [i].[Operation] = 'Click' THEN CHECKSUM( [i].[InteractionData] ) END AS [LinkHash],
+    CASE WHEN [i].[Operation] = 'Click' AND [i].[InteractionData] LIKE '%unsubscribe%' THEN 1 ELSE 0 END AS [IsUnsubscribeLink]
+INTO #Int
+FROM #Component AS [c]
+INNER JOIN [Interaction] AS [i] ON [i].[InteractionComponentId] = [c].[InteractionComponentId]
+WHERE [i].[Operation] IN ( 'Opened', 'Click' );
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Int ( [CommunicationId], [RecipientId] );
+
+DECLARE @JMassEngagement NVARCHAR(MAX) = (
+    SELECT
+        [o].[Medium] AS [medium],
+        CAST( SUM( [e].[Openers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueOpenersOfDelivered],
+        CAST( SUM( [e].[Opens] ) * 1.0 / NULLIF( SUM( [e].[Openers] ), 0 ) AS DECIMAL(6,2) ) AS [opensPerOpener],
+        CAST( SUM( [e].[Clickers] ) * 100.0 / NULLIF( SUM( [e].[Openers] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueClickersOfOpeners],
+        CAST( SUM( [e].[Clickers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueClickersOfDelivered],
+        CAST( SUM( [e].[Clicks] ) * 1.0 / NULLIF( SUM( [e].[Clickers] ), 0 ) AS DECIMAL(6,2) ) AS [clicksPerClicker],
+        CAST( SUM( [e].[UnsubscribeClicks] ) * 100.0 / NULLIF( SUM( [e].[Clicks] ), 0 ) AS DECIMAL(5,1) ) AS [pctClicksOnUnsubscribeLinks]
+    FROM #MassOutcome AS [o]
+    LEFT JOIN (
+        SELECT
+            [i].[CommunicationId],
+            COUNT( DISTINCT CASE WHEN [i].[Operation] = 'Opened' THEN [i].[RecipientId] END ) AS [Openers],
+            SUM( CASE WHEN [i].[Operation] = 'Opened' THEN 1 ELSE 0 END ) AS [Opens],
+            COUNT( DISTINCT CASE WHEN [i].[Operation] = 'Click' THEN [i].[RecipientId] END ) AS [Clickers],
+            SUM( CASE WHEN [i].[Operation] = 'Click' THEN 1 ELSE 0 END ) AS [Clicks],
+            SUM( [i].[IsUnsubscribeLink] ) AS [UnsubscribeClicks]
+        FROM #Int AS [i]
+        GROUP BY [i].[CommunicationId]
+    ) AS [e] ON [e].[CommunicationId] = [o].[CommunicationId]
+    WHERE [o].[Medium] <> 'SMS'
+    GROUP BY [o].[Medium]
+    FOR JSON PATH
+);
+
+-- Links per email that got any clicks, and how much the top link draws.
+DECLARE @JMassLinks NVARCHAR(MAX) = (
+    SELECT TOP 1
+        CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [l].[Links] ) OVER () AS DECIMAL(10,1) ) AS [linksClickedPerSendP50],
+        CAST( PERCENTILE_CONT( 0.90 ) WITHIN GROUP ( ORDER BY [l].[Links] ) OVER () AS DECIMAL(10,1) ) AS [linksClickedPerSendP90],
+        CAST( AVG( [l].[TopLinkShare] ) OVER () AS DECIMAL(5,1) ) AS [pctClicksOnTopLinkAvg]
+    FROM (
+        SELECT
+            [k].[CommunicationId],
+            COUNT( * ) AS [Links],
+            MAX( [k].[Clicks] ) * 100.0 / SUM( [k].[Clicks] ) AS [TopLinkShare]
+        FROM (
+            SELECT [i].[CommunicationId], [i].[LinkHash], COUNT( * ) AS [Clicks]
+            FROM #Int AS [i]
+            WHERE [i].[Operation] = 'Click' AND [i].[IsUnsubscribeLink] = 0
+            GROUP BY [i].[CommunicationId], [i].[LinkHash]
+        ) AS [k]
+        GROUP BY [k].[CommunicationId]
+    ) AS [l]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- How soon each recipient's first open and first click follow the send.
+DECLARE @JMassResponseDelay NVARCHAR(MAX) = (
+    SELECT
+        [d].[Medium] AS [medium],
+        [d].[Operation] AS [operation],
+        [d].[DelayBand] AS [delayBand],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER ( PARTITION BY [d].[Medium], [d].[Operation] ) AS DECIMAL(5,1) ) AS [pctOfFirsts]
+    FROM (
+        SELECT
+            [m].[Medium],
+            [f].[Operation],
+            CASE
+                WHEN DATEDIFF( MINUTE, [m].[SendDateTime], [f].[FirstDateTime] ) < 60 THEN '1-under 1 hour'
+                WHEN DATEDIFF( MINUTE, [m].[SendDateTime], [f].[FirstDateTime] ) < 360 THEN '2-1 to 6 hours'
+                WHEN DATEDIFF( MINUTE, [m].[SendDateTime], [f].[FirstDateTime] ) < 1440 THEN '3-6 to 24 hours'
+                WHEN DATEDIFF( MINUTE, [m].[SendDateTime], [f].[FirstDateTime] ) < 4320 THEN '4-1 to 3 days'
+                WHEN DATEDIFF( MINUTE, [m].[SendDateTime], [f].[FirstDateTime] ) < 10080 THEN '5-3 to 7 days'
+                ELSE '6-7 days or more'
+            END AS [DelayBand]
+        FROM (
+            SELECT [i].[CommunicationId], [i].[RecipientId], [i].[Operation], MIN( [i].[InteractionDateTime] ) AS [FirstDateTime]
+            FROM #Int AS [i]
+            WHERE [i].[IsUnsubscribeLink] = 0
+            GROUP BY [i].[CommunicationId], [i].[RecipientId], [i].[Operation]
+        ) AS [f]
+        INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [f].[CommunicationId]
+    ) AS [d]
+    GROUP BY [d].[Medium], [d].[Operation], [d].[DelayBand]
+    ORDER BY [d].[Medium], [d].[Operation], [d].[DelayBand]
+    FOR JSON PATH
+);
+
+-- =============================================
+-- Unsubscribes and spam complaints (mass sends, last 3 months, Rock 17+)
+-- =============================================
+
+CREATE TABLE #Unsub (
+    [Medium] NVARCHAR(30),
+    [Recipients] INT,
+    [Unsubscribed] INT,
+    [Spam] INT,
+    [LevelAll] INT,
+    [LevelBulk] INT,
+    [LevelList] INT
+);
+
+/*
+    10/21/26 - CLAUDE
+
+    The unsubscribe and spam columns arrived in Rock 17. Dynamic SQL lets
+    the script compile on older Rock, where this section stays empty.
+    These columns are not in the narrow index, so this is the slowest query
+    in the script; it reads only mass sends from the last 3 months.
+
+    Reason: One script for every Rock version a source might run.
+*/
+IF COL_LENGTH( 'CommunicationRecipient', 'UnsubscribeDateTime' ) IS NOT NULL
+BEGIN
+    EXEC sp_executesql N'
+        INSERT INTO #Unsub ( [Medium], [Recipients], [Unsubscribed], [Spam], [LevelAll], [LevelBulk], [LevelList] )
+        SELECT
+            [m].[Medium],
+            COUNT( * ),
+            SUM( CASE WHEN [cr].[UnsubscribeDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[SpamComplaintDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 1 THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 2 THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 3 THEN 1 ELSE 0 END )
+        FROM #Mass AS [m]
+        INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [m].[CommunicationId]
+        WHERE [m].[SendDateTime] >= @Start3
+            AND [m].[Medium] IN ( ''Email'', ''Recipient preference'' )
+        GROUP BY [m].[Medium];',
+        N'@Start3 DATE',
+        @Start3 = @Start3;
+END;
+
+DECLARE @JMassUnsubscribes NVARCHAR(MAX) = (
+    SELECT
+        [u].[Medium] AS [medium],
+        CAST( [u].[Unsubscribed] * 100.0 / NULLIF( [u].[Recipients], 0 ) AS DECIMAL(6,2) ) AS [pctUnsubscribed],
+        CAST( [u].[Spam] * 100.0 / NULLIF( [u].[Recipients], 0 ) AS DECIMAL(6,3) ) AS [pctSpamComplaints],
+        CAST( [u].[LevelAll] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromAll],
+        CAST( [u].[LevelBulk] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromBulk],
+        CAST( [u].[LevelList] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromList]
+    FROM #Unsub AS [u]
+    FOR JSON PATH
+);
+
+-- =============================================
+-- People: preferences, phones, and the church app
+-- =============================================
+
+-- Communication preference on a person: 1 Email, 2 SMS, 3 Push.
+-- Email preference: 0 Email allowed, 1 No mass emails, 2 Do not email.
+-- Site type 1 is a mobile application.
+DECLARE @JPeople NVARCHAR(MAX) = (
+    SELECT
+        CAST( AVG( [a].[HasEmail] * 100.0 ) AS DECIMAL(5,1) ) AS [pctWithEmail],
+        CAST( SUM( CASE WHEN [a].[HasEmail] = 1 AND [a].[IsEmailActive] = 0 THEN 1 ELSE 0 END ) * 100.0 / NULLIF( SUM( [a].[HasEmail] ), 0 ) AS DECIMAL(5,1) ) AS [pctEmailsInactive],
+        CAST( AVG( CASE WHEN [a].[EmailPreference] = 1 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctNoMassEmails],
+        CAST( AVG( CASE WHEN [a].[EmailPreference] = 2 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctDoNotEmail],
+        CAST( AVG( CASE WHEN [a].[CommunicationPreference] = 1 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctPreferEmail],
+        CAST( AVG( CASE WHEN [a].[CommunicationPreference] = 2 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctPreferSms],
+        CAST( AVG( CASE WHEN [a].[CommunicationPreference] = 3 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctPreferPush],
+        CAST( AVG( [a].[HasMessagingPhone] * 100.0 ) AS DECIMAL(5,1) ) AS [pctWithMessagingPhone],
+        CAST( AVG( [a].[HasAppDevice] * 100.0 ) AS DECIMAL(5,1) ) AS [pctWithAppDevice],
+        CAST( AVG( [a].[HasPushReadyDevice] * 100.0 ) AS DECIMAL(5,1) ) AS [pctWithPushReadyDevice]
+    FROM (
+        -- SQL Server does not allow a subquery inside AVG, so the flags are set here first.
+        SELECT
+            [ad].*,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [ad].[PersonId] AND [pn].[IsMessagingEnabled] = 1
+            ) THEN 1 ELSE 0 END AS [HasMessagingPhone],
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM [PersonalDevice] AS [pd]
+                INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pd].[PersonAliasId]
+                INNER JOIN [Site] AS [s] ON [s].[Id] = [pd].[SiteId]
+                WHERE [pa].[PersonId] = [ad].[PersonId] AND [pd].[IsActive] = 1 AND [s].[SiteType] = 1
+            ) THEN 1 ELSE 0 END AS [HasAppDevice],
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM [PersonalDevice] AS [pd]
+                INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pd].[PersonAliasId]
+                INNER JOIN [Site] AS [s] ON [s].[Id] = [pd].[SiteId]
+                WHERE [pa].[PersonId] = [ad].[PersonId] AND [pd].[IsActive] = 1 AND [s].[SiteType] = 1
+                    AND [pd].[NotificationsEnabled] = 1 AND ISNULL( [pd].[DeviceRegistrationId], '' ) <> ''
+            ) THEN 1 ELSE 0 END AS [HasPushReadyDevice]
+        FROM #Adult AS [ad]
+    ) AS [a]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- Platform mix of active app devices, by Rock's platform Guids.
+DECLARE @JAppDevices NVARCHAR(MAX) = (
+    SELECT
+        CAST( AVG( CASE WHEN [dv].[Guid] = 'F00515E7-4EF3-480D-A45D-372CE3D80E69' THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctIos],
+        CAST( AVG( CASE WHEN [dv].[Guid] = '63464BB8-83E2-4914-B922-5075311758F9' THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctAndroid],
+        CAST( AVG( CASE WHEN [pd].[NotificationsEnabled] = 1 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctNotificationsOn],
+        CAST( AVG( CASE WHEN [pd].[LastSeenDateTime] >= DATEADD( DAY, -30, @EndDate ) THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctSeenInLast30Days]
+    FROM [PersonalDevice] AS [pd]
+    INNER JOIN [Site] AS [s] ON [s].[Id] = [pd].[SiteId]
+    LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [pd].[PlatformValueId]
+    WHERE [pd].[IsActive] = 1 AND [s].[SiteType] = 1
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- =============================================
+-- Texts: replies and conversations (last 12 months)
+-- =============================================
+
+-- Inbound texts. A reply that is only a stop word counts as an opt-out.
+SELECT
+    [r].[Id] AS [ResponseId],
+    [pa].[PersonId],
+    [r].[RelatedSmsFromSystemPhoneNumberId] AS [NumberId],
+    [r].[CreatedDateTime],
+    [r].[IsRead],
+    LEN( ISNULL( [r].[Response], '' ) ) AS [Length],
+    CASE WHEN UPPER( LTRIM( RTRIM( ISNULL( [r].[Response], '' ) ) ) ) IN ( 'STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT' ) THEN 1 ELSE 0 END AS [IsStop],
+    [r].[RelatedCommunicationId]
+INTO #Resp
+FROM [CommunicationResponse] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[FromPersonAliasId]
+WHERE [r].[RelatedMediumEntityTypeId] = @SmsMediumId
+    AND [r].[CreatedDateTime] >= @Start12 AND [r].[CreatedDateTime] < @EndDate;
+
+CREATE CLUSTERED INDEX [IX_Thread] ON #Resp ( [PersonId], [NumberId], [CreatedDateTime] );
+
+/*
+    10/21/26 - CLAUDE
+
+    SMS Conversations shows outbound texts from a recipient's CreatedDateTime,
+    so this does too. Only sends to one or two people count as conversation
+    messages; mass texts are measured above. The recipient's medium is read
+    only for these small sends, which keeps the full-row reads few.
+
+    Reason: Thread length and reply time should reflect conversations, not
+    mass texts.
+*/
+SELECT
+    [pa].[PersonId],
+    [c].[SmsFromSystemPhoneNumberId] AS [NumberId],
+    [cr].[CreatedDateTime],
+    LEN( ISNULL( [cr].[SentMessage], '' ) ) AS [Length]
+INTO #SmsOut
+FROM #Comm AS [c]
+INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [c].[CommunicationId]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [c].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+WHERE [c].[CommunicationType] IN ( 0, 2 )
+    AND [c].[SmsFromSystemPhoneNumberId] IS NOT NULL
+    AND [s].[Recipients] <= 2
+    AND [cr].[MediumEntityTypeId] = @SmsMediumId
+    AND [cr].[Status] IN ( 1, 4 );
+
+CREATE CLUSTERED INDEX [IX_Thread] ON #SmsOut ( [PersonId], [NumberId], [CreatedDateTime] );
+
+DECLARE @JSmsInbound NVARCHAR(MAX) = (
+    SELECT TOP 1
+        CAST( AVG( CASE WHEN [r].[PersonId] IS NOT NULL THEN 100.0 ELSE 0.0 END ) OVER () AS DECIMAL(5,1) ) AS [pctFromKnownPerson],
+        CAST( AVG( CASE WHEN [r].[RelatedCommunicationId] IS NOT NULL THEN 100.0 ELSE 0.0 END ) OVER () AS DECIMAL(5,1) ) AS [pctLinkedToCommunication],
+        CAST( AVG( [r].[IsStop] * 100.0 ) OVER () AS DECIMAL(5,1) ) AS [pctStopWords],
+        CAST( AVG( CASE WHEN [r].[IsRead] = 0 THEN 100.0 ELSE 0.0 END ) OVER () AS DECIMAL(5,1) ) AS [pctUnread],
+        CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [r].[Length] ) OVER () AS DECIMAL(10,1) ) AS [lengthP50],
+        CAST( PERCENTILE_CONT( 0.90 ) WITHIN GROUP ( ORDER BY [r].[Length] ) OVER () AS DECIMAL(10,1) ) AS [lengthP90]
+    FROM #Resp AS [r]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+DECLARE @JSmsInboundByMonth NVARCHAR(MAX) = (
+    SELECT
+        CONVERT( CHAR(7), [r].[CreatedDateTime], 120 ) AS [month],
+        COUNT( * ) AS [texts]
+    FROM #Resp AS [r]
+    GROUP BY CONVERT( CHAR(7), [r].[CreatedDateTime], 120 )
+    ORDER BY CONVERT( CHAR(7), [r].[CreatedDateTime], 120 )
+    FOR JSON PATH
+);
+
+DECLARE @JSmsInboundTiming NVARCHAR(MAX) = (
+    SELECT
+        [t].[Kind] AS [kind],
+        [t].[Value] AS [value],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER ( PARTITION BY [t].[Kind] ) AS DECIMAL(5,1) ) AS [pctTexts]
+    FROM (
+        SELECT 'weekday' AS [Kind], CHOOSE( DATEDIFF( DAY, '19000101', [r].[CreatedDateTime] ) % 7 + 1, '1-Mon', '2-Tue', '3-Wed', '4-Thu', '5-Fri', '6-Sat', '7-Sun' ) AS [Value]
+        FROM #Resp AS [r]
+        UNION ALL
+        SELECT 'hourBand', CASE
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 6 THEN '00-05'
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 9 THEN '06-08'
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 12 THEN '09-11'
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 15 THEN '12-14'
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 18 THEN '15-17'
+                WHEN DATEPART( HOUR, [r].[CreatedDateTime] ) < 21 THEN '18-20'
+                ELSE '21-23'
+            END
+        FROM #Resp AS [r]
+    ) AS [t]
+    GROUP BY [t].[Kind], [t].[Value]
+    ORDER BY [t].[Kind], [t].[Value]
+    FOR JSON PATH
+);
+
+-- Replies to mass texts, matched through RelatedCommunicationId.
+DECLARE @JSmsMassReplies NVARCHAR(MAX) = (
+    SELECT
+        CAST( AVG( CASE WHEN [x].[Replies] > 0 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctOfMassTextsWithAnyReply],
+        CAST( SUM( [x].[Replies] ) * 100.0 / NULLIF( SUM( [x].[Recipients] ), 0 ) AS DECIMAL(6,2) ) AS [repliesPer100Recipients],
+        CAST( SUM( [x].[StopReplies] ) * 100.0 / NULLIF( SUM( [x].[Recipients] ), 0 ) AS DECIMAL(6,2) ) AS [stopRepliesPer100Recipients]
+    FROM (
+        SELECT
+            [m].[CommunicationId],
+            [m].[Recipients],
+            ( SELECT COUNT( * ) FROM #Resp AS [r] WHERE [r].[RelatedCommunicationId] = [m].[CommunicationId] ) AS [Replies],
+            ( SELECT COUNT( * ) FROM #Resp AS [r] WHERE [r].[RelatedCommunicationId] = [m].[CommunicationId] AND [r].[IsStop] = 1 ) AS [StopReplies]
+        FROM #Mass AS [m]
+        WHERE [m].[Medium] = 'SMS'
+    ) AS [x]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- A thread is one person and one church number with at least one inbound text.
+DECLARE @JSmsThreads NVARCHAR(MAX) = (
+    SELECT
+        CAST( AVG( CASE WHEN [t].[Messages] = 1 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWith1Message],
+        CAST( AVG( CASE WHEN [t].[Messages] BETWEEN 2 AND 3 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWith2To3Messages],
+        CAST( AVG( CASE WHEN [t].[Messages] BETWEEN 4 AND 9 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWith4To9Messages],
+        CAST( AVG( CASE WHEN [t].[Messages] >= 10 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWith10PlusMessages],
+        CAST( AVG( CASE WHEN [t].[Outbound] > 0 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWithStaffText],
+        CAST( AVG( CASE WHEN [t].[Unread] > 0 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsWithUnread],
+        CAST( AVG( CASE WHEN [spn].[AssignedToPersonAliasId] IS NOT NULL THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctThreadsOnPersonalNumber]
+    FROM (
+        SELECT
+            [r].[PersonId],
+            [r].[NumberId],
+            COUNT( * ) + ( SELECT COUNT( * ) FROM #SmsOut AS [o] WHERE [o].[PersonId] = [r].[PersonId] AND [o].[NumberId] = [r].[NumberId] ) AS [Messages],
+            ( SELECT COUNT( * ) FROM #SmsOut AS [o] WHERE [o].[PersonId] = [r].[PersonId] AND [o].[NumberId] = [r].[NumberId] ) AS [Outbound],
+            SUM( CASE WHEN [r].[IsRead] = 0 THEN 1 ELSE 0 END ) AS [Unread]
+        FROM #Resp AS [r]
+        WHERE [r].[PersonId] IS NOT NULL AND [r].[NumberId] IS NOT NULL
+        GROUP BY [r].[PersonId], [r].[NumberId]
+    ) AS [t]
+    LEFT JOIN [SystemPhoneNumber] AS [spn] ON [spn].[Id] = [t].[NumberId]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- How fast the church answers an inbound text, and how fast a person answers
+-- a one-to-one text from the church. Only answers within 7 days count.
+DECLARE @JSmsReplyDelay NVARCHAR(MAX) = (
+    SELECT
+        [d].[Direction] AS [direction],
+        CAST( AVG( CASE WHEN [d].[Minutes] IS NOT NULL THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctAnswered],
+        CAST( AVG( CASE WHEN [d].[Minutes] < 15 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pctUnder15Minutes],
+        CAST( AVG( CASE WHEN [d].[Minutes] >= 15 AND [d].[Minutes] < 60 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pct15To60Minutes],
+        CAST( AVG( CASE WHEN [d].[Minutes] >= 60 AND [d].[Minutes] < 240 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pct1To4Hours],
+        CAST( AVG( CASE WHEN [d].[Minutes] >= 240 AND [d].[Minutes] < 1440 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pct4To24Hours],
+        CAST( AVG( CASE WHEN [d].[Minutes] >= 1440 THEN 100.0 ELSE 0.0 END ) AS DECIMAL(5,1) ) AS [pct1To7Days]
+    FROM (
+        SELECT
+            'churchToPerson' AS [Direction],
+            DATEDIFF( MINUTE, [r].[CreatedDateTime], [n].[CreatedDateTime] ) AS [Minutes]
+        FROM #Resp AS [r]
+        OUTER APPLY (
+            SELECT TOP 1 [o].[CreatedDateTime]
+            FROM #SmsOut AS [o]
+            WHERE [o].[PersonId] = [r].[PersonId] AND [o].[NumberId] = [r].[NumberId]
+                AND [o].[CreatedDateTime] > [r].[CreatedDateTime]
+                AND [o].[CreatedDateTime] < DATEADD( DAY, 7, [r].[CreatedDateTime] )
+            ORDER BY [o].[CreatedDateTime]
+        ) AS [n]
+        WHERE [r].[PersonId] IS NOT NULL AND [r].[IsStop] = 0
+        UNION ALL
+        SELECT
+            'personToChurch',
+            DATEDIFF( MINUTE, [o].[CreatedDateTime], [n].[CreatedDateTime] )
+        FROM #SmsOut AS [o]
+        OUTER APPLY (
+            SELECT TOP 1 [r].[CreatedDateTime]
+            FROM #Resp AS [r]
+            WHERE [r].[PersonId] = [o].[PersonId] AND [r].[NumberId] = [o].[NumberId]
+                AND [r].[CreatedDateTime] > [o].[CreatedDateTime]
+                AND [r].[CreatedDateTime] < DATEADD( DAY, 7, [o].[CreatedDateTime] )
+            ORDER BY [r].[CreatedDateTime]
+        ) AS [n]
+    ) AS [d]
+    GROUP BY [d].[Direction]
+    FOR JSON PATH
+);
+
+DECLARE @JSmsOutboundLength NVARCHAR(MAX) = (
+    SELECT TOP 1
+        CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [o].[Length] ) OVER () AS DECIMAL(10,1) ) AS [lengthP50],
+        CAST( PERCENTILE_CONT( 0.90 ) WITHIN GROUP ( ORDER BY [o].[Length] ) OVER () AS DECIMAL(10,1) ) AS [lengthP90]
+    FROM #SmsOut AS [o]
+    WHERE [o].[Length] > 0
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- Church phone numbers are setup, not people, so counts are fine here.
+DECLARE @JSystemPhoneNumbers NVARCHAR(MAX) = (
+    SELECT
+        COUNT( * ) AS [activeNumbers],
+        SUM( CASE WHEN [spn].[IsSmsEnabled] = 1 THEN 1 ELSE 0 END ) AS [smsEnabledNumbers],
+        SUM( CASE WHEN [spn].[AssignedToPersonAliasId] IS NOT NULL THEN 1 ELSE 0 END ) AS [personalNumbers]
+    FROM [SystemPhoneNumber] AS [spn]
+    WHERE [spn].[IsActive] = 1
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- =============================================
+-- Communication flows (Rock 18+)
+-- =============================================
+
+CREATE TABLE #Flow (
+    [Flows] INT,
+    [ActiveFlows] INT,
+    [CommunicationsPerFlowP50] DECIMAL(6,1)
+);
+
+IF OBJECT_ID( 'CommunicationFlow' ) IS NOT NULL AND OBJECT_ID( 'CommunicationFlowCommunication' ) IS NOT NULL
+BEGIN
+    EXEC sp_executesql N'
+        INSERT INTO #Flow ( [Flows], [ActiveFlows], [CommunicationsPerFlowP50] )
+        SELECT TOP 1
+            COUNT( * ) OVER (),
+            SUM( CASE WHEN [f].[IsActive] = 1 THEN 1 ELSE 0 END ) OVER (),
+            CAST( PERCENTILE_CONT( 0.50 ) WITHIN GROUP ( ORDER BY [f].[Messages] ) OVER () AS DECIMAL(6,1) )
+        FROM (
+            SELECT
+                [cf].[Id],
+                [cf].[IsActive],
+                ( SELECT COUNT( * ) FROM [CommunicationFlowCommunication] AS [cfc] WHERE [cfc].[CommunicationFlowId] = [cf].[Id] ) AS [Messages]
+            FROM [CommunicationFlow] AS [cf]
+        ) AS [f];';
+END;
+
+DECLARE @JFlows NVARCHAR(MAX) = (
+    SELECT
+        [f].[Flows] AS [flows],
+        [f].[ActiveFlows] AS [activeFlows],
+        [f].[CommunicationsPerFlowP50] AS [communicationsPerFlowP50]
+    FROM #Flow AS [f]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+-- =============================================
+-- Output: one row per section. Rock's SQL editor shows only this result.
+-- =============================================
+
+DECLARE @JMeta NVARCHAR(MAX) = (
+    SELECT
+        @ChurchLabel AS [church],
+        7 AS [part],
+        @MassSendMinRecipients AS [massSendMinRecipients],
+        CONVERT( CHAR(10), @Start12, 120 ) AS [periodStart],
+        CONVERT( CHAR(10), @Start3, 120 ) AS [recipientPeriodStart],
+        CONVERT( CHAR(10), @EndDate, 120 ) AS [periodEndExclusive]
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+);
+
+SELECT [s].[Section], [s].[Json]
+FROM ( VALUES
+    ( 1, 'meta', @JMeta ),
+    ( 2, 'massSendSummary', @JMassSendSummary ),
+    ( 3, 'massSendsByMedium', @JMassSendsByMedium ),
+    ( 4, 'massSendSizeBands', @JMassSendSizeBands ),
+    ( 5, 'massSendsByMonth', @JMassSendsByMonth ),
+    ( 6, 'massSendsByWeekday', @JMassSendsByWeekday ),
+    ( 7, 'massSendsByHourBand', @JMassSendsByHourBand ),
+    ( 8, 'communicationLists', @JCommunicationLists ),
+    ( 9, 'massOutcomes', @JMassOutcomes ),
+    ( 10, 'massEngagement', @JMassEngagement ),
+    ( 11, 'massLinks', @JMassLinks ),
+    ( 12, 'massResponseDelay', @JMassResponseDelay ),
+    ( 13, 'massUnsubscribes', @JMassUnsubscribes ),
+    ( 14, 'communicationPeople', @JPeople ),
+    ( 15, 'appDevices', @JAppDevices ),
+    ( 16, 'smsInbound', @JSmsInbound ),
+    ( 17, 'smsInboundByMonth', @JSmsInboundByMonth ),
+    ( 18, 'smsInboundTiming', @JSmsInboundTiming ),
+    ( 19, 'smsMassReplies', @JSmsMassReplies ),
+    ( 20, 'smsThreads', @JSmsThreads ),
+    ( 21, 'smsReplyDelay', @JSmsReplyDelay ),
+    ( 22, 'smsOutboundLength', @JSmsOutboundLength ),
+    ( 23, 'systemPhoneNumbers', @JSystemPhoneNumbers ),
+    ( 24, 'communicationFlows', @JFlows )
+) AS [s] ( [Order], [Section], [Json] )
+ORDER BY [s].[Order];
+
+DROP TABLE IF EXISTS #CommId, #Comm, #Size, #Mass, #MassOutcome, #Component, #Int, #Unsub, #Adult, #Resp, #SmsOut, #Flow;

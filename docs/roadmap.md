@@ -35,7 +35,8 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-- **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It lists packages from a hosted `index.json` or takes an uploaded package, beside the old sample data block.
+- **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It shows Core 1, Core 3, and Full 7 as cards from the dataset catalog and downloads the chosen package from a hosted `index.json`, beside the old sample data block.
+- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 
 ## Waiting on a decision
 
@@ -48,6 +49,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Per-person attendance,** so a teen can attend more often than their parents.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
 5. **Steps.** Build the plan in [Steps](steps.md) (decisions 83 to 89): Rock's Discipleship Path built out to seven adult steps, and a four-step Student Path, every step made from records the data already has.
+6. **Pledges.** Build the plan in [Pledges](pledges.md) (decisions 97 to 105): Built on the Rock, a two-year building campaign about 38% through on install, with its own fund, pledges from about 12% of giving units and 30% of businesses, every follow-through state, and Cast stories for each one.
 
 ## To do (parked)
 
@@ -94,7 +96,7 @@ The builder and loader are split (see Done). What is left:
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
+Registrations, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 
