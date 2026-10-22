@@ -219,24 +219,37 @@
             "steps": {
               "type": "object",
               "additionalProperties": false,
-              "description": "Step type keys from configuration/steps.json.",
+              "description": "Step type and program keys from configuration/steps.json.",
               "properties": {
                 "complete": { "type": "array", "items": { "type": "string" }, "description": "Types with at least one Complete step." },
                 "inProgress": { "type": "array", "items": { "type": "string" }, "description": "Types with an In Progress step." },
-                "programCompletion": { "type": "boolean", "description": "True when the person must have a Discipleship Path completion, false when they must not." }
+                "programCompletions": { "type": "array", "items": { "type": "string" }, "description": "The keys of exactly the programs the person has a completion for. An empty list means none." }
               }
             }
           }
         },
         "steps": {
           "type": "object",
-          "description": "Classes a story needs, by the key of a class step type in configuration/steps.json (Starting Point Class or Foundations). Every other step comes from the person's records.",
+          "description": "Steps a story needs, by step type key in configuration/steps.json: a class (Starting Point Class or Foundations), a student event (Student Camp or Mission Trip), the Follow Jesus decision, or Student Leader. Set exactly one of classesAgo, events, or taken. Group, team, giving, and baptism steps come from the person's other records.",
           "additionalProperties": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "classesAgo": { "type": "integer", "minimum": 0, "description": "Which class: 0 is the class running on the install day (In Progress), 1 the one before it, and so on." },
-              "taken": { "type": "boolean", "description": "True when the person took the class and the usual rules date it." }
+              "classesAgo": { "type": "integer", "minimum": 0, "description": "For a class: 0 is the class running on the install day (In Progress), 1 the one before it, and so on." },
+              "events": {
+                "type": "array",
+                "description": "For an event step, every one the person went to. For a decision, the one event it was made at, which must be one of the person's own events.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [ "season", "yearsAgo" ],
+                  "properties": {
+                    "season": { "type": "string", "description": "A season key of the event in configuration/steps.json, such as summer or spring." },
+                    "yearsAgo": { "type": "integer", "minimum": 0, "description": "0 is the latest one that ended before the install day, 1 the one a year before it, and so on." }
+                  }
+                }
+              },
+              "taken": { "type": "boolean", "description": "True when the person took the step and the usual rules date it." }
             }
           }
         },

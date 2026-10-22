@@ -67,7 +67,7 @@
           "inProgress": [
             "starting-point-class"
           ],
-          "programCompletion": false
+          "programCompletions": []
         }
       },
       "connectionRequests": [
@@ -127,7 +127,7 @@
           "inProgress": [
             "starting-point-class"
           ],
-          "programCompletion": false
+          "programCompletions": []
         }
       },
       "connectionRequests": [

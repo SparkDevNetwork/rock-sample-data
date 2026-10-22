@@ -31,7 +31,9 @@ const castDir = __dirname;
 const outDir = path.join( castDir, "families" );
 const photoDir = path.join( castDir, "..", "photos", "cast" );
 const campuses = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses;
-const stepTypeNames = new Map( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).stepTypes.map( t => [ t.key, t.name ] ) );
+const stepPrograms = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
+const stepProgramNames = new Map( stepPrograms.map( p => [ p.key, p.name ] ) );
+const stepTypeNames = new Map( stepPrograms.flatMap( p => p.stepTypes ).map( t => [ t.key, t.name ] ) );
 const achievementNames = new Map( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( a => [ a.key, a.name ] ) );
 const mainCampus = campuses.find( c => c.rockDefault ).name;
 const prayerFile = path.join( castDir, "prayer-requests.json" );
@@ -252,7 +254,7 @@ function familyPage( h ) {
             const shows = [
                 ...( steps.complete || [] ).map( k => `${stepTypeNames.get( k )} complete` ),
                 ...( steps.inProgress || [] ).map( k => `${stepTypeNames.get( k )} in progress` ),
-                ...( steps.programCompletion === true ? [ "the Discipleship Path completed" ] : [] )
+                ...( steps.programCompletions || [] ).map( k => `the ${stepProgramNames.get( k )} completed` )
             ];
             facts.push( `Rock shows ${shows.join( ", " )}` );
         }

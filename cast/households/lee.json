@@ -112,6 +112,7 @@
       "firstName": "Benjamin",
       "nickName": "Ben",
       "lastName": "Lee",
+      "bio": "Ben is in high school. He has gone to Student Camp the last two summers and went on a mission trip last spring.",
       "gender": "male",
       "familyRole": "child",
       "birth": {
@@ -120,7 +121,37 @@
         "day": 23
       },
       "recordStatus": "active",
-      "connectionStatus": "Engaged"
+      "connectionStatus": "Engaged",
+      "steps": {
+        "student-camp": {
+          "events": [
+            {
+              "season": "summer",
+              "yearsAgo": 0
+            },
+            {
+              "season": "summer",
+              "yearsAgo": 1
+            }
+          ]
+        },
+        "mission-trip": {
+          "events": [
+            {
+              "season": "spring",
+              "yearsAgo": 0
+            }
+          ]
+        }
+      },
+      "expect": {
+        "steps": {
+          "complete": [
+            "student-camp",
+            "mission-trip"
+          ]
+        }
+      }
     },
     {
       "key": "abigail",

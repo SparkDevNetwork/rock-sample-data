@@ -117,7 +117,7 @@
       "guid": "DAB43FB0-CF9F-4ACB-AF01-670BDA69BB39",
       "firstName": "Ava",
       "lastName": "Brooks",
-      "bio": "Ava is fourteen and checks in to the student service.",
+      "bio": "Ava is fourteen and checks in to the student service. She went to Student Camp last summer and decided to follow Jesus there.",
       "gender": "female",
       "familyRole": "child",
       "birth": {
@@ -129,6 +129,33 @@
       "connectionStatus": "Engaged",
       "phones": {
         "mobile": "4805550195"
+      },
+      "steps": {
+        "student-camp": {
+          "events": [
+            {
+              "season": "summer",
+              "yearsAgo": 0
+            }
+          ]
+        },
+        "follow-jesus": {
+          "events": [
+            {
+              "season": "summer",
+              "yearsAgo": 0
+            }
+          ]
+        }
+      },
+      "expect": {
+        "steps": {
+          "complete": [
+            "student-camp",
+            "follow-jesus"
+          ],
+          "programCompletions": []
+        }
       }
     },
     {

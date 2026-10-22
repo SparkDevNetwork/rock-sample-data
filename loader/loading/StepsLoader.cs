@@ -37,8 +37,8 @@ namespace RockSampleData.Loader.Loading
     */
 
     /// <summary>
-    /// Sets up the adult step program and writes its steps, the Baptism Date and Baptized Here values, and
-    /// the program completions.
+    /// Sets up the step programs and writes their steps, the Baptism Date and Baptized Here values, and the
+    /// program completions.
     /// </summary>
     internal sealed class StepsLoader
     {
@@ -51,8 +51,9 @@ namespace RockSampleData.Loader.Loading
         private readonly string _seed;
         private readonly DateTime _historyStart;
         private readonly Dictionary<string, int> _groupTypeIds;
+        private readonly IReadOnlyDictionary<string, int> _checkInGroupIds;
 
-        public StepsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed, DateTime historyStart, int smallGroupTypeId, int servingGroupTypeId )
+        public StepsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed, DateTime historyStart, int smallGroupTypeId, int servingGroupTypeId, IReadOnlyDictionary<string, int> checkInGroupIds )
         {
             _db = db;
             _source = source;
@@ -61,10 +62,11 @@ namespace RockSampleData.Loader.Loading
             _seed = seed;
             _historyStart = historyStart;
             _groupTypeIds = new Dictionary<string, int> { ["small-group"] = smallGroupTypeId, ["serving"] = servingGroupTypeId };
+            _checkInGroupIds = checkInGroupIds;
         }
 
         /// <summary>
-        /// Sets up the program and its step types, plans every step from what earlier steps wrote, and writes it.
+        /// Sets up the programs and their step types, plans every step from what earlier steps wrote, and writes it.
         /// </summary>
         public void Load( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, Dictionary<int, HashSet<DateTime>> familySundays, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
@@ -75,17 +77,22 @@ namespace RockSampleData.Loader.Loading
                 return;
             }
 
-            var program = ConfigureProgram( config );
-            var facts = ReadFacts( people, castHouseholdKeys, familySundays, gifts, finalJourneyRun );
+            var setup = ConfigurePrograms( config );
+            var facts = ReadFacts( config, people, castHouseholdKeys, familySundays, gifts, finalJourneyRun );
             var plan = StepPlanner.Plan( config, facts, _seed );
-            Write( config, program, plan );
+            Write( config, setup, plan );
 
-            var byType = string.Join( ", ", config.StepTypes.Select( t =>
+            foreach ( var program in config.Programs )
             {
-                var steps = plan.Steps.Where( s => s.StepType == t.Key ).ToList();
-                var inProgress = steps.Count( s => s.Status == StepStatus.InProgress );
-                return $"{t.Name} {steps.Count:N0}{( inProgress > 0 ? $" ({inProgress:N0} in progress)" : string.Empty )}";
-            } ) );
+                var byType = string.Join( ", ", program.StepTypes.Select( t =>
+                {
+                    var steps = plan.Steps.Where( s => s.StepType == t.Key ).ToList();
+                    var inProgress = steps.Count( s => s.Status == StepStatus.InProgress );
+                    return $"{t.Name} {steps.Count:N0}{( inProgress > 0 ? $" ({inProgress:N0} in progress)" : string.Empty )}";
+                } ) );
+                Console.WriteLine( $"  {program.Name}: {byType}; program completions: {plan.Completions.Count( c => c.ProgramKey == program.Key ):N0}" );
+            }
+
             var activeAdults = facts.People.Count( p => p.IsActiveAdult );
             var baptized = plan.Baptisms.Select( b => b.PersonId ).ToHashSet();
             string Share( bool isCast, string label )
@@ -94,16 +101,48 @@ namespace RockSampleData.Loader.Loading
                 return active.Count == 0 ? string.Empty : $", {100.0 * active.Count( p => baptized.Contains( p.PersonId ) ) / active.Count:N0}% of {label} active adults";
             }
 
-            Console.WriteLine( $"  Steps: {plan.Steps.Count:N0} ({byType})" );
-            Console.WriteLine( $"  Active adults: {activeAdults:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}); program completions: {plan.Completions.Count:N0}" );
+            var students = facts.People.Count( p => facts.StudentCheckIns.ContainsKey( p.PersonId ) );
+            var studentBaptisms = facts.People.Count( p => !p.IsAdult && facts.StudentCheckIns.ContainsKey( p.PersonId ) && baptized.Contains( p.PersonId ) );
+            Console.WriteLine( $"  Active adults: {activeAdults:N0}; students: {students:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}; {studentBaptisms:N0} students)" );
         }
 
-        #region Program and step types
+        #region Programs and step types
 
         /// <summary>
-        /// Rock's program, its step types, and their Ids, after setup.
+        /// One program's Id and statuses in Rock, after setup.
         /// </summary>
-        private sealed record ProgramSetup( int ProgramId, Dictionary<string, int> TypeIds, int InProgressStatusId, int CompleteStatusId );
+        private sealed record ProgramSetup( int ProgramId, int InProgressStatusId, int CompleteStatusId );
+
+        /// <summary>
+        /// Every program and step type Id in Rock, after setup, by key.
+        /// </summary>
+        private sealed record StepsSetup( Dictionary<string, ProgramSetup> Programs, Dictionary<string, int> TypeIds, Dictionary<string, string> ProgramKeyByType );
+
+        /// <summary>
+        /// A new program's statuses, named and colored like the ones Rock gives the Discipleship Path, since a Rock
+        /// status belongs to one program.
+        /// </summary>
+        private static readonly (string Name, string Color, bool IsComplete, int Order)[] NewProgramStatuses =
+        {
+            ("In Progress", "#FFC870", false, 1),
+            ("Complete", "#16C98D", true, 2)
+        };
+
+        private StepsSetup ConfigurePrograms( StepsConfiguration config )
+        {
+            var setup = new StepsSetup( new Dictionary<string, ProgramSetup>(), new Dictionary<string, int>(), new Dictionary<string, string>() );
+            for ( var order = 0; order < config.Programs.Count; order++ )
+            {
+                var program = config.Programs[order];
+                setup.Programs[program.Key] = ConfigureProgram( config, program, order, setup.TypeIds );
+                foreach ( var type in program.StepTypes )
+                {
+                    setup.ProgramKeyByType[type.Key] = program.Key;
+                }
+            }
+
+            return setup;
+        }
 
         /*
             10/21/26 - CLAUDE
@@ -111,21 +150,30 @@ namespace RockSampleData.Loader.Loading
             Rock's Discipleship Path and its four step types are kept and updated in place, because Rock code
             finds Baptism, Serve, and Small Group by Guid. Foundations, Give, and Lead are added. Rock's one
             prerequisite (Serve after Starting Point Class) is kept; the completion flow Linear (Preferred)
-            shows and enforces it.
+            shows and enforces it. The Student Path is a new program with its own statuses, filed in the same
+            category as the Discipleship Path.
 
             Reason: This follows the serving pattern (decisions 68 and 83).
         */
-        private ProgramSetup ConfigureProgram( StepsConfiguration config )
+        private ProgramSetup ConfigureProgram( StepsConfiguration config, StepProgramDefinition program, int programOrder, Dictionary<string, int> typeIds )
         {
             var now = DateTime.Now;
-            var programId = _db.RequireIdByGuid( "StepProgram", config.Program.Guid );
-            _db.Execute( "UPDATE [StepProgram] SET [CompletionFlow] = @CompletionFlow, [Description] = @Description, [ModifiedDateTime] = @Now WHERE [Id] = @Id",
-                P( "@CompletionFlow", ( int ) Enum.Parse<CompletionFlow>( config.Program.CompletionFlow, true ) ), P( "@Description", config.Program.Description ), P( "@Now", now ), P( "@Id", programId ) );
-
-            var typeIds = new Dictionary<string, int>();
-            for ( var order = 0; order < config.StepTypes.Count; order++ )
+            var completionFlow = ( int ) Enum.Parse<CompletionFlow>( program.CompletionFlow, true );
+            int programId;
+            if ( program.RockProgram )
             {
-                var type = config.StepTypes[order];
+                programId = _db.RequireIdByGuid( "StepProgram", program.Guid );
+                _db.Execute( "UPDATE [StepProgram] SET [CompletionFlow] = @CompletionFlow, [Description] = @Description, [ModifiedDateTime] = @Now WHERE [Id] = @Id",
+                    P( "@CompletionFlow", completionFlow ), P( "@Description", program.Description ), P( "@Now", now ), P( "@Id", programId ) );
+            }
+            else
+            {
+                programId = AddProgram( program, programOrder, completionFlow, now );
+            }
+
+            for ( var order = 0; order < program.StepTypes.Count; order++ )
+            {
+                var type = program.StepTypes[order];
                 var objectiveId = _db.RequireIdByGuid( "DefinedValue", config.Objectives[type.Objective] );
                 var values = new[]
                 {
@@ -160,7 +208,7 @@ VALUES ( @ProgramId, @Name, @Description, @IconCssClass, @AllowMultiple, @HasEnd
                 }
             }
 
-            foreach ( var prerequisite in config.Prerequisites )
+            foreach ( var prerequisite in program.Prerequisites )
             {
                 _db.Execute( @"
 IF NOT EXISTS ( SELECT 1 FROM [StepTypePrerequisite] WHERE [StepTypeId] = @StepTypeId AND [PrerequisiteStepTypeId] = @PrerequisiteId )
@@ -169,7 +217,35 @@ IF NOT EXISTS ( SELECT 1 FROM [StepTypePrerequisite] WHERE [StepTypeId] = @StepT
                     P( "@StepTypeId", typeIds[prerequisite.StepType] ), P( "@PrerequisiteId", typeIds[prerequisite.Requires] ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
             }
 
-            return new ProgramSetup( programId, typeIds, _db.RequireIdByGuid( "StepStatus", config.Statuses.InProgress ), _db.RequireIdByGuid( "StepStatus", config.Statuses.Complete ) );
+            return new ProgramSetup( programId, _db.RequireIdByGuid( "StepStatus", program.Statuses.InProgress ), _db.RequireIdByGuid( "StepStatus", program.Statuses.Complete ) );
+        }
+
+        /// <summary>
+        /// Adds a new program, filed in its category, with its In Progress and Complete statuses. Returns its Id.
+        /// </summary>
+        private int AddProgram( StepProgramDefinition program, int order, int completionFlow, DateTime now )
+        {
+            var programId = ( int ) _db.Scalar( @"
+INSERT INTO [StepProgram] ( [Name], [Description], [IconCssClass], [CategoryId], [DefaultListView], [IsActive], [Order], [StepTerm], [IsSystem], [CompletionFlow],
+    [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
+OUTPUT INSERTED.[Id]
+VALUES ( @Name, @Description, @IconCssClass, @CategoryId, 0, 1, @Order, 'Step', 0, @CompletionFlow, @Guid, @Now, @Now, @ForeignKey )",
+                P( "@Name", program.Name ), P( "@Description", program.Description ), P( "@IconCssClass", program.IconCssClass ),
+                P( "@CategoryId", program.CategoryGuid.HasValue ? _db.RequireIdByGuid( "Category", program.CategoryGuid.Value ) : ( object ) null ),
+                P( "@Order", order ), P( "@CompletionFlow", completionFlow ), P( "@Guid", program.Guid ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
+
+            var guids = new[] { program.Statuses.InProgress, program.Statuses.Complete };
+            for ( var i = 0; i < NewProgramStatuses.Length; i++ )
+            {
+                var status = NewProgramStatuses[i];
+                _db.Execute( @"
+INSERT INTO [StepStatus] ( [Name], [StepProgramId], [IsCompleteStatus], [StatusColor], [IsActive], [Order], [IsSystem], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
+VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now, @ForeignKey )",
+                    P( "@Name", status.Name ), P( "@ProgramId", programId ), P( "@IsComplete", status.IsComplete ), P( "@Color", status.Color ), P( "@Order", status.Order ),
+                    P( "@Guid", guids[i] ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
+            }
+
+            return programId;
         }
 
         /// <summary>
@@ -196,7 +272,7 @@ IF NOT EXISTS ( SELECT 1 FROM [StepTypePrerequisite] WHERE [StepTypeId] = @StepT
 
         #region Facts
 
-        private StepFacts ReadFacts( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, Dictionary<int, HashSet<DateTime>> familySundays, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        private StepFacts ReadFacts( StepsConfiguration config, PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, Dictionary<int, HashSet<DateTime>> familySundays, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
             var yearAgo = _dates.Anchor.AddMonths( -12 );
             var facts = new StepFacts
@@ -205,6 +281,7 @@ IF NOT EXISTS ( SELECT 1 FROM [StepTypePrerequisite] WHERE [StepTypeId] = @StepT
                 HistoryStart = _historyStart,
                 FinalJourneyRun = finalJourneyRun,
                 Memberships = ReadMemberships(),
+                StudentCheckIns = ReadStudentCheckIns( config ),
                 GiftDatesByGivingId = gifts.ToDictionary( g => g.Key, g => g.Value.Select( gift => gift.When ).OrderBy( d => d ).ToList() ),
                 OpenServeRequests = _db.Query( @"
 SELECT DISTINCT [pa].[PersonId]
@@ -240,12 +317,37 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
                         IsCast = isCast,
                         FirstVisit = firstVisit,
                         CastBaptismDate = isCast ? _dates.Resolve( person.Cast.Attributes?.BaptismDate ) : null,
-                        Classes = person.Cast.Steps ?? new Dictionary<string, CastStepClass>()
+                        GraduationYear = person.GraduationYear,
+                        StepChoices = person.Cast.Steps ?? new Dictionary<string, CastStepChoice>()
                     } );
                 }
             }
 
             return facts;
+        }
+
+        /// <summary>
+        /// The days each person checked in to a student program's student service, read back from the attendance
+        /// the earlier step wrote. Whatever attendance exists is what the Student Path follows.
+        /// </summary>
+        private Dictionary<int, SortedSet<DateTime>> ReadStudentCheckIns( StepsConfiguration config )
+        {
+            var groupIds = config.Programs.Where( p => p.Students != null ).SelectMany( p => p.Students.CheckInGroups ).Distinct()
+                .Select( key => _checkInGroupIds.TryGetValue( key, out var id ) ? id : throw new InvalidOperationException( $"configuration/steps.json names check-in group \"{key}\", which configuration/checkin.json does not hold." ) )
+                .ToList();
+            if ( groupIds.Count == 0 )
+            {
+                return new Dictionary<int, SortedSet<DateTime>>();
+            }
+
+            return _db.Query( $@"
+SELECT DISTINCT [pa].[PersonId], [o].[OccurrenceDate]
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [o].[GroupId] IN ( {string.Join( ", ", groupIds )} )", P( "@ForeignKey", _foreignKey ) )
+                .GroupBy( r => ( int ) r["PersonId"] )
+                .ToDictionary( g => g.Key, g => new SortedSet<DateTime>( g.Select( r => ( ( DateTime ) r["OccurrenceDate"] ).Date ) ) );
         }
 
         /// <summary>
@@ -292,7 +394,7 @@ ORDER BY [gm].[Id]",
         /// <summary>
         /// Bulk-copies the program completions, the steps (pointing at their completion), and the attribute values.
         /// </summary>
-        private void Write( StepsConfiguration config, ProgramSetup program, StepPlan plan )
+        private void Write( StepsConfiguration config, StepsSetup setup, StepPlan plan )
         {
             var groupEntityTypeId = _db.RequireIdByGuid( "EntityType", GroupEntityTypeGuid );
             var baptism = config.StepTypes.Single( t => t.Source.Kind == "baptism" ).Source;
@@ -306,15 +408,15 @@ ORDER BY [gm].[Id]",
 
             var completions = TableFactory.Create( "Id:int", "StepProgramId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "EndDateTime:date", "StartDateKey:int", "EndDateKey:int",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var completionIds = new Dictionary<int, int>();
+            var completionIds = new Dictionary<(int AliasId, string ProgramKey), int>();
             foreach ( var completion in plan.Completions )
             {
                 var id = nextCompletionId++;
-                completionIds[completion.AliasId] = id;
+                completionIds[(completion.AliasId, completion.ProgramKey)] = id;
 
                 // Rock's job runs the night the last step completes.
                 var created = completion.End ?? completion.Start;
-                completions.Rows.Add( id, program.ProgramId, completion.AliasId, completion.CampusId, completion.Start, Value( completion.End ), DateKey( completion.Start ), Value( DateKey( completion.End ) ),
+                completions.Rows.Add( id, setup.Programs[completion.ProgramKey].ProgramId, completion.AliasId, completion.CampusId, completion.Start, Value( completion.End ), DateKey( completion.Start ), Value( DateKey( completion.End ) ),
                     Guid.NewGuid(), _foreignKey, created, created );
             }
 
@@ -325,13 +427,15 @@ ORDER BY [gm].[Id]",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var baptisms = plan.Baptisms.ToDictionary( b => b.PersonId );
 
-            foreach ( var step in plan.Steps.OrderBy( s => s.AliasId ).ThenBy( s => program.TypeIds[s.StepType] ).ThenBy( s => s.Start ) )
+            foreach ( var step in plan.Steps.OrderBy( s => s.AliasId ).ThenBy( s => setup.TypeIds[s.StepType] ).ThenBy( s => s.Start ) )
             {
                 var id = nextStepId++;
                 var modified = new[] { step.Start, step.Completed ?? step.Start, step.End ?? step.Start }.Max();
-                steps.Rows.Add( id, program.TypeIds[step.StepType], step.Status == StepStatus.Complete ? program.CompleteStatusId : program.InProgressStatusId, step.AliasId, step.CampusId,
+                var programKey = setup.ProgramKeyByType[step.StepType];
+                var program = setup.Programs[programKey];
+                steps.Rows.Add( id, setup.TypeIds[step.StepType], step.Status == StepStatus.Complete ? program.CompleteStatusId : program.InProgressStatusId, step.AliasId, step.CampusId,
                     Value( step.Completed ), step.Start, Value( step.End ), 0,
-                    DateKey( step.Start ), Value( DateKey( step.End ) ), Value( DateKey( step.Completed ) ), completionIds.TryGetValue( step.AliasId, out var completionId ) ? completionId : DBNull.Value,
+                    DateKey( step.Start ), Value( DateKey( step.End ) ), Value( DateKey( step.Completed ) ), completionIds.TryGetValue( (step.AliasId, programKey), out var completionId ) ? completionId : DBNull.Value,
                     step.RelatedGroupId.HasValue ? groupEntityTypeId : DBNull.Value, Value( step.RelatedGroupId ),
                     Guid.NewGuid(), _foreignKey, step.Start, modified );
 

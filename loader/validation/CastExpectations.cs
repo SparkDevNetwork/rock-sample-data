@@ -472,19 +472,27 @@ WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
                     }
                 }
 
-                if ( expect.ProgramCompletion is bool expected )
+                if ( expect.ProgramCompletions != null )
                 {
                     checks++;
-                    var hasCompletion = Convert.ToInt32( db.Scalar( @"
-SELECT COUNT( * )
+                    var programKeys = source.Steps.Programs.ToDictionary( p => p.Guid, p => p.Key );
+                    var completed = db.Query( @"
+SELECT DISTINCT [sp].[Guid]
 FROM [StepProgramCompletion] AS [c]
 INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [c].[StepProgramId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [c].[PersonAliasId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[Guid] = @Guid AND [sp].[Guid] = @Program", P( "@Guid", person.Guid ), P( "@Program", source.Steps.Program.Guid ) ) ) > 0;
-                    if ( hasCompletion != expected )
+WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+                        .Select( r => ( Guid ) r["Guid"] )
+                        .Where( programKeys.ContainsKey )
+                        .Select( g => programKeys[g] )
+                        .OrderBy( k => k )
+                        .ToList();
+                    var expected = expect.ProgramCompletions.OrderBy( k => k ).ToList();
+                    if ( !completed.SequenceEqual( expected ) )
                     {
-                        failures.Add( $"{name}: expected {( expected ? "a" : "no" )} program completion, Rock shows {( hasCompletion ? "one" : "none" )}" );
+                        string Names( List<string> keys ) => keys.Count == 0 ? "none" : string.Join( ", ", keys );
+                        failures.Add( $"{name}: expected program completions for {Names( expected )}, Rock shows {Names( completed )}" );
                     }
                 }
             }
