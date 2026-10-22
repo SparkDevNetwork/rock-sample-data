@@ -51,7 +51,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 - **Pledge pages.** On both (Public) Create Pledge and the external site's Give > Pledge page, the Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
 - **Pledge frequency.** Both pledge pages show the frequency choice, but a pledger may leave it blank (decision 109).
 - **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
-- **No history.** Rock's pledge save hook writes its history against the pledge record, not the person, and no Rock screen shows it, so the loader writes none (decision D-pledges-cast-3).
+- **No history.** Rock's pledge save hook writes its history against the pledge record, not the person, and no Rock screen shows it, so the loader writes none (decision 112).
 
 ## How pledges are made
 
@@ -107,7 +107,7 @@ Plus **gifts without a pledge.** About 5% of generated givers who did not pledge
 ### The gifts
 
 - A pledger who already gives on the same rhythm adds a **campaign line to their usual gift**, in the same transaction. This is how most people give to a campaign.
-- **The line is sized from the gifts the giver really gave** since the pledge started: the pledge's share for that time, spread over those gifts, times the follow-through factor in `configuration/campaign.json` (ahead 1.5, behind 0.55). So an on-pace giver is on pace on any install day, however many Sundays they missed. A catch-up check after a missed Sunday carries the weeks it covers (decision D-pledges-cast-2).
+- **The line is sized from the gifts the giver really gave** since the pledge started: the pledge's share for that time, spread over those gifts, times the follow-through factor in `configuration/campaign.json` (ahead 1.5, behind 0.55). So an on-pace giver is on pace on any install day, however many Sundays they missed. A catch-up check after a missed Sunday carries the weeks it covers (decision 111).
 - **An extra campaign gift** rides on the giver's next usual hand-given gift within a month, as people add to their check. Otherwise it is a gift of its own, given the way they usually give. A pledge paid in full is one such gift, the week after pledging.
 - Pledgers who give through a **scheduled transaction** get a campaign line on that schedule from the pledge's start date. Rock shows it on their Contributions tab.
 - One-time and yearly pledges are paid by their own gifts.
@@ -148,7 +148,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 ## Checks
 
-- **Cast expectations.** Each Cast campaign entry has an expected state on install day, checked on every load, like the giving expectations (decision 46). The states are complete, ahead, on pace, behind, stopped, not started, and gifts only. A pledge is on pace within one gift, or a tenth of the pledge, of where it should be. It is stopped when it is behind and its giver gave nothing to the campaign for 60 days (decision D-pledges-cast-1).
+- **Cast expectations.** Each Cast campaign entry has an expected state on install day, checked on every load, like the giving expectations (decision 46). The states are complete, ahead, on pace, behind, stopped, not started, and gifts only. A pledge is on pace within one gift, or a tenth of the pledge, of where it should be. It is stopped when it is behind and its giver gave nothing to the campaign for 60 days (decision 110).
 - **Invariants.** Every pledge is on the campaign's parent account, inside the campaign dates, for a person who exists. Every campaign gift posts to a campus child account. No pledge is a duplicate for the same giving unit.
 - **Validation.** `giving.pctUnitsWithPledge` is graded against the profile's 12%. Campaign gifts add dollars, so pledge sizes came down until weekly and bi-weekly yearly totals passed again. Three measures move with any campaign, so they carry a recorded reason (decision D-pledges-crowd-1): the profile assumes more gifts with two funds (85% one fund, 14% two) and a lower December share of dollars (1.55), and the top 1% of yearly totals is graded within 40% instead of 25%, because the generator reads that target. Full 7 passes 389 of 428 measured values, one more than before the campaign, and fails none that passed before.
 - **Rock Cleanup** must find nothing to fix in pledge or campaign data.

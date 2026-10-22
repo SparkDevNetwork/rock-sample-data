@@ -57,7 +57,6 @@ module.exports = function church( { model, r } ) {
         active: "church",
         title: "Rock Solid Church",
         description: "Tour Rock Solid Church: seven Phoenix Valley campuses, a contemporary building, eight serving teams, and the small groups that fill the sample data.",
-        image: "images/church/lobby-toward-worship-center.jpg",
         body: html`
 <section class="hero hero-short">
   <img class="hero-image" src="${r( "images/church/lobby-toward-worship-center.jpg" )}" alt="The lobby looking toward the worship center, with three pairs of doors and the mission wall." width="1536" height="1024">

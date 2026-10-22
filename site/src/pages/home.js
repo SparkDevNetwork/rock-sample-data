@@ -48,7 +48,6 @@ module.exports = function home( { model, r } ) {
         active: "home",
         title: "",
         description: "Rock Solid Church is a complete, realistic sample church for Rock RMS, ready in seconds for testing, AI, training, and demos.",
-        image: "images/church/front-exterior-wide.jpg",
         body: html`
 <section class="hero">
   <img class="hero-image" src="${r( "images/church/front-exterior-wide.jpg" )}" alt="The front of Rock Solid Church: a low, warm-white building with a charcoal canopy, glass doors, and desert landscaping." width="1536" height="1024">
