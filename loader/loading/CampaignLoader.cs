@@ -97,7 +97,7 @@ namespace RockSampleData.Loader.Loading
             var values = new Dictionary<string, string>
             {
                 ["Account"] = fundGuid.ToString(),
-                ["PledgeDateRange"] = $"{start:o},{end:o}",
+                ["PledgeDateRange"] = $"{start:s},{end:s}",
                 ["ShowPledgeFrequency"] = pledgeEntry.ShowPledgeFrequency ? "True" : "False"
             };
 
