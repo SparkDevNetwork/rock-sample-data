@@ -56,6 +56,8 @@ const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
 const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "giving-alert-types.json" ), "utf8" ) ).alertTypes.map( t => t.key );
 const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
+const CAMPAIGN_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.campaign.properties;
+const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campaign.json" ), "utf8" ) ).commitmentSundayWeeksBeforeInstall;
 const STEP_TYPES = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).stepTypes;
 const STEP_TYPE_KEYS = STEP_TYPES.map( t => t.key );
 const CLASS_STEP_TYPE_KEYS = STEP_TYPES.filter( t => t.source.kind === "class" ).map( t => t.key );
@@ -311,6 +313,42 @@ for ( const { file, data: h } of households ) {
             if ( !ALERT_TYPE_KEYS.includes( alert ) ) {
                 errors.push( `${file}: giving for "${gv.person}" expects alert "${alert}", which is not in configuration/giving-alert-types.json.` );
             }
+        }
+    }
+
+    // Campaign pledges and gifts (docs/pledges.md). A line pledge rides on the giver's usual gifts, so its
+    // frequency must match one of their giving rhythms. Every week named is before install day.
+    const pledgers = new Set();
+    for ( const c of h.campaign || [] ) {
+        const owner = `${file}: campaign for "${c.person}"`;
+        if ( !givers.has( c.person ) ) {
+            errors.push( `${owner} needs a giving pattern for that member.` );
+        }
+        for ( const field of [ "frequency", "followThrough", "expect" ] ) {
+            if ( c[field] !== undefined && !CAMPAIGN_SCHEMA[field].enum.includes( c[field] ) ) {
+                errors.push( `${owner}: ${field} "${c[field]}" is not one of ${CAMPAIGN_SCHEMA[field].enum.join( ", " )}.` );
+            }
+        }
+        const weeks = [ c.pledged?.weeksAfterCommitment, ...( c.gifts || [] ).map( g => g.weeksAfterCommitment ) ].filter( w => w !== undefined );
+        if ( weeks.some( w => w >= COMMITMENT_WEEKS ) ) {
+            errors.push( `${owner}: every week after Commitment Sunday must be before install day (under ${COMMITMENT_WEEKS}).` );
+        }
+        if ( c.pledge === undefined ) {
+            if ( !( c.gifts || [] ).length || c.frequency || c.followThrough || c.pledged ) {
+                errors.push( `${owner}: with no pledge, list gifts and leave out frequency, followThrough, and pledged.` );
+            }
+            continue;
+        }
+        if ( pledgers.has( c.person ) ) {
+            errors.push( `${owner}: a person has at most one pledge.` );
+        }
+        pledgers.add( c.person );
+        if ( !c.followThrough || !c.pledged || ( typeof c.pledged === "string" && ![ "quiet-phase", "commitment-sunday" ].includes( c.pledged ) ) ) {
+            errors.push( `${owner}: a pledge needs followThrough and pledged (quiet-phase, commitment-sunday, or weeksAfterCommitment).` );
+        }
+        const isLine = [ "ahead", "on-pace", "behind", "stopped" ].includes( c.followThrough );
+        if ( isLine && !( h.giving || [] ).some( gv => gv.person === c.person && gv.persona === c.frequency ) ) {
+            errors.push( `${owner}: a ${c.followThrough} pledge rides on usual gifts, so its frequency must match one of the giver's giving rhythms.` );
         }
     }
 

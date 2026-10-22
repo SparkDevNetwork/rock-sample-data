@@ -45,6 +45,22 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "gabriel",
+      "pledge": 1000,
+      "frequency": "weekly",
+      "pledged": "commitment-sunday",
+      "followThrough": "ahead",
+      "gifts": [
+        {
+          "weeksAfterCommitment": 30,
+          "amount": 600
+        }
+      ],
+      "expect": "complete"
+    }
+  ],
   "members": [
     {
       "key": "gabriel",

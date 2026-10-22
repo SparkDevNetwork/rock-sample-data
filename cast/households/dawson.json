@@ -45,6 +45,14 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "kevin",
+      "pledge": 520,
+      "pledged": "commitment-sunday",
+      "followThrough": "not-started"
+    }
+  ],
   "members": [
     {
       "key": "kevin",

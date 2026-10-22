@@ -52,6 +52,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "nathan",
+      "pledge": 2600,
+      "frequency": "weekly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    }
+  ],
   "members": [
     {
       "key": "nathan",

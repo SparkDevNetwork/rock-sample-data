@@ -28,6 +28,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "business",
+      "pledge": 4800,
+      "frequency": "monthly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    }
+  ],
   "address": {
     "type": "work",
     "street1": "3482 E Paradise Ln",

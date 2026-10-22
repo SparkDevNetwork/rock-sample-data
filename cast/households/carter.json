@@ -54,6 +54,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "margaret",
+      "pledge": 5000,
+      "frequency": "one-time",
+      "pledged": "commitment-sunday",
+      "followThrough": "paid-in-full"
+    }
+  ],
   "members": [
     {
       "key": "margaret",
