@@ -103,7 +103,6 @@ function householdPage( h, i, all, r ) {
         active: "cast",
         title: h.name,
         description: `${h.name} in the Rock Solid Church sample data: ${h.testPurposes[0] || h.story}`,
-        image: lead ? `images/cast/${lead.photo}` : null,
         body: html`
 <section class="page-hero page-hero-tight">
   <div class="wrap">

@@ -22,6 +22,9 @@
 
 const repoUrl = "https://github.com/SparkDevNetwork/rock-sample-data";
 
+// Link previews in Teams, Slack, and social apps need full URLs, so share tags use the published address.
+const siteUrl = "https://sparkdevnetwork.github.io/rock-sample-data/";
+
 const nav = [
     { key: "why", label: "Why", href: "why.html" },
     { key: "church", label: "The Church", href: "church.html" },
@@ -61,7 +64,7 @@ function relativeTo( depth ) {
     return p => prefix + p;
 }
 
-function page( { title, description, active, depth = 0, body, image } ) {
+function page( { file, title, description, active, depth = 0, body } ) {
     const r = relativeTo( depth );
     const fullTitle = title ? `${title} | Rock Sample Data` : "Rock Sample Data";
     return html`<!doctype html>
@@ -71,13 +74,22 @@ function page( { title, description, active, depth = 0, body, image } ) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc( fullTitle )}</title>
 <meta name="description" content="${esc( description )}">
+<meta property="og:site_name" content="Rock Sample Data">
 <meta property="og:title" content="${esc( fullTitle )}">
 <meta property="og:description" content="${esc( description )}">
 <meta property="og:type" content="website">
-${image ? html`<meta property="og:image" content="${esc( r( image ) )}">` : ""}
+<meta property="og:url" content="${esc( siteUrl + ( file && file !== "index.html" ? file : "" ) )}">
+<meta property="og:image" content="${siteUrl}assets/share-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rock Solid Church's front entrance with the words: A whole church, ready in seconds.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${siteUrl}assets/share-card.jpg">
 <meta name="theme-color" content="#FAF7F2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="${r( "assets/favicon.svg" )}" type="image/svg+xml">
+<link rel="icon" href="${r( "assets/favicon-32.png" )}" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="${r( "assets/apple-touch-icon.png" )}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400..800;1,400..600&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Montserrat:wght@600&display=swap">
