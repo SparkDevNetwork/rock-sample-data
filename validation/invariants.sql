@@ -4,7 +4,9 @@
     The loader bulk-copies around Rock's save hooks, so Rock never gets to enforce these itself. The verify tool
     (verify/README.md) runs each check after a load and fails when any returns more than zero. Each check starts
     with "-- check: name", says why it matters on the next "-- why:" line, and returns one number: how many rows
-    break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1.
+    break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1. @CardPeople and @CardHouseholds
+    are the dataset card's numbers from datasets/{key}.json, or null when the load used another seed than the
+    default, which the card was not measured at.
 
     Rules that a foreign key or unique index already enforces are left out: the bulk copy checks those.
     "Every family has an adult" is left out on purpose: kids whose parents are not in Rock, and Jenny Greggs's
@@ -207,3 +209,17 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR [n].[EditedDateTime] IS NULL
         OR [n].[CreatedByPersonAliasId] IS NULL
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
+
+-- check: people-match-the-dataset-card
+-- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
+SELECT CASE WHEN @CardPeople IS NOT NULL AND ABS( [c].[People] - @CardPeople ) > @CardPeople * 0.02 THEN ABS( [c].[People] - @CardPeople ) ELSE 0 END
+FROM ( SELECT COUNT(*) AS [People] FROM [Person] WHERE [ForeignKey] = @ForeignKey ) AS [c];
+
+-- check: households-match-the-dataset-card
+-- why: Rock's installer shows the household count from datasets/{key}.json (@CardHouseholds). Returns how many households the load is off by when that is more than 2%.
+SELECT CASE WHEN @CardHouseholds IS NOT NULL AND ABS( [c].[Households] - @CardHouseholds ) > @CardHouseholds * 0.02 THEN ABS( [c].[Households] - @CardHouseholds ) ELSE 0 END
+FROM (
+    SELECT COUNT(*) AS [Households]
+    FROM [Group] AS [g]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];

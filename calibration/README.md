@@ -47,6 +47,14 @@ node normalize.js source-2 "Calibration source" raw/source-2-part-2.tsv raw/sour
 
 The normalizer writes the result to the `personNotes` section, because `notes` already holds each source file's explanations.
 
+## Part 7: communications
+
+Part 7 measures mass sends (25 or more recipients) and text conversations: sends by medium, month, weekday, and hour, audience size, delivery, opens, clicks, unsubscribes, preferences, app devices, replies, thread length, and reply times. It returns no names, Ids, list names, message text, phone numbers, or URLs. Clicked links are compared by checksum only.
+
+Sends and texts use the last 12 months. Recipient outcomes, opens, clicks, and unsubscribes use the last 3, because they read the largest tables. Unsubscribe and spam rates need Rock 17, and communication flows need Rock 18; on older Rock those sections are empty. On a church with a very large communication history it can pass Rock's 180 second limit, so run it in SSMS if it times out.
+
+Monthly volumes need part 2 from the same database, as for parts 5 and 6. The normalizer does not read part 7 yet; that comes with the first source. See [Communications](../docs/communications.md).
+
 ## Tools
 
 | Tool | Purpose |
@@ -66,6 +74,7 @@ The normalizer writes the result to the `personNotes` section, because `notes` a
 | `sql/Report_SampleDataCalibration_4_DistanceToCampus.sql` | Rock's SQL editor or SSMS. Returns grid-cell counts, not statistics (see above). |
 | `sql/Report_SampleDataCalibration_5_Prayer.sql` | Rock's SQL editor or SSMS. Prayer in detail (see above). |
 | `sql/Report_SampleDataCalibration_6_PersonNotes.sql` | Rock's SQL editor or SSMS. Notes on people (see above). |
+| `sql/Report_SampleDataCalibration_7_Communications.sql` | Rock's SQL editor or SSMS. Mass sends and text conversations (see above). |
 | `sql/Report_SampleDataCalibrationStats.sql` | SSMS only (parts 1 to 3 in one run; run part 4 separately) |
 
 The scripts are read-only. They write only to temp tables, and Rock's SQL editor rolls everything back. Each one returns anonymous aggregates with no names or Ids.

@@ -156,7 +156,9 @@ try
             }
 
             stage = "invariants";
-            checks.Add( Invariants.Run( sql, database, foreignKey, Path.Combine( root, "validation", "invariants.sql" ) ) );
+            // The dataset card was measured at the default seed, so only a default-seed load is held to its numbers.
+            var card = seed == new DatasetLoadOptions().Seed ? SampleDataDatasets.Get( dataset ) : null;
+            checks.Add( Invariants.Run( sql, database, foreignKey, card, Path.Combine( root, "validation", "invariants.sql" ) ) );
             stage = "rock-cleanup";
             checks.Add( referee.Referee( database, baseDatabase ) );
         }

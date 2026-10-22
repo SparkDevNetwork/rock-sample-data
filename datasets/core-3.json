@@ -2,6 +2,17 @@
   "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
   "key": "core-3",
   "name": "Core 3",
+  "summary": "The Cast at the main campus, plus generated households at two more campuses. About half of the new households have photos.",
+  "bestFor": "Building and trying campus features, such as campus filters, reports, and check-in.",
+  "highlights": [
+    "Three campuses, each with its own people",
+    "The full Cast at the main campus",
+    "Scanned images of every check gift"
+  ],
+  "people": 405,
+  "households": 241,
+  "campuses": 3,
+  "typicalInstallSeconds": 12,
   "checkImages": {
     "$comment": "Every check gets images; Core 3 is still small.",
     "months": 0

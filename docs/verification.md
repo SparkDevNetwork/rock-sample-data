@@ -61,7 +61,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Package self-check
 
-**What it does.** Before the [builder](../builder/README.md) writes a package, it opens the package the way the loader does and reads every file a load reads. It also records a SHA-256 for every file in `package.json`, and packs the same commit into byte-identical packages.
+**What it does.** Before the [builder](../builder/README.md) writes a package, it opens the package the way the loader does and reads every file a load reads. It also records a SHA-256 for every file in `package.json`, and packs the same commit into byte-identical packages. It refuses a dataset manifest without its full [dataset card](../datasets/README.md#the-dataset-card), or with a campus count that differs from the church setup.
 
 **Why it's there.** A package that cannot load should fail on the developer's machine, not on a church's server. Identical bytes mean a receipt can name a package by its hash.
 
@@ -132,6 +132,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |
 | `only-this-dataset` | One database holds one dataset. Another's rows mean the database was not fresh. |
+| `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision D-rock-loader-5). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
 

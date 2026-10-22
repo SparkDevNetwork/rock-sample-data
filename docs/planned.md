@@ -17,17 +17,19 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Giving
 
-- **Pledges** for a building campaign.
+- **Pledges** for Built on the Rock, a two-year building campaign: pledges from people and businesses, gifts that are ahead, on pace, behind, or stopped, Pledge Analytics, pledge entry, and pledges on contribution statements. See [Pledges](pledges.md).
 - **Refunds** and other uncommon transactions.
 
 ## Other Rock features
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
-- **Communications:** email and text history, with opens and clicks.
+- **Communications:** email, text, and push history, with very large mass emails, opens and clicks, SMS conversations with real back-and-forth threads, and messages tied to steps. See [Communications](communications.md).
 - **Steps:** a seven-step Discipleship Path for adults (Starting Point Class, Small Group, Baptism, Foundations, Serve, Give, and Lead) and a four-step Student Path (Student Camp, Follow Jesus, Mission Trip, and Student Leader), with program completions. See [Steps](steps.md).
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
+
+- **The church's app:** pages and content for the Rock Solid Church App, which starts as a stub for push notifications.
 
 ## Installing and quality
 

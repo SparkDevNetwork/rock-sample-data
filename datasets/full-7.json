@@ -2,6 +2,17 @@
   "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
   "key": "full-7",
   "name": "Full 7",
+  "summary": "The Cast at the main campus, with all seven campuses set up. For now, the other six campuses have no people.",
+  "bestFor": "Exploring a seven-campus setup, such as campus pickers and service times.",
+  "highlights": [
+    "Seven campuses with their own service times",
+    "The same Cast as Core 1",
+    "Scanned images of the last 12 months of check gifts"
+  ],
+  "people": 185,
+  "households": 87,
+  "campuses": 7,
+  "typicalInstallSeconds": 10,
   "checkImages": {
     "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
     "months": 12

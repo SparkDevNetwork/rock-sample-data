@@ -31,11 +31,12 @@ Where the project stands: the team's working list. Update this page whenever som
 - Notes on people (decision 78): six note types with View security (Rock's Personal, Pastoral, and Phone, plus Follow-up, Counseling, and Safety Alert), 67 hand-written Cast notes with 13 replies in 29 households, and generated notes from text pools. Calibration part 6 measures note use. The measured shape sets timing and length, and the volume and feature use are designed higher, because the sample church shows what good note use looks like. Full 7 has about 54,000 notes and 7,000 replies, and all 15 graded note values pass.
 - Security roles (decision 79): Cast people join the out-of-the-box roles their stories give them, mapped in `configuration/security-roles.json`, and each campus pastor joins RSR - Staff Workers and RSR - Pastoral Workers. The load creates no roles.
 - The public site (decisions 80 to 82; see [site/](../site/README.md)): why the sample data matters, Rock Solid Church and its building tour, a page for every Cast household, the datasets, how it's built, and how to contribute. It is built from the repository's own files with no packages, and the brand page offers the logo as SVG and PNG, the palette, and every photo set as a zip. The logo now has vector versions, redrawn from the approved artwork.
-- The loader library is ready for Rock (decisions D-rock-loader-1 to D-rock-loader-4; see [Using the library](../loader/README.md#using-the-library)). It builds for .NET Framework 4.7.2 too, on Rock's own package versions, and packs as the `RockSampleData.Loader` NuGet package (0.1.0-alpha.1, a local file for now). A load can choose its parts, reports progress instead of writing to the console, takes the server's PasswordKey and DataEncryptionKey, and refuses a database with people beyond a new Rock install under an application lock. `SampleDataPackageIndex` reads the hosted `index.json`. `loader-compat-check/` proves the key derivations give the same bytes on both builds.
+- The loader library is ready for Rock (decisions D-rock-loader-1 to D-rock-loader-5; see [Using the library](../loader/README.md#using-the-library)). It builds for .NET Framework 4.7.2 too, on Rock's own package versions, and packs as the `RockSampleData.Loader` NuGet package (0.1.0-alpha.2, a local file for now). A load can choose its parts, reports progress instead of writing to the console, takes the server's PasswordKey and DataEncryptionKey, and refuses a database with people beyond a new Rock install under an application lock. `SampleDataPackageIndex` reads the hosted `index.json`, and `SampleDataDatasets` gives Rock's installer a card for each dataset, with people, households, and install times measured from real loads that verify keeps current. `loader-compat-check/` proves the key derivations give the same bytes on both builds.
 
 ## In progress
 
-- **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It lists packages from a hosted `index.json` or takes an uploaded package, beside the old sample data block.
+- **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It shows Core 1, Core 3, and Full 7 as cards from the dataset catalog and downloads the chosen package from a hosted `index.json`, beside the old sample data block.
+- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 - **The release workflow** (decisions D-release-1 to D-release-4; see [Publishing a release](maintaining.md#publishing-a-release)). `.github/workflows/release.yml` builds each Rock release in `release/rock-releases.json`, writes and verifies every package, and runs the publishing gate. On a version tag it pushes the loader to nuget.org and uploads the packages, receipts, and index to Azure, the index last. What is left:
   - The one-time setup in [Maintaining](maintaining.md#one-time-setup): Actions billing for the organization, the Azure identity and its role, nuget.org trusted publishing, and the `release` environment with its approvers and variables.
   - A dry run on GitHub's Windows runners, to prove they can build Rock and run SQL Server for verify. Until then, a self-hosted runner is the fallback.
@@ -52,6 +53,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Per-person attendance,** so a teen can attend more often than their parents.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
 5. **Steps.** Build the plan in [Steps](steps.md) (decisions 83 to 89): Rock's Discipleship Path built out to seven adult steps, and a four-step Student Path, every step made from records the data already has.
+6. **Pledges.** Build the plan in [Pledges](pledges.md) (decisions 97 to 105): Built on the Rock, a two-year building campaign about 38% through on install, with its own fund, pledges from about 12% of giving units and 30% of businesses, every follow-through state, and Cast stories for each one.
 
 ## To do (parked)
 
@@ -91,7 +93,7 @@ Publishing packages to Azure is in the release workflow (see In progress).
 
 ## Later (Phase 1 and beyond)
 
-Registrations, prayer requests, communications, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
+Registrations, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
 
 ## Open questions
 

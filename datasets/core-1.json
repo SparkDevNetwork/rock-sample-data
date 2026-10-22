@@ -2,6 +2,18 @@
   "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
   "key": "core-1",
   "name": "Core 1",
+  "summary": "The Cast: hand-designed households at one campus, each with its own story. The same families are in every dataset.",
+  "bestFor": "Automated tests, training, and everyday development.",
+  "highlights": [
+    "Families you can name in tests and help articles",
+    "Profile photos for nearly everyone",
+    "Three years of attendance, giving, groups, and serving",
+    "Scanned images of every check gift"
+  ],
+  "people": 185,
+  "households": 87,
+  "campuses": 1,
+  "typicalInstallSeconds": 11,
   "checkImages": {
     "$comment": "Every check in the Cast gets images.",
     "months": 0

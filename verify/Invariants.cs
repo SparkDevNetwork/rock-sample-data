@@ -15,9 +15,12 @@
 // </copyright>
 //
 
+using System.Data;
 using System.Text.RegularExpressions;
 
 using Microsoft.Data.SqlClient;
+
+using RockSampleData.Loader;
 
 namespace RockSampleData.Verify
 {
@@ -28,7 +31,11 @@ namespace RockSampleData.Verify
     {
         private static readonly Regex CheckStart = new Regex( @"^-- check: (\S+)\s*$", RegexOptions.Multiline );
 
-        public static CheckResult Run( SqlServer sql, string database, string foreignKey, string invariantsPath )
+        /// <summary>
+        /// Runs every rule. The card is the dataset card the load is held to, or null when the load was not made at
+        /// the default seed the card was measured at.
+        /// </summary>
+        public static CheckResult Run( SqlServer sql, string database, string foreignKey, SampleDataDatasetInfo card, string invariantsPath )
         {
             var text = File.ReadAllText( invariantsPath );
             var starts = CheckStart.Matches( text ).Cast<Match>().ToList();
@@ -38,7 +45,12 @@ namespace RockSampleData.Verify
                 var end = i + 1 < starts.Count ? starts[i + 1].Index : text.Length;
                 var body = text.Substring( starts[i].Index, end - starts[i].Index );
                 var why = Regex.Match( body, @"^-- why: (.+)$", RegexOptions.Multiline ).Groups[1].Value.Trim();
-                var violations = Convert.ToInt64( sql.Scalar( database, body, new SqlParameter( "@ForeignKey", foreignKey ) ) );
+                var violations = Convert.ToInt64( sql.Scalar(
+                    database,
+                    body,
+                    new SqlParameter( "@ForeignKey", foreignKey ),
+                    new SqlParameter( "@CardPeople", SqlDbType.Int ) { Value = ( object ) card?.People ?? DBNull.Value },
+                    new SqlParameter( "@CardHouseholds", SqlDbType.Int ) { Value = ( object ) card?.Households ?? DBNull.Value } ) );
                 if ( violations > 0 )
                 {
                     problems.Add( $"{starts[i].Groups[1].Value}: {violations:N0} rows break it. {why}" );

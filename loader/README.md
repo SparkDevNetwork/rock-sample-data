@@ -163,6 +163,33 @@ The hosted list of packages is `index.json` (decision D-rock-loader-4). The [rel
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
 | `rockVersion`, `rockMigration` | The Rock the package is for, the same values as its `package.json`. A caller can hide packages for another Rock without downloading them. Required. |
 
+## The dataset catalog
+
+`SampleDataDatasets.All` lists the datasets this loader can install, in key order: Core 1, Core 3, and Full 7 (decision D-rock-loader-5). Rock's installer shows one card for each before it downloads anything. `SampleDataDatasets.Get( "core-3" )` returns one card, or null for an unknown key.
+
+Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, and `TypicalInstallSeconds` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
+
+Two checks keep the cards true:
+
+1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
+2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
+
+The numbers were measured on 2026-10-21 with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of `RockSample-base`. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+
+| Dataset | People | Households | Campuses | Install time (three runs) |
+|---|---|---|---|---|
+| Core 1 | 185 | 87 | 1 | 11 seconds (11.7, 10.7, 10.8) |
+| Core 3 | 405 | 241 | 3 | 12 seconds (12.4, 11.7, 11.8) |
+| Full 7 | 185 | 87 | 7 | 10 seconds (8.6, 10.2, 10.0) |
+
+Full 7 loads faster than Core 1 because it draws images only for the last 12 months of check gifts: 274 images, against 814 in Core 1. Full 7's manifest lists no generated households, so a load without `--crowd` has only the Cast, on the main campus.
+
+When a change to the data moves a number past 2%, verify fails. Measure again and update the card. One run (`--any-rock` because `RockSample-base` is an older Rock than the packages):
+
+```
+rock-sample-data-load --package core-1.zip --connection "<a fresh copy of RockSample-base>" --check-images --any-rock --rock C:\Development\Rock
+```
+
 ## What makes a load repeatable
 
 A package holds the inputs, not the records: the Cast, the church setup, the dataset manifest, the resolved profile, the address pool, photos, and fonts. The loader generates every record at install. Each package also carries a `README.md` (from `../builder/package-readme.md`) that explains this, for whoever receives the package.
