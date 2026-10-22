@@ -56,6 +56,9 @@ const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
 const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "giving-alert-types.json" ), "utf8" ) ).alertTypes.map( t => t.key );
 const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
+const STEP_TYPES = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).stepTypes;
+const STEP_TYPE_KEYS = STEP_TYPES.map( t => t.key );
+const CLASS_STEP_TYPE_KEYS = STEP_TYPES.filter( t => t.source.kind === "class" ).map( t => t.key );
 const adultsWithoutPhotoEthnicity = [];
 
 /**
@@ -324,6 +327,23 @@ for ( const { file, data: h } of households ) {
         for ( const key of achievements.earned || [] ) {
             if ( ( achievements.notEarned || [] ).includes( key ) ) {
                 errors.push( `${file}: "${p.key}" expects achievement "${key}" both earned and not earned.` );
+            }
+        }
+
+        // Steps: expectations name step types, and a story can set only classes; every other step comes from records.
+        for ( const list of [ "complete", "inProgress" ] ) {
+            for ( const key of p.expect?.steps?.[list] || [] ) {
+                if ( !STEP_TYPE_KEYS.includes( key ) ) {
+                    errors.push( `${file}: "${p.key}" expects step type "${key}", which is not in configuration/steps.json.` );
+                }
+            }
+        }
+        for ( const [ key, choice ] of Object.entries( p.steps || {} ) ) {
+            if ( !CLASS_STEP_TYPE_KEYS.includes( key ) ) {
+                errors.push( `${file}: "${p.key}" sets step "${key}", which is not a class in configuration/steps.json. Only classes can be set; other steps come from the person's records.` );
+            }
+            if ( ( choice.classesAgo === undefined ) === ( choice.taken !== true ) ) {
+                errors.push( `${file}: "${p.key}" step "${key}" needs either classesAgo or taken: true.` );
             }
         }
     }

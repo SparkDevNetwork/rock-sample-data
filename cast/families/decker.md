@@ -47,6 +47,7 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 - Two adults and two children; kids check-in with an allergy attribute.
 - Monthly giver across two funds, by recurring credit card.
 - Small group leader and serving team member.
+- Completes the whole Discipleship Path, with a program completion.
 - Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert.
 
 ## Activity

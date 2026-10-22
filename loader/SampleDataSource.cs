@@ -71,6 +71,11 @@ namespace RockSampleData.Loader
         public SecurityRoleConfiguration SecurityRoles { get; }
 
         /// <summary>
+        /// The adult step program, or null in a package built before steps loaded.
+        /// </summary>
+        public StepsConfiguration Steps { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -88,6 +93,7 @@ namespace RockSampleData.Loader
             Connections = Read<ConnectionsConfiguration>( "configuration/connections.json" );
             Notes = Files.Exists( NotesConfigurationPath ) ? Read<NotesConfiguration>( NotesConfigurationPath ) : null;
             SecurityRoles = Files.Exists( SecurityRolesPath ) ? Read<SecurityRoleConfiguration>( SecurityRolesPath ) : null;
+            Steps = Files.Exists( StepsConfigurationPath ) ? Read<StepsConfiguration>( StepsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -145,6 +151,8 @@ namespace RockSampleData.Loader
         public const string NotesConfigurationPath = "configuration/notes.json";
 
         public const string SecurityRolesPath = "configuration/security-roles.json";
+
+        public const string StepsConfigurationPath = "configuration/steps.json";
 
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.

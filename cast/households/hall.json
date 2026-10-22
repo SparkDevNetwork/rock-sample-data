@@ -7,10 +7,11 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet.",
+  "story": "Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet. She took the Starting Point class on Wednesday nights last month, and now waits as a Pending greeter.",
   "testPurposes": [
     "Participant: one in-person touch (a serve day), no Sunday attendance.",
-    "Young adult living alone."
+    "Young adult living alone.",
+    "Starting Point Class complete last month and a Serve step In Progress while she waits as a Pending greeter."
   ],
   "address": {
     "type": "home",
@@ -49,6 +50,22 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
+      },
+      "steps": {
+        "starting-point-class": {
+          "classesAgo": 1
+        }
+      },
+      "expect": {
+        "steps": {
+          "complete": [
+            "starting-point-class"
+          ],
+          "inProgress": [
+            "serve"
+          ],
+          "programCompletion": false
+        }
       },
       "connectionRequests": [
         {
