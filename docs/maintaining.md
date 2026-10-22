@@ -126,7 +126,7 @@ The release workflow, `.github/workflows/release.yml`, publishes everything (dec
 |---|---|---|
 | Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`. |
 | Packages for Rock X | Windows, once per Rock release | Checks out that Rock, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
-| Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs `RockSampleData.Loader` with the release version, Source Link, symbols, the license, and the README. |
+| Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs the loader (`SparkDevNetwork.Rock.SampleData.Loader`) with the release version, Source Link, symbols, the license, and the README. |
 | Publish | Windows, in the `release` environment | Runs the gate again, pushes the loader to nuget.org, uploads the packages and receipts, then merges and uploads the index last. |
 
 A run without "publish" stops after the first three jobs. That is a dry run.
@@ -217,17 +217,21 @@ Front Door must pass on the blobs' own `Cache-Control` headers, or the index sta
 
 #### 3. nuget.org trusted publishing
 
-Sign in to nuget.org as an owner of `RockSampleData.Loader` (or of the account that will own it), open your user name > Trusted Publishing, and add a GitHub Actions policy:
+The loader is published as `SparkDevNetwork.Rock.SampleData.Loader`, owned by the `SparkDevelopmentNetwork` organization on nuget.org. The ID comes from `PackageId` in `loader/RockSampleData.Loader.csproj`, and the workflow reads it from there. The assembly and namespace stay `RockSampleData.Loader`.
+
+Sign in to nuget.org as `jonedmiston` (an administrator of `SparkDevelopmentNetwork`), open your user name > Trusted Publishing, and add a GitHub Actions policy:
 
 | Field | Value |
 |---|---|
-| Package owner | The nuget.org account or organization that owns the package |
+| Package owner | `SparkDevelopmentNetwork` |
 | Repository owner | `SparkDevNetwork` |
 | Repository | `rock-sample-data` |
 | Workflow file | `release.yml` |
 | Environment | `release` |
 
-The workflow signs in as the nuget.org user named in `NUGET_USER`: the profile name of the user who made the policy, not an email address. If nuget.org marks the policy as temporarily active, publish once before it expires, or make it again.
+The workflow signs in as the nuget.org user named in `NUGET_USER`, which is `jonedmiston`: the profile name of the user who made the policy, not an email address. If nuget.org marks the policy as temporarily active, publish once before it expires, or make it again.
+
+The organization's verified prefix is `RockRMS.`, so this package shows no verified check mark until `SparkDevNetwork.` is reserved too. To reserve it, ask nuget.org support for a package ID prefix reservation for the organization.
 
 #### 4. The release environment and its variables
 
@@ -251,7 +255,7 @@ gh variable set AZURE_CLIENT_ID       -R "$REPOSITORY" --env release -b "<APP_ID
 gh variable set AZURE_TENANT_ID       -R "$REPOSITORY" --env release -b "<tenant id>"
 gh variable set AZURE_SUBSCRIPTION_ID -R "$REPOSITORY" --env release -b "<subscription id>"
 gh variable set AZURE_STORAGE_ACCOUNT -R "$REPOSITORY" --env release -b "<storage account>"
-gh variable set NUGET_USER            -R "$REPOSITORY" --env release -b "<nuget.org user name>"
+gh variable set NUGET_USER            -R "$REPOSITORY" --env release -b "jonedmiston"
 ```
 
 Set `prevent_self_review` to `true` if the person who tags a release should not approve it too.

@@ -1,6 +1,6 @@
 # Publishes a release (decisions D-release-1 to D-release-4). For each Rock release in
 # release/rock-releases.json, it builds that Rock, writes every dataset's package, verifies them,
-# and runs the publishing gate. It packs the RockSampleData.Loader NuGet package. Then, behind the
+# and runs the publishing gate. It packs the loader NuGet package. Then, behind the
 # "release" environment, it pushes the loader to nuget.org and uploads the packages, their receipts,
 # and the package index to Azure Blob Storage, the index last.
 #
@@ -199,6 +199,8 @@ jobs:
     needs: plan
     runs-on: windows-2025
     timeout-minutes: 30
+    outputs:
+      package-id: ${{ steps.id.outputs.package-id }}
     env:
       VERSION: ${{ needs.plan.outputs.version }}
     steps:
@@ -227,11 +229,19 @@ jobs:
           -p:IncludeSymbols=true
           -p:SymbolPackageFormat=snupkg
 
+      # The package ID lives only in the project file, so the files below are named from it.
+      - name: Read the package ID
+        id: id
+        shell: bash
+        run: echo "package-id=$(dotnet msbuild loader/RockSampleData.Loader.csproj -getProperty:PackageId -nologo | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
       - name: Check the package
         shell: bash
+        env:
+          PACKAGE_ID: ${{ steps.id.outputs.package-id }}
         run: |
           set -euo pipefail
-          package="artifacts/nuget/RockSampleData.Loader.$VERSION.nupkg"
+          package="artifacts/nuget/$PACKAGE_ID.$VERSION.nupkg"
           [ -f "$package" ] || { echo "::error::$package was not written."; exit 1; }
           [ -f "${package%.nupkg}.snupkg" ] || { echo "::error::The symbols package was not written."; exit 1; }
           # Windows' own tar reads zips; the tar in Git Bash does not.
@@ -240,7 +250,7 @@ jobs:
           for expected in LICENSE.md README.md lib/net472/RockSampleData.Loader.dll lib/net10.0/RockSampleData.Loader.dll; do
             grep -qx "$expected" <<< "$contents" || { echo "::error::The package has no $expected."; exit 1; }
           done
-          nuspec=$("$tar" -xOf "$package" RockSampleData.Loader.nuspec)
+          nuspec=$("$tar" -xOf "$package" "$PACKAGE_ID.nuspec")
           grep -Eq "<repository type=\"git\" url=\"https://github.com/$GITHUB_REPOSITORY(\.git)?\" .*commit=\"$GITHUB_SHA\"" <<< "$nuspec" \
             || { echo "::error::The package does not name this repository and commit."; echo "$nuspec"; exit 1; }
           for framework in net472 net10.0; do
@@ -316,7 +326,8 @@ jobs:
         shell: bash
         env:
           NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
-        run: dotnet nuget push "artifacts/nuget/RockSampleData.Loader.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          PACKAGE_ID: ${{ needs.loader.outputs.package-id }}
+        run: dotnet nuget push "artifacts/nuget/$PACKAGE_ID.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Sign in to Azure
         uses: azure/login@v2
