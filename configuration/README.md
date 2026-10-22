@@ -44,7 +44,7 @@ General Fund and Building Fund each have a child account per campus (for example
 
 Built on the Rock is the building campaign's fund (decision 98). Rock does not ship it, so the loader adds it, with a child account per campus like the other two. Its start and end dates are the campaign's: Commitment Sunday is the Sunday 40 weeks before install day, and the campaign lasts two years. Its campus accounts share those dates. Rock's giving page hides an account outside its dates, so the fund takes gifts only during the campaign.
 
-The loader also points two Rock settings at the fund (decision 100). The Pledge Entry block on the (Public) Create Pledge page uses the fund and the campaign dates, and shows the pledge frequency as an optional choice. Rock's default contribution statement template shows pledges to the fund and counts gifts to its campus accounts toward them.
+The loader also points two Rock settings at the fund (decision 100). Rock has two pledge pages: (Public) Create Pledge in the Rock admin site, and Pledge under Give on the external website. The Pledge Entry block on each uses the fund and the campaign dates, and shows the pledge frequency as an optional choice. Rock ships the WebForms Pledge Entry block, and a Rock job swaps it for the Obsidian one after Rock starts, so the loader finds the block on each page by either block type. Rock's default contribution statement template shows pledges to the fund and counts gifts to its campus accounts toward them.
 
 ## Notes
 

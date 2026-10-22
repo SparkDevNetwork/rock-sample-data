@@ -6,8 +6,15 @@
   "commitmentSundayWeeksBeforeInstall": 40,
   "lengthYears": 2,
   "pledgeEntry": {
-    "$comment": "Rock's (Public) Create Pledge page (60051DAF-2986-406D-A78B-1609CBF2256D) and its Pledge Entry block.",
-    "blockGuid": "4898B608-4A08-4C1B-97A7-0500D708B5D2",
+    "$comment": "Rock's two pages with a Pledge Entry block: (Public) Create Pledge in Rock RMS, and Pledge under Give on the external website. Rock ships the WebForms block, and a Rock job later swaps it for the Obsidian block with a new block Guid, so the loader finds the block on each page by either block type.",
+    "pageGuids": [
+      "60051DAF-2986-406D-A78B-1609CBF2256D",
+      "A974A965-414B-47A6-9CC1-D3A175DA965B"
+    ],
+    "blockTypeGuids": [
+      "20B5568E-A010-4E15-9127-E63CF218D6E5",
+      "0455ECBD-D54D-4485-BF4D-F469048AE10F"
+    ],
     "showPledgeFrequency": true
   },
   "statementTemplateGuid": "4B93657A-DD5F-4D8A-A13F-1B4E9ADBDAD0"
