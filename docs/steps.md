@@ -1,6 +1,6 @@
 # Steps
 
-Steps in the sample data, and why. The adult Discipleship Path is built. The Student Path is still a plan: it waits for attendance per person, so a student can come to the student service on their own rhythm. The decisions are 83 to 89 and D-steps-8 to D-steps-10 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
+Steps in the sample data, and why. The adult Discipleship Path is built. The Student Path is still a plan: it waits for attendance per person, so a student can come to the student service on their own rhythm. The decisions are 83 to 89 and 106 to 108 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -48,7 +48,7 @@ Seven steps, in the Ministry by Design order. The completion flow is Rock's **Li
 
 ### Give as a step
 
-Most published pathways treat giving as an outcome, not a step. Ministry by Design lists generosity under Contribute, though, and the sample data already has a full giving journey for every giver. So Give is a step (decision 85). It starts the week a giver becomes Consistent and ends the week they become Lapsed or Former (decision D-steps-10). A giver who comes back gets a new Give step.
+Most published pathways treat giving as an outcome, not a step. Ministry by Design lists generosity under Contribute, though, and the sample data already has a full giving journey for every giver. So Give is a step (decision 85). It starts the week a giver becomes Consistent and ends the week they become Lapsed or Former (decision 108). A giver who comes back gets a new Give step.
 
 ## Student program: Student Path (planned)
 
@@ -78,7 +78,7 @@ Every step comes from a record the data already has (decision 86). Steps and the
 
 ### Classes
 
-Starting Point Class and Foundations fall on real class dates (decision D-steps-8). Each runs on a fixed rhythm that counts back from the install day, the same at every campus:
+Starting Point Class and Foundations fall on real class dates (decision 106). Each runs on a fixed rhythm that counts back from the install day, the same at every campus:
 
 | Class | Meets | A new class starts | The current class started |
 |---|---|---|---|
@@ -96,7 +96,7 @@ Who takes a class, in this order:
 
 ### Baptism
 
-- **Dates.** The Baptism step and Rock's Baptism Date person attribute always agree, because one plan writes both (decision D-steps-9). A Baptism Date in a Cast household file is kept as it is. Every other adult, Cast or generated, gets a date here.
+- **Dates.** The Baptism step and Rock's Baptism Date person attribute always agree, because one plan writes both (decision 107). A Baptism Date in a Cast household file is kept as it is. Every other adult, Cast or generated, gets a date here.
 - **Who.** 85% of volunteers and leaders, enough other active adults to reach 60% of active adults, and 20% of other adults. The Cast and the generated households each reach 60% on their own, so the Cast's baptisms are the same in every dataset.
 - **Baptized Here.** About half of the planned baptisms are here, after the household's first visit. 85% of those fall on a baptism Sunday: Easter, or the third Sunday of July. The rest are any Sunday. A baptism elsewhere comes before the first visit, or before the history window when the household came before it. Rock's Baptized Here is set on the Baptism step and on the person, and the two agree. A Cast baptism is here only when it came after the household's known first visit.
 
