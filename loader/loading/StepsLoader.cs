@@ -88,10 +88,14 @@ namespace RockSampleData.Loader.Loading
             } ) );
             var activeAdults = facts.People.Count( p => p.IsActiveAdult );
             var baptized = plan.Baptisms.Select( b => b.PersonId ).ToHashSet();
-            var generatedActive = facts.People.Where( p => p.IsActiveAdult && !p.IsCast ).ToList();
-            var generatedShare = generatedActive.Count == 0 ? string.Empty : $", {100.0 * generatedActive.Count( p => baptized.Contains( p.PersonId ) ) / generatedActive.Count:N0}% of generated active adults";
+            string Share( bool isCast, string label )
+            {
+                var active = facts.People.Where( p => p.IsActiveAdult && p.IsCast == isCast ).ToList();
+                return active.Count == 0 ? string.Empty : $", {100.0 * active.Count( p => baptized.Contains( p.PersonId ) ) / active.Count:N0}% of {label} active adults";
+            }
+
             Console.WriteLine( $"  Steps: {plan.Steps.Count:N0} ({byType})" );
-            Console.WriteLine( $"  Active adults: {activeAdults:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{generatedShare}); program completions: {plan.Completions.Count:N0}" );
+            Console.WriteLine( $"  Active adults: {activeAdults:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}); program completions: {plan.Completions.Count:N0}" );
         }
 
         #region Program and step types

@@ -96,9 +96,9 @@ Who takes a class, in this order:
 
 ### Baptism
 
-- **Dates.** The Baptism step and Rock's Baptism Date person attribute always agree, because one plan writes both (decision D-steps-9). The Cast keeps the dates in their household files. Generated adults get dates here.
-- **Who.** 85% of generated volunteers and leaders, enough other generated active adults to reach 60% of active adults, and 20% of other adults.
-- **Baptized Here.** About half of generated baptisms are here, after the household's first visit. 85% of those fall on a baptism Sunday: Easter, or the third Sunday of July. The rest are any Sunday. A baptism elsewhere comes before the first visit, or before the history window when the household came before it. Rock's Baptized Here is set on the Baptism step and on the person, and the two agree. A Cast baptism is here only when it came after the household's known first visit.
+- **Dates.** The Baptism step and Rock's Baptism Date person attribute always agree, because one plan writes both (decision D-steps-9). A Baptism Date in a Cast household file is kept as it is. Every other adult, Cast or generated, gets a date here.
+- **Who.** 85% of volunteers and leaders, enough other active adults to reach 60% of active adults, and 20% of other adults. The Cast and the generated households each reach 60% on their own, so the Cast's baptisms are the same in every dataset.
+- **Baptized Here.** About half of the planned baptisms are here, after the household's first visit. 85% of those fall on a baptism Sunday: Easter, or the third Sunday of July. The rest are any Sunday. A baptism elsewhere comes before the first visit, or before the history window when the household came before it. Rock's Baptized Here is set on the Baptism step and on the person, and the two agree. A Cast baptism is here only when it came after the household's known first visit.
 
 ### Campus and program completions
 
@@ -113,7 +113,7 @@ The rates are designed targets, not measured ones (decision 89). The sample chur
 |---|---|
 | Starting Point Class | About 40% of active adults, and every volunteer |
 | Small Group, Serve, Give, Lead | Everyone whose records show it |
-| Baptism | About 60% of generated active adults, about half of them baptized here |
+| Baptism | About 60% of active adults, about half of them baptized here |
 | Foundations | About 20% of active adults |
 | Student Camp (planned) | About 45% of students, once for each summer they were in the student ministry |
 | Follow Jesus (planned) | About 30% of students |

@@ -198,14 +198,16 @@ namespace RockSampleData.Loader.Generation
         /*
             10/21/26 - CLAUDE
 
-            The Cast's baptism dates come from their household files, unchanged. Generated adults are baptized
-            at the configured rates: volunteers and leaders more often, other active adults making up the rest of
-            the active-adult share, and adults on the church's edge less often. Baptized Here is Yes only when the
-            baptism came after the household's first visit. A household whose first visit is before the history
-            window has no known first visit, so a baptism elsewhere is dated before the window.
+            A Cast baptism date in a household file is kept unchanged. Every other adult, Cast or generated, is
+            baptized at the configured rates: volunteers and leaders more often, other active adults making up
+            the rest of the active-adult share, and adults on the church's edge less often. The Cast and the
+            generated households each reach the share on their own, so the Cast's baptisms are the same in every
+            dataset. Baptized Here is Yes only when the baptism came after the household's first visit. A
+            household whose first visit is before the history window has no known first visit, so a baptism
+            elsewhere is dated before the window.
 
             Reason: The Baptism step, the Baptism Date attribute, and Baptized Here must agree with each other
-            and with when the family started coming.
+            and with when the family started coming. Only a few Cast files set a date, and Core 1 is all Cast.
         */
 
         private void PlanBaptisms( StepTypeDefinition type )
@@ -215,20 +217,16 @@ namespace RockSampleData.Loader.Generation
             var leading = PeopleWithSteps( "lead" );
             bool IsVolunteerOrLeader( StepPerson p ) => serving.Contains( p.PersonId ) || leading.Contains( p.PersonId );
 
-            var generatedActive = _facts.People.Where( p => !p.IsCast && p.IsActiveAdult ).ToList();
-            var boosted = generatedActive.Count( IsVolunteerOrLeader );
-            var restPercent = generatedActive.Count == boosted
-                ? source.PercentOfActiveAdults
-                : Math.Clamp( ( ( source.PercentOfActiveAdults * generatedActive.Count ) - ( source.VolunteersAndLeadersPercent * boosted ) ) / ( generatedActive.Count - boosted ), 0, 100 );
+            var restPercent = new[] { true, false }.ToDictionary( isCast => isCast, isCast => RestPercent( source, _facts.People.Where( p => p.IsCast == isCast && p.IsActiveAdult ).ToList(), IsVolunteerOrLeader ) );
 
             foreach ( var person in _facts.People.OrderBy( p => p.Guid ) )
             {
                 DateTime? date;
                 bool isHere;
-                if ( person.IsCast )
+                if ( person.CastBaptismDate.HasValue )
                 {
                     date = person.CastBaptismDate;
-                    isHere = date.HasValue && person.FirstVisit.HasValue && date.Value.Date > person.FirstVisit.Value.Date;
+                    isHere = person.FirstVisit.HasValue && date.Value.Date > person.FirstVisit.Value.Date;
                 }
                 else
                 {
@@ -238,7 +236,7 @@ namespace RockSampleData.Loader.Generation
                     }
 
                     var random = new SeededRandom( $"{_seed}:steps:baptism:{person.Guid}" );
-                    var percent = !person.IsActiveAdult ? source.PercentOfOtherAdults : IsVolunteerOrLeader( person ) ? source.VolunteersAndLeadersPercent : restPercent;
+                    var percent = !person.IsActiveAdult ? source.PercentOfOtherAdults : IsVolunteerOrLeader( person ) ? source.VolunteersAndLeadersPercent : restPercent[person.IsCast];
                     if ( !random.Chance( percent / 100 ) )
                     {
                         continue;
@@ -262,6 +260,23 @@ namespace RockSampleData.Loader.Generation
                 _plan.Baptisms.Add( new PlannedBaptism( person.PersonId, date.Value.Date, isHere ) );
                 Add( person, type.Key, StepStatus.Complete, date.Value.Date, null, date.Value.Date, null );
             }
+        }
+
+        /// <summary>
+        /// The baptism chance for active adults who are neither volunteers nor leaders, so the active adults reach
+        /// the configured share. Dates already set in Cast files count toward it.
+        /// </summary>
+        private static double RestPercent( StepSource source, List<StepPerson> activeAdults, Func<StepPerson, bool> isVolunteerOrLeader )
+        {
+            var undecided = activeAdults.Where( p => !p.CastBaptismDate.HasValue ).ToList();
+            var boosted = undecided.Count( isVolunteerOrLeader );
+            if ( undecided.Count == boosted )
+            {
+                return source.PercentOfActiveAdults;
+            }
+
+            var needed = ( source.PercentOfActiveAdults * activeAdults.Count ) - ( 100.0 * ( activeAdults.Count - undecided.Count ) ) - ( source.VolunteersAndLeadersPercent * boosted );
+            return Math.Clamp( needed / ( undecided.Count - boosted ), 0, 100 );
         }
 
         /// <summary>
@@ -425,7 +440,7 @@ namespace RockSampleData.Loader.Generation
                     Take( person, 0 );
                 }
 
-                // Then active adults, those near a group first, until the campus reaches its share.
+                // Then active adults until the campus reaches its share: those with a preferred step first, then those near a group or team.
                 var target = ( int ) Math.Round( campus.Count() * source.PercentOfActiveAdults / 100 );
                 var count = campus.Count( p => holders.Contains( p.PersonId ) );
                 foreach ( var person in candidates
