@@ -254,8 +254,7 @@ namespace RockSampleData.Loader.Loading
         {
             if ( child.GraduationYear.HasValue )
             {
-                var schoolYearEnds = sunday >= new DateTime( sunday.Year, 6, 1 ) ? sunday.Year + 1 : sunday.Year;
-                var grade = 12 - ( child.GraduationYear.Value - schoolYearEnds );
+                var grade = AnchorDates.GradeOn( child.GraduationYear.Value, sunday );
                 if ( grade >= 0 )
                 {
                     return grade switch

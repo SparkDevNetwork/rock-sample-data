@@ -64,7 +64,7 @@
           "inProgress": [
             "serve"
           ],
-          "programCompletion": false
+          "programCompletions": []
         }
       },
       "connectionRequests": [

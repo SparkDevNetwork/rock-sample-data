@@ -157,7 +157,9 @@
             "give",
             "lead"
           ],
-          "programCompletion": true
+          "programCompletions": [
+            "discipleship-path"
+          ]
         }
       },
       "logins": [

@@ -170,8 +170,18 @@ namespace RockSampleData.Loader.Loading
                     var givingLeaderId = givesWithFamily && givingLeader != null ? People[givingLeader.Guid].PersonId : loaded.PersonId;
                     loaded.GivingId = givingGroupId.HasValue ? $"G{givingGroupId}" : $"P{loaded.PersonId}";
 
+                    /*
+                        10/22/26 - CLAUDE
+
+                        A grade is derived only for ages 5 to 17, so a child who just graduated (Jasmine Washington)
+                        had no graduation year and never checked in. Now a child whose file sets a graduation keeps
+                        that year, and attendance checks them in by grade until they graduate.
+
+                        Reason: Check-in and the Student Path follow a recent graduate's real school years (decision 118).
+                    */
+                    var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;
-                    loaded.GraduationYear = grade.HasValue && !isAdult ? _dates.GraduationYear( grade.Value ) : null;
+                    loaded.GraduationYear = isAdult ? null : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
                     loaded.IsAdult = isAdult;
                     loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive";
 
@@ -189,7 +199,7 @@ namespace RockSampleData.Loader.Loading
                         person.Gender == "male" ? 1 : person.Gender == "female" ? 2 : 0,
                         Value( lookups.MaritalStatus( person.MaritalStatus ) ),
                         Value( _dates.Resolve( person.Anniversary ) ),
-                        grade.HasValue && !isAdult ? _dates.GraduationYear( grade.Value ) : ( object ) Value( _dates.Resolve( person.Graduation )?.Year ),
+                        Value( isAdult ? fileGraduationYear : loaded.GraduationYear ),
                         Value( givingGroupId ),
                         loaded.GivingId,
                         givingLeaderId,

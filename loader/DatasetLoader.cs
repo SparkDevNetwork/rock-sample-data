@@ -298,11 +298,11 @@ namespace RockSampleData.Loader
             new NotesLoader( db, source, profile, dates, foreignKey, seed, years, giving.Keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
-            // The adult step program. Every step comes from a record the earlier steps wrote: group and team
-            // memberships, the giving journey, and the Baptism Date (decision 86).
+            // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and
+            // team memberships, the giving journey, the Baptism Date, and student check-ins (decision 86).
             step.Restart();
             Console.WriteLine( "Steps" );
-            new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
+            new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId, configuration.CheckInGroupIdsByKey )
                 .Load( people, castHouseholdKeys, attendance.FamilySundays, analytics.Gifts, analytics.FinalJourneyRun );
             Console.WriteLine( $"  ({step.ElapsedMilliseconds:N0} ms)" );
 
