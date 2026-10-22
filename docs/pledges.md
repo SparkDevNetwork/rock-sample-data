@@ -49,7 +49,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 ### Rock settings
 
 - **(Public) Create Pledge page.** The Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
-- **Pledge frequency.** The Create Pledge page shows the frequency choice, but a pledger may leave it blank (decision D-pledges-fund-1).
+- **Pledge frequency.** The Create Pledge page shows the frequency choice, but a pledger may leave it blank (decision 109).
 - **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
 - **History.** Each pledge adds the same "Pledge" entry to the person's History tab that Rock's save hook adds.
 
