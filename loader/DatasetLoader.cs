@@ -50,6 +50,7 @@ namespace RockSampleData.Loader
             ("Giving alerts", SampleDataPart.Giving),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
+            ("Steps", SampleDataPart.Steps),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -191,8 +192,11 @@ namespace RockSampleData.Loader
             Every step plans in memory whether or not its part loads, and only the writes are skipped.
             Planning reads only what earlier always-on steps wrote, and each piece of data draws from
             its own seeded stream, so skipping a part never changes the rows another part writes.
-            Attendance and giving are planned even when they do not load, because serving, giving, and
-            prayer read those plans. A part another part's rows need is added by SampleDataParts.
+            Attendance and giving are planned even when they do not load, because serving, giving,
+            prayer, and steps read those plans. A part another part's rows need is added by SampleDataParts.
+            Steps are the one exception to planning everything: they plan from rows that small groups,
+            serving, and giving wrote, so they plan only when they load, and they need those parts.
+            Nothing after them reads what they plan or write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
         */
@@ -372,6 +376,15 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Notes" ) )
             {
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
+            }
+
+            // The adult step program. Every step comes from a record the earlier steps wrote: group and team
+            // memberships, the giving journey, and the Baptism Date (decision 86).
+            // Steps need giving (SampleDataParts.All), so the giving analytics have run whenever steps load.
+            if ( steps.Begin( "Steps" ) )
+            {
+                new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
+                    .Load( people, castHouseholdKeys, attendance.FamilySundays, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.

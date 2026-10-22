@@ -185,6 +185,28 @@
                 "inProgress": { "type": "array", "items": { "type": "string" }, "description": "Types with an open attempt, which check-in shows as in progress." },
                 "notEarned": { "type": "array", "items": { "type": "string" }, "description": "Types the person has not earned." }
               }
+            },
+            "steps": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Step type keys from configuration/steps.json.",
+              "properties": {
+                "complete": { "type": "array", "items": { "type": "string" }, "description": "Types with at least one Complete step." },
+                "inProgress": { "type": "array", "items": { "type": "string" }, "description": "Types with an In Progress step." },
+                "programCompletion": { "type": "boolean", "description": "True when the person must have a Discipleship Path completion, false when they must not." }
+              }
+            }
+          }
+        },
+        "steps": {
+          "type": "object",
+          "description": "Classes a story needs, by the key of a class step type in configuration/steps.json (Starting Point Class or Foundations). Every other step comes from the person's records.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classesAgo": { "type": "integer", "minimum": 0, "description": "Which class: 0 is the class running on the install day (In Progress), 1 the one before it, and so on." },
+              "taken": { "type": "boolean", "description": "True when the person took the class and the usual rules date it." }
             }
           }
         },

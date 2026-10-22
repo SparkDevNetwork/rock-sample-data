@@ -242,6 +242,17 @@ namespace RockSampleData.Loader.Model
         public CastPersonExpect Expect { get; set; }
 
         /// <summary>
+        /// The person attribute values the loader reads, or null.
+        /// </summary>
+        public CastPersonAttributes Attributes { get; set; }
+
+        /// <summary>
+        /// Classes a story needs, by step type key in configuration/steps.json. Steps that come from other
+        /// records (groups, teams, giving, the Baptism Date) are never set here.
+        /// </summary>
+        public Dictionary<string, CastStepClass> Steps { get; set; } = new Dictionary<string, CastStepClass>();
+
+        /// <summary>
         /// Requests to serve that tell this person's story.
         /// </summary>
         public List<CastConnectionRequest> ConnectionRequests { get; set; } = new List<CastConnectionRequest>();
@@ -305,6 +316,55 @@ namespace RockSampleData.Loader.Model
     internal sealed class CastPersonExpect
     {
         public CastAchievementExpect Achievements { get; set; }
+
+        public CastStepsExpect Steps { get; set; }
+    }
+
+    /// <summary>
+    /// The person attribute values the loader reads. The file holds more; the JSON reader ignores the rest.
+    /// </summary>
+    internal sealed class CastPersonAttributes
+    {
+        public RelativeDate BaptismDate { get; set; }
+
+        public RelativeDate FirstVisit { get; set; }
+    }
+
+    /// <summary>
+    /// A class a Cast story needs: a set class, counted back from the current one, or any class the usual rules pick.
+    /// </summary>
+    internal sealed class CastStepClass
+    {
+        /// <summary>
+        /// 0 is the class running on the install day (In Progress), 1 the one before it, and so on.
+        /// </summary>
+        public int? ClassesAgo { get; set; }
+
+        /// <summary>
+        /// True when the person took the class and the usual rules date it.
+        /// </summary>
+        public bool Taken { get; set; }
+    }
+
+    /// <summary>
+    /// What a Cast person's steps must show, by step type key in configuration/steps.json.
+    /// </summary>
+    internal sealed class CastStepsExpect
+    {
+        /// <summary>
+        /// Step types with at least one Complete step.
+        /// </summary>
+        public List<string> Complete { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Step types with an In Progress step.
+        /// </summary>
+        public List<string> InProgress { get; set; } = new List<string>();
+
+        /// <summary>
+        /// True when the person must have a program completion, false when they must not.
+        /// </summary>
+        public bool? ProgramCompletion { get; set; }
     }
 
     /// <summary>

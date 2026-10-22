@@ -20,12 +20,16 @@ const { sectionHead, portrait } = require( "../components" );
 
 const features = [
     [ "People and families", "Households at every stage of life, with photos, relationships, and connection statuses." ],
-    [ "Giving", "Weekly, monthly, and erratic givers, scheduled gifts, scanned checks, and giving alerts." ],
+    [ "Attendance", "Years of Sundays for every family, shaped by holidays and seasons, so every report is full." ],
+    [ "Giving", "Weekly, monthly, and erratic givers, scheduled gifts, and scanned checks that match each gift." ],
+    [ "Giving analytics", "Journey stages, giving bins, and a year of giving alerts, the way Rock computes them." ],
     [ "Check-in", "Kids from the nursery through 6th grade, security codes, allergies, and achievements." ],
     [ "Small groups", "Groups with leaders, hosts, topics, child care, history, and Group Finder test cases." ],
     [ "Serving", "Eight teams at every campus, with rotations, schedules, blackout dates, and volunteer check-in." ],
     [ "Connections", "Requests to serve that follow each family's story, from first contact to placement." ],
     [ "Prayer", "Requests in every state, an active prayer team, comments, and answers." ],
+    [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions." ],
+    [ "Steps", "A seven-step Discipleship Path made from each person's records: classes, groups, baptism, serving, giving, and leading." ],
     [ "Businesses", "Businesses that give, each with one or two contacts tied to people in the church." ]
 ];
 

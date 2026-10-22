@@ -132,7 +132,7 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// Western Easter (anonymous Gregorian algorithm).
         /// </summary>
-        private static DateTime Easter( int year )
+        internal static DateTime Easter( int year )
         {
             int a = year % 19, b = year / 100, c = year % 100, d = b / 4, e = b % 4;
             int f = ( b + 8 ) / 25, g = ( b - f + 1 ) / 3, h = ( 19 * a + b - d - g + 15 ) % 30;

@@ -2,7 +2,7 @@
 
 New household · 1 person · Phoenix campus · [source](../households/hall.json)
 
-Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet.
+Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet. She took the Starting Point class on Wednesday nights last month, and now waits as a Pending greeter.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,13 +12,14 @@ Brianna Hall is a college freshman. She helped at a community serve day this fal
 
 ### Bri (Brianna) Hall
 
-- Age 19 · single · email bri.hall@example.org · groups: Foster Group (asked to join)
+- Age 19 · single · email bri.hall@example.org · groups: Foster Group (asked to join) · Rock shows Starting Point Class complete, Serve in progress
 - Person Guid `3E7384C8-9E7A-407D-BE01-54C9A02B281F`
 
 ## What this family tests
 
 - Participant: one in-person touch (a serve day), no Sunday attendance.
 - Young adult living alone.
+- Starting Point Class complete last month and a Serve step In Progress while she waits as a Pending greeter.
 
 ## Activity
 
