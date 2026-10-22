@@ -47,11 +47,16 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// The Pledge Entry block that new pledges on the public Create Pledge page go through.
+    /// The pages whose Pledge Entry block takes new pledges for the campaign.
     /// </summary>
     internal sealed class CampaignPledgeEntry
     {
-        public Guid BlockGuid { get; set; }
+        public List<Guid> PageGuids { get; set; } = new List<Guid>();
+
+        /// <summary>
+        /// The Pledge Entry block types, WebForms and Obsidian. Rock swaps one for the other after startup.
+        /// </summary>
+        public List<Guid> BlockTypeGuids { get; set; } = new List<Guid>();
 
         public bool ShowPledgeFrequency { get; set; }
     }

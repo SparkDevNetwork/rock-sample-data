@@ -19,7 +19,7 @@ Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amoun
 | Pledge List and Pledge Detail | Finance > Pledges | Pledges |
 | Pledge Analytics | Finance > Pledge Analytics | Pledges, plus gifts to the pledged account and its child accounts |
 | Person profile, Contributions tab | The Giving Configuration block | The person's pledges |
-| (Public) Create Pledge page | Rock's shipped Pledge Entry block | The block's Account and Pledge Date Range settings |
+| (Public) Create Pledge page, and Pledge under Give on the external site | Rock's shipped Pledge Entry block | The block's Account and Pledge Date Range settings |
 | Contribution statements | The statement template's pledge settings | The pledge accounts, and "include gifts to child accounts" |
 
 One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. The sample church has more than ten years of Building Fund gifts. If people pledged to the Building Fund, every pledge would show hundreds of percent complete. So the campaign gets its own fund (decision 98).
@@ -48,8 +48,8 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 
 ### Rock settings
 
-- **(Public) Create Pledge page.** The Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
-- **Pledge frequency.** The Create Pledge page shows the frequency choice, but a pledger may leave it blank (decision 109).
+- **Pledge pages.** On both (Public) Create Pledge and the external site's Give > Pledge page, the Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
+- **Pledge frequency.** Both pledge pages show the frequency choice, but a pledger may leave it blank (decision 109).
 - **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
 - **History.** Each pledge adds the same "Pledge" entry to the person's History tab that Rock's save hook adds.
 
@@ -156,7 +156,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 Each piece passes its checks before the next one starts.
 
-1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the Create Pledge page, and the statement template.
+1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the two pledge pages, and the statement template. Built.
 2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations.
 3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate.
 4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page, which can name the campaign.
