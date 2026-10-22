@@ -62,13 +62,15 @@ copyInto( path.join( repo, "photos/cast" ), path.join( dist, "images/cast" ), ca
 copyInto( path.join( repo, "photos/opportunities" ), path.join( dist, "images/serving" ), servingFiles );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "images/groups" ), groupFiles );
 
-// Single-file downloads: every logo file, and each building view as JPEG and PNG master.
+// Single-file downloads: every logo file, and each building view and small group photo as JPEG and PNG master.
 const brandFiles = fs.readdirSync( brandDir ).filter( f => /\.(svg|png)$/.test( f ) );
 copyInto( brandDir, path.join( dist, "downloads/brand" ), brandFiles );
 copyInto( churchDir, path.join( dist, "downloads/church" ), model.churchViews.flatMap( v => [ v.jpeg, v.file ] ) );
+copyInto( path.join( repo, "photos/groups" ), path.join( dist, "downloads/groups" ), groupFiles );
+copyInto( path.join( repo, "photos/originals/groups" ), path.join( dist, "downloads/groups" ), groupFiles.map( f => f.replace( /\.jpg$/, ".png" ) ) );
 
 const downloads = { files: {}, zips: {} };
-for ( const sub of [ "brand", "church" ] ) {
+for ( const sub of [ "brand", "church", "groups" ] ) {
     for ( const f of fs.readdirSync( path.join( dist, "downloads", sub ) ) ) {
         downloads.files[`${sub}/${f}`] = { size: fs.statSync( path.join( dist, "downloads", sub, f ) ).size };
     }
