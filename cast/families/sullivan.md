@@ -52,6 +52,8 @@ Chris and Amanda Sullivan married four years ago. Jake is Chris's son, Madison i
 - **Giving:** **monthly** by Chris Sullivan: $300 General Fund per gift, gives in 92% of periods, started 4 years ago.
 - **Giving:** **bi-weekly** by Amanda Sullivan: $60 General Fund per gift, gives in 88% of periods, started 3 years ago, and Rock shows a bi-weekly gift frequency and the consistent journey stage.
 - **Giving units:** the spouses give separately; each is their own giving unit.
+- **Built on the Rock:** Chris Sullivan pledged $3,600 monthly on Commitment Sunday, and the pledge is **on pace**.
+- **Built on the Rock:** Amanda Sullivan gave $150 8 weeks after Commitment Sunday and $150 30 weeks after Commitment Sunday, with no pledge.
 
 ## Address
 

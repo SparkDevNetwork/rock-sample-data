@@ -24,6 +24,7 @@ Mesquite Tree Bookkeeping is Steve Morgan's bookkeeping firm. Once the firm clos
 
 - **Attendance:** none. A business does not attend.
 - **Giving:** **year-end** by Mesquite Tree Bookkeeping: $2,500 General Fund per gift, by check, gives in 100% of periods.
+- **Built on the Rock:** Mesquite Tree Bookkeeping pledged $10,000 one-time on Commitment Sunday, and the pledge is **complete**.
 
 ## Address
 

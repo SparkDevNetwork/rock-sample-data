@@ -31,6 +31,7 @@ Larry and Debra Bell greet at the front doors every Sunday. Their gift goes out 
 - **Attendance:** core, 86% of Sundays, since 14 years ago.
 - **Giving:** **monthly** by Larry Bell: $220 General Fund per gift, gives in 100% of periods, started 12 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Larry Bell gave $1,000 6 weeks after Commitment Sunday, with no pledge.
 
 ## Address
 

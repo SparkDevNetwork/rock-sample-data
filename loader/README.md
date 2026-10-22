@@ -187,6 +187,14 @@ The math lives in Rock's C#, so `loading/RockStreaks.cs` is a line-for-line port
 
 Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 attempts, and the step takes about 1.3 seconds. Core 1 has 49 kids and 5,009 attempts. Most attempts are failed tries at Back-to-Back, Four-Peat, and Unstoppable, because each broken streak closes one.
 
+## Pledges
+
+The building campaign (see [Pledges](../docs/pledges.md)) runs in three places:
+
+1. **Configuration.** `loading/CampaignLoader.cs` gives the campaign's fund and campus accounts the campaign dates, and points Rock's two pledge pages and default contribution statement at the fund.
+2. **The plan, before giving.** `loading/PledgeLoader.cs` turns each household's `campaign` entries into a pledge and a `CampaignGiving` for the giving pattern that pays it: a line factor, a stop date for a stopped pledge, and extra gifts.
+3. **Giving, then pledges.** `GivingLoader` plans each pattern's gifts as before, then adds the campaign. The line is the pledge's share for the time since it started, spread over the usual gifts the pattern really gave, times the line factor. Extra gifts ride on the next usual hand-given gift within a month, or are gifts of their own. The campaign uses no random numbers, so every other gift is the same as without it. After giving, `PledgeLoader` writes the pledges.
+
 ## Giving analytics
 
 The loader fills Rock's giving analytics as if Rock's Giving Automation job had run every night at 10pm, its default schedule. The job's last run is the night before the anchor. Rock's giving automation settings record that run, so Rock's next real run picks up only newer gifts.

@@ -35,7 +35,7 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-- **Pledges** (decisions 97 to 105 and 109; see [Pledges](pledges.md)). Piece 1 is built: the Built on the Rock fund with its campus accounts and campaign dates, both pledge pages, and the contribution statement's pledge settings. Next: the Cast's pledges and campaign gifts.
+- **Pledges** (decisions 97 to 105 and 109; see [Pledges](pledges.md)). Piece 1 is built: the Built on the Rock fund with its campus accounts and campaign dates, both pledge pages, and the contribution statement's pledge settings. Piece 2 is on the `pledges-cast` branch: 15 Cast pledges and 3 givers with campaign gifts and no pledge, each story checked every load. Next: pledges from the Crowd and businesses.
 - **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 
 ## Waiting on a decision
