@@ -1,0 +1,14 @@
+{
+  "$comment": "The church's building campaign (docs/pledges.md, decisions 97 to 105). Its dates count back from install day, so every install is the same distance into the campaign. The fund itself is in accounts.json.",
+  "name": "Built on the Rock",
+  "fund": "Built on the Rock",
+  "description": "Built on the Rock is our two-year campaign to build a Student Center at the Phoenix campus and add kids rooms at every campus. Like the wise builder in Matthew 7, we want to build on a foundation that lasts.",
+  "commitmentSundayWeeksBeforeInstall": 40,
+  "lengthYears": 2,
+  "pledgeEntry": {
+    "$comment": "Rock's (Public) Create Pledge page (60051DAF-2986-406D-A78B-1609CBF2256D) and its Pledge Entry block.",
+    "blockGuid": "4898B608-4A08-4C1B-97A7-0500D708B5D2",
+    "showPledgeFrequency": true
+  },
+  "statementTemplateGuid": "4B93657A-DD5F-4D8A-A13F-1B4E9ADBDAD0"
+}

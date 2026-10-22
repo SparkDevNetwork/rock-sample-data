@@ -35,6 +35,7 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
+- **Pledges** (decisions 97 to 105; see [Pledges](pledges.md)). Piece 1 is on the `pledges-fund` branch: the Built on the Rock fund with its campus accounts and campaign dates, the Create Pledge page, and the contribution statement's pledge settings. Next: the Cast's pledges and campaign gifts.
 - **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
 
 ## Waiting on a decision
@@ -48,7 +49,6 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 3. **Per-person attendance,** so a teen can attend more often than their parents.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
 5. **The Student Path.** Build the four student steps in [Steps](steps.md) (decision 88) once per-person attendance shows which teens come to the student service.
-6. **Pledges.** Build the plan in [Pledges](pledges.md) (decisions 97 to 105): Built on the Rock, a two-year building campaign about 38% through on install, with its own fund, pledges from about 12% of giving units and 30% of businesses, every follow-through state, and Cast stories for each one.
 
 ## To do (parked)
 
