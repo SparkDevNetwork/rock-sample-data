@@ -36,7 +36,7 @@ Where the project stands: the team's working list. Update this page whenever som
 
 ## In progress
 
-- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is written on the `communications` branch: the design, calibration part 7, and the church app stub. Next: run part 7 on calibration sources, then the setup slice.
+- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is done: the design, calibration part 7, and the church app stub. Source-1 has run part 7, and its communication shapes are in the profile. Next: the setup slice.
 
 ## Waiting on a decision
 

@@ -113,7 +113,7 @@ Calibration part 3 already measures communications, but only one source has data
 - Text replies to mass texts, stop words, unread texts, thread length, how fast staff answer, and how fast people answer.
 - Church phone numbers and communication flows (Rock 18 and later).
 
-It returns no names, Ids, list names, message text, phone numbers, or URLs. Clicked links are compared by checksum only. It reads whole recipient rows only for a sample, and it adapts when Rock's post-update jobs have not built the indexes it needs, because the first versions timed out on a real church; see the [calibration README](../calibration/README.md#part-7-communications). Monthly volumes are raw counts, and the normalizer scales them by part 2's active adults, as for parts 5 and 6. The script was run against a test copy of a loaded sample database with seeded sends, texts, devices, and replies, and every section returned the expected numbers. The normalizer does not read part 7 yet; that comes with the first source.
+It returns no names, Ids, list names, message text, phone numbers, or URLs. Clicked links are compared by checksum only. It reads whole recipient rows only for a sample, and it adapts when Rock's post-update jobs have not built the indexes it needs, because the first versions timed out on a real church; see the [calibration README](../calibration/README.md#part-7-communications). Monthly volumes are raw counts, and the normalizer scales them by part 2's active adults, as for parts 5 and 6. The normalizer writes it to the `communicationDetail` section of a source file, and source-1 has it. The profile leaves out the volumes (designed, decision 91) and the values the measured data cannot support: unsubscribes and spam complaints (none recorded), replies to mass texts (replies were not linked to their texts), and one open rate that some opens never update. See the exclusions in `calibration/profiles/sample-church.json`.
 
 Volume is designed, as for prayer and notes: the sample church shows what good communication looks like. Shapes and rates come from the measured sources.
 
@@ -128,7 +128,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 Each slice lands on its own, passes verify, and goes to the integrator.
 
-1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done on the `communications` branch; the normalizer support for part 7 comes when the first source runs it.
+1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
 2. **Setup.** System phone numbers, communication lists, the sample church template, and the message library.
 3. **Bulk email.** Sends, recipients, opens, clicks, unsubscribes, and failures.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, and generated threads.

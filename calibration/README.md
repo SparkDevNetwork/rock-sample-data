@@ -55,7 +55,13 @@ Sends and texts use the last 12 months. Reading a recipient's status means readi
 
 Rock builds several of the indexes this relies on in post-update jobs, which can still be pending on a large database. Rock 18.0 drops the recipient index on CommunicationId, and a Rock 18.1 job puts it back. The script checks for each index and adapts. Without the CommunicationId index it skips the mass send sections and says why in the meta section, and without Rock 16.6's recipient index it samples 50 texters instead of 200. In SSMS, which has no time limit, set `@ReadWithoutIndex = 1` to read the whole recipient table anyway. The first two versions timed out on a real church; on a test church with 3.8 million recipients and none of the job-made indexes, the first read 14 GB and this one about 2 GB. Unsubscribe and spam rates need Rock 17, and communication flows need Rock 18; on older Rock those sections are empty.
 
-Monthly volumes need part 2 from the same database, as for parts 5 and 6. The normalizer does not read part 7 yet; that comes with the first source. See [Communications](../docs/communications.md).
+Monthly volumes need part 2 from the same database, as for parts 5 and 6. The normalizer writes part 7 to the `communicationDetail` section. Small setup counts (communication lists, church phone numbers, and flows) get shares only, never a rate per 1,000 active adults: a count that small is easy to guess, and the guess would reveal the church's size:
+
+```
+node normalize.js source-1 "Calibration source" raw/source-1-part-1.tsv raw/source-1-part-2.tsv raw/source-1-part-3.tsv raw/source-1-part-7.tsv
+```
+
+The loader's `--calibrate` does not run part 7 yet, because the sample data has no communications to grade. See [Communications](../docs/communications.md).
 
 ## Tools
 
