@@ -171,7 +171,7 @@ The workflow needs the following before it can publish. A dry run needs only the
 
 #### 1. GitHub Actions minutes
 
-The repository is private, so every job uses the organization's Actions minutes, and Windows minutes cost more than Linux ones. If GitHub refuses to start jobs with "recent account payments have failed or your spending limit needs to be increased," an organization owner must fix it in the organization's Settings > Billing and plans, with a budget for Actions. This happened on 2026-10-21 and was fixed the same day. A dry run uses about 70 minutes of Windows time for each Rock release, plus a few minutes for the loader.
+The repository has been public since 2026-10-22, so jobs on GitHub-hosted runners cost no Actions minutes. While it was private, each job used the organization's minutes, and GitHub refused to start any job on 2026-10-21 until an organization owner fixed billing in Settings > Billing and plans. If the repository becomes private again, it needs a budget for Actions: a dry run uses about 70 minutes of Windows time for each Rock release, plus a few minutes for the loader.
 
 #### 2. The Azure identity
 
@@ -313,7 +313,7 @@ The Packages job runs on GitHub's `windows-2025` image by default. To run it on 
 3. In the repository's Settings > Actions > Runners, add a self-hosted Windows runner with the label `rock-build`, and install it as a service under that account.
 4. Set the repository variable that moves the job: `gh variable set PACKAGES_RUNNER -R SparkDevNetwork/rock-sample-data -b '["self-hosted","windows","rock-build"]'`. Delete it to move back.
 
-On a self-hosted runner the workflow skips installing SQL Server. Use a runner only for this private repository: once the repository is public, a self-hosted runner must sit in a runner group limited to this workflow, because it runs whatever code a job gives it.
+On a self-hosted runner the workflow skips installing SQL Server. The repository is public, so put the runner in a runner group that only this repository and workflow may use. A self-hosted runner runs whatever code a job gives it, and the workflow never runs on pull requests, but another workflow could.
 
 ## Commits
 
