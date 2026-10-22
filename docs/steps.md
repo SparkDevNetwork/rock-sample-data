@@ -124,9 +124,18 @@ An active adult is an adult on an active record who attended, gave, or was in a 
 
 What each dataset loads, at the anchor 2026-10-21 and the default seed:
 
-STEP-COUNTS-TABLE
+| Step | Core 1 and Full 7 | Core 3 |
+|---|---|---|
+| Starting Point Class | 51 (3 in progress) | 89 (7 in progress) |
+| Small Group | 171 | 302 |
+| Baptism | 64 | 126 |
+| Foundations | 23 (3 in progress) | 37 (8 in progress) |
+| Serve | 49 (1 in progress) | 83 (3 in progress) |
+| Give | 60 | 77 |
+| Lead | 20 | 48 |
+| Program completions | 4 | 4 |
 
-Core 1 holds only the Cast, and only 8 Cast people have a Baptism Date in their household files, so it has few baptisms and few program completions. Ted Decker's completion is the one the Cast's story needs.
+Core 1 and Full 7 load the same people here, because Full 7's crowd is added with `--crowd`. Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 66% of the generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the other three come from the same rules.
 
 ## The Cast's stories
 
