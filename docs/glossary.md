@@ -7,14 +7,17 @@ The words this project uses, in alphabetical order.
 | **Achievement attempt** | One try at an achievement in Rock. It is open while it can still grow, and closed when it succeeds or a streak breaks. Check-in shows the open ones as in progress. |
 | **Achievement type** | Something a person can earn in Rock, such as Century Club. Each one reads a streak type and has a goal. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day. Tests pin it with `--anchor`. |
+| **Built on the Rock** | The sample church's two-year building campaign, about 38% through on install day. Its fund has a campus account per campus. See [Pledges](pledges.md). |
 | **Business contact** | A person linked to a business record in Rock's Known Relationships. Business Detail lists the contacts, and each contact's Known Relationships shows the business. |
 | **Blackout date** | Days a volunteer is away, set in Rock's schedule toolbox. Nobody is scheduled to serve inside them. |
 | **Builder** | The .NET tool in `builder/` that turns this repository into one package per dataset. It never touches a database. |
+| **Campaign line** | The amount a pledger adds for the building campaign to their usual gift, in the same transaction. |
 | **Calibration** | Measuring real Rock databases with read-only scripts, so generated data matches real patterns. |
 | **Cast** | The hand-designed households (87 today, 6 of them businesses). The same in every dataset, always on the main campus, and safe to rely on by Guid. |
-| **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts) or for a Cast person's achievements. Every load checks it, along with the business expectations: each campus has its minimum number of businesses, and every business has a contact and a gift in the last 12 months. |
+| **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts) or for a Cast person's achievements. Every load checks it, or how a Cast pledge is going on install day, along with the business expectations: each campus has its minimum number of businesses, and every business has a contact and a gift in the last 12 months. |
 | **Church app** | The Rock Solid Church App, the sample church's mobile app. It starts as a stub so push notifications have an app to point at. |
 | **Communication list** | A Rock group of people who get the same mass emails or texts, such as a campus's weekly newsletter list. See [Communications](communications.md). |
+| **Commitment Sunday** | The Sunday the building campaign started and most pledges were made: 40 weeks before install day. |
 | **Companion** | A generated household on one of Core 3's two extra campuses. |
 | **Connection request** | A person's request to serve on a team, in Rock's Involvement connection type. It moves through statuses until it is connected, set aside as inactive, or saved for a future follow-up. |
 | **Connection status** | A person's place in the journey: Prospect, Participant, Known, Connected, Engaged, or Leading. |
@@ -33,6 +36,7 @@ The words this project uses, in alphabetical order.
 | **Package** | A zip the builder writes for one dataset and one exact Rock: data files only, never SQL, with a checksum for every file in `package.json`. |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
+| **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |

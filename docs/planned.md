@@ -17,7 +17,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Giving
 
-- **Pledges** for Built on the Rock, a two-year building campaign: pledges from people and businesses, gifts that are ahead, on pace, behind, or stopped, Pledge Analytics, pledge entry, and pledges on contribution statements. See [Pledges](pledges.md).
 - **Refunds** and other uncommon transactions.
 
 ## Other Rock features

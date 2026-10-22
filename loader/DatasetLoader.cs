@@ -259,7 +259,7 @@ namespace RockSampleData.Loader
 
             // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
             var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, dates, foreignKey, seed );
-            pledges?.Plan( people.Households );
+            pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
             giving.Campaign = pledges?.Giving;
             giving.Load( people.Households );
             pledges?.Load( source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid );
