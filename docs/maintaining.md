@@ -274,15 +274,20 @@ The organization's verified prefix is `RockRMS.`, so this package shows no verif
 
 #### 4. The release environment and its variables
 
-An administrator of the repository runs these with the GitHub CLI. Fill in the approvers' GitHub user names.
+This was done on 2026-10-22. The approvers are `jonedmiston`, `cabal95`, and `kylehenning`, and any one of them can approve a publish. An approver must have access to the repository, and an environment takes at most six. To change them, use Settings > Environments > release, or run these again.
 
-```
+An administrator of the repository runs these in Bash with the GitHub CLI and Node. Fill in the approvers' GitHub user names.
+
+```bash
 REPOSITORY=SparkDevNetwork/rock-sample-data
 APPROVERS="<github-user> <github-user>"
 
-reviewers=$(for user in $APPROVERS; do gh api "users/$user" -q '{type: "User", id: .id}'; done | jq -s .)
-jq -n --argjson reviewers "$reviewers" \
-  '{reviewers: $reviewers, prevent_self_review: false, deployment_branch_policy: {protected_branches: false, custom_branch_policies: true}}' \
+# The environment, its approvers, and a rule that only the deployment policies below may use it.
+ids=$(for user in $APPROVERS; do gh api "users/$user" -q .id; done)
+node -e 'const ids = process.argv.slice(1).map(Number); console.log(JSON.stringify({
+  reviewers: ids.map(id => ({ type: "User", id })),
+  prevent_self_review: false,
+  deployment_branch_policy: { protected_branches: false, custom_branch_policies: true } }))' $ids \
   | gh api -X PUT "repos/$REPOSITORY/environments/release" --input -
 
 # Only main and version tags may deploy to it.
@@ -297,7 +302,7 @@ gh variable set AZURE_STORAGE_ACCOUNT -R "$REPOSITORY" --env release -b "<storag
 gh variable set NUGET_USER            -R "$REPOSITORY" --env release -b "jonedmiston"
 ```
 
-Set `prevent_self_review` to `true` if the person who tags a release should not approve it too.
+Self-review is allowed, so the person who tags a release can approve it too. Set `prevent_self_review` to `true` (or tick "Prevent self-review" in the environment settings) to require a second person.
 
 ### A self-hosted runner instead
 
