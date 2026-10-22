@@ -750,7 +750,9 @@ END;
 SELECT TOP ( @SampleTexters ) [t].[PersonId]
 INTO #Texter
 FROM ( SELECT DISTINCT [r].[PersonId] FROM #Resp AS [r] WHERE [r].[PersonId] IS NOT NULL ) AS [t]
-ORDER BY CHECKSUM( [t].[PersonId] * 7919 );
+-- A hash of the Id as text: an even spread with no integer math, since a
+-- large church has Person Ids where PersonId * 7919 overflows an int.
+ORDER BY CHECKSUM( CAST( [t].[PersonId] AS NVARCHAR(20) ) ), [t].[PersonId];
 
 CREATE CLUSTERED INDEX [IX_PersonId] ON #Texter ( [PersonId] );
 
