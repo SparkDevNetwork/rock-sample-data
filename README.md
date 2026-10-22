@@ -138,7 +138,7 @@ and push. Ask me before anything that removes or rewrites history.
 | [photos/](photos/README.md) | The photo rules, the manifest, and the delivered Cast and pool photos. |
 | [graphics/](graphics/README.md) | Reusable church initiative and campaign artwork, beginning with Starting Point. |
 | [builder/](builder/README.md) | The .NET tool that turns this repository into one dataset package per dataset. |
-| [loader/](loader/README.md), `loader-cli/`, `loader-compat-check/` | The loader library that installs a package into a Rock database (for .NET 10 and for Rock's .NET Framework, as the `RockSampleData.Loader` NuGet package), its command line for developers and test harnesses, and the check that both builds compute the same keys. |
+| [loader/](loader/README.md), `loader-cli/`, `loader-compat-check/` | The loader library that installs a package into a Rock database (for .NET 10 and for Rock's .NET Framework, as the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package), its command line for developers and test harnesses, and the check that both builds compute the same keys. |
 | [validation/](validation/README.md) | Tolerances and the script that grades generated data, plus the invariants, contract, and standards check the verify tool uses. |
 | [verify/](verify/README.md) | The tool that proves each package works on one exact Rock and writes its receipt. Publishing needs a passing receipt. |
 | [release/](release/README.md) | The Rock releases each release builds for, and the script that merges a release into the hosted package index. `.github/workflows/release.yml` publishes the packages and the loader on a version tag. |
