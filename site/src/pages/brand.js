@@ -158,7 +158,7 @@ module.exports = function brand( { model, r, downloads } ) {
 
 <section class="section section-sand" id="photos">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Photos", title: "Download the pictures.", lede: "Every photo is AI-generated and fictional. Download a whole set as a zip, or pick single building views below." } )}
+    ${sectionHead( { eyebrow: "Photos", title: "Download the pictures.", lede: "Every photo is AI-generated and fictional. Download a whole set as a zip, or pick single building views and small group photos below." } )}
     <div class="pack-grid">
       ${[
             [ "building", "Building views", "12 empty rooms and exterior views, JPEG" ],
@@ -171,6 +171,7 @@ module.exports = function brand( { model, r, downloads } ) {
           <span class="pack-size">ZIP · ${formatSize( downloads.zips[key].size )}</span>
         </a>` )}
     </div>
+    <h3 class="view-heading">Building views</h3>
     <div class="view-grid">
       ${model.churchViews.map( v => html`<figure class="view reveal">
         <img src="${r( "images/church/" + v.jpeg )}" alt="${esc( v.title )}" loading="lazy" width="1536" height="1024">
@@ -182,6 +183,22 @@ module.exports = function brand( { model, r, downloads } ) {
           </span>
         </figcaption>
       </figure>` )}
+    </div>
+    <h3 class="view-heading">Small groups</h3>
+    <div class="view-grid">
+      ${model.smallGroups.filter( g => g.photo ).map( g => {
+            const png = g.photo.replace( /\.jpg$/, ".png" );
+            return html`<figure class="view reveal">
+        <img src="${r( "images/groups/" + g.photo )}" alt="${esc( `${g.name}: ${g.photoPeople.join( ", " )}` )}" loading="lazy" width="1536" height="1024">
+        <figcaption>
+          <span>${esc( g.name )}${g.topic ? html` <span class="view-topic">${esc( g.topic )}</span>` : ""}</span>
+          <span class="view-links">
+            <a href="${r( "downloads/groups/" + g.photo )}" download>JPEG ${formatSize( d( "groups/" + g.photo ).size )}</a>
+            <a href="${r( "downloads/groups/" + png )}" download>PNG ${formatSize( d( "groups/" + png ).size )}</a>
+          </span>
+        </figcaption>
+      </figure>`;
+        } )}
     </div>
     <p class="fine">All images are 1536 by 1024 pixels. The PNG files are the full-quality masters.</p>
   </div>
