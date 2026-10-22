@@ -18,6 +18,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
+| `steps.json` | The adult Discipleship Path: its completion flow, its seven step types in path order, the prerequisite, and where each type's steps come from, with the class schedules and the designed rates. |
 | `church-app.json` | A stub for the Rock Solid Church App, the sample church's mobile app. The loader does not read it yet. See [Communications](../docs/communications.md). |
 
 ## Service times
@@ -111,3 +112,7 @@ The sample church uses six statuses. Rock code refers to the system values by Gu
 | Attendee | Connected | Attends regularly. |
 | Member | Engaged | In a group, serving, or giving. |
 | (new value) | Leading | Leads a group or a team. |
+
+## Steps
+
+Rock's Discipleship Path is the adult step program, built out to seven step types (decisions 83 to 89). Rock's four types keep their Guids and are updated in place; Foundations, Give, and Lead are new. Each type's `source` names the record its steps come from: memberships (Small Group, Serve, Lead), the giving journey (Give), the Baptism Date (Baptism), or a class (Starting Point Class, Foundations), with the class schedule and its designed share of active adults. See [Steps](../docs/steps.md) for the design and the reasons.

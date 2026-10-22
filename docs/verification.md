@@ -101,7 +101,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 
@@ -132,6 +132,12 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |
 | `only-this-dataset` | One database holds one dataset. Another's rows mean the database was not fresh. |
+| `step-matches-its-membership` | A Small Group, Serve, or Lead step records one membership, with its dates, and every membership that counts has its step. |
+| `step-looks-saved-by-rock` | Rock fills each step's date keys from its dates, and a Complete step has a completion date. Every step is on the person's primary alias and campus. |
+| `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
+| `serve-step-follows-starting-point` | Rock's prerequisite: every Serve step has a Starting Point Class completed before it. |
+| `give-step-agrees-with-journey-stage` | A giver Rock shows as Consistent has an open Give step, and an open Give step belongs to a Consistent or Occasional giver. |
+| `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install. |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision D-rock-loader-5). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.

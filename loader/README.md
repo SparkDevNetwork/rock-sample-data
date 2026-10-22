@@ -19,7 +19,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, and `Notes`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, and `Steps`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
@@ -31,7 +31,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
-| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving and achievements) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
+| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
@@ -53,7 +53,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, and connection setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
 
 ## Parts
 
@@ -68,16 +68,18 @@ A load can choose its parts (decision D-rock-loader-2). Church setup and people 
 | `Giving` | Giving | Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts | |
 | `Prayer` | Prayer requests | Prayer requests with the prayer team's prayers, comments, and answers | Small groups |
 | `Notes` | Notes | Notes on people in six note types, secured to staff | |
+| `Steps` | Steps | Adult steps on Rock's Discipleship Path, from baptism and classes to small groups, serving, giving, and leading, with the Baptism Date on each baptized person and program completions | Small groups, serving teams, giving |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
-`SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at that part's rows:
+`SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
 
 1. **Check images need giving.** Each image row points at its gift.
 2. **Prayer needs small groups.** Some Cast prayer requests are shared with their small group, and who asks for prayer depends on who is in a group, which the prayer step reads from the loaded groups.
+3. **Steps need small groups, serving teams, and giving** (decision D-rock-loader-6). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes.
 
-Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), and prayer reads the giving plan. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows.
+Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), and prayer reads the giving plan. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows, not plans, so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
-Cast expectations check only the parts that loaded: giving stories need `Giving`, achievement stories need `Attendance`, and prayer requests need `Prayer`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+Cast expectations check only the parts that loaded: giving stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, and step stories need `Steps`. A business's contacts are always checked, and its recent gifts only with `Giving`.
 
 On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same.
 
@@ -213,6 +215,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:connections:{campus}` | Who asks to serve at that campus, and each request's dates, status, connector, and activities |
 | `{seed}:addresses:{campus}` | The order of addresses per campus |
 | `{seed}:photos:{campus}` | Which pool faces go to which households |
+| `{seed}:steps:...` | Who is baptized and when, and who takes Starting Point Class and Foundations in which class |
 | `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
 
 `generation/SeededRandom.cs` turns each name into a number with a fixed text hash (FNV-1a) and seeds .NET's `Random` with it. So the same name gives the same draws on every machine, a change to one family changes no other family, and the order of the steps does not matter.
@@ -396,6 +399,7 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
 | Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
 | Notes on people: six note types with View security, hand-written Cast notes, and generated notes with replies, alerts, private and pinned notes, and mentions | Done |
+| Adult steps: Rock's Discipleship Path built out to seven step types, with steps from memberships, the giving journey, the Baptism Date, and class schedules, and program completions the way Rock's job records them. See [How steps load](#how-steps-load). | Done |
 | Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
 | People, the rest: person attributes, logins, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
@@ -413,6 +417,19 @@ Then it writes every note in one bulk copy with explicit Ids, so replies point a
 Notes are stored the way Rock's note editor saves them: approved, with `EditedDateTime` set, a private note's caption set to Rock's "You - Personal Note", and text as HTML. A mention is Rock's `<span class="mention" data-identifier="...">` with the staff member's alias IdKey, which is keyed by the server's DataEncryptionKey. Without a web.config, mentions are plain names. `NotificationsSent` and `ApprovalsSent` are set, so Rock's Send Note Notifications job never emails staff about old sample notes.
 
 Speed: Full 7 writes about 61,000 notes and replies in about one second.
+
+## How steps load
+
+`loading/StepsLoader.cs` sets up Rock's Discipleship Path from `../configuration/steps.json`, and `generation/StepPlanner.cs` plans every step. The design is in [Steps](../docs/steps.md).
+
+1. **The program.** Rock's program and its Baptism, Starting Point Class, Serve, and Small Group types are updated in place, by Guid: order, engagement type, impact weight, organizational objective, icon, and color. Foundations, Give, and Lead are added with a description and a call to action. The completion flow becomes Linear (Preferred), and Rock's prerequisite (Serve after Starting Point Class) stays.
+2. **The facts.** Small group and serving team memberships are read back from the database, so each step has its membership's dates exactly. A membership ends the day the person left, or the day the group ended while they were in it. Gifts come from the list the giving analytics replayed, so Give steps agree with the journey stage Rock shows. Active adults use the prayer step's rule.
+3. **The plan.** Each step type's `source` picks one planner method: `membership` (one step per membership, In Progress while a volunteer is Pending), `giving-journey` (Rock's stage rule run every Tuesday night over the history window), `baptism` (the Cast's dates, and generated adults at the designed rates), and `class` (Starting Point Class and Foundations on their class schedules). Classes are planned last, because they are dated from the other steps. Program completions follow Rock's Update Step Program Completions job.
+4. **The rows.** Program completions, then steps with explicit Ids that point at their completion, then attribute values: the Baptism Date and Baptized Here on the person, and Baptized Here on each Baptism step. Steps carry the date keys Rock's model fills, the person's primary alias and campus, and the group as the related entity.
+
+A Cast story can name a class in its household file (`steps`), and the planner fails the load when that class cannot hold against the person's other records, such as a Starting Point Class after their first Serve step.
+
+Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 
 ## Check images
 

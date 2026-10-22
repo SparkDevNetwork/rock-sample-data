@@ -25,7 +25,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
 - **Communications:** email, text, and push history, with very large mass emails, opens and clicks, SMS conversations with real back-and-forth threads, and messages tied to steps. See [Communications](communications.md).
-- **Steps:** a seven-step Discipleship Path for adults (Starting Point Class, Small Group, Baptism, Foundations, Serve, Give, and Lead) and a four-step Student Path (Student Camp, Follow Jesus, Mission Trip, and Student Leader), with program completions. See [Steps](steps.md).
+- **The Student Path:** four steps for Jr High and High School students (Student Camp, Follow Jesus, Mission Trip, and Student Leader), with program completions. The adult Discipleship Path is already built. See [Steps](steps.md).
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 

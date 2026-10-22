@@ -87,6 +87,24 @@ namespace RockSampleData.Loader.Loading
         public DateTime RunAt { get; }
 
         /// <summary>
+        /// Rock's last weekly journey stage run: the last Tuesday at 10pm on or before <see cref="RunAt"/>. The stage
+        /// Rock shows for each person is the one this run gave them.
+        /// </summary>
+        public DateTime FinalJourneyRun
+        {
+            get
+            {
+                var run = RunAt.Date.AddHours( 22 );
+                while ( run.DayOfWeek != DayOfWeek.Tuesday || run > RunAt )
+                {
+                    run = run.AddDays( -1 );
+                }
+
+                return run;
+            }
+        }
+
+        /// <summary>
         /// Every qualifying gift of this dataset's giving units, in date order, after <see cref="Load"/>.
         /// </summary>
         public Dictionary<string, List<RockGift>> Gifts { get; private set; }
@@ -405,12 +423,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
         /// </summary>
         private Dictionary<int, int> ReplayJourneys( Dictionary<string, List<RockGift>> gifts, Dictionary<string, List<int>> people, Action<IEnumerable<int>, Guid, string, DateTime, DateTime> add, out DateTime finalRun )
         {
-            finalRun = RunAt.Date.AddHours( 22 );
-            while ( finalRun.DayOfWeek != DayOfWeek.Tuesday || finalRun > RunAt )
-            {
-                finalRun = finalRun.AddDays( -1 );
-            }
-
+            finalRun = FinalJourneyRun;
             var lastRun = finalRun;
             var runs = Enumerable.Range( 1, JourneyHistoryWeeks ).Select( w => lastRun.AddDays( -7 * ( JourneyHistoryWeeks + 1 - w ) ) ).ToList();
             var predicted = new Dictionary<int, int>();

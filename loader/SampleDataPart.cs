@@ -61,7 +61,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Notes on people.
         /// </summary>
-        Notes
+        Notes,
+
+        /// <summary>
+        /// Adult steps on Rock's Discipleship Path, with baptism dates and program completions.
+        /// </summary>
+        Steps
     }
 
     /// <summary>
@@ -106,15 +111,22 @@ namespace RockSampleData.Loader
         /*
             10/21/26 - CLAUDE
 
-            A part depends on another only when its rows need that part's rows. Parts that only read
-            another part's plan do not, because the loader plans everything in memory and skips only
-            the writes, so a skipped part never changes another part's rows. Serving and giving read
-            the attendance plan, and prayer reads the giving plan, so none of them needs those parts.
+            A part depends on another only when its rows point at or must agree with that part's
+            rows. Parts that only read another part's plan do not, because the loader plans everything
+            in memory and skips only the writes, so a skipped part never changes another part's rows.
+            Serving and giving read the attendance plan, and prayer reads the giving plan, so none of
+            them needs those parts.
 
             Check images are pictures of check gifts: each image row points at its gift. Prayer needs
             small groups: some Cast prayer requests are shared with a small group, and who asks for
             prayer depends on who is in a group. Group photos belong to small groups and serving
             opportunity photos to photos, so no other part's choice changes the photos part's rows.
+
+            Steps need small groups, serving, and giving. A Small Group, Serve, or Lead step copies one
+            small group or team membership, read back from the rows those parts wrote, and points at its
+            group. People with an open request to serve come from the serving part's connection requests. A
+            Give step must agree with the journey stage the giving part writes. Steps read the attendance
+            plan only, so they do not need attendance.
 
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
@@ -131,6 +143,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
+            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Adult steps on Rock's Discipleship Path, from baptism and classes to small groups, serving, giving, and leading, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 
