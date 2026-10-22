@@ -15,8 +15,6 @@ name: Release
 on:
   push:
     tags: ["v*"]
-    # TEMPORARY for the proof run on the release branch; removed before handoff.
-    branches: [release]
   workflow_dispatch:
     inputs:
       version:
