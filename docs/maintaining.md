@@ -171,7 +171,7 @@ The workflow needs the following before it can publish. A dry run needs only the
 
 #### 1. GitHub Actions minutes
 
-The repository is private, so every job uses the organization's Actions minutes, and Windows minutes cost more than Linux ones. On 2026-10-21 GitHub refused to start any job in this repository because "recent account payments have failed or your spending limit needs to be increased." An organization owner must fix this in the organization's Settings > Billing and plans, and allow a budget for Actions. A full run needs about two hours of Windows time for each Rock release.
+The repository is private, so every job uses the organization's Actions minutes, and Windows minutes cost more than Linux ones. If GitHub refuses to start jobs with "recent account payments have failed or your spending limit needs to be increased," an organization owner must fix it in the organization's Settings > Billing and plans, with a budget for Actions. This happened on 2026-10-21 and was fixed the same day.
 
 #### 2. The Azure identity
 
