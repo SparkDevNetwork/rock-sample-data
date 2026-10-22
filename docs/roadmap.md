@@ -89,8 +89,6 @@ Publishing the loader to NuGet is in the release workflow (see In progress).
 
 Publishing packages to Azure is in the release workflow (see In progress).
 
-1. **Get the repository ready to be public.** Squash the history to one commit before the first push. The code and data use the Rock Community License (decided 2026-10-16).
-
 ## Later (Phase 1 and beyond)
 
 Registrations, connection requests beyond serving, learning (LMS), benevolence, reminders, and person attributes for the Crowd.
