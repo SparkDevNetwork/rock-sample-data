@@ -12,7 +12,7 @@
   "people": 405,
   "households": 241,
   "campuses": 3,
-  "typicalInstallSeconds": 12,
+  "typicalInstallSeconds": 13,
   "checkImages": {
     "$comment": "Every check gets images; Core 3 is still small.",
     "months": 0

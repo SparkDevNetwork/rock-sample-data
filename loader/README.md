@@ -81,7 +81,7 @@ Other parts read another part's plan, not its rows, so they need nothing. Servin
 
 Cast expectations check only the parts that loaded: giving stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, and step stories need `Steps`. A business's contacts are always checked, and its recent gifts only with `Giving`.
 
-On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same.
+On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same. After steps joined, a full Core 1 load matched main's load table by table, and so did Core 3 and Full 7. Core 1 without `Steps` differed from the full load only in the step tables (`Step`, `StepProgramCompletion`, `StepType`, and `StepProgram`) and in the 192 Baptism Date and Baptized Here values. Core 1 with `--parts Steps`, which adds small groups, serving teams, and giving, had the same steps, step values, memberships, gifts, and small group and serving attendance as the full load.
 
 ## Using the library
 
@@ -176,13 +176,13 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured on 2026-10-21 with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of `RockSample-base`. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured on 2026-10-21, again after steps joined the load, with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of `RockSample-base`. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
-| Core 1 | 185 | 87 | 1 | 11 seconds (11.7, 10.7, 10.8) |
-| Core 3 | 405 | 241 | 3 | 12 seconds (12.4, 11.7, 11.8) |
-| Full 7 | 185 | 87 | 7 | 10 seconds (8.6, 10.2, 10.0) |
+| Core 1 | 185 | 87 | 1 | 11 seconds (11.6, 10.6, 10.5) |
+| Core 3 | 405 | 241 | 3 | 13 seconds (11.5, 12.7, 12.8) |
+| Full 7 | 185 | 87 | 7 | 10 seconds (11.6, 10.2, 9.8) |
 
 Full 7 loads faster than Core 1 because it draws images only for the last 12 months of check gifts: 274 images, against 814 in Core 1. Full 7's manifest lists no generated households, so a load without `--crowd` has only the Cast, on the main campus.
 
