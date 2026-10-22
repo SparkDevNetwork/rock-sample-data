@@ -29,6 +29,85 @@ Changing the repository yourself, or with AI agents? Read [AGENTS.md](AGENTS.md)
 
 Need a word explained? See the [glossary](docs/glossary.md). Curious how generated people behave? See [The Crowd and personas](docs/crowd.md). Want the original design? See the [design spec](docs/design-spec.md).
 
+## Working with AI agents
+
+AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follow its rules. This section gives you prompts to copy and paste. The full process is in [Working in parallel](docs/maintaining.md#working-in-parallel).
+
+**Set up once per clone.** Run the two `git config` lines in [AGENTS.md](AGENTS.md#setup-once-per-clone). They turn on the hooks that keep `main` merge-only.
+
+### Pick a way to work
+
+- **Several sessions at once:** start one integrator session, then one feature session per piece of work. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`.
+- **One session alone:** use solo mode. The session does the work and then lands it itself.
+
+Replace each `<...>` before you paste a prompt.
+
+### Prompt: integrator
+
+Start this session first, and keep it open while the others work.
+
+```text
+You are the integrator for the rock-sample-data repository. Read AGENTS.md and the
+"Working in parallel" section of docs/maintaining.md; they define your process.
+Confirm this clone has core.hooksPath=.githooks and branch.main.mergeoptions=--no-ff.
+
+Your only job is landing other sessions' finished branches on main, one at a time,
+in the order they arrive. You never write features.
+
+When a session tells you a branch is ready, land it in that branch's own worktree:
+1. Merge main into the branch and resolve conflicts. Take either side of a
+   generated file.
+2. Run node docs/number-decisions.js on the branch.
+3. Rebuild the packages with the builder for <path to your Rock checkout>. Run the
+   verify tool with --record-contract, then again without it. Every receipt must
+   pass. A branch that changes only docs can skip this step.
+4. Commit on the branch, merge it into main from the main checkout, and push.
+5. Tell every other session that main moved, so they merge it.
+
+If a branch fails a check, send it back to its session with the failure instead of
+fixing it yourself. Push main after each landing. Ask me before anything that removes
+or rewrites history.
+```
+
+### Prompt: feature session
+
+Use one of these for each piece of work while an integrator is running.
+
+```text
+Read AGENTS.md. Make a worktree for a new branch named <branch> from main, and do all
+of your work there: <describe the work>.
+
+Give any new decision a placeholder such as D-<branch>-1. Keep the docs and the
+public site current (AGENTS.md rule 15).
+
+When the work is done and its checks pass, message the integrator session with the
+branch, the worktree, what changed, and the checks you ran. Do not merge into main.
+```
+
+### Prompt: one session alone (solo mode)
+
+> **Warning:** Use solo mode only when no other session is changing the repository. An agent cannot see other sessions, so it trusts you on this.
+
+```text
+You are the only session working in the rock-sample-data repository, so you are also
+its integrator (solo mode, AGENTS.md rule 12). Read AGENTS.md and the "Working in
+parallel" section of docs/maintaining.md.
+
+Make a worktree for a new branch named <branch> from main, and do the work there:
+<describe the work>.
+
+When the work is done, land it yourself with the integrator's steps: merge main into
+the branch, run node docs/number-decisions.js, rebuild the packages with the builder
+for <path to your Rock checkout> and run the verify tool with --record-contract and
+then again without it (skip both for a docs-only change), commit, merge into main,
+and push. Ask me before anything that removes or rewrites history.
+```
+
+### What to expect
+
+- The integrator pushes `main` only when your prompt says it may. The prompts above let it push after each landing.
+- It brings you any judgment call, such as dropping a branch that `main` already covers, or a check that fails for a reason outside the branch.
+
 ## At a glance
 
 | Dataset | People | Campuses | Load time |
@@ -104,16 +183,6 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    ```
    node cast/build-pages.js
    ```
-
-## Working with AI agents
-
-AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follow its rules. This section says what to tell them. The how-to is in [Working in parallel](docs/maintaining.md#working-in-parallel).
-
-1. **Set up once per clone.** Run the two `git config` lines in [AGENTS.md](AGENTS.md#setup-once-per-clone). They turn on the hooks that keep `main` merge-only.
-2. **Start feature work in its own worktree.** Tell the agent, for example: "Make a worktree for the `notes` branch and work there. Hand it to the integrator when it is ready."
-3. **Start an integrator when two or more sessions will change the repository.** Open one more session and tell it: "You are the integrator for this repository. Read AGENTS.md and the Working in parallel section of docs/maintaining.md. Land branches on `main` as sessions hand them to you." It merges one branch at a time, numbers decisions, runs verify, and merges into `main`.
-4. **Use solo mode when only one session is working.** Tell it: "You are the only session working. Land it yourself." It then does the integrator's steps itself. A change to documentation only can skip the package build and verify. An agent never turns on solo mode by itself, because it cannot see other sessions.
-5. **Expect to be asked.** The integrator asks you before it pushes `main`. It also brings you any judgment call, such as dropping a branch that `main` already covers.
 
 ## Ground rules
 
