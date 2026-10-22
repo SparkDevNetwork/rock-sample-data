@@ -126,7 +126,10 @@ dotnet run --project loader-compat-check -f net10.0
 dotnet run --project loader-compat-check -f net472
 ```
 
-The two builds load the same rows, with one known difference. .NET Framework rounds `DateTime.AddMinutes` and the other `Add` methods that take a fraction to the nearest millisecond, and .NET 10 does not. So a few generated times, such as when a prayer request was approved, can differ by under a millisecond. On 2026-10-21, a .NET Framework load and a .NET 10 load of the same parts matched in every table when times were compared to the second.
+The two builds are meant to load the same rows. One difference is expected: .NET Framework rounds `DateTime.AddMinutes` and the other `Add` methods that take a fraction to the nearest millisecond, and .NET 10 does not. So a few generated times, such as when a prayer request was approved, can differ by under a millisecond. On 2026-10-21, a .NET Framework load and a .NET 10 load of attendance, small groups, and prayer matched in every table when times were compared to the second, and a later Core 1 load of every part but check images had the same steps on both builds. That later load found two gaps that are not fixed yet:
+
+1. **Serving schedules differ.** A few volunteers are asked to serve in a different room on some Sundays (Core 1: 3,113 team occurrences on .NET Framework, 3,119 on .NET 10). `ServingLoader` picks a room with `OrderBy( load ).ThenBy( random draw ).First()`. .NET 10's `First()` draws the tie-break only for rooms that tie, and .NET Framework draws it for every room, so the two builds use the seeded stream differently. A fix draws every tie-break before sorting, which changes the serving rows on both builds.
+2. **Three giving attributes differ slightly:** gift frequency mean, its standard deviation, and next expected gift date, with the giving alerts that follow from them. The cause is not traced yet.
 
 ## The package index
 
