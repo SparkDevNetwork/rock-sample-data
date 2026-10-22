@@ -1,6 +1,6 @@
 # Pledges
 
-The plan for pledges in the sample data, and why. Nothing here is built yet. The decisions are 97 to 105 in [Decisions](decisions.md). When the build starts, the numbers here move to `configuration/campaign.json`, so they can be tuned in one place.
+The plan for pledges in the sample data, and why. The decisions are 97 to 105 in [Decisions](decisions.md). Piece 1 of the build order is built: the fund and its Rock settings, from `configuration/campaign.json`. The rest is not built yet. Each later piece adds its numbers to `configuration/campaign.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -49,6 +49,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 ### Rock settings
 
 - **(Public) Create Pledge page.** The Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
+- **Pledge frequency.** The Create Pledge page shows the frequency choice, but a pledger may leave it blank (decision 109).
 - **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
 - **History.** Each pledge adds the same "Pledge" entry to the person's History tab that Rock's save hook adds.
 
@@ -155,8 +156,8 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 Each piece passes its checks before the next one starts.
 
-1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the Create Pledge page, and the statement template.
-2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations.
+1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the Create Pledge page, and the statement template. This is church setup, so it loads whatever parts a person chooses (decision D-rock-loader-7).
+2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations. Pledges and campaign gifts belong to the loader's Giving part, so they load only with giving.
 3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate.
 4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page, which can name the campaign.
 

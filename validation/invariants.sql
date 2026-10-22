@@ -379,3 +379,12 @@ FROM (
     FROM [Group] AS [g]
     INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
     WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];
+
+-- check: campus-account-dates-match-fund
+-- why: Rock's giving pages hide an account outside its dates. A campus account with other dates than its fund would take gifts the fund says it cannot.
+SELECT COUNT(*)
+FROM [FinancialAccount] AS [child]
+INNER JOIN [FinancialAccount] AS [fund] ON [fund].[Id] = [child].[ParentAccountId]
+WHERE [child].[ForeignKey] = @ForeignKey AND [child].[CampusId] IS NOT NULL
+    AND ( ISNULL( [child].[StartDate], '1900-01-01' ) <> ISNULL( [fund].[StartDate], '1900-01-01' )
+        OR ISNULL( [child].[EndDate], '1900-01-01' ) <> ISNULL( [fund].[EndDate], '1900-01-01' ) );

@@ -1,5 +1,5 @@
 {
-  "$comment": "General and Building funds have one child account per campus (the traditional Rock pattern). Gifts post to the giver's campus account. Only campuses in the installed dataset get child accounts.",
+  "$comment": "General and Building funds, and the Built on the Rock campaign fund, have one child account per campus (the traditional Rock pattern). Gifts post to the giver's campus account. Only campuses in the installed dataset get child accounts. Funds with rockDefault false are not in a new Rock database, so the loader adds them.",
   "accounts": [
     {
       "key": "general",
@@ -108,13 +108,66 @@
       ]
     },
     {
+      "key": "campaign",
+      "name": "Built on the Rock",
+      "publicName": "Built on the Rock",
+      "guid": "D0E115C4-2945-4F22-BAFD-C57D0EA73BAE",
+      "rockDefault": false,
+      "isTaxDeductible": true,
+      "order": 2,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "D47F2BC4-1B1B-4C4C-B7CF-E20610EAF47B"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "6B82EE8E-8704-41FF-AC73-6DCA310BEA16"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "8FA6EAC8-A04A-46A3-9D8B-14A0CE9BF563"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "C92606F0-0FB3-429A-B483-C36009856B10"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "2BE296EF-4A15-4695-8235-44BF44ECB895"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "56F2C9FD-A1E8-45D6-AF74-30CA196F3C2F"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "F04D13D8-EF67-4926-BDC3-501F34D299A0"
+        }
+      ]
+    },
+    {
       "key": "missions",
       "name": "Mission Fund",
       "publicName": "Mission Fund",
       "guid": "BAB250EE-CAE6-4A41-9756-AD9327408BE0",
       "rockDefault": true,
       "isTaxDeductible": true,
-      "order": 2,
+      "order": 3,
       "campusAccounts": []
     },
     {
@@ -123,7 +176,7 @@
       "guid": "2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5",
       "rockDefault": true,
       "isTaxDeductible": false,
-      "order": 3,
+      "order": 4,
       "campusAccounts": []
     }
   ]

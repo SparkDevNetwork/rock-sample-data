@@ -8,7 +8,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 |---|---|
 | `campuses.json` | Campuses, the datasets each appears in, and which service time slots each offers. |
 | `schedules.json` | The shared Sunday service time slots and the campus schedule types (Weekend Service, Student Service). |
-| `accounts.json` | Funds. General and Building Funds have one child account per campus. |
+| `accounts.json` | Funds. General Fund, Building Fund, and the Built on the Rock campaign fund have one child account per campus. |
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
@@ -18,6 +18,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
+| `campaign.json` | The Built on the Rock building campaign: its fund, description, and dates, and the Rock settings that point at it. See [Pledges](../docs/pledges.md). |
 | `steps.json` | The adult Discipleship Path: its completion flow, its seven step types in path order, the prerequisite, and where each type's steps come from, with the class schedules and the designed rates. |
 | `church-app.json` | A stub for the Rock Solid Church App, the sample church's mobile app. The loader does not read it yet. See [Communications](../docs/communications.md). |
 
@@ -40,6 +41,10 @@ The student service meets at Sunday 10:30am at every campus. On each campus, Sun
 ## Funds
 
 General Fund and Building Fund each have a child account per campus (for example "Phoenix General Fund"), with Rock's `UsesCampusChildAccounts` turned on. Gifts post to the giver's campus account. Mission Fund and Event Registration have no child accounts.
+
+Built on the Rock is the building campaign's fund (decision 98). Rock does not ship it, so the loader adds it, with a child account per campus like the other two. Its start and end dates are the campaign's: Commitment Sunday is the Sunday 40 weeks before install day, and the campaign lasts two years. Its campus accounts share those dates. Rock's giving page hides an account outside its dates, so the fund takes gifts only during the campaign.
+
+The loader also points two Rock settings at the fund (decision 100). The Pledge Entry block on the (Public) Create Pledge page uses the fund and the campaign dates, and shows the pledge frequency as an optional choice. Rock's default contribution statement template shows pledges to the fund and counts gifts to its campus accounts toward them.
 
 ## Notes
 

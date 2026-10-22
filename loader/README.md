@@ -53,11 +53,11 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, and connection setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
 
 ## Parts
 
-A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. `SampleDataParts.All` is the one table of parts, in load order:
+A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. The building campaign is church setup: its fund, campus accounts, campaign dates, Create Pledge page, and statement settings load in every load (decision D-rock-loader-7). Pledges and campaign gifts, when they are built, belong to `Giving`. `SampleDataParts.All` is the one table of parts, in load order:
 
 | Part | Name | What it adds | Needs |
 |---|---|---|---|
@@ -179,21 +179,25 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured on 2026-10-21, again after steps joined the load, with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of `RockSample-base`. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured on 2026-10-21, again after the building campaign joined the load, with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
-| Core 1 | 185 | 87 | 1 | 11 seconds (11.6, 10.6, 10.5) |
-| Core 3 | 405 | 241 | 3 | 13 seconds (11.5, 12.7, 12.8) |
-| Full 7 | 185 | 87 | 7 | 10 seconds (11.6, 10.2, 9.8) |
+| Core 1 | 185 | 87 | 1 | 10 seconds (10.4, 10.4, 10.5) |
+| Core 3 | 405 | 241 | 3 | 12 seconds (12.2, 12.0, 11.4) |
+| Full 7 | 185 | 87 | 7 | 9 seconds (9.2, 8.9, 9.0) |
 
 Full 7 loads faster than Core 1 because it draws images only for the last 12 months of check gifts: 274 images, against 814 in Core 1. Full 7's manifest lists no generated households, so a load without `--crowd` has only the Cast, on the main campus.
 
-When a change to the data moves a number past 2%, verify fails. Measure again and update the card. One run (`--any-rock` because `RockSample-base` is an older Rock than the packages):
+The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
+
+When a change to the data moves a number past 2%, verify fails. Measure again and update the card. One run:
 
 ```
-rock-sample-data-load --package core-1.zip --connection "<a fresh copy of RockSample-base>" --check-images --any-rock --rock C:\Development\Rock
+rock-sample-data-load --package core-1.zip --connection "<a fresh copy of RockSampleVerify-base>" --check-images --rock C:\Development\Rock
 ```
+
+Copy the base by backup and restore while holding a shared `sp_getapplock` on its name, the lock the verify tool takes, so the copy never catches the base while verify rebuilds it.
 
 ## What makes a load repeatable
 
