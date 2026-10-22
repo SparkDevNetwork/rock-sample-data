@@ -58,6 +58,18 @@ A Cast person can say what Rock should show for their achievements with `expect`
 - `inProgress` lists types the person has an open attempt of, which check-in shows as in progress.
 - `notEarned` lists types the person has no success of.
 
+A Cast person can also say what their steps should show:
+
+```json
+"expect": { "steps": { "complete": [ "starting-point-class" ], "inProgress": [ "serve" ], "programCompletion": false } }
+```
+
+- `complete` lists step type keys from `configuration/steps.json` that the person has at least one Complete step of.
+- `inProgress` lists types the person has an In Progress step of.
+- `programCompletion` is true when the person must have a Discipleship Path completion, and false when they must not.
+
+They cover Ted Decker (the whole path, with a program completion), Brian and Wendy Gilbert (Starting Point Class In Progress), and Bri Hall (Starting Point Class complete, and a Serve step In Progress while she waits as a Pending greeter).
+
 Every load checks them and prints the result. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast expectations hold at every anchor date tested. They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.

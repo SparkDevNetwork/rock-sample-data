@@ -127,6 +127,8 @@
         "inProgressPerCampus": { "min": 2, "max": 4 },
         "percentOfActiveAdults": 20,
         "after": "starting-point-class",
+        "$preferComment": "Leaders and volunteers take it first, as many churches ask of them.",
+        "prefer": [ "lead", "serve" ],
         "$nearComment": "Often in the person's first year in a group.",
         "near": { "stepTypes": [ "small-group" ], "daysAfter": 365 },
         "otherwise": { "daysAfter": 730 },

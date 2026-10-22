@@ -15,14 +15,14 @@ Brian and Wendy Gilbert host a small group in their home and both asked to serve
 
 Brian works at the Valley Water District. He and his wife Wendy host a small group and have both asked to serve together as greeters. The greeters team asks for Starting Point first, so they are taking the class now and their requests are still In Progress.
 
-- Age 48 · married · Office Clerk, Valley Water District · email bgilbert@example.org · groups: Wright Group (host), Foster Group (left)
+- Age 48 · married · Office Clerk, Valley Water District · email bgilbert@example.org · groups: Wright Group (host), Foster Group (left) · Rock shows Starting Point Class in progress
 - Person Guid `92D04619-3F97-4EFF-932E-61DA56441995`
 
 ### Wendy Gilbert
 
 Wendy is a district manager at the Valley Water District, Brian's employer as well. Her connection request to serve matches Brian's, so the couple tests paired requests.
 
-- Age 46 · married · District Manager, Valley Water District · email wgilbert@example.org · groups: Wright Group (host), Foster Group (left)
+- Age 46 · married · District Manager, Valley Water District · email wgilbert@example.org · groups: Wright Group (host), Foster Group (left) · Rock shows Starting Point Class in progress
 - Person Guid `D35B865D-BF50-4A7D-848F-6C0ED7A2AE67`
 
 ## What this family tests

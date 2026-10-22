@@ -87,8 +87,11 @@ namespace RockSampleData.Loader.Loading
                 return $"{t.Name} {steps.Count:N0}{( inProgress > 0 ? $" ({inProgress:N0} in progress)" : string.Empty )}";
             } ) );
             var activeAdults = facts.People.Count( p => p.IsActiveAdult );
+            var baptized = plan.Baptisms.Select( b => b.PersonId ).ToHashSet();
+            var generatedActive = facts.People.Where( p => p.IsActiveAdult && !p.IsCast ).ToList();
+            var generatedShare = generatedActive.Count == 0 ? string.Empty : $", {100.0 * generatedActive.Count( p => baptized.Contains( p.PersonId ) ) / generatedActive.Count:N0}% of generated active adults";
             Console.WriteLine( $"  Steps: {plan.Steps.Count:N0} ({byType})" );
-            Console.WriteLine( $"  Active adults: {activeAdults:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here); program completions: {plan.Completions.Count:N0}" );
+            Console.WriteLine( $"  Active adults: {activeAdults:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{generatedShare}); program completions: {plan.Completions.Count:N0}" );
         }
 
         #region Program and step types

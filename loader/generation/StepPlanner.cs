@@ -430,7 +430,7 @@ namespace RockSampleData.Loader.Generation
                 var count = campus.Count( p => holders.Contains( p.PersonId ) );
                 foreach ( var person in candidates
                     .Where( p => !holders.Contains( p.PersonId ) )
-                    .Select( p => (Person: p, Tier: NearStart( p, source ) == null ? 1 : 0, Tie: random.Between( 0.0, 1.0 )) )
+                    .Select( p => (Person: p, Tier: FillTier( p, source ), Tie: random.Between( 0.0, 1.0 )) )
                     .OrderBy( c => c.Tier ).ThenBy( c => c.Tie )
                     .Select( c => c.Person ) )
                 {
@@ -525,6 +525,19 @@ namespace RockSampleData.Loader.Generation
                 : schedule.StartedBetween( _facts.HistoryStart, _facts.Anchor );
             var fits = others.Where( Fits ).ToList();
             return fits.Count > 0 ? random.Pick( fits ) : null;
+        }
+
+        /// <summary>
+        /// Who fills a class's share first: people with a step the class prefers, then people near a group, then everyone else.
+        /// </summary>
+        private int FillTier( StepPerson person, StepSource source )
+        {
+            if ( source.Prefer.Any( t => HasStep( person.PersonId, t ) ) )
+            {
+                return 0;
+            }
+
+            return NearStart( person, source ) == null ? 2 : 1;
         }
 
         private SeededRandom PersonRandom( StepTypeDefinition type, StepPerson person ) => new SeededRandom( $"{_seed}:steps:{type.Key}:{person.Guid}" );

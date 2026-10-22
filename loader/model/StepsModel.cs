@@ -187,6 +187,11 @@ namespace RockSampleData.Loader.Model
         public IntRange InProgressPerCampus { get; set; } = new IntRange();
 
         /// <summary>
+        /// Step type keys whose holders fill the class's share first.
+        /// </summary>
+        public List<string> Prefer { get; set; } = new List<string>();
+
+        /// <summary>
         /// For a class, the share of active adults who take it. For baptism, the share of generated active adults baptized.
         /// </summary>
         public double PercentOfActiveAdults { get; set; }

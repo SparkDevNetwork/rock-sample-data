@@ -12,7 +12,7 @@ Brianna Hall is a college freshman. She helped at a community serve day this fal
 
 ### Bri (Brianna) Hall
 
-- Age 19 · single · email bri.hall@example.org · groups: Foster Group (asked to join)
+- Age 19 · single · email bri.hall@example.org · groups: Foster Group (asked to join) · Rock shows Starting Point Class complete, Serve in progress
 - Person Guid `3E7384C8-9E7A-407D-BE01-54C9A02B281F`
 
 ## What this family tests

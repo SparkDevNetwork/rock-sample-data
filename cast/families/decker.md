@@ -17,7 +17,7 @@ Ted and Cindy Decker and their two children are the church's best-known family. 
 
 Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, leads the Production Team, where he still runs a camera, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.
 
-- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 7 security roles
+- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 7 security roles · Rock shows Starting Point Class complete, Small Group complete, Baptism complete, Foundations complete, Serve complete, Give complete, Lead complete, the Discipleship Path completed
 - Person Guid `8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4`
 
 ### Cindy (Cynthia) Decker
