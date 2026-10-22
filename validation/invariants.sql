@@ -113,10 +113,13 @@ WHERE [g].[ForeignKey] = @ForeignKey
     AND [l].[GeoPoint] IS NULL;
 
 -- check: nothing-dated-in-the-future
--- why: The timeline counts back from the install day. A future gift or check-in shows up in "upcoming" places.
+-- why: The timeline counts back from the install day. A future gift, check-in, or step shows up in "upcoming" places.
 --      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 74).
 SELECT ( SELECT COUNT(*) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [StartDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) AND NOT ( [RequestedToAttend] = 1 AND [DidAttend] = 0 ) )
-    + ( SELECT COUNT(*) FROM [FinancialTransaction] WHERE [ForeignKey] = @ForeignKey AND [TransactionDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) );
+    + ( SELECT COUNT(*) FROM [FinancialTransaction] WHERE [ForeignKey] = @ForeignKey AND [TransactionDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) )
+    + ( SELECT COUNT(*) FROM [Step] WHERE [ForeignKey] = @ForeignKey
+            AND ( [StartDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) OR [EndDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) OR [CompletedDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) ) )
+    + ( SELECT COUNT(*) FROM [StepProgramCompletion] WHERE [ForeignKey] = @ForeignKey AND [EndDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) );
 
 -- check: transaction-has-positive-details
 -- why: Rock totals a gift from its details. A gift with no detail, or a zero or negative one, breaks statements.
@@ -330,39 +333,114 @@ SELECT ( SELECT COUNT(*) FROM [Stages] AS [x] WHERE [x].[Stage] = '2' AND NOT EX
     + ( SELECT COUNT(*) FROM [OpenGive] AS [o] WHERE NOT EXISTS ( SELECT 1 FROM [Stages] AS [x] WHERE [x].[PrimaryAliasId] = [o].[PersonAliasId] AND [x].[Stage] IN ( '2', '3' ) ) );
 
 -- check: program-completions-follow-rocks-rule
--- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type, dated from those steps, and points every step of theirs in the program at it. Rock's job must find nothing to add or fix after install.
-WITH [Program] AS (
-    SELECT [Id] FROM [StepProgram] WHERE [Guid] = 'A31AE259-885E-4ACE-B8B6-56000F58EA3B'
+-- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type in a program, dated from those steps, and points every step of theirs in the program at it. It runs for every program the dataset has steps in. Rock's job must find nothing to add or fix after install.
+WITH [Programs] AS (
+    SELECT DISTINCT [st].[StepProgramId] AS [Id]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    WHERE [s].[ForeignKey] = @ForeignKey
 ),
 [PeopleWithAllSteps] AS (
-    SELECT [s].[PersonAliasId],
+    SELECT [st].[StepProgramId], [s].[PersonAliasId],
         MIN( COALESCE( [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [StartDateTime],
         MAX( COALESCE( [s].[CompletedDateTime], [s].[EndDateTime] ) ) AS [EndDateTime],
         MAX( [s].[CampusId] ) AS [CampusId]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
     INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId] AND [ss].[IsCompleteStatus] = 1
-    WHERE [st].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [s].[ForeignKey] = @ForeignKey
-    GROUP BY [s].[PersonAliasId]
-    HAVING COUNT( DISTINCT [s].[StepTypeId] ) = ( SELECT COUNT(*) FROM [StepType] WHERE [StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [IsActive] = 1 )
+    WHERE [st].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [s].[ForeignKey] = @ForeignKey
+    GROUP BY [st].[StepProgramId], [s].[PersonAliasId]
+    HAVING COUNT( DISTINCT [s].[StepTypeId] ) = ( SELECT COUNT(*) FROM [StepType] AS [t] WHERE [t].[StepProgramId] = [st].[StepProgramId] AND [t].[IsActive] = 1 )
 ),
 [Completions] AS (
-    SELECT [c].[Id], [c].[PersonAliasId], [c].[StartDateTime], [c].[EndDateTime], [c].[CampusId], [c].[StartDateKey]
+    SELECT [c].[Id], [c].[StepProgramId], [c].[PersonAliasId], [c].[StartDateTime], [c].[EndDateTime], [c].[CampusId], [c].[StartDateKey]
     FROM [StepProgramCompletion] AS [c]
-    WHERE [c].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [c].[ForeignKey] = @ForeignKey
+    WHERE [c].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [c].[ForeignKey] = @ForeignKey
 )
 SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
             SELECT 1 FROM [Completions] AS [c]
-            WHERE [c].[PersonAliasId] = [w].[PersonAliasId] AND [c].[StartDateTime] = [w].[StartDateTime] AND ISNULL( [c].[EndDateTime], '9999-01-01' ) = ISNULL( [w].[EndDateTime], '9999-01-01' )
+            WHERE [c].[StepProgramId] = [w].[StepProgramId] AND [c].[PersonAliasId] = [w].[PersonAliasId] AND [c].[StartDateTime] = [w].[StartDateTime]
+                AND ISNULL( [c].[EndDateTime], '9999-01-01' ) = ISNULL( [w].[EndDateTime], '9999-01-01' )
                 AND ISNULL( [c].[CampusId], 0 ) = ISNULL( [w].[CampusId], 0 ) AND [c].[StartDateKey] = CONVERT( INT, FORMAT( [w].[StartDateTime], 'yyyyMMdd' ) ) ) )
-    + ( SELECT COUNT(*) FROM [Completions] AS [c] WHERE NOT EXISTS ( SELECT 1 FROM [PeopleWithAllSteps] AS [w] WHERE [w].[PersonAliasId] = [c].[PersonAliasId] ) )
-    + ( SELECT COUNT(*) FROM ( SELECT [PersonAliasId] FROM [Completions] GROUP BY [PersonAliasId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM [Completions] AS [c] WHERE NOT EXISTS ( SELECT 1 FROM [PeopleWithAllSteps] AS [w] WHERE [w].[StepProgramId] = [c].[StepProgramId] AND [w].[PersonAliasId] = [c].[PersonAliasId] ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [StepProgramId], [PersonAliasId] FROM [Completions] GROUP BY [StepProgramId], [PersonAliasId] HAVING COUNT(*) > 1 ) AS [x] )
     + ( SELECT COUNT(*)
         FROM [Step] AS [s]
         INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
-        LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
-        WHERE [st].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [s].[ForeignKey] = @ForeignKey
+        LEFT JOIN [Completions] AS [c] ON [c].[StepProgramId] = [st].[StepProgramId] AND [c].[PersonAliasId] = [s].[PersonAliasId]
+        WHERE [st].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [s].[ForeignKey] = @ForeignKey
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: student-step-belongs-to-a-student
+-- why: The Student Path follows student check-ins (decision D-student-path-1). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.
+WITH [StudentSteps] AS (
+    SELECT [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [pa].[PersonId], [p].[GraduationYear],
+        12 - ( [p].[GraduationYear] - CASE WHEN [s].[StartDateTime] >= DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [st].[StepProgramId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    WHERE [sp].[Guid] = 'C8AD9B16-5132-4ACB-954B-1E61C734AA67' AND [s].[ForeignKey] = @ForeignKey
+)
+SELECT COUNT(*)
+FROM [StudentSteps] AS [x]
+WHERE [x].[GraduationYear] IS NULL
+    OR [x].[Grade] > 12
+    OR [x].[Grade] < CASE [x].[StepTypeGuid] WHEN '8464EF05-F8E2-4DB3-9AC4-BC1EEE18CBC9' THEN 9 WHEN '724C69AF-20BC-4299-8FD5-A84ED2B4D42D' THEN 11 ELSE 7 END
+    OR NOT EXISTS (
+        SELECT 1
+        FROM [Attendance] AS [a]
+        INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+        INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
+        WHERE [apa].[PersonId] = [x].[PersonId] AND [a].[DidAttend] = 1 AND [o].[OccurrenceDate] <= [x].[StartDateTime]
+            AND [g].[Guid] IN ( '7B99F840-66AB-4C7A-99A2-104D9CC953F7', '9B982B2A-24AB-4B82-AB49-84BDB4CF9E5F' ) );
+
+-- check: student-path-decisions-and-leaders
+-- why: Follow Jesus is a decision made once. Student Leader is held once, and ends at graduation in May of the student's graduation year, or stays open while they are still in school.
+SELECT ( SELECT COUNT(*)
+        FROM ( SELECT [s].[PersonAliasId]
+            FROM [Step] AS [s]
+            INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+            WHERE [st].[Guid] IN ( 'FAC9E970-7434-4067-9E1C-180043CE6FCB', '724C69AF-20BC-4299-8FD5-A84ED2B4D42D' ) AND [s].[ForeignKey] = @ForeignKey
+            GROUP BY [s].[PersonAliasId], [st].[Guid]
+            HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*)
+        FROM [Step] AS [s]
+        INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+        WHERE [st].[Guid] = '724C69AF-20BC-4299-8FD5-A84ED2B4D42D' AND [s].[ForeignKey] = @ForeignKey
+            AND ( ( [s].[EndDateTime] IS NOT NULL AND ( YEAR( [s].[EndDateTime] ) <> [p].[GraduationYear] OR MONTH( [s].[EndDateTime] ) <> 5 ) )
+                OR ( [s].[EndDateTime] IS NULL AND DATEFROMPARTS( [p].[GraduationYear], 6, 1 ) <= CAST( GETDATE() AS DATE ) ) ) );
+
+-- check: student-baptism-follows-the-student-service
+-- why: A student's baptism goes on the Discipleship Path's Baptism step (decision 87). A child is baptized here, on a Sunday, after they started coming to the student service. The Baptism Date and Baptized Here agree with the step (checked above).
+SELECT COUNT(*)
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] = @ForeignKey
+    AND EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+        WHERE [gm].[PersonId] = [pa].[PersonId] AND [r].[Guid] = 'C8B1814F-6AA7-4055-B2D7-48FE20429CB9' )
+    AND ( DATEDIFF( DAY, '1900-01-07', [s].[StartDateTime] ) % 7 <> 0
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [Attendance] AS [a]
+            INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+            INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+            INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
+            WHERE [apa].[PersonId] = [pa].[PersonId] AND [a].[DidAttend] = 1 AND [o].[OccurrenceDate] <= [s].[StartDateTime]
+                AND [g].[Guid] IN ( '7B99F840-66AB-4C7A-99A2-104D9CC953F7', '9B982B2A-24AB-4B82-AB49-84BDB4CF9E5F' ) )
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [AttributeValue] AS [av]
+            INNER JOIN [Attribute] AS [at] ON [at].[Id] = [av].[AttributeId]
+            WHERE [at].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [s].[Id] AND [av].[Value] = 'True' ) );
 
 -- check: campus-account-dates-match-fund
 -- why: Rock's giving pages hide an account outside its dates. A campus account with other dates than its fund would take gifts the fund says it cannot.
