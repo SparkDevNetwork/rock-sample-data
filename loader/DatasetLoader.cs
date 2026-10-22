@@ -194,6 +194,9 @@ namespace RockSampleData.Loader
             its own seeded stream, so skipping a part never changes the rows another part writes.
             Attendance and giving are planned even when they do not load, because serving, giving,
             prayer, and steps read those plans. A part another part's rows need is added by SampleDataParts.
+            Steps are the one exception to planning everything: they plan from rows that small groups,
+            serving, and giving wrote, so they plan only when they load, and they need those parts.
+            Nothing after them reads what they plan or write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
         */
