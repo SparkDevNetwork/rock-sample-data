@@ -339,15 +339,17 @@ namespace RockSampleData.Loader
             }
 
             // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
-            // The pledges and campaign gifts are the giving part's rows (decision D-rock-loader-7).
-            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, dates, foreignKey, seed );
-            pledges?.Plan( people.Households );
+            // The pledges and campaign gifts are the giving part's rows, but the fund is church setup, so its goal
+            // is written in every load (decision D-rock-loader-7).
+            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid, dates, foreignKey, seed );
+            pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
+            pledges?.WriteGoal();
             var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving };
             giving.Plan( people.Households );
             if ( isGivingLoaded )
             {
                 giving.Write();
-                pledges?.Write( source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid );
+                pledges?.Write();
 
                 // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
                 log.Write( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
