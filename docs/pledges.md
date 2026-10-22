@@ -1,6 +1,6 @@
 # Pledges
 
-The plan for pledges in the sample data, and why. The decisions are 97 to 105 in [Decisions](decisions.md). Pieces 1 and 2 of the build order are built: the fund and its Rock settings, and the Cast's pledges and campaign gifts. The rest is not built yet. Each later piece adds its numbers to `configuration/campaign.json`, so they can be tuned in one place.
+How pledges work in the sample data, and why. The decisions are 97 to 105 and 109 in [Decisions](decisions.md), with the ones added as it was built. Every piece of the build order is built. The numbers live in `configuration/campaign.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -59,22 +59,22 @@ Every pledge is a pledge plus the gifts that follow it. The gifts come from the 
 
 ### Who pledges
 
-These are designed targets, not measured ones (decision 101). Today's calibration profile already sets 12% of giving units with a pledge, as an assumption that the sample data must use pledges.
+These are designed targets, not measured ones (decision 101). The calibration profile sets 12% of giving units with a pledge, as an assumption that the sample data must use pledges, and validation grades it. The loader draws exactly enough generated pledgers to reach it, by weight, so steady givers and businesses pledge far more often than occasional givers (decision 114). Full 7 with a 17,000-household crowd has 338 pledges, 12.5% of the giving units that gave in the last year. Every campus has at least 6 pledges, counting the Cast's, so campus filters always show data. In Core 3, the Cast alone reaches the rate, so this minimum adds the extra campuses' pledges.
 
-| Who | Share who pledge |
+| Who | Weight in the draw |
 |---|---|
-| All giving units | About 12%, the profile's target |
-| Consistent and growing givers with 2 or more years at the church | About 35% |
-| Occasional, new, and lapsing givers | A few percent |
-| Businesses | About 30% |
-| Staff | Every staff household, in the quiet phase |
+| Weekly, bi-weekly, monthly, and quarterly givers with 2 or more years at the church | 3 |
+| Other rhythmic givers | 1 |
+| Irregular, occasional, and one-time givers | 0.25 |
+| Businesses | 3 (about 35% of businesses pledge) |
+| Staff | The Cast's staff pledge in the quiet phase |
 
 Couples who give as one unit make one pledge. People who give separately (decision 42) pledge separately, or one pledges and the other does not.
 
 ### How much
 
-- **Most pledges are one to one and a half years of the unit's giving,** spread over the two years. Amounts round to friendly numbers, such as $1,200, $2,500, and $5,000.
-- **Lead gifts.** The top 2% of givers by annual giving pledge two to four years of giving. Together, lead gifts make up about 40% of all pledged dollars. Real campaigns depend on a few large gifts, and Pledge Analytics should show that.
+- **Most pledges are three quarters of a year to a little over a year of the unit's giving,** spread over the two years. Amounts round to friendly numbers: hundreds under $1,000, then steps of $500, $1,000, and $5,000.
+- **Lead gifts.** The top 2% of pledgers by yearly giving pledge one and a half to three years of giving, in the quiet phase. Together, they make up about 35% of all pledged dollars. Real campaigns depend on a few large gifts, and Pledge Analytics shows that.
 - **Business pledges** follow the business's giving size and are often one-time or quarterly.
 
 ### When
@@ -92,17 +92,17 @@ A pledge's frequency follows the giver's habit: a weekly giver pledges weekly, a
 
 ### Follow-through
 
-Each pledge gets one follow-through pattern. Pledge Analytics then shows every state Rock can show.
+Each pledge gets one follow-through pattern, from the mixes in `configuration/campaign.json`. Pledge Analytics then shows every state. The shares are what Full 7 with a 17,000-household crowd shows on install day.
 
 | Pattern | Share | What the gifts look like |
 |---|---|---|
-| Ahead or paid in full | About 15% | Paid in full in one gift, or giving more than the pace |
-| On pace | About 50% | Gifts at the pledged frequency, within a few percent of the pace |
-| Behind | About 20% | Gifts that started and slowed, or skip periods |
-| Stopped | About 10% | Gave for a few months, then stopped |
-| Not started | About 5% | Pledged and has not given yet |
+| Complete or ahead | About 18% | Paid in full in one gift, or giving more than the pace |
+| On pace | About 46% | Gifts at the pledged frequency, within one gift of the pace |
+| Behind | About 12% | Giving, but at about half the pace |
+| Stopped | About 14% | Gave for a few months, then stopped |
+| Not started | About 10% | Pledged and has not given yet |
 
-Plus **gifts without a pledge.** About 5% of giving units who did not pledge give to the campaign, usually once or a few times. Pledge Analytics lists them as gifts with no pledge.
+Plus **gifts without a pledge.** About 5% of generated givers who did not pledge give to the campaign once or twice. Pledge Analytics lists them as gifts with no pledge.
 
 ### The gifts
 
@@ -150,7 +150,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 - **Cast expectations.** Each Cast campaign entry has an expected state on install day, checked on every load, like the giving expectations (decision 46). The states are complete, ahead, on pace, behind, stopped, not started, and gifts only. A pledge is on pace within one gift, or a tenth of the pledge, of where it should be. It is stopped when it is behind and its giver gave nothing to the campaign for 60 days (decision 110).
 - **Invariants.** Every pledge is on the campaign's parent account, inside the campaign dates, for a person who exists. Every campaign gift posts to a campus child account. No pledge is a duplicate for the same giving unit.
-- **Validation.** `giving.pctUnitsWithPledge` comes off the skipped list in `validation/tolerances.json` and is graded against the profile's 12%. Campaign gifts add dollars, so the giving measures that pass today must still pass. If one fails, pledge sizes come down before the targets change.
+- **Validation.** `giving.pctUnitsWithPledge` is graded against the profile's 12%. Campaign gifts add dollars, so pledge sizes came down until weekly and bi-weekly yearly totals passed again. Three measures move with any campaign, so they carry a recorded reason (decision 113): the profile assumes more gifts with two funds (85% one fund, 14% two) and a lower December share of dollars (1.55), and the top 1% of yearly totals is graded within 40% instead of 25%, because the generator reads that target. Full 7 passes 389 of 428 measured values, one more than before the campaign, and fails none that passed before.
 - **Rock Cleanup** must find nothing to fix in pledge or campaign data.
 - **No ported code.** Pledge Analytics is a stored procedure that reads the data as it is, so there is nothing for the version guard to watch.
 
@@ -160,8 +160,8 @@ Each piece passes its checks before the next one starts.
 
 1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the two pledge pages, and the statement template. Built.
 2. **Cast pledges.** A `campaign` list in the Cast household files, the campaign gifts, and the Cast expectations. Built.
-3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate.
-4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page, which can name the campaign.
+3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate. Built.
+4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page. Built.
 
 ## Later
 

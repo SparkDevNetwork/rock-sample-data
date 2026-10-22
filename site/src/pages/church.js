@@ -75,6 +75,7 @@ module.exports = function church( { model, r } ) {
       <h2>Rock Solid Church</h2>
       <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where the Cast lives, and has grown to seven campuses across the Valley.</p>
       <p>The building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. Desert plants line the walks. Every campus shares the same rooms, so check-in and serving work the same everywhere.</p>
+      <p>The church is in the middle of Built on the Rock, a two-year building campaign for a Student Center at Phoenix and more kids rooms at every campus. People and businesses at every campus have pledged.</p>
     </div>
     <div class="mission reveal" aria-label="The church's mission">
       <span class="mission-heading">Our mission</span>

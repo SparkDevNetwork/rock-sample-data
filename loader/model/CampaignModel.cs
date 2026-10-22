@@ -48,6 +48,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public Dictionary<string, decimal> LineFactors { get; set; } = new Dictionary<string, decimal>();
 
+        /// <summary>
+        /// How generated households and businesses take part.
+        /// </summary>
+        public CampaignGenerated Generated { get; set; }
+
         public CampaignPledgeEntry PledgeEntry { get; set; }
 
         /// <summary>
@@ -78,6 +83,69 @@ namespace RockSampleData.Loader.Model
         public int Min { get; set; }
 
         public int Max { get; set; }
+    }
+
+    /// <summary>
+    /// How generated households and businesses pledge and give. Each mix is a set of weights.
+    /// </summary>
+    internal sealed class CampaignGenerated
+    {
+        /// <summary>
+        /// How likely each kind of giving unit is to pledge: business, steady, rhythmic, and other.
+        /// </summary>
+        public Dictionary<string, double> PledgerWeights { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// A rhythmic giver who has given at least this long is a steady giver.
+        /// </summary>
+        public int SteadyYears { get; set; }
+
+        /// <summary>
+        /// The share of pledgers, by yearly giving, who make lead gifts.
+        /// </summary>
+        public double LeadShare { get; set; }
+
+        /// <summary>
+        /// The fewest pledges each campus has, counting the Cast's.
+        /// </summary>
+        public int MinimumPledgesPerCampus { get; set; }
+
+        /// <summary>
+        /// How many years of the unit's giving a pledge is, for lead and other pledgers.
+        /// </summary>
+        public Dictionary<string, CampaignSpan> PledgeYears { get; set; } = new Dictionary<string, CampaignSpan>();
+
+        /// <summary>
+        /// When pledges are made: quiet-phase, commitment-sunday, soon-after, and later.
+        /// </summary>
+        public Dictionary<string, double> Pledged { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> RhythmicFrequency { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> OtherFrequency { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> LineFollowThrough { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> OneTimeFollowThrough { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> YearlyFollowThrough { get; set; } = new Dictionary<string, double>();
+
+        public Dictionary<string, double> NoFrequencyFollowThrough { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// The share of givers who did not pledge who give to the campaign anyway.
+        /// </summary>
+        public double GiftsOnlyShare { get; set; }
+    }
+
+    /// <summary>
+    /// An inclusive range of numbers.
+    /// </summary>
+    internal sealed class CampaignSpan
+    {
+        public double Min { get; set; }
+
+        public double Max { get; set; }
     }
 
     /// <summary>
