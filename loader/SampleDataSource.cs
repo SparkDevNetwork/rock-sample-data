@@ -76,6 +76,11 @@ namespace RockSampleData.Loader
         public StepsConfiguration Steps { get; }
 
         /// <summary>
+        /// The building campaign, or null in a package built before the campaign loaded.
+        /// </summary>
+        public CampaignConfiguration Campaign { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -94,6 +99,7 @@ namespace RockSampleData.Loader
             Notes = Files.Exists( NotesConfigurationPath ) ? Read<NotesConfiguration>( NotesConfigurationPath ) : null;
             SecurityRoles = Files.Exists( SecurityRolesPath ) ? Read<SecurityRoleConfiguration>( SecurityRolesPath ) : null;
             Steps = Files.Exists( StepsConfigurationPath ) ? Read<StepsConfiguration>( StepsConfigurationPath ) : null;
+            Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -153,6 +159,8 @@ namespace RockSampleData.Loader
         public const string SecurityRolesPath = "configuration/security-roles.json";
 
         public const string StepsConfigurationPath = "configuration/steps.json";
+
+        public const string CampaignConfigurationPath = "configuration/campaign.json";
 
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.

@@ -363,3 +363,12 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
         LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
         WHERE [st].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [s].[ForeignKey] = @ForeignKey
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: campus-account-dates-match-fund
+-- why: Rock's giving pages hide an account outside its dates. A campus account with other dates than its fund would take gifts the fund says it cannot.
+SELECT COUNT(*)
+FROM [FinancialAccount] AS [child]
+INNER JOIN [FinancialAccount] AS [fund] ON [fund].[Id] = [child].[ParentAccountId]
+WHERE [child].[ForeignKey] = @ForeignKey AND [child].[CampusId] IS NOT NULL
+    AND ( ISNULL( [child].[StartDate], '1900-01-01' ) <> ISNULL( [fund].[StartDate], '1900-01-01' )
+        OR ISNULL( [child].[EndDate], '1900-01-01' ) <> ISNULL( [fund].[EndDate], '1900-01-01' ) );
