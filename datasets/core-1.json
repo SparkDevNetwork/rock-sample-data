@@ -13,7 +13,7 @@
   "people": 185,
   "households": 87,
   "campuses": 1,
-  "typicalInstallSeconds": 11,
+  "typicalInstallSeconds": 10,
   "checkImages": {
     "$comment": "Every check in the Cast gets images.",
     "months": 0

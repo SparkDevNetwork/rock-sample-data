@@ -156,8 +156,8 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 Each piece passes its checks before the next one starts.
 
-1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the Create Pledge page, and the statement template.
-2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations.
+1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the Create Pledge page, and the statement template. This is church setup, so it loads whatever parts a person chooses (decision D-rock-loader-7).
+2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations. Pledges and campaign gifts belong to the loader's Giving part, so they load only with giving.
 3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate.
 4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page, which can name the campaign.
 
