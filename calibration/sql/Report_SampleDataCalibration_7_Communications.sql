@@ -32,9 +32,16 @@ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 --                 rolled them back.
 --              5. Export the grid to Excel, or copy the rows. Send the result.
 --
---              On a church with a very large communication history, this
---              script can run longer than Rock's 180 second limit. If it
---              times out, run it in SSMS instead.
+--              Built to finish inside Rock's 180 second limit on a church
+--              with millions of recipients. Rock's recipient indexes do not
+--              hold a recipient's status, so reading statuses means reading
+--              whole rows, each with a copy of the message. The script
+--              never does that for every recipient. Sizes come from the
+--              CommunicationId index. Delivery, opens, clicks, and
+--              unsubscribes come from a sample: the newest mass sends of
+--              each medium in the last 3 months (@SampleSendsPerMedium).
+--              Text threads read only the people who texted in. If it still
+--              times out, lower @SampleSendsPerMedium, or run it in SSMS.
 --
 --              Use the same @ChurchLabel as in part 2.
 --              Requires Rock 15 or later and SQL Server 2016 or later.
@@ -50,9 +57,16 @@ DECLARE @ChurchLabel NVARCHAR(50) = 'Unlabeled'; -- Use a neutral label like sou
 -- A mass send has at least this many recipients.
 DECLARE @MassSendMinRecipients INT = 25;
 
--- Sends and texts use the last 12 complete months. Recipient outcomes,
--- opens, clicks, and unsubscribes use the last 3, because they read the
--- largest tables. The current month is excluded.
+-- Delivery, opens, clicks, and unsubscribes are measured on this many of
+-- the newest mass sends of each medium in the last 3 months.
+DECLARE @SampleSendsPerMedium INT = 8;
+
+-- Delivery and unsubscribes read whole recipient rows, so they use about
+-- this many recipients from each sampled send, spread across the send.
+DECLARE @SampleRecipientsPerSend INT = 1000;
+
+-- Sends and texts use the last 12 complete months. The recipient sample
+-- uses the last 3. The current month is excluded.
 DECLARE @EndDate DATE = DATEFROMPARTS( YEAR( GETDATE() ), MONTH( GETDATE() ), 1 );
 DECLARE @Start12 DATE = DATEADD( MONTH, -12, @EndDate );
 DECLARE @Start3 DATE = DATEADD( MONTH, -3, @EndDate );
@@ -65,72 +79,100 @@ DECLARE @PersonRecordTypeId INT = ( SELECT TOP 1 [Id] FROM [DefinedValue] WHERE 
 DECLARE @CommunicationListGroupTypeId INT = ( SELECT TOP 1 [Id] FROM [GroupType] WHERE [Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' );
 
 -- Clean up temp tables from an earlier run in the same SSMS session.
-DROP TABLE IF EXISTS #CommId, #Comm, #Size, #Mass, #MassOutcome, #Component, #Int, #Unsub, #Adult, #Resp, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #SmsOut, #Flow;
 
 -- =============================================
 -- Sends (last 12 months)
 -- =============================================
 
--- Communication rows hold the full message body, so read the Ids from the
--- SendDateTime index first, then fetch only the needed columns by primary key.
+-- Rock's SendDateTime index on Communication holds the Id, so this never
+-- reads a message body.
 SELECT [c].[Id] AS [CommunicationId]
 INTO #CommId
 FROM [Communication] AS [c]
 WHERE [c].[SendDateTime] >= @Start12 AND [c].[SendDateTime] < @EndDate;
 
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #CommId ( [CommunicationId] );
+
+/*
+    10/22/26 - CLAUDE
+
+    CommunicationRecipient is often the largest table in the database, and
+    each row holds a copy of the sent message. Rock's IX_CommunicationId
+    index holds only CommunicationId and PersonAliasId. Communication Ids
+    grow over time, so a year of sends is one range of Ids, and counting
+    that range reads one ordered slice of the narrow index. Joining each
+    communication to its recipients instead made SQL Server read whole
+    recipient rows on a large church.
+
+    Reason: The first version of part 7 timed out on a large church.
+*/
+DECLARE @MinCommunicationId INT = ( SELECT MIN( [CommunicationId] ) FROM #CommId );
+DECLARE @MaxCommunicationId INT = ( SELECT MAX( [CommunicationId] ) FROM #CommId );
+
+SELECT
+    [cr].[CommunicationId],
+    COUNT( * ) AS [Recipients]
+INTO #Size
+FROM [CommunicationRecipient] AS [cr]
+WHERE [cr].[CommunicationId] BETWEEN @MinCommunicationId AND @MaxCommunicationId
+GROUP BY [cr].[CommunicationId];
+
+-- The Id range can hold a draft or a send from outside the window.
+DELETE [s]
+FROM #Size AS [s]
+WHERE NOT EXISTS ( SELECT 1 FROM #CommId AS [ci] WHERE [ci].[CommunicationId] = [s].[CommunicationId] );
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Size ( [CommunicationId] );
+
+-- Only mass sends are read from the Communication table itself.
 -- Communication type: 0 Recipient preference, 1 Email, 2 SMS, 3 Push.
 SELECT
     [c].[Id] AS [CommunicationId],
-    [c].[CommunicationType],
     CASE [c].[CommunicationType] WHEN 1 THEN 'Email' WHEN 2 THEN 'SMS' WHEN 3 THEN 'Push' ELSE 'Recipient preference' END AS [Medium],
     [c].[SendDateTime],
+    [s].[Recipients],
     [c].[IsBulkCommunication],
     CASE WHEN [c].[ListGroupId] IS NOT NULL THEN 1 ELSE 0 END AS [HasList],
     CASE WHEN ISNULL( [c].[Segments], '' ) <> '' THEN 1 ELSE 0 END AS [HasSegments],
     CASE WHEN [c].[CommunicationTemplateId] IS NOT NULL THEN 1 ELSE 0 END AS [HasTemplate],
-    CASE WHEN [c].[CommunicationTopicValueId] IS NOT NULL THEN 1 ELSE 0 END AS [HasTopic],
-    [c].[SmsFromSystemPhoneNumberId]
-INTO #Comm
-FROM #CommId AS [ci]
-INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [ci].[CommunicationId];
-
-CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Comm ( [CommunicationId] );
-
-/*
-    10/21/26 - CLAUDE
-
-    CommunicationRecipient is often the largest table in the database, and
-    each row holds a copy of the sent message. Counting rows per
-    communication reads only the CommunicationId index, never the full rows.
-
-    Reason: Reading full recipient rows timed out on a large church (part 3).
-*/
-SELECT
-    [c].[CommunicationId],
-    COUNT( * ) AS [Recipients]
-INTO #Size
-FROM #Comm AS [c]
-INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [c].[CommunicationId]
-GROUP BY [c].[CommunicationId];
-
-CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Size ( [CommunicationId] );
-
-SELECT
-    [c].[CommunicationId],
-    [c].[Medium],
-    [c].[SendDateTime],
-    [s].[Recipients],
-    [c].[IsBulkCommunication],
-    [c].[HasList],
-    [c].[HasSegments],
-    [c].[HasTemplate],
-    [c].[HasTopic]
+    CASE WHEN [c].[CommunicationTopicValueId] IS NOT NULL THEN 1 ELSE 0 END AS [HasTopic]
 INTO #Mass
-FROM #Comm AS [c]
-INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [c].[CommunicationId]
+FROM #Size AS [s]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [s].[CommunicationId]
 WHERE [s].[Recipients] >= @MassSendMinRecipients;
 
 CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Mass ( [CommunicationId] );
+
+-- The recipient sample: the newest mass sends of each medium in the last 3 months.
+SELECT [x].[CommunicationId], [x].[Medium]
+INTO #Sample
+FROM (
+    SELECT
+        [m].[CommunicationId],
+        [m].[Medium],
+        ROW_NUMBER() OVER ( PARTITION BY [m].[Medium] ORDER BY [m].[SendDateTime] DESC ) AS [Newest]
+    FROM #Mass AS [m]
+    WHERE [m].[SendDateTime] >= @Start3
+) AS [x]
+WHERE [x].[Newest] <= @SampleSendsPerMedium;
+
+CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Sample ( [CommunicationId] );
+
+-- About @SampleRecipientsPerSend recipients from each sampled send, taken
+-- every Nth recipient Id so the sample spans the whole send. The Ids come
+-- from the narrow CommunicationId index, so no full rows are read here.
+SELECT
+    [s].[CommunicationId],
+    [s].[Medium],
+    [cr].[Id] AS [RecipientId]
+INTO #SampleRecipient
+FROM #Sample AS [s]
+INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [s].[CommunicationId]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [s].[CommunicationId]
+WHERE [cr].[Id] % CEILING( [m].[Recipients] * 1.0 / @SampleRecipientsPerSend ) = 0;
+
+CREATE CLUSTERED INDEX [IX_RecipientId] ON #SampleRecipient ( [RecipientId] );
 
 -- Living adults on active person records. Rates about people use them as
 -- the base. Their count is never returned.
@@ -153,7 +195,7 @@ DECLARE @Adults INT = ( SELECT COUNT( * ) FROM #Adult );
 
 DECLARE @JMassSendSummary NVARCHAR(MAX) = (
     SELECT
-        CAST( ( SELECT COUNT( * ) FROM #Mass ) * 100.0 / NULLIF( ( SELECT COUNT( * ) FROM #Comm ), 0 ) AS DECIMAL(5,1) ) AS [pctOfSendsThatAreMass],
+        CAST( ( SELECT COUNT( * ) FROM #Mass ) * 100.0 / NULLIF( ( SELECT COUNT( * ) FROM #Size ), 0 ) AS DECIMAL(5,1) ) AS [pctOfSendsThatAreMass],
         CAST( ( SELECT SUM( CAST( [Recipients] AS BIGINT ) ) FROM #Mass ) * 100.0 / NULLIF( ( SELECT SUM( CAST( [Recipients] AS BIGINT ) ) FROM #Size ), 0 ) AS DECIMAL(5,1) ) AS [pctOfRecipientsInMassSends],
         CAST( ( SELECT AVG( CASE WHEN [IsBulkCommunication] = 1 THEN 100.0 ELSE 0.0 END ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassFlaggedBulk],
         CAST( ( SELECT AVG( [HasList] * 100.0 ) FROM #Mass ) AS DECIMAL(5,1) ) AS [pctMassWithList],
@@ -270,24 +312,63 @@ DECLARE @JCommunicationLists NVARCHAR(MAX) = (
 );
 
 -- =============================================
--- Recipient outcomes (mass sends, last 3 months)
+-- Recipient outcomes and unsubscribes (the sample)
 -- =============================================
 
+CREATE TABLE #MassOutcome (
+    [CommunicationId] INT,
+    [Medium] NVARCHAR(30),
+    [Recipients] INT,
+    [Delivered] INT,
+    [Opened] INT,
+    [Failed] INT,
+    [Cancelled] INT,
+    [Unsubscribed] DECIMAL(18,4),
+    [Spam] DECIMAL(18,4),
+    [LevelAll] DECIMAL(18,4),
+    [LevelBulk] DECIMAL(18,4),
+    [LevelList] DECIMAL(18,4)
+);
+
+/*
+    10/22/26 - CLAUDE
+
+    Status, opens, and unsubscribes are not in any recipient index that can
+    be found by communication, so each recipient row is read in full. That
+    is why only the sample is read, in one pass. The unsubscribe and spam
+    columns arrived in Rock 17. Dynamic SQL lets the script compile on
+    older Rock, where those columns come back empty.
+
+    Reason: Keep the slowest read small and single, on every Rock version.
+*/
+DECLARE @UnsubscribeColumns NVARCHAR(MAX) =
+    CASE WHEN COL_LENGTH( 'CommunicationRecipient', 'UnsubscribeDateTime' ) IS NOT NULL
+        THEN N'
+            SUM( CASE WHEN [cr].[UnsubscribeDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[SpamComplaintDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 1 THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 2 THEN 1 ELSE 0 END ),
+            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 3 THEN 1 ELSE 0 END )'
+        ELSE N'
+            NULL, NULL, NULL, NULL, NULL'
+    END;
+
 -- Recipient status: 0 Pending, 1 Delivered, 2 Failed, 3 Cancelled, 4 Opened, 5 Sending.
--- Uses only the columns in the IX_CommunicationId index, as part 3 does.
-SELECT
-    [m].[CommunicationId],
-    [m].[Medium],
-    COUNT( * ) AS [Recipients],
-    SUM( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END ) AS [Delivered],
-    SUM( CASE WHEN [cr].[Status] = 4 OR [cr].[OpenedDateTime] IS NOT NULL THEN 1 ELSE 0 END ) AS [Opened],
-    SUM( CASE WHEN [cr].[Status] = 2 THEN 1 ELSE 0 END ) AS [Failed],
-    SUM( CASE WHEN [cr].[Status] = 3 THEN 1 ELSE 0 END ) AS [Cancelled]
-INTO #MassOutcome
-FROM #Mass AS [m]
-INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [m].[CommunicationId]
-WHERE [m].[SendDateTime] >= @Start3
-GROUP BY [m].[CommunicationId], [m].[Medium];
+DECLARE @OutcomeSql NVARCHAR(MAX) = N'
+    INSERT INTO #MassOutcome
+    SELECT
+        [s].[CommunicationId],
+        [s].[Medium],
+        COUNT( * ),
+        SUM( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END ),
+        SUM( CASE WHEN [cr].[Status] = 4 OR [cr].[OpenedDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
+        SUM( CASE WHEN [cr].[Status] = 2 THEN 1 ELSE 0 END ),
+        SUM( CASE WHEN [cr].[Status] = 3 THEN 1 ELSE 0 END ),' + @UnsubscribeColumns + N'
+    FROM #SampleRecipient AS [s]
+    INNER JOIN [CommunicationRecipient] AS [cr] WITH ( FORCESEEK ) ON [cr].[Id] = [s].[RecipientId]
+    GROUP BY [s].[CommunicationId], [s].[Medium];';
+
+EXEC sp_executesql @OutcomeSql;
 
 DECLARE @JMassOutcomes NVARCHAR(MAX) = (
     SELECT
@@ -309,11 +390,10 @@ DECLARE @JMassOutcomes NVARCHAR(MAX) = (
 -- communication. Each interaction's EntityId is the recipient.
 SELECT
     [ic].[Id] AS [InteractionComponentId],
-    [m].[CommunicationId]
+    [s].[CommunicationId]
 INTO #Component
-FROM #Mass AS [m]
-INNER JOIN [InteractionComponent] AS [ic] ON [ic].[EntityId] = [m].[CommunicationId] AND [ic].[InteractionChannelId] = @CommunicationChannelId
-WHERE [m].[SendDateTime] >= @Start3;
+FROM #Sample AS [s]
+INNER JOIN [InteractionComponent] AS [ic] ON [ic].[EntityId] = [s].[CommunicationId] AND [ic].[InteractionChannelId] = @CommunicationChannelId;
 
 /*
     10/21/26 - CLAUDE
@@ -339,16 +419,19 @@ WHERE [i].[Operation] IN ( 'Opened', 'Click' );
 
 CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Int ( [CommunicationId], [RecipientId] );
 
+-- Opens and clicks cover every recipient of the sampled sends. The delivered
+-- count for the whole send is estimated from the recipient sample's rate.
 DECLARE @JMassEngagement NVARCHAR(MAX) = (
     SELECT
         [o].[Medium] AS [medium],
-        CAST( SUM( [e].[Openers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueOpenersOfDelivered],
+        CAST( SUM( [e].[Openers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] * 1.0 * [m].[Recipients] / NULLIF( [o].[Recipients], 0 ) ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueOpenersOfDelivered],
         CAST( SUM( [e].[Opens] ) * 1.0 / NULLIF( SUM( [e].[Openers] ), 0 ) AS DECIMAL(6,2) ) AS [opensPerOpener],
         CAST( SUM( [e].[Clickers] ) * 100.0 / NULLIF( SUM( [e].[Openers] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueClickersOfOpeners],
-        CAST( SUM( [e].[Clickers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueClickersOfDelivered],
+        CAST( SUM( [e].[Clickers] ) * 100.0 / NULLIF( SUM( [o].[Delivered] * 1.0 * [m].[Recipients] / NULLIF( [o].[Recipients], 0 ) ), 0 ) AS DECIMAL(5,1) ) AS [pctUniqueClickersOfDelivered],
         CAST( SUM( [e].[Clicks] ) * 1.0 / NULLIF( SUM( [e].[Clickers] ), 0 ) AS DECIMAL(6,2) ) AS [clicksPerClicker],
         CAST( SUM( [e].[UnsubscribeClicks] ) * 100.0 / NULLIF( SUM( [e].[Clicks] ), 0 ) AS DECIMAL(5,1) ) AS [pctClicksOnUnsubscribeLinks]
     FROM #MassOutcome AS [o]
+    INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [o].[CommunicationId]
     LEFT JOIN (
         SELECT
             [i].[CommunicationId],
@@ -419,49 +502,47 @@ DECLARE @JMassResponseDelay NVARCHAR(MAX) = (
     FOR JSON PATH
 );
 
--- =============================================
--- Unsubscribes and spam complaints (mass sends, last 3 months, Rock 17+)
--- =============================================
-
-CREATE TABLE #Unsub (
-    [Medium] NVARCHAR(30),
-    [Recipients] INT,
-    [Unsubscribed] INT,
-    [Spam] INT,
-    [LevelAll] INT,
-    [LevelBulk] INT,
-    [LevelList] INT
-);
-
+-- Unsubscribes and spam complaints (Rock 17+).
 /*
-    10/21/26 - CLAUDE
+    10/22/26 - CLAUDE
 
-    The unsubscribe and spam columns arrived in Rock 17. Dynamic SQL lets
-    the script compile on older Rock, where this section stays empty.
-    These columns are not in the narrow index, so this is the slowest query
-    in the script; it reads only mass sends from the last 3 months.
+    Unsubscribes are rare, so a sample of a few thousand recipients gives a
+    noisy rate. Rock 19 adds a filtered index that holds only recipients who
+    unsubscribed, with their CommunicationId and level. When it exists,
+    unsubscribes are counted over every recipient of the sampled sends,
+    reading only that small index. The WHERE clause repeats the index's
+    filter so SQL Server can use it. Without it, the recipient sample's
+    counts stay. Spam complaints have no index, so they always come from
+    the sample.
 
-    Reason: One script for every Rock version a source might run.
+    Reason: An exact unsubscribe rate at almost no cost where Rock allows it.
 */
-IF COL_LENGTH( 'CommunicationRecipient', 'UnsubscribeDateTime' ) IS NOT NULL
+IF EXISTS ( SELECT 1 FROM sys.indexes WHERE [name] = 'IX_UnsubscribeDateTime_SendDateTime' AND [object_id] = OBJECT_ID( 'CommunicationRecipient' ) )
 BEGIN
     EXEC sp_executesql N'
-        INSERT INTO #Unsub ( [Medium], [Recipients], [Unsubscribed], [Spam], [LevelAll], [LevelBulk], [LevelList] )
-        SELECT
-            [m].[Medium],
-            COUNT( * ),
-            SUM( CASE WHEN [cr].[UnsubscribeDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
-            SUM( CASE WHEN [cr].[SpamComplaintDateTime] IS NOT NULL THEN 1 ELSE 0 END ),
-            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 1 THEN 1 ELSE 0 END ),
-            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 2 THEN 1 ELSE 0 END ),
-            SUM( CASE WHEN [cr].[UnsubscribeLevel] = 3 THEN 1 ELSE 0 END )
-        FROM #Mass AS [m]
-        INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [m].[CommunicationId]
-        WHERE [m].[SendDateTime] >= @Start3
-            AND [m].[Medium] IN ( ''Email'', ''Recipient preference'' )
-        GROUP BY [m].[Medium];',
-        N'@Start3 DATE',
-        @Start3 = @Start3;
+        UPDATE [o]
+        SET
+            [o].[Unsubscribed] = ISNULL( [u].[Unsubscribed], 0 ) * 1.0 * [o].[Recipients] / NULLIF( [m].[Recipients], 0 ),
+            [o].[LevelAll] = ISNULL( [u].[LevelAll], 0 ) * 1.0 * [o].[Recipients] / NULLIF( [m].[Recipients], 0 ),
+            [o].[LevelBulk] = ISNULL( [u].[LevelBulk], 0 ) * 1.0 * [o].[Recipients] / NULLIF( [m].[Recipients], 0 ),
+            [o].[LevelList] = ISNULL( [u].[LevelList], 0 ) * 1.0 * [o].[Recipients] / NULLIF( [m].[Recipients], 0 )
+        FROM #MassOutcome AS [o]
+        INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [o].[CommunicationId]
+        LEFT JOIN (
+            SELECT
+                [cr].[CommunicationId],
+                COUNT( * ) AS [Unsubscribed],
+                SUM( CASE WHEN [cr].[UnsubscribeLevel] = 1 THEN 1 ELSE 0 END ) AS [LevelAll],
+                SUM( CASE WHEN [cr].[UnsubscribeLevel] = 2 THEN 1 ELSE 0 END ) AS [LevelBulk],
+                SUM( CASE WHEN [cr].[UnsubscribeLevel] = 3 THEN 1 ELSE 0 END ) AS [LevelList]
+            FROM [CommunicationRecipient] AS [cr] WITH ( INDEX( [IX_UnsubscribeDateTime_SendDateTime] ) )
+            WHERE [cr].[UnsubscribeDateTime] IS NOT NULL
+                AND [cr].[SendDateTime] IS NOT NULL
+                AND [cr].[UnsubscribeLevel] IS NOT NULL
+                AND [cr].[PersonAliasId] IS NOT NULL
+                AND [cr].[CommunicationId] IN ( SELECT [s].[CommunicationId] FROM #Sample AS [s] )
+            GROUP BY [cr].[CommunicationId]
+        ) AS [u] ON [u].[CommunicationId] = [o].[CommunicationId];';
 END;
 
 DECLARE @JMassUnsubscribes NVARCHAR(MAX) = (
@@ -472,7 +553,13 @@ DECLARE @JMassUnsubscribes NVARCHAR(MAX) = (
         CAST( [u].[LevelAll] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromAll],
         CAST( [u].[LevelBulk] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromBulk],
         CAST( [u].[LevelList] * 100.0 / NULLIF( [u].[Unsubscribed], 0 ) AS DECIMAL(5,1) ) AS [pctUnsubscribesFromList]
-    FROM #Unsub AS [u]
+    FROM (
+        SELECT [o].[Medium], SUM( [o].[Recipients] ) AS [Recipients], SUM( [o].[Unsubscribed] ) AS [Unsubscribed], SUM( [o].[Spam] ) AS [Spam],
+            SUM( [o].[LevelAll] ) AS [LevelAll], SUM( [o].[LevelBulk] ) AS [LevelBulk], SUM( [o].[LevelList] ) AS [LevelList]
+        FROM #MassOutcome AS [o]
+        WHERE [o].[Medium] IN ( 'Email', 'Recipient preference' ) AND [o].[Unsubscribed] IS NOT NULL
+        GROUP BY [o].[Medium]
+    ) AS [u]
     FOR JSON PATH
 );
 
@@ -559,15 +646,18 @@ WHERE [r].[RelatedMediumEntityTypeId] = @SmsMediumId
 CREATE CLUSTERED INDEX [IX_Thread] ON #Resp ( [PersonId], [NumberId], [CreatedDateTime] );
 
 /*
-    10/21/26 - CLAUDE
+    10/22/26 - CLAUDE
 
     SMS Conversations shows outbound texts from a recipient's CreatedDateTime,
     so this does too. Only sends to one or two people count as conversation
-    messages; mass texts are measured above. The recipient's medium is read
-    only for these small sends, which keeps the full-row reads few.
+    messages; mass texts are measured above. A thread needs an inbound text,
+    so only the people who texted in are read. Rock's index on recipient
+    Status, PersonAliasId, MediumEntityTypeId, and CreatedDateTime finds
+    their texts directly and holds the message, so no full rows are read
+    except each small send's own Communication row.
 
-    Reason: Thread length and reply time should reflect conversations, not
-    mass texts.
+    Reason: The first version read every one-to-one send and timed out on
+    a large church.
 */
 SELECT
     [pa].[PersonId],
@@ -575,15 +665,16 @@ SELECT
     [cr].[CreatedDateTime],
     LEN( ISNULL( [cr].[SentMessage], '' ) ) AS [Length]
 INTO #SmsOut
-FROM #Comm AS [c]
-INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [c].[CommunicationId]
-INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [c].[CommunicationId]
-INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
-WHERE [c].[CommunicationType] IN ( 0, 2 )
-    AND [c].[SmsFromSystemPhoneNumberId] IS NOT NULL
-    AND [s].[Recipients] <= 2
+FROM ( SELECT DISTINCT [r].[PersonId] FROM #Resp AS [r] WHERE [r].[PersonId] IS NOT NULL ) AS [rp]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [rp].[PersonId]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[PersonAliasId] = [pa].[Id]
+INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [cr].[CommunicationId]
+INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[Status] IN ( 1, 4 )
     AND [cr].[MediumEntityTypeId] = @SmsMediumId
-    AND [cr].[Status] IN ( 1, 4 );
+    AND [cr].[CreatedDateTime] >= @Start12 AND [cr].[CreatedDateTime] < @EndDate
+    AND [s].[Recipients] <= 2
+    AND [c].[SmsFromSystemPhoneNumberId] IS NOT NULL;
 
 CREATE CLUSTERED INDEX [IX_Thread] ON #SmsOut ( [PersonId], [NumberId], [CreatedDateTime] );
 
@@ -820,4 +911,4 @@ FROM ( VALUES
 ) AS [s] ( [Order], [Section], [Json] )
 ORDER BY [s].[Order];
 
-DROP TABLE IF EXISTS #CommId, #Comm, #Size, #Mass, #MassOutcome, #Component, #Int, #Unsub, #Adult, #Resp, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #SmsOut, #Flow;
