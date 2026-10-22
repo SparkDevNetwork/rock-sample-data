@@ -226,7 +226,7 @@ namespace RockSampleData.Loader.Generation
             depends only on the Cast, so the Cast's steps are the same in every dataset.
 
             Reason: Student steps agree with the check-ins and grades Rock shows, without waiting for attendance
-            per person, and every dataset shows the designed rates (decisions D-student-path-1 and D-student-path-2).
+            per person, and every dataset shows the designed rates (decisions 115 and 116).
         */
 
         private sealed record EventOccurrence( string Season, int Year, DateTime Start, DateTime End );
@@ -540,7 +540,7 @@ namespace RockSampleData.Loader.Generation
             the Student Path's steps. Children who never checked in to the student service are not baptized here.
 
             Reason: The Baptism step, its attribute, and the Student Path tell one story, and the adult rates stay
-            as they were (decision D-student-path-3).
+            as they were (decision 117).
         */
         private Dictionary<int, DateTime> StudentBaptismDates( StepSource source )
         {

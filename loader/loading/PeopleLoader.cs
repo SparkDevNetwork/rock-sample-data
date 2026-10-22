@@ -177,7 +177,7 @@ namespace RockSampleData.Loader.Loading
                         had no graduation year and never checked in. Now a child whose file sets a graduation keeps
                         that year, and attendance checks them in by grade until they graduate.
 
-                        Reason: Check-in and the Student Path follow a recent graduate's real school years (decision D-student-path-4).
+                        Reason: Check-in and the Student Path follow a recent graduate's real school years (decision 118).
                     */
                     var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;

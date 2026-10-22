@@ -372,7 +372,7 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
 
 -- check: student-step-belongs-to-a-student
--- why: The Student Path follows student check-ins (decision D-student-path-1). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.
+-- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.
 WITH [StudentSteps] AS (
     SELECT [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [pa].[PersonId], [p].[GraduationYear],
         12 - ( [p].[GraduationYear] - CASE WHEN [s].[StartDateTime] >= DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]

@@ -1,6 +1,6 @@
 # Steps
 
-Steps in the sample data, and why. Both programs are built: the adult Discipleship Path and the Student Path. The decisions are 83 to 89, 106 to 108, and D-student-path-1 to D-student-path-5 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
+Steps in the sample data, and why. Both programs are built: the adult Discipleship Path and the Student Path. The decisions are 83 to 89, 106 to 108, and 115 to 119 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -52,7 +52,7 @@ Most published pathways treat giving as an outcome, not a step. Ministry by Desi
 
 ## Student program: Student Path
 
-Four steps, the same arc in a smaller form, for students who check in to the student service. It is a new program, filed in the same Discipleship category as Rock's program, with its own In Progress and Complete statuses, because a Rock status belongs to one program (decision D-student-path-2). The completion flow is Linear (Preferred), with no prerequisites.
+Four steps, the same arc in a smaller form, for students who check in to the student service. It is a new program, filed in the same Discipleship category as Rock's program, with its own In Progress and Complete statuses, because a Rock status belongs to one program (decision 116). The completion flow is Linear (Preferred), with no prerequisites.
 
 | # | Step | Stage | Kind | Objective | Impact | Where it comes from |
 |---|---|---|---|---|---|---|
@@ -103,7 +103,7 @@ Who takes a class, in this order:
 
 ## How student steps are made
 
-Student steps come from the student check-ins the attendance step already writes (decision D-student-path-1). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those Attendance rows back from the database. It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
+Student steps come from the student check-ins the attendance step already writes (decision 115). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those Attendance rows back from the database. It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
 
 ### Who is a student
 
@@ -113,7 +113,7 @@ Student steps come from the student check-ins the attendance step already writes
 
 ### Dates
 
-Camps and trips are church-wide events on fixed days of the year, so everyone at one camp shares its dates (decision D-student-path-2).
+Camps and trips are church-wide events on fixed days of the year, so everyone at one camp shares its dates (decision 116).
 
 | Step | When | Status |
 |---|---|---|
@@ -124,7 +124,7 @@ Camps and trips are church-wide events on fixed days of the year, so everyone at
 
 ### Who takes each step
 
-Each step is a share of the students who could take it, counted for the Cast and the generated households on their own (decision D-student-path-2). A Cast story counts toward its share. A dataset has only a few dozen students, so chances drawn person by person would wander far from the designed rates. The Cast's share depends only on the Cast, so the Cast's student steps are the same in every dataset, as its baptisms are.
+Each step is a share of the students who could take it, counted for the Cast and the generated households on their own (decision 116). A Cast story counts toward its share. A dataset has only a few dozen students, so chances drawn person by person would wander far from the designed rates. The Cast's share depends only on the Cast, so the Cast's student steps are the same in every dataset, as its baptisms are.
 
 - **Student Camp.** 45% of the students who could go to a camp go once, in one of those summers. In each later summer they could go, they go again 60% of the time.
 - **Follow Jesus.** 30% of students make the decision once. A student who went to camp makes it there 70% of the time. Otherwise it falls on a Sunday they checked in: Easter 30% of the time when they came that Easter, and another of their Sundays otherwise.
@@ -133,7 +133,7 @@ Each step is a share of the students who could take it, counted for the Cast and
 
 ### Student baptisms
 
-A student's baptism goes on the Discipleship Path's Baptism step, with the Baptism Date and Baptized Here agreeing, as every baptism does (decisions 87 and D-student-path-3).
+A student's baptism goes on the Discipleship Path's Baptism step, with the Baptism Date and Baptized Here agreeing, as every baptism does (decisions 87 and 117).
 
 - **After a decision.** 60% of the students with a Follow Jesus step are baptized here on the first baptism Sunday at least two weeks after it, so a camp decision is often baptized on the July baptism Sunday. When that Sunday has not come yet, the student is not baptized yet, as in a real church.
 - **Other students.** 10% of the other students are baptized here on a baptism Sunday after they started coming to the student service.
@@ -206,9 +206,9 @@ Shares are rounded within the Cast and within the generated households, and a Ca
 | Benjamin Lee | Two summers of Student Camp and a mission trip last spring. | Built, checked every load |
 | Jasmine Washington | The whole Student Path, with a program completion. She graduated this past May, sang on the student worship team, and led younger students until graduation. | Built, checked every load |
 
-Each story is a Cast expectation (`expect.steps` in the household file), so every load checks it against the loaded data. See [Validation](../validation/README.md#cast-expectations). A story sets the steps it needs in the person's `steps`: a class by how many classes ago it was, a camp or trip by its season and how many years back from the latest one held, or `taken` to let the usual rules date it (decision D-student-path-5). Ava's camp and decision name last summer's camp, Benjamin's name the last two camps and the last spring trip, and Jasmine's four steps are `taken`, so they hold on any install day.
+Each story is a Cast expectation (`expect.steps` in the household file), so every load checks it against the loaded data. See [Validation](../validation/README.md#cast-expectations). A story sets the steps it needs in the person's `steps`: a class by how many classes ago it was, a camp or trip by its season and how many years back from the latest one held, or `taken` to let the usual rules date it (decision 119). Ava's camp and decision name last summer's camp, Benjamin's name the last two camps and the last spring trip, and Jasmine's four steps are `taken`, so they hold on any install day.
 
-Jasmine's household file now sets her graduation as a relative date, this past May. Before, she had no graduation year in the loader, because a grade is derived only for ages 5 to 17, so she never checked in. Now a child whose file sets a graduation keeps that year, and she checks in to the student service through her senior year (decision D-student-path-4).
+Jasmine's household file now sets her graduation as a relative date, this past May. Before, she had no graduation year in the loader, because a grade is derived only for ages 5 to 17, so she never checked in. Now a child whose file sets a graduation keeps that year, and she checks in to the student service through her senior year (decision 118).
 
 ## How it is checked
 
