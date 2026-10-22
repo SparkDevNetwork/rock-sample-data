@@ -175,9 +175,9 @@ The repository is private, so every job uses the organization's Actions minutes,
 
 #### 2. The Azure identity
 
-Run these in Azure Cloud Shell (Bash), or any shell with the Azure CLI. Fill in the first four values.
+This was done on 2026-10-22, as the app registration "rock-sample-data release". Run it again only to rebuild the identity. Use the Bash version in Azure Cloud Shell or Git Bash, or the PowerShell version below it in a Windows terminal. Fill in the first four values.
 
-```
+```bash
 TENANT=<tenant id>
 SUBSCRIPTION=<subscription id>
 RESOURCE_GROUP=<resource group of the storage account>
@@ -211,7 +211,46 @@ az role assignment create --assignee-object-id "$PRINCIPAL_ID" --assignee-princi
 echo "AZURE_CLIENT_ID=$APP_ID"
 ```
 
-Check that the container exists before the first release: `az storage container show --account-name "$ACCOUNT" -n sampledata --auth-mode login`. The identity has no other role, so it cannot read the account's keys, change its settings, or purge Front Door.
+The same steps in PowerShell. PowerShell cannot run the Bash lines above: `NAME=$(...)` is not PowerShell, so nothing is created.
+
+```powershell
+$tenant = "<tenant id>"
+$subscription = "<subscription id>"
+$resourceGroup = "<resource group of the storage account>"
+$account = "<storage account behind storage.rockrms.com>"
+
+az login --tenant $tenant
+az account set --subscription $subscription
+
+$appId = az ad app create --display-name "rock-sample-data release" --query appId -o tsv
+$principalId = az ad sp create --id $appId --query id -o tsv
+
+@'
+{
+  "name": "rock-sample-data-release-environment",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:SparkDevNetwork/rock-sample-data:environment:release",
+  "description": "The Publish job of .github/workflows/release.yml",
+  "audiences": ["api://AzureADTokenExchange"]
+}
+'@ | Set-Content -Encoding ascii credential.json
+az ad app federated-credential create --id $appId --parameters credential.json
+
+$scope = (az storage account show -n $account -g $resourceGroup --query id -o tsv) + "/blobServices/default/containers/sampledata"
+az role assignment create --assignee-object-id $principalId --assignee-principal-type ServicePrincipal --role "Storage Blob Data Contributor" --scope $scope
+
+"AZURE_CLIENT_ID = $appId"
+```
+
+To check the identity without changing anything, list its trust and its roles. Expect one credential for `environment:release` and one role on the `sampledata` container:
+
+```bash
+APP_ID=$(az ad app list --display-name "rock-sample-data release" --query "[0].appId" -o tsv)
+az ad app federated-credential list --id "$APP_ID" --query "[].subject" -o tsv
+az role assignment list --assignee "$(az ad sp show --id "$APP_ID" --query id -o tsv)" --all --query "[].{role:roleDefinitionName, scope:scope}" -o table
+```
+
+To check the container: `az storage container-rm show --storage-account <account> -g <resource group> -n sampledata`. It reads through Azure's management API, so it needs no blob role. The identity has no other role, so it cannot read the account's keys, change its settings, or purge Front Door.
 
 Front Door must pass on the blobs' own `Cache-Control` headers, or the index stays cached longer than 5 minutes. If its caching rule overrides them, add a rule for `/sampledata/packages/index*.json` that honors the origin's header.
 
