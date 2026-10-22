@@ -40,8 +40,17 @@ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 --              CommunicationId index. Delivery, opens, clicks, and
 --              unsubscribes come from a sample: the newest mass sends of
 --              each medium in the last 3 months (@SampleSendsPerMedium).
---              Text threads read only the people who texted in. If it still
---              times out, lower @SampleSendsPerMedium, or run it in SSMS.
+--              Text threads read only the people who texted in.
+--
+--              Rock builds some of the indexes this needs in post-update
+--              jobs, which can still be pending on a large database. Rock
+--              18.0 drops the CommunicationRecipient index on
+--              CommunicationId, and an 18.1 job puts it back. Without that
+--              index, sizing every send would read the whole recipient
+--              table, so the mass send sections are skipped and the meta
+--              section says why. The people, app, and text sections still
+--              run. In SSMS, which has no time limit, set @ReadWithoutIndex
+--              to 1 to read the whole table anyway.
 --
 --              Use the same @ChurchLabel as in part 2.
 --              Requires Rock 15 or later and SQL Server 2016 or later.
@@ -65,6 +74,15 @@ DECLARE @SampleSendsPerMedium INT = 8;
 -- this many recipients from each sampled send, spread across the send.
 DECLARE @SampleRecipientsPerSend INT = 1000;
 
+-- 1 reads the whole recipient table when Rock's CommunicationId index is
+-- missing. Use it only in SSMS: it takes far longer than Rock allows.
+DECLARE @ReadWithoutIndex BIT = 0;
+
+-- Text thread length and reply times are measured on this many of the
+-- people who texted in, picked by a hash of their Id. A quarter as many
+-- when Rock 16.6's recipient index is missing.
+DECLARE @SampleTexters INT = 200;
+
 -- Sends and texts use the last 12 complete months. The recipient sample
 -- uses the last 3. The current month is excluded.
 DECLARE @EndDate DATE = DATEFROMPARTS( YEAR( GETDATE() ), MONTH( GETDATE() ), 1 );
@@ -78,19 +96,53 @@ DECLARE @ActiveRecordStatusId INT = ( SELECT TOP 1 [Id] FROM [DefinedValue] WHER
 DECLARE @PersonRecordTypeId INT = ( SELECT TOP 1 [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' );
 DECLARE @CommunicationListGroupTypeId INT = ( SELECT TOP 1 [Id] FROM [GroupType] WHERE [Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' );
 
+-- Does CommunicationRecipient have an index that starts with CommunicationId?
+DECLARE @HasRecipientCommunicationIndex BIT = CASE WHEN EXISTS (
+    SELECT 1
+    FROM sys.indexes AS [i]
+    INNER JOIN sys.index_columns AS [ic] ON [ic].[object_id] = [i].[object_id] AND [ic].[index_id] = [i].[index_id] AND [ic].[key_ordinal] = 1
+    INNER JOIN sys.columns AS [col] ON [col].[object_id] = [ic].[object_id] AND [col].[column_id] = [ic].[column_id]
+    WHERE [i].[object_id] = OBJECT_ID( 'CommunicationRecipient' ) AND [col].[name] = 'CommunicationId' AND [i].[has_filter] = 0
+) THEN 1 ELSE 0 END;
+DECLARE @CanReadRecipientsBySend BIT = CASE WHEN @HasRecipientCommunicationIndex = 1 OR @ReadWithoutIndex = 1 THEN 1 ELSE 0 END;
+
 -- Clean up temp tables from an earlier run in the same SSMS session.
-DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow;
 
 -- =============================================
 -- Sends (last 12 months)
 -- =============================================
 
--- Rock's SendDateTime index on Communication holds the Id, so this never
--- reads a message body.
-SELECT [c].[Id] AS [CommunicationId]
-INTO #CommId
-FROM [Communication] AS [c]
-WHERE [c].[SendDateTime] >= @Start12 AND [c].[SendDateTime] < @EndDate;
+-- Rock's SendDateTime index holds the Id, so finding the year's sends never
+-- reads a message body. That index comes from a post-update job, which may
+-- not have run. Then the SendDateKey index (from a migration, so always
+-- there) is used. Rock sets SendDateKey (yyyyMMdd) from SendDateTime on save.
+DECLARE @HasSendDateTimeIndex BIT = CASE WHEN EXISTS (
+    SELECT 1
+    FROM sys.indexes AS [i]
+    INNER JOIN sys.index_columns AS [ic] ON [ic].[object_id] = [i].[object_id] AND [ic].[index_id] = [i].[index_id] AND [ic].[key_ordinal] = 1
+    INNER JOIN sys.columns AS [col] ON [col].[object_id] = [ic].[object_id] AND [col].[column_id] = [ic].[column_id]
+    WHERE [i].[object_id] = OBJECT_ID( 'Communication' ) AND [col].[name] = 'SendDateTime' AND [i].[has_filter] = 0
+) THEN 1 ELSE 0 END;
+DECLARE @Start12Key INT = CAST( CONVERT( CHAR(8), @Start12, 112 ) AS INT );
+DECLARE @EndKey INT = CAST( CONVERT( CHAR(8), @EndDate, 112 ) AS INT );
+
+CREATE TABLE #CommId ( [CommunicationId] INT );
+
+IF @HasSendDateTimeIndex = 1
+BEGIN
+    INSERT INTO #CommId ( [CommunicationId] )
+    SELECT [c].[Id]
+    FROM [Communication] AS [c]
+    WHERE [c].[SendDateTime] >= @Start12 AND [c].[SendDateTime] < @EndDate;
+END
+ELSE
+BEGIN
+    INSERT INTO #CommId ( [CommunicationId] )
+    SELECT [c].[Id]
+    FROM [Communication] AS [c]
+    WHERE [c].[SendDateKey] >= @Start12Key AND [c].[SendDateKey] < @EndKey;
+END;
 
 CREATE CLUSTERED INDEX [IX_CommunicationId] ON #CommId ( [CommunicationId] );
 
@@ -110,13 +162,19 @@ CREATE CLUSTERED INDEX [IX_CommunicationId] ON #CommId ( [CommunicationId] );
 DECLARE @MinCommunicationId INT = ( SELECT MIN( [CommunicationId] ) FROM #CommId );
 DECLARE @MaxCommunicationId INT = ( SELECT MAX( [CommunicationId] ) FROM #CommId );
 
-SELECT
-    [cr].[CommunicationId],
-    COUNT( * ) AS [Recipients]
-INTO #Size
-FROM [CommunicationRecipient] AS [cr]
-WHERE [cr].[CommunicationId] BETWEEN @MinCommunicationId AND @MaxCommunicationId
-GROUP BY [cr].[CommunicationId];
+CREATE TABLE #Size ( [CommunicationId] INT, [Recipients] INT );
+
+-- Without the index, #Size stays empty and every mass send section is skipped.
+IF @CanReadRecipientsBySend = 1
+BEGIN
+    INSERT INTO #Size ( [CommunicationId], [Recipients] )
+    SELECT
+        [cr].[CommunicationId],
+        COUNT( * )
+    FROM [CommunicationRecipient] AS [cr]
+    WHERE [cr].[CommunicationId] BETWEEN @MinCommunicationId AND @MaxCommunicationId
+    GROUP BY [cr].[CommunicationId];
+END;
 
 -- The Id range can hold a draft or a send from outside the window.
 DELETE [s]
@@ -162,15 +220,20 @@ CREATE CLUSTERED INDEX [IX_CommunicationId] ON #Sample ( [CommunicationId] );
 -- About @SampleRecipientsPerSend recipients from each sampled send, taken
 -- every Nth recipient Id so the sample spans the whole send. The Ids come
 -- from the narrow CommunicationId index, so no full rows are read here.
-SELECT
-    [s].[CommunicationId],
-    [s].[Medium],
-    [cr].[Id] AS [RecipientId]
-INTO #SampleRecipient
-FROM #Sample AS [s]
-INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [s].[CommunicationId]
-INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [s].[CommunicationId]
-WHERE [cr].[Id] % CEILING( [m].[Recipients] * 1.0 / @SampleRecipientsPerSend ) = 0;
+CREATE TABLE #SampleRecipient ( [CommunicationId] INT, [Medium] NVARCHAR(30), [RecipientId] INT );
+
+IF @CanReadRecipientsBySend = 1
+BEGIN
+    INSERT INTO #SampleRecipient ( [CommunicationId], [Medium], [RecipientId] )
+    SELECT
+        [s].[CommunicationId],
+        [s].[Medium],
+        [cr].[Id]
+    FROM #Sample AS [s]
+    INNER JOIN #Mass AS [m] ON [m].[CommunicationId] = [s].[CommunicationId]
+    INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [s].[CommunicationId]
+    WHERE [cr].[Id] % CEILING( [m].[Recipients] * 1.0 / @SampleRecipientsPerSend ) = 0;
+END;
 
 CREATE CLUSTERED INDEX [IX_RecipientId] ON #SampleRecipient ( [RecipientId] );
 
@@ -650,31 +713,100 @@ CREATE CLUSTERED INDEX [IX_Thread] ON #Resp ( [PersonId], [NumberId], [CreatedDa
 
     SMS Conversations shows outbound texts from a recipient's CreatedDateTime,
     so this does too. Only sends to one or two people count as conversation
-    messages; mass texts are measured above. A thread needs an inbound text,
-    so only the people who texted in are read. Rock's index on recipient
-    Status, PersonAliasId, MediumEntityTypeId, and CreatedDateTime finds
-    their texts directly and holds the message, so no full rows are read
-    except each small send's own Communication row.
+    messages; mass texts are measured above. When send sizes are unknown (no
+    CommunicationId index), a send not flagged as bulk counts as one.
 
-    Reason: The first version read every one-to-one send and timed out on
-    a large church.
+    A thread needs an inbound text, so only people who texted in are read,
+    and only a sample of them (@SampleTexters, picked by a hash of the Id).
+    Recipient Ids grow over time, so the first recipient created in the
+    window marks where the year's rows start; Rock's
+    IX_ResponseCodeCreatedDateTime index (from a migration, so always there)
+    finds it at once, and each person's rows are read from that Id on.
+    Their texts are collected first, and only then are those sends'
+    Communication rows read, so no message body is read for an email.
+
+    Reason: The first versions read every texter's recipient rows and their
+    Communication rows, and timed out on a large church.
 */
+-- Rock 16.6's recipient index on Status, PersonAliasId, MediumEntityTypeId,
+-- and CreatedDateTime finds a person's texts and holds the message, so no
+-- full rows are read. It comes from a post-update job, so without it the
+-- PersonAliasId index (from a migration) is used, with each row looked up.
+-- The index is named outright: left to choose, SQL Server read every
+-- recipient from the year's first Id on.
+DECLARE @TextIndex SYSNAME = CASE
+    WHEN EXISTS ( SELECT 1 FROM sys.indexes WHERE [name] = 'IX_Status_PersonAliasId_MediumEntityTypeId_CreatedDateTime' AND [object_id] = OBJECT_ID( 'CommunicationRecipient' ) )
+        THEN 'IX_Status_PersonAliasId_MediumEntityTypeId_CreatedDateTime'
+    ELSE 'IX_PersonAliasId'
+END;
+
+-- Without that index each texter's rows are looked up one by one, so fewer
+-- texters are sampled.
+IF @TextIndex = 'IX_PersonAliasId'
+BEGIN
+    SET @SampleTexters = @SampleTexters / 4;
+END;
+
+SELECT TOP ( @SampleTexters ) [t].[PersonId]
+INTO #Texter
+FROM ( SELECT DISTINCT [r].[PersonId] FROM #Resp AS [r] WHERE [r].[PersonId] IS NOT NULL ) AS [t]
+ORDER BY CHECKSUM( [t].[PersonId] * 7919 );
+
+CREATE CLUSTERED INDEX [IX_PersonId] ON #Texter ( [PersonId] );
+
+DECLARE @MinRecipientId INT = ISNULL( (
+    SELECT TOP 1 [cr].[Id]
+    FROM [CommunicationRecipient] AS [cr]
+    WHERE [cr].[ResponseCode] IS NULL AND [cr].[CreatedDateTime] >= @Start12
+    ORDER BY [cr].[CreatedDateTime]
+), 2147483647 );
+
+
+CREATE TABLE #SmsOutRaw ( [PersonId] INT, [CommunicationId] INT, [CreatedDateTime] DATETIME, [Length] INT );
+
+DECLARE @TextSql NVARCHAR(MAX) = N'
+    INSERT INTO #SmsOutRaw ( [PersonId], [CommunicationId], [CreatedDateTime], [Length] )
+    SELECT
+        [t].[PersonId],
+        [cr].[CommunicationId],
+        [cr].[CreatedDateTime],
+        LEN( ISNULL( [cr].[SentMessage], '''' ) )
+    FROM #Texter AS [t]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [t].[PersonId]
+    INNER JOIN [CommunicationRecipient] AS [cr] WITH ( INDEX( ' + QUOTENAME( @TextIndex ) + N' ) ) ON [cr].[PersonAliasId] = [pa].[Id]
+    WHERE [cr].[Id] >= @MinRecipientId
+        AND [cr].[Status] IN ( 1, 4 )
+        AND [cr].[MediumEntityTypeId] = @SmsMediumId
+        AND [cr].[CreatedDateTime] >= @Start12 AND [cr].[CreatedDateTime] < @EndDate;';
+
+EXEC sp_executesql @TextSql,
+    N'@MinRecipientId INT, @SmsMediumId INT, @Start12 DATE, @EndDate DATE',
+    @MinRecipientId = @MinRecipientId, @SmsMediumId = @SmsMediumId, @Start12 = @Start12, @EndDate = @EndDate;
+
+-- Each send's Communication row is read once, not once per text, and a
+-- send known to be a mass send is never read.
 SELECT
-    [pa].[PersonId],
-    [c].[SmsFromSystemPhoneNumberId] AS [NumberId],
-    [cr].[CreatedDateTime],
-    LEN( ISNULL( [cr].[SentMessage], '' ) ) AS [Length]
+    [x].[CommunicationId],
+    [c].[SmsFromSystemPhoneNumberId] AS [NumberId]
+INTO #SmsSend
+FROM (
+    SELECT DISTINCT [o].[CommunicationId]
+    FROM #SmsOutRaw AS [o]
+    LEFT JOIN #Size AS [s] ON [s].[CommunicationId] = [o].[CommunicationId]
+    WHERE [s].[Recipients] <= 2 OR @CanReadRecipientsBySend = 0
+) AS [x]
+INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [x].[CommunicationId]
+WHERE [c].[SmsFromSystemPhoneNumberId] IS NOT NULL
+    AND ( @CanReadRecipientsBySend = 1 OR [c].[IsBulkCommunication] = 0 );
+
+SELECT
+    [o].[PersonId],
+    [ss].[NumberId],
+    [o].[CreatedDateTime],
+    [o].[Length]
 INTO #SmsOut
-FROM ( SELECT DISTINCT [r].[PersonId] FROM #Resp AS [r] WHERE [r].[PersonId] IS NOT NULL ) AS [rp]
-INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [rp].[PersonId]
-INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[PersonAliasId] = [pa].[Id]
-INNER JOIN #Size AS [s] ON [s].[CommunicationId] = [cr].[CommunicationId]
-INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [cr].[CommunicationId]
-WHERE [cr].[Status] IN ( 1, 4 )
-    AND [cr].[MediumEntityTypeId] = @SmsMediumId
-    AND [cr].[CreatedDateTime] >= @Start12 AND [cr].[CreatedDateTime] < @EndDate
-    AND [s].[Recipients] <= 2
-    AND [c].[SmsFromSystemPhoneNumberId] IS NOT NULL;
+FROM #SmsOutRaw AS [o]
+INNER JOIN #SmsSend AS [ss] ON [ss].[CommunicationId] = [o].[CommunicationId];
 
 CREATE CLUSTERED INDEX [IX_Thread] ON #SmsOut ( [PersonId], [NumberId], [CreatedDateTime] );
 
@@ -761,7 +893,7 @@ DECLARE @JSmsThreads NVARCHAR(MAX) = (
             ( SELECT COUNT( * ) FROM #SmsOut AS [o] WHERE [o].[PersonId] = [r].[PersonId] AND [o].[NumberId] = [r].[NumberId] ) AS [Outbound],
             SUM( CASE WHEN [r].[IsRead] = 0 THEN 1 ELSE 0 END ) AS [Unread]
         FROM #Resp AS [r]
-        WHERE [r].[PersonId] IS NOT NULL AND [r].[NumberId] IS NOT NULL
+        WHERE [r].[PersonId] IN ( SELECT [x].[PersonId] FROM #Texter AS [x] ) AND [r].[NumberId] IS NOT NULL
         GROUP BY [r].[PersonId], [r].[NumberId]
     ) AS [t]
     LEFT JOIN [SystemPhoneNumber] AS [spn] ON [spn].[Id] = [t].[NumberId]
@@ -792,7 +924,7 @@ DECLARE @JSmsReplyDelay NVARCHAR(MAX) = (
                 AND [o].[CreatedDateTime] < DATEADD( DAY, 7, [r].[CreatedDateTime] )
             ORDER BY [o].[CreatedDateTime]
         ) AS [n]
-        WHERE [r].[PersonId] IS NOT NULL AND [r].[IsStop] = 0
+        WHERE [r].[PersonId] IN ( SELECT [x].[PersonId] FROM #Texter AS [x] ) AND [r].[IsStop] = 0
         UNION ALL
         SELECT
             'personToChurch',
@@ -876,6 +1008,11 @@ DECLARE @JMeta NVARCHAR(MAX) = (
         @ChurchLabel AS [church],
         7 AS [part],
         @MassSendMinRecipients AS [massSendMinRecipients],
+        @SampleSendsPerMedium AS [sampleSendsPerMedium],
+        @SampleRecipientsPerSend AS [sampleRecipientsPerSend],
+        @SampleTexters AS [sampleTexters],
+        CAST( @HasRecipientCommunicationIndex AS BIT ) AS [hasRecipientCommunicationIndex],
+        CASE WHEN @CanReadRecipientsBySend = 0 THEN 'Mass send sections skipped: CommunicationRecipient has no index on CommunicationId. Run the pending Rock Update Helper v18.1 job, or run this script in SSMS with @ReadWithoutIndex = 1.' END AS [skipped],
         CONVERT( CHAR(10), @Start12, 120 ) AS [periodStart],
         CONVERT( CHAR(10), @Start3, 120 ) AS [recipientPeriodStart],
         CONVERT( CHAR(10), @EndDate, 120 ) AS [periodEndExclusive]
@@ -911,4 +1048,4 @@ FROM ( VALUES
 ) AS [s] ( [Order], [Section], [Json] )
 ORDER BY [s].[Order];
 
-DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow;
