@@ -85,6 +85,6 @@
     }
   },
   "$ruleReasons": {
-    "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision D-pledges-crowd-1)."
+    "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision 113)."
   }
 }
