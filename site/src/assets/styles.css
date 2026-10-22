@@ -662,3 +662,5 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 .rules-light .rule { background: var(--card); box-shadow: var(--shadow); }
 .rules-light .rule li { color: var(--ink-2); }
 .rules-light .rule li strong { color: var(--ink); }
+.view-heading { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 40px 0 16px; }
+.view-topic { display: block; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
