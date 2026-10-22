@@ -246,13 +246,28 @@ VALUES ( @CampusId, @ScheduleId, @TypeId, @Order, NEWID(), @ForeignKey, GETDATE(
         }
 
         /// <summary>
-        /// Turns on campus child accounts for each per-campus fund and adds a child account per campus.
+        /// Adds the funds Rock does not ship, turns on campus child accounts for each per-campus fund, and adds
+        /// a child account per campus.
         /// </summary>
         private void LoadAccounts( List<CampusDefinition> campuses )
         {
             var count = 0;
             foreach ( var fund in _source.Accounts.Accounts )
             {
+                if ( !fund.RockDefault && _db.IdByGuid( "FinancialAccount", fund.Guid ) == null )
+                {
+                    _db.Execute( @"
+INSERT INTO [FinancialAccount] ( [Name], [PublicName], [IsTaxDeductible], [Order], [IsActive], [IsPublic], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+VALUES ( @Name, @PublicName, @TaxDeductible, @Order, 1, 1, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
+                        P( "@Name", fund.Name ),
+                        P( "@PublicName", fund.PublicName ),
+                        P( "@TaxDeductible", fund.IsTaxDeductible ),
+                        P( "@Order", fund.Order ),
+                        P( "@Guid", fund.Guid ),
+                        P( "@ForeignKey", _foreignKey ) );
+                    _db.Log.Write( $"  Fund added: {fund.Name}" );
+                }
+
                 var parentId = _db.RequireIdByGuid( "FinancialAccount", fund.Guid );
                 var usesChildren = fund.CampusAccounts.Count > 0;
                 _db.Execute( "UPDATE [FinancialAccount] SET [IsActive] = 1, [Order] = @Order, [UsesCampusChildAccounts] = @UsesChildren WHERE [Id] = @Id",

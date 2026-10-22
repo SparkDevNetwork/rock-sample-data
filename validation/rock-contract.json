@@ -943,6 +943,8 @@
       "written": [
         "CampusId",
         "CreatedDateTime",
+        "Description",
+        "EndDate",
         "ForeignKey",
         "Guid",
         "IsActive",
@@ -952,7 +954,9 @@
         "Name",
         "Order",
         "ParentAccountId",
+        "PublicDescription",
         "PublicName",
+        "StartDate",
         "UsesCampusChildAccounts"
       ],
       "rockColumns": {
@@ -1168,6 +1172,29 @@
         "ModifiedDateTime": "datetime null",
         "ScheduledTransactionId": "int not null",
         "Summary": "nvarchar(500) null"
+      }
+    },
+    "FinancialStatementTemplate": {
+      "written": [
+        "ReportSettingsJson"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "FooterSettingsJson": "nvarchar(max) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "LogoBinaryFileId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "ReportSettingsJson": "nvarchar(max) null",
+        "ReportTemplate": "nvarchar(max) null"
       }
     },
     "FinancialTransaction": {
@@ -3040,6 +3067,7 @@
       "C1142570-8CD6-4A20-83B1-ACB47C1CD377"
     ],
     "Block": [
+      "4898B608-4A08-4C1B-97A7-0500D708B5D2",
       "63733A54-060F-4C8A-8166-87F9E1E4E835"
     ],
     "Campus": [
@@ -3146,6 +3174,9 @@
       "4410306F-3FB5-4A57-9A80-09A3F9D40D0C",
       "67C6181C-1D8C-44D7-B262-B81E746F06D8",
       "BAB250EE-CAE6-4A41-9756-AD9327408BE0"
+    ],
+    "FinancialStatementTemplate": [
+      "4B93657A-DD5F-4D8A-A13F-1B4E9ADBDAD0"
     ],
     "Group": [
       "1918E74F-C00D-4DDD-94C4-2E7209CE12C3",
