@@ -33,11 +33,15 @@ namespace RockSampleData.Loader.Loading
         statements count gifts to its campus accounts toward those pledges, so the statement template
         includes child accounts.
 
+        Rock ships the WebForms Pledge Entry block, and a Rock job later swaps it for the Obsidian block with
+        a new block Guid. The loader finds the block on each pledge page by either block type, so it works
+        before and after the swap. Both block types use the same setting keys.
+
         Reason: Pledge screens work on install (decisions 97, 98, and 100).
     */
 
     /// <summary>
-    /// Sets the building campaign's dates and description on its fund, and points Rock's Create Pledge page and
+    /// Sets the building campaign's dates and description on its fund, and points Rock's two pledge pages and
     /// default contribution statement at it.
     /// </summary>
     internal sealed class CampaignLoader
@@ -87,13 +91,10 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Points the Pledge Entry block at the campaign's fund and dates.
+        /// Points the Pledge Entry block on each pledge page at the campaign's fund and dates.
         /// </summary>
         private void LoadPledgeEntry( CampaignPledgeEntry pledgeEntry, Guid fundGuid, DateTime start, DateTime end )
         {
-            var block = _db.Query( "SELECT [Id], [BlockTypeId] FROM [Block] WHERE [Guid] = @Guid", P( "@Guid", pledgeEntry.BlockGuid ) ).SingleOrDefault()
-                ?? throw new InvalidOperationException( $"Rock has no Pledge Entry block {pledgeEntry.BlockGuid}." );
-
             var values = new Dictionary<string, string>
             {
                 ["Account"] = fundGuid.ToString(),
@@ -101,6 +102,33 @@ namespace RockSampleData.Loader.Loading
                 ["ShowPledgeFrequency"] = pledgeEntry.ShowPledgeFrequency ? "True" : "False"
             };
 
+            var typeNames = string.Join( ", ", pledgeEntry.BlockTypeGuids.Select( ( _, i ) => $"@Type{i}" ) );
+            foreach ( var pageGuid in pledgeEntry.PageGuids )
+            {
+                var blocks = _db.Query( $@"
+SELECT [b].[Id], [b].[BlockTypeId]
+FROM [Block] AS [b]
+INNER JOIN [Page] AS [p] ON [p].[Id] = [b].[PageId]
+INNER JOIN [BlockType] AS [bt] ON [bt].[Id] = [b].[BlockTypeId]
+WHERE [p].[Guid] = @PageGuid AND [bt].[Guid] IN ( {typeNames} )",
+                    pledgeEntry.BlockTypeGuids.Select( ( guid, i ) => P( $"@Type{i}", guid ) ).Append( P( "@PageGuid", pageGuid ) ).ToArray() );
+                if ( blocks.Count == 0 )
+                {
+                    throw new InvalidOperationException( $"Rock's page {pageGuid} has no Pledge Entry block of type {string.Join( " or ", pledgeEntry.BlockTypeGuids )}." );
+                }
+
+                foreach ( var block in blocks )
+                {
+                    SetBlockValues( block, values );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves setting values on one block, by the setting keys its block type has.
+        /// </summary>
+        private void SetBlockValues( Dictionary<string, object> block, Dictionary<string, string> values )
+        {
             foreach ( var value in values )
             {
                 var attributeId = _db.Scalar( @"
