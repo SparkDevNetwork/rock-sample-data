@@ -48,6 +48,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "james",
+      "pledge": 5200,
+      "frequency": "weekly",
+      "pledged": "commitment-sunday",
+      "followThrough": "behind"
+    }
+  ],
   "members": [
     {
       "key": "james",

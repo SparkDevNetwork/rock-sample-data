@@ -33,6 +33,17 @@
       "signer": "Len Hollis"
     }
   ],
+  "campaign": [
+    {
+      "person": "len",
+      "gifts": [
+        {
+          "weeksAfterCommitment": 10,
+          "amount": 500
+        }
+      ]
+    }
+  ],
   "members": [
     {
       "key": "len",

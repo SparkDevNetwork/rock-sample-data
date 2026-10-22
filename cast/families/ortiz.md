@@ -37,6 +37,7 @@ Luis and Teresa Ortiz were regulars for seven years. They stopped coming about s
 - **Attendance:** lapsing, 60% of Sundays, since 7 years ago, stopped about 7 months ago.
 - **Giving:** **monthly** by Luis Ortiz: $125 General Fund per gift, gives in 90% of periods, started 6 years ago, stopped about 6 months ago, and Rock shows the lapsed journey stage and a late gift alert.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Luis Ortiz pledged $2,400 monthly on Commitment Sunday, and the pledge is **stopped**.
 
 ## Address
 

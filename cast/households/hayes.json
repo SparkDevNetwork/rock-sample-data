@@ -48,6 +48,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "robert",
+      "pledge": 10400,
+      "frequency": "weekly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    }
+  ],
   "members": [
     {
       "key": "robert",

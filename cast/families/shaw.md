@@ -43,6 +43,7 @@ Andrew and Lauren Shaw moved from Denver eight months ago and joined after tryin
 - **Attendance:** regular, 65% of Sundays, since about 8 months ago.
 - **Giving:** **bi-weekly** by Andy Shaw: $70 General Fund per gift, gives in 92% of periods, started about 7 months ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Andy Shaw pledged $1,200 bi-weekly 24 weeks after Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

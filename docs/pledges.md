@@ -1,6 +1,6 @@
 # Pledges
 
-The plan for pledges in the sample data, and why. The decisions are 97 to 105 in [Decisions](decisions.md). Piece 1 of the build order is built: the fund and its Rock settings, from `configuration/campaign.json`. The rest is not built yet. Each later piece adds its numbers to `configuration/campaign.json`, so they can be tuned in one place.
+The plan for pledges in the sample data, and why. The decisions are 97 to 105 in [Decisions](decisions.md). Pieces 1 and 2 of the build order are built: the fund and its Rock settings, and the Cast's pledges and campaign gifts. The rest is not built yet. Each later piece adds its numbers to `configuration/campaign.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -12,7 +12,7 @@ The campaign is always about 40% through on install day. That is the most useful
 
 ## What Rock has
 
-Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amount, a frequency, and a start and end date. Rock's save hook adds nothing but a "Pledge" entry on the person's History tab. These screens use pledges:
+Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amount, a frequency, and a start and end date. Rock's save hook adds only a history entry, written against the pledge itself, which no Rock screen shows. These screens use pledges:
 
 | Screen | Where | What it needs |
 |---|---|---|
@@ -51,7 +51,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 - **Pledge pages.** On both (Public) Create Pledge and the external site's Give > Pledge page, the Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
 - **Pledge frequency.** Both pledge pages show the frequency choice, but a pledger may leave it blank (decision 109).
 - **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
-- **History.** Each pledge adds the same "Pledge" entry to the person's History tab that Rock's save hook adds.
+- **No history.** Rock's pledge save hook writes its history against the pledge record, not the person, and no Rock screen shows it, so the loader writes none (decision 112).
 
 ## How pledges are made
 
@@ -107,6 +107,8 @@ Plus **gifts without a pledge.** About 5% of giving units who did not pledge giv
 ### The gifts
 
 - A pledger who already gives on the same rhythm adds a **campaign line to their usual gift**, in the same transaction. This is how most people give to a campaign.
+- **The line is sized from the gifts the giver really gave** since the pledge started: the pledge's share for that time, spread over those gifts, times the follow-through factor in `configuration/campaign.json` (ahead 1.5, behind 0.55). So an on-pace giver is on pace on any install day, however many Sundays they missed. A catch-up check after a missed Sunday carries the weeks it covers (decision 111).
+- **An extra campaign gift** rides on the giver's next usual hand-given gift within a month, as people add to their check. Otherwise it is a gift of its own, given the way they usually give. A pledge paid in full is one such gift, the week after pledging.
 - Pledgers who give through a **scheduled transaction** get a campaign line on that schedule from the pledge's start date. Rock shows it on their Contributions tab.
 - One-time and yearly pledges are paid by their own gifts.
 - The largest givers sometimes pay with stock, as they already do for other gifts (decision 43).
@@ -120,14 +122,14 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 | Household | Pledge | What it shows |
 |---|---|---|
-| Price | $150,000, quarterly, quiet phase | A lead gift, ahead of pace. One payment is a stock gift. |
-| Decker | $6,000, monthly, quiet phase | A staff pledge. Ted's monthly card schedule gets a $250 campaign line. On pace. |
+| Price | $150,000, quarterly, quiet phase | A lead gift, ahead of pace, with a $25,000 stock gift. |
+| Decker | $6,000, monthly, quiet phase | A staff pledge. Ted's monthly card schedule gets a campaign line. On pace. |
 | Hayes | $10,400, weekly | Long-time members on pace, a campaign line on every weekly gift. |
-| Carter | $5,000, one-time | Margaret paid it in full in Walter's memory. 100% complete. |
+| Carter | $5,000, one-time | Margaret paid it in full in Walter's memory, added to her monthly check. Complete. |
 | Brooks | $2,600, weekly | A steady weekly giver, on pace, still giving to the Building Fund too. |
 | Lee | $5,200, weekly | A large family behind pace. |
-| Hernandez | $1,000, weekly | Gabriel gave more than he pledged, over 100%. |
-| Shaw | $1,200, monthly | A late pledge from a family that joined after Commitment Sunday. It starts the day they pledged. |
+| Hernandez | $1,000, weekly | Gabriel gives ahead of pace and added a $600 gift, so he has given more than he pledged. Complete. |
+| Shaw | $1,200, bi-weekly | A late pledge, 24 weeks after Commitment Sunday, from a family that joined after it. It starts the day they pledged. |
 | Ortiz | $2,400, monthly | Pledged on Commitment Sunday and stopped when the family stopped coming. Stopped. |
 | Sullivan | $3,600, monthly, Chris only | A couple who give separately. Chris pledged; Amanda gave to the campaign twice with no pledge. |
 | Dawson | $520, no frequency | Pledged and has not given yet. Not started. |
@@ -146,7 +148,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 ## Checks
 
-- **Cast expectations.** Each Cast pledge has an expected state at install (ahead, on pace, behind, stopped, not started, or no pledge), checked on every load, like the giving expectations (decision 46).
+- **Cast expectations.** Each Cast campaign entry has an expected state on install day, checked on every load, like the giving expectations (decision 46). The states are complete, ahead, on pace, behind, stopped, not started, and gifts only. A pledge is on pace within one gift, or a tenth of the pledge, of where it should be. It is stopped when it is behind and its giver gave nothing to the campaign for 60 days (decision 110).
 - **Invariants.** Every pledge is on the campaign's parent account, inside the campaign dates, for a person who exists. Every campaign gift posts to a campus child account. No pledge is a duplicate for the same giving unit.
 - **Validation.** `giving.pctUnitsWithPledge` comes off the skipped list in `validation/tolerances.json` and is graded against the profile's 12%. Campaign gifts add dollars, so the giving measures that pass today must still pass. If one fails, pledge sizes come down before the targets change.
 - **Rock Cleanup** must find nothing to fix in pledge or campaign data.
@@ -157,7 +159,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 Each piece passes its checks before the next one starts.
 
 1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the two pledge pages, and the statement template. Built.
-2. **Cast pledges.** A `pledges` list in the Cast household files, the campaign gifts, History entries, and the Cast expectations.
+2. **Cast pledges.** A `campaign` list in the Cast household files, the campaign gifts, and the Cast expectations. Built.
 3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate.
 4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page, which can name the campaign.
 

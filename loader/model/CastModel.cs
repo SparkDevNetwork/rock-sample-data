@@ -51,6 +51,11 @@ namespace RockSampleData.Loader.Model
         public List<CastGiving> Giving { get; set; } = new List<CastGiving>();
 
         /// <summary>
+        /// The household's pledges and gifts in the building campaign.
+        /// </summary>
+        public List<CastCampaign> Campaign { get; set; } = new List<CastCampaign>();
+
+        /// <summary>
         /// True when a married couple gives separately: each spouse is their own giving unit.
         /// </summary>
         public bool AdultsGiveSeparately { get; set; }
@@ -96,6 +101,64 @@ namespace RockSampleData.Loader.Model
         public RelativeDate Started { get; set; }
 
         public RelativeDate Ended { get; set; }
+    }
+
+    /// <summary>
+    /// One giver's pledge or campaign gifts in the building campaign.
+    /// </summary>
+    internal sealed class CastCampaign
+    {
+        public string Person { get; set; }
+
+        /// <summary>
+        /// The pledge total, or null for campaign gifts with no pledge.
+        /// </summary>
+        public decimal? Pledge { get; set; }
+
+        /// <summary>
+        /// The pledge frequency key (weekly, monthly, one-time, and so on), or null when the pledge has none.
+        /// </summary>
+        public string Frequency { get; set; }
+
+        /// <summary>
+        /// "quiet-phase", "commitment-sunday", or an object with weeksAfterCommitment.
+        /// </summary>
+        public System.Text.Json.JsonElement Pledged { get; set; }
+
+        public string FollowThrough { get; set; }
+
+        public List<CastCampaignGift> Gifts { get; set; } = new List<CastCampaignGift>();
+
+        public string Expect { get; set; }
+
+        /// <summary>
+        /// Weeks after Commitment Sunday the pledge was made: 0 on Commitment Sunday, null in the quiet phase.
+        /// </summary>
+        [JsonIgnore]
+        public int? PledgedWeeksAfterCommitment => Pledged.ValueKind switch
+        {
+            System.Text.Json.JsonValueKind.Object => Pledged.GetProperty( "weeksAfterCommitment" ).GetInt32(),
+            System.Text.Json.JsonValueKind.String when Pledged.GetString() == "commitment-sunday" => 0,
+            _ => null
+        };
+
+        /// <summary>
+        /// The pledge state a load must show: the expect value, or the one followThrough leads to.
+        /// </summary>
+        [JsonIgnore]
+        public string ExpectedState => Expect ?? ( Pledge == null ? PledgeProgress.GiftsOnly : FollowThrough == "paid-in-full" ? PledgeProgress.Complete : FollowThrough );
+    }
+
+    /// <summary>
+    /// One extra campaign gift.
+    /// </summary>
+    internal sealed class CastCampaignGift
+    {
+        public int WeeksAfterCommitment { get; set; }
+
+        public decimal Amount { get; set; }
+
+        public bool Stock { get; set; }
     }
 
     /// <summary>

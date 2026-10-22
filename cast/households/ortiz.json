@@ -57,6 +57,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "luis",
+      "pledge": 2400,
+      "frequency": "monthly",
+      "pledged": "commitment-sunday",
+      "followThrough": "stopped"
+    }
+  ],
   "members": [
     {
       "key": "luis",

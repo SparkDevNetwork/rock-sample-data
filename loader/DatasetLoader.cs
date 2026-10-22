@@ -256,7 +256,13 @@ namespace RockSampleData.Loader
             Console.WriteLine( giving.Keys != null
                 ? $"  Check scanner fields keyed from {options.RockWebConfigPath}"
                 : "  No Rock PasswordKey (give a Rock web.config); check scanner fields stay empty" );
+
+            // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
+            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, dates, foreignKey, seed );
+            pledges?.Plan( people.Households );
+            giving.Campaign = pledges?.Giving;
             giving.Load( people.Households );
+            pledges?.Load( source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid );
 
             // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
             Console.WriteLine( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );

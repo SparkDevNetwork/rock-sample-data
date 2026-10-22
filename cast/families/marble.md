@@ -40,6 +40,7 @@ Bill owns a local business and leads a small group for people who are new to fai
 - **Giving:** **weekly** by Bill Marble: $100 General Fund + $50 Mission Fund per gift, gives in 85% of periods, grows 5% every 52 weeks, 50% chance of a year-end gift, started 9 years ago.
 - **Giving:** **one-time** by Bill Marble: $800 General Fund per gift, started 8 years ago, stopped 8 years ago.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Bill Marble pledged $5,200 weekly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

@@ -89,6 +89,15 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "bill",
+      "pledge": 5200,
+      "frequency": "weekly",
+      "pledged": "commitment-sunday",
+      "followThrough": "on-pace"
+    }
+  ],
   "members": [
     {
       "key": "alisha",

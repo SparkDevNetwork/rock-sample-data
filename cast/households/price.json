@@ -57,6 +57,22 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "william",
+      "pledge": 150000,
+      "frequency": "quarterly",
+      "pledged": "quiet-phase",
+      "followThrough": "ahead",
+      "gifts": [
+        {
+          "weeksAfterCommitment": 30,
+          "amount": 25000,
+          "stock": true
+        }
+      ]
+    }
+  ],
   "members": [
     {
       "key": "william",
