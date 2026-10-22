@@ -137,7 +137,82 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, failures ) : 0;
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks each Cast campaign entry: the pledge is there with its total, and the pledge is in the state its
+        /// story says on install day (complete, ahead, on pace, behind, stopped, not started, or gifts only).
+        /// </summary>
+        private static int CheckCampaign( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var campaign = source.Campaign;
+            if ( campaign == null )
+            {
+                return 0;
+            }
+
+            var fundGuid = source.Accounts.Accounts.First( a => a.Name == campaign.Fund ).Guid;
+            var fund = db.Query( "SELECT [Id], [StartDate] FROM [FinancialAccount] WHERE [Guid] = @Guid", P( "@Guid", fundGuid ) ).FirstOrDefault();
+            if ( fund == null || fund["StartDate"] is DBNull )
+            {
+                failures.Add( $"The {campaign.Fund} fund is missing or has no dates" );
+                return 1;
+            }
+
+            // Install day's Sunday. The load's anchor is not stored, but the campaign started a set number of weeks before it.
+            var today = ( ( DateTime ) fund["StartDate"] ).AddDays( 7 * campaign.CommitmentSundayWeeksBeforeInstall );
+            var checks = 0;
+
+            foreach ( var household in source.ReadHouseholds() )
+            {
+                foreach ( var entry in household.Campaign )
+                {
+                    checks++;
+                    var giver = household.Members.First( m => m.Key == entry.Person );
+                    var name = $"{giver.NickName ?? giver.FirstName ?? household.Name} {giver.LastName}".Trim();
+                    var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", giver.Guid ) ).FirstOrDefault();
+                    if ( person == null )
+                    {
+                        failures.Add( $"{name}: not in the database" );
+                        continue;
+                    }
+
+                    var pledge = db.Query( @"
+SELECT [fp].[TotalAmount], [fp].[StartDate], [fp].[EndDate]
+FROM [FinancialPledge] AS [fp]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [fp].[PersonAliasId]
+WHERE [pa].[PersonId] = @PersonId AND [fp].[AccountId] = @FundId", P( "@PersonId", person["Id"] ), P( "@FundId", fund["Id"] ) ).FirstOrDefault();
+                    var gifts = db.Query( @"
+SELECT SUM( [ftd].[Amount] ) AS [Given], MAX( [ft].[TransactionDateTime] ) AS [LastGift]
+FROM [FinancialTransactionDetail] AS [ftd]
+INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [ftd].[AccountId]
+INNER JOIN [FinancialTransaction] AS [ft] ON [ft].[Id] = [ftd].[TransactionId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ft].[AuthorizedPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE ( [fa].[Id] = @FundId OR [fa].[ParentAccountId] = @FundId ) AND [p].[GivingId] = @GivingId", P( "@FundId", fund["Id"] ), P( "@GivingId", person["GivingId"] ) ).Single();
+
+                    if ( ( pledge == null ) != ( entry.Pledge == null ) || ( pledge != null && ( decimal ) pledge["TotalAmount"] != entry.Pledge ) )
+                    {
+                        failures.Add( $"{name}: expected {( entry.Pledge == null ? "no pledge" : $"a ${entry.Pledge:N0} pledge" )}, the load has {( pledge == null ? "none" : $"${pledge["TotalAmount"]:N0}" )}" );
+                        continue;
+                    }
+
+                    var given = gifts["Given"] is decimal sum ? sum : 0;
+                    var lastGift = gifts["LastGift"] as DateTime?;
+                    var state = pledge == null
+                        ? PledgeProgress.State( null, null, today, today, given, lastGift, today )
+                        : PledgeProgress.State( entry.Pledge, entry.Frequency, ( DateTime ) pledge["StartDate"], ( DateTime ) pledge["EndDate"], given, lastGift, today );
+                    if ( state != entry.ExpectedState )
+                    {
+                        failures.Add( $"{name}: expected the pledge to be {entry.ExpectedState}, the load shows {state} (${given:N0}{( entry.Pledge == null ? string.Empty : $" of ${entry.Pledge:N0}" )})" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /*

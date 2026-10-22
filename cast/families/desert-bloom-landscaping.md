@@ -24,6 +24,7 @@ Daniel and Maria Garcia run Desert Bloom Landscaping together. The business give
 
 - **Attendance:** none. A business does not attend.
 - **Giving:** **monthly** by Desert Bloom Landscaping: $150 General Fund per gift, by bank transfer, gives in 100% of periods, started 3 years ago.
+- **Built on the Rock:** Desert Bloom Landscaping pledged $4,800 monthly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

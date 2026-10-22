@@ -106,9 +106,16 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// One planned gift before it becomes rows.
+        /// One planned gift before it becomes rows. Units is how many of the pattern's usual gifts it stands for
+        /// (two for a catch-up check after a missed Sunday), or 0 for a gift outside the pattern's rhythm.
         /// </summary>
-        private sealed record Gift( DateTime When, bool Onsite, string Currency, int? ScheduleIndex, Dictionary<int, decimal> Amounts );
+        private sealed record Gift( DateTime When, bool Onsite, string Currency, int? ScheduleIndex, Dictionary<int, decimal> Amounts, decimal Units );
+
+        /// <summary>
+        /// What each giving pattern gives to the building campaign, from the pledge plan. Null when the package
+        /// has no campaign.
+        /// </summary>
+        public IReadOnlyDictionary<CastGiving, CampaignGiving> Campaign { get; set; }
 
         /// <summary>
         /// Every check gift, with what its scanned image needs. Filled by <see cref="Load"/>.
@@ -565,6 +572,7 @@ INNER JOIN (
                     return;
                 }
 
+                var units = onlyFund == null ? multiplier : 0;
                 if ( onlyFund == null )
                 {
                     if ( isLoose && !scheduleIndex.HasValue )
@@ -595,30 +603,27 @@ INNER JOIN (
                     amounts[AccountId( fund.Key, household.CampusKey )] = amount;
                 }
 
-                gifts.Add( new Gift( when, onsite, currency, scheduleIndex, amounts ) );
+                gifts.Add( new Gift( when, onsite, currency, scheduleIndex, amounts, units ) );
             }
 
-            // A gift that is not tied to a Sunday. A check writer who comes on Sundays brings it the next
-            // Sunday the family is there (within two weeks), and otherwise mails it. A cash giver gives
+            // Where a gift that is not tied to a Sunday lands. A check writer who comes on Sundays brings it the
+            // next Sunday the family is there (within two weeks), and otherwise mails it. A cash giver gives
             // it online instead. Everyone else gives it the way they always do.
-            void AddOffSunday( DateTime when, string fallbackCurrency, decimal multiplier = 1, string onlyFund = null )
+            (DateTime When, bool Onsite, string Currency) OffSunday( DateTime when, string fallbackCurrency )
             {
                 if ( channel.Currency == "Check" )
                 {
                     var sunday = channel.Onsite ? attended.Where( s => s >= when.Date && s <= when.Date.AddDays( 14 ) ).OrderBy( s => s ).FirstOrDefault() : default;
-                    if ( sunday != default )
-                    {
-                        Add( sunday.Add( plan.Services[0].Start ).AddMinutes( 30 ), true, "Check", null, multiplier, onlyFund );
-                    }
-                    else
-                    {
-                        Add( when, false, "Check", null, multiplier, onlyFund );
-                    }
-
-                    return;
+                    return sunday != default ? (sunday.Add( plan.Services[0].Start ).AddMinutes( 30 ), true, "Check") : (when, false, "Check");
                 }
 
-                Add( when, false, channel.Onsite ? fallbackCurrency : channel.Currency, null, multiplier, onlyFund );
+                return (when, false, channel.Onsite ? fallbackCurrency : channel.Currency);
+            }
+
+            void AddOffSunday( DateTime when, string fallbackCurrency, decimal multiplier = 1, string onlyFund = null )
+            {
+                var placed = OffSunday( when, fallbackCurrency );
+                Add( placed.When, placed.Onsite, placed.Currency, null, multiplier, onlyFund );
             }
 
             switch ( pattern.Persona )
@@ -833,7 +838,62 @@ INNER JOIN (
                 }
             }
 
+            if ( Campaign != null && Campaign.TryGetValue( pattern, out var campaign ) )
+            {
+                AddCampaignGiving( campaign );
+            }
+
             return gifts.OrderBy( g => g.When ).ToList();
+
+            /*
+                10/22/26 - CLAUDE
+
+                The campaign line is sized from the usual gifts this pattern really gave since the pledge started:
+                the pledge's share for that time, spread over those gifts. So an on-pace giver is on pace however
+                often they missed a Sunday, and a catch-up check carries the weeks it covers. The line uses no
+                random numbers, so every other gift stays exactly as it was. An extra gift rides on the next usual
+                hand-given gift within a month, as people add to their check, and otherwise is a gift of its own.
+
+                Reason: Pledge stories hold on any install day (docs/pledges.md).
+            */
+            void AddCampaignGiving( CampaignGiving campaign )
+            {
+                var accountId = AccountId( campaign.Fund, household.CampusKey );
+                var lineEnd = campaign.LineStop.HasValue && campaign.LineStop < last ? campaign.LineStop.Value : last;
+                var usual = gifts.Where( g => g.Units > 0 && g.When >= campaign.LineStart && g.When <= lineEnd ).ToList();
+                var observed = usual.Sum( g => g.Units );
+                if ( campaign.Total.HasValue && campaign.LineFactor > 0 && observed > 0 )
+                {
+                    var share = ( decimal ) ( ( lineEnd - campaign.LineStart ).TotalDays / ( campaign.CampaignEnd - campaign.LineStart ).TotalDays );
+                    var line = campaign.Total.Value * share / observed * campaign.LineFactor;
+                    foreach ( var gift in usual )
+                    {
+                        gift.Amounts[accountId] = RoundGift( line * gift.Units, exact: false );
+                    }
+                }
+
+                foreach ( var extra in campaign.Gifts.Where( g => g.When >= first && g.When <= last ) )
+                {
+                    if ( extra.Stock )
+                    {
+                        gifts.Add( new Gift( extra.When, false, "Non-Cash Asset", null, new Dictionary<int, decimal> { [accountId] = extra.Amount }, 0 ) );
+                        continue;
+                    }
+
+                    var withUsual = channel.Scheduled ? null : gifts.Where( g => g.Units > 0 && g.When >= extra.When && g.When <= extra.When.AddDays( 31 ) ).OrderBy( g => g.When ).FirstOrDefault();
+                    if ( withUsual != null )
+                    {
+                        withUsual.Amounts[accountId] = withUsual.Amounts.GetValueOrDefault( accountId ) + extra.Amount;
+                        continue;
+                    }
+
+                    var placed = OffSunday( extra.When, "Credit Card" );
+                    if ( placed.When <= last )
+                    {
+                        gifts.Add( new Gift( placed.When, placed.Onsite, placed.Currency, null, new Dictionary<int, decimal> { [accountId] = extra.Amount }, 0 ) );
+                    }
+                }
+            }
         }
 
         // Tuning knobs for gift amounts and timing, found by running the validation loop.

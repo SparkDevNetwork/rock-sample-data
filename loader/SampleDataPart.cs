@@ -44,7 +44,7 @@ namespace RockSampleData.Loader
         Serving,
 
         /// <summary>
-        /// Gifts, scheduled gifts, batches, giving analytics, and giving alerts.
+        /// Gifts, scheduled gifts, batches, giving analytics, giving alerts, and the building campaign's pledges.
         /// </summary>
         Giving,
 
@@ -140,7 +140,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Attendance, "Attendance and check-in", "Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements." ),
             new SampleDataPartInfo( SampleDataPart.SmallGroups, "Small groups", "Small groups with leaders, members, meeting places, photos, history, and weekly attendance." ),
             new SampleDataPartInfo( SampleDataPart.Serving, "Serving teams", "Volunteers on every serving team, with schedules, check-ins, and requests to serve." ),
-            new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics and a year of giving alerts." ),
+            new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Adult steps on Rock's Discipleship Path, from baptism and classes to small groups, serving, giving, and leading, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),

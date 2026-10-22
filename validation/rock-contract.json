@@ -1091,6 +1091,42 @@
         "PersonAliasId": "int not null"
       }
     },
+    "FinancialPledge": {
+      "written": [
+        "AccountId",
+        "CreatedDateTime",
+        "EndDate",
+        "EndDateKey",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "PersonAliasId",
+        "PledgeFrequencyValueId",
+        "StartDate",
+        "StartDateKey",
+        "TotalAmount"
+      ],
+      "rockColumns": {
+        "AccountId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EndDate": "date not null",
+        "EndDateKey": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PersonAliasId": "int null",
+        "PledgeFrequencyValueId": "int null",
+        "StartDate": "date not null",
+        "StartDateKey": "int not null",
+        "TotalAmount": "decimal(18,2) not null"
+      }
+    },
     "FinancialScheduledTransaction": {
       "written": [
         "AuthorizedPersonAliasId",
@@ -3138,6 +3174,7 @@
       "72990023-0D43-4554-8D32-28461CAB8920",
       "7950FF66-80EE-E8AB-4A77-4A13EDEB7513",
       "7D705CE7-7B11-4342-A58E-53617C5B4E69",
+      "82614683-7FB4-4F16-9087-6F85945A7B16",
       "8B086A19-405A-451F-8D44-174E92D6B402",
       "8C52E53C-2A66-435A-AE6E-5EE307D9A0DC",
       "8EBC0CEB-474D-4C1B-A6BA-734C3A9AB061",
@@ -3145,9 +3182,11 @@
       "96D540F5-071D-4BBD-9906-28F0A64D39C4",
       "9DFD8F1E-922E-420D-AE00-F640A2EFF405",
       "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303",
+      "AC88C37A-901E-4CBB-947B-11348C208192",
       "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022",
       "B91BA046-BC1E-400C-B85D-638C1F4E0CE2",
       "BE7ECF50-52BC-4774-808D-574BA842DB98",
+      "BF08EA03-C52A-4364-B142-12EBCA7CA14A",
       "BF64ADD3-E70A-44CE-9C4B-E76BBED37550",
       "D42C4DF7-1AE9-4DDE-ADA2-774B866B798C",
       "DABEE8FD-AEDF-43E1-8547-4C97FA14D9B6",

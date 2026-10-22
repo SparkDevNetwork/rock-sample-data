@@ -38,12 +38,46 @@ namespace RockSampleData.Loader.Model
 
         public int LengthYears { get; set; }
 
+        /// <summary>
+        /// How many weeks before Commitment Sunday staff and lead givers pledge, as a range.
+        /// </summary>
+        public CampaignRange QuietPhaseWeeks { get; set; }
+
+        /// <summary>
+        /// How much of the pace each line follow-through gives: ahead, on-pace, behind, and stopped (until it stops).
+        /// </summary>
+        public Dictionary<string, decimal> LineFactors { get; set; } = new Dictionary<string, decimal>();
+
         public CampaignPledgeEntry PledgeEntry { get; set; }
 
         /// <summary>
         /// The contribution statement template whose pledge settings show the campaign.
         /// </summary>
         public Guid StatementTemplateGuid { get; set; }
+
+        /// <summary>
+        /// Commitment Sunday, the campaign's first day, for a load on <paramref name="anchor"/>.
+        /// </summary>
+        public DateTime CommitmentSunday( DateTime anchor )
+        {
+            var installSunday = anchor.Date.AddDays( -( int ) anchor.DayOfWeek );
+            return installSunday.AddDays( -7 * CommitmentSundayWeeksBeforeInstall );
+        }
+
+        /// <summary>
+        /// The campaign's last day.
+        /// </summary>
+        public DateTime End( DateTime commitmentSunday ) => commitmentSunday.AddYears( LengthYears ).AddDays( -1 );
+    }
+
+    /// <summary>
+    /// An inclusive whole-number range.
+    /// </summary>
+    internal sealed class CampaignRange
+    {
+        public int Min { get; set; }
+
+        public int Max { get; set; }
     }
 
     /// <summary>

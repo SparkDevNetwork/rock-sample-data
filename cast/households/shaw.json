@@ -41,6 +41,17 @@
       }
     }
   ],
+  "campaign": [
+    {
+      "person": "andrew",
+      "pledge": 1200,
+      "frequency": "bi-weekly",
+      "pledged": {
+        "weeksAfterCommitment": 24
+      },
+      "followThrough": "on-pace"
+    }
+  ],
   "members": [
     {
       "key": "andrew",

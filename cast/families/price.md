@@ -32,6 +32,7 @@ William and Catherine Price are among the church's most generous givers. They gi
 - **Attendance:** regular, 60% of Sundays, since 15 years ago.
 - **Giving:** **quarterly** by Bill Price: $6,000 General Fund + $2,500 Building Fund per gift, gives in 100% of periods, grows 3% every 52 weeks, 100% chance of a year-end gift, started 14 years ago, and Rock shows a large gift alert.
 - **Giving units:** the couple gives together as one giving unit.
+- **Built on the Rock:** Bill Price pledged $150,000 quarterly in the quiet phase, plus $25,000 in stock 30 weeks after Commitment Sunday, and the pledge is **ahead**.
 
 ## Address
 

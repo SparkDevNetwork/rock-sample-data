@@ -23,6 +23,7 @@ Saguaro Ridge Glass and Screen is a business owned by Bill Marble.
 
 - **Attendance:** none. A business does not attend.
 - **Giving:** **quarterly** by Bill Saguaro Ridge Glass and Screen: $1,000 Building Fund per gift, by check, gives in 100% of periods.
+- **Built on the Rock:** Bill Saguaro Ridge Glass and Screen pledged $16,000 quarterly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

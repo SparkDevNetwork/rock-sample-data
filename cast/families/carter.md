@@ -27,6 +27,7 @@ Peggy has attended for thirty years and always sits in the same row at the 9:00 
 
 - **Attendance:** regular, 90% of Sundays, 95% at their usual service, since 30 years ago.
 - **Giving:** **monthly** by Peggy Carter: $150 General Fund + $25 Mission Fund per gift, by check, gives in 100% of periods, 60% chance of a year-end gift, started 25 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
+- **Built on the Rock:** Peggy Carter pledged $5,000 one-time on Commitment Sunday, and the pledge is **complete**.
 
 ## Prayer requests
 

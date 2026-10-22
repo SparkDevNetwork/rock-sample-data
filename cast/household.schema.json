@@ -23,6 +23,7 @@
     "adultsGiveSeparately": { "type": "boolean", "description": "True when the married couple gives separately: each spouse is their own giving unit with their own giving patterns. Other adults living with a married couple (for example an adult child) always give on their own." },
     "attendance": { "$ref": "#/$defs/attendance" },
     "giving": { "type": "array", "items": { "$ref": "#/$defs/giving" } },
+    "campaign": { "type": "array", "items": { "$ref": "#/$defs/campaign" }, "description": "The household's part in the Built on the Rock building campaign (docs/pledges.md): pledges and campaign gifts. Weeks count from Commitment Sunday." },
     "members": { "type": "array", "items": { "$ref": "#/$defs/person" }, "minItems": 1 },
     "sharedMembers": {
       "type": "array",
@@ -120,6 +121,35 @@
             "alerts": { "type": "array", "items": { "enum": [ "large-gift", "smaller-than-usual", "late-gift" ] }, "description": "Alert types (keys from configuration/giving-alert-types.json) the giver must have at least one of in the alert history." }
           }
         }
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "required": [ "person" ],
+      "additionalProperties": false,
+      "properties": {
+        "person": { "type": "string", "description": "Member key of the pledger or giver. They must have a giving pattern." },
+        "pledge": { "type": "number", "exclusiveMinimum": 0, "description": "The pledge total. Left out, the entries in gifts are campaign gifts with no pledge." },
+        "frequency": { "enum": [ "one-time", "weekly", "bi-weekly", "monthly", "quarterly", "yearly" ], "description": "The pledge frequency. Left out, the pledge has none, as Rock allows. A weekly, bi-weekly, monthly, or quarterly pledge is given as a campaign line on the giver's usual gifts of that rhythm." },
+        "pledged": {
+          "description": "When the pledge was made: in the quiet phase before Commitment Sunday, on Commitment Sunday, or some weeks after. A late pledge starts the day it was made.",
+          "oneOf": [
+            { "enum": [ "quiet-phase", "commitment-sunday" ] },
+            { "type": "object", "required": [ "weeksAfterCommitment" ], "additionalProperties": false, "properties": { "weeksAfterCommitment": { "type": "integer", "minimum": 1 } } }
+          ]
+        },
+        "followThrough": { "enum": [ "paid-in-full", "ahead", "on-pace", "behind", "stopped", "not-started" ], "description": "How the gifts follow the pledge. Paid in full is one gift of the total the week after pledging. Stopped gives on pace until the giver's giving ends." },
+        "gifts": {
+          "type": "array",
+          "description": "Extra campaign gifts, given the way the giver usually gives, or as stock.",
+          "items": {
+            "type": "object",
+            "required": [ "weeksAfterCommitment", "amount" ],
+            "additionalProperties": false,
+            "properties": { "weeksAfterCommitment": { "type": "integer", "minimum": 0 }, "amount": { "type": "number", "exclusiveMinimum": 0 }, "stock": { "type": "boolean" } }
+          }
+        },
+        "expect": { "enum": [ "complete", "ahead", "on-pace", "behind", "stopped", "not-started", "gifts-only" ], "description": "The pledge state every load must show. Left out, it follows followThrough (paid in full is complete), or is gifts-only when there is no pledge." }
       }
     },
     "note": {
