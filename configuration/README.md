@@ -19,7 +19,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
 | `campaign.json` | The Built on the Rock building campaign: its fund, description, and dates, and the Rock settings that point at it. See [Pledges](../docs/pledges.md). |
-| `steps.json` | The adult Discipleship Path: its completion flow, its seven step types in path order, the prerequisite, and where each type's steps come from, with the class schedules and the designed rates. |
+| `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
 | `church-app.json` | A stub for the Rock Solid Church App, the sample church's mobile app. The loader does not read it yet. See [Communications](../docs/communications.md). |
 
 ## Service times
@@ -121,3 +121,5 @@ The sample church uses six statuses. Rock code refers to the system values by Gu
 ## Steps
 
 Rock's Discipleship Path is the adult step program, built out to seven step types (decisions 83 to 89). Rock's four types keep their Guids and are updated in place; Foundations, Give, and Lead are new. Each type's `source` names the record its steps come from: memberships (Small Group, Serve, Lead), the giving journey (Give), the Baptism Date (Baptism), or a class (Starting Point Class, Foundations), with the class schedule and its designed share of active adults. See [Steps](../docs/steps.md) for the design and the reasons.
+
+The Student Path is a second program in the same file (decisions 88 and D-student-path-1 to D-student-path-5). It is new, so it has its own Guid, its category (Rock's Discipleship category), its icon, and its own In Progress and Complete statuses. Its `students` rule names the student service's check-in groups from `checkin.json` and when a student has been attending. Its four types read student check-ins: `event` (Student Camp and Mission Trip, with each season's dates), `decision` (Follow Jesus, often at camp), and `school-years` (Student Leader, from a school year's start to graduation). Each has a `percentOfStudents`, the share of the students who could take it. The Baptism type's `students` rule says how students are baptized. Step type keys are unique across programs.

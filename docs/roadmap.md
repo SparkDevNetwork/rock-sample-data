@@ -33,6 +33,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - The public site (decisions 80 to 82; see [site/](../site/README.md)): why the sample data matters, Rock Solid Church and its building tour, a page for every Cast household, the datasets, how it's built, and how to contribute. It is built from the repository's own files with no packages, and the brand page offers the logo as SVG and PNG, the palette, and every photo set as a zip. The logo now has vector versions, redrawn from the approved artwork.
 - The adult Discipleship Path (decisions 83 to 87 and 89, 106 to 108; see [Steps](steps.md)). Rock's program is built out to seven steps from `configuration/steps.json`, and every step comes from a record the data already has: group and team memberships, the giving journey, baptism dates, and real class dates. Classes are in progress at every campus, and Rock's program completions are written the way its job does. The Cast's stories (Ted Decker's completion, the Gilberts and Bri Hall in Starting Point) are checked on every load, and new invariants tie each step to its source. Core 1 has 438 steps, 64 baptisms, and 4 program completions.
 - Pledges (decisions 97 to 105 and 109, and the ones added as it was built; see [Pledges](pledges.md)): Built on the Rock, a two-year building campaign about 38% through on install day, with its own fund and campus accounts, both pledge pages, and statement pledge settings. The Cast has 15 pledges and 3 givers with campaign gifts and no pledge, each story checked every load. Generated givers and businesses pledge at the profile's 12% of giving units, in every follow-through state, and validation grades the rate.
+- The Student Path (decisions 87, 88, and D-student-path-1 to D-student-path-5; see [Steps](steps.md)). A second step program, filed beside the Discipleship Path, with Student Camp, Follow Jesus, Mission Trip, and Student Leader. Its steps follow the student check-ins the data already has, on church-wide camp and trip dates, for designed shares of the students who could take each step. Students who decide to follow Jesus are often baptized a few months later on the Discipleship Path's Baptism step, and Rock's program completions are written for both programs. The Cast's stories (Ava Brooks at camp, Benjamin Lee's camps and trip, and Jasmine Washington's completed path) are checked on every load, and new invariants tie each student step to the student service. Jasmine's file now sets her graduation, so she checks in through her senior year. Core 1 has 13 steps on the Student Path, 3 student baptisms, and 1 Student Path completion.
 
 ## In progress
 
@@ -46,9 +47,8 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 1. **Close validation gaps.** First-time visitors run low and teens run low.
 2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-3. **Per-person attendance,** so a teen can attend more often than their parents.
+3. **Per-person attendance,** so a teen can attend more often than their parents. The Student Path does not wait for it: its steps follow whatever student check-ins exist (decision D-student-path-1).
 4. **Real Crowd names** from public-domain frequency data by birth decade.
-5. **The Student Path.** Build the four student steps in [Steps](steps.md) (decision 88) once per-person attendance shows which teens come to the student service.
 
 ## To do (parked)
 

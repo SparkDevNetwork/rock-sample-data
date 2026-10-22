@@ -1,6 +1,6 @@
 # Steps
 
-Steps in the sample data, and why. The adult Discipleship Path is built. The Student Path is still a plan: it waits for attendance per person, so a student can come to the student service on their own rhythm. The decisions are 83 to 89 and 106 to 108 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
+Steps in the sample data, and why. Both programs are built: the adult Discipleship Path and the Student Path. The decisions are 83 to 89, 106 to 108, and D-student-path-1 to D-student-path-5 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
 
 ## The idea
 
@@ -50,17 +50,18 @@ Seven steps, in the Ministry by Design order. The completion flow is Rock's **Li
 
 Most published pathways treat giving as an outcome, not a step. Ministry by Design lists generosity under Contribute, though, and the sample data already has a full giving journey for every giver. So Give is a step (decision 85). It starts the week a giver becomes Consistent and ends the week they become Lapsed or Former (decision 108). A giver who comes back gets a new Give step.
 
-## Student program: Student Path (planned)
+## Student program: Student Path
 
-Four steps, the same arc in a smaller form. It is for students who check in to the student service. The completion flow is Linear (Preferred), with no prerequisites.
+Four steps, the same arc in a smaller form, for students who check in to the student service. It is a new program, filed in the same Discipleship category as Rock's program, with its own In Progress and Complete statuses, because a Rock status belongs to one program (decision D-student-path-2). The completion flow is Linear (Preferred), with no prerequisites.
 
-| # | Step | Stage | Kind | Objective | Impact | Notes |
+| # | Step | Stage | Kind | Objective | Impact | Where it comes from |
 |---|---|---|---|---|---|---|
-| 1 | Student Camp | Belong | Rhythm, one per summer | Outreach | 3 | A week in June or July. Often a student's first step. |
+| 1 | Student Camp | Belong | Rhythm, one per summer | Outreach | 3 | A week of camp in late June. Often a student's first step. |
 | 2 | Follow Jesus | Equip | Milestone | Discipleship | 5 | The decision to follow Jesus, often made at camp |
-| 3 | Mission Trip | Contribute | Rhythm, can repeat | Activation | 4 | High school only. A week over spring break or in the summer. |
-| 4 | Student Leader | Lead | Rhythm | Activation | 5 | Juniors and seniors who help lead younger students |
+| 3 | Mission Trip | Contribute | Rhythm, can repeat | Activation | 4 | High school only. A week over spring break or in July. |
+| 4 | Student Leader | Lead | Rhythm | Activation | 5 | Juniors and seniors who help lead younger students, from August until graduation |
 
+- Each type gets a description, an icon, a highlight color, and a call to action, like the new adult types.
 - **Baptism stays in one place.** A church has one Baptism step type, so a student's baptism goes on the Discipleship Path's Baptism step (decision 87). It still shows on the student's Steps tab.
 - **No group step yet.** Small groups are adults only today. When student groups exist, the Student Path can add one.
 - **Graduates keep their history.** A student who graduates keeps their Student Path steps.
@@ -100,10 +101,48 @@ Who takes a class, in this order:
 - **Who.** 85% of volunteers and leaders, enough other active adults to reach 60% of active adults, and 20% of other adults. The Cast and the generated households each reach 60% on their own, so the Cast's baptisms are the same in every dataset.
 - **Baptized Here.** About half of the planned baptisms are here, after the household's first visit. 85% of those fall on a baptism Sunday: Easter, or the third Sunday of July. The rest are any Sunday. A baptism elsewhere comes before the first visit, or before the history window when the household came before it. Rock's Baptized Here is set on the Baptism step and on the person, and the two agree. A Cast baptism is here only when it came after the household's known first visit.
 
-### Campus and program completions
+## How student steps are made
+
+Student steps come from the student check-ins the attendance step already writes (decision D-student-path-1). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those Attendance rows back from the database. It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
+
+### Who is a student
+
+- **A student** is a child who checked in to the student service. Their grade on a day comes from their graduation year and moves up each June 1, the way Rock's check-in does. So a camp in late June counts a rising 9th grader as a 9th grader.
+- **Attending.** A student has been attending on a day when they checked in to the student service at least twice in the 120 days before it. A rising 7th grader has not been to the student service yet, so they wait for next summer's camp.
+- **The window.** Student steps fall inside the dataset's history window and are never dated after the install day. A student who graduates keeps their steps.
+
+### Dates
+
+Camps and trips are church-wide events on fixed days of the year, so everyone at one camp shares its dates (decision D-student-path-2).
+
+| Step | When | Status |
+|---|---|---|
+| Student Camp | Monday to Friday of the fourth week of June | Complete, from camp's first day to its last |
+| Follow Jesus | A day of a camp the student went to, or a Sunday they checked in, often Easter | Complete, on that day |
+| Mission Trip | Saturday to Saturday, from the second Saturday of March (spring break) or of July | Complete, from the trip's first day to its last |
+| Student Leader | From the first Sunday of August of the first school year a junior or senior is attending, to graduation on the fourth Friday of May | Complete from its start (decision 86), with an empty end date while they are still in school |
+
+### Who takes each step
+
+Each step is a share of the students who could take it, counted for the Cast and the generated households on their own (decision D-student-path-2). A Cast story counts toward its share. A dataset has only a few dozen students, so chances drawn person by person would wander far from the designed rates. The Cast's share depends only on the Cast, so the Cast's student steps are the same in every dataset, as its baptisms are.
+
+- **Student Camp.** 45% of the students who could go to a camp go once, in one of those summers. In each later summer they could go, they go again 60% of the time.
+- **Follow Jesus.** 30% of students make the decision once. A student who went to camp makes it there 70% of the time. Otherwise it falls on a Sunday they checked in: Easter 30% of the time when they came that Easter, and another of their Sundays otherwise.
+- **Mission Trip.** 20% of the high school students who could go on a trip go on one. In each later year they could go, they go on another 25% of the time.
+- **Student Leader.** 10% of the juniors and seniors who could lead do, from the first August they could.
+
+### Student baptisms
+
+A student's baptism goes on the Discipleship Path's Baptism step, with the Baptism Date and Baptized Here agreeing, as every baptism does (decisions 87 and D-student-path-3).
+
+- **After a decision.** 60% of the students with a Follow Jesus step are baptized here on the first baptism Sunday at least 60 days after it. When that Sunday has not come yet, the student is not baptized yet, as in a real church.
+- **Other students.** 10% of the other students are baptized here on a baptism Sunday after they started coming to the student service.
+- **Rules.** A student is 12 or older when baptized. A Baptism Date in a Cast file is kept as it is. The adult rates above are unchanged, because students are not adults.
+
+## Campus and program completions
 
 - **Campus.** Every step's campus is the person's campus, and every step is on their primary alias.
-- **Program completions.** A person whose Complete steps cover all seven step types gets a program completion, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install.
+- **Program completions.** A person whose Complete steps cover every step type in a program gets a completion for that program, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install, in either program.
 
 ## How many
 
@@ -115,27 +154,46 @@ The rates are designed targets, not measured ones (decision 89). The sample chur
 | Small Group, Serve, Give, Lead | Everyone whose records show it |
 | Baptism | About 60% of active adults, about half of them baptized here |
 | Foundations | About 20% of active adults |
-| Student Camp (planned) | About 45% of students, once for each summer they were in the student ministry |
-| Follow Jesus (planned) | About 30% of students |
-| Mission Trip (planned) | About 20% of high school students |
-| Student Leader (planned) | About 10% of juniors and seniors |
+| Student Camp | About 45% of the students who could go, once, and again in 60% of their later summers |
+| Follow Jesus | About 30% of students |
+| Mission Trip | About 20% of the high school students who could go, and again in 25% of their later years |
+| Student Leader | About 10% of the juniors and seniors who could lead |
+| Student baptisms | About 60% of the students with a Follow Jesus step, once a baptism Sunday has come, and 10% of other students |
 
 An active adult is an adult on an active record who attended, gave, or was in a small group in the last year, the same rule prayer uses.
 
-What each dataset loads, at the anchor 2026-10-21 and the default seed:
+What each dataset loads, at the anchor 2026-10-22 and the default seed:
 
 | Step | Core 1 and Full 7 | Core 3 |
 |---|---|---|
 | Starting Point Class | 51 (3 in progress) | 89 (7 in progress) |
-| Small Group | 171 | 302 |
-| Baptism | 64 | 126 |
+| Small Group | 171 | 303 |
+| Baptism | 67 (3 of them students) | 131 (5 of them students) |
 | Foundations | 23 (3 in progress) | 37 (8 in progress) |
 | Serve | 49 (1 in progress) | 83 (3 in progress) |
 | Give | 60 | 77 |
 | Lead | 20 | 48 |
-| Program completions | 4 | 4 |
+| Discipleship Path completions | 4 | 4 |
+| Student Camp | 6 (5 students) | 11 (10 students) |
+| Follow Jesus | 4 | 9 |
+| Mission Trip | 2 | 3 |
+| Student Leader | 1 | 1 |
+| Student Path completions | 1 | 1 |
 
 Core 1 and Full 7 load the same people here, because Full 7's crowd is added with `--crowd`. Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 66% of the generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the other three come from the same rules.
+
+Core 1 has 13 students and Core 3 has 29. The load prints each share as people who took the step of those who could:
+
+| Share | Core 1 and Full 7 | Core 3 |
+|---|---|---|
+| Student Camp | 5 of 12 | 10 of 24 |
+| Follow Jesus | 4 of 13 | 9 of 29 |
+| Mission Trip | 2 of 8 | 3 of 14 |
+| Student Leader | 1 of 3 | 1 of 7 |
+| Baptized after a decision | 2 of 3 | 3 of 5 |
+| Other students baptized | 1 of 8 | 2 of 19 |
+
+Shares are rounded within the Cast and within the generated households, and a Cast story counts even past its share. So the small Cast has two mission trips (Benjamin Lee's and Jasmine Washington's stories) where 20% of 8 rounds to 2, and one Student Leader (Jasmine's story) where 10% of 3 rounds to none. Jasmine's completion is the one her story needs.
 
 ## The Cast's stories
 
@@ -144,21 +202,22 @@ Core 1 and Full 7 load the same people here, because Full 7's crowd is added wit
 | Ted Decker | The whole Discipleship Path, with a program completion. Baptized 22 years ago, in a small group, giving monthly, and leading the Production Team. | Built, checked every load |
 | Brian and Wendy Gilbert | Starting Point Class In Progress. The greeters team asks for it first, which explains why their request to greet together is still In Progress. | Built, checked every load |
 | Bri Hall | Starting Point Class last month, and a Serve step In Progress while she waits as a Pending greeter. The class met on weeknights, so she still has not come on a Sunday. | Built, checked every load |
-| Ava Brooks | Student Camp last summer, where she made a Follow Jesus decision. | Planned |
-| Benjamin Lee | Two summers of Student Camp and a mission trip last spring. | Planned |
-| Jasmine Washington | The whole Student Path, with a program completion. | Planned |
+| Ava Brooks | Student Camp last summer, where she made a Follow Jesus decision. | Built, checked every load |
+| Benjamin Lee | Two summers of Student Camp and a mission trip last spring. | Built, checked every load |
+| Jasmine Washington | The whole Student Path, with a program completion. She graduated this past May, sang on the student worship team, and led younger students until graduation. | Built, checked every load |
 
-Each built story is a Cast expectation (`expect.steps` in the household file), so every load checks it against the loaded data. See [Validation](../validation/README.md#cast-expectations).
+Each story is a Cast expectation (`expect.steps` in the household file), so every load checks it against the loaded data. See [Validation](../validation/README.md#cast-expectations). A story sets the steps it needs in the person's `steps`: a class by how many classes ago it was, a camp or trip by its season and how many years back from the latest one held, or `taken` to let the usual rules date it (decision D-student-path-5). Ava's camp and decision name last summer's camp, Benjamin's name the last two camps and the last spring trip, and Jasmine's four steps are `taken`, so they hold on any install day.
+
+Jasmine's household file now sets her graduation as a relative date, this past May. Before, she had no graduation year in the loader, because a grade is derived only for ages 5 to 17, so she never checked in. Now a child whose file sets a graduation keeps that year, and she checks in to the student service through her senior year (decision D-student-path-4).
 
 ## How it is checked
 
 - **Cast expectations,** on every load and in the verify tool: the stories above.
-- **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job; and every step has the date keys, status, alias, and campus Rock expects.
+- **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job in both programs; and every step has the date keys, status, alias, and campus Rock expects. For the Student Path: every student step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then; Mission Trip is high school only and Student Leader juniors and seniors only; Follow Jesus and Student Leader happen at most once, and Student Leader ends at graduation or stays open while the student is in school; a child's baptism is here, on a Sunday, after they started coming to the student service; and no step is dated after the install day.
 - **Rock Cleanup** as a referee finds nothing to fix.
 
 ## Later
 
-- **The Student Path,** when attendance per person exists.
 - **eRA steps** in Rock's Core Steps program, from the attendance the data already has.
 - **Links to learning and events.** When learning (LMS) and event registrations are built, Foundations can link to a learning class, and Student Camp and Mission Trip to a registration.
 - **Student small groups,** which would add a group step to the Student Path.

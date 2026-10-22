@@ -124,7 +124,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `emails-use-reserved-domains` | Content standard 3, for every loaded email. |
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
-| `nothing-dated-in-the-future` | A future gift or check-in shows up in "upcoming" places. |
+| `nothing-dated-in-the-future` | A future gift, check-in, or step shows up in "upcoming" places. |
 | `transaction-has-positive-details` | Rock totals a gift from its details. |
 | `transaction-is-inside-its-batch` | A gift outside its batch's date range lands in the wrong batch report. |
 | `member-role-belongs-to-the-group-type` | Rock allows only roles of the group's type, and the database does not enforce it. |
@@ -136,7 +136,10 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
 | `serve-step-follows-starting-point` | Rock's prerequisite: every Serve step has a Starting Point Class completed before it. |
 | `give-step-agrees-with-journey-stage` | A giver Rock shows as Consistent has an open Give step, and an open Give step belongs to a Consistent or Occasional giver. |
-| `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install. |
+| `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install, in any program the dataset has steps in. |
+| `student-step-belongs-to-a-student` | Every Student Path step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then. Mission Trip is high school only, and Student Leader is juniors and seniors only. |
+| `student-path-decisions-and-leaders` | Follow Jesus and Student Leader happen at most once per person. Student Leader ends at graduation in May, or stays open while the student is still in school. |
+| `student-baptism-follows-the-student-service` | A child's baptism is here, on a Sunday, after they started coming to the student service. |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
 

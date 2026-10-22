@@ -174,8 +174,8 @@ namespace RockSampleData.Loader.Loading
                         10/22/26 - CLAUDE
 
                         A grade is derived only for ages 5 to 17, so a child who just graduated (Jasmine Washington)
-                        had no graduation year here, though Rock showed the one in her file. Now a child whose file
-                        sets a graduation keeps that year, and attendance checks her in through her senior year.
+                        had no graduation year and never checked in. Now a child whose file sets a graduation keeps
+                        that year, and attendance checks them in by grade until they graduate.
 
                         Reason: Check-in and the Student Path follow a recent graduate's real school years (decision D-student-path-4).
                     */
