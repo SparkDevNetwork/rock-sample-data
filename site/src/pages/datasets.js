@@ -27,6 +27,8 @@ const inside = [
     [ "Serving and scheduling", "Eight teams per campus, with rotations, preferences, blackout dates, six weeks of future schedules, and volunteer check-in." ],
     [ "Connections", "Requests to serve that follow each household's journey, with activities and placements." ],
     [ "Prayer", "Requests in every state, the prayer team's prayers and comments, and the Cast's own requests tied to their stories." ],
+    [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions." ],
+    [ "Steps", "Rock's Discipleship Path built out to seven steps, each made from a record the data already has, with classes in progress at every campus and program completions." ],
     [ "Achievements", "The Kids Check-in streak and its seven achievements, so check-in shows real progress." ],
     [ "Businesses", "Businesses at every campus that give, each with one or two contacts." ]
 ];

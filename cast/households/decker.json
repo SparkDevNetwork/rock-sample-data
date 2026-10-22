@@ -13,6 +13,7 @@
     "Two adults and two children; kids check-in with an allergy attribute.",
     "Monthly giver across two funds, by recurring credit card.",
     "Small group leader and serving team member.",
+    "Completes the whole Discipleship Path, with a program completion.",
     "Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert."
   ],
   "address": {
@@ -130,6 +131,25 @@
           "day": 2
         },
         "PersonalityType": "ID"
+      },
+      "steps": {
+        "foundations": {
+          "taken": true
+        }
+      },
+      "expect": {
+        "steps": {
+          "complete": [
+            "starting-point-class",
+            "small-group",
+            "baptism",
+            "foundations",
+            "serve",
+            "give",
+            "lead"
+          ],
+          "programCompletion": true
+        }
       },
       "logins": [
         "tdecker"

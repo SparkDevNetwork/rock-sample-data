@@ -50,7 +50,7 @@ On the develop branch, new migrations land often, so the check would block devel
 
 Any failure stops the load before it writes anything.
 
-The load runs these steps in order: configuration (with the small group setup), people (with business contacts), photos, Sunday attendance, achievements, small groups, giving, giving analytics, giving alerts, notes, Cast and business expectations, and check images.
+The load runs these steps in order: configuration (with the small group, serving, and connection setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving, giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images.
 
 ## What makes a load repeatable
 
@@ -75,6 +75,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:connections:{campus}` | Who asks to serve at that campus, and each request's dates, status, connector, and activities |
 | `{seed}:addresses:{campus}` | The order of addresses per campus |
 | `{seed}:photos:{campus}` | Which pool faces go to which households |
+| `{seed}:steps:...` | Who is baptized and when, and who takes Starting Point Class and Foundations in which class |
 | `{seed}:check:{transaction id}` | One check image's handwriting and stamp angle |
 
 `generation/SeededRandom.cs` turns each name into a number with a fixed text hash (FNV-1a) and seeds .NET's `Random` with it. So the same name gives the same draws on every machine, a change to one family changes no other family, and the order of the steps does not matter.
@@ -258,6 +259,7 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Connection requests to serve: connected, Pending, active, inactive, future follow-up, and transferred, with activities and default connectors, in the measured mix | Done |
 | Prayer requests with an active prayer team: approvals, prayers, flags, comments, answers, and Rock Cleanup's daily counts | Done |
 | Notes on people: six note types with View security, hand-written Cast notes, and generated notes with replies, alerts, private and pinned notes, and mentions | Done |
+| Adult steps: Rock's Discipleship Path built out to seven step types, with steps from memberships, the giving journey, the Baptism Date, and class schedules, and program completions the way Rock's job records them. See [How steps load](#how-steps-load). | Done |
 | Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
 | People, the rest: person attributes, logins, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
@@ -275,6 +277,19 @@ Then it writes every note in one bulk copy with explicit Ids, so replies point a
 Notes are stored the way Rock's note editor saves them: approved, with `EditedDateTime` set, a private note's caption set to Rock's "You - Personal Note", and text as HTML. A mention is Rock's `<span class="mention" data-identifier="...">` with the staff member's alias IdKey, which is keyed by the server's DataEncryptionKey. Without a web.config, mentions are plain names. `NotificationsSent` and `ApprovalsSent` are set, so Rock's Send Note Notifications job never emails staff about old sample notes.
 
 Speed: Full 7 writes about 61,000 notes and replies in about one second.
+
+## How steps load
+
+`loading/StepsLoader.cs` sets up Rock's Discipleship Path from `../configuration/steps.json`, and `generation/StepPlanner.cs` plans every step. The design is in [Steps](../docs/steps.md).
+
+1. **The program.** Rock's program and its Baptism, Starting Point Class, Serve, and Small Group types are updated in place, by Guid: order, engagement type, impact weight, organizational objective, icon, and color. Foundations, Give, and Lead are added with a description and a call to action. The completion flow becomes Linear (Preferred), and Rock's prerequisite (Serve after Starting Point Class) stays.
+2. **The facts.** Small group and serving team memberships are read back from the database, so each step has its membership's dates exactly. A membership ends the day the person left, or the day the group ended while they were in it. Gifts come from the list the giving analytics replayed, so Give steps agree with the journey stage Rock shows. Active adults use the prayer step's rule.
+3. **The plan.** Each step type's `source` picks one planner method: `membership` (one step per membership, In Progress while a volunteer is Pending), `giving-journey` (Rock's stage rule run every Tuesday night over the history window), `baptism` (the Cast's dates, and generated adults at the designed rates), and `class` (Starting Point Class and Foundations on their class schedules). Classes are planned last, because they are dated from the other steps. Program completions follow Rock's Update Step Program Completions job.
+4. **The rows.** Program completions, then steps with explicit Ids that point at their completion, then attribute values: the Baptism Date and Baptized Here on the person, and Baptized Here on each Baptism step. Steps carry the date keys Rock's model fills, the person's primary alias and campus, and the group as the related entity.
+
+A Cast story can name a class in its household file (`steps`), and the planner fails the load when that class cannot hold against the person's other records, such as a Starting Point Class after their first Serve step.
+
+Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 
 ## Check images
 

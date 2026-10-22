@@ -7,10 +7,11 @@
   "kind": "family",
   "origin": "legacy-1.14.1",
   "campusSlot": "main",
-  "story": "Brian and Wendy Gilbert host a small group in their home and both asked to serve together as greeters.",
+  "story": "Brian and Wendy Gilbert host a small group in their home and both asked to serve together as greeters. The greeters team asks for Starting Point first, so they are taking the class now and their requests are still In Progress.",
   "testPurposes": [
     "Couple with matching connection requests to serve together.",
-    "Small group that meets in their home."
+    "Small group that meets in their home.",
+    "Starting Point Class In Progress, which Serve requires first, so the requests to serve wait on it."
   ],
   "address": {
     "type": "home",
@@ -27,7 +28,7 @@
       "guid": "92D04619-3F97-4EFF-932E-61DA56441995",
       "firstName": "Brian",
       "lastName": "Gilbert",
-      "bio": "Brian works at the Valley Water District. He and his wife Wendy host a small group and have both asked to serve together as greeters.",
+      "bio": "Brian works at the Valley Water District. He and his wife Wendy host a small group and have both asked to serve together as greeters. The greeters team asks for Starting Point first, so they are taking the class now and their requests are still In Progress.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {
@@ -55,6 +56,19 @@
       "attributes": {
         "Employer": "Valley Water District",
         "Position": "Office Clerk"
+      },
+      "steps": {
+        "starting-point-class": {
+          "classesAgo": 0
+        }
+      },
+      "expect": {
+        "steps": {
+          "inProgress": [
+            "starting-point-class"
+          ],
+          "programCompletion": false
+        }
       },
       "connectionRequests": [
         {
@@ -102,6 +116,19 @@
       "attributes": {
         "Employer": "Valley Water District",
         "Position": "District Manager"
+      },
+      "steps": {
+        "starting-point-class": {
+          "classesAgo": 0
+        }
+      },
+      "expect": {
+        "steps": {
+          "inProgress": [
+            "starting-point-class"
+          ],
+          "programCompletion": false
+        }
       },
       "connectionRequests": [
         {

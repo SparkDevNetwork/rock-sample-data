@@ -207,3 +207,159 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR [n].[EditedDateTime] IS NULL
         OR [n].[CreatedByPersonAliasId] IS NULL
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
+
+-- check: step-matches-its-membership
+-- why: A Small Group, Serve, or Lead step records one membership (decision 86): same person, group, and dates, In Progress only while the member is Pending. And every membership that counts has its step.
+WITH [Memberships] AS (
+    SELECT [p].[PrimaryAliasId], [gm].[GroupId], [gt].[Guid] AS [GroupTypeGuid], [r].[IsLeader], [gm].[GroupMemberStatus], [gm].[DateTimeAdded],
+        CASE WHEN [gm].[GroupMemberStatus] = 0 OR [gm].[IsArchived] = 1 THEN ISNULL( [gm].[InactiveDateTime], [gm].[ArchivedDateTime] ) END AS [MemberEnded],
+        CASE WHEN [g].[IsActive] = 0 OR [g].[IsArchived] = 1 THEN ISNULL( [g].[InactiveDateTime], [g].[ArchivedDateTime] ) END AS [GroupEnded]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    WHERE [gm].[ForeignKey] = @ForeignKey
+        AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
+),
+[Expected] AS (
+    SELECT [PrimaryAliasId], [GroupId], CAST( 'EFA15A4F-5666-4153-B92F-AF3ECD73C504' AS UNIQUEIDENTIFIER ) AS [StepTypeGuid], [DateTimeAdded], [MemberEnded], [GroupEnded], 0 AS [IsInProgress]
+    FROM [Memberships] WHERE [GroupTypeGuid] = '50FCFB30-F51A-49DF-86F4-2B176EA1820B' AND [GroupMemberStatus] <> 2
+    UNION ALL
+    SELECT [PrimaryAliasId], [GroupId], CAST( '71E66730-8F7D-4EEF-9C53-524C4BDE5E59' AS UNIQUEIDENTIFIER ), [DateTimeAdded], [MemberEnded], [GroupEnded], CASE WHEN [GroupMemberStatus] = 2 THEN 1 ELSE 0 END
+    FROM [Memberships] WHERE [GroupTypeGuid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4'
+    UNION ALL
+    SELECT [PrimaryAliasId], [GroupId], CAST( 'CFF0E432-3AB6-4290-8F6E-C1A3D8D8F375' AS UNIQUEIDENTIFIER ), [DateTimeAdded], [MemberEnded], [GroupEnded], 0
+    FROM [Memberships] WHERE [IsLeader] = 1 AND [GroupMemberStatus] <> 2
+),
+[ExpectedSteps] AS (
+    SELECT [PrimaryAliasId], [GroupId], [StepTypeGuid], [DateTimeAdded], [IsInProgress],
+        CASE WHEN [MemberEnded] IS NULL THEN [GroupEnded] WHEN [GroupEnded] IS NULL OR [MemberEnded] < [GroupEnded] THEN [MemberEnded] ELSE [GroupEnded] END AS [Ended]
+    FROM [Expected]
+),
+[Steps] AS (
+    SELECT [s].[PersonAliasId], [s].[RelatedEntityId], [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [s].[EndDateTime], CASE WHEN [ss].[IsCompleteStatus] = 1 THEN 0 ELSE 1 END AS [IsInProgress]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+    WHERE [s].[ForeignKey] = @ForeignKey
+        AND [st].[Guid] IN ( 'EFA15A4F-5666-4153-B92F-AF3ECD73C504', '71E66730-8F7D-4EEF-9C53-524C4BDE5E59', 'CFF0E432-3AB6-4290-8F6E-C1A3D8D8F375' )
+)
+SELECT ( SELECT COUNT(*) FROM [Steps] AS [s] WHERE NOT EXISTS (
+            SELECT 1 FROM [ExpectedSteps] AS [e]
+            WHERE [e].[PrimaryAliasId] = [s].[PersonAliasId] AND [e].[GroupId] = [s].[RelatedEntityId] AND [e].[StepTypeGuid] = [s].[StepTypeGuid]
+                AND [e].[DateTimeAdded] = [s].[StartDateTime] AND ISNULL( [e].[Ended], '9999-01-01' ) = ISNULL( [s].[EndDateTime], '9999-01-01' ) AND [e].[IsInProgress] = [s].[IsInProgress] ) )
+    + ( SELECT COUNT(*) FROM [ExpectedSteps] AS [e] WHERE NOT EXISTS (
+            SELECT 1 FROM [Steps] AS [s]
+            WHERE [e].[PrimaryAliasId] = [s].[PersonAliasId] AND [e].[GroupId] = [s].[RelatedEntityId] AND [e].[StepTypeGuid] = [s].[StepTypeGuid] AND [e].[DateTimeAdded] = [s].[StartDateTime] ) );
+
+-- check: step-looks-saved-by-rock
+-- why: Rock's step model fills the date keys from the dates, a Complete step has a completion date and an In Progress one has none, and the sample data puts every step on the person's primary alias and campus.
+SELECT COUNT(*)
+FROM [Step] AS [s]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [s].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( [s].[StartDateKey], 0 ) <> ISNULL( CONVERT( INT, FORMAT( [s].[StartDateTime], 'yyyyMMdd' ) ), 0 )
+        OR ISNULL( [s].[EndDateKey], 0 ) <> ISNULL( CONVERT( INT, FORMAT( [s].[EndDateTime], 'yyyyMMdd' ) ), 0 )
+        OR ISNULL( [s].[CompletedDateKey], 0 ) <> ISNULL( CONVERT( INT, FORMAT( [s].[CompletedDateTime], 'yyyyMMdd' ) ), 0 )
+        OR ( [ss].[IsCompleteStatus] = 1 AND [s].[CompletedDateTime] IS NULL )
+        OR ( [ss].[IsCompleteStatus] = 0 AND [s].[CompletedDateTime] IS NOT NULL )
+        OR [s].[StartDateTime] IS NULL
+        OR ISNULL( [s].[CampusId], 0 ) <> ISNULL( [p].[PrimaryCampusId], 0 )
+        OR [s].[PersonAliasId] <> [p].[PrimaryAliasId] );
+
+-- check: baptism-step-agrees-with-baptism-date
+-- why: The Baptism step and Rock's Baptism Date person attribute always agree, and the step's Baptized Here matches the person's.
+WITH [Dates] AS (
+    SELECT [av].[EntityId] AS [PersonId], [av].[ValueAsDateTime]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+    WHERE [a].[Guid] = 'D42763FA-28E9-4A55-A25A-48998D7D7FEF' AND [p].[ForeignKey] = @ForeignKey AND ISNULL( [av].[Value], '' ) <> ''
+),
+[Baptisms] AS (
+    SELECT [pa].[PersonId], [s].[Id], [s].[StartDateTime], [s].[CompletedDateTime]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] = @ForeignKey
+),
+[Here] AS (
+    SELECT [b].[Id],
+        ( SELECT [av].[Value] FROM [AttributeValue] AS [av] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] WHERE [a].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [b].[Id] ) AS [OnStep],
+        ( SELECT [av].[Value] FROM [AttributeValue] AS [av] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] WHERE [a].[Guid] = '87986F92-4AC3-49D2-9753-328588F3BB7A' AND [av].[EntityId] = [b].[PersonId] ) AS [OnPerson]
+    FROM [Baptisms] AS [b]
+)
+SELECT ( SELECT COUNT(*) FROM [Dates] AS [d] WHERE NOT EXISTS ( SELECT 1 FROM [Baptisms] AS [b] WHERE [b].[PersonId] = [d].[PersonId] AND [b].[StartDateTime] = [d].[ValueAsDateTime] AND [b].[CompletedDateTime] = [d].[ValueAsDateTime] ) )
+    + ( SELECT COUNT(*) FROM [Baptisms] AS [b] WHERE NOT EXISTS ( SELECT 1 FROM [Dates] AS [d] WHERE [d].[PersonId] = [b].[PersonId] AND [d].[ValueAsDateTime] = [b].[StartDateTime] ) )
+    + ( SELECT COUNT(*) FROM [Here] WHERE [OnStep] IS NULL OR [OnPerson] IS NULL OR [OnStep] <> [OnPerson] );
+
+-- check: serve-step-follows-starting-point
+-- why: Rock's one Discipleship Path prerequisite: Serve needs a completed Starting Point Class first (decision 84). Every volunteer has one before their Serve step starts.
+SELECT COUNT(*)
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+WHERE [st].[Guid] = '71E66730-8F7D-4EEF-9C53-524C4BDE5E59' AND [s].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [Step] AS [c]
+        INNER JOIN [StepType] AS [ct] ON [ct].[Id] = [c].[StepTypeId]
+        INNER JOIN [StepStatus] AS [cs] ON [cs].[Id] = [c].[StepStatusId]
+        WHERE [ct].[Guid] = 'F3585131-3EBF-49C4-83A0-3F88271A9B9B' AND [c].[PersonAliasId] = [s].[PersonAliasId]
+            AND [cs].[IsCompleteStatus] = 1 AND [c].[CompletedDateTime] < [s].[StartDateTime] );
+
+-- check: give-step-agrees-with-journey-stage
+-- why: A Give step runs from the week a giver becomes Consistent to the week they become Lapsed or Former (decision 85). So a giver Rock shows as Consistent has an open Give step, and an open Give step belongs to a Consistent or Occasional giver.
+WITH [Stages] AS (
+    SELECT [p].[PrimaryAliasId], [av].[Value] AS [Stage]
+    FROM [Person] AS [p]
+    INNER JOIN [AttributeValue] AS [av] ON [av].[EntityId] = [p].[Id]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [a].[Guid] = '13C55AEA-6D88-4470-B3AE-EE5138F044DF' AND [p].[ForeignKey] = @ForeignKey
+        AND [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BF64ADD3-E70A-44CE-9C4B-E76BBED37550' )
+),
+[OpenGive] AS (
+    SELECT DISTINCT [s].[PersonAliasId]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    WHERE [st].[Guid] = 'CE640CD3-DD6E-4BF3-ADDD-953F086E6E14' AND [s].[ForeignKey] = @ForeignKey AND [s].[EndDateTime] IS NULL
+)
+SELECT ( SELECT COUNT(*) FROM [Stages] AS [x] WHERE [x].[Stage] = '2' AND NOT EXISTS ( SELECT 1 FROM [OpenGive] AS [o] WHERE [o].[PersonAliasId] = [x].[PrimaryAliasId] ) )
+    + ( SELECT COUNT(*) FROM [OpenGive] AS [o] WHERE NOT EXISTS ( SELECT 1 FROM [Stages] AS [x] WHERE [x].[PrimaryAliasId] = [o].[PersonAliasId] AND [x].[Stage] IN ( '2', '3' ) ) );
+
+-- check: program-completions-follow-rocks-rule
+-- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type, dated from those steps, and points every step of theirs in the program at it. Rock's job must find nothing to add or fix after install.
+WITH [Program] AS (
+    SELECT [Id] FROM [StepProgram] WHERE [Guid] = 'A31AE259-885E-4ACE-B8B6-56000F58EA3B'
+),
+[PeopleWithAllSteps] AS (
+    SELECT [s].[PersonAliasId],
+        MIN( COALESCE( [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [StartDateTime],
+        MAX( COALESCE( [s].[CompletedDateTime], [s].[EndDateTime] ) ) AS [EndDateTime],
+        MAX( [s].[CampusId] ) AS [CampusId]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId] AND [ss].[IsCompleteStatus] = 1
+    WHERE [st].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [s].[ForeignKey] = @ForeignKey
+    GROUP BY [s].[PersonAliasId]
+    HAVING COUNT( DISTINCT [s].[StepTypeId] ) = ( SELECT COUNT(*) FROM [StepType] WHERE [StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [IsActive] = 1 )
+),
+[Completions] AS (
+    SELECT [c].[Id], [c].[PersonAliasId], [c].[StartDateTime], [c].[EndDateTime], [c].[CampusId], [c].[StartDateKey]
+    FROM [StepProgramCompletion] AS [c]
+    WHERE [c].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [c].[ForeignKey] = @ForeignKey
+)
+SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
+            SELECT 1 FROM [Completions] AS [c]
+            WHERE [c].[PersonAliasId] = [w].[PersonAliasId] AND [c].[StartDateTime] = [w].[StartDateTime] AND ISNULL( [c].[EndDateTime], '9999-01-01' ) = ISNULL( [w].[EndDateTime], '9999-01-01' )
+                AND ISNULL( [c].[CampusId], 0 ) = ISNULL( [w].[CampusId], 0 ) AND [c].[StartDateKey] = CONVERT( INT, FORMAT( [w].[StartDateTime], 'yyyyMMdd' ) ) ) )
+    + ( SELECT COUNT(*) FROM [Completions] AS [c] WHERE NOT EXISTS ( SELECT 1 FROM [PeopleWithAllSteps] AS [w] WHERE [w].[PersonAliasId] = [c].[PersonAliasId] ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [PersonAliasId] FROM [Completions] GROUP BY [PersonAliasId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*)
+        FROM [Step] AS [s]
+        INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+        LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
+        WHERE [st].[StepProgramId] = ( SELECT [Id] FROM [Program] ) AND [s].[ForeignKey] = @ForeignKey
+            AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );

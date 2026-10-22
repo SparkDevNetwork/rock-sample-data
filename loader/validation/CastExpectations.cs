@@ -127,6 +127,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAchievements( db, source, failures );
 
+            checks += CheckSteps( db, source, failures );
+
             checks += CheckBusinesses( db, source, failures );
 
             checks += CheckPrayerRequests( db, source, failures );
@@ -344,6 +346,74 @@ WHERE EXISTS (
             }
 
             return ( businesses.Count * 2 ) + campuses.Count;
+        }
+
+        /// <summary>
+        /// Checks each Cast person's step expectations against their steps and program completions in the loaded
+        /// database. Returns how many were checked and adds each failure.
+        /// </summary>
+        private static int CheckSteps( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            if ( source.Steps == null )
+            {
+                return 0;
+            }
+
+            var typeKeys = source.Steps.StepTypes.ToDictionary( t => t.Guid, t => t.Key );
+            var checks = 0;
+
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( m => m.Expect?.Steps != null ) )
+            {
+                var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
+                var steps = db.Query( @"
+SELECT [st].[Guid], [ss].[IsCompleteStatus]
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+                    .Where( r => typeKeys.ContainsKey( ( Guid ) r["Guid"] ) )
+                    .Select( r => (Key: typeKeys[( Guid ) r["Guid"]], IsComplete: ( bool ) r["IsCompleteStatus"]) )
+                    .ToList();
+                var expect = person.Expect.Steps;
+
+                foreach ( var key in expect.Complete )
+                {
+                    checks++;
+                    if ( !steps.Any( s => s.Key == key && s.IsComplete ) )
+                    {
+                        failures.Add( $"{name}: expected a Complete {key} step, Rock shows {( steps.Any( s => s.Key == key ) ? "it In Progress" : "none" )}" );
+                    }
+                }
+
+                foreach ( var key in expect.InProgress )
+                {
+                    checks++;
+                    if ( !steps.Any( s => s.Key == key && !s.IsComplete ) )
+                    {
+                        failures.Add( $"{name}: expected an In Progress {key} step, Rock shows {( steps.Any( s => s.Key == key ) ? "it Complete" : "none" )}" );
+                    }
+                }
+
+                if ( expect.ProgramCompletion is bool expected )
+                {
+                    checks++;
+                    var hasCompletion = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT( * )
+FROM [StepProgramCompletion] AS [c]
+INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [c].[StepProgramId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [c].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[Guid] = @Guid AND [sp].[Guid] = @Program", P( "@Guid", person.Guid ), P( "@Program", source.Steps.Program.Guid ) ) ) > 0;
+                    if ( hasCompletion != expected )
+                    {
+                        failures.Add( $"{name}: expected {( expected ? "a" : "no" )} program completion, Rock shows {( hasCompletion ? "one" : "none" )}" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>
