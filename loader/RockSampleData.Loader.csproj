@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>RockSampleData.Loader</PackageId>
-    <Version>0.1.0-alpha.6</Version>
+    <PackageId>SparkDevNetwork.Rock.SampleData.Loader</PackageId>
+    <Version>0.1.0-alpha.7</Version>
     <Authors>Spark Development Network</Authors>
     <Description>Installs a Rock Sample Data dataset package into a fresh Rock database.</Description>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

@@ -4,7 +4,7 @@ The loader installs a dataset package (made by the [builder](../builder/README.m
 
 There are two parts:
 
-- **The loader library** (`loader/`, `RockSampleData.Loader`). `SampleDataPackage.Open` reads a package and checks every file against its checksum. `DatasetLoader.Load` installs it, with a `DatasetLoadOptions` for the anchor, seed, parts, progress, keys, and the rest. It builds for .NET 10 and for .NET Framework 4.7.2, and Rock's block uses it through the `RockSampleData.Loader` NuGet package (see [Using the library](#using-the-library)).
+- **The loader library** (`loader/`, `RockSampleData.Loader`). `SampleDataPackage.Open` reads a package and checks every file against its checksum. `DatasetLoader.Load` installs it, with a `DatasetLoadOptions` for the anchor, seed, parts, progress, keys, and the rest. It builds for .NET 10 and for .NET Framework 4.7.2, and Rock's block uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package (see [Using the library](#using-the-library)).
 - **The loader CLI** (`../loader-cli/`, `rock-sample-data-load`), for developers and test harnesses.
 
 ## Loading a package
@@ -85,7 +85,7 @@ On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small group
 
 ## Using the library
 
-Rock's Sample Data Installer block calls the library through the `RockSampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision D-rock-loader-1). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`.
+Rock's Sample Data Installer block calls the library through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision D-rock-loader-1). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`. The package ID names Spark as its owner, while the assembly and namespace stay `RockSampleData.Loader`.
 
 ```csharp
 var package = SampleDataPackage.Open( uploadedZipStream );
