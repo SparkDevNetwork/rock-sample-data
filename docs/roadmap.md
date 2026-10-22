@@ -47,7 +47,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 1. **Close validation gaps.** First-time visitors run low and teens run low.
 2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
-3. **Per-person attendance,** so a teen can attend more often than their parents. The Student Path does not wait for it: its steps follow whatever student check-ins exist (decision D-student-path-1).
+3. **Per-person attendance,** so a teen can attend more often than their parents. The Student Path does not wait for it: its steps follow whatever student check-ins exist (decision D-student-path-1). This work should also give recent graduates their student years: generated adults aged 18 to 20 were in high school inside the history window but never checked in as students, because only children carry a graduation year. Once they do, the Student Path shows their history with no change to the steps.
 4. **Real Crowd names** from public-domain frequency data by birth decade.
 
 ## To do (parked)

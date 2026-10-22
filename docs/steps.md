@@ -117,9 +117,9 @@ Camps and trips are church-wide events on fixed days of the year, so everyone at
 
 | Step | When | Status |
 |---|---|---|
-| Student Camp | Monday to Friday of the fourth week of June | Complete, from camp's first day to its last |
+| Student Camp | Monday to Friday, starting on the fourth Monday of June | Complete, from camp's first day to its last |
 | Follow Jesus | A day of a camp the student went to, or a Sunday they checked in, often Easter | Complete, on that day |
-| Mission Trip | Saturday to Saturday, from the second Saturday of March (spring break) or of July | Complete, from the trip's first day to its last |
+| Mission Trip | Saturday to Saturday, from the second Saturday of March (spring break) or the first Saturday of July | Complete, from the trip's first day to its last |
 | Student Leader | From the first Sunday of August of the first school year a junior or senior is attending, to graduation on the fourth Friday of May | Complete from its start (decision 86), with an empty end date while they are still in school |
 
 ### Who takes each step
@@ -135,7 +135,7 @@ Each step is a share of the students who could take it, counted for the Cast and
 
 A student's baptism goes on the Discipleship Path's Baptism step, with the Baptism Date and Baptized Here agreeing, as every baptism does (decisions 87 and D-student-path-3).
 
-- **After a decision.** 60% of the students with a Follow Jesus step are baptized here on the first baptism Sunday at least 60 days after it. When that Sunday has not come yet, the student is not baptized yet, as in a real church.
+- **After a decision.** 60% of the students with a Follow Jesus step are baptized here on the first baptism Sunday at least two weeks after it, so a camp decision is often baptized on the July baptism Sunday. When that Sunday has not come yet, the student is not baptized yet, as in a real church.
 - **Other students.** 10% of the other students are baptized here on a baptism Sunday after they started coming to the student service.
 - **Rules.** A student is 12 or older when baptized. A Baptism Date in a Cast file is kept as it is. The adult rates above are unchanged, because students are not adults.
 

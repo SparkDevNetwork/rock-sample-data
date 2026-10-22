@@ -389,6 +389,9 @@ for ( const { file, data: h } of households ) {
                 continue;
             }
             const set = [ choice.classesAgo !== undefined, choice.events !== undefined, choice.taken === true ].filter( Boolean ).length;
+            if ( Array.isArray( choice.events ) && choice.events.length === 0 ) {
+                errors.push( `${file}: "${p.key}" step "${key}" lists no events. Name at least one, or use taken: true.` );
+            }
             if ( set !== 1 ) {
                 errors.push( `${file}: "${p.key}" step "${key}" needs exactly one of classesAgo, events, or taken: true.` );
             }

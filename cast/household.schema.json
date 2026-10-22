@@ -238,6 +238,7 @@
               "classesAgo": { "type": "integer", "minimum": 0, "description": "For a class: 0 is the class running on the install day (In Progress), 1 the one before it, and so on." },
               "events": {
                 "type": "array",
+                "minItems": 1,
                 "description": "For an event step, every one the person went to. For a decision, the one event it was made at, which must be one of the person's own events.",
                 "items": {
                   "type": "object",

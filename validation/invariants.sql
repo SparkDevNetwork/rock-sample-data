@@ -395,7 +395,7 @@ WHERE [x].[GraduationYear] IS NULL
         INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
         INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
         WHERE [apa].[PersonId] = [x].[PersonId] AND [a].[DidAttend] = 1 AND [o].[OccurrenceDate] <= [x].[StartDateTime]
-            AND [g].[Guid] IN ( '7B99F840-66AB-4C7A-99A2-104D9CC953F7', '9B982B2A-24AB-4B82-AB49-84BDB4CF9E5F' ) );
+            AND [g].[Name] IN ( 'Grades 7-8', 'Grades 9-12' ) AND [g].[GroupTypeId] IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) ) );
 
 -- check: student-path-decisions-and-leaders
 -- why: Follow Jesus is a decision made once. Student Leader is held once, and ends at graduation in May of the student's graduation year, or stays open while they are still in school.
@@ -435,7 +435,7 @@ WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] 
             INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
             INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
             WHERE [apa].[PersonId] = [pa].[PersonId] AND [a].[DidAttend] = 1 AND [o].[OccurrenceDate] <= [s].[StartDateTime]
-                AND [g].[Guid] IN ( '7B99F840-66AB-4C7A-99A2-104D9CC953F7', '9B982B2A-24AB-4B82-AB49-84BDB4CF9E5F' ) )
+                AND [g].[Name] IN ( 'Grades 7-8', 'Grades 9-12' ) AND [g].[GroupTypeId] IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) ) )
         OR NOT EXISTS (
             SELECT 1
             FROM [AttributeValue] AS [av]

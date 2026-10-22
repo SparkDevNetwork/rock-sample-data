@@ -106,7 +106,7 @@
             "students": {
               "afterStepType": "follow-jesus",
               "afterPercent": 60,
-              "minimumDaysAfter": 60,
+              "minimumDaysAfter": 14,
               "percentOfOtherStudents": 10
             }
           }
@@ -239,7 +239,7 @@
           "callToActionDescription": "Camp is a week in late June for students in grades 7 to 12. Sign up in the student lobby or online.",
           "source": {
             "kind": "event",
-            "$comment": "One church-wide camp each summer, Monday to Friday of the given week of June. A student could go when they were in these grades on camp's first day and had been attending. percentOfStudents of the students who could go to one or more camps go once, in one of those summers, and then again in each later summer they could, againPercent of the time.",
+            "$comment": "One church-wide camp each summer, Monday to Friday, starting on the given Monday of June. A student could go when they were in these grades on camp's first day and had been attending. percentOfStudents of the students who could go to one or more camps go once, in one of those summers, and then again in each later summer they could, againPercent of the time.",
             "grades": { "min": 7, "max": 12 },
             "percentOfStudents": 45,
             "againPercent": 60,
@@ -296,7 +296,7 @@
             "againPercent": 25,
             "seasons": [
               { "key": "spring", "month": 3, "week": 2, "weekday": "Saturday", "days": 8 },
-              { "key": "summer", "month": 7, "week": 2, "weekday": "Saturday", "days": 8 }
+              { "key": "summer", "month": 7, "week": 1, "weekday": "Saturday", "days": 8 }
             ]
           }
         },

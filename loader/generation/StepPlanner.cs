@@ -533,7 +533,7 @@ namespace RockSampleData.Loader.Generation
             10/22/26 - CLAUDE
 
             A student is baptized here on a baptism Sunday (decision 87). Most follow a decision to follow Jesus:
-            the first baptism Sunday a couple of months after it. A Sunday that has not come yet is no baptism, so
+            the first baptism Sunday at least two weeks after it. A Sunday that has not come yet is no baptism, so
             a recent decision waits, as it does in a real church. A few students with no decision on record are
             baptized on a baptism Sunday after they started coming to the student service. Each is a share of the
             students who have such a Sunday, counted for the Cast and the generated households on their own, like
