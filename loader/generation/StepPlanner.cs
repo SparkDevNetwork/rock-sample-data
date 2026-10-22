@@ -217,12 +217,16 @@ namespace RockSampleData.Loader.Generation
             The Student Path reads the student check-ins the attendance step wrote. A student's grade on a day
             comes from their graduation year, moving up each June 1 as check-in does, and they have been attending
             when they checked in to the student service enough times in the weeks before. Camps and trips are
-            church-wide events on fixed days of the year, so everyone at one camp shares its dates. A Cast story
-            that names events gets exactly those, and the load fails when one cannot hold. Every chance is seeded
-            by the person, so the Cast's steps are the same in every dataset.
+            church-wide events on fixed days of the year, so everyone at one camp shares its dates.
+
+            Who takes each step is a share of the students who could, counted separately for the Cast and for the
+            generated households, as baptisms are. A Cast story counts toward its share, a story that names events
+            gets exactly those, and the load fails when a story cannot hold. A dataset has only a few dozen
+            students, so a share drawn person by person would wander far from the designed rate. The Cast's share
+            depends only on the Cast, so the Cast's steps are the same in every dataset.
 
             Reason: Student steps agree with the check-ins and grades Rock shows, without waiting for attendance
-            per person (decision D-student-path-1).
+            per person, and every dataset shows the designed rates (decisions D-student-path-1 and D-student-path-2).
         */
 
         private sealed record EventOccurrence( string Season, int Year, DateTime Start, DateTime End );
@@ -236,15 +240,19 @@ namespace RockSampleData.Loader.Generation
             var source = type.Source;
             var attending = StudentsOf( type ).Attending;
             var occurrences = Occurrences( source );
-            foreach ( var person in _facts.People.Where( p => p.GraduationYear.HasValue ).OrderBy( p => p.Guid ) )
+            var could = _facts.People.Where( p => p.GraduationYear.HasValue )
+                .ToDictionary( p => p.PersonId, p => occurrences.Where( o => InGrades( p, o.Start, source.Grades ) && HasBeenAttending( p, o.Start, attending ) ).ToList() );
+            var goers = ChooseShare( type.Key, _facts.People.Where( p => could.TryGetValue( p.PersonId, out var list ) && list.Count > 0 ), source.PercentOfStudents, p => Story( p, type ) != null );
+
+            foreach ( var person in _facts.People.Where( p => goers.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
             {
-                var could = occurrences.Where( o => InGrades( person, o.Start, source.Grades ) && HasBeenAttending( person, o.Start, attending ) ).ToList();
-                person.StepChoices.TryGetValue( type.Key, out var story );
+                var story = Story( person, type );
+                var eligible = could.TryGetValue( person.PersonId, out var list ) ? list : new List<EventOccurrence>();
                 List<EventOccurrence> went;
                 if ( story?.Events != null )
                 {
                     went = story.Events.Select( e => StoryEvent( type, e ) ).ToList();
-                    var impossible = went.FirstOrDefault( o => !could.Contains( o ) );
+                    var impossible = went.FirstOrDefault( o => !eligible.Contains( o ) );
                     if ( impossible != null )
                     {
                         throw new InvalidOperationException( $"The Cast story for {person.Name} puts them at {type.Name} in the {impossible.Season} of {impossible.Year}, when they were not a student in grades {source.Grades.Min} to {source.Grades.Max} who had been attending." );
@@ -252,11 +260,8 @@ namespace RockSampleData.Loader.Generation
                 }
                 else
                 {
-                    went = PickEvents( source, could, PersonRandom( type, person ), story?.Taken == true );
-                    if ( story?.Taken == true && went.Count == 0 )
-                    {
-                        throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never a student who could go." );
-                    }
+                    went = eligible.Count > 0 ? PickEvents( source, eligible, PersonRandom( type, person ) )
+                        : throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never a student who could go." );
                 }
 
                 foreach ( var occurrence in went )
@@ -267,18 +272,12 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// The events one student goes to: none, or one in a random year they could go and then, in each later
+        /// The events one student who goes goes to: one in a random year they could go, and then, in each later
         /// such year, another one some of the time. A year's events are the ones held in that calendar year.
         /// </summary>
-        private static List<EventOccurrence> PickEvents( StepSource source, List<EventOccurrence> could, SeededRandom random, bool isTaken )
+        private static List<EventOccurrence> PickEvents( StepSource source, List<EventOccurrence> could, SeededRandom random )
         {
             var years = could.GroupBy( o => o.Year ).Select( g => g.ToList() ).ToList();
-            var goes = random.Chance( source.PercentOfStudents / 100 );
-            if ( years.Count == 0 || !( goes || isTaken ) )
-            {
-                return new List<EventOccurrence>();
-            }
-
             var first = random.Between( 0, years.Count - 1 );
             var went = new List<EventOccurrence> { random.Pick( years[first] ) };
             foreach ( var year in years.Skip( first + 1 ) )
@@ -293,19 +292,20 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// A decision, made once: often at one of the student's events, otherwise on a Sunday they checked in to
-        /// the student service, sometimes Easter.
+        /// A decision, made once by a share of the students: often at one of their events, otherwise on a Sunday
+        /// they checked in to the student service, sometimes Easter.
         /// </summary>
         private void PlanDecision( StepTypeDefinition type )
         {
             var source = type.Source;
             var eventType = _config.StepTypes.Single( t => t.Key == source.AtEvent.StepType );
-            foreach ( var person in _facts.People.Where( IsStudent ).OrderBy( p => p.Guid ) )
+            var deciders = ChooseShare( type.Key, _facts.People.Where( IsStudent ), source.PercentOfStudents, p => Story( p, type ) != null );
+
+            foreach ( var person in _facts.People.Where( p => deciders.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
             {
-                person.StepChoices.TryGetValue( type.Key, out var story );
+                var story = Story( person, type );
                 var random = PersonRandom( type, person );
-                var decides = random.Chance( source.PercentOfStudents / 100 );
-                DateTime? date;
+                DateTime date;
                 if ( story?.Events != null )
                 {
                     var occurrence = story.Events.Count == 1 ? StoryEvent( eventType, story.Events[0] ) : throw new InvalidOperationException( $"The Cast story for {person.Name} names {story.Events.Count} events for their {type.Name}; a decision is made at one." );
@@ -318,28 +318,15 @@ namespace RockSampleData.Loader.Generation
                 }
                 else
                 {
-                    if ( !decides && story?.Taken != true )
-                    {
-                        continue;
-                    }
-
-                    date = DecisionDate( source, eventType.Key, person, random );
-                    if ( date == null )
-                    {
-                        if ( story?.Taken == true )
-                        {
-                            throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they never checked in to the student service." );
-                        }
-
-                        continue;
-                    }
+                    date = IsStudent( person ) ? DecisionDate( source, eventType.Key, person, random )
+                        : throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they never checked in to the student service." );
                 }
 
-                Add( person, type.Key, StepStatus.Complete, date.Value, null, date.Value, null );
+                Add( person, type.Key, StepStatus.Complete, date, null, date, null );
             }
         }
 
-        private DateTime? DecisionDate( StepSource source, string eventTypeKey, StepPerson person, SeededRandom random )
+        private DateTime DecisionDate( StepSource source, string eventTypeKey, StepPerson person, SeededRandom random )
         {
             var events = StepsOf( person.PersonId ).Where( s => s.StepType == eventTypeKey ).ToList();
             if ( events.Count > 0 && random.Chance( source.AtEvent.Percent / 100 ) )
@@ -349,51 +336,72 @@ namespace RockSampleData.Loader.Generation
             }
 
             var sundays = CheckIns( person ).ToList();
-            if ( sundays.Count == 0 )
-            {
-                return null;
-            }
-
             var easters = sundays.Where( d => d == SundayCalendar.Easter( d.Year ) ).ToList();
             return easters.Count > 0 && random.Chance( source.EasterPercent / 100 ) ? random.Pick( easters ) : random.Pick( sundays );
         }
 
         /// <summary>
-        /// School years: a share of students take the step at the first school year start in the step's grades when
-        /// they had been attending, and keep it until graduation.
+        /// School years: a share of the students who could take the step at the first school year start in its
+        /// grades when they had been attending, and keep it until graduation.
         /// </summary>
         private void PlanSchoolYears( StepTypeDefinition type )
         {
             var source = type.Source;
             var attending = StudentsOf( type ).Attending;
-            foreach ( var person in _facts.People.Where( p => p.GraduationYear.HasValue ).OrderBy( p => p.Guid ) )
+            var starts = new Dictionary<int, DateTime>();
+            foreach ( var person in _facts.People.Where( p => p.GraduationYear.HasValue ) )
             {
-                person.StepChoices.TryGetValue( type.Key, out var story );
-                var random = PersonRandom( type, person );
-                if ( !random.Chance( source.PercentOfStudents / 100 ) && story?.Taken != true )
-                {
-                    continue;
-                }
-
                 var start = Enumerable.Range( _facts.HistoryStart.Year, _facts.Anchor.Year - _facts.HistoryStart.Year + 1 )
                     .Select( year => source.StartsOn.In( year ) )
                     .Where( day => day >= _facts.HistoryStart && day <= _facts.Anchor && InGrades( person, day, source.Grades ) && HasBeenAttending( person, day, attending ) )
                     .Cast<DateTime?>()
                     .FirstOrDefault();
-                if ( start == null )
+                if ( start.HasValue )
                 {
-                    if ( story?.Taken == true )
-                    {
-                        throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never in grades {source.Grades.Min} to {source.Grades.Max} and attending at a school year's start." );
-                    }
+                    starts[person.PersonId] = start.Value;
+                }
+            }
 
-                    continue;
+            var leaders = ChooseShare( type.Key, _facts.People.Where( p => starts.ContainsKey( p.PersonId ) ), source.PercentOfStudents, p => Story( p, type ) != null );
+            foreach ( var person in _facts.People.Where( p => leaders.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
+            {
+                if ( !starts.TryGetValue( person.PersonId, out var start ) )
+                {
+                    throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never in grades {source.Grades.Min} to {source.Grades.Max} and attending at a school year's start." );
                 }
 
                 var graduation = source.EndsOn.In( person.GraduationYear.Value );
-                Add( person, type.Key, StepStatus.Complete, start.Value, graduation <= _facts.Anchor ? graduation : null, start.Value, null );
+                Add( person, type.Key, StepStatus.Complete, start, graduation <= _facts.Anchor ? graduation : null, start, null );
             }
         }
+
+        /// <summary>
+        /// Who takes a step: the given share of the candidates, rounded, counted separately for the Cast and for the
+        /// generated households. Forced people (the Cast's stories) count toward their share. The rest are drawn
+        /// by a seeded number per person.
+        /// </summary>
+        private HashSet<int> ChooseShare( string key, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
+        {
+            var chosen = new HashSet<int>();
+            var count = 0;
+            foreach ( var group in candidates.GroupBy( p => p.IsCast ) )
+            {
+                var people = group.ToList();
+                var forced = people.Where( isForced ).ToList();
+                var target = ( int ) Math.Round( people.Count * percent / 100, MidpointRounding.AwayFromZero );
+                count += people.Count;
+                chosen.UnionWith( forced.Select( p => p.PersonId ) );
+                chosen.UnionWith( people.Except( forced )
+                    .OrderBy( p => new SeededRandom( $"{_seed}:steps:{key}:share:{p.Guid}" ).Between( 0.0, 1.0 ) ).ThenBy( p => p.Guid )
+                    .Take( Math.Max( 0, target - forced.Count ) )
+                    .Select( p => p.PersonId ) );
+            }
+
+            _plan.Shares[key] = (chosen.Count, count);
+            return chosen;
+        }
+
+        private static CastStepChoice Story( StepPerson person, StepTypeDefinition type ) => person.StepChoices.TryGetValue( type.Key, out var story ) ? story : null;
 
         /// <summary>
         /// Every event held inside the history window that ended before the install day, oldest first.
@@ -476,6 +484,7 @@ namespace RockSampleData.Loader.Generation
             bool IsVolunteerOrLeader( StepPerson p ) => serving.Contains( p.PersonId ) || leading.Contains( p.PersonId );
 
             var restPercent = new[] { true, false }.ToDictionary( isCast => isCast, isCast => RestPercent( source, _facts.People.Where( p => p.IsCast == isCast && p.IsActiveAdult ).ToList(), IsVolunteerOrLeader ) );
+            var studentDates = StudentBaptismDates( source );
 
             foreach ( var person in _facts.People.OrderBy( p => p.Guid ) )
             {
@@ -488,7 +497,7 @@ namespace RockSampleData.Loader.Generation
                 }
                 else if ( !person.IsAdult )
                 {
-                    date = StudentBaptismDate( source, person );
+                    date = studentDates.TryGetValue( person.PersonId, out var studentDate ) ? studentDate : null;
                     isHere = true;
                 }
                 else
@@ -526,31 +535,47 @@ namespace RockSampleData.Loader.Generation
             A student is baptized here on a baptism Sunday (decision 87). Most follow a decision to follow Jesus:
             the first baptism Sunday a couple of months after it. A Sunday that has not come yet is no baptism, so
             a recent decision waits, as it does in a real church. A few students with no decision on record are
-            baptized on a baptism Sunday after they started coming to the student service. Children who never
-            checked in to the student service are not baptized here.
+            baptized on a baptism Sunday after they started coming to the student service. Each is a share of the
+            students who have such a Sunday, counted for the Cast and the generated households on their own, like
+            the Student Path's steps. Children who never checked in to the student service are not baptized here.
 
             Reason: The Baptism step, its attribute, and the Student Path tell one story, and the adult rates stay
-            as they were.
+            as they were (decision D-student-path-3).
         */
-        private DateTime? StudentBaptismDate( StepSource source, StepPerson person )
+        private Dictionary<int, DateTime> StudentBaptismDates( StepSource source )
         {
             var rule = source.Students;
-            if ( rule == null || !IsStudent( person ) )
+            if ( rule == null )
             {
-                return null;
+                return new Dictionary<int, DateTime>();
             }
 
-            var random = new SeededRandom( $"{_seed}:steps:baptism:{person.Guid}" );
-            var oldEnough = person.BirthDate?.AddYears( source.HereMinimumAge ) ?? DateTime.MinValue;
             var lastSunday = _facts.Anchor.AddDays( -1 );
-            if ( CompletedOn( person.PersonId, rule.AfterStepType ) is DateTime decided )
+            var sundays = new Dictionary<int, List<DateTime>>();
+            var decided = new HashSet<int>();
+            foreach ( var person in _facts.People.Where( p => !p.IsAdult && !p.CastBaptismDate.HasValue && IsStudent( p ) ) )
             {
-                var next = BaptismSundays( source, Max( decided.AddDays( rule.MinimumDaysAfter ), oldEnough ), lastSunday );
-                return random.Chance( rule.AfterPercent / 100 ) && next.Count > 0 ? next.Min() : null;
+                var oldEnough = person.BirthDate?.AddYears( source.HereMinimumAge ) ?? DateTime.MinValue;
+                var decision = CompletedOn( person.PersonId, rule.AfterStepType );
+                var from = decision?.AddDays( rule.MinimumDaysAfter ) ?? CheckIns( person ).Min;
+                var options = BaptismSundays( source, Max( from, oldEnough ), lastSunday );
+                if ( options.Count > 0 )
+                {
+                    sundays[person.PersonId] = options;
+                    if ( decision.HasValue )
+                    {
+                        decided.Add( person.PersonId );
+                    }
+                }
             }
 
-            var sundays = BaptismSundays( source, Max( CheckIns( person ).Min, oldEnough ), lastSunday );
-            return random.Chance( rule.PercentOfOtherStudents / 100 ) && sundays.Count > 0 ? random.Pick( sundays ) : null;
+            var candidates = _facts.People.Where( p => sundays.ContainsKey( p.PersonId ) ).ToList();
+            var chosen = ChooseShare( $"baptism-after-{rule.AfterStepType}", candidates.Where( p => decided.Contains( p.PersonId ) ), rule.AfterPercent, _ => false );
+            chosen.UnionWith( ChooseShare( "baptism-other-students", candidates.Where( p => !decided.Contains( p.PersonId ) ), rule.PercentOfOtherStudents, _ => false ) );
+
+            return candidates.Where( p => chosen.Contains( p.PersonId ) ).ToDictionary( p => p.PersonId, p => decided.Contains( p.PersonId )
+                ? sundays[p.PersonId].Min()
+                : new SeededRandom( $"{_seed}:steps:baptism:{p.Guid}" ).Pick( sundays[p.PersonId] ) );
         }
 
         /// <summary>
@@ -1105,5 +1130,10 @@ namespace RockSampleData.Loader.Generation
         public List<PlannedBaptism> Baptisms { get; } = new List<PlannedBaptism>();
 
         public List<PlannedCompletion> Completions { get; } = new List<PlannedCompletion>();
+
+        /// <summary>
+        /// For each step chosen by share, how many people took it of how many could, for the load summary.
+        /// </summary>
+        public Dictionary<string, (int Chosen, int Candidates)> Shares { get; } = new Dictionary<string, (int Chosen, int Candidates)>();
     }
 }

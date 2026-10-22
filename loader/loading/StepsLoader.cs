@@ -31,7 +31,8 @@ namespace RockSampleData.Loader.Loading
         Group memberships are read back from the database, so each Small Group, Serve, and Lead step has
         exactly its membership's dates. Gifts come from the same in-memory list the giving analytics replayed,
         so each Give step agrees with the journey stage Rock shows. Who is an active adult uses the prayer
-        step's rule: an adult who attended, gave, or was in a small group in the last year.
+        step's rule: an adult who attended, gave, or was in a small group in the last year. Student check-ins
+        are read back from the attendance rows, so the Student Path follows whatever attendance exists.
 
         Reason: Steps and the records they come from always agree (decision 86).
     */
@@ -104,6 +105,10 @@ namespace RockSampleData.Loader.Loading
             var students = facts.People.Count( p => facts.StudentCheckIns.ContainsKey( p.PersonId ) );
             var studentBaptisms = facts.People.Count( p => !p.IsAdult && facts.StudentCheckIns.ContainsKey( p.PersonId ) && baptized.Contains( p.PersonId ) );
             Console.WriteLine( $"  Active adults: {activeAdults:N0}; students: {students:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}; {studentBaptisms:N0} students)" );
+            if ( plan.Shares.Count > 0 )
+            {
+                Console.WriteLine( $"  Shares (people who took the step of those who could): {string.Join( ", ", plan.Shares.Select( s => $"{s.Key} {s.Value.Chosen} of {s.Value.Candidates}" ) )}" );
+            }
         }
 
         #region Programs and step types
