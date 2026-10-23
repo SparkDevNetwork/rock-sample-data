@@ -18,6 +18,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using RockSampleData.Loader;
 using RockSampleData.Loader.Compat;
 using RockSampleData.Loader.Database;
 using RockSampleData.Loader.Generation;
@@ -31,6 +32,8 @@ using RockSampleData.Loader.Packages;
       dotnet run --project loader-compat-check -f net472
 
     Both must pass, which proves the .NET Framework build gives the same bytes as the .NET 10 build.
+    The last two checks read a package index from before the card fields joined it and one with fields
+    this loader does not know, so both builds stay able to read an older and a newer index.
 */
 
 // Rock's Encryption salt and HKDF label, as in loader/database/RockKeys.cs and Rock/Security/Encryption.cs.
@@ -68,7 +71,13 @@ var checks = new (string Name, string Actual, string Expected)[]
         "daec011e5abcd90075ff49f459105c269be737fad214aa268ea2de8089f40fe8"),
     ("Seeded random draws",
         string.Join( ",", Enumerable.Range( 0, 5 ).Select( _ => random.Between( 0, 1000000 ) ) ) + "," + BitConverter.DoubleToInt64Bits( random.Between( 0.0, 1.0 ) ),
-        "420363,117252,926818,494383,790491,4604133140953978213")
+        "420363,117252,926818,494383,790491,4604133140953978213"),
+    ("Package index written before the card fields",
+        Card( SampleDataPackageIndex.Parse( Index( "" ) ) ),
+        "core-1||0|185|0|1|0"),
+    ("Package index with the card fields and fields this loader does not know",
+        Card( SampleDataPackageIndex.Parse( Index( "\"bestFor\": \"Tests.\", \"highlights\": [ \"Photos\", \" \", \"Giving\" ], \"households\": 87, \"typicalInstallSeconds\": 10, \"futureField\": { \"nested\": [ 1, 2 ] }," ) ) ),
+        "core-1|Tests.|2|185|87|1|10")
 };
 
 var failures = 0;
@@ -92,3 +101,13 @@ static string Hex( byte[] bytes ) => BitConverter.ToString( bytes ).Replace( "-"
 static byte[] Repeat( byte value, int count ) => Enumerable.Repeat( value, count ).ToArray();
 
 static byte[] Range( int start, int count ) => Enumerable.Range( start, count ).Select( i => ( byte ) i ).ToArray();
+
+static string Index( string cardFields ) =>
+    "{ \"formatVersion\": 1, \"futureRootField\": true, \"packages\": [ { \"dataset\": \"core-1\", \"name\": \"Core 1\", \"people\": 185, \"campuses\": 1, " + cardFields +
+    " \"version\": \"1.0.0\", \"url\": \"v1.0.0/rock-21.0.2/core-1.zip\", \"sha256\": \"" + new string( 'a', 64 ) + "\", \"size\": 1, \"rockVersion\": \"21.0.2\", \"rockMigration\": \"202610141827486_CodeGenerated_20261014\" } ] }";
+
+static string Card( SampleDataPackageIndex index )
+{
+    var entry = index.Packages.Single();
+    return $"{entry.Dataset}|{entry.BestFor}|{entry.Highlights.Count}|{entry.People}|{entry.Households}|{entry.Campuses}|{entry.TypicalInstallSeconds}";
+}

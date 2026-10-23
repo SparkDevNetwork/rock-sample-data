@@ -487,6 +487,77 @@ WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] 
             INNER JOIN [Attribute] AS [at] ON [at].[Id] = [av].[AttributeId]
             WHERE [at].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [s].[Id] AND [av].[Value] = 'True' ) );
 
+-- check: young-kid-checks-in-with-the-family
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [a].[AttendanceCodeId] IS NOT NULL
+    AND [g].[GroupTypeId] IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( 'CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8', 'E3C8F7D6-5CEB-43BB-802F-66C3E734049E' ) )
+    AND EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [kid]
+        INNER JOIN [GroupMember] AS [adult] ON [adult].[GroupId] = [kid].[GroupId]
+        INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [adult].[GroupRoleId]
+        INNER JOIN [Person] AS [ap] ON [ap].[Id] = [adult].[PersonId]
+        WHERE [kid].[PersonId] = [pa].[PersonId] AND [kid].[GroupTypeId] = [adult].[GroupTypeId]
+            AND [r].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+            AND [ap].[IsDeceased] = 0 AND [ap].[RecordStatusValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E' ) )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [PersonAlias] AS [byAlias]
+        INNER JOIN [GroupMember] AS [byMember] ON [byMember].[PersonId] = [byAlias].[PersonId]
+        INNER JOIN [GroupTypeRole] AS [byRole] ON [byRole].[Id] = [byMember].[GroupRoleId]
+        INNER JOIN [GroupMember] AS [kid] ON [kid].[GroupId] = [byMember].[GroupId] AND [kid].[PersonId] = [pa].[PersonId]
+        INNER JOIN [PersonAlias] AS [wpa] ON [wpa].[PersonId] = [byAlias].[PersonId]
+        INNER JOIN [Attendance] AS [w] ON [w].[PersonAliasId] = [wpa].[Id] AND [w].[DidAttend] = 1
+        INNER JOIN [AttendanceOccurrence] AS [wo] ON [wo].[Id] = [w].[OccurrenceId] AND [wo].[SundayDate] = [o].[SundayDate]
+        INNER JOIN [Group] AS [wg] ON [wg].[Id] = [wo].[GroupId]
+        INNER JOIN [GroupType] AS [wgt] ON [wgt].[Id] = [wg].[GroupTypeId]
+        WHERE [byAlias].[Id] = [a].[CheckedInByPersonAliasId]
+            AND [byRole].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+            AND [wg].[Name] = 'Weekend Service' AND [wgt].[Guid] = '235BAE2B-5760-4763-AADF-3938F34BA100' );
+
+-- check: onsite-gift-on-a-family-sunday
+-- why: Checks and cash go in the offering only on a Sunday the family came (decision 146). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [t]
+INNER JOIN [FinancialBatch] AS [b] ON [b].[Id] = [t].[BatchId]
+INNER JOIN [PersonAlias] AS [gpa] ON [gpa].[Id] = [t].[AuthorizedPersonAliasId]
+WHERE [t].[ForeignKey] = @ForeignKey AND [b].[Name] LIKE 'Sunday Offering %'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [giver]
+        INNER JOIN [GroupMember] AS [adult] ON [adult].[GroupId] = [giver].[GroupId]
+        INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [adult].[GroupRoleId]
+        INNER JOIN [PersonAlias] AS [apa] ON [apa].[PersonId] = [adult].[PersonId]
+        INNER JOIN [Attendance] AS [a] ON [a].[PersonAliasId] = [apa].[Id] AND [a].[DidAttend] = 1
+        INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+        WHERE [giver].[PersonId] = [gpa].[PersonId] AND [giver].[GroupTypeId] = [adult].[GroupTypeId]
+            AND [giver].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' )
+            AND [r].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+            AND [o].[SundayDate] = CAST( [t].[TransactionDateTime] AS DATE ) );
+
+-- check: student-check-in-fits-the-grade
+-- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up each June 1, as check-in's does.
+SELECT COUNT(*)
+FROM (
+    SELECT [g].[Name],
+        12 - ( [p].[GraduationYear] - CASE WHEN [o].[OccurrenceDate] >= DATEFROMPARTS( YEAR( [o].[OccurrenceDate] ), 6, 1 ) THEN YEAR( [o].[OccurrenceDate] ) + 1 ELSE YEAR( [o].[OccurrenceDate] ) END ) AS [Grade]
+    FROM [Attendance] AS [a]
+    INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1
+        AND [g].[Name] IN ( 'Grades 7-8', 'Grades 9-12' ) AND [g].[GroupTypeId] IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) )
+) AS [x]
+WHERE [x].[Grade] IS NULL
+    OR ( [x].[Name] = 'Grades 7-8' AND [x].[Grade] NOT BETWEEN 7 AND 8 )
+    OR ( [x].[Name] = 'Grades 9-12' AND [x].[Grade] NOT BETWEEN 9 AND 12 );
+
 -- check: campus-account-dates-match-fund
 -- why: Rock's giving pages hide an account outside its dates. A campus account with other dates than its fund would take gifts the fund says it cannot.
 SELECT COUNT(*)
