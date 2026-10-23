@@ -40,7 +40,12 @@
     { "path": "communicationDetail.unsubscribes", "reason": "The measured sends recorded no unsubscribes or spam complaints, so these rates are designed." },
     { "path": "communicationDetail.sms.massReplies", "reason": "Replies were not linked to the texts they answer in the measured data, so this reads zero. Reply rates are designed." },
     { "path": "communicationDetail.sms.inbound.pctLinkedToCommunication", "reason": "Replies were not linked to the texts they answer in the measured data." },
-    { "path": "communicationDetail.outcomes.Recipient preference.pctOpenedOfDelivered", "reason": "Some opens are recorded without updating the recipient's status, so this reads low. The open rate is engagement's pctUniqueOpenersOfDelivered." }
+    { "path": "communicationDetail.outcomes.Recipient preference.pctOpenedOfDelivered", "reason": "Some opens are recorded without updating the recipient's status, so this reads low. The open rate is engagement's pctUniqueOpenersOfDelivered." },
+    { "path": "communicationDetail.saturation.byMedium.Email.bulkFlagged", "reason": "The sample church flags every mass send as bulk (decision 132), so its load is graded against the all-mass-sends shape." },
+    { "path": "communicationDetail.saturation.byMedium.SMS.bulkFlagged", "reason": "The sample church flags every mass send as bulk (decision 132), so its load is graded against the all-mass-sends shape." },
+    { "path": "communicationDetail.saturation.byMedium.Push", "reason": "The measured data has almost no pushes, so push load is designed." },
+    { "path": "communicationDetail.unsubscribesYear.levelMix", "reason": "Only texted STOPs are recorded on recipient rows in the measured data, so the email unsubscribe levels are designed (decision 131)." },
+    { "path": "communicationDetail.unsubscribesYear.perThousandMassRecipients.Recipient preference", "reason": "Too few unsubscribes to use." }
   ],
   "overrides": [
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
