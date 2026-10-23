@@ -1,0 +1,93 @@
+{
+  "$comment": "How the sample church communicates (docs/communications.md, decisions 90 to 96 and 131 to 133). Slice 2 loads the phone numbers, the branded email template, and the communication lists with their members. The senders, the approver, and the topics are read by the slices that write sends. Messages come from content/communications. Person Guids are Cast people.",
+  "phoneNumbers": {
+    "$comment": "Rock system phone numbers, in the reserved 555-0100 to 555-0199 range and never a Cast person's number (validation/check-standards.js checks both). 'assignedTo' is a Cast person, which makes the number that person's personal texting number in SMS Conversations. 'campusPastors' gives every campus other than the main one a personal number for its campus pastor (configuration/notes.json picks the campus pastor), in the datasets listed. Rock stores numbers in E.164 form.",
+    "numbers": [
+      { "key": "main", "name": "Rock Solid Church", "description": "The church's main texting line. Mass texts and replies to them come here.", "number": "+16235550150", "guid": "BADCB9D8-34C3-4257-8F54-C77BFC44FE35", "order": 0 },
+      { "key": "students", "name": "Rock Solid Students", "description": "The student ministry's texting line. The student pastor texts students and parents from it.", "number": "+16235550160", "guid": "8DDE5E41-0771-493D-BB8D-6B675CBF9D7C", "order": 1 },
+      { "key": "ted", "name": "Ted Decker", "description": "Ted Decker's personal texting number.", "number": "+16235550140", "guid": "D0FF4DCE-6E6A-485E-856E-53E5358A2C7C", "order": 2, "assignedTo": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4" },
+      { "key": "alisha", "name": "Alisha Marble", "description": "Alisha Marble's personal texting number.", "number": "+16235550141", "guid": "7FFE6EC1-18C4-4588-9C15-29CF55CD0F7B", "order": 3, "assignedTo": "69DC0FDC-B451-4303-BD91-EF17C0015D23" },
+      { "key": "isaac", "name": "Isaac Silva", "description": "Isaac Silva's personal texting number.", "number": "+16235550144", "guid": "9C106E50-6DB1-4695-A1F7-ABE1CF8C4586", "order": 4, "assignedTo": "581C940E-A788-4F32-BCF3-33F4D1948390" }
+    ],
+    "campusPastors": {
+      "datasets": [ "full-7" ],
+      "numbers": {
+        "peoria": { "number": "+16235550145", "guid": "0DAA3B56-9061-424A-9CF5-AA5CD9F89933" },
+        "gilbert": { "number": "+14805550140", "guid": "CC54EA27-9473-40C1-B137-52F535AA4BFA" },
+        "scottsdale": { "number": "+14805550141", "guid": "C2E121D8-6C69-4876-BE8F-6C62E1A12A4A" },
+        "chandler": { "number": "+14805550142", "guid": "E315F499-D802-4817-8F1A-1BDB4A71066A" },
+        "goodyear": { "number": "+16235550148", "guid": "013FEB2F-C41E-4DD0-AB99-8D824807279D" },
+        "tempe": { "number": "+14805550143", "guid": "4A1A8C7B-55D2-4F68-A8BC-EA3B5600A59B" }
+      }
+    }
+  },
+  "senders": {
+    "$comment": "Who sends what (decision 132). Mass emails come from the shared inbox in the church's name, and Daniel Peak, the Director of Communications, sends them in Rock. Pete Foster's few pastoral letters (Easter and year-end giving) come from him by name. The student pastor sends student texts from the student line. Daniel approves sends that need approval, and his own need none.",
+    "church": { "fromName": "Rock Solid Church", "fromEmail": "hello@rocksolidchurchdemo.com", "sender": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9" },
+    "pastor": { "fromName": "Pete Foster", "fromEmail": "pete@rocksolidchurchdemo.com", "sender": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C" },
+    "students": { "fromName": "Rock Solid Students", "fromEmail": "students@rocksolidchurchdemo.com", "sender": "581C940E-A788-4F32-BCF3-33F4D1948390", "phoneNumber": "students" },
+    "texts": { "sender": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "phoneNumber": "main" },
+    "approver": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9"
+  },
+  "$topicsComment": "Rock's 8 shipped communication topics (the Communication Topic defined type), unchanged. Mass sends name one by key.",
+  "topics": {
+    "general": "1BD309A1-6AE8-4896-A45D-ED9E116074CC",
+    "events": "C22D71AA-C78A-46B4-94C6-DC48CA6ECAB5",
+    "serving": "DF6CF12E-7183-464B-B6B2-B67D76300F8A",
+    "groups": "C6504FFB-E7E8-4EC2-AED9-FE0BC1A86B37",
+    "giving": "3B8A938D-3E42-4504-87AB-729A2A55FEFB",
+    "prayer": "46B017B1-2232-481D-81C5-A48D9B7CABEE",
+    "kids": "96E49813-322C-4465-9800-BAECBB8958F4",
+    "students": "E9054E68-9BF0-4AB9-8216-1B8D29D6C51D"
+  },
+  "template": {
+    "$comment": "The sample church's branded email template, beside Rock's shipped ones. The HTML is content/communications/email-template.html, and the logo is the approved Rock Solid Church logo, resized for email. It goes in Rock's General template category, like Rock's own.",
+    "name": "Rock Solid Church",
+    "description": "The church's branded email: the Rock Solid Church logo, a clean white body, and a footer with the church address and an unsubscribe link.",
+    "guid": "78B818CB-391D-4B3F-8665-870F4C99716E",
+    "categoryGuid": "A7F79054-5539-4910-A13F-AA5884B8C01D",
+    "html": "content/communications/email-template.html",
+    "logo": "content/communications/email-logo.png",
+    "logoGuid": "A91CDBB9-5191-4D7C-AF6B-CA2D017F97E7",
+    "lavaFields": {
+      "accentColor": "#2F6A66",
+      "textColor": "#1D1D1F",
+      "mutedColor": "#6E6E73",
+      "pageColor": "#F5F5F7"
+    }
+  },
+  "lists": {
+    "$comment": "Communication lists (Rock's Communication List group type). Public lists appear on Rock's email preference page under its Public category, so people can join and leave them. Private lists are managed by staff. 'campus' true makes one list per campus, named after it. 'members' names the rule that picks members (see Membership below). 'preference' is the member's communication preference on the list: email, or sms for students who can text. Members are never people who chose 'No mass emails' or 'Do not email'.",
+    "publicCategoryGuid": "A0889E77-67D9-418C-B301-1B3924692058",
+    "lists": [
+      { "key": "newsletter", "name": "{campus} Weekly", "publicName": "{campus} Weekly Newsletter", "description": "News, events, and this Sunday's message, every Thursday.", "campus": true, "isPublic": true, "members": "newsletter", "guids": { "phoenix": "8B16E09F-C5F2-44CD-8906-18BB2ED10623", "peoria": "51552CA1-69FE-4F8F-A4D5-0AFFF448C6EB", "gilbert": "5A024B7E-4DBB-415A-A6B0-B6547D7C580E", "scottsdale": "BAFB3A9C-F2EE-4629-BC9B-63C1A55D7B8C", "chandler": "8CFCD00C-C290-4A00-BE59-568EC9A5C231", "goodyear": "787A4CFF-56C5-499F-A2B5-8C7B3855B8E7", "tempe": "09D8D347-4DA7-4413-AC73-469F595C1454" } },
+      { "key": "men", "name": "Men", "publicName": "Men's Ministry", "description": "Breakfasts, retreats, and service days for men.", "isPublic": true, "members": "men", "guid": "C4FE2926-FAA3-4563-84C9-2BC5D4F199F8" },
+      { "key": "women", "name": "Women", "publicName": "Women's Ministry", "description": "Bible studies, nights out, and retreats for women.", "isPublic": true, "members": "women", "guid": "BED673D8-2AA8-4ACF-95D0-25C839071D6B" },
+      { "key": "parents-of-kids", "name": "Parents of Kids", "publicName": "Kids Ministry Parents", "description": "What your kids are learning, VBS, and family events.", "isPublic": true, "members": "parents-of-kids", "guid": "72E10097-B64A-42BD-A990-FB7FEA6F98D7" },
+      { "key": "students", "name": "Students", "publicName": "Rock Solid Students", "description": "Students in grades 7 to 12. The student pastor manages it.", "isPublic": false, "members": "students", "preference": "sms", "guid": "B1AB7900-B0F0-4276-844E-AD49812BE958" },
+      { "key": "volunteers", "name": "Volunteers", "publicName": "Volunteers", "description": "Everyone on a serving team. It follows the team rosters.", "isPublic": false, "members": "volunteers", "guid": "7C040D39-B8F0-481E-95B3-9526D566C47F" },
+      { "key": "prayer-team", "name": "Prayer Team", "publicName": "Prayer Team", "description": "The people who pray through the church's prayer requests.", "isPublic": false, "members": "prayer-team", "guid": "02AFC428-AE41-48B3-A30F-B5CB606F5E59" },
+      { "key": "small-group-leaders", "name": "Small Group Leaders", "publicName": "Small Group Leaders", "description": "Everyone who leads an active small group. It follows the groups.", "isPublic": false, "members": "small-group-leaders", "guid": "3D755601-598D-4E8F-A13D-9DF0F0087CA9" }
+    ],
+    "membership": {
+      "$comment": "Designed, not measured (decision 133). Adults count when they are alive, on an active record, and 18 or older. 'involved' adults attended, gave, or were in a small group in the last year. A newsletter holds its campus's adults with an active email who are involved, plus 'otherAdultsPercent' of the rest. Men and Women are opt-in lists, joined by each connection status's percent of adults with an active email. Parents of Kids holds adults with an active email in a family with a child from birth to grade 6, when the family came in the last year, plus 'otherParentsPercent' of other such parents. Students holds students in grades 7 to 12 whose family came in the last year and who have an email or a phone that can text. Volunteers, Prayer Team, and Small Group Leaders follow the serving teams, the prayer team, and the small group leaders, whatever their email, because staff manage them. Each member joined on 'joinedYearsAgo' or, for people who came later, soon after the household's first Sunday.",
+      "otherAdultsPercent": 33,
+      "optInPercentByStatus": {
+        "men": { "Leading": 45, "Engaged": 30, "Connected": 18, "Participant": 8, "Known": 4, "Prospect": 2 },
+        "women": { "Leading": 50, "Engaged": 35, "Connected": 20, "Participant": 10, "Known": 5, "Prospect": 2 }
+      },
+      "otherParentsPercent": 33,
+      "kidsMaxGrade": 6,
+      "studentGrades": { "min": 7, "max": 12 },
+      "joinedYearsAgo": { "min": 2, "max": 6 },
+      "joinedDaysAfterFirstVisit": { "min": 7, "max": 90 }
+    }
+  },
+  "events": {
+    "$comment": "Church-wide dates the message library ties to that no other configuration file holds. Each is a weekday of a month, counted from the month's first such weekday. Easter, Christmas, the baptism Sundays, Student Camp, the Mission Trip, the Starting Point Class, and Commitment Sunday come from configuration/steps.json and configuration/campaign.json.",
+    "vbs": { "month": 6, "weekday": "Monday", "week": 2, "days": 5 },
+    "fallGroupLaunch": { "month": 9, "weekday": "Sunday", "week": 2 },
+    "springGroupLaunch": { "month": 1, "weekday": "Sunday", "week": 3 },
+    "serveSunday": { "month": 8, "weekday": "Sunday", "week": 4 }
+  }
+}

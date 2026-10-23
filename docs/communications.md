@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 and 131 to 133 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. The setup is built: the texting numbers, the communication lists, the branded template, and the message library. The sends are still a plan. The decisions are 90 to 96, 131 to 133, and D-commssetup-1 to D-commssetup-5 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -45,20 +45,33 @@ A loaded database must never email, text, or push to anyone, even though every a
 
 ## The setup
 
-1. **System phone numbers.** A main church line, a student ministry line, and one personal number assigned to a Cast pastor, all in the reserved 555-0100 to 555-0199 range and not used by any Cast person.
-2. **Communication lists.** A weekly newsletter list per campus, plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders. Members come from people already loaded, so the Volunteers list matches the serving teams and the Small Group Leaders list matches the groups. People who chose "No mass emails" stay off the lists. How many lists a person is on follows how involved they are, which sets their message load (see Message load per person).
-3. **Templates.** Rock's shipped templates, plus one sample church template with the approved logo.
-4. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them.
-5. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
-6. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them.
+The loader's Communications part writes the setup, after steps. It needs the small groups, serving, and prayer parts, because three lists copy them. The settings are in [configuration/communications.json](../configuration/communications.json).
+
+1. **System phone numbers** (decision 93). A main church line, a student ministry line, and personal texting numbers for Ted Decker, Alisha Marble, and Isaac Silva, the student pastor (decision D-commssetup-1). Full 7 adds a personal number for each other campus's campus pastor, so every campus has one. Pete Foster has none. Every number is in the reserved 555-0100 to 555-0199 range, and no loaded person has it: the Cast never does, and generated people are never given one. Forwarding is off, so a real text is never passed on.
+2. **Communication lists** (decision D-commssetup-2). A weekly newsletter per campus (such as "Phoenix Weekly"), plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders.
+   - **Public** lists show on Rock's email preference page under its Public category: the newsletters, Men, Women, and Parents of Kids.
+   - **Private** lists are staff-managed: Students, Volunteers, Prayer Team, and Small Group Leaders.
+   - **Members follow involvement** (decision 133). A newsletter holds its campus's adults with an active email who attended, gave, or were in a small group in the last year, plus a third of the others. Men and Women are opt-in, joined far more often by Leading and Engaged adults than by Known adults. Parents of Kids holds parents of children through grade 6 whose family came in the last year, plus a third of other such parents. Students holds students in grades 7 to 12 who came in the last year, by text when they have a phone that can text.
+   - **Staff lists copy the data.** Volunteers is everyone active on a serving team, Small Group Leaders is everyone who leads an active small group, and Prayer Team is the prayer team. Invariants check that the first two match.
+   - **Nobody who chose "No mass emails" or "Do not email"** is on any list.
+   - **Join dates.** A member joined two to six years ago, or soon after their household's first Sunday when that came later. A staff list member joined when they joined the team or became a leader.
+   - Rock ships four lists of its own (Members and Attendees, Parents of Children, Parents of Youth, and Sports Ministry). They stay as Rock made them, with no members.
+3. **Senders** (decision D-commssetup-3). Mass emails come from hello@rocksolidchurchdemo.com as "Rock Solid Church", sent in Rock by Daniel Peak, the Director of Communications. Pete Foster sends a few pastoral letters under his own name. Isaac Silva sends student texts from the student line. Daniel approves sends that need approval, and his own need none. The slices that write sends read these.
+4. **Templates** (decision D-commssetup-4). Rock's shipped templates, plus the "Rock Solid Church" template: the approved logo on a light gray page, a clean white body, and a footer with the church's name, address, and Rock's unsubscribe option. It is built for Outlook, with a table layout, inline styles, and Outlook conditional comments, and its colors are Lava fields. The HTML is [content/communications/email-template.html](../content/communications/email-template.html), and the logo is a Rock file, as if it had been uploaded in Rock's template editor.
+5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
+6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
+7. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them. Slice 6 loads them.
 
 ## The message library
 
-Messages come from a hand-written library in `content/communications/`, checked by a pool checker like the prayer and note pools.
+Messages come from a hand-written library in [content/communications/](../content/communications/README.md), checked by `check-library.js` like the prayer and note pools (decision D-commssetup-5).
 
-- **About 50 emails:** weekly newsletters built from rotating pieces, sermon series launches, Easter and Christmas service times, VBS, summer camp, year-end giving statements, baptism Sunday, the membership class, serve team recruiting, and group launches.
-- **About 30 texts and pushes:** weather closures, "we're live now", event reminders, RSVP requests, and student ministry reminders.
-- **No fixed dates.** Tokens such as the date, the day of the week, and the sermon series fill in at load time, so a message always matches when it was sent.
+- **49 emails:** sermon series launches, Easter and Christmas service times, Thanksgiving, VBS, Student Camp and mission trips, year-end giving letters and statements, Built on the Rock's Commitment Sunday and updates, baptism Sunday, the Starting Point Class and Foundations, serve team recruiting, group launches, ministry list emails, a weather closure, and the one-to-one and flow messages.
+- **A weekly newsletter** built from rotating pieces: subjects, openers, a line about this Sunday's series, pieces tied to coming events, evergreen pieces, and closings.
+- **32 texts and pushes:** weather closures, "we're live now", event reminders, RSVP requests, and student ministry reminders, plus pools of short replies for the texts that ask for one.
+- **Occasions, not dates.** Each message names its occasion, such as Easter or a campus's Starting Point Class, and how many days before it the message goes out. The loader dates every occasion from the install day.
+- **Sermon series.** Six series fill three slots in the church year (after New Year, after Easter, and in the fall), two per slot, so the two years of history show six. The Built on the Rock series runs the four Sundays that end on Commitment Sunday.
+- **Tokens** such as `{eventDate}`, `{campus}`, `{serviceTimes}`, and `{series}` fill in at load time, so a message always matches when it was sent. Rock fills in `{{ Person.NickName }}` for each recipient.
 - **Real links.** Links point at paths on the sample church's site (`rocksolidchurchdemo.com`), so the All Links chart groups clicks by page.
 - **Content standards apply:** fictional names, `example.org` and `rocksolidchurchdemo.com` emails, reserved phone numbers, and warm text for any audience.
 
@@ -153,6 +166,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations:** each Cast thread shows in SMS Conversations in its intended state, and the recent threads are unread.
 - **Validation** grades the generated data against calibration part 7.
@@ -163,7 +177,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 Each slice lands on its own, passes verify, and goes to the integrator.
 
 1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
-2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library.
+2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Done.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs.
 5. **One-to-one messages.** Serving, connections, prayer, and staff messages.

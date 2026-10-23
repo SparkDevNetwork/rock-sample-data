@@ -7,11 +7,12 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Isaac and Natalie Silva split every gift between the General Fund and the Mission Fund.",
+  "story": "Isaac Silva is the Student Pastor. He and Natalie split every gift between the General Fund and the Mission Fund.",
   "testPurposes": [
     "Every gift goes to two funds.",
     "Weekly giver.",
-    "Spouses give separately: Isaac weekly, Natalie monthly."
+    "Spouses give separately: Isaac weekly, Natalie monthly.",
+    "Staff member with a personal texting number, who also texts students from the student line."
   ],
   "address": {
     "type": "home",
@@ -67,6 +68,7 @@
       "guid": "581C940E-A788-4F32-BCF3-33F4D1948390",
       "firstName": "Isaac",
       "lastName": "Silva",
+      "bio": "Isaac led the Student Ministry team as a volunteer for three years, then joined staff this year as the Student Pastor. He texts students and parents from the student ministry line and has his own texting number. He still owns Javelina Wash Coffee, which Natalie now runs day to day.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {
@@ -95,6 +97,14 @@
           "type": "business",
           "with": "6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8"
         }
+      ],
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Student Pastor"
+      },
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
       ]
     },
     {

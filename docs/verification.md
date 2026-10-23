@@ -50,7 +50,7 @@ These need only Node.js, so every contributor runs them.
 
 **What it does.** `node validation/check-standards.js` checks the [content standards](content-standards.md) that span folders:
 
-- **Rule 2.** Every Cast phone is in the reserved range (555-0100 to 555-0199 in 602, 480, or 623). A number is shared only within a household, as an office line, or between duplicate records.
+- **Rule 2.** Every Cast phone is in the reserved range (555-0100 to 555-0199 in 602, 480, or 623). A number is shared only within a household, as an office line, or between duplicate records. The church's texting numbers in `configuration/communications.json` are reserved too, each is unique, and none is a Cast person's number.
 - **Rule 3.** Every email anywhere in the data uses `example.org` or `rocksolidchurchdemo.com`.
 - **Rule 5.** The raw data folders hold nothing in git but their README and `.gitignore`.
 - **Rule 6.** Calibration sources are named `source-N`, and every source's description is exactly "Calibration source". When it finds a description, it never repeats it, so the check itself cannot leak one.
@@ -101,7 +101,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 
@@ -142,6 +142,10 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `student-step-belongs-to-a-student` | Every Student Path step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then. Mission Trip is high school only, and Student Leader is juniors and seniors only. |
 | `student-path-decisions-and-leaders` | Follow Jesus and Student Leader happen at most once per person. Student Leader ends at graduation in May, or stays open while the student is still in school. |
 | `student-baptism-follows-the-student-service` | A child's baptism is here, on a Sunday, after they started coming to the student service. |
+| `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
+| `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an active email. |
+| `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |
+| `system-phone-numbers-are-reserved-and-unused` | The church's texting numbers are active, can text, have forwarding off, use the reserved range, and are no loaded person's number (decision 93). |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
