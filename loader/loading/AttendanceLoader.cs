@@ -159,16 +159,14 @@ namespace RockSampleData.Loader.Loading
                 PlanFamily( household, studentFamilySundays );
             }
 
-            // Students only check in on Sundays the check-in ran for the families, so the kids' streaks keep their Sundays.
-            var checkInRan = new HashSet<DateTime>( CheckInSundays );
             foreach ( var sunday in studentFamilySundays )
             {
-                PlanStudentFamilySunday( sunday, checkInRan );
+                PlanStudentFamilySunday( sunday );
             }
 
             foreach ( var household in households )
             {
-                PlanStudentsOnTheirOwn( household, checkInRan );
+                PlanStudentsOnTheirOwn( household );
             }
 
             SetFirstTimes();
@@ -262,7 +260,7 @@ namespace RockSampleData.Loader.Loading
                     var childService = isStudent ? plan.StudentService : service;
                     var start = sunday.Add( childService.Start ).AddMinutes( -random.Between( 2, 25 ) );
                     codeId ??= NewCode( random, sunday, start );
-                    AddCheckIn( child, plan, groupKey, childService, sunday, start, codeId.Value, present.Count > 0 ? present[0].AliasId : child.AliasId );
+                    AddCheckIn( child, plan, groupKey, childService, sunday, start, codeId.Value, inService.FirstOrDefault()?.AliasId ?? ( present.Count > 0 ? present[0].AliasId : child.AliasId ) );
                 }
 
                 if ( codeId.HasValue )
@@ -286,13 +284,13 @@ namespace RockSampleData.Loader.Loading
         /// A recent graduate who came with their family while still in school: they check in to the student
         /// service as a student with their family would, or else sit in the service with the family.
         /// </summary>
-        private void PlanStudentFamilySunday( StudentFamilySunday familySunday, HashSet<DateTime> checkInRan )
+        private void PlanStudentFamilySunday( StudentFamilySunday familySunday )
         {
             var (household, student, sunday, service, serviceStart, checkedInBy) = familySunday;
             var plan = _configuration.CampusPlans[household.CampusKey];
             var random = StudentRandom( "family", student, sunday );
             var groupKey = CheckInGroupFor( student, sunday );
-            var isCheckedIn = IsStudentGroup( groupKey ) && checkInRan.Contains( sunday ) && random.Chance( StudentRules.FamilyCheckIn * KidsFactor( sunday ) )
+            var isCheckedIn = IsStudentGroup( groupKey ) && StudentServiceRuns( sunday ) && random.Chance( StudentRules.FamilyCheckIn * KidsFactor( sunday ) )
                 && _checkedInThisSunday.Add( (student.PersonId, sunday) );
 
             _studentAliases.Add( student.AliasId );
@@ -312,7 +310,7 @@ namespace RockSampleData.Loader.Loading
         /// Sundays the family stayed home, and some keep coming for a while after the family stops.
         /// They check themselves in.
         /// </summary>
-        private void PlanStudentsOnTheirOwn( LoadedHousehold household, HashSet<DateTime> checkInRan )
+        private void PlanStudentsOnTheirOwn( LoadedHousehold household )
         {
             var (percent, _) = AttendanceRate( household );
             if ( percent <= 0 )
@@ -335,7 +333,7 @@ namespace RockSampleData.Loader.Loading
                     var groupKey = CheckInGroupFor( student, sunday );
                     if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, percent / 100.0 * StudentRules.OnTheirOwn[groupKey] * _calendar.Multiplier( sunday, "kids" ) ) ) )
                     {
-                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan );
+                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday );
                     }
                 }
 
@@ -352,20 +350,20 @@ namespace RockSampleData.Loader.Loading
                     var groupKey = CheckInGroupFor( student, sunday );
                     if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, percent / 100.0 * StudentRules.FamilyCheckIn * _calendar.Multiplier( sunday, "kids" ) ) ) )
                     {
-                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan );
+                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday );
                     }
                 }
             }
         }
 
         /// <summary>
-        /// A student's check-in on their own, with their own security code, on a Sunday the check-in ran. Its time and
+        /// A student's check-in on their own, with their own security code, on a Sunday the student service runs. Its time and
         /// code come from a stream for that Sunday alone, because a code that collides with another family's draws again,
         /// and the other families differ by dataset. The Cast's Sundays stay the same in every dataset.
         /// </summary>
-        private void AddCheckInOnTheirOwn( LoadedPerson student, CampusPlan plan, string groupKey, DateTime sunday, HashSet<DateTime> checkInRan )
+        private void AddCheckInOnTheirOwn( LoadedPerson student, CampusPlan plan, string groupKey, DateTime sunday )
         {
-            if ( !checkInRan.Contains( sunday ) || !_checkedInThisSunday.Add( (student.PersonId, sunday) ) )
+            if ( !StudentServiceRuns( sunday ) || !_checkedInThisSunday.Add( (student.PersonId, sunday) ) )
             {
                 return;
             }
@@ -673,8 +671,28 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// How often kids and students come (decisions D-student-attendance-1 to D-student-attendance-3).
         /// </summary>
+        /*
+            10/23/26 - CLAUDE
+
+            Whether the student service runs comes from the church calendar, not from which kids checked in. The kids who
+            checked in differ by dataset, so a rule that read them would give a Cast student different Sundays in Core 1
+            and Full 7. Christmas week is the one week with almost no kids' ministry (its kids multiplier is 0.01).
+
+            Reason: The Cast is the same in every dataset (decision 3).
+        */
+
+        /// <summary>
+        /// Whether the student service runs on a Sunday: every week the church calendar has kids' ministry.
+        /// </summary>
+        private bool StudentServiceRuns( DateTime sunday ) => _calendar.Multiplier( sunday, "kids" ) >= StudentRules.MinimumKidsMultiplier;
+
         private static class StudentRules
         {
+            /// <summary>
+            /// Below this kids multiplier (Christmas week), there is no student service.
+            /// </summary>
+            public const double MinimumKidsMultiplier = 0.05;
+
             /// <summary>
             /// A student (grades 7 to 12) with their family checks in to the student service this often.
             /// </summary>
