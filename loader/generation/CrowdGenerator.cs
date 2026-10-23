@@ -161,7 +161,7 @@ namespace RockSampleData.Loader.Generation
             var lastName = random.Pick( CrowdNames.LastNames );
             var status = PickStatus( random );
 
-            // Some one-person families are a child on their own (often a student who comes without parents).
+            // Some one-person families are a child on their own.
             var isChildAlone = size == 1 && random.Chance( _profile.Number( "people.familySizeMix.1.avgChildren", 0 ) );
             var adultCount = isChildAlone ? 0
                 : size == 1 ? 1
@@ -177,10 +177,11 @@ namespace RockSampleData.Loader.Generation
                 Address = NewAddress( random, campus )
             };
 
+            // A child on their own is a student, 12 to 17, who comes without parents (decision D-crowd-teens-2).
             if ( isChildAlone )
             {
-                var age = AgeInBand( random.Pick( AgeWeights( new[] { "06-11", "12-17" } ) ), random );
-                household.Members.Add( NewPerson( household, 0, random, lastName, Math.Max( age, 10 ), random.Chance( 0.5 ), "child", status, null ) );
+                var age = AgeInBand( "12-17", random );
+                household.Members.Add( NewPerson( household, 0, random, lastName, age, random.Chance( 0.5 ), "child", status, null ) );
                 return household;
             }
 
@@ -233,13 +234,25 @@ namespace RockSampleData.Loader.Generation
                 LastName = lastName,
                 Gender = isFemale ? "female" : "male",
                 FamilyRole = role,
-                Birth = new CastBirth { Age = age, Month = random.Between( 1, 12 ), Day = random.Between( 1, 28 ) },
+                Birth = new CastBirth { Age = age, Month = random.Between( 1, 12 ), Day = random.Between( 1, 28 ), IsUnrecorded = isAdult && !IsBirthDateRecorded( household, position ) },
                 MaritalStatus = marital,
                 RecordStatus = "active",
                 ConnectionStatus = status,
                 Email = hasEmail ? $"{firstName}.{lastName}{random.Between( 1, 999 )}@example.org".ToLowerInvariant() : null,
                 Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
+        }
+
+        /// <summary>
+        /// Whether the church recorded an adult's birth date, at the profile's measured rate. Measured age
+        /// mixes count only people with a birth date, and about a quarter of adults have none (decision
+        /// D-crowd-teens-1). It draws from its own stream, so every other choice for the household is the same
+        /// as when every birth date was recorded.
+        /// </summary>
+        private bool IsBirthDateRecorded( CastHousehold household, int position )
+        {
+            var random = new SeededRandom( $"{_seed}:crowd-birth:{household.Key}-{position}" );
+            return random.Chance( _profile.Number( "people.completeness.adult.pctBirthDate", 100 ) / 100 );
         }
 
         /// <summary>

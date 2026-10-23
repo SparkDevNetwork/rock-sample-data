@@ -478,6 +478,12 @@ namespace RockSampleData.Loader.Model
         public int Month { get; set; }
 
         public int Day { get; set; }
+
+        /// <summary>
+        /// True when the church never recorded this birth date. Rock's record has no birth date, but the
+        /// person's age still guides what they do, such as joining a group or serving.
+        /// </summary>
+        public bool IsUnrecorded { get; set; }
     }
 
     /// <summary>

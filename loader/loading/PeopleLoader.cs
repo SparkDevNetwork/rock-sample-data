@@ -164,6 +164,19 @@ namespace RockSampleData.Loader.Loading
                     var isBusiness = person.RecordType == "business";
                     DateTime? birthDate = person.Birth == null ? null : _dates.BirthDate( person.Birth );
                     int? age = birthDate.HasValue ? _dates.AgeOn( birthDate.Value ) : null;
+
+                    /*
+                        10/23/26 - CLAUDE
+
+                        Many real records have no birth date, mostly adults'. Rock's columns, and the values that
+                        mirror Rock's own math (age classification and salutation), use only a recorded birth date.
+                        The real date stays on the loaded person, so the plans that follow, such as giving and
+                        steps, are the same whether or not the church recorded it.
+
+                        Reason: Generated adults leave their birth date blank at the measured rate (decision D-crowd-teens-1).
+                    */
+                    var recordedBirthDate = person.Birth?.IsUnrecorded == true ? null : birthDate;
+                    var recordedAge = recordedBirthDate.HasValue ? age : null;
                     var grade = person.Grade ?? DerivedGrade( person, age );
                     var givesWithFamily = isAdult && GivesWithFamily( household, person );
                     int? givingGroupId = givesWithFamily ? familyId : null;
@@ -193,9 +206,9 @@ namespace RockSampleData.Loader.Loading
                         lookups.ConnectionStatus( person.ConnectionStatus ),
                         person.IsDeceased,
                         person.FirstName, person.NickName ?? person.FirstName, person.MiddleName ?? ( object ) DBNull.Value, person.LastName,
-                        Value( birthDate?.Day ), Value( birthDate?.Month ), Value( birthDate?.Year ), Value( birthDate ),
-                        birthDate.HasValue ? ( object ) int.Parse( birthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
-                        Value( age ), AnchorDates.AgeBracket( age ),
+                        Value( recordedBirthDate?.Day ), Value( recordedBirthDate?.Month ), Value( recordedBirthDate?.Year ), Value( recordedBirthDate ),
+                        recordedBirthDate.HasValue ? ( object ) int.Parse( recordedBirthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
+                        Value( recordedAge ), AnchorDates.AgeBracket( recordedAge ),
                         person.Gender == "male" ? 1 : person.Gender == "female" ? 2 : 0,
                         Value( lookups.MaritalStatus( person.MaritalStatus ) ),
                         Value( _dates.Resolve( person.Anniversary ) ),
@@ -207,14 +220,14 @@ namespace RockSampleData.Loader.Loading
                         person.EmailIsActive,
                         person.EmailDoNotEmail ? 2 : 0,
                         1,
-                        AgeClassification( person, isAdult, isBusiness, age ),
+                        AgeClassification( person, isAdult, isBusiness, recordedAge ),
                         familyId, familyCampusId,
                         loaded.AliasId, loaded.AliasGuid,
                         person.Guid, _foreignKey, _now, _now );
 
                     aliases.Rows.Add( loaded.AliasId, loaded.PersonId, loaded.PersonId, person.Guid, loaded.AliasGuid, _foreignKey );
                     members.Rows.Add( nextMemberId++, false, familyId, familyTypeId, loaded.PersonId, isAdult ? adultRoleId : childRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
-                    familySalutationMembers.Add( SalutationMemberFor( person, isAdult, age ) );
+                    familySalutationMembers.Add( SalutationMemberFor( person, isAdult, recordedAge ) );
 
                     AddPhone( phones, ref nextPhoneId, loaded.PersonId, person.Phones?.Home, lookups.Id( HomePhoneGuid ), false );
                     AddPhone( phones, ref nextPhoneId, loaded.PersonId, person.Phones?.Mobile, lookups.Id( MobilePhoneGuid ), true );
