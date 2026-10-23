@@ -19,7 +19,7 @@
     "months": 0
   },
   "giving": {
-    "$comment": "Small datasets scale up the check weight so check batches and check images have enough to show (decision D-core3-2). Full 7 keeps the measured mix.",
+    "$comment": "Small datasets scale up the check weight so check batches and check images have enough to show (decision 143). Full 7 keeps the measured mix.",
     "checkWeightScale": 16
   }
 }
