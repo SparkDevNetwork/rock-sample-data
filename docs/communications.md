@@ -83,7 +83,7 @@ Unsubscribes are designed, not measured (decision 131). The measured data record
 - **Which sends.** Large newsletters draw more unsubscribes than small ministry sends.
 - **Texted STOP.** A few people text STOP. Their newest text gets a level All unsubscribe, and texting is turned off on their phone, so later texts leave them out.
 - **The Cast.** A couple of Cast people unsubscribe in ways their stories explain, such as leaving the Men's list after moving to a Saturday group, so tests can find a known case.
-- **Calibration.** Part 7 also counts a whole year of unsubscribes, with their levels and timing, where Rock 19's unsubscribe index exists. Where a source has them, they shape the design.
+- **Calibration.** Part 7 also counts a whole year of unsubscribes, with their levels and timing, where Rock 19's unsubscribe index exists. In the measured data, recipient rows hold texted STOPs (about 0.34 per 1,000 mass-text recipients, mostly the same day) but no email unsubscribes, so the STOP rate and the timing are measured, and the email levels and rates are designed.
 
 ## Message load per person
 
@@ -91,7 +91,7 @@ Rock's Saturation report shows how many messages each adult got. A plan that sen
 
 - **List membership follows involvement.** Leading and Engaged adults are on more lists (Volunteers, Small Group Leaders, Prayer Team, Parents of Kids) than Known adults, and some adults are on none. Parents get kids and student messages, and volunteers get serving reminders, so the busiest people sit in the high buckets.
 - **Some get nothing.** Adults with no email, an inactive email, "No mass emails", or no list get no mass email, and adults who cannot text get no texts.
-- **Graded.** Part 7 measures the share of active adults in each bucket over a month, by medium, for sends flagged bulk and for all mass sends. Validation grades the sample church against it.
+- **Graded.** Part 7 measures the share of active adults in each bucket over a month, by medium, for sends flagged bulk and for all mass sends. Validation grades the sample church against the all-mass-sends shape, since the sample church flags every mass send as bulk. In the measured data, most active adults get no mass email in a month and a core group gets about one a week, with a thin tail above that; texts reach far fewer people.
 
 ## Texts and SMS conversations
 
@@ -163,7 +163,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 Each slice lands on its own, passes verify, and goes to the integrator.
 
 1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
-2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Before this starts, source-1 reruns part 7 for the saturation and unsubscribe measures.
+2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs.
 5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
