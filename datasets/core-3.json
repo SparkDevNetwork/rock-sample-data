@@ -18,11 +18,16 @@
     "months": 0
   },
   "generatedHouseholds": {
-    "$comment": "Companion households. The Cast fills the main campus, so it gets none.",
+    "$comment": "Companion households. The Cast fills the main campus, so it gets none. statusWeights makes them more involved than the Crowd (decision 142).",
     "perCampus": {
       "peoria": 75,
       "gilbert": 75
-    }
+    },
+    "statusWeights": { "Prospect": 3, "Participant": 10, "Known": 17, "Connected": 30, "Engaged": 28, "Leading": 12 }
+  },
+  "giving": {
+    "$comment": "Small datasets scale up the check weight so check batches and check images have enough to show (decision 143). Full 7 keeps the measured mix.",
+    "checkWeightScale": 16
   },
   "photos": {
     "$comment": "About half of the companion households get faces from the 120-photo pool (decision 30).",

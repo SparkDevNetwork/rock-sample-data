@@ -45,7 +45,7 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 
 - Primary demo family used in documentation and screenshots.
 - Two adults and two children; kids check-in with an allergy attribute.
-- Monthly giver across two funds, by recurring credit card.
+- Monthly giver by recurring credit card, with a building campaign line on each gift.
 - Small group leader and serving team member.
 - Completes the whole Discipleship Path, with a program completion.
 - Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert.
@@ -53,7 +53,7 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 ## Activity
 
 - **Attendance:** core, 80% of Sundays, 88% at their usual service, since 11 years ago.
-- **Giving:** **monthly** by Ted Decker: $175 General Fund + $125 Building Fund per gift, by card, gives in 100% of periods, grows 3% every 52 weeks, 50% chance of a year-end gift, started 10 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
+- **Giving:** **monthly** by Ted Decker: $300 General Fund per gift, by card, gives in 100% of periods, grows 3% every 52 weeks, 50% chance of a year-end gift, started 10 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
 - **Giving units:** the couple gives together as one giving unit.
 - **Built on the Rock:** Ted Decker pledged $6,000 monthly in the quiet phase, and the pledge is **on pace**.
 

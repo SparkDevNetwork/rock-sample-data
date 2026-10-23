@@ -22,7 +22,7 @@ Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amoun
 | (Public) Create Pledge page, and Pledge under Give on the external site | Rock's shipped Pledge Entry block | The block's Account and Pledge Date Range settings |
 | Contribution statements | The statement template's pledge settings | The pledge accounts, and "include gifts to child accounts" |
 
-One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. The sample church has more than ten years of Building Fund gifts. If people pledged to the Building Fund, every pledge would show hundreds of percent complete. So the campaign gets its own fund (decision 98).
+One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. If people pledged to a fund with years of older gifts, every pledge would show hundreds of percent complete. So the campaign's fund has no gifts from before the campaign (decision 98).
 
 ## The campaign
 
@@ -42,9 +42,9 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 
 ### The fund
 
-- A new top-level account, **Built on the Rock**, after the Building Fund. It is public and tax deductible, with a description and the campaign dates as the account's start and end dates.
-- It has one child account per campus, like the General and Building Funds (decision 21). Pledges go to the parent account. Gifts post to the giver's campus account. Pledge Analytics and statements both roll child accounts up into the parent.
-- The **Building Fund keeps running** for upkeep. Givers who give to it today still do. Campaign gifts are new gifts or new lines on top (decision 99).
+- The fund is **Rock's own Building Fund, renamed Built on the Rock** (decision 98). It keeps Rock's Guid and comes right after the General Fund. It is public and tax deductible, with a description and the campaign dates as the account's start and end dates.
+- It has one child account per campus, like the General Fund (decision 21). Pledges go to the parent account. Gifts post to the giver's campus account. Pledge Analytics and statements both roll child accounts up into the parent.
+- The church has **no standing building fund**. Building upkeep comes from the General Fund. Givers who gave to the Building Fund before the campaign give the same amount to the General Fund instead, so their totals do not change. Campaign gifts are new gifts or new lines on top (decision 99).
 
 ### Rock settings
 
@@ -126,7 +126,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 | Decker | $6,000, monthly, quiet phase | A staff pledge. Ted's monthly card schedule gets a campaign line. On pace. |
 | Hayes | $10,400, weekly | Long-time members on pace, a campaign line on every weekly gift. |
 | Carter | $5,000, one-time | Margaret paid it in full in Walter's memory, added to her monthly check. Complete. |
-| Brooks | $2,600, weekly | A steady weekly giver, on pace, still giving to the Building Fund too. |
+| Brooks | $2,600, weekly | A steady weekly giver, on pace, with a campaign line on every weekly gift. |
 | Lee | $5,200, weekly | A large family behind pace. |
 | Hernandez | $1,000, weekly | Gabriel gives ahead of pace and added a $600 gift, so he has given more than he pledged. Complete. |
 | Shaw | $1,200, bi-weekly | A late pledge, 24 weeks after Commitment Sunday, from a family that joined after it. It starts the day they pledged. |
