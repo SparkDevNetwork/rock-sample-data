@@ -21,12 +21,12 @@ Frank is a long-time member. After his divorce he was convicted of a misdemeanor
 
 - Failed background check that needs review.
 - Divorced adult living alone.
-- Monthly giver across two funds.
+- Monthly giver.
 
 ## Activity
 
 - **Attendance:** regular, 70% of Sundays, 70% at their usual service, since 15 years ago.
-- **Giving:** **monthly** by Frank Dexter: $50 General Fund + $10 Building Fund per gift, gives in 70% of periods, grows 5% every 52 weeks, 50% chance of a year-end gift, started 10 years ago.
+- **Giving:** **monthly** by Frank Dexter: $60 General Fund per gift, gives in 70% of periods, grows 5% every 52 weeks, 50% chance of a year-end gift, started 10 years ago.
 
 ## Address
 

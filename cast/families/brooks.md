@@ -16,7 +16,7 @@ The Brooks family has been at the church for nine years. Ava is in high school a
 
 ### Nathan Brooks
 
-Nathan has been at the church nine years and gives every week to the General and Building funds. He is the example of a steady, growing weekly giver.
+Nathan has been at the church nine years and gives every week to the General Fund, with a line for the building campaign on each gift. He is the example of a steady, growing weekly giver.
 
 - Age 42 · married · email nathan.brooks@example.org · groups: Decker Group, Kids Ministry, Lee Group (left, archived)
 - Person Guid `CADE3046-BF77-4131-9527-D52E4700E038`
@@ -52,12 +52,12 @@ Lily is eight and in the Grades 2-3 room.
 ## What this family tests
 
 - Three kids across the student and elementary check-in areas.
-- Weekly giver across two funds with year-end gifts.
+- Weekly giver with year-end gifts, and a building campaign line on each gift.
 
 ## Activity
 
 - **Attendance:** core, 84% of Sundays, 90% at their usual service, since 9 years ago.
-- **Giving:** **weekly** by Nathan Brooks: $100 General Fund + $25 Building Fund per gift, gives in 85% of periods, grows 3% every 52 weeks, 40% chance of a year-end gift, started 8 years ago.
+- **Giving:** **weekly** by Nathan Brooks: $125 General Fund per gift, gives in 85% of periods, grows 3% every 52 weeks, 40% chance of a year-end gift, started 8 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 - **Built on the Rock:** Nathan Brooks pledged $2,600 weekly on Commitment Sunday, and the pledge is **on pace**.
 

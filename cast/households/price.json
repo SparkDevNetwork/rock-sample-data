@@ -11,7 +11,7 @@
   "testPurposes": [
     "Top 1% giver with large quarterly gifts.",
     "Year-end gift every year.",
-    "Gifts to General and Building funds."
+    "Gifts to the General Fund and the building campaign."
   ],
   "address": {
     "type": "home",
@@ -36,8 +36,7 @@
       "persona": "quarterly",
       "person": "william",
       "funds": {
-        "General Fund": 6000,
-        "Building Fund": 2500
+        "General Fund": 8500
       },
       "percentOfPeriodsGiven": 100,
       "specialGiftPercent": 100,
