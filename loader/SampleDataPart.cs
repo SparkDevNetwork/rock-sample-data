@@ -66,7 +66,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates and program completions.
         /// </summary>
-        Steps
+        Steps,
+
+        /// <summary>
+        /// The church's texting numbers, its branded email template, and its communication lists with their members.
+        /// </summary>
+        Communications
     }
 
     /// <summary>
@@ -128,6 +133,11 @@ namespace RockSampleData.Loader
             Give step must agree with the journey stage the giving part writes. Steps read the attendance
             plan only, so they do not need attendance.
 
+            Communications need small groups, serving, and prayer. The Volunteers and Small Group Leaders
+            lists copy the team and group memberships those parts wrote, and the Prayer Team list holds the
+            prayer part's team. Who is involved enough for a newsletter reads the attendance and giving
+            plans only, so communications do not need those parts.
+
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
 
@@ -144,6 +154,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
+            new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "The church's texting numbers, its branded email template, and its communication lists, with members who match the people in the church.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

@@ -63,6 +63,11 @@ namespace RockSampleData.Loader.Generation
         private readonly DateTime _anchor;
         private readonly AddressPool _addresses;
 
+        /// <summary>
+        /// The church's own texting numbers, which no generated person may have (decision 93).
+        /// </summary>
+        private readonly HashSet<string> _churchNumbers;
+
         public CrowdGenerator( ProfileTargets profile, SampleDataSource source, string seed, DateTime anchor )
         {
             _profile = profile;
@@ -70,6 +75,12 @@ namespace RockSampleData.Loader.Generation
             _seed = seed;
             _anchor = anchor;
             _addresses = AddressPool.Load( source.Files, seed );
+
+            var numbers = source.Communications?.PhoneNumbers;
+            _churchNumbers = ( numbers?.Numbers.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
+                .Concat( numbers?.CampusPastors.Numbers.Values.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
+                .Select( n => n.StartsWith( "+1", StringComparison.Ordinal ) ? n.Substring( 2 ) : n )
+                .ToHashSet();
         }
 
         /// <summary>
@@ -120,7 +131,7 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         public List<CastHousehold> GenerateBusinesses( IReadOnlyList<CastHousehold> generated, IReadOnlyList<string> campusKeys, string mainCampusKey, int castMainCampusBusinesses )
         {
-            return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
+            return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal, PhoneNumber ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
         }
 
         /// <summary>
@@ -223,7 +234,7 @@ namespace RockSampleData.Loader.Generation
                 RecordStatus = "active",
                 ConnectionStatus = status,
                 Email = hasEmail ? $"{firstName}.{lastName}{random.Between( 1, 999 )}@example.org".ToLowerInvariant() : null,
-                Phones = hasMobile ? new CastPhones { Mobile = $"{random.Pick( AreaCodes )}5550{random.Between( 100, 199 )}" } : null
+                Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
         }
 
@@ -235,6 +246,21 @@ namespace RockSampleData.Loader.Generation
         {
             var graduationYear = new AnchorDates( _anchor ).GraduationYear( age - 5 );
             return new RelativeDate { YearsAgo = _anchor.Year - graduationYear, Month = 5, Day = 22 };
+        }
+
+        /// <summary>
+        /// A reserved phone number that is not one of the church's texting numbers.
+        /// </summary>
+        private string PhoneNumber( SeededRandom random )
+        {
+            string number;
+            do
+            {
+                number = $"{random.Pick( AreaCodes )}5550{random.Between( 100, 199 )}";
+            }
+            while ( _churchNumbers.Contains( number ) );
+
+            return number;
         }
 
         /// <summary>

@@ -207,6 +207,19 @@ module.exports = function church( { model, r } ) {
   </div>
 </section>
 
+${model.communicationLists.length ? html`<section class="section" id="lists">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Staying in touch", title: "The lists the church writes to.", lede: "Each campus sends a weekly newsletter, and ministries write to their own lists. Who is on each list follows how involved they are, so the people who lead and serve hear the most." } )}
+    <div class="card-grid">
+      ${model.communicationLists.map( l => html`<div class="card reveal">
+        <h3>${esc( l.campus ? l.publicName.replace( "{campus} ", "" ) : l.publicName )}</h3>
+        <p>${esc( l.description )}</p>
+        <span class="tags"><span class="tag">${l.isPublic ? "Anyone can join" : "Staff-managed"}</span>${l.campus ? html` <span class="tag">One per campus</span>` : ""}</span>
+      </div>` )}
+    </div>
+  </div>
+</section>` : ""}
+
 <section class="section section-sand">
   <div class="wrap">
     ${sectionHead( { eyebrow: "A week at the church", title: "What the data remembers." } )}

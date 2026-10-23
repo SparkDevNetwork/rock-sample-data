@@ -92,6 +92,30 @@ for ( const [ number, uses ] of phones ) {
     }
 }
 
+// Rule 2 for the church's own texting numbers: each is reserved, unique, and never a Cast person's number,
+// so a text in SMS Conversations never seems to come from a church member.
+const communicationsFile = "configuration/communications.json";
+if ( fs.existsSync( path.join( root, communicationsFile ) ) ) {
+    const numbers = JSON.parse( fs.readFileSync( path.join( root, communicationsFile ), "utf8" ) ).phoneNumbers || {};
+    const systemNumbers = ( numbers.numbers || [] ).map( n => [ n.key, n.number ] )
+        .concat( Object.entries( numbers.campusPastors?.numbers || {} ).map( ( [ campus, n ] ) => [ `campus pastor ${campus}`, n.number ] ) );
+    const seen = new Map();
+    for ( const [ key, e164 ] of systemNumbers ) {
+        checked++;
+        const number = String( e164 ).replace( /^\+1/, "" );
+        if ( !/^\+1\d{10}$/.test( e164 ) || !PHONE.test( number ) ) {
+            problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is not +1 and 555-0100 to 555-0199 in 602, 480, or 623.` );
+        }
+        if ( phones.has( number ) ) {
+            problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is a Cast person's number (${phones.get( number ).map( u => `${u.household}/${u.person}` ).join( ", " )}).` );
+        }
+        if ( seen.has( number ) ) {
+            problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is also ${seen.get( number )}.` );
+        }
+        seen.set( number, key );
+    }
+}
+
 // Rule 3: every email address anywhere in the data uses a reserved domain.
 for ( const folder of DATA_FOLDERS ) {
     for ( const { file, data } of readJson( folder ) ) {

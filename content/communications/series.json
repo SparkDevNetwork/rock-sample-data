@@ -1,0 +1,17 @@
+{
+  "$comment": "The sample church's sermon series (README.md, series.json). Each slot has two series: a year uses the first in even years and the second in odd years. The campaign series runs the four Sundays that end on Commitment Sunday and replaces any other series those weeks. Names are invented for the sample church.",
+  "slots": {
+    "new-year": { "$comment": "Starts the first Sunday of January.", "weeks": 7 },
+    "after-easter": { "$comment": "Starts the Sunday after Easter.", "weeks": 7 },
+    "fall": { "$comment": "Starts the second Sunday of September.", "weeks": 10 }
+  },
+  "series": [
+    { "key": "unshaken", "name": "Unshaken", "tagline": "Finding steady ground when life moves.", "slot": "new-year" },
+    { "key": "fresh-ground", "name": "Fresh Ground", "tagline": "Simple habits that make room for God in a new year.", "slot": "new-year" },
+    { "key": "ordinary-saints", "name": "Ordinary Saints", "tagline": "How everyday people carried the good news in the book of Acts.", "slot": "after-easter" },
+    { "key": "next-door", "name": "Next Door", "tagline": "Loving the people God already put on your street.", "slot": "after-easter" },
+    { "key": "desert-streams", "name": "Desert Streams", "tagline": "God makes a way in dry places, from the book of Isaiah.", "slot": "fall" },
+    { "key": "the-way-home", "name": "The Way Home", "tagline": "The stories Jesus told about lost things being found.", "slot": "fall" }
+  ],
+  "campaign": { "key": "built-on-the-rock", "name": "Built on the Rock", "tagline": "Building a foundation that lasts for the next generation.", "weeks": 4 }
+}

@@ -606,3 +606,73 @@ FROM [FinancialTransactionDetail] AS [ftd]
 INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [ftd].[AccountId]
 WHERE [ftd].[ForeignKey] = @ForeignKey
     AND EXISTS ( SELECT 1 FROM [FinancialAccount] AS [child] WHERE [child].[ParentAccountId] = [fa].[Id] AND [child].[CampusId] IS NOT NULL );
+
+-- check: communication-list-members-allow-mass-email
+-- why: Decision 133. Nobody who chose "No mass emails" or "Do not email" is on a communication list, so a list send never reaches someone who asked not to get one.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [gt].[Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' AND [g].[ForeignKey] = @ForeignKey
+    AND [gm].[GroupMemberStatus] = 1 AND [p].[EmailPreference] <> 0;
+
+-- check: newsletter-members-belong-to-the-campus
+-- why: A campus newsletter holds that campus's adults with an active email (decision 133), so a campus's news never goes to another campus or to an address that bounces.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [gt].[Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' AND [g].[ForeignKey] = @ForeignKey AND [g].[CampusId] IS NOT NULL
+    AND ( [p].[PrimaryCampusId] <> [g].[CampusId] OR ISNULL( [p].[Email], '' ) = '' OR [p].[IsEmailActive] = 0 OR [p].[AgeClassification] <> 1 );
+
+-- check: volunteers-list-follows-the-teams
+-- why: The Volunteers list is everyone active on a serving team (decision 92), so a message to volunteers reaches exactly the people who serve.
+WITH [Serving] AS (
+    SELECT DISTINCT [gm].[PersonId]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' AND [p].[ForeignKey] = @ForeignKey AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
+        AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 AND [p].[EmailPreference] = 0
+),
+[Listed] AS (
+    SELECT [gm].[PersonId]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    WHERE [g].[Guid] = '7C040D39-B8F0-481E-95B3-9526D566C47F' AND [g].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] = 1
+)
+SELECT ( SELECT COUNT(*) FROM [Serving] AS [s] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [s].[PersonId] ) )
+    + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Serving] AS [s] WHERE [s].[PersonId] = [l].[PersonId] ) );
+
+-- check: small-group-leaders-list-follows-the-groups
+-- why: The Small Group Leaders list is everyone who leads an active small group (decision 92), so leader messages reach exactly the leaders.
+WITH [Leading] AS (
+    SELECT DISTINCT [gm].[PersonId]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    WHERE [gt].[Guid] = '50FCFB30-F51A-49DF-86F4-2B176EA1820B' AND [p].[ForeignKey] = @ForeignKey AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
+        AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 AND [r].[IsLeader] = 1 AND [p].[EmailPreference] = 0
+),
+[Listed] AS (
+    SELECT [gm].[PersonId]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    WHERE [g].[Guid] = '3D755601-598D-4E8F-A13D-9DF0F0087CA9' AND [g].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] = 1
+)
+SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [x].[PersonId] ) )
+    + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
+
+-- check: system-phone-numbers-are-reserved-and-unused
+-- why: Content standard 2 and decision 93. The church's texting numbers are active, can text, use the reserved range, and are never a loaded person's number, so SMS Conversations never seems to text a member from their own phone.
+SELECT COUNT(*)
+FROM [SystemPhoneNumber] AS [spn]
+WHERE [spn].[ForeignKey] = @ForeignKey
+    AND ( [spn].[IsActive] = 0 OR [spn].[IsSmsEnabled] = 0 OR [spn].[IsSmsForwardingEnabled] = 1
+        OR LEN( [spn].[Number] ) <> 12 OR LEFT( [spn].[Number], 2 ) <> '+1' OR SUBSTRING( [spn].[Number], 3, 3 ) NOT IN ( '602', '480', '623' ) OR SUBSTRING( [spn].[Number], 6, 5 ) <> '55501'
+        OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE [p].[ForeignKey] = @ForeignKey AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
