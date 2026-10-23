@@ -48,7 +48,7 @@ On the develop branch, new migrations land often, so the check would block devel
 1. The package's format is one this loader reads (format 1).
 2. Every file matches its SHA-256 in `package.json`, no listed file is missing, and nothing unlisted was added.
 3. No other sample data load is running on the database. The load takes an exclusive SQL Server application lock (`sp_getapplock`, owned by its transaction) before it checks anything else, so two loads started at once, even from two web servers, cannot both go on.
-4. The database has no people beyond the five a new Rock install creates (decision D-rock-loader-3). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too.
+4. The database has no people beyond the five a new Rock install creates (decision 122). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too.
 5. The database is the Rock the package is for (see above).
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
@@ -57,7 +57,7 @@ The load runs these steps in order: configuration (with the small group, serving
 
 ## Parts
 
-A load can choose its parts (decision D-rock-loader-2). Church setup and people always load. The building campaign is church setup: its fund, campus accounts, campaign dates, Create Pledge page, and statement settings load in every load (decision D-rock-loader-7). The pledges and campaign gifts, the Cast's and the generated ones, belong to `Giving`: the giving step writes them, so they load only with giving. The fund's goal is part of the fund, so it is written in every load. `SampleDataParts.All` is the one table of parts, in load order:
+A load can choose its parts (decision 121). Church setup and people always load. The building campaign is church setup: its fund, campus accounts, campaign dates, Create Pledge page, and statement settings load in every load (decision 126). The pledges and campaign gifts, the Cast's and the generated ones, belong to `Giving`: the giving step writes them, so they load only with giving. The fund's goal is part of the fund, so it is written in every load. `SampleDataParts.All` is the one table of parts, in load order:
 
 | Part | Name | What it adds | Needs |
 |---|---|---|---|
@@ -75,7 +75,7 @@ A load can choose its parts (decision D-rock-loader-2). Church setup and people 
 
 1. **Check images need giving.** Each image row points at its gift.
 2. **Prayer needs small groups.** Some Cast prayer requests are shared with their small group, and who asks for prayer depends on who is in a group, which the prayer step reads from the loaded groups.
-3. **Steps need small groups, serving teams, and giving** (decision D-rock-loader-6). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes. Student Path steps follow student check-ins, but they read them from the attendance plan, not the rows, so steps do not need attendance.
+3. **Steps need small groups, serving teams, and giving** (decision 125). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes. Student Path steps follow student check-ins, but they read them from the attendance plan, not the rows, so steps do not need attendance.
 
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
@@ -85,7 +85,7 @@ On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small group
 
 ## Using the library
 
-Rock's Sample Data Installer block calls the library through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision D-rock-loader-1). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`. The package ID names Spark as its owner, while the assembly and namespace stay `RockSampleData.Loader`.
+Rock's Sample Data Installer block calls the library through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision 120). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`. The package ID names Spark as its owner, while the assembly and namespace stay `RockSampleData.Loader`.
 
 ```csharp
 var package = SampleDataPackage.Open( uploadedZipStream );
@@ -133,7 +133,7 @@ The two builds are meant to load the same rows. One difference is expected: .NET
 
 ## The package index
 
-The hosted list of packages is `index.json` (decision D-rock-loader-4). The publishing workflow in the [roadmap](../docs/roadmap.md#publishing) uploads it last, beside the versioned packages. `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
+The hosted list of packages is `index.json` (decision 123). The publishing workflow in the [roadmap](../docs/roadmap.md#publishing) uploads it last, beside the versioned packages. `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
 
 ```json
 {
@@ -170,7 +170,7 @@ The hosted list of packages is `index.json` (decision D-rock-loader-4). The publ
 
 ## The dataset catalog
 
-`SampleDataDatasets.All` lists the datasets this loader can install, in key order: Core 1, Core 3, and Full 7 (decision D-rock-loader-5). Rock's installer shows one card for each before it downloads anything. `SampleDataDatasets.Get( "core-3" )` returns one card, or null for an unknown key.
+`SampleDataDatasets.All` lists the datasets this loader can install, in key order: Core 1, Core 3, and Full 7 (decision 124). Rock's installer shows one card for each before it downloads anything. `SampleDataDatasets.Get( "core-3" )` returns one card, or null for an unknown key.
 
 Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, and `TypicalInstallSeconds` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
 
@@ -339,8 +339,8 @@ Speed: Full 7 with a 17,000-household crowd has 2,893 kids and about 183,000 att
 The building campaign (see [Pledges](../docs/pledges.md)) runs in three places:
 
 1. **Configuration.** `loading/CampaignLoader.cs` gives the campaign's fund and campus accounts the campaign dates, and points Rock's two pledge pages and default contribution statement at the fund.
-2. **The plan, before giving.** `loading/PledgeLoader.cs` turns each household's `campaign` entries into a pledge and a `CampaignGiving` for the giving pattern that pays it: a line factor, a stop date for a stopped pledge, and extra gifts. Then it draws generated pledgers from the Crowd and businesses until pledges reach the profile's share of giving units (decision 114), and plans theirs the same way. It writes the fund's goal into the fund's description now, in every load, because the fund is church setup (decision D-rock-loader-7).
-3. **Giving, then pledges.** `GivingLoader` plans each pattern's gifts as before, then adds the campaign. The line is the pledge's share for the time since it started, spread over the usual gifts the pattern really gave, times the line factor. Extra gifts ride on the next usual hand-given gift within a month, or are gifts of their own. The campaign uses no random numbers, so every other gift is the same as without it. After giving writes its gifts, `PledgeLoader` writes the pledges. Both writes happen only when the `Giving` part loads (decision D-rock-loader-7).
+2. **The plan, before giving.** `loading/PledgeLoader.cs` turns each household's `campaign` entries into a pledge and a `CampaignGiving` for the giving pattern that pays it: a line factor, a stop date for a stopped pledge, and extra gifts. Then it draws generated pledgers from the Crowd and businesses until pledges reach the profile's share of giving units (decision 114), and plans theirs the same way. It writes the fund's goal into the fund's description now, in every load, because the fund is church setup (decision 126).
+3. **Giving, then pledges.** `GivingLoader` plans each pattern's gifts as before, then adds the campaign. The line is the pledge's share for the time since it started, spread over the usual gifts the pattern really gave, times the line factor. Extra gifts ride on the next usual hand-given gift within a month, or are gifts of their own. The campaign uses no random numbers, so every other gift is the same as without it. After giving writes its gifts, `PledgeLoader` writes the pledges. Both writes happen only when the `Giving` part loads (decision 126).
 
 ## Giving analytics
 
@@ -439,7 +439,7 @@ Speed: Full 7 writes about 61,000 notes and replies in about one second.
 `loading/StepsLoader.cs` sets up the step programs in `../configuration/steps.json`, Rock's Discipleship Path and the Student Path, and `generation/StepPlanner.cs` plans every step. The design is in [Steps](../docs/steps.md).
 
 1. **The programs.** Rock's program and its Baptism, Starting Point Class, Serve, and Small Group types are updated in place, by Guid: order, engagement type, impact weight, organizational objective, icon, and color. Foundations, Give, and Lead are added with a description and a call to action. The completion flow becomes Linear (Preferred), and Rock's prerequisite (Serve after Starting Point Class) stays. The Student Path is added in Rock's Discipleship category with its own In Progress and Complete statuses, named and colored like Rock's, and its four types.
-2. **The facts.** Small group and serving team memberships are read back from the database, so each step has its membership's dates exactly. A membership ends the day the person left, or the day the group ended while they were in it. Gifts come from the list the giving analytics replayed, so Give steps agree with the journey stage Rock shows. Active adults use the prayer step's rule. Student check-ins come from the attendance plan, the check-ins in the student service's check-in groups that the attendance step writes, so the Student Path follows whatever attendance is planned and is the same whether or not the `Attendance` part loads (decision D-rock-loader-6).
+2. **The facts.** Small group and serving team memberships are read back from the database, so each step has its membership's dates exactly. A membership ends the day the person left, or the day the group ended while they were in it. Gifts come from the list the giving analytics replayed, so Give steps agree with the journey stage Rock shows. Active adults use the prayer step's rule. Student check-ins come from the attendance plan, the check-ins in the student service's check-in groups that the attendance step writes, so the Student Path follows whatever attendance is planned and is the same whether or not the `Attendance` part loads (decision 125).
 3. **The plan.** Each step type's `source` picks one planner method: `membership` (one step per membership, In Progress while a volunteer is Pending), `giving-journey` (Rock's stage rule run every Tuesday night over the history window), `event` (Student Camp and Mission Trip on their church-wide dates), `decision` (Follow Jesus, often at camp), `school-years` (Student Leader, from August to graduation), `baptism` (the Cast's dates, generated adults at the designed rates, and students after a decision), and `class` (Starting Point Class and Foundations on their class schedules). A decision is dated from the camps, a student baptism from the decision, and classes from the other steps, so each is planned after them. A student step goes to a share of the students who could take it, counted for the Cast and the generated households on their own. Program completions follow Rock's Update Step Program Completions job, for each program.
 4. **The rows.** Program completions, then steps with explicit Ids that point at their program's completion, then attribute values: the Baptism Date and Baptized Here on the person, and Baptized Here on each Baptism step. Steps carry the date keys Rock's model fills, the person's primary alias and campus, and the group as the related entity.
 

@@ -4,7 +4,7 @@
     The loader library: reads a dataset package, generates the timeline for the install day, and bulk-loads it into Rock.
     It builds for .NET 10 (the builder, CLI, and verify tool) and for .NET Framework 4.7.2 (Rock, through the
     RockSampleData.Loader NuGet package). The net472 build depends on the exact package versions Rock ships, and
-    compat/ fills the gaps in .NET Framework (decision D-rock-loader-1).
+    compat/ fills the gaps in .NET Framework (decision 120).
   -->
   <PropertyGroup>
     <TargetFramework></TargetFramework>
@@ -29,7 +29,7 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-  <!-- The dataset manifests, for SampleDataDatasets: the catalog ships with the loader that installs those datasets (decision D-rock-loader-5). -->
+  <!-- The dataset manifests, for SampleDataDatasets: the catalog ships with the loader that installs those datasets (decision 124). -->
   <ItemGroup>
     <EmbeddedResource Include="..\datasets\*.json" LogicalName="RockSampleData.Loader.datasets.%(Filename)%(Extension)" Visible="false" />
   </ItemGroup>

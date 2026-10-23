@@ -22,7 +22,7 @@ The manifest grows as the builder reads more settings from it. Campuses are list
 
 ## The dataset card
 
-Rock's installer shows a card for each dataset, so a church admin can choose one (decision D-rock-loader-5). The loader embeds these fields and serves them as `SampleDataDatasets` (see the [loader README](../loader/README.md#the-dataset-catalog)). Every field is required, and the builder refuses a manifest that is missing one.
+Rock's installer shows a card for each dataset, so a church admin can choose one (decision 124). The loader embeds these fields and serves them as `SampleDataDatasets` (see the [loader README](../loader/README.md#the-dataset-catalog)). Every field is required, and the builder refuses a manifest that is missing one.
 
 | Field | Meaning |
 |---|---|

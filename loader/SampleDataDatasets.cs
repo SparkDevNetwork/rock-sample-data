@@ -88,7 +88,7 @@ namespace RockSampleData.Loader
     }
 
     /// <summary>
-    /// The datasets this loader can install, read from the dataset manifests built into it (decision D-rock-loader-5).
+    /// The datasets this loader can install, read from the dataset manifests built into it (decision 124).
     /// </summary>
     public static class SampleDataDatasets
     {

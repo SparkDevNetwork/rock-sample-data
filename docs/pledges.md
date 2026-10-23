@@ -158,9 +158,9 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 
 Each piece passes its checks before the next one starts.
 
-1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the two pledge pages, and the statement template. Built. This is church setup, so it loads whatever parts a person chooses, the fund's goal included (decision D-rock-loader-7).
-2. **Cast pledges.** A `campaign` list in the Cast household files, the campaign gifts, and the Cast expectations. Built. Pledges and campaign gifts belong to the loader's Giving part, so they load only with giving, and their Cast expectations are checked only then (decision D-rock-loader-7).
-3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate. Built. They belong to the Giving part too, planned in every load and written only with giving (decision D-rock-loader-7).
+1. **The fund and settings.** `configuration/campaign.json`, the campaign account and its campus accounts, the two pledge pages, and the statement template. Built. This is church setup, so it loads whatever parts a person chooses, the fund's goal included (decision 126).
+2. **Cast pledges.** A `campaign` list in the Cast household files, the campaign gifts, and the Cast expectations. Built. Pledges and campaign gifts belong to the loader's Giving part, so they load only with giving, and their Cast expectations are checked only then (decision 126).
+3. **Crowd and business pledges.** The generated pledges and gifts, and validation of the pledge rate. Built. They belong to the Giving part too, planned in every load and written only with giving (decision 126).
 4. **Docs and the site.** How it works, Verification, the glossary, the roadmap, and the public site's Church page. Built.
 
 ## Later

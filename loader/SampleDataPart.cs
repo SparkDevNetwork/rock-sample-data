@@ -104,7 +104,7 @@ namespace RockSampleData.Loader
     }
 
     /// <summary>
-    /// Every part, with what each needs (decision D-rock-loader-2).
+    /// Every part, with what each needs (decision 121).
     /// </summary>
     public static class SampleDataParts
     {

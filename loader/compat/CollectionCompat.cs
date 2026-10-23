@@ -26,7 +26,7 @@ namespace System.Collections.Generic
         .NET 10 methods of the same names, so every call site compiles unchanged on both targets. The
         namespace is System.Collections.Generic, so no file needs a new using.
 
-        Reason: The loader builds for Rock's .NET Framework 4.7.2 too (decision D-rock-loader-1).
+        Reason: The loader builds for Rock's .NET Framework 4.7.2 too (decision 120).
     */
 
     /// <summary>

@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Compat
         out. Check scanner fields and note mentions are keyed by these bytes, so both targets must give
         exactly the same output. compat-check/ proves it against values from .NET 10's own methods.
 
-        Reason: The loader builds for Rock's .NET Framework 4.7.2 too (decision D-rock-loader-1).
+        Reason: The loader builds for Rock's .NET Framework 4.7.2 too (decision 120).
     */
 
     /// <summary>

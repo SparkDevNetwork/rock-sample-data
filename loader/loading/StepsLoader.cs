@@ -33,7 +33,7 @@ namespace RockSampleData.Loader.Loading
         so each Give step agrees with the journey stage Rock shows. Who is an active adult uses the prayer
         step's rule: an adult who attended, gave, or was in a small group in the last year. Student check-ins
         come from the attendance plan, the same check-ins the attendance step writes, so the Student Path is
-        the same whether or not the Attendance part loads (decision D-rock-loader-6).
+        the same whether or not the Attendance part loads (decision 125).
 
         Reason: Steps and the records they come from always agree (decision 86).
     */

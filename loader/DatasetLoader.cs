@@ -341,7 +341,7 @@ namespace RockSampleData.Loader
 
             // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
             // The pledges and campaign gifts are the giving part's rows, but the fund is church setup, so its goal
-            // is written in every load (decision D-rock-loader-7).
+            // is written in every load (decision 126).
             var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid, dates, foreignKey, seed );
             pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
             pledges?.WriteGoal();
