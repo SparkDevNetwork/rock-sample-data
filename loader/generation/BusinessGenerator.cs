@@ -240,13 +240,16 @@ namespace RockSampleData.Loader.Generation
             var annual = _annualTotal( Math.Min( HighestPoint, Math.Pow( random.Between( 0.0, 1.0 ), AnnualSkew ) ) );
             var perGift = RoundAmount( ( decimal ) ( annual / GiftsPerYear( persona ) ) );
 
+            /*
+                10/23/26 - CLAUDE
+
+                One business in five once split part of each gift to a Building Fund that ran all year. That
+                fund is now the building campaign's fund (decision 98), so those businesses give it all to the
+                General Fund (decision 99). The first draw stays, so the same businesses split to the Mission
+                Fund and every later random choice is the same as before.
+            */
             var funds = new Dictionary<string, decimal>();
-            if ( random.Chance( 0.2 ) )
-            {
-                funds["Building Fund"] = RoundAmount( perGift * 0.4m );
-                perGift -= funds["Building Fund"];
-            }
-            else if ( random.Chance( 0.1 ) )
+            if ( !random.Chance( 0.2 ) && random.Chance( 0.1 ) )
             {
                 funds["Mission Fund"] = RoundAmount( perGift * 0.25m );
                 perGift -= funds["Mission Fund"];

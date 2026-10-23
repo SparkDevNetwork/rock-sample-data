@@ -11,7 +11,7 @@
   "testPurposes": [
     "Primary demo family used in documentation and screenshots.",
     "Two adults and two children; kids check-in with an allergy attribute.",
-    "Monthly giver across two funds, by recurring credit card.",
+    "Monthly giver by recurring credit card, with a building campaign line on each gift.",
     "Small group leader and serving team member.",
     "Completes the whole Discipleship Path, with a program completion.",
     "Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert."
@@ -41,8 +41,7 @@
       "currency": "card",
       "person": "ted",
       "funds": {
-        "General Fund": 175,
-        "Building Fund": 125
+        "General Fund": 300
       },
       "percentOfPeriodsGiven": 100,
       "growth": {
