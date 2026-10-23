@@ -42,6 +42,7 @@ The words this project uses, in alphabetical order.
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
+| **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |

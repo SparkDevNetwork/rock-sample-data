@@ -142,6 +142,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `student-step-belongs-to-a-student` | Every Student Path step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then. Mission Trip is high school only, and Student Leader is juniors and seniors only. |
 | `student-path-decisions-and-leaders` | Follow Jesus and Student Leader happen at most once per person. Student Leader ends at graduation in May, or stays open while the student is still in school. |
 | `student-baptism-follows-the-student-service` | A child's baptism is here, on a Sunday, after they started coming to the student service. |
+| `young-kid-checks-in-with-the-family` | A kid from the nursery to 6th grade checks in only with an adult of their family who was in the service that Sunday. A child whose families have no living, active adult checks in on their own (decision D-student-attendance-1). |
+| `onsite-gift-on-a-family-sunday` | Every gift in a Sunday Offering batch falls on a Sunday an adult of the giver's family came. A student on their own never makes a family Sunday (decision D-student-attendance-1). |
+| `student-check-in-fits-the-grade` | Every student check-in fits the student's grade that day, so a recent graduate's student check-ins end at graduation (decision D-student-attendance-3). |
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
 | `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an active email. |
 | `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |
