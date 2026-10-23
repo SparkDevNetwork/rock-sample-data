@@ -18,7 +18,7 @@ The words this project uses, in alphabetical order.
 | **Church app** | The Rock Solid Church App, the sample church's mobile app. It starts as a stub so push notifications have an app to point at. |
 | **Communication list** | A Rock group of people who get the same mass emails or texts, such as a campus's weekly newsletter list. See [Communications](communications.md). |
 | **Commitment Sunday** | The Sunday the building campaign started and most pledges were made: 40 weeks before install day. |
-| **Companion** | A generated household on one of Core 3's two extra campuses. |
+| **Companion** | A generated household on one of Core 3's two extra campuses. Companions are more involved than the Crowd, so each campus looks like a healthy congregation (decision D-core3-1). |
 | **Connection request** | A person's request to serve on a team, in Rock's Involvement connection type. It moves through statuses until it is connected, set aside as inactive, or saved for a future follow-up. |
 | **Connection status** | A person's place in the journey: Prospect, Participant, Known, Connected, Engaged, or Leading. |
 | **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus. |

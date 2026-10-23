@@ -8,6 +8,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 2. Household shapes, ages, journeys, and personas follow the calibration profile.
 3. Names come from public-domain frequency data and never depend on photo ethnicity.
 4. Crowd households have no photos. About half of Core 3's companions get photos from the pool (see [Datasets](../datasets/README.md)).
+5. Core 3's companions use a more involved connection status mix than the Crowd, set in the dataset manifest, so more of them attend, give, and join groups (decision D-core3-1). Core 1 and Core 3 also scale up checks as a payment method, so check batches and check images have enough to show (decision D-core3-2).
 
 ## Personas
 

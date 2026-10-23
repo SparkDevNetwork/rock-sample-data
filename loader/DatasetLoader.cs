@@ -249,6 +249,11 @@ namespace RockSampleData.Loader
                 }
 
                 var countsByCampus = configuration.CampusIds.Keys.Where( perCampus.ContainsKey ).Select( k => (k, perCampus[k]) ).ToList();
+                if ( manifest.GeneratedHouseholds.StatusWeights is { } statusWeights )
+                {
+                    generator.UseStatusWeights( statusWeights );
+                }
+
                 generated = generator.Generate( countsByCampus, years );
             }
 
@@ -345,7 +350,7 @@ namespace RockSampleData.Loader
             var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid, dates, foreignKey, seed );
             pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
             pledges?.WriteGoal();
-            var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving };
+            var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving, CheckWeightScale = manifest?.Giving?.CheckWeightScale ?? 1 };
             giving.Plan( people.Households );
             if ( isGivingLoaded )
             {

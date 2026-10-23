@@ -273,6 +273,8 @@ namespace RockSampleData.Loader.Model
 
         public DatasetGeneratedHouseholds GeneratedHouseholds { get; set; }
 
+        public DatasetGiving Giving { get; set; }
+
         // The dataset card. SampleDataDatasets reads these and requires every one.
         public string Summary { get; set; }
 
@@ -290,6 +292,19 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// Giving settings for one dataset.
+    /// </summary>
+    internal sealed class DatasetGiving
+    {
+        /// <summary>
+        /// Multiplies the weight of a check when a gift's payment method is picked, for every giver in the dataset
+        /// whose Cast file does not name a method. 1 (or not set) keeps the measured mix. A small dataset raises it
+        /// so its check batches and check images have enough to show.
+        /// </summary>
+        public double? CheckWeightScale { get; set; }
+    }
+
+    /// <summary>
     /// Generated households the dataset adds beside the Cast. --crowd replaces these with households spread across every campus.
     /// </summary>
     internal sealed class DatasetGeneratedHouseholds
@@ -298,6 +313,13 @@ namespace RockSampleData.Loader.Model
         /// How many households to generate at each campus, keyed by campus key. A campus not listed gets none.
         /// </summary>
         public Dictionary<string, int> PerCampus { get; set; }
+
+        /// <summary>
+        /// Optional connection status weights for these households, keyed by status name (Prospect to Leading).
+        /// A status's weight sets how many households start with it, and the status sets how likely the household
+        /// is to attend and give. When not set, the generator's measured weights are used.
+        /// </summary>
+        public Dictionary<string, double> StatusWeights { get; set; }
     }
 
     /// <summary>
