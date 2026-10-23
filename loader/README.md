@@ -182,7 +182,7 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
 | `rockVersion`, `rockMigration` | The Rock the package is for, the same values as its `package.json`. A caller can hide packages for another Rock without downloading them. Required. |
 
-Each entry carries the whole dataset card from the dataset's manifest, the same fields `SampleDataDatasets` serves (decision D-index-cards-1). `release/merge-index.js` writes them when a release joins the index. So Rock's installer can show its cards from the index, and every release updates the cards without a new loader in Rock.
+Each entry carries the whole dataset card from the dataset's manifest, the same fields `SampleDataDatasets` serves (decision 144). `release/merge-index.js` writes them when a release joins the index. So Rock's installer can show its cards from the index, and every release updates the cards without a new loader in Rock.
 
 The card fields are optional, and format 1 stays format 1. `SampleDataPackageIndexEntry` reads a missing string as empty, missing highlights as an empty list, and a missing number as 0, so it reads an index written before the card fields joined it, such as the entries of `v0.1.0-alpha.10`. An older loader skips fields it does not know, so it reads a newer index too. `../loader-compat-check/` checks both on both builds.
 
@@ -190,7 +190,7 @@ The card fields are optional, and format 1 stays format 1. `SampleDataPackageInd
 
 `SampleDataDatasets.All` lists the datasets this loader can install, in key order: Core 1, Core 3, and Full 7 (decision 124). Rock's installer shows one card for each before it downloads anything. `SampleDataDatasets.Get( "core-3" )` returns one card, or null for an unknown key.
 
-The [package index](#the-package-index) carries the same card in each entry (decision D-index-cards-1). The catalog is fixed when the loader is built, and the index changes with every release, so Rock's installer should show the index's card and keep the catalog for when the index cannot be read. The CLI and the verify tool's card checks use the catalog.
+The [package index](#the-package-index) carries the same card in each entry (decision 144). The catalog is fixed when the loader is built, and the index changes with every release, so Rock's installer should show the index's card and keep the catalog for when the index cannot be read. The CLI and the verify tool's card checks use the catalog.
 
 Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, and `TypicalInstallSeconds` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
 

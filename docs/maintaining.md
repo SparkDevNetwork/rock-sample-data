@@ -150,7 +150,7 @@ A manual run can also publish: run it on `main`, give a version, and tick "publi
 
 A tag never moves. If a run fails for a reason in the repository, fix it on a branch, land it on `main`, and tag the next version. Delete the failed tag only when nothing was published under it: check nuget.org and `storage.rockrms.com/sampledata/packages/v{version}/` first.
 
-Before a stable tag, read what it will ship: the cards in `datasets/*.json` become the index entries Rock shows, every card field included (decision D-index-cards-1), so their text must be current and their numbers must match what each package loads.
+Before a stable tag, read what it will ship: the cards in `datasets/*.json` become the index entries Rock shows, every card field included (decision 144), so their text must be current and their numbers must match what each package loads.
 
 ### Releases so far
 
