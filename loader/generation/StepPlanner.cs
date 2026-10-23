@@ -1095,7 +1095,7 @@ namespace RockSampleData.Loader.Generation
         public DateTime? CastBaptismDate { get; set; }
 
         /// <summary>
-        /// A child's graduation year, which sets their school grade on any day. Null for adults and young children.
+        /// A graduation year, which sets the school grade on any day. Null for young children and for adults whose file sets none.
         /// </summary>
         public int? GraduationYear { get; set; }
 
