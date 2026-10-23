@@ -178,8 +178,11 @@ namespace RockSampleData.Loader.Generation
             };
 
             // A child on their own is a student, 12 to 17, who comes without parents (decision D-crowd-teens-2).
+            // The old band pick still takes its draw, so the rest of the household (name, attendance, giving)
+            // draws exactly what it drew before.
             if ( isChildAlone )
             {
+                random.Pick( AgeWeights( new[] { "06-11", "12-17" } ) );
                 var age = AgeInBand( "12-17", random );
                 household.Members.Add( NewPerson( household, 0, random, lastName, age, random.Chance( 0.5 ), "child", status, null ) );
                 return household;
