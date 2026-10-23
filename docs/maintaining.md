@@ -177,12 +177,14 @@ The repository has been public since 2026-10-22, so jobs on GitHub-hosted runner
 
 This was done on 2026-10-22, as the app registration "rock-sample-data release". Run it again only to rebuild the identity. Use the Bash version in Azure Cloud Shell or Git Bash, or the PowerShell version below it in a Windows terminal. Fill in the first four values.
 
+The trust must match the subject in GitHub's token exactly. This repository uses GitHub's immutable subject, which carries the organization's and the repository's numeric IDs: `repo:SparkDevNetwork@548191/rock-sample-data@1422820354:environment:release`. The IDs never change, even if the repository is renamed. A trust for the older `repo:SparkDevNetwork/rock-sample-data:environment:release` fails with `AADSTS700213: No matching federated identity record`, which is what stopped the first Publish job on 2026-10-23. Read the prefix with `gh api repos/SparkDevNetwork/rock-sample-data/actions/oidc/customization/sub -q .sub_claim_prefix`, as both versions below do.
+
 ```bash
 TENANT=<tenant id>
 SUBSCRIPTION=<subscription id>
 RESOURCE_GROUP=<resource group of the storage account>
 ACCOUNT=<storage account behind storage.rockrms.com>
-REPOSITORY=SparkDevNetwork/rock-sample-data
+SUBJECT_PREFIX=$(gh api repos/SparkDevNetwork/rock-sample-data/actions/oidc/customization/sub -q .sub_claim_prefix)
 
 az login --tenant "$TENANT"
 az account set --subscription "$SUBSCRIPTION"
@@ -194,9 +196,9 @@ PRINCIPAL_ID=$(az ad sp create --id "$APP_ID" --query id -o tsv)
 # Trust GitHub's tokens only for jobs in the release environment of this repository.
 cat > credential.json <<EOF
 {
-  "name": "rock-sample-data-release-environment",
+  "name": "rock-sample-data-release-environment-ids",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:$REPOSITORY:environment:release",
+  "subject": "$SUBJECT_PREFIX:environment:release",
   "description": "The Publish job of .github/workflows/release.yml",
   "audiences": ["api://AzureADTokenExchange"]
 }
@@ -218,6 +220,7 @@ $tenant = "<tenant id>"
 $subscription = "<subscription id>"
 $resourceGroup = "<resource group of the storage account>"
 $account = "<storage account behind storage.rockrms.com>"
+$subjectPrefix = gh api repos/SparkDevNetwork/rock-sample-data/actions/oidc/customization/sub -q .sub_claim_prefix
 
 az login --tenant $tenant
 az account set --subscription $subscription
@@ -225,15 +228,15 @@ az account set --subscription $subscription
 $appId = az ad app create --display-name "rock-sample-data release" --query appId -o tsv
 $principalId = az ad sp create --id $appId --query id -o tsv
 
-@'
+@"
 {
-  "name": "rock-sample-data-release-environment",
+  "name": "rock-sample-data-release-environment-ids",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:SparkDevNetwork/rock-sample-data:environment:release",
+  "subject": "${subjectPrefix}:environment:release",
   "description": "The Publish job of .github/workflows/release.yml",
   "audiences": ["api://AzureADTokenExchange"]
 }
-'@ | Set-Content -Encoding ascii credential.json
+"@ | Set-Content -Encoding ascii credential.json
 az ad app federated-credential create --id $appId --parameters credential.json
 
 $scope = (az storage account show -n $account -g $resourceGroup --query id -o tsv) + "/blobServices/default/containers/sampledata"
@@ -242,7 +245,7 @@ az role assignment create --assignee-object-id $principalId --assignee-principal
 "AZURE_CLIENT_ID = $appId"
 ```
 
-To check the identity without changing anything, list its trust and its roles. Expect one credential for `environment:release` and one role on the `sampledata` container:
+To check the identity without changing anything, list its trust and its roles. Expect one credential, for `repo:SparkDevNetwork@548191/rock-sample-data@1422820354:environment:release`, and one role on the `sampledata` container:
 
 ```bash
 APP_ID=$(az ad app list --display-name "rock-sample-data release" --query "[0].appId" -o tsv)
