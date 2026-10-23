@@ -24,9 +24,9 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
-| `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
+| `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests. Full 7's manifest already lists its Crowd. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (about 14 of Full 7's 55 seconds). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
@@ -182,15 +182,15 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured on 2026-10-21, again after the building campaign joined the load, with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Core 1 and Core 3 were measured on 2026-10-21, again after the building campaign joined the load. Full 7 was measured on 2026-10-23, after its manifest gained the Crowd (decision 136). Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
 | Core 1 | 185 | 87 | 1 | 10 seconds (10.4, 10.4, 10.5) |
 | Core 3 | 405 | 241 | 3 | 12 seconds (12.2, 12.0, 11.4) |
-| Full 7 | 185 | 87 | 7 | 9 seconds (9.2, 8.9, 9.0) |
+| Full 7 | 25,248 | 16,967 | 7 | 55 seconds (about 57, 54.3, 54.6) |
 
-Full 7 loads faster than Core 1 because it draws images only for the last 12 months of check gifts: 274 images, against 814 in Core 1. Full 7's manifest lists no generated households, so a load without `--crowd` has only the Cast, on the main campus. The Crowd and business pledges (decisions 113 and 114) add no people or households, so the cards stayed the same when they joined.
+Full 7 draws images only for the last 12 months of check gifts: 3,587 checks and 7,174 images (274 MB), about 14 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 
@@ -381,8 +381,9 @@ Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,50
 | Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
 | Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
 | Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 29 seconds (about 44 with check images) |
+| Full 7 with its Crowd (16,800 households), every part | 25,248 | 385,076 plus 322,543 | 91,250 | about 55 seconds with check images |
 
-The Full 7 times were measured on 2026-10-16, best of three, on a 16-core development machine with other work running. A Full 7 load with check images spends its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
+The last row was measured on 2026-10-23, the median of three runs. Its time goes to check images about 14 seconds, serving 7, people 5, giving 4.5, attendance 4, giving analytics 4, and every other step under 3. The spike crowd rows were measured on 2026-10-16, before serving, prayer, notes, and steps were built, best of three, on a 16-core development machine with other work running. Then, a Full 7 load with check images spent its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
 
 What keeps large loads fast:
 

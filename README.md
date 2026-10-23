@@ -114,7 +114,7 @@ and push. Ask me before anything that removes or rewrites history.
 |---|---|---|---|
 | **Core 1** | The Cast (87 households, 185 people) | 1 | About 4 seconds |
 | **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | Under 10 seconds |
-| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | 20 to 40 seconds |
+| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About a minute |
 
 - **The Cast** is hand-designed, the same in every dataset, and safe for tests to rely on by Guid. Every Cast person has a profile photo, except a few left without one on purpose.
 - **The Crowd** is generated from measured church patterns to give volume.
@@ -142,7 +142,7 @@ and push. Ask me before anything that removes or rewrites history.
 | [loader/](loader/README.md), `loader-cli/`, `loader-compat-check/` | The loader library that installs a package into a Rock database (for .NET 10 and for Rock's .NET Framework, as the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package), its command line for developers and test harnesses, and the check that both builds compute the same keys. |
 | [validation/](validation/README.md) | Tolerances and the script that grades generated data, plus the invariants, contract, and standards check the verify tool uses. |
 | [verify/](verify/README.md) | The tool that proves each package works on one exact Rock and writes its receipt. Publishing needs a passing receipt. |
-| [release/](release/README.md) | The Rock releases each release builds for, and the script that merges a release into the hosted package index. `.github/workflows/release.yml` publishes the packages and the loader on a version tag. |
+| [release/](release/README.md) | The Rock releases each release builds for, and the script that merges a release into the hosted package index. `.github/workflows/release.yml` publishes the packages and the loader on a version tag. How to release, what has shipped, and how to fix a failed run: [Publishing a release](docs/maintaining.md#publishing-a-release). |
 | [datasets/](datasets/README.md) | One manifest per dataset, with its settings. |
 | [content/](content/README.md) | Fonts for check images, and later the text pools. |
 

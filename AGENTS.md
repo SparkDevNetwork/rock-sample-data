@@ -49,3 +49,11 @@ The first line turns on the hooks that guard `main`. The second makes every merg
     - **Docs.** Search `docs/` for the feature, numbers, and file names you changed, and fix every page that describes them, such as [How it works](docs/how-it-works.md), [Verification](docs/verification.md), [Planned work](docs/planned.md), and the glossary.
     - **The site.** Most of the site is built from `cast/`, `configuration/`, `photos/`, `graphics/`, `docs/contributing.md`, and `docs/roadmap.md`, so those parts follow your change on the next build. The pages in `site/src/pages/` are hand-written, though. If one describes what you changed, such as the datasets, load times, or a feature, edit it.
     - **Check it.** After any change to those folders or the site, run `node site/build.js` and look at the pages your change touches. See the [site README](site/README.md) for its rules.
+
+## Releases
+
+Packages and the loader reach churches only through the release workflow, `.github/workflows/release.yml`. How it works, how to release, its setup, what has shipped, and what to do when a run fails are all in [Publishing a release](docs/maintaining.md#publishing-a-release). Read it before you touch a release.
+
+16. **Publish only through the release workflow.** Never upload to `storage.rockrms.com`, push to nuget.org, or edit `packages/index.json` by hand. The workflow builds, verifies, and gates every package first.
+17. **A person decides every release.** Push a `v*` tag, or start a manual run with "publish" ticked, only when the person you work for asks you to. Approving the Publish job belongs to the people in the `release` environment, never to an agent.
+18. **Tags never move.** When a release fails for a reason in the repository, fix it on a branch, land it, and tag the next version. Delete a failed tag only when nothing was published under it, and only with the person's approval. Add each release to the table in [Releases so far](docs/maintaining.md#releases-so-far).

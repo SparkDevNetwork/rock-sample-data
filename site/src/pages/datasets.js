@@ -72,10 +72,10 @@ module.exports = function datasets( { model } ) {
     </article>
     <article class="dataset dataset-big reveal">
       <p class="dataset-size">Full 7</p>
-      <p class="dataset-time">Loads in 20 to 40 seconds</p>
+      <p class="dataset-time">Loads in about a minute</p>
       <ul>
         <li>The Cast, plus the Crowd: about 25,000 people</li>
-        <li>7 campuses across the Valley</li>
+        <li>7 campuses across the Valley, each with its own people</li>
         <li>Volume for reports, charts, and search</li>
       </ul>
       <p class="dataset-for">For demos, performance, and reporting.</p>

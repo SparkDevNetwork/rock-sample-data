@@ -73,7 +73,7 @@ The [verify tool](../verify/README.md) proves that each package works on one exa
 dotnet run -- --rock C:\Development\Rock
 ```
 
-It runs the checks below for every dataset. A full run takes about 5 minutes.
+It runs the checks below for every dataset. A full run takes about 8 minutes, about 3 of them for Full 7.
 
 ### Trusted base
 

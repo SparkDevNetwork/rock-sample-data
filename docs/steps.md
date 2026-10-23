@@ -165,34 +165,34 @@ An active adult is an adult on an active record who attended, gave, or was in a 
 
 What each dataset loads, at the anchor 2026-10-22 and the default seed:
 
-| Step | Core 1 and Full 7 | Core 3 |
-|---|---|---|
-| Starting Point Class | 51 (3 in progress) | 89 (7 in progress) |
-| Small Group | 171 | 303 |
-| Baptism | 67 (3 of them students) | 131 (5 of them students) |
-| Foundations | 23 (3 in progress) | 37 (8 in progress) |
-| Serve | 49 (1 in progress) | 83 (3 in progress) |
-| Give | 60 | 77 |
-| Lead | 20 | 48 |
-| Discipleship Path completions | 4 | 4 |
-| Student Camp | 6 (5 students) | 11 (10 students) |
-| Follow Jesus | 4 | 9 |
-| Mission Trip | 2 | 3 |
-| Student Leader | 1 | 1 |
-| Student Path completions | 1 | 1 |
+| Step | Core 1 | Core 3 | Full 7 |
+|---|---|---|---|
+| Starting Point Class | 51 (3 in progress) | 89 (7 in progress) | 3,055 (17 in progress) |
+| Small Group | 171 | 303 | 7,501 |
+| Baptism | 67 (3 of them students) | 131 (5 of them students) | 6,669 (297 of them students) |
+| Foundations | 23 (3 in progress) | 37 (8 in progress) | 1,503 (22 in progress) |
+| Serve | 49 (1 in progress) | 83 (3 in progress) | 1,566 (35 in progress) |
+| Give | 60 | 77 | 2,335 |
+| Lead | 20 | 48 | 471 |
+| Discipleship Path completions | 4 | 4 | 49 |
+| Student Camp | 6 (5 students) | 11 (10 students) | 549 (428 students) |
+| Follow Jesus | 4 | 9 | 437 |
+| Mission Trip | 2 | 3 | 149 |
+| Student Leader | 1 | 1 | 30 |
+| Student Path completions | 1 | 1 | 1 |
 
-Core 1 and Full 7 load the same people here, because Full 7's crowd is added with `--crowd`. Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 66% of the generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the other three come from the same rules.
+Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 66% of the generated active adults are baptized. Full 7 has 7,507 active adults, and 60% of its generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the other three come from the same rules.
 
-Core 1 has 13 students and Core 3 has 29. The load prints each share as people who took the step of those who could:
+Core 1 has 13 students, Core 3 has 29, and Full 7 has 1,456. The load prints each share as people who took the step of those who could:
 
-| Share | Core 1 and Full 7 | Core 3 |
-|---|---|---|
-| Student Camp | 5 of 12 | 10 of 24 |
-| Follow Jesus | 4 of 13 | 9 of 29 |
-| Mission Trip | 2 of 8 | 3 of 14 |
-| Student Leader | 1 of 3 | 1 of 7 |
-| Baptized after a decision | 2 of 3 | 3 of 5 |
-| Other students baptized | 1 of 8 | 2 of 19 |
+| Share | Core 1 | Core 3 | Full 7 |
+|---|---|---|---|
+| Student Camp | 5 of 12 | 10 of 24 | 428 of 953 |
+| Follow Jesus | 4 of 13 | 9 of 29 | 437 of 1,456 |
+| Mission Trip | 2 of 8 | 3 of 14 | 139 of 692 |
+| Student Leader | 1 of 3 | 1 of 7 | 30 of 292 |
+| Baptized after a decision | 2 of 3 | 3 of 5 | 204 of 340 |
+| Other students baptized | 1 of 8 | 2 of 19 | 93 of 930 |
 
 Shares are rounded within the Cast and within the generated households, and a Cast story counts even past its share. So the small Cast has two mission trips (Benjamin Lee's and Jasmine Washington's stories) where 20% of 8 rounds to 2, and one Student Leader (Jasmine's story) where 10% of 3 rounds to none. Jasmine's completion is the one her story needs.
 
