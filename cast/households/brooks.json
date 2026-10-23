@@ -10,7 +10,7 @@
   "story": "The Brooks family has been at the church for nine years. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.",
   "testPurposes": [
     "Three kids across the student and elementary check-in areas.",
-    "Weekly giver across two funds with year-end gifts."
+    "Weekly giver with year-end gifts, and a building campaign line on each gift."
   ],
   "address": {
     "type": "home",
@@ -36,8 +36,7 @@
       "persona": "weekly",
       "person": "nathan",
       "funds": {
-        "General Fund": 100,
-        "Building Fund": 25
+        "General Fund": 125
       },
       "percentOfPeriodsGiven": 85,
       "specialGiftPercent": 40,
@@ -67,7 +66,7 @@
       "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
       "firstName": "Nathan",
       "lastName": "Brooks",
-      "bio": "Nathan has been at the church nine years and gives every week to the General and Building funds. He is the example of a steady, growing weekly giver.",
+      "bio": "Nathan has been at the church nine years and gives every week to the General Fund, with a line for the building campaign on each gift. He is the example of a steady, growing weekly giver.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {

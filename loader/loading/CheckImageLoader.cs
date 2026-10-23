@@ -187,12 +187,17 @@ namespace RockSampleData.Loader.Loading
         {
             if ( funds.Count > 1 )
             {
-                return string.Join( " + ", funds.Select( f => f.Replace( " Fund", string.Empty ).ToLowerInvariant() ) );
+                return string.Join( " + ", funds.Select( f => f switch
+                {
+                    "Built on the Rock" => "building",
+                    "Mission Fund" => "missions",
+                    _ => f.Replace( " Fund", string.Empty ).ToLowerInvariant()
+                } ) );
             }
 
             return funds.FirstOrDefault() switch
             {
-                "Building Fund" => "Building fund",
+                "Built on the Rock" => "Built on the Rock",
                 "Mission Fund" => "Missions",
                 _ => new[] { "Tithe", "Offering", string.Empty, "General fund" }[handwritingIndex % 4]
             };

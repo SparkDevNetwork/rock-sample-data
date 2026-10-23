@@ -11,7 +11,7 @@
   "testPurposes": [
     "Failed background check that needs review.",
     "Divorced adult living alone.",
-    "Monthly giver across two funds."
+    "Monthly giver."
   ],
   "address": {
     "type": "home",
@@ -37,8 +37,7 @@
       "persona": "monthly",
       "person": "frank",
       "funds": {
-        "General Fund": 50,
-        "Building Fund": 10
+        "General Fund": 60
       },
       "percentOfPeriodsGiven": 70,
       "growth": {
