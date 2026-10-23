@@ -47,7 +47,7 @@ namespace RockSampleData.Loader.Loading
         never adds a family Sunday, so giving still follows the family.
 
         Reason: A teen can come more often than their parents without changing anyone else's
-        records (decisions D-student-attendance-1 to D-student-attendance-3).
+        records (decisions 146 to 148).
     */
 
     /// <summary>
@@ -669,7 +669,7 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// How often kids and students come (decisions D-student-attendance-1 to D-student-attendance-3).
+        /// How often kids and students come (decisions 146 to 148).
         /// </summary>
         /*
             10/23/26 - CLAUDE

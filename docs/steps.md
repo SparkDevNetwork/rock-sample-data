@@ -183,7 +183,7 @@ What each dataset loads, at the anchor 2026-10-23 and the default seed:
 
 Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 62% of the generated active adults are baptized. Full 7 has 7,483 active adults, and 60% of its generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the others come from the same rules.
 
-Core 1 has 13 students, Core 3 has 34, and Full 7 has 1,881. Students now come on their own on some Sundays their family stays home, and some keep coming after their family stops (decisions D-student-attendance-1 and D-student-attendance-2), so more of them have been attending when a camp or a school year starts. The load prints each share as people who took the step of those who could:
+Core 1 has 13 students, Core 3 has 34, and Full 7 has 1,881. Students now come on their own on some Sundays their family stays home, and some keep coming after their family stops (decisions 146 and 147), so more of them have been attending when a camp or a school year starts. The load prints each share as people who took the step of those who could:
 
 | Share | Core 1 | Core 3 | Full 7 |
 |---|---|---|---|
@@ -194,7 +194,7 @@ Core 1 has 13 students, Core 3 has 34, and Full 7 has 1,881. Students now come o
 | Baptized after a decision | 2 of 4 | 3 of 6 | 199 of 332 |
 | Other students baptized | 1 of 8 | 2 of 18 | 93 of 931 |
 
-Recent graduates count among the students. Generated adults aged 18 to 20 finished high school inside the history window, so they check in as students until they graduate (decision D-student-attendance-3). Their Student Path steps come from the same rules, with no change to the steps. In Full 7, 435 recent graduates checked in as students, and 235 of them have Student Path steps (325 in all). The Cast has no recent graduates: its adults aged 18 to 20 have no graduation in their files, so the Cast's steps are the same in every dataset.
+Recent graduates count among the students. Generated adults aged 18 to 20 finished high school inside the history window, so they check in as students until they graduate (decision 148). Their Student Path steps come from the same rules, with no change to the steps. In Full 7, 435 recent graduates checked in as students, and 235 of them have Student Path steps (325 in all). The Cast has no recent graduates: its adults aged 18 to 20 have no graduation in their files, so the Cast's steps are the same in every dataset.
 
 Shares are rounded within the Cast and within the generated households, and a Cast story counts even past its share. So the small Cast has two mission trips (Benjamin Lee's and Jasmine Washington's stories) where 20% of 8 rounds to 2, and one Student Leader (Jasmine's story) where 10% of 3 rounds to none. Jasmine's completion is the one her story needs.
 

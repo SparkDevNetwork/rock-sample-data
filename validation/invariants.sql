@@ -488,7 +488,7 @@ WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] 
             WHERE [at].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [s].[Id] AND [av].[Value] = 'True' ) );
 
 -- check: young-kid-checks-in-with-the-family
--- why: Kids from the nursery through 6th grade come only with their family (decision D-student-attendance-1). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -521,7 +521,7 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [a].[Attendance
             AND [wg].[Name] = 'Weekend Service' AND [wgt].[Guid] = '235BAE2B-5760-4763-AADF-3938F34BA100' );
 
 -- check: onsite-gift-on-a-family-sunday
--- why: Checks and cash go in the offering only on a Sunday the family came (decision D-student-attendance-1). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.
+-- why: Checks and cash go in the offering only on a Sunday the family came (decision 146). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.
 SELECT COUNT(*)
 FROM [FinancialTransaction] AS [t]
 INNER JOIN [FinancialBatch] AS [b] ON [b].[Id] = [t].[BatchId]
@@ -541,7 +541,7 @@ WHERE [t].[ForeignKey] = @ForeignKey AND [b].[Name] LIKE 'Sunday Offering %'
             AND [o].[SundayDate] = CAST( [t].[TransactionDateTime] AS DATE ) );
 
 -- check: student-check-in-fits-the-grade
--- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision D-student-attendance-3). The grade comes from the graduation year and moves up each June 1, as check-in's does.
+-- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up each June 1, as check-in's does.
 SELECT COUNT(*)
 FROM (
     SELECT [g].[Name],

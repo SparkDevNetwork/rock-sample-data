@@ -187,7 +187,7 @@ namespace RockSampleData.Loader.Loading
                         Crowd sets: they check in as students until they graduate. The Cast's adult graduations are
                         decades old, so nothing changes for the Cast.
 
-                        Reason: Recent graduates get their student years (decision D-student-attendance-3).
+                        Reason: Recent graduates get their student years (decision 148).
                     */
                     var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;
