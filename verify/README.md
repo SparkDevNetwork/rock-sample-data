@@ -29,7 +29,7 @@ It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Ro
 | `--keep` | Keeps each loaded database (`RockSampleVerify-<run tag>-core-1` and so on) for a look afterward. |
 | `--check-receipts [folder]` | Runs nothing else. The publishing gate: exits with 1 unless every package has a passing receipt. |
 
-A full run takes about 5 minutes. Making a new trusted base adds about 9 minutes, once for each Rock release.
+A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trusted base adds about 9 minutes, once for each Rock release.
 
 ## What it checks
 
