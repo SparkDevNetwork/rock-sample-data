@@ -172,17 +172,48 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .site-nav a:hover { color: var(--ink); background: var(--paper-2); }
 .site-nav a[aria-current="page"] { color: var(--ink); background: var(--paper-2); box-shadow: inset 0 -2px 0 #FAAA4D; }
 .header-cta { flex-shrink: 0; }
+.nav-toggle, .nav-github { display: none; }
 
+/* Tablets: the links wrap onto their own centered row, so every page stays in view. */
 @media (max-width: 1100px) {
-    .header-row { flex-wrap: wrap; gap: 8px 16px; padding-top: 10px; }
+    .header-row { flex-wrap: wrap; gap: 8px 16px; padding: 10px 0; }
     .header-cta { margin-left: auto; }
-    .site-nav {
-        order: 3; width: 100%; margin: 0 calc(var(--gutter) * -1); padding: 2px var(--gutter) 10px;
-        overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
-        mask-image: linear-gradient(90deg, #000 85%, transparent);
-    }
-    .site-nav::-webkit-scrollbar { display: none; }
+    .site-nav { order: 3; width: 100%; margin: 0; flex-wrap: wrap; justify-content: center; gap: 2px 4px; }
 }
+
+/* Phones: a Menu button opens the links as a full-width list. Without script, the wrapped row above stays. */
+@media (max-width: 760px) {
+    .js .header-cta { display: none; }
+    .js .nav-toggle {
+        display: inline-flex; align-items: center; gap: 10px; margin-left: auto; min-height: 44px; padding: 8px 16px;
+        border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink);
+        font: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    }
+    .nav-toggle-bars, .nav-toggle-bars::before, .nav-toggle-bars::after {
+        display: block; width: 18px; height: 2px; border-radius: 2px; background: currentColor;
+        transition: transform 0.2s ease, background 0.2s ease, top 0.2s ease;
+    }
+    .nav-toggle-bars { position: relative; }
+    .nav-toggle-bars::before, .nav-toggle-bars::after { content: ""; position: absolute; left: 0; }
+    .nav-toggle-bars::before { top: -6px; }
+    .nav-toggle-bars::after { top: 6px; }
+    .nav-open .nav-toggle-bars { background: transparent; }
+    .nav-open .nav-toggle-bars::before { top: 0; transform: rotate(45deg); }
+    .nav-open .nav-toggle-bars::after { top: 0; transform: rotate(-45deg); }
+    .js .site-nav { display: none; flex-direction: column; align-items: stretch; gap: 2px; padding: 4px 0 12px; }
+    .js .nav-open .site-nav { display: flex; }
+    .js .site-nav a { padding: 13px 16px; border-radius: 12px; font-size: 1.05rem; }
+    .js .nav-github { display: block; }
+    .site-header.nav-open { background: var(--paper); border-bottom-color: var(--line); }
+}
+
+/* Initiatives */
+
+.initiative + .initiative { margin-top: clamp(56px, 8vw, 96px); }
+.initiative h3 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 12px; }
+.initiative-art { margin: 0; }
+.initiative-art .zoom-button img { aspect-ratio: auto; height: auto; object-fit: contain; }
+.view.view-whole img { object-fit: contain; background: var(--card); }
 
 /* Hero */
 
@@ -350,6 +381,8 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .campus-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .campus { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); position: relative; }
 .campus-main { grid-column: span 2; background: var(--night); color: var(--on-night); }
+.campus .campus-photo { margin: 0 0 20px; }
+.campus .campus-photo img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; }
 
 .campus-number { font-family: var(--serif); font-size: 2.2rem; line-height: 1; display: block; margin-bottom: 14px; background: var(--rock-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .campus h3 { font-size: 1.35rem; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

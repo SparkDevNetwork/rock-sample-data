@@ -57,10 +57,12 @@ const brandDir = path.join( churchDir, "branding" );
 const castFiles = fs.readdirSync( path.join( repo, "photos/cast" ) ).filter( f => f.endsWith( ".jpg" ) );
 const servingFiles = model.opportunities.filter( o => o.photo ).map( o => o.photo );
 const groupFiles = model.smallGroups.filter( g => g.photo ).map( g => g.photo );
+const campusFiles = model.campuses.filter( c => c.photo ).map( c => c.photo );
 copyInto( churchDir, path.join( dist, "images/church" ), model.churchViews.map( v => v.jpeg ) );
 copyInto( path.join( repo, "photos/cast" ), path.join( dist, "images/cast" ), castFiles );
 copyInto( path.join( repo, "photos/opportunities" ), path.join( dist, "images/serving" ), servingFiles );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "images/groups" ), groupFiles );
+copyInto( path.join( repo, "photos/campuses" ), path.join( dist, "images/campuses" ), campusFiles );
 
 // Single-file downloads: every logo file, and each building view and small group photo as JPEG and PNG master.
 const brandFiles = fs.readdirSync( brandDir ).filter( f => /\.(svg|png)$/.test( f ) );
@@ -68,9 +70,19 @@ copyInto( brandDir, path.join( dist, "downloads/brand" ), brandFiles );
 copyInto( churchDir, path.join( dist, "downloads/church" ), model.churchViews.flatMap( v => [ v.jpeg, v.file ] ) );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "downloads/groups" ), groupFiles );
 copyInto( path.join( repo, "photos/originals/groups" ), path.join( dist, "downloads/groups" ), groupFiles.map( f => f.replace( /\.jpg$/, ".png" ) ) );
+for ( const initiative of model.initiativeGraphics ) {
+    for ( const image of initiative.images ) {
+        copy( path.join( repo, "graphics/initiatives", initiative.key, image.file ), path.join( dist, "images/initiatives", image.file ) );
+        copy( path.join( repo, "graphics/initiatives", initiative.key, image.file ), path.join( dist, "downloads/initiatives", image.file ) );
+    }
+}
+for ( const image of model.campusPhotos ) {
+    copy( path.join( repo, "photos", image.file ), path.join( dist, "downloads/campuses", path.basename( image.file ) ) );
+    copy( path.join( repo, "photos", image.original ), path.join( dist, "downloads/campuses", path.basename( image.original ) ) );
+}
 
 const downloads = { files: {}, zips: {} };
-for ( const sub of [ "brand", "church", "groups" ] ) {
+for ( const sub of [ "brand", "church", "groups", "campuses", "initiatives" ] ) {
     for ( const f of fs.readdirSync( path.join( dist, "downloads", sub ) ) ) {
         downloads.files[`${sub}/${f}`] = { size: fs.statSync( path.join( dist, "downloads", sub, f ) ).size };
     }
@@ -123,6 +135,7 @@ zip( "brand", "rock-solid-church-brand-kit.zip", [
     ...fileEntries( brandDir, brandFiles, "rock-solid-church-brand-kit" )
 ] );
 zip( "building", "rock-solid-church-building-photos.zip", fileEntries( churchDir, model.churchViews.map( v => v.jpeg ), "rock-solid-church-building-photos" ) );
+zip( "campuses", "rock-solid-church-campus-photos.zip", fileEntries( path.join( repo, "photos/campuses" ), campusFiles, "rock-solid-church-campus-photos" ) );
 zip( "serving", "rock-solid-church-serving-photos.zip", fileEntries( path.join( repo, "photos/opportunities" ), servingFiles, "rock-solid-church-serving-photos" ) );
 zip( "groups", "rock-solid-church-small-group-photos.zip", fileEntries( path.join( repo, "photos/groups" ), groupFiles, "rock-solid-church-small-group-photos" ) );
 zip( "portraits", "rock-solid-church-cast-portraits.zip", fileEntries( path.join( repo, "photos/cast" ), castFiles, "rock-solid-church-cast-portraits" ) );

@@ -12,6 +12,27 @@
     window.addEventListener( "scroll", onScroll, { passive: true } );
     onScroll();
 
+    // Phone menu: the Menu button shows and hides the links.
+    var toggle = document.querySelector( ".nav-toggle" );
+    function setMenu( isOpen ) {
+        header.classList.toggle( "nav-open", isOpen );
+        toggle.setAttribute( "aria-expanded", isOpen ? "true" : "false" );
+    }
+    if ( header && toggle ) {
+        toggle.addEventListener( "click", function () {
+            setMenu( !header.classList.contains( "nav-open" ) );
+        } );
+        header.querySelectorAll( ".site-nav a" ).forEach( function ( link ) {
+            link.addEventListener( "click", function () { setMenu( false ); } );
+        } );
+        document.addEventListener( "keydown", function ( e ) {
+            if ( e.key === "Escape" && header.classList.contains( "nav-open" ) ) {
+                setMenu( false );
+                toggle.focus();
+            }
+        } );
+    }
+
     // Fade sections in as they scroll into view.
     var reveals = document.querySelectorAll( ".reveal" );
     if ( "IntersectionObserver" in window ) {

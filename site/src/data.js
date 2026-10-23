@@ -179,6 +179,25 @@ function load() {
 
     const church = readJson( "photos/references/church/manifest.json" );
     const branding = readJson( "photos/references/church/branding/manifest.json" );
+    const campusPhotos = readJson( "photos/campuses/manifest.json" ).images;
+    const campuses = readJson( "configuration/campuses.json" ).campuses.map( campus => {
+        const photo = campusPhotos.find( image => image.campus === campus.key );
+        return {
+            ...campus,
+            photo: photo ? path.basename( photo.file ) : null,
+            photoDescription: photo ? photo.description : "",
+            buildingType: photo ? photo.buildingType : ""
+        };
+    } );
+
+    // Each folder in graphics/initiatives/ is one initiative and its artwork (graphics/README.md).
+    const initiativeGraphics = fs.readdirSync( path.join( root, "graphics/initiatives" ) )
+        .filter( folder => exists( `graphics/initiatives/${folder}/manifest.json` ) )
+        .sort()
+        .map( folder => {
+            const manifest = readJson( `graphics/initiatives/${folder}/manifest.json` );
+            return { key: folder, name: manifest.program, images: manifest.images };
+        } );
 
     return {
         root,
@@ -187,7 +206,10 @@ function load() {
         groups,
         smallGroups,
         opportunities,
-        campuses: readJson( "configuration/campuses.json" ).campuses,
+        campuses,
+        campusPhotos,
+        initiativeGraphics,
+        campaign: readJson( "configuration/campaign.json" ),
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,

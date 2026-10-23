@@ -81,10 +81,10 @@ function download( { title, detail, href, format } ) {
 /**
  * A photo that opens larger in the page's viewer when clicked.
  */
-function zoomable( { src, alt, caption, className = "" } ) {
+function zoomable( { src, alt, caption, className = "", width = 1536, height = 1024 } ) {
     return html`<figure class="zoom ${className}">
   <button class="zoom-button" type="button" data-zoom="${esc( src )}" data-caption="${esc( caption || alt )}" aria-label="View larger: ${esc( alt )}">
-    <img src="${esc( src )}" alt="${esc( alt )}" loading="lazy" width="1536" height="1024">
+    <img src="${esc( src )}" alt="${esc( alt )}" loading="lazy" width="${width}" height="${height}">
   </button>
   ${caption ? html`<figcaption>${caption}</figcaption>` : ""}
 </figure>`;

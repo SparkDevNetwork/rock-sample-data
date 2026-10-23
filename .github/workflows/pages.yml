@@ -10,6 +10,7 @@ on:
       - "cast/**"
       - "configuration/**"
       - "photos/**"
+      - "graphics/**"
       - "docs/contributing.md"
       - "docs/roadmap.md"
       - ".github/workflows/pages.yml"

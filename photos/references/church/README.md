@@ -2,6 +2,8 @@
 
 Twelve empty architectural photo views for Rock Solid Church, created October 21, 2026. The pack extends the architecture and finishes in the serving opportunity photos, with the approved final logo, larger lobby, and expanded higher-ceiling auditorium requested by the user. The additional views are ready for review.
 
+This pack describes the original Phoenix campus. The other six campuses have distinct exteriors in [the campus photo set](../../campuses/README.md), including Goodyear's school auditorium, which it sets up and tears down every Sunday, and the traditional church building Scottsdale had before it merged with Rock Solid Church.
+
 ## Reference images
 
 | View | Master | Upload copy |

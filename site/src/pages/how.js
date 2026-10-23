@@ -132,7 +132,7 @@ module.exports = function how( { model } ) {
       <p class="eyebrow">The photos</p>
       <h2>Made to look like one church.</h2>
       <p>Every portrait, group photo, and building view is AI-generated and fictional. Portraits look like casual profile pictures, and family members look related.</p>
-      <p>Group photos are made from each member's own portrait, so the same faces appear on Sunday and in small group. Twelve empty building views keep every new photo in the same rooms, with the same furniture and the same light.</p>
+      <p>Group photos are made from each member's own portrait, so the same faces appear on Sunday and in small group. Twelve empty building views preserve the rooms at Phoenix. Seven distinct campus exteriors show the other settings, including Goodyear's school auditorium and Scottsdale's traditional sanctuary, ready for Sunday without people.</p>
     </div>
     <div class="split-text reveal">
       <p class="eyebrow">Read the details</p>

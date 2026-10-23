@@ -162,6 +162,7 @@ module.exports = function brand( { model, r, downloads } ) {
     <div class="pack-grid">
       ${[
             [ "building", "Building views", "12 empty rooms and exterior views, JPEG" ],
+            [ "campuses", "Campus exteriors", "7 distinct campuses ready for Sunday, without people, JPEG" ],
             [ "serving", "Serving teams", "8 photos of Cast volunteers at work, JPEG" ],
             [ "groups", "Small groups", "12 Cast small group photos, JPEG" ],
             [ "portraits", "Cast portraits", `${model.counts.photos} profile photos, JPEG` ]
@@ -171,7 +172,36 @@ module.exports = function brand( { model, r, downloads } ) {
           <span class="pack-size">ZIP · ${formatSize( downloads.zips[key].size )}</span>
         </a>` )}
     </div>
-    <h3 class="view-heading">Building views</h3>
+    <h3 class="view-heading">Initiative artwork</h3>
+    <div class="view-grid">
+      ${model.initiativeGraphics.flatMap( initiative => initiative.images.map( image => html`<figure class="view view-whole reveal">
+        <img src="${r( "images/initiatives/" + image.file )}" alt="${esc( `${initiative.name}: ${image.copy.slice( 0, 3 ).join( " " )}` )}" loading="lazy" width="${image.width}" height="${image.height}">
+        <figcaption>
+          <span>${esc( initiative.name )}</span>
+          <span class="view-links">
+            <a href="${r( "downloads/initiatives/" + image.file )}" download>PNG ${formatSize( d( "initiatives/" + image.file ).size )}</a>
+          </span>
+        </figcaption>
+      </figure>` ) )}
+    </div>
+    <h3 class="view-heading">Campus exteriors</h3>
+    <div class="view-grid">
+      ${model.campusPhotos.map( image => {
+            const jpeg = image.file.split( "/" ).pop();
+            const png = image.original.split( "/" ).pop();
+            return html`<figure class="view reveal">
+        <img src="${r( "images/campuses/" + jpeg )}" alt="${esc( image.description )}" loading="lazy" width="${image.width}" height="${image.height}">
+        <figcaption>
+          <span>${esc( image.name )}</span>
+          <span class="view-links">
+            <a href="${r( "downloads/campuses/" + jpeg )}" download>JPEG ${formatSize( d( "campuses/" + jpeg ).size )}</a>
+            <a href="${r( "downloads/campuses/" + png )}" download>PNG ${formatSize( d( "campuses/" + png ).size )}</a>
+          </span>
+        </figcaption>
+      </figure>`;
+        } )}
+    </div>
+    <h3 class="view-heading">Phoenix building views</h3>
     <div class="view-grid">
       ${model.churchViews.map( v => html`<figure class="view reveal">
         <img src="${r( "images/church/" + v.jpeg )}" alt="${esc( v.title )}" loading="lazy" width="1536" height="1024">

@@ -18,6 +18,32 @@
 const { esc, html } = require( "../layout" );
 const { sectionHead, zoomable } = require( "../components" );
 
+// The church's initiatives, in the order they started. Starting Point is the first.
+// Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
+const initiatives = [
+    {
+        key: "starting-point",
+        eyebrow: "The first initiative",
+        paragraphs: [
+            "Starting Point is the class for people who are new to the church. It is the first step on the Discipleship Path, in the Belong stage.",
+            "Each campus starts a class every four weeks. It meets on four Wednesday nights, so every install has a class in progress at every campus.",
+            "Serving teams ask for Starting Point first, and Rock enforces it: a Serve step needs a completed Starting Point Class. About 40% of active adults and every volunteer have taken it.",
+            "In the Cast, Brian and Wendy Gilbert are taking the class now so they can greet together. Bri Hall finished it last month and waits as a Pending greeter."
+        ],
+        card: [ "Four Wednesday nights.", "Every four weeks.", "At every campus." ]
+    },
+    {
+        key: "built-on-the-rock",
+        eyebrow: "A two-year building campaign",
+        paragraphs: [
+            "Built on the Rock pays for a Student Center at the Phoenix campus and more kids rooms at every campus. The name comes from the wise builder in Matthew 7, who built his house on the rock.",
+            "People and businesses at every campus made pledges. The campaign has its own fund, so Rock's pledge screens show real progress.",
+            "Every install lands about 40% through the campaign. Some pledges are ahead and some are behind, so each one has a story."
+        ],
+        card: [ "A Student Center at Phoenix.", "Kids rooms at every campus.", "Two years." ]
+    }
+];
+
 // The tour walks the building from the parking lot to the back rooms.
 const tour = [
     [ "front-exterior-wide", "Arrive", "A low, warm-white lobby with a charcoal canopy sits in front of the taller worship center. Palo verde trees and agaves line the walk." ],
@@ -49,7 +75,30 @@ function servingTime( slot ) {
     return `${h > 12 ? h - 12 : h}:${hhmm.slice( 2 )}`;
 }
 
+function initiativeBlock( initiative, image, index, r ) {
+    const art = image
+        ? zoomable( { src: r( "images/initiatives/" + image.file ), alt: `${initiative.name} artwork: ${image.copy.slice( 0, 3 ).join( " " )}`, className: "initiative-art", width: image.width, height: image.height } )
+        : html`<div class="mission initiative-card" aria-label="${esc( initiative.name )}">
+      <span class="mission-heading">${esc( initiative.name )}</span>
+      ${initiative.card.map( line => html`<span class="mission-line">${esc( line )}</span>` )}
+    </div>`;
+    return html`<div class="split initiative${index % 2 ? " split-reverse" : ""}">
+    <div class="split-text reveal">
+      <p class="eyebrow">${esc( initiative.eyebrow )}</p>
+      <h3>${esc( initiative.name )}</h3>
+      ${initiative.paragraphs.map( p => html`<p>${esc( p )}</p>` )}
+    </div>
+    <div class="reveal">${art}</div>
+  </div>`;
+}
+
 module.exports = function church( { model, r } ) {
+    // Every initiative folder shows up, even one this page has no words for yet.
+    const known = new Set( initiatives.map( i => i.key ) );
+    const shown = [
+        ...initiatives.map( i => ( { ...i, name: ( model.initiativeGraphics.find( g => g.key === i.key ) || {} ).name || ( i.key === "built-on-the-rock" ? model.campaign.name : i.key ) } ) ),
+        ...model.initiativeGraphics.filter( g => !known.has( g.key ) ).map( g => ( { key: g.key, name: g.name, eyebrow: "Initiative", paragraphs: [ g.images[0] ? g.images[0].concept : "" ], card: [] } ) )
+    ];
     const views = tour.map( ( [ key, title, text ] ) => ( { view: model.churchViews.find( v => v.key === key ), title, text } ) ).filter( t => t.view );
 
     return {
@@ -74,7 +123,7 @@ module.exports = function church( { model, r } ) {
       <p class="eyebrow">Who we are</p>
       <h2>Rock Solid Church</h2>
       <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where the Cast lives, and has grown to seven campuses across the Valley.</p>
-      <p>The building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. Desert plants line the walks. Every campus shares the same rooms, so check-in and serving work the same everywhere.</p>
+      <p>The original Phoenix building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. The other campuses have their own buildings, including a high school auditorium in Goodyear, where volunteers set up and tear down every Sunday. Scottsdale meets in a traditional church building. It was an independent church until it merged with Rock Solid Church. The sample data uses the same room setup at every campus, so check-in and serving work the same everywhere.</p>
       <p>The church is in the middle of Built on the Rock, a two-year building campaign for a Student Center at Phoenix and more kids rooms at every campus. People and businesses at every campus have pledged.</p>
     </div>
     <div class="mission reveal" aria-label="The church's mission">
@@ -86,14 +135,26 @@ module.exports = function church( { model, r } ) {
   </div>
 </section>
 
+<section class="section" id="initiatives">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Initiatives", title: "What the church invites people into.", lede: "Starting Point was the first. The sample data follows each initiative in Rock, and their artwork is on the brand page." } )}
+    ${shown.map( ( initiative, i ) => {
+            const graphic = model.initiativeGraphics.find( g => g.key === initiative.key );
+            return initiativeBlock( initiative, graphic ? graphic.images[0] : null, i, r );
+        } )}
+  </div>
+</section>
+
 <section class="section section-sand">
   <div class="wrap">
     ${sectionHead( { eyebrow: "Seven campuses", title: "One church across the Valley.", lede: "Core 1 has the broadcast campus in Phoenix. Core 3 adds Peoria and Gilbert. Full 7 has all seven, each with its own people and character." } )}
     <div class="campus-grid">
       ${model.campuses.map( ( c, i ) => html`<div class="campus reveal${c.rockDefault ? " campus-main" : ""}">
+        ${c.photo ? zoomable( { src: r( "images/campuses/" + c.photo ), alt: c.photoDescription, className: "campus-photo" } ) : ""}
         <span class="campus-number">${String( i + 1 ).padStart( 2, "0" )}</span>
         <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Broadcast campus</span>` : ""}</h3>
         <p>${esc( c.rockDefault ? "North Phoenix, where the Cast lives. The original and largest campus." : c.notes )}</p>
+        <p>${esc( c.buildingType )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>
       </div>` )}
@@ -103,7 +164,7 @@ module.exports = function church( { model, r } ) {
 
 <section class="section" id="tour">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Building tour", title: "Walk in the front door.", lede: "Twelve views of the building, from the parking lot to the prayer room. Select any photo to see it larger." } )}
+    ${sectionHead( { eyebrow: "Phoenix building tour", title: "Walk in the front door.", lede: "Twelve views of the original Phoenix building, from the parking lot to the prayer room. Select any photo to see it larger." } )}
   </div>
   <div class="tour" tabindex="0" aria-label="Building tour, scroll sideways">
     ${views.map( ( t, i ) => html`<div class="tour-stop reveal">
