@@ -403,7 +403,7 @@ namespace RockSampleData.Loader
             // who is involved enough for a newsletter comes from the attendance and giving plans.
             if ( steps.Begin( "Communications" ) )
             {
-                new CommunicationsLoader( db, source, dates, dataset, foreignKey, seed )
+                new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )
                     .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
             }
 

@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup is built: the texting numbers, the communication lists, the branded template, and the message library. The sends are still a plan. The decisions are 90 to 96, 131 to 133, and 137 to 141 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. The setup and bulk email are built: the texting numbers, the communication lists, the branded template, the message library, and two years of mass email. Texts, one-to-one messages, push, and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, and D-commsemail-1 to D-commsemail-3 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -77,15 +77,17 @@ Messages come from a hand-written library in [content/communications/](../conten
 
 ## Bulk email
 
-Bulk email is where the very large sends come from.
+Bulk email is where the very large sends come from (decision D-commsemail-1). On Full 7 it is about 1,500 sends and 1.3 million recipient rows over two years. Core 1 has about 330 sends and 20,000 recipients.
 
-- **Who sends what.** Each campus sends its weekly newsletter to its list. The church sends seasonal emails (Easter, Christmas, year-end giving) to everyone, and ministries send to their own lists.
+- **Who sends what.** Each campus sends its weekly newsletter to its list every Thursday at 6 a.m. The church sends seasonal emails (Easter, Christmas, year-end giving, the campaign, baptism Sunday, group launches) once per campus to that campus's involved adults with an email, the segment a church's active adults data view gives. Ministries send to their own lists. Student Camp and mission trip emails go to students and their parents.
+- **The calendar.** Each library email names an occasion, and `loader/generation/CommunicationCalendar.cs` dates it from the install day with the same rules the rest of the data uses: baptism Sundays, camp, and the mission trips from the steps, Commitment Sunday from the campaign, and the class schedules.
 - **Bulk flag and medium.** Mass sends are flagged `IsBulkCommunication` and have a concrete type (Email, SMS, or Push), so the Saturation report counts them by default (decision 132). A few leader sends to small lists stay unflagged, so the report's bulk-only toggle shows a difference, and a small share of sends use recipient preference. The measured data flags only about 10% of mass sends; the sample church shows the better practice.
-- **Sender, reviewer, topic.** Each send has a Cast staff sender, a reviewer when Rock's approval would require one, and a topic.
+- **Sender, reviewer, topic.** Daniel Peak sends and approves the church's emails. Pete Foster's and Isaac Silva's are approved by Daniel. Every send has its topic, the branded template, and the from line in configuration/communications.json.
 - **Recipients.** Each recipient row has its own `SendDateTime`, which the Unsubscribe report reads.
-- **Delivery.** Most recipients are Delivered or Opened. People whose email is already inactive in the people data are the ones whose sends fail, so the two always agree.
-- **Opens and clicks.** Opens follow the measured open rate and come mostly within a day of the send. Clicks come only from people who opened, at the measured click-through rate.
-- **Unsubscribes and spam.** See Unsubscribes. Spam complaints are rare.
+- **Delivery.** Recipients follow Rock's send path. Rock refuses an inactive email, "Do not email", and "No mass emails" on a bulk send, with its own status notes and no send time. Everyone else is sent through Mailgun and confirmed delivered, and Rock's "Sent" line goes on their History. Email recipients keep no `SentMessage`, because Rock's email transport never stores one.
+- **Bounces.** About 1.8% of active emails bounce once during the window. That send fails with the bounce, Rock makes the email inactive with its bounce note and the History lines, and later sends fail as not active.
+- **Opens and clicks.** Each person reads at their own rate, higher for Leading and Engaged people, so opens land near the measured rate and mostly within a day. Clicks come only from people who opened, at the measured rate, mostly on the email's first link. Each open and click is an interaction with its own session and an email client's device type, as Rock's Mailgun webhook writes them, so Communication Detail charts opens by client.
+- **Unsubscribes.** See Unsubscribes. There are no spam complaints on recipients, because Rock 21's email transports never record one there.
 
 ## Unsubscribes
 
@@ -95,7 +97,8 @@ Unsubscribes are designed, not measured (decision 131). The measured data record
 - **When.** Most come the same day as the email or the next, and some come in the last 6 months, so the report's default window has data.
 - **Which sends.** Large newsletters draw more unsubscribes than small ministry sends.
 - **Texted STOP.** A few people text STOP. Their newest text gets a level All unsubscribe, and texting is turned off on their phone, so later texts leave them out.
-- **The Cast.** A couple of Cast people unsubscribe in ways their stories explain, such as leaving the Men's list after moving to a Saturday group, so tests can find a known case.
+- **Who can reach which level** (decision D-commsemail-2). A list email unsubscribe leaves the person Inactive in that list. A church-wide email can set "No mass emails" only for someone on no active list, so nobody with that preference is ever left on a list. Rock steps a preference down one level at a time, and a bulk email never reaches someone on "No mass emails", so email unsubscribes almost never reach "Do not email". Generated people therefore start the window with the measured share of "Do not email", and of inactive emails.
+- **The Cast.** Kevin Dawson leaves the Men list from its newest email, because its breakfasts fall on the weekends he has his kids. Brandon Watson is on no list and chose "No mass emails" from a church-wide email about three months ago. Every load checks both.
 - **Calibration.** Part 7 also counts a whole year of unsubscribes, with their levels and timing, where Rock 19's unsubscribe index exists. In the measured data, recipient rows hold texted STOPs (about 0.34 per 1,000 mass-text recipients, mostly the same day) but no email unsubscribes, so the STOP rate and the timing are measured, and the email levels and rates are designed.
 
 ## Message load per person
@@ -166,10 +169,11 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations:** each Cast thread shows in SMS Conversations in its intended state, and the recent threads are unread.
-- **Validation** grades the generated data against calibration part 7.
+- **Validation** grades the generated email data against calibration part 7 (decision D-commsemail-3): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month.
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 
 ## Build order
@@ -178,7 +182,7 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 
 1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
 2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Done.
-3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation.
+3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation. Done.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs.
 5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
@@ -186,6 +190,8 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 
 ## Open questions
 
-1. **Email message copies.** Each recipient row can hold a copy of the sent message in `SentMessage`, which makes the table large. Slice 3 checks which screens read it for email. If none do, email recipients leave it empty.
-2. **`SendDateKey` dates.** Prayer interactions already write date keys, so `AnalyticsSourceDate` probably covers the 2-year window. Slice 3 confirms it.
-3. **The app's pages.** The stub plans five tabs. Which pages and data each tab gets is later work.
+1. **The app's pages.** The stub plans five tabs. Which pages and data each tab gets is later work.
+
+Answered: email recipients leave `SentMessage` empty, because Rock's email transport never stores it (decision D-commsemail-1), and `AnalyticsSourceDate` covers 1876 to 2126, so every send's date key exists.
+
+2. **The app's pages.** The stub plans five tabs. Which pages and data each tab gets is later work.

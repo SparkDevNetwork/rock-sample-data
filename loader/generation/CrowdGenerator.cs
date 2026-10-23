@@ -44,6 +44,11 @@ namespace RockSampleData.Loader.Generation
         private static readonly string[] AreaCodes = { "602", "480", "623" };
 
         /// <summary>
+        /// The share of generated adults with an email.
+        /// </summary>
+        private const double EmailShare = 0.8;
+
+        /// <summary>
         /// Status weights, and the chance a record with that status shows any activity.
         /// Together these land near the profile's share of adult records with activity.
         /// </summary>
@@ -216,10 +221,10 @@ namespace RockSampleData.Loader.Generation
         {
             var firstName = random.Pick( isFemale ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
             var isAdult = role == "adult";
-            var hasEmail = isAdult && random.Chance( 0.8 );
+            var hasEmail = isAdult && random.Chance( EmailShare );
             var hasMobile = isAdult ? random.Chance( 0.75 ) : age >= 13 && random.Chance( 0.4 );
 
-            return new CastPerson
+            var person = new CastPerson
             {
                 Key = $"{household.Key}-{position}",
                 Guid = random.NextGuid(),
@@ -235,6 +240,20 @@ namespace RockSampleData.Loader.Generation
                 Email = hasEmail ? $"{firstName}.{lastName}{random.Between( 1, 999 )}@example.org".ToLowerInvariant() : null,
                 Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
+
+            // Some addresses were already inactive, and some people had asked for no email, before the communication
+            // history begins. Their own stream keeps every other draw where it was. Bounces and unsubscribes during
+            // the history come from the communications step (decision 131).
+            if ( hasEmail )
+            {
+                var emailState = new SeededRandom( $"{_seed}:crowd:email-state:{person.Guid}" );
+                person.EmailIsActive = !emailState.Chance( _profile.Number( "communicationDetail.design.pctEmailsInactiveBeforeWindow", 0 ) / 100 );
+
+                // The measured share is of all adults, and only adults with an email can choose it.
+                person.EmailDoNotEmail = emailState.Chance( _profile.Number( "communicationDetail.people.pctDoNotEmail", 0 ) / 100 / EmailShare );
+            }
+
+            return person;
         }
 
         /// <summary>

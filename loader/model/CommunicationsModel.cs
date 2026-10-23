@@ -15,6 +15,8 @@
 // </copyright>
 //
 
+using RockSampleData.Loader.Generation;
+
 namespace RockSampleData.Loader.Model
 {
     /*
@@ -40,6 +42,50 @@ namespace RockSampleData.Loader.Model
         public EmailTemplateDefinition Template { get; set; } = new EmailTemplateDefinition();
 
         public CommunicationListConfiguration Lists { get; set; } = new CommunicationListConfiguration();
+
+        public CommunicationEvents Events { get; set; } = new CommunicationEvents();
+
+        /// <summary>
+        /// The email clients people read on, as Mailgun reports them.
+        /// </summary>
+        public List<EmailClient> EmailClients { get; set; } = new List<EmailClient>();
+
+        /// <summary>
+        /// The Cast people whose stories include an unsubscribe.
+        /// </summary>
+        public List<CastUnsubscribe> CastUnsubscribes { get; set; } = new List<CastUnsubscribe>();
+    }
+
+    /// <summary>
+    /// Church-wide dates the message library ties to that no other configuration file holds.
+    /// </summary>
+    internal sealed class CommunicationEvents
+    {
+        public EventSeason Vbs { get; set; }
+
+        public MonthWeek FallGroupLaunch { get; set; }
+
+        public MonthWeek SpringGroupLaunch { get; set; }
+
+        public MonthWeek ServeSunday { get; set; }
+    }
+
+    /// <summary>
+    /// A Cast person who unsubscribes, the way their story says.
+    /// </summary>
+    internal sealed class CastUnsubscribe
+    {
+        public Guid Person { get; set; }
+
+        /// <summary>
+        /// The list they leave, or null when they choose "No mass emails" from an email sent to no list.
+        /// </summary>
+        public string List { get; set; }
+
+        /// <summary>
+        /// How many days before install day, at the newest fitting send on or before then.
+        /// </summary>
+        public int DaysAgo { get; set; }
     }
 
     /// <summary>
