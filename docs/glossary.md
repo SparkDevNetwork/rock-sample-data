@@ -46,6 +46,7 @@ The words this project uses, in alphabetical order.
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
+| **Saturation** | How many messages each adult got in a period. Rock's Communication Saturation report sorts adults into buckets by count. See [Communications](communications.md#message-load-per-person). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
@@ -56,5 +57,6 @@ The words this project uses, in alphabetical order.
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
+| **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |
 | **Version guard** | The checks that catch Rock changing code the builder ports: the lock check against GitHub and the parity test before a release. |

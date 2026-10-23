@@ -107,7 +107,7 @@ DECLARE @HasRecipientCommunicationIndex BIT = CASE WHEN EXISTS (
 DECLARE @CanReadRecipientsBySend BIT = CASE WHEN @HasRecipientCommunicationIndex = 1 OR @ReadWithoutIndex = 1 THEN 1 ELSE 0 END;
 
 -- Clean up temp tables from an earlier run in the same SSMS session.
-DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow, #SatRecipient, #SatPerson, #UnsubYear;
 
 -- =============================================
 -- Sends (last 12 months)
@@ -627,6 +627,168 @@ DECLARE @JMassUnsubscribes NVARCHAR(MAX) = (
 );
 
 -- =============================================
+-- Saturation (the last complete month)
+-- =============================================
+
+/*
+    10/23/26 - CLAUDE
+
+    Rock's Communication Saturation report counts each active adult's
+    messages in a date range and sorts the adults into buckets. This
+    measures the same thing for the last complete month: messages per adult
+    by medium, for mass sends flagged bulk (what the report counts by
+    default) and for every mass send. Like the report, it uses each send's
+    own type, so recipient preference sends are left out. Recipients come
+    from the CommunicationId index, which holds PersonAliasId, so no full
+    recipient rows are read.
+
+    Reason: The sample church's message load per person needs a measured shape.
+*/
+DECLARE @SaturationStart DATE = DATEADD( MONTH, -1, @EndDate );
+
+CREATE TABLE #SatRecipient ( [Medium] NVARCHAR(30), [IsBulk] BIT, [PersonAliasId] INT );
+
+IF @CanReadRecipientsBySend = 1
+BEGIN
+    INSERT INTO #SatRecipient ( [Medium], [IsBulk], [PersonAliasId] )
+    SELECT [m].[Medium], [m].[IsBulkCommunication], [cr].[PersonAliasId]
+    FROM #Mass AS [m]
+    INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [m].[CommunicationId]
+    WHERE [m].[SendDateTime] >= @SaturationStart
+        AND [m].[Medium] IN ( 'Email', 'SMS', 'Push' )
+        AND [cr].[PersonAliasId] IS NOT NULL;
+END;
+
+SELECT
+    [pa].[PersonId],
+    [r].[Medium],
+    SUM( CASE WHEN [r].[IsBulk] = 1 THEN 1 ELSE 0 END ) AS [BulkMessages],
+    COUNT( * ) AS [MassMessages]
+INTO #SatPerson
+FROM #SatRecipient AS [r]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
+GROUP BY [pa].[PersonId], [r].[Medium];
+
+CREATE CLUSTERED INDEX [IX_PersonId] ON #SatPerson ( [PersonId], [Medium] );
+
+-- Every adult counts, including those who got nothing, as in Rock's report.
+DECLARE @JSaturation NVARCHAR(MAX) = (
+    SELECT
+        [b].[Medium] AS [medium],
+        [b].[Scope] AS [scope],
+        [b].[Bucket] AS [bucket],
+        CAST( COUNT( * ) * 100.0 / NULLIF( @Adults, 0 ) AS DECIMAL(5,1) ) AS [pctAdults]
+    FROM (
+        SELECT
+            [x].[Medium],
+            [x].[Scope],
+            CASE
+                WHEN [x].[Messages] = 0 THEN '00'
+                WHEN [x].[Messages] = 1 THEN '01'
+                WHEN [x].[Messages] = 2 THEN '02'
+                WHEN [x].[Messages] = 3 THEN '03'
+                WHEN [x].[Messages] <= 6 THEN '04-06'
+                WHEN [x].[Messages] <= 9 THEN '07-09'
+                WHEN [x].[Messages] <= 14 THEN '10-14'
+                WHEN [x].[Messages] <= 19 THEN '15-19'
+                ELSE '20+'
+            END AS [Bucket]
+        FROM (
+            SELECT
+                [md].[Medium],
+                [sc].[Scope],
+                CASE [sc].[Scope] WHEN 'bulkFlagged' THEN ISNULL( [sp].[BulkMessages], 0 ) ELSE ISNULL( [sp].[MassMessages], 0 ) END AS [Messages]
+            FROM #Adult AS [a]
+            CROSS JOIN ( VALUES ( 'Email' ), ( 'SMS' ), ( 'Push' ) ) AS [md] ( [Medium] )
+            CROSS JOIN ( VALUES ( 'bulkFlagged' ), ( 'mass' ) ) AS [sc] ( [Scope] )
+            LEFT JOIN #SatPerson AS [sp] ON [sp].[PersonId] = [a].[PersonId] AND [sp].[Medium] = [md].[Medium]
+            WHERE @CanReadRecipientsBySend = 1
+        ) AS [x]
+    ) AS [b]
+    GROUP BY [b].[Medium], [b].[Scope], [b].[Bucket]
+    ORDER BY [b].[Medium], [b].[Scope], [b].[Bucket]
+    FOR JSON PATH
+);
+
+-- =============================================
+-- Unsubscribes over the whole year (Rock 19+)
+-- =============================================
+
+/*
+    10/23/26 - CLAUDE
+
+    The recipient sample above sees few unsubscribes, because they are rare.
+    Rock 19's filtered index holds only recipients who unsubscribed, keyed
+    by UnsubscribeDateTime, so a whole year of them is one small range read.
+    Each row's send is looked up for its medium. A texted STOP is recorded
+    as a level All unsubscribe on the person's newest text. Without the
+    index this section stays empty, and the meta section says so.
+
+    Reason: The Unsubscribe report needs a measured level mix and timing.
+*/
+DECLARE @HasUnsubscribeIndex BIT = CASE WHEN EXISTS (
+    SELECT 1 FROM sys.indexes WHERE [name] = 'IX_UnsubscribeDateTime_SendDateTime' AND [object_id] = OBJECT_ID( 'CommunicationRecipient' )
+) THEN 1 ELSE 0 END;
+
+CREATE TABLE #UnsubYear ( [Medium] NVARCHAR(30), [UnsubscribeLevel] INT, [DaysAfterSend] INT );
+
+IF @HasUnsubscribeIndex = 1
+BEGIN
+    EXEC sp_executesql N'
+        INSERT INTO #UnsubYear ( [Medium], [UnsubscribeLevel], [DaysAfterSend] )
+        SELECT
+            CASE [c].[CommunicationType] WHEN 1 THEN ''Email'' WHEN 2 THEN ''SMS'' WHEN 3 THEN ''Push'' ELSE ''Recipient preference'' END,
+            [cr].[UnsubscribeLevel],
+            DATEDIFF( DAY, [cr].[SendDateTime], [cr].[UnsubscribeDateTime] )
+        FROM [CommunicationRecipient] AS [cr] WITH ( INDEX( [IX_UnsubscribeDateTime_SendDateTime] ) )
+        INNER JOIN [Communication] AS [c] WITH ( FORCESEEK ) ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[UnsubscribeDateTime] >= @Start12 AND [cr].[UnsubscribeDateTime] < @EndDate
+            AND [cr].[SendDateTime] IS NOT NULL
+            AND [cr].[UnsubscribeLevel] IS NOT NULL
+            AND [cr].[PersonAliasId] IS NOT NULL;',
+        N'@Start12 DATE, @EndDate DATE',
+        @Start12 = @Start12, @EndDate = @EndDate;
+END;
+
+-- Unsubscribe level: 1 All, 2 Bulk, 3 Communication list, 4 Flows. The rate
+-- is per 1,000 recipients of the year's mass sends of the same medium.
+DECLARE @JUnsubscribesYear NVARCHAR(MAX) = (
+    SELECT
+        [u].[Medium] AS [medium],
+        CASE [u].[UnsubscribeLevel] WHEN 1 THEN 'All' WHEN 2 THEN 'Bulk' WHEN 3 THEN 'CommunicationList' WHEN 4 THEN 'Flows' ELSE 'Other' END AS [level],
+        COUNT( * ) AS [unsubscribes],
+        CAST( COUNT( * ) * 1000.0 / NULLIF( MAX( [mr].[Recipients] ), 0 ) AS DECIMAL(10,3) ) AS [perThousandMassRecipients]
+    FROM #UnsubYear AS [u]
+    LEFT JOIN (
+        SELECT [m].[Medium], SUM( CAST( [m].[Recipients] AS BIGINT ) ) AS [Recipients]
+        FROM #Mass AS [m]
+        GROUP BY [m].[Medium]
+    ) AS [mr] ON [mr].[Medium] = [u].[Medium]
+    GROUP BY [u].[Medium], [u].[UnsubscribeLevel]
+    ORDER BY [u].[Medium], [u].[UnsubscribeLevel]
+    FOR JSON PATH
+);
+
+DECLARE @JUnsubscribeDelay NVARCHAR(MAX) = (
+    SELECT
+        [d].[Band] AS [delayBand],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER () AS DECIMAL(5,1) ) AS [pctUnsubscribes]
+    FROM (
+        SELECT CASE
+            WHEN [u].[DaysAfterSend] < 1 THEN '1-same day'
+            WHEN [u].[DaysAfterSend] < 3 THEN '2-1 to 2 days'
+            WHEN [u].[DaysAfterSend] < 8 THEN '3-3 to 7 days'
+            WHEN [u].[DaysAfterSend] < 31 THEN '4-8 to 30 days'
+            ELSE '5-over 30 days'
+        END AS [Band]
+        FROM #UnsubYear AS [u]
+    ) AS [d]
+    GROUP BY [d].[Band]
+    ORDER BY [d].[Band]
+    FOR JSON PATH
+);
+
+-- =============================================
 -- People: preferences, phones, and the church app
 -- =============================================
 
@@ -1014,6 +1176,8 @@ DECLARE @JMeta NVARCHAR(MAX) = (
         @SampleRecipientsPerSend AS [sampleRecipientsPerSend],
         @SampleTexters AS [sampleTexters],
         CAST( @HasRecipientCommunicationIndex AS BIT ) AS [hasRecipientCommunicationIndex],
+        CAST( @HasUnsubscribeIndex AS BIT ) AS [hasUnsubscribeIndex],
+        CONVERT( CHAR(10), @SaturationStart, 120 ) AS [saturationPeriodStart],
         CASE WHEN @CanReadRecipientsBySend = 0 THEN 'Mass send sections skipped: CommunicationRecipient has no index on CommunicationId. Run the pending Rock Update Helper v18.1 job, or run this script in SSMS with @ReadWithoutIndex = 1.' END AS [skipped],
         CONVERT( CHAR(10), @Start12, 120 ) AS [periodStart],
         CONVERT( CHAR(10), @Start3, 120 ) AS [recipientPeriodStart],
@@ -1046,8 +1210,11 @@ FROM ( VALUES
     ( 21, 'smsReplyDelay', @JSmsReplyDelay ),
     ( 22, 'smsOutboundLength', @JSmsOutboundLength ),
     ( 23, 'systemPhoneNumbers', @JSystemPhoneNumbers ),
-    ( 24, 'communicationFlows', @JFlows )
+    ( 24, 'communicationFlows', @JFlows ),
+    ( 25, 'saturation', @JSaturation ),
+    ( 26, 'unsubscribesYear', @JUnsubscribesYear ),
+    ( 27, 'unsubscribeDelay', @JUnsubscribeDelay )
 ) AS [s] ( [Order], [Section], [Json] )
 ORDER BY [s].[Order];
 
-DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow;
+DROP TABLE IF EXISTS #CommId, #Size, #Mass, #Sample, #SampleRecipient, #MassOutcome, #Component, #Int, #Adult, #Resp, #Texter, #SmsOutRaw, #SmsSend, #SmsOut, #Flow, #SatRecipient, #SatPerson, #UnsubYear;
