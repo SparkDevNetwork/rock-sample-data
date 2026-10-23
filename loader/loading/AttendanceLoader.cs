@@ -335,7 +335,7 @@ namespace RockSampleData.Loader.Loading
                     var groupKey = CheckInGroupFor( student, sunday );
                     if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, percent / 100.0 * StudentRules.OnTheirOwn[groupKey] * _calendar.Multiplier( sunday, "kids" ) ) ) )
                     {
-                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan, random );
+                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan );
                     }
                 }
 
@@ -352,22 +352,25 @@ namespace RockSampleData.Loader.Loading
                     var groupKey = CheckInGroupFor( student, sunday );
                     if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, percent / 100.0 * StudentRules.FamilyCheckIn * _calendar.Multiplier( sunday, "kids" ) ) ) )
                     {
-                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan, random );
+                        AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan );
                     }
                 }
             }
         }
 
         /// <summary>
-        /// A student's check-in on their own, with their own security code, on a Sunday the check-in ran.
+        /// A student's check-in on their own, with their own security code, on a Sunday the check-in ran. Its time and
+        /// code come from a stream for that Sunday alone, because a code that collides with another family's draws again,
+        /// and the other families differ by dataset. The Cast's Sundays stay the same in every dataset.
         /// </summary>
-        private void AddCheckInOnTheirOwn( LoadedPerson student, CampusPlan plan, string groupKey, DateTime sunday, HashSet<DateTime> checkInRan, SeededRandom random )
+        private void AddCheckInOnTheirOwn( LoadedPerson student, CampusPlan plan, string groupKey, DateTime sunday, HashSet<DateTime> checkInRan )
         {
             if ( !checkInRan.Contains( sunday ) || !_checkedInThisSunday.Add( (student.PersonId, sunday) ) )
             {
                 return;
             }
 
+            var random = StudentRandom( "own", student, sunday );
             var start = sunday.Add( plan.StudentService.Start ).AddMinutes( -random.Between( 2, 25 ) );
             _studentAliases.Add( student.AliasId );
             AddCheckIn( student, plan, groupKey, plan.StudentService, sunday, start, NewCode( random, sunday, start ), student.AliasId );
