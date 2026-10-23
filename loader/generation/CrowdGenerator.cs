@@ -131,7 +131,7 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         public List<CastHousehold> GenerateBusinesses( IReadOnlyList<CastHousehold> generated, IReadOnlyList<string> campusKeys, string mainCampusKey, int castMainCampusBusinesses )
         {
-            return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
+            return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal, PhoneNumber ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
         }
 
         /// <summary>
@@ -233,14 +233,14 @@ namespace RockSampleData.Loader.Generation
                 RecordStatus = "active",
                 ConnectionStatus = status,
                 Email = hasEmail ? $"{firstName}.{lastName}{random.Between( 1, 999 )}@example.org".ToLowerInvariant() : null,
-                Phones = hasMobile ? new CastPhones { Mobile = MobileNumber( random ) } : null
+                Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
         }
 
         /// <summary>
-        /// A reserved mobile number that is not one of the church's texting numbers.
+        /// A reserved phone number that is not one of the church's texting numbers.
         /// </summary>
-        private string MobileNumber( SeededRandom random )
+        private string PhoneNumber( SeededRandom random )
         {
             string number;
             do
