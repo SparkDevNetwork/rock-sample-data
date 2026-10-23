@@ -74,6 +74,16 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 1. **A midweek student night.** Calibration shows about 31% of check-ins on Wednesday, and the sample church has no midweek service. Set aside on 2026-10-19 while serving is built.
 
+### Steps
+
+Both step programs are built (see [Steps](steps.md)). These ideas from its "Later" section wait for other work or a reason to pick them up. Keep the two lists in step.
+
+1. **Person history.** Rock's step save hook adds a line to the person's History tab for each new step. The loader does not write those yet, as it does not for group memberships.
+2. **eRA steps** in Rock's Core Steps program, from the attendance the data already has.
+3. **Links to learning and events.** Foundations links to a learning class, and Student Camp and Mission Trip to a registration, once learning (LMS) and event registrations are built.
+4. **Student small groups,** which would add a group step to the Student Path.
+5. **Step workflows,** such as a follow-up after a baptism.
+
 ### Packages and loaders
 
 The builder and loader are split (see Done). What is left:
