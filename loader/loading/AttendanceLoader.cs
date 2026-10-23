@@ -177,7 +177,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// The family pass: the Sundays a household came, its adults in the service, and its kids and
         /// students checked in with it. A recent graduate still in school is set aside for the student pass,
-        /// and one away at college is left out, along with the Sunday when nobody else came.
+        /// and one away at college is left out when someone else from the family came.
         /// </summary>
         private void PlanFamily( LoadedHousehold household, List<StudentFamilySunday> studentFamilySundays )
         {
@@ -215,7 +215,7 @@ namespace RockSampleData.Loader.Loading
 
                 var inService = new List<LoadedPerson>();
                 var students = new List<(LoadedPerson Person, DateTime Start)>();
-                var isAnyoneAway = false;
+                var away = new List<(LoadedPerson Person, DateTime Start)>();
                 foreach ( var adult in present )
                 {
                     var start = sunday.Add( service.Start ).AddMinutes( -random.Between( 0, 15 ) );
@@ -225,7 +225,7 @@ namespace RockSampleData.Loader.Loading
                     }
                     else if ( IsAwayAtCollege( adult, sunday ) )
                     {
-                        isAnyoneAway = true;
+                        away.Add( (adult, start) );
                     }
                     else
                     {
@@ -270,9 +270,14 @@ namespace RockSampleData.Loader.Loading
                     _familyCodes[(household.FamilyId, sunday)] = codeId.Value;
                 }
 
-                if ( isAnyoneAway && inService.Count == 0 && students.Count == 0 && codeId == null )
+                // A family Sunday stays one, because giving and serving follow it. When a graduate away at college
+                // was the only one of the family there, they were home that weekend.
+                if ( inService.Count == 0 && students.Count == 0 && codeId == null )
                 {
-                    sundays.Remove( sunday );
+                    foreach ( var (adult, start) in away )
+                    {
+                        AddWorship( adult, plan, service, sunday, start );
+                    }
                 }
             }
         }
@@ -532,7 +537,8 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// A recent graduate away at college on this Sunday. They are home at Christmas, at Easter, and for the
-        /// summer, and now and then for a weekend.
+        /// summer, and now and then for a weekend. The family pass still counts them home when they were the
+        /// only one of the family there, so the family's Sundays never change.
         /// </summary>
         private bool IsAwayAtCollege( LoadedPerson adult, DateTime sunday )
         {
