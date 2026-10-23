@@ -2,19 +2,31 @@
   "$comment": "Dataset manifest. Grows as the builder reads more settings from it. Command-line options override these values.",
   "key": "full-7",
   "name": "Full 7",
-  "summary": "The Cast at the main campus, with all seven campuses set up. For now, the other six campuses have no people.",
-  "bestFor": "Exploring a seven-campus setup, such as campus pickers and service times.",
+  "summary": "The Cast at the main campus, plus the Crowd: generated households at all seven campuses. Only the Cast has photos.",
+  "bestFor": "Demos, reports, and performance tests that need the volume of a large multisite church.",
   "highlights": [
-    "Seven campuses with their own service times",
+    "Seven campuses, each with its own people",
     "The same Cast as Core 1",
     "Scanned images of the last 12 months of check gifts"
   ],
-  "people": 185,
-  "households": 87,
+  "people": 25248,
+  "households": 16967,
   "campuses": 7,
-  "typicalInstallSeconds": 9,
+  "typicalInstallSeconds": 55,
   "checkImages": {
     "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
     "months": 12
+  },
+  "generatedHouseholds": {
+    "$comment": "The Crowd (decision 136). Each campus stays under its share of addresses/pool.json, with room for its businesses.",
+    "perCampus": {
+      "phoenix": 3450,
+      "peoria": 2250,
+      "gilbert": 2300,
+      "scottsdale": 2200,
+      "chandler": 2350,
+      "goodyear": 2150,
+      "tempe": 2100
+    }
   }
 }
