@@ -142,7 +142,7 @@ A student's baptism goes on the Discipleship Path's Baptism step, with the Bapti
 ## Campus, history, and program completions
 
 - **Campus.** Every step's campus is the person's campus, and every step is on their primary alias.
-- **Person history.** Every step has the History tab line Rock's step save hook writes: "Added" with the step's name and campus on the day it started (decision D-steps-history-1). A step that started In Progress and was completed later (a class, or a Pending volunteer who became Active) also has its status change and completion date on the day it was completed. A step that ended has its end date on the day it ended.
+- **Person history.** Every step has the History tab line Rock's step save hook writes: "Added" with the step's name and campus on the day it started (decision 134). A step that started In Progress and was completed later (a class, or a Pending volunteer who became Active) also has its status change and completion date on the day it was completed. A step that ended has its end date on the day it ended.
 - **Program completions.** A person whose Complete steps cover every step type in a program gets a completion for that program, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install, in either program.
 
 ## How many
