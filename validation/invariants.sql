@@ -275,6 +275,35 @@ WHERE [s].[ForeignKey] = @ForeignKey
         OR ISNULL( [s].[CampusId], 0 ) <> ISNULL( [p].[PrimaryCampusId], 0 )
         OR [s].[PersonAliasId] <> [p].[PrimaryAliasId] );
 
+-- check: step-has-its-person-history
+-- why: Rock's step save hook writes person history: one "Added" row per step on the day it was made, and a status change on the day a step that started In Progress was completed. The person's History tab shows each step.
+WITH [StepHistory] AS (
+    SELECT [h].*
+    FROM [History] AS [h]
+    INNER JOIN [Category] AS [c] ON [c].[Id] = [h].[CategoryId]
+    WHERE [h].[ForeignKey] = @ForeignKey AND [c].[Guid] = '517BB2D3-0A50-4132-818E-63BB3C81EAE9'
+)
+SELECT ( SELECT COUNT(*)
+        FROM [Step] AS [s]
+        INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+        WHERE [s].[ForeignKey] = @ForeignKey
+            AND ( SELECT COUNT(*) FROM [StepHistory] AS [h]
+                WHERE [h].[RelatedEntityId] = [s].[Id] AND [h].[EntityId] = [pa].[PersonId] AND [h].[Verb] = 'STEPADDED'
+                    AND [h].[ValueName] = [st].[Name] AND [h].[CreatedDateTime] = [s].[StartDateTime] ) <> 1 )
+    + ( SELECT COUNT(*)
+        FROM [Step] AS [s]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+        WHERE [s].[ForeignKey] = @ForeignKey AND [s].[CompletedDateTime] > [s].[StartDateTime]
+            AND NOT EXISTS ( SELECT 1 FROM [StepHistory] AS [h]
+                WHERE [h].[RelatedEntityId] = [s].[Id] AND [h].[EntityId] = [pa].[PersonId] AND [h].[Verb] = 'MODIFY'
+                    AND [h].[ValueName] = 'Step Status' AND [h].[CreatedDateTime] = [s].[CompletedDateTime] ) )
+    + ( SELECT COUNT(*)
+        FROM [StepHistory] AS [h]
+        WHERE NOT EXISTS ( SELECT 1 FROM [Step] AS [s]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+            WHERE [s].[Id] = [h].[RelatedEntityId] AND [pa].[PersonId] = [h].[EntityId] ) );
+
 -- check: baptism-step-agrees-with-baptism-date
 -- why: The Baptism step and Rock's Baptism Date person attribute always agree, and the step's Baptized Here matches the person's.
 WITH [Dates] AS (
