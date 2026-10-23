@@ -1,8 +1,8 @@
 # Silva Family
 
-New household · 2 people · Phoenix campus · [source](../households/silva.json)
+**Featured** · New household · 2 people · Phoenix campus · [source](../households/silva.json)
 
-Isaac and Natalie Silva split every gift between the General Fund and the Mission Fund.
+Isaac Silva is the Student Pastor. He and Natalie split every gift between the General Fund and the Mission Fund.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -13,7 +13,9 @@ Isaac and Natalie Silva split every gift between the General Fund and the Missio
 
 ### Isaac Silva
 
-- Age 29 · married · email isaac.silva@example.org · groups: Student Ministry (leader), Silva Group (leader), Lee Group (left) · business contact for Javelina Wash Coffee
+Isaac led the Student Ministry team as a volunteer for three years, then joined staff this year as the Student Pastor. He texts students and parents from the student ministry line and has his own texting number. He still owns Javelina Wash Coffee, which Natalie now runs day to day.
+
+- Age 29 · married · Student Pastor, Rock Solid Church · email isaac.silva@example.org · groups: Student Ministry (leader), Silva Group (leader), Lee Group (left) · business contact for Javelina Wash Coffee · 2 security roles
 - Person Guid `581C940E-A788-4F32-BCF3-33F4D1948390`
 
 ### Natalie Silva
@@ -26,6 +28,7 @@ Isaac and Natalie Silva split every gift between the General Fund and the Missio
 - Every gift goes to two funds.
 - Weekly giver.
 - Spouses give separately: Isaac weekly, Natalie monthly.
+- Staff member with a personal texting number, who also texts students from the student line.
 
 ## Activity
 

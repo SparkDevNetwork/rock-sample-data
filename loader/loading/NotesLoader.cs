@@ -325,7 +325,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             var pools = _types.Keys.ToDictionary( k => k, k => _source.ReadNotePool( k ) );
             var shared = _source.ReadSharedNotePool();
             var campusNames = _source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
-            var campusPastors = PickCampusPastors( generated, mainCampusKey );
+            var campusPastors = CampusPastors.Pick( generated, mainCampusKey );
 
             // Campus pastors join the staff roles that let them view what they write, Counseling included.
             foreach ( var pastor in campusPastors.Values )
@@ -592,28 +592,6 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             return weights.Count > 0
                 ? _staff[random.Pick( weights )]
                 : _staff.Values.First( CanWrite );
-        }
-
-        /// <summary>
-        /// Each campus other than the main one gets one campus pastor from its generated households:
-        /// the oldest Leading adult, or the oldest Engaged adult when the campus has no Leading adult.
-        /// </summary>
-        private static Dictionary<string, LoadedPerson> PickCampusPastors( List<LoadedHousehold> generated, string mainCampusKey )
-        {
-            var pastors = new Dictionary<string, LoadedPerson>();
-            foreach ( var campus in generated.Where( h => h.CampusKey != mainCampusKey ).GroupBy( h => h.CampusKey ) )
-            {
-                var adults = campus.SelectMany( h => h.Members ).Where( p => p.IsAdult && p.CanAttend && p.BirthDate.HasValue ).ToList();
-                var pastor = new[] { "Leading", "Engaged" }
-                    .Select( status => adults.Where( p => p.Cast.ConnectionStatus == status ).OrderBy( p => p.BirthDate ).ThenBy( p => p.PersonId ).FirstOrDefault() )
-                    .FirstOrDefault( p => p != null );
-                if ( pastor != null )
-                {
-                    pastors[campus.Key] = pastor;
-                }
-            }
-
-            return pastors;
         }
 
         /// <summary>
