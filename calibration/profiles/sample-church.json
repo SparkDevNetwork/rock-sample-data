@@ -31,7 +31,16 @@
     { "path": "personNotes.detail.pctWithHtml", "reason": "Note text is plain text with mentions, as Rock's current editor writes it." },
     { "path": "personNotes.detail.pctWrittenAtMidnight", "reason": "A record quirk, not a pattern." },
     { "path": "personNotes.detail.pctAboutTheAuthor", "reason": "Staff do not write notes about themselves (decision 78)." },
-    { "path": "personNotes.monthIndex", "reason": "The measured months swing with one-time projects. Notes are spread evenly across the year." }
+    { "path": "personNotes.monthIndex", "reason": "The measured months swing with one-time projects. Notes are spread evenly across the year." },
+    { "path": "communicationDetail.massSends.sendsPerYearPerThousandActiveAdults", "reason": "Communication volume is designed (decision 91); part 7 sets only the shape." },
+    { "path": "communicationDetail.massSends.byMedium.Email.sendsPerYearPerThousandActiveAdults", "reason": "Communication volume is designed (decision 91); part 7 sets only the shape." },
+    { "path": "communicationDetail.massSends.byMedium.Recipient preference.sendsPerYearPerThousandActiveAdults", "reason": "Communication volume is designed (decision 91); part 7 sets only the shape." },
+    { "path": "communicationDetail.massSends.byMedium.SMS.sendsPerYearPerThousandActiveAdults", "reason": "Communication volume is designed (decision 91); part 7 sets only the shape." },
+    { "path": "communicationDetail.sms.inboundPerYearPerThousandActiveAdults", "reason": "Text volume is designed (decision 91); part 7 sets only the shape." },
+    { "path": "communicationDetail.unsubscribes", "reason": "The measured sends recorded no unsubscribes or spam complaints, so these rates are designed." },
+    { "path": "communicationDetail.sms.massReplies", "reason": "Replies were not linked to the texts they answer in the measured data, so this reads zero. Reply rates are designed." },
+    { "path": "communicationDetail.sms.inbound.pctLinkedToCommunication", "reason": "Replies were not linked to the texts they answer in the measured data." },
+    { "path": "communicationDetail.outcomes.Recipient preference.pctOpenedOfDelivered", "reason": "Some opens are recorded without updating the recipient's status, so this reads low. The open rate is engagement's pctUniqueOpenersOfDelivered." }
   ],
   "overrides": [
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
@@ -39,6 +48,9 @@
     { "path": "groups.smallGroups.pctLeaders", "value": 8.3, "reason": "Design choice. Each small group has one leader, about 1 in 12 members (decision 33)." },
     { "path": "engagement.pctAdultRecordsWithAnyActivity", "value": 45, "reason": "Assumption. A healthy sample church shows a high share of active records." },
     { "path": "giving.pctUnitsWithPledge", "value": 12, "reason": "Assumption. The sample data must exercise pledge features." },
+    { "path": "giving.fundsPerGiftMix.1", "value": 85, "reason": "Assumption. The sample church is in a building campaign, and pledgers add a campaign line to their usual gift (decision 111), so more gifts carry two funds than at the measured churches." },
+    { "path": "giving.fundsPerGiftMix.2", "value": 14, "reason": "Assumption. The sample church is in a building campaign, and pledgers add a campaign line to their usual gift (decision 111), so more gifts carry two funds than at the measured churches." },
+    { "path": "giving.dollarsMonthIndex.12", "value": 1.55, "reason": "Assumption. Campaign gifts come in every month since Commitment Sunday, which can leave out December, so December's share of a year's dollars is a little lower than at the measured churches (decision 113)." },
     { "path": "prayer.pctAnswered", "value": 15, "reason": "Assumption. The sample data must exercise answered prayers." },
     { "path": "prayer.pctAllowComments", "value": 40, "reason": "Assumption. The sample data must exercise prayer comments." },
     { "path": "prayer.pctUrgent", "value": 5, "reason": "Assumption. The sample data must exercise urgent requests." },

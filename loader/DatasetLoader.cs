@@ -196,6 +196,7 @@ namespace RockSampleData.Loader
             prayer, and steps read those plans. A part another part's rows need is added by SampleDataParts.
             Steps are the one exception to planning everything: they plan from rows that small groups,
             serving, and giving wrote, so they plan only when they load, and they need those parts.
+            Their student check-ins come from the attendance plan, so they do not need attendance.
             Nothing after them reads what they plan or write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
@@ -339,15 +340,17 @@ namespace RockSampleData.Loader
             }
 
             // The building campaign's pledges are planned first, so the gifts that follow them are part of giving.
-            // The pledges and campaign gifts are the giving part's rows (decision D-rock-loader-7).
-            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, dates, foreignKey, seed );
-            pledges?.Plan( people.Households );
+            // The pledges and campaign gifts are the giving part's rows, but the fund is church setup, so its goal
+            // is written in every load (decision 126).
+            var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid, dates, foreignKey, seed );
+            pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
+            pledges?.WriteGoal();
             var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving };
             giving.Plan( people.Households );
             if ( isGivingLoaded )
             {
                 giving.Write();
-                pledges?.Write( source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid );
+                pledges?.Write();
 
                 // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
                 log.Write( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
@@ -384,13 +387,14 @@ namespace RockSampleData.Loader
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             }
 
-            // The adult step program. Every step comes from a record the earlier steps wrote: group and team
-            // memberships, the giving journey, and the Baptism Date (decision 86).
-            // Steps need giving (SampleDataParts.All), so the giving analytics have run whenever steps load.
+            // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and
+            // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
+            // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
+            // steps load. The check-ins come from the plan, so steps do not need the Attendance part.
             if ( steps.Begin( "Steps" ) )
             {
                 new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance.FamilySundays, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.

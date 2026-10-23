@@ -24,7 +24,6 @@
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
-    "giving.pctUnitsWithPledge",
     "attendance.holidayMultipliers.*.samples",
     "attendance.checkInDayMix",
     "attendance.disruptedWeeksPerYear",
@@ -44,7 +43,6 @@
     "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. It has no midweek programs, adult classes, or events where adults check in (see the midweek item in the roadmap).",
     "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see attendance.adultCheckInsPerChildCheckIn. Volunteers check in on their rotation, and there are no one-time adult check-ins.",
     "giving.refundsPerThousandGifts": "Refunds are a Phase 1 feature.",
-    "giving.pctUnitsWithPledge": "Pledges are a Phase 1 feature.",
     "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
     "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several.",
     "prayer.avgTextLength": "The measured mean is pulled up by a few very long requests. Generated requests stop near 500 characters (decision 67), so the length percentiles are graded instead.",
@@ -81,6 +79,12 @@
     },
     "attendance.kidsMonthIndex": {
       "relative": 0.1
+    },
+    "giving.unitAnnualTotalPercentiles.p99": {
+      "relative": 0.4
     }
+  },
+  "$ruleReasons": {
+    "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision 113)."
   }
 }

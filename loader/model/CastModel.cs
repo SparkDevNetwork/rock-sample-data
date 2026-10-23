@@ -310,10 +310,10 @@ namespace RockSampleData.Loader.Model
         public CastPersonAttributes Attributes { get; set; }
 
         /// <summary>
-        /// Classes a story needs, by step type key in configuration/steps.json. Steps that come from other
-        /// records (groups, teams, giving, the Baptism Date) are never set here.
+        /// Steps a story needs, by step type key in configuration/steps.json: classes, events, a decision, or school
+        /// years. Steps that come from other records (groups, teams, giving, the Baptism Date) are never set here.
         /// </summary>
-        public Dictionary<string, CastStepClass> Steps { get; set; } = new Dictionary<string, CastStepClass>();
+        public Dictionary<string, CastStepChoice> Steps { get; set; } = new Dictionary<string, CastStepChoice>();
 
         /// <summary>
         /// Requests to serve that tell this person's story.
@@ -394,19 +394,35 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// A class a Cast story needs: a set class, counted back from the current one, or any class the usual rules pick.
+    /// A step a Cast story needs: a set class or set events, or a step the usual rules date.
     /// </summary>
-    internal sealed class CastStepClass
+    internal sealed class CastStepChoice
     {
         /// <summary>
-        /// 0 is the class running on the install day (In Progress), 1 the one before it, and so on.
+        /// For a class: 0 is the class running on the install day (In Progress), 1 the one before it, and so on.
         /// </summary>
         public int? ClassesAgo { get; set; }
 
         /// <summary>
-        /// True when the person took the class and the usual rules date it.
+        /// For an event: every one the person went to. For a decision: the one event it was made at.
+        /// </summary>
+        public List<CastStepEvent> Events { get; set; }
+
+        /// <summary>
+        /// True when the person took the step and the usual rules date it.
         /// </summary>
         public bool Taken { get; set; }
+    }
+
+    /// <summary>
+    /// One event, such as last summer's camp: its season key, and which one counting back from the latest held by
+    /// the install day (0 is that latest one, 1 the one a year before it).
+    /// </summary>
+    internal sealed class CastStepEvent
+    {
+        public string Season { get; set; }
+
+        public int YearsAgo { get; set; }
     }
 
     /// <summary>
@@ -425,9 +441,10 @@ namespace RockSampleData.Loader.Model
         public List<string> InProgress { get; set; } = new List<string>();
 
         /// <summary>
-        /// True when the person must have a program completion, false when they must not.
+        /// The keys of exactly the programs the person has a completion for, or null to not check. An empty list
+        /// means no completion in any program.
         /// </summary>
-        public bool? ProgramCompletion { get; set; }
+        public List<string> ProgramCompletions { get; set; }
     }
 
     /// <summary>

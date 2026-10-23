@@ -6,7 +6,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Women's groups,** led by women, with a women's Bible study topic.
 - **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
-- **Serving teams** at every campus (guest services, kids, worship, production, students, prayer, and first aid), with group scheduling and volunteers who check in to serve. People join them through eight serving opportunities in connections.
 
 ## People and attendance
 
@@ -17,7 +16,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Giving
 
-- **Pledges** for Built on the Rock, a two-year building campaign: pledges from people and businesses, gifts that are ahead, on pace, behind, or stopped, Pledge Analytics, pledge entry, and pledges on contribution statements. See [Pledges](pledges.md).
 - **Refunds** and other uncommon transactions.
 
 ## Other Rock features
@@ -25,7 +23,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
 - **Communications:** email, text, and push history, with very large mass emails, opens and clicks, SMS conversations with real back-and-forth threads, and messages tied to steps. See [Communications](communications.md).
-- **The Student Path:** four steps for Jr High and High School students (Student Camp, Follow Jesus, Mission Trip, and Student Leader), with program completions. The adult Discipleship Path is already built. See [Steps](steps.md).
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 

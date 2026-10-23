@@ -125,7 +125,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `emails-use-reserved-domains` | Content standard 3, for every loaded email. |
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
-| `nothing-dated-in-the-future` | A future gift or check-in shows up in "upcoming" places. |
+| `nothing-dated-in-the-future` | A future gift, check-in, or step shows up in "upcoming" places. |
 | `transaction-has-positive-details` | Rock totals a gift from its details. |
 | `transaction-is-inside-its-batch` | A gift outside its batch's date range lands in the wrong batch report. |
 | `member-role-belongs-to-the-group-type` | Rock allows only roles of the group's type, and the database does not enforce it. |
@@ -137,8 +137,11 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
 | `serve-step-follows-starting-point` | Rock's prerequisite: every Serve step has a Starting Point Class completed before it. |
 | `give-step-agrees-with-journey-stage` | A giver Rock shows as Consistent has an open Give step, and an open Give step belongs to a Consistent or Occasional giver. |
-| `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install. |
-| `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision D-rock-loader-5). |
+| `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install, in any program the dataset has steps in. |
+| `student-step-belongs-to-a-student` | Every Student Path step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then. Mission Trip is high school only, and Student Leader is juniors and seniors only. |
+| `student-path-decisions-and-leaders` | Follow Jesus and Student Leader happen at most once per person. Student Leader ends at graduation in May, or stays open while the student is still in school. |
+| `student-baptism-follows-the-student-service` | A child's baptism is here, on a Sunday, after they started coming to the student service. |
+| `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
 
@@ -171,7 +174,7 @@ The loader runs five short checks before it writes anything, and stops the insta
 1. The package's format is one this loader reads.
 2. Every file matches its SHA-256 in `package.json`, nothing is missing, and nothing was added.
 3. No other sample data load is running on the database. The load holds an exclusive SQL Server application lock for its whole transaction.
-4. The database has no people beyond the five a new Rock install creates, so it holds no real people and no sample data yet (decision D-rock-loader-3).
+4. The database has no people beyond the five a new Rock install creates, so it holds no real people and no sample data yet (decision 122).
 5. The database's newest migration is the one the package was built for (decision 52).
 
 Checks 3 to 5 run inside the load's transaction, so two loads started at once cannot both pass. During the load it also checks the Cast expectations of the parts it loaded, and it runs Rock's own journey stage procedure for the last week to confirm Rock makes exactly the changes the loader predicted. See [Loader](../loader/README.md#what-the-loader-checks-before-loading).
@@ -184,7 +187,7 @@ Checks 3 to 5 run inside the load's transaction, so two loads started at once ca
 
 **What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
 
-**Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision D-rock-loader-1). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
+**Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision 120). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
 
 ## Realism and Rock's math
 

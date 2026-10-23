@@ -20,7 +20,7 @@ using System.Text.Json;
 namespace RockSampleData.Loader
 {
     /// <summary>
-    /// The hosted list of dataset packages, index.json (decision D-rock-loader-4). The format is in the
+    /// The hosted list of dataset packages, index.json (decision 123). The format is in the
     /// loader README, under "The package index".
     /// </summary>
     public sealed class SampleDataPackageIndex

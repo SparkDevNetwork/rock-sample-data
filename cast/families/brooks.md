@@ -30,9 +30,9 @@ Rachel is Nathan's wife. Sunday mornings she gets three kids to three different 
 
 ### Ava Brooks
 
-Ava is fourteen and checks in to the student service.
+Ava is fourteen and checks in to the student service. She went to Student Camp last summer and decided to follow Jesus there.
 
-- Age 14 · no email
+- Age 14 · no email · Rock shows Student Camp complete, Follow Jesus complete
 - Person Guid `DAB43FB0-CF9F-4ACB-AF01-670BDA69BB39`
 
 ### Caleb Brooks

@@ -75,6 +75,11 @@ namespace RockSampleData.Loader.Loading
         public SortedSet<DateTime> CheckInSundays { get; } = new SortedSet<DateTime>();
 
         /// <summary>
+        /// The Sundays each person checked in, by check-in group key, then by person Id.
+        /// </summary>
+        private readonly Dictionary<string, Dictionary<int, SortedSet<DateTime>>> _checkInDaysByGroup = new Dictionary<string, Dictionary<int, SortedSet<DateTime>>>();
+
+        /// <summary>
         /// The planned rows, which <see cref="Write"/> writes.
         /// </summary>
         private (DataTable Occurrences, DataTable Codes, DataTable Attendance) _planned;
@@ -203,11 +208,59 @@ namespace RockSampleData.Loader.Loading
 
                         checkedIn.Add( sunday );
                         CheckInSundays.Add( sunday );
+
+                        if ( !_checkInDaysByGroup.TryGetValue( groupKey, out var groupDays ) )
+                        {
+                            groupDays = new Dictionary<int, SortedSet<DateTime>>();
+                            _checkInDaysByGroup[groupKey] = groupDays;
+                        }
+
+                        if ( !groupDays.TryGetValue( child.PersonId, out var personDays ) )
+                        {
+                            personDays = new SortedSet<DateTime>();
+                            groupDays[child.PersonId] = personDays;
+                        }
+
+                        personDays.Add( sunday );
                     }
                 }
             }
 
             _planned = (occurrences, codes, attendance);
+        }
+
+        /// <summary>
+        /// The Sundays each person checked in to any of these check-in groups, keyed by person Id. Read from the plan,
+        /// so it is the same whether or not attendance is written.
+        /// </summary>
+        public Dictionary<int, SortedSet<DateTime>> CheckInDays( IEnumerable<string> groupKeys )
+        {
+            var days = new Dictionary<int, SortedSet<DateTime>>();
+            foreach ( var key in groupKeys.Distinct() )
+            {
+                if ( !_configuration.CheckInGroupIdsByKey.ContainsKey( key ) )
+                {
+                    throw new InvalidOperationException( $"Check-in group \"{key}\" is not in configuration/checkin.json." );
+                }
+
+                if ( !_checkInDaysByGroup.TryGetValue( key, out var groupDays ) )
+                {
+                    continue;
+                }
+
+                foreach ( var person in groupDays )
+                {
+                    if ( !days.TryGetValue( person.Key, out var personDays ) )
+                    {
+                        personDays = new SortedSet<DateTime>();
+                        days[person.Key] = personDays;
+                    }
+
+                    personDays.UnionWith( person.Value );
+                }
+            }
+
+            return days;
         }
 
         /// <summary>
@@ -269,8 +322,7 @@ namespace RockSampleData.Loader.Loading
         {
             if ( child.GraduationYear.HasValue )
             {
-                var schoolYearEnds = sunday >= new DateTime( sunday.Year, 6, 1 ) ? sunday.Year + 1 : sunday.Year;
-                var grade = 12 - ( child.GraduationYear.Value - schoolYearEnds );
+                var grade = AnchorDates.GradeOn( child.GraduationYear.Value, sunday );
                 if ( grade >= 0 )
                 {
                     return grade switch

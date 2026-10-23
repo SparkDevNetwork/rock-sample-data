@@ -121,6 +121,16 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The school grade on a day for a graduation year (12 = senior, 13 = graduated), moving up each grade
+        /// transition date as Rock's check-in does.
+        /// </summary>
+        public static int GradeOn( int graduationYear, DateTime day )
+        {
+            var schoolYearEnds = day.Date >= new DateTime( day.Year, GradeTransitionMonth, GradeTransitionDay ) ? day.Year + 1 : day.Year;
+            return 12 - ( graduationYear - schoolYearEnds );
+        }
+
+        /// <summary>
         /// Rock's AgeBracket value for an age.
         /// </summary>
         public static int AgeBracket( int? age )

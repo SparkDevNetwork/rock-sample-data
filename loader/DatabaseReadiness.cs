@@ -25,7 +25,7 @@ namespace RockSampleData.Loader
     /// <summary>
     /// Whether a database can take sample data: it is a Rock database with no people beyond the ones a new
     /// Rock install creates, and, when a package is given, it is the Rock the package was built for
-    /// (decision D-rock-loader-3).
+    /// (decision 122).
     /// </summary>
     public sealed class DatabaseReadiness
     {

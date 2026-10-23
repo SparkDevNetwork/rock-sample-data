@@ -64,7 +64,7 @@ namespace RockSampleData.Loader
         Notes,
 
         /// <summary>
-        /// Adult steps on Rock's Discipleship Path, with baptism dates and program completions.
+        /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates and program completions.
         /// </summary>
         Steps
     }
@@ -104,7 +104,7 @@ namespace RockSampleData.Loader
     }
 
     /// <summary>
-    /// Every part, with what each needs (decision D-rock-loader-2).
+    /// Every part, with what each needs (decision 121).
     /// </summary>
     public static class SampleDataParts
     {
@@ -143,7 +143,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
-            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Adult steps on Rock's Discipleship Path, from baptism and classes to small groups, serving, giving, and leading, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
+            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

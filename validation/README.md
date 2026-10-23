@@ -61,14 +61,14 @@ A Cast person can say what Rock should show for their achievements with `expect`
 A Cast person can also say what their steps should show:
 
 ```json
-"expect": { "steps": { "complete": [ "starting-point-class" ], "inProgress": [ "serve" ], "programCompletion": false } }
+"expect": { "steps": { "complete": [ "starting-point-class" ], "inProgress": [ "serve" ], "programCompletions": [] } }
 ```
 
 - `complete` lists step type keys from `configuration/steps.json` that the person has at least one Complete step of.
 - `inProgress` lists types the person has an In Progress step of.
-- `programCompletion` is true when the person must have a Discipleship Path completion, and false when they must not.
+- `programCompletions` lists the keys of exactly the programs the person has a completion for, such as `discipleship-path` or `student-path`. An empty list means none. Leave it out to not check.
 
-They cover Ted Decker (the whole path, with a program completion), Brian and Wendy Gilbert (Starting Point Class In Progress), and Bri Hall (Starting Point Class complete, and a Serve step In Progress while she waits as a Pending greeter).
+They cover Ted Decker (the whole Discipleship Path, with a program completion), Brian and Wendy Gilbert (Starting Point Class In Progress), Bri Hall (Starting Point Class complete, and a Serve step In Progress while she waits as a Pending greeter), Ava Brooks (Student Camp and Follow Jesus), Benjamin Lee (Student Camp and Mission Trip), and Jasmine Washington (the whole Student Path, with a program completion).
 
 A Cast household's `campaign` entries say how each Built on the Rock pledge must be going on install day (see [Pledges](../docs/pledges.md)):
 

@@ -25,6 +25,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/jackson-mariah.jpg" width="56" alt="Mariah Jackson"> | [Jackson Family](jackson.md) | Mariah, Maddie | Single parent whose child has a different last name. |
 | <img src="../../photos/cast/jones-ben-ben.jpg" width="56" alt="Ben Jones"> | [Jones Family](jones-ben.md) | Ben, Brian | Divorced parent with joint custody; the child belongs to two families. |
 | <img src="../../photos/cast/kelly-ashley.jpg" width="56" alt="Ashley Kelly"> | [Kelly Family](kelly.md) | Ashley, Mason, Chloe | Benevolence request (Phase 1). |
+| <img src="../../photos/cast/lee-james.jpg" width="56" alt="James Lee"> | [Lee Family](lee.md) | James, Sarah, Ben, Abby, Sam, Libby, Joey, Ruth | Family of eight with kids in every check-in area. |
 | <img src="../../photos/cast/lowe-craig.jpg" width="56" alt="Craig Lowe"> | [Lowe Family](lowe.md) | Craig, Trish | Visitor household that gives regularly. |
 | <img src="../../photos/cast/marble-alisha.jpg" width="56" alt="Alisha Marble"> | [Marble Family](marble.md) | Alisha, Bill | Rock administrator with many security roles. |
 | <img src="../../photos/cast/michaels-jenny.jpg" width="56" alt="Jenny Michaels"> | [Michaels Family](michaels.md) | Jenny | Volunteer with the Staff-Like Users role. |
@@ -38,6 +39,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/smith-john-other-john.jpg" width="56" alt="John Smith"> | [Smith Family](smith-john-other.md) | John | Duplicate detection: common name that must NOT be merged. |
 | <img src="../../photos/cast/smith-jon-jon.jpg" width="56" alt="Jon Smith"> | [Smith Family](smith-jon.md) | Jon | Duplicate detection: original record of a three-way duplicate. |
 | <img src="../../photos/cast/song-allie.jpg" width="56" alt="Allie Song"> | [Song](song.md) | Allie | The inviting friend in an invitation story. |
+| <img src="../../photos/cast/washington-marcus.jpg" width="56" alt="Marcus Washington"> | [Washington Family](washington.md) | Marcus, Denise, Jasmine | An 18-year-old who is still a child in the family. |
 | <img src="../../photos/cast/webb-marty.jpg" width="56" alt="Marty Webb"> | [Webb](webb.md) | Marty, Deb | Married couple who are still Prospects but already in a small group. |
 
 ## All families
