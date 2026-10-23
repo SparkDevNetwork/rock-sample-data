@@ -39,7 +39,7 @@ Where the project stands: the team's working list. Update this page whenever som
 ## In progress
 
 - **The Sample Data Installer block in Rock**, built in the Rock repository against the loader package. It shows Core 1, Core 3, and Full 7 as cards from the dataset catalog and downloads the chosen package from a hosted `index.json`, beside the old sample data block.
-- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is done: the design, calibration part 7, and the church app stub. Source-1 has run part 7, and its communication shapes are in the profile. Next: the setup slice.
+- **Communications** (decisions 90 to 96; see [Communications](communications.md)). Email, texts, and push with very large mass sends, opens and clicks, SMS conversations, one-to-one messages, and messages tied to steps. Slice 1 is done: the design, calibration part 7, and the church app stub. Source-1 has run part 7, and its communication shapes are in the profile. The plan now covers the Unsubscribe and Saturation reports (decisions D-commsat-1 to D-commsat-3), and part 7 measures saturation and a year of unsubscribes. Next: source-1 reruns part 7, then the setup slice.
 
 ## Waiting on a decision
 

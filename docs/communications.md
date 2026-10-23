@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 and D-commsat-1 to D-commsat-3 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -10,6 +10,8 @@ A church that installs the sample data should see Rock's communication screens t
 - **A person's Communication History,** with the emails, texts, and pushes that person really got.
 - **SMS Conversations,** with live threads, unread replies, and a few long back-and-forths.
 - **Communication lists,** with members who match the people in the church.
+- **The Communication Unsubscribe report,** with unsubscribes at every level Rock records, including some from the last 6 months, its default window.
+- **The Communication Saturation report,** with a realistic spread of messages per person: most adults get a few, leaders and volunteers get many, and some get none.
 
 Messages use real, readable text: newsletters, event invitations, service times, and serving reminders, not placeholder text. Some emails are very large: on Full 7, the weekly newsletters reach about 10,000 people each (an estimate, set when bulk email is built).
 
@@ -25,6 +27,12 @@ The loader writes rows straight into Rock's tables, so it has to write what Rock
 6. **A system phone number** must be active for SMS Conversations to list it. `AssignedToPersonAliasId` marks a staff member's personal number.
 7. **Push** reaches a person's personal devices that are active, have notifications on, and have a registration Id. `PushData` names the mobile application site, and a recipient can point at the device through `PersonalDeviceId`.
 8. **Communication Flows** (Rock 17 and later) live in their own tables. Rock's Process Communication Flows job sends the next message of every active flow instance.
+9. **The Unsubscribe report** reads only recipient rows with `UnsubscribeDateTime` and `UnsubscribeLevel` set. It shows the recipient, the send's name, topic, and sender, and the recipient's own `SendDateTime`. Rock picks the level from the email that brought the person to the email preference page:
+   - An email sent to a communication list makes the person Inactive in that list's group. The level is CommunicationList.
+   - An email from a flow takes the person out of the flow. The level is Flows, which the flow performance screen reads too.
+   - Any other email steps the person's email preference down: "No mass emails" (level Bulk), or "Do not email" (level All) when they had already chosen "No mass emails".
+   - A texted STOP marks the newest text the person got in the last 60 days as a level All unsubscribe, and Twilio turns off texting on that phone.
+10. **The Saturation report** counts each active adult's messages in a date range, by the send's own type (Email, SMS, or Push), and sorts adults into buckets, including those who got none. By default it counts only sends flagged `IsBulkCommunication`. Recipient preference sends have no single type, so the report never shows them.
 
 ## Nothing ever sends
 
@@ -38,10 +46,11 @@ A loaded database must never email, text, or push to anyone, even though every a
 ## The setup
 
 1. **System phone numbers.** A main church line, a student ministry line, and one personal number assigned to a Cast pastor, all in the reserved 555-0100 to 555-0199 range and not used by any Cast person.
-2. **Communication lists.** A weekly newsletter list per campus, plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders. Members come from people already loaded, so the Volunteers list matches the serving teams and the Small Group Leaders list matches the groups. People who chose "No mass emails" stay off the lists.
+2. **Communication lists.** A weekly newsletter list per campus, plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders. Members come from people already loaded, so the Volunteers list matches the serving teams and the Small Group Leaders list matches the groups. People who chose "No mass emails" stay off the lists. How many lists a person is on follows how involved they are, which sets their message load (see Message load per person).
 3. **Templates.** Rock's shipped templates, plus one sample church template with the approved logo.
-4. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
-5. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them.
+4. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them.
+5. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
+6. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them.
 
 ## The message library
 
@@ -58,15 +67,38 @@ Messages come from a hand-written library in `content/communications/`, checked 
 Bulk email is where the very large sends come from.
 
 - **Who sends what.** Each campus sends its weekly newsletter to its list. The church sends seasonal emails (Easter, Christmas, year-end giving) to everyone, and ministries send to their own lists.
+- **Bulk flag and medium.** Mass sends are flagged `IsBulkCommunication` and have a concrete type (Email, SMS, or Push), so the Saturation report counts them by default (decision D-commsat-2). A few leader sends to small lists stay unflagged, so the report's bulk-only toggle shows a difference, and a small share of sends use recipient preference. The measured data flags only about 10% of mass sends; the sample church shows the better practice.
+- **Sender, reviewer, topic.** Each send has a Cast staff sender, a reviewer when Rock's approval would require one, and a topic.
+- **Recipients.** Each recipient row has its own `SendDateTime`, which the Unsubscribe report reads.
 - **Delivery.** Most recipients are Delivered or Opened. People whose email is already inactive in the people data are the ones whose sends fail, so the two always agree.
 - **Opens and clicks.** Opens follow the measured open rate and come mostly within a day of the send. Clicks come only from people who opened, at the measured click-through rate.
-- **Unsubscribes and spam.** A few recipients unsubscribe, and the person's email preference changes to match. Spam complaints are rare.
+- **Unsubscribes and spam.** See Unsubscribes. Spam complaints are rare.
+
+## Unsubscribes
+
+Unsubscribes are designed, not measured (decision D-commsat-1). The measured data records none on recipient rows, which is common where a church uses the older email preference page. Its people still opt out, so the people data's measured share of "No mass emails" and "Do not email" is the anchor: two years of unsubscribes add up to about those shares.
+
+- **Rock's rules.** Each unsubscribe follows the rules above. A list email makes the person Inactive in that list, a flow email takes them out of the flow, and any other email steps their email preference down. The recipient row gets `UnsubscribeDateTime` and the matching level, and the person's History records the change, as Rock writes it.
+- **When.** Most come the same day as the email or the next, and some come in the last 6 months, so the report's default window has data.
+- **Which sends.** Large newsletters draw more unsubscribes than small ministry sends.
+- **Texted STOP.** A few people text STOP. Their newest text gets a level All unsubscribe, and texting is turned off on their phone, so later texts leave them out.
+- **The Cast.** A couple of Cast people unsubscribe in ways their stories explain, such as leaving the Men's list after moving to a Saturday group, so tests can find a known case.
+- **Calibration.** Part 7 also counts a whole year of unsubscribes, with their levels and timing, where Rock 19's unsubscribe index exists. Where a source has them, they shape the design.
+
+## Message load per person
+
+Rock's Saturation report shows how many messages each adult got. A plan that sends every newsletter to a whole campus list would put most adults in the same bucket, and no real church looks like that (decision D-commsat-3).
+
+- **List membership follows involvement.** Leading and Engaged adults are on more lists (Volunteers, Small Group Leaders, Prayer Team, Parents of Kids) than Known adults, and some adults are on none. Parents get kids and student messages, and volunteers get serving reminders, so the busiest people sit in the high buckets.
+- **Some get nothing.** Adults with no email, an inactive email, "No mass emails", or no list get no mass email, and adults who cannot text get no texts.
+- **Graded.** Part 7 measures the share of active adults in each bucket over a month, by medium, for sends flagged bulk and for all mass sends. Validation grades the sample church against it.
 
 ## Texts and SMS conversations
 
 - **Bulk texts** go out from the main line and the student line. Some ask for a reply ("Reply YES if you're coming"), and those replies link back to the text through `RelatedCommunicationId`.
 - **The Cast's threads.** About 15 hand-written threads tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a long back-and-forth, a STOP opt-out, a thread on the student line, and threads on the pastor's personal number. A few are always from the last 1 to 3 days before install, so even Core 1 opens to a live inbox (decision 93).
 - **Generated threads.** Short threads built from text pools, at the measured reply rate and reply delay.
+- **STOP.** A texted STOP is recorded the way Rock records it: a level All unsubscribe on the person's newest text, and texting turned off on their phone (see Unsubscribes).
 
 ## Push
 
@@ -112,6 +144,8 @@ Calibration part 3 already measures communications, but only one source has data
 - Email and communication preferences, phones that can text, and the share of adults with the app and with notifications on.
 - Text replies to mass texts, stop words, unread texts, thread length, how fast staff answer, and how fast people answer.
 - Church phone numbers and communication flows (Rock 18 and later).
+- Saturation: the share of active adults in each message-count bucket over the last complete month, by medium, for sends flagged bulk and for all mass sends, the way Rock's Saturation report counts.
+- A whole year of unsubscribes, by medium and level, per 1,000 mass-send recipients, and how long after the send they came (Rock 19 and later).
 
 It returns no names, Ids, list names, message text, phone numbers, or URLs. Clicked links are compared by checksum only. It reads whole recipient rows only for a sample, and it adapts when Rock's post-update jobs have not built the indexes it needs, because the first versions timed out on a real church; see the [calibration README](../calibration/README.md#part-7-communications). Monthly volumes are raw counts, and the normalizer scales them by part 2's active adults, as for parts 5 and 6. The normalizer writes it to the `communicationDetail` section of a source file, and source-1 has it. The profile leaves out the volumes (designed, decision 91) and the values the measured data cannot support: unsubscribes and spam complaints (none recorded), replies to mass texts (replies were not linked to their texts), and one open rate that some opens never update. See the exclusions in `calibration/profiles/sample-church.json`.
 
@@ -119,7 +153,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
-- **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set.
+- **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations:** each Cast thread shows in SMS Conversations in its intended state, and the recent threads are unread.
 - **Validation** grades the generated data against calibration part 7.
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
@@ -129,9 +163,9 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 Each slice lands on its own, passes verify, and goes to the integrator.
 
 1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
-2. **Setup.** System phone numbers, communication lists, the sample church template, and the message library.
-3. **Bulk email.** Sends, recipients, opens, clicks, unsubscribes, and failures.
-4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, and generated threads.
+2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Before this starts, source-1 reruns part 7 for the saturation and unsubscribe measures.
+3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation.
+4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs.
 5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
 7. **Steps.** Step messages and the finished Communication Flow, after steps land.

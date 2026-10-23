@@ -559,7 +559,26 @@ if ( s.communicationMeta ) {
             hasFlows: flows.flows > 0,
             pctActive: pct( flows.activeFlows || 0, flows.flows ),
             communicationsPerFlowP50: flows.communicationsPerFlowP50 ?? null
-        }
+        },
+        saturation: s.saturation ? {
+            periodStart: meta.saturationPeriodStart ?? null,
+            byMedium: Object.fromEntries( [ ...new Set( list( s.saturation ).map( x => x.medium ) ) ].map( medium => {
+                const r = list( s.saturation ).filter( x => x.medium === medium );
+                return [ medium, Object.fromEntries( [ ...new Set( r.map( x => x.scope ) ) ]
+                    .map( scope => [ scope, mix( r.filter( x => x.scope === scope ), "bucket", "pctAdults" ) ] ) ) ];
+            } ) )
+        } : null,
+        unsubscribesYear: meta.hasUnsubscribeIndex ? {
+            perThousandMassRecipients: Object.fromEntries( [ ...new Set( list( s.unsubscribesYear ).map( u => u.medium ) ) ].map( medium => [ medium,
+                mix( list( s.unsubscribesYear ).filter( u => u.medium === medium ), "level", "perThousandMassRecipients" ) ] ) ),
+            levelMix: ( () => {
+                const rows = list( s.unsubscribesYear );
+                const total = sum( rows.map( u => u.unsubscribes ) );
+                const byLevel = rows.reduce( ( t, u ) => ( t[ u.level ] = ( t[ u.level ] || 0 ) + u.unsubscribes, t ), {} );
+                return total ? Object.fromEntries( Object.entries( byLevel ).map( ( [ level, n ] ) => [ level, pct( n, total ) ] ) ) : null;
+            } )(),
+            delayMix: mix( list( s.unsubscribeDelay ), "delayBand", "pctUnsubscribes" )
+        } : null
     };
     out.notes.push( "Part 7 measures mass sends of 25 or more recipients and text conversations over 12 months. Delivery and unsubscribes come from a recipient sample of recent sends, and text thread measures from a sample of people who texted in. Message text, list names, phone numbers, and URLs are never stored." );
 }
