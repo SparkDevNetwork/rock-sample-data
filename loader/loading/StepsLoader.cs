@@ -46,6 +46,8 @@ namespace RockSampleData.Loader.Loading
     {
         private static readonly Guid GroupEntityTypeGuid = new Guid( "9BBFDA11-0D22-40D5-902F-60ADFBC88987" );
 
+        private static readonly Guid PersonStepHistoryCategoryGuid = new Guid( "517BB2D3-0A50-4132-818E-63BB3C81EAE9" );
+
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
         private readonly AnchorDates _dates;
@@ -406,10 +408,12 @@ ORDER BY [gm].[Id]",
             var values = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "ValueAsDateTime:date", "ValueAsBoolean:bool", "IsPersistedValueDirty:bool",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var baptisms = plan.Baptisms.ToDictionary( b => b.PersonId );
+            var history = new StepHistory( _db, _foreignKey, config );
 
             foreach ( var step in plan.Steps.OrderBy( s => s.AliasId ).ThenBy( s => setup.TypeIds[s.StepType] ).ThenBy( s => s.Start ) )
             {
                 var id = nextStepId++;
+                history.Add( step, id );
                 var modified = new[] { step.Start, step.Completed ?? step.Start, step.End ?? step.Start }.Max();
                 var programKey = setup.ProgramKeyByType[step.StepType];
                 var program = setup.Programs[programKey];
@@ -436,6 +440,72 @@ ORDER BY [gm].[Id]",
             _db.BulkInsert( "StepProgramCompletion", completions, keepIdentity: true );
             _db.BulkInsert( "Step", steps, keepIdentity: true );
             _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
+            _db.BulkInsert( "History", history.Rows, keepIdentity: false );
+        }
+
+        /*
+            10/23/26 - CLAUDE
+
+            Rock's step save hook (Rock/Model/Engagement/Step/Step.SaveHook.cs) writes person history: one
+            "Added" row when a step is made, with the campus as related data, and "Modify" rows when its status,
+            end, or completion date changes later. A step the plan completes after its start (a class, or a
+            Pending volunteer who became Active) was added In Progress and completed on that day. A step with an
+            end date was ended on that day. Dates use Rock's US short date format, as the hook writes them.
+
+            Reason: The person's History tab shows each step the way a church that recorded it in Rock sees it.
+        */
+
+        /// <summary>
+        /// The person history rows Rock's step save hook writes for each step.
+        /// </summary>
+        private sealed class StepHistory
+        {
+            private readonly string _foreignKey;
+            private readonly int _categoryId;
+            private readonly int _personEntityTypeId;
+            private readonly int _stepEntityTypeId;
+            private readonly Dictionary<int, string> _campusNames;
+            private readonly Dictionary<string, string> _typeNames;
+
+            public DataTable Rows { get; } = TableFactory.Create( "IsSystem:bool", "CategoryId:int", "EntityTypeId:int", "EntityId:int", "Caption:string", "RelatedEntityTypeId:int", "RelatedEntityId:int",
+                "Verb:string", "ChangeType:string", "ValueName:string", "OldValue:string", "NewValue:string", "RelatedData:string", "IsSensitive:bool",
+                "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+
+            public StepHistory( RockDatabase db, string foreignKey, StepsConfiguration config )
+            {
+                _foreignKey = foreignKey;
+                _categoryId = db.RequireIdByGuid( "Category", PersonStepHistoryCategoryGuid );
+                _personEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person'" ) );
+                _stepEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Step'" ) );
+                _campusNames = db.Query( "SELECT [Id], [Name] FROM [Campus]" ).ToDictionary( r => Convert.ToInt32( r["Id"] ), r => ( string ) r["Name"] );
+                _typeNames = config.StepTypes.ToDictionary( t => t.Key, t => t.Name );
+            }
+
+            public void Add( PlannedStep step, int stepId )
+            {
+                var name = _typeNames[step.StepType];
+                Row( step, stepId, name, "STEPADDED", name, null, null, _campusNames.GetValueOrDefault( step.CampusId ), step.Start );
+
+                if ( step.Completed.HasValue && step.Completed.Value > step.Start )
+                {
+                    Row( step, stepId, name, "MODIFY", "Step Status", "In Progress", "Complete", null, step.Completed.Value );
+                    Row( step, stepId, name, "MODIFY", "Completed", string.Empty, ShortDate( step.Completed.Value ), null, step.Completed.Value );
+                }
+
+                if ( step.End.HasValue && step.End.Value > step.Start )
+                {
+                    Row( step, stepId, name, "MODIFY", "Step End", string.Empty, ShortDate( step.End.Value ), null, step.End.Value );
+                }
+            }
+
+            private void Row( PlannedStep step, int stepId, string caption, string verb, string valueName, string oldValue, string newValue, string relatedData, DateTime when )
+            {
+                Rows.Rows.Add( false, _categoryId, _personEntityTypeId, step.PersonId, caption, _stepEntityTypeId, stepId, verb, "Record", valueName,
+                    ( object ) oldValue ?? DBNull.Value, ( object ) newValue ?? DBNull.Value, ( object ) relatedData ?? DBNull.Value, false,
+                    Guid.NewGuid(), _foreignKey, when, when );
+            }
+
+            private static string ShortDate( DateTime date ) => date.ToString( "M/d/yyyy", System.Globalization.CultureInfo.InvariantCulture );
         }
 
         private static int? DateKey( DateTime? date ) => date.HasValue ? int.Parse( date.Value.ToString( "yyyyMMdd" ) ) : null;
