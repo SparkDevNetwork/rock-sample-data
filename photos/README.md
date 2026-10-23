@@ -2,6 +2,8 @@
 
 An image model makes the people photos from the [photo brief](brief.md). This folder holds the photo rules, the delivered photos, and the manifest the builder reads.
 
+[Campus exteriors](campuses/README.md) show all seven Rock Solid Church locations ready for Sunday morning without people. The set includes a high school auditorium and a traditional church campus. It is available in the public site's campus cards and downloads; campus images are not yet installed into Rock by the loader.
+
 Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.md), with one folder per initiative. The Starting Point campaign master lives there; its installed lobby appearance remains in [the church reference pack](references/church/README.md).
 
 ## Kinds of images
@@ -88,4 +90,6 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `groups/` | Delivered group photos, `{group-key}.jpg`, and their `manifest.json` | Yes |
 | `opportunity-brief.md` | The brief for the serving opportunity photos | Yes |
 | `opportunities/` | Delivered opportunity photos, `{team}.jpg`, and their `manifest.json` | Yes |
+| `campuses/` | Seven distinct campus exterior JPEGs, their manifest, and reuse guide | Yes |
+| `originals/campuses/` | Full-size original campus exterior PNGs | Yes |
 | `originals/` | The image model's full-size originals of both, same names, in the format the model made (JPEG or PNG) | Yes |

@@ -29,3 +29,5 @@ graphics/
 - When artwork changes an architectural reference, update that photo's PNG/JPEG pair, manifest, and guide together. Link the artwork here instead of duplicating campaign masters under `photos/`.
 
 These files are reusable design assets. Saving them here does not automatically assign them to Rock records or include them in install packages.
+
+The public site reads every initiative folder. The church page shows the first image of each, and the brand page offers each image as a download. When you add an initiative, also add its words to the Initiatives section in `site/src/pages/church.js`.

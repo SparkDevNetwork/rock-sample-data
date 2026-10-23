@@ -105,8 +105,10 @@ function page( { file, title, description, active, depth = 0, body } ) {
       <img src="${r( "assets/rock/rock-logo-mark.svg" )}" alt="" width="32" height="32">
       <span class="brand-text"><span class="brand-rock">Rock</span> Sample Data</span>
     </a>
-    <nav class="site-nav" aria-label="Main">
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav"><span class="nav-toggle-bars" aria-hidden="true"></span>Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
       ${nav.map( n => html`<a href="${r( n.href )}"${n.key === active ? ' aria-current="page"' : ""}>${esc( n.label )}</a>` )}
+      <a class="nav-github" href="${repoUrl}">GitHub</a>
     </nav>
     <a class="button button-small button-ghost header-cta" href="${repoUrl}">GitHub</a>
   </div>

@@ -1,0 +1,185 @@
+{
+  "church": "Rock Solid Church",
+  "created": "2026-10-23",
+  "status": "Generated and visually reviewed; ready for user review",
+  "generator": "OpenAI built-in image_gen; underlying model identifier and seeds not exposed",
+  "campusConfiguration": "configuration/campuses.json",
+  "brandingReference": "photos/references/church/branding/rock-solid-church-logo.png",
+  "delivery": {
+    "photos": 7,
+    "revisedPhotos": 1,
+    "original": "Untouched native PNG generator outputs",
+    "jpeg": "Full native size, quality 90, APP/COM metadata removed",
+    "application": "Repository and public site; campus photo fields are not loaded into Rock by this change"
+  },
+  "images": [
+    {
+      "campus": "phoenix",
+      "name": "Phoenix",
+      "campusGuid": "76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8",
+      "file": "campuses/phoenix.jpg",
+      "original": "originals/campuses/phoenix.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Established contemporary main campus",
+      "description": "Phoenix's contemporary warm-white main campus, with its established glass lobby, charcoal canopy, desert garden, and Sunday welcome sign.",
+      "sourceReferences": [
+        "photos/references/church/front-exterior-wide.png",
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is the existing APPROVED PHOENIX BUILDING and MUST be preserved: wide warm-white contemporary low flat-roof lobby, black shallow entrance canopy with pale-oak soffit, black-framed glass, low stucco planters, desert garden, restrained taller rectangular auditorium set far back behind lobby. IMAGE 2 is the logo artwork. Make a new slightly oblique wider Sunday-arrival exterior of THIS SAME building. Do not redesign its massing or replace it with another campus. Original and largest campus, broad but ordinary scale; no tower. Keep the understated charcoal logo left of entrance fully on its stucco panel, no oversized signage. Add a modest low dark freestanding arrival sign near a landscape island with the approved logo and a separate small line \"PHOENIX\". One small teal WELCOME A-frame beside entrance, not blocking doors. Reduce the exaggerated mountain backdrop from original to a believable low distant desert ridge; soft subtle glass reflections, enlarged lobby visible inside. Warm morning light, empty broad pale-concrete forecourt, image includes generous building margins.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "peoria",
+      "name": "Peoria",
+      "campusGuid": "5543B9D6-7571-4A0D-BFCC-09F3EF1B28F3",
+      "file": "campuses/peoria.jpg",
+      "original": "originals/campuses/peoria.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Desert courtyard church",
+      "description": "Peoria's warm masonry courtyard campus, with a rust-colored steel pergola, desert planting, and an empty Sunday welcome cart.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent an entirely different PEORIA campus: low desert-modern courtyard church built mainly of warm buff split-face masonry and earthy rammed-earth walls, two flat-roof wings framing an OPEN-AIR shaded arrival courtyard. A tall thin rust-colored steel pergola casts geometric shade over a limestone-paved approach. Glass entry sits recessed at rear of courtyard; mature sculptural mesquite, gravel, agaves, a broad planter bench. Architecture is horizontal and intimate with courtyard void as defining feature, NOT a white stucco box with black cantilever canopy. Three-quarter view from courtyard entrance, tree at one frame edge, clear sky and no close mountains. Modest charcoal dimensional logo on a broad buff wall and a small separate \"PEORIA\" campus label. A neatly set-up simple oak welcome cart under pergola and two low muted-teal WELCOME signs suggest Sunday without people.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "gilbert",
+      "name": "Gilbert",
+      "campusGuid": "340B5E66-A2D2-4578-A6C2-82C17E08232A",
+      "file": "campuses/gilbert.jpg",
+      "original": "originals/campuses/gilbert.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Converted neighborhood retail anchor",
+      "description": "Gilbert's converted retail-anchor campus, with a broad brick storefront, glass entrance, portable welcome canopy, and clear parking approach.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent a GILBERT campus in a thoughtfully renovated former neighborhood retail-anchor building. Defining architecture is a BROAD LOW ADAPTIVE-REUSE RETAIL FACADE: honey-beige brick pilasters, deep horizontal bronze metal fascia, tall storefront glass beneath a continuous slim shaded arcade, one former big-box mass behind. Restrained charcoal modern entrance portal cut into that older facade. The church occupies the whole former retail unit, no unrelated shops or logos. Keep recognizable retail bones rather than turning it into a purpose-built white church. Wide diagonal approach from an ordinary resurfaced shopping-center parking lot with empty marked bays at one side, raised concrete plaza and accessible curb ramp. Distant low residential trees, no mountains. Neatly planted large simple ceramic pots and a small portable teal welcome canopy beside the doors. Approved church logo installed modestly above entry, separate \"GILBERT\" line, one WELCOME sign on plaza. Pale morning sun from camera right, no people.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "scottsdale",
+      "name": "Scottsdale",
+      "campusGuid": "B2D9137B-1081-4533-9C52-08CDE8222C57",
+      "file": "campuses/scottsdale.jpg",
+      "original": "originals/campuses/scottsdale.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Traditional church building with light Rock Solid Church branding",
+      "description": "Scottsdale's traditional brick sanctuary, with a terracotta gable, steeple, stained glass, and restrained Rock Solid Church branding.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent a well-cared-for traditional older SCOTTSDALE church that joined Rock Solid Church. RETAIN THE OLDER CHURCH'S distinctive mid-century southwestern sanctuary: steep FRONT-FACING GABLED roof with weathered dark terracotta tiles, cream/tan brick walls, narrow vertical stained-glass windows, a simple slender modest white steeple and cross, covered entry under a timber gable. Separate low fellowship wing at one side. Mature olive and desert shade trees, aged brick paths, low stone planters and tidy gravel planting, no lush lawn, no colonial red-brick East-Coast white columns. Church is maintained and lightly refurbished, not distressed or a giant cathedral. New understated brand touches only: a LOW FREESTANDING charcoal monument sign near the path carries the approved white church logo and small \"SCOTTSDALE\" line; two small muted-teal welcome banners on simple stands near doorway. Do not plaster a giant logo across sanctuary, remove the steeple, paint everything ultra-modern, or replace traditional roof with flat roofs. Inviting Sunday morning, warm light on brick, camera at a thoughtful front three-quarter angle showing gable/steeple and whole entry, empty paths.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "chandler",
+      "name": "Chandler",
+      "campusGuid": "05AE81C6-14B8-4A03-8361-780B86AE085A",
+      "file": "campuses/chandler.jpg",
+      "original": "originals/campuses/chandler.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Contemporary family campus",
+      "description": "Chandler's contemporary family campus, with a tall glass entrance, sloping roof, kids wing, and shaded play courtyard.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent a CHANDLER family-oriented church campus with a distinctly different, modestly large TWO-STORY daylight-filled entrance pavilion. Red-brown desert brick base, standing-seam zinc-gray SHED ROOF with a shallow diagonal slope, clerestory glazing, warm light concrete vertical fins, broad glass porch; low kids-classroom wing extends to one side with restrained coral/teal recessed panels. Generous shaded family drop-off plaza, modest fabric shade sails over a distant fenced play courtyard, palo verde and low desert shrubs. No pitched traditional sanctuary/steeple, no flat white Phoenix facade, no rust pergola courtyard. Capture from across an empty pedestrian plaza at gentle three-quarter angle, primary entrance left of center, kids wing across right side. Approved small charcoal logo on light-concrete entry pier; separate \"CHANDLER\" line; subtle neatly arranged Sunday welcome and kids-check-in signs near doors with text limited to \"WELCOME\" and \"KIDS\". Cheerful clean new but real not luxury mall, morning sun and soft natural building shadows, no people.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "goodyear",
+      "name": "Goodyear",
+      "campusGuid": "6A7CF7E0-5AA3-4CC4-98C1-2FCAA0551239",
+      "file": "campuses/goodyear.jpg",
+      "original": "originals/campuses/goodyear.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Portable church banners and a welcome table",
+      "description": "Goodyear's high school auditorium, with portable Rock Solid Church banners, a welcome table, and Sunday setup carts.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent GOODYEAR campus meeting on Sundays in a nice well-maintained public HIGH SCHOOL AUDITORIUM. Building must read as a SCHOOL PERFORMING-ARTS/AUDITORIUM complex, not a purpose-built church: substantial tan concrete-block auditorium volume, burgundy/brown brick lower walls, bold cobalt-blue metal roof fascia, long covered student walkway to one side, six glass entrance doors under a deep practical public-school canopy, broad paved school courtyard, metal campus fencing in far background. One permanent understated building label \"AUDITORIUM\" over entry, no invented school name or mascot, no permanent church logo mounted to school wall. SUNDAY PORTABLE CHURCH SETUP: two neatly stretched tall fabric banner stands, each branded with the APPROVED church symbol and exact words \"ROCK SOLID\" / \"CHURCH\" and small \"GOODYEAR\"; muted-teal/ivory banner colors. One well-designed horizontal temporary banner secured neatly across a portable welcome truss near the entrance, bearing the logo/words \"ROCK SOLID CHURCH\" and \"YOU BELONG HERE.\" Keep banners tidy, realistic and restrained, not a festival. A clean portable folding welcome counter with teal cloth, orderly stack of setup carts tucked beside it, directional WELCOME A-frame and open front door communicate that volunteers have finished Sunday setup and guests have not arrived. No volunteers/students/people anywhere. Wide camera view of school auditorium with clearly identifiable temporary church banners and unobstructed door routes. Early bright morning sunlight and sparse young desert trees, no mountain backdrop.",
+      "edits": [],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    },
+    {
+      "campus": "tempe",
+      "name": "Tempe",
+      "campusGuid": "80432C19-58A7-4F5F-AE92-21204CD7BD4D",
+      "file": "campuses/tempe.jpg",
+      "original": "originals/campuses/tempe.png",
+      "width": 1536,
+      "height": 1024,
+      "buildingType": "Urban warehouse conversion",
+      "description": "Tempe's urban brick warehouse campus, with a sawtooth roof, factory windows, blade sign, and empty Sunday-ready entrance.",
+      "sourceReferences": [
+        "photos/references/church/branding/rock-solid-church-logo.png"
+      ],
+      "seed": null,
+      "prompt": "Use case: photorealistic-natural. Asset: ONE finished landscape 3:2 campus exterior photograph for Rock RMS sample data, preferably native 1536x1024. This is a fictional Rock Solid Church campus in Arizona's Phoenix Valley, not a depiction of an actual property. Capture the whole entrance/building and attractive setting, grounded real architectural photography at ordinary human scale, natural Sunday-morning sunlight before arrivals, realistic materials and camera exposure. No people anywhere: no distant pedestrians, silhouettes behind glass, faces on banners, human reflections, or drivers. Empty but welcoming Sunday setup with doors ready, neatly placed modest welcome signage, unobstructed accessible paths and orderly landscaping. No crowd, no parked emergency vehicles, no license plates, no QR codes, dates, invented URLs, service times, real school names, giant mountain backdrops or unrelated logos. A few distant unoccupied parked cars are optional; foreground approach stays empty and clear.\nThe attached APPROVED church logo is the exact brand reference: four rounded dark forms define a negative-space cross beside uppercase ROCK SOLID and smaller tracked CHURCH. Preserve the mark's geometry and spelling when rendered on signs. Brand accents are muted teal, warm ivory, charcoal, restrained pale oak where appropriate; branding should not make distinct buildings look architecturally alike. Signs are fabricated plausibly, fully inside a wall plane or freestanding sign, with clear margins and no letters across edges. Use only the specified campus name and church name, plus short welcome labels if requested. Render text sharply and spell it correctly. No watermark, border, montage, CGI showroom gloss, oversaturated sky or golden-hour haze. Real desert climate planting and irrigation-conscious landscape, no Midwest lawns or East-Coast surroundings.\n\nCAMPUS-SPECIFIC DESIGN:\nIMAGE 1 is LOGO REFERENCE ONLY. Invent TEMPE campus in a thoughtful conversion of a small urban LIGHT-INDUSTRIAL WAREHOUSE near an Arizona city neighborhood. Distinctive honest warehouse form: SAWTOOTH / northlight roof profile visible above an exposed warm red-brown brick facade, dark weathered steel framing, generous black steel factory windows, one former loading opening converted to glazed doors. Small shaded side patio with a few simple outdoor chairs and potted agaves; concrete city sidewalk, bike racks, street trees, a sliver of low urban mixed-use neighboring buildings. NO suburban parking-lot foreground, no giant white stucco campus, no steep traditional steeple, no blue school fascia. Eye-level street-corner three-quarter architectural view, one warm brick corner anchors composition. Approved charcoal-and-ivory church logo on a compact projecting blade sign fully supported on its bracket; a modest separate wall plaque reads \"TEMPE\". One teal WELCOME A-frame on private entry recess, entrance propped ready for Sunday, warm interior light visible but no people or silhouettes. Keep brick genuine, clean and maintained, not abandoned or graffiti-covered. Crisp Sunday morning light, realistic Arizona urban setting, understated branding.",
+      "edits": [
+        {
+          "reason": "Clear distant vehicles and possible pedestrian-like shapes from the left street and sidewalk to meet the no-people requirement.",
+          "sourceDraft": "exec-f1761f7d-3c48-4e01-9cae-ae5688f79ec1.png",
+          "prompt": "Use case: precise-object-edit. Edit this single Tempe Rock Solid Church warehouse-campus exterior photograph. Preserve the SAME composition, camera, 1536x1024 landscape dimensions, warm brick building, sawtooth roof, windows, supported logo blade sign, TEMPE plaque, warm empty lobby, teal WELCOME A-frame, empty patio, bike racks, trees, planting and morning light. Change ONLY the distant street/sidewalk activity at the far LEFT edge: remove every car and every tiny possible pedestrian or human-like shape in that distant left sidewalk and roadway. Reconstruct a completely EMPTY quiet street and EMPTY sidewalk with coherent pavement, distant buildings and trees. No people, no drivers, no human reflections or silhouettes anywhere. Do not add people or change any text or church architecture. This is a local cleanup, not a new building design."
+        }
+      ],
+      "review": {
+        "people": "No people visible in final image, including doorway and window views.",
+        "setting": "Distinct campus type, plausible Phoenix Valley materials and landscaping.",
+        "sundaySetup": "Welcome signage and clear arrival paths prepared before guests arrive.",
+        "branding": "Church and campus wording visually checked; signs fit their mounting surfaces."
+      }
+    }
+  ]
+}

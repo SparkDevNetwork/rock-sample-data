@@ -4,6 +4,12 @@ The public site for Rock Sample Data: why the sample data exists, Rock Solid Chu
 
 The site is built from the repository's own files, so it never keeps a copy of the Cast or the church. Change a household in `cast/households/`, and its page changes on the next build.
 
+Campus cards use the seven exterior photos in `photos/campuses/manifest.json`. The brand page offers the JPEG set as a zip and each image as a JPEG or original PNG. The twelve-view building tour describes Phoenix; other campus exteriors have distinct venue types.
+
+The church page has an Initiatives section, and the brand page offers each initiative's artwork as a PNG. Both read every folder in `graphics/initiatives/`, so new artwork appears on the next build. The words for each initiative are in `src/pages/church.js`. A folder with no words there still shows, with its artwork's concept as the text.
+
+On phones, the top navigation folds behind a Menu button. On tablets, the links wrap onto their own row. Without script, phones get the wrapped row.
+
 ## Build and look at it
 
 You need Node.js 22 or later. No packages are installed.
@@ -16,14 +22,14 @@ That writes the site to `site/dist/` (git ignores it). Open `site/dist/index.htm
 
 ## Publishing
 
-The [Publish site](../.github/workflows/pages.yml) workflow runs the same build and publishes `site/dist` when `main` changes the site, the Cast, the configuration, the photos, or the two docs the site reads. To turn it on once, set **Settings > Pages > Source** to **GitHub Actions**.
+The [Publish site](../.github/workflows/pages.yml) workflow runs the same build and publishes `site/dist` when `main` changes the site, the Cast, the configuration, the photos, the graphics, or the two docs the site reads. To turn it on once, set **Settings > Pages > Source** to **GitHub Actions**.
 
 ## What is where
 
 | Path | What it holds |
 |---|---|
 | `build.js` | Copies the photos, builds the downloads and their zips, and writes every page. |
-| `src/data.js` | Reads `cast/`, `configuration/`, and `photos/` into one model. It never reads `calibration/` (decision 82). |
+| `src/data.js` | Reads `cast/`, `configuration/`, `photos/`, and `graphics/` into one model. It never reads `calibration/` (decision 82). |
 | `src/layout.js` | The header, navigation, and footer every page shares. |
 | `src/components.js` | Shared pieces: section headings, portraits, household cards, downloads, and zoomable photos. |
 | `src/pages/` | One file per page. `cast.js` also writes one page per household. `contribute.js` reads the issue questions and the roadmap from `docs/`. |

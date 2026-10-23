@@ -100,9 +100,9 @@ Campuses are named by city only, with no "Campus" suffix. All are in the Phoenix
 | Phoenix | Core 1, Core 3, Full 7 | Rock's built-in main campus, renamed. North Phoenix, where the Cast lives. |
 | Peoria | Core 3, Full 7 | West Valley. |
 | Gilbert | Core 3, Full 7 | East Valley. |
-| Scottsdale | Full 7 | Older, higher-income households. |
+| Scottsdale | Full 7 | Older, higher-income households. It was an independent church until it merged with Rock Solid Church and became a campus. |
 | Chandler | Full 7 | Young families; large kids ministry. |
-| Goodyear | Full 7 | Fast-growing far west; more first-time guests. |
+| Goodyear | Full 7 | Fast-growing far west; more first-time guests. It meets in a high school auditorium, so volunteers set up and tear down every Sunday. |
 | Tempe | Full 7 | Urban; singles and young adults. |
 
 ## Connection statuses
