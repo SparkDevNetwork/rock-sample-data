@@ -5,7 +5,7 @@ What the release workflow, `.github/workflows/release.yml`, reads and runs. How 
 | File | What it is |
 |---|---|
 | `rock-releases.json` | The Rock releases each release builds packages for, each with the tag or commit to check out from SparkDevNetwork/Rock (decision 127). |
-| `merge-index.js` | Merges one release's verified packages into the hosted `index.json` (decision 128). |
+| `merge-index.js` | Merges one release's verified packages into the hosted `index.json` (decision 128). Each new entry carries its dataset's card from `datasets/*.json` (decision D-index-cards-1). |
 
 ## Trying the index merge
 
