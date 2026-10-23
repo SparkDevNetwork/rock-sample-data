@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 and D-commsat-1 to D-commsat-3 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. This is a plan: nothing here is built yet. The decisions are 90 to 96 and 131 to 133 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -67,7 +67,7 @@ Messages come from a hand-written library in `content/communications/`, checked 
 Bulk email is where the very large sends come from.
 
 - **Who sends what.** Each campus sends its weekly newsletter to its list. The church sends seasonal emails (Easter, Christmas, year-end giving) to everyone, and ministries send to their own lists.
-- **Bulk flag and medium.** Mass sends are flagged `IsBulkCommunication` and have a concrete type (Email, SMS, or Push), so the Saturation report counts them by default (decision D-commsat-2). A few leader sends to small lists stay unflagged, so the report's bulk-only toggle shows a difference, and a small share of sends use recipient preference. The measured data flags only about 10% of mass sends; the sample church shows the better practice.
+- **Bulk flag and medium.** Mass sends are flagged `IsBulkCommunication` and have a concrete type (Email, SMS, or Push), so the Saturation report counts them by default (decision 132). A few leader sends to small lists stay unflagged, so the report's bulk-only toggle shows a difference, and a small share of sends use recipient preference. The measured data flags only about 10% of mass sends; the sample church shows the better practice.
 - **Sender, reviewer, topic.** Each send has a Cast staff sender, a reviewer when Rock's approval would require one, and a topic.
 - **Recipients.** Each recipient row has its own `SendDateTime`, which the Unsubscribe report reads.
 - **Delivery.** Most recipients are Delivered or Opened. People whose email is already inactive in the people data are the ones whose sends fail, so the two always agree.
@@ -76,7 +76,7 @@ Bulk email is where the very large sends come from.
 
 ## Unsubscribes
 
-Unsubscribes are designed, not measured (decision D-commsat-1). The measured data records none on recipient rows, which is common where a church uses the older email preference page. Its people still opt out, so the people data's measured share of "No mass emails" and "Do not email" is the anchor: two years of unsubscribes add up to about those shares.
+Unsubscribes are designed, not measured (decision 131). The measured data records none on recipient rows, which is common where a church uses the older email preference page. Its people still opt out, so the people data's measured share of "No mass emails" and "Do not email" is the anchor: two years of unsubscribes add up to about those shares.
 
 - **Rock's rules.** Each unsubscribe follows the rules above. A list email makes the person Inactive in that list, a flow email takes them out of the flow, and any other email steps their email preference down. The recipient row gets `UnsubscribeDateTime` and the matching level, and the person's History records the change, as Rock writes it.
 - **When.** Most come the same day as the email or the next, and some come in the last 6 months, so the report's default window has data.
@@ -87,7 +87,7 @@ Unsubscribes are designed, not measured (decision D-commsat-1). The measured dat
 
 ## Message load per person
 
-Rock's Saturation report shows how many messages each adult got. A plan that sends every newsletter to a whole campus list would put most adults in the same bucket, and no real church looks like that (decision D-commsat-3).
+Rock's Saturation report shows how many messages each adult got. A plan that sends every newsletter to a whole campus list would put most adults in the same bucket, and no real church looks like that (decision 133).
 
 - **List membership follows involvement.** Leading and Engaged adults are on more lists (Volunteers, Small Group Leaders, Prayer Team, Parents of Kids) than Known adults, and some adults are on none. Parents get kids and student messages, and volunteers get serving reminders, so the busiest people sit in the high buckets.
 - **Some get nothing.** Adults with no email, an inactive email, "No mass emails", or no list get no mass email, and adults who cannot text get no texts.
