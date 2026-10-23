@@ -94,7 +94,7 @@ Every load also checks the businesses, Cast and generated alike, and prints the 
 2. Every business has at least one business contact.
 3. Every business has a gift in the last 12 months, counted back from the newest gift in the database, so a later `--check-cast` run gets the same answer.
 
-Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 (with a 17,000-household crowd) has 87 at 7 campuses. All checks hold.
+Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 has 86 at 7 campuses. All checks hold.
 
 ## Rock version guard
 
@@ -161,7 +161,7 @@ On 2026-10-19 it passed for Core 1 (49 streaks and 5,009 attempts) and for Full 
 
 ## Where it stands
 
-The Phase 0 spike (Full 7 plus a 17,000-household crowd) passes 260 of 291 values (89%). Giving passes 191 of 196, and small groups 3 of 3. The largest remaining gaps:
+The Full 7 package, with its own Crowd of 16,800 households (decision 136), passes 380 of 428 values (89%) on 2026-10-23, at the anchor 2026-10-22 and the default seed. Both business values and the pledge rate pass. The Phase 0 spike (Full 7 plus a 17,000-household crowd) passed 260 of 291 values (89%), with giving at 191 of 196 and small groups at 3 of 3. The largest remaining gaps:
 
 1. First-time visitors run low, so Easter and fall kickoff do not spike with newcomers. A visitor model comes with the real Crowd.
 2. Teens (ages 12 to 17) run low.
@@ -181,5 +181,5 @@ The giving tuning on 2026-10-16 took the spike from 215 to 257 (of 287, before s
 | On-site source, share of gifts | 13.4% | 5.4% | 12.8% |
 | On-site source, share of dollars | 21.5% | 6.1% | 20.6% |
 
-Full 7 now draws 3,533 scanned checks in its 12-month window (7,066 images, 269 MB).
+Full 7 now draws 3,587 scanned checks in its 12-month window (7,174 images, 274 MB).
 
