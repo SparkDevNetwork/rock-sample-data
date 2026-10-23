@@ -64,6 +64,11 @@ namespace RockSampleData.Loader.Generation
         private readonly AddressPool _addresses;
 
         /// <summary>
+        /// Status weights from the dataset manifest, or null for the measured weights in <see cref="Statuses"/>.
+        /// </summary>
+        private Dictionary<string, double> _statusWeights;
+
+        /// <summary>
         /// The church's own texting numbers, which no generated person may have (decision 93).
         /// </summary>
         private readonly HashSet<string> _churchNumbers;
@@ -555,9 +560,25 @@ namespace RockSampleData.Loader.Generation
             return AgeBands.FirstOrDefault( b => b != "75+" && age <= int.Parse( b.Split( '-' )[1] ) ) ?? "75+";
         }
 
-        private static string PickStatus( SeededRandom random )
+        /// <summary>
+        /// Replaces the measured status weights for the households made after this call. Each status keeps its
+        /// own chance of activity, so more weight on Connected, Engaged, and Leading means more households that
+        /// attend and give.
+        /// </summary>
+        public void UseStatusWeights( Dictionary<string, double> weights )
         {
-            return random.Pick( Statuses.ToDictionary( s => s.Status, s => s.Weight ) );
+            var unknown = weights.Keys.Except( Statuses.Select( s => s.Status ) ).ToList();
+            if ( unknown.Count > 0 || weights.Values.Any( w => w < 0 ) || weights.Values.Sum() <= 0 )
+            {
+                throw new InvalidOperationException( $"Status weights must use the statuses {string.Join( ", ", Statuses.Select( s => s.Status ) )} with weights of 0 or more. Unknown: {string.Join( ", ", unknown )}" );
+            }
+
+            _statusWeights = weights;
+        }
+
+        private string PickStatus( SeededRandom random )
+        {
+            return random.Pick( _statusWeights ?? Statuses.ToDictionary( s => s.Status, s => s.Weight ) );
         }
 
         /// <summary>
