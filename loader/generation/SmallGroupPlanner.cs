@@ -490,7 +490,7 @@ namespace RockSampleData.Loader.Generation
                 var random = Stream( $"traits:{set}" );
                 var schedule = _rules.Schedule;
 
-                Assign( all, Apportion( schedule.Days, all.Count, random ), ( d, v ) => d.Day = Enum.Parse<DayOfWeek>( v ) );
+                Assign( all, Apportion( schedule.Days, all.Count, random ), ( d, v ) => d.Day = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), v ) );
                 Assign( all, Apportion( schedule.Times, all.Count, random ), ( d, v ) => d.Time = v );
                 Assign( all, Apportion( Percent( _rules.Calendar.SummerMeetingPercent ), all.Count, random ), ( d, v ) => d.MeetsInSummer = v == "yes" );
                 Assign( all, Apportion( Percent( _rules.Attendance.RecordsEveryWeekPercent ), all.Count, random ), ( d, v ) => d.Habit = v == "yes" ? AttendanceHabit.EveryWeek : AttendanceHabit.Spotty );

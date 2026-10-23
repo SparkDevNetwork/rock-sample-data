@@ -40,15 +40,15 @@ namespace RockSampleData.Loader.Validation
         /// <summary>
         /// Prints each expectation's result and returns how many failed.
         /// </summary>
-        public static int Check( RockDatabase db, SampleDataSource source )
+        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
         {
-            var (checks, failures) = Evaluate( db, source );
-            Console.WriteLine( failures.Count == 0
+            var (checks, failures) = Evaluate( db, source, parts );
+            db.Log.Write( failures.Count == 0
                 ? $"  Cast expectations: all {checks} hold"
                 : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
             foreach ( var failure in failures )
             {
-                Console.WriteLine( $"    {failure}" );
+                db.Log.Write( $"    {failure}" );
             }
 
             return failures.Count;
@@ -57,13 +57,16 @@ namespace RockSampleData.Loader.Validation
         /// <summary>
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
-        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source )
+        /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var checks = 0;
             var failures = new List<string>();
 
-            foreach ( var household in source.ReadHouseholds() )
+            // Each part's expectations are checked only when that part loaded.
+            var givingHouseholds = parts.Contains( SampleDataPart.Giving ) ? source.ReadHouseholds() : new List<CastHousehold>();
+            foreach ( var household in givingHouseholds )
             {
                 foreach ( var pattern in household.Giving.Where( g => g.Expect != null ) )
                 {
@@ -126,15 +129,15 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                 }
             }
 
-            checks += CheckAchievements( db, source, failures );
+            checks += parts.Contains( SampleDataPart.Attendance ) ? CheckAchievements( db, source, failures ) : 0;
 
-            checks += CheckSteps( db, source, failures );
+            checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, failures ) : 0;
 
-            checks += CheckBusinesses( db, source, failures );
+            checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
-            checks += CheckPrayerRequests( db, source, failures );
+            checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
-            checks += CheckCampaign( db, source, failures );
+            checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, failures ) : 0;
 
             return (checks, failures);
         }
@@ -368,7 +371,7 @@ WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
         /// <summary>
         /// Checks the businesses in the loaded database. Returns how many were checked and adds each failure.
         /// </summary>
-        private static int CheckBusinesses( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckBusinesses( RockDatabase db, SampleDataSource source, bool isGivingLoaded, List<string> failures )
         {
             var mainCampusGuid = source.Campuses.Campuses.Single( c => c.RockDefault ).Guid;
             var businesses = db.Query( @"
@@ -398,7 +401,7 @@ WHERE [p].[RecordTypeValueId] = @BusinessTypeId" );
                     failures.Add( $"{business["LastName"]}: has no business contact" );
                 }
 
-                if ( ( int ) business["RecentGifts"] == 0 )
+                if ( isGivingLoaded && ( int ) business["RecentGifts"] == 0 )
                 {
                     failures.Add( $"{business["LastName"]}: has no gift in the last 12 months" );
                 }
@@ -421,7 +424,7 @@ WHERE EXISTS (
                 }
             }
 
-            return ( businesses.Count * 2 ) + campuses.Count;
+            return ( businesses.Count * ( isGivingLoaded ? 2 : 1 ) ) + campuses.Count;
         }
 
         /// <summary>

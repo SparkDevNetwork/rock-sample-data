@@ -68,14 +68,16 @@ namespace RockSampleData.Loader.Loading
 
         private readonly RockDatabase _db;
         private readonly CampaignConfiguration _campaign;
+        private readonly Guid _fundGuid;
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
         private readonly string _seed;
 
-        public PledgeLoader( RockDatabase db, CampaignConfiguration campaign, AnchorDates dates, string foreignKey, string seed )
+        public PledgeLoader( RockDatabase db, CampaignConfiguration campaign, Guid fundGuid, AnchorDates dates, string foreignKey, string seed )
         {
             _db = db;
             _campaign = campaign;
+            _fundGuid = fundGuid;
             _dates = dates;
             _foreignKey = foreignKey;
             _seed = seed;
@@ -89,13 +91,13 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// What each giving pattern gives to the campaign, for the giving step. Filled by <see cref="Plan"/>.
         /// </summary>
-        public Dictionary<CastGiving, CampaignGiving> Giving { get; } = new Dictionary<CastGiving, CampaignGiving>( ReferenceEqualityComparer.Instance );
+        public Dictionary<CastGiving, CampaignGiving> Giving { get; } = new Dictionary<CastGiving, CampaignGiving>();
 
         /// <summary>
         /// Plans the Cast's campaign entries, then picks and plans the generated pledgers so that the share of
         /// giving units with a pledge reaches <paramref name="pledgeRate"/>.
         /// </summary>
-        public void Plan( List<LoadedHousehold> households, IReadOnlySet<string> castHouseholdKeys, double pledgeRate )
+        public void Plan( List<LoadedHousehold> households, HashSet<string> castHouseholdKeys, double pledgeRate )
         {
             var commitment = _campaign.CommitmentSunday( _dates.Anchor );
             var end = _campaign.End( commitment );
@@ -252,7 +254,7 @@ namespace RockSampleData.Loader.Loading
 
                 case null:
                     var followThrough = random.Pick( settings.NoFrequencyFollowThrough );
-                    var share = ( decimal ) Math.Clamp( ( _dates.Anchor - start ).TotalDays / ( end - start ).TotalDays, 0, 1 );
+                    var share = ( decimal ) Math.Min( Math.Max( ( _dates.Anchor - start ).TotalDays / ( end - start ).TotalDays, 0 ), 1 );
                     var count = random.Between( 2, 3 );
                     if ( followThrough != PledgeProgress.NotStarted && start.AddDays( 7 ) < lastDay )
                     {
@@ -355,11 +357,34 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The campaign's goal: a round number a little under the planned pledged total, so the campaign has passed its goal.
+        /// </summary>
+        private decimal Goal
+        {
+            get
+            {
+                var pledged = Pledges.Sum( p => p.Total );
+                var step = pledged >= 1000000 ? 100000m : pledged >= 100000 ? 10000m : 1000m;
+                return Math.Floor( pledged * 0.95m / step ) * step;
+            }
+        }
+
+        /// <summary>
+        /// Writes the goal into the fund's description, since Rock has no goal field (docs/pledges.md). The fund is
+        /// church setup, so every load writes it, even when the giving part and its pledges do not load.
+        /// </summary>
+        public void WriteGoal()
+        {
+            _db.Execute( "UPDATE [FinancialAccount] SET [Description] = @Description, [PublicDescription] = @Description WHERE [Id] = @Id",
+                RockDatabase.P( "@Description", $"{_campaign.Description} Our goal is ${Goal:N0}." ), RockDatabase.P( "@Id", _db.RequireIdByGuid( "FinancialAccount", _fundGuid ) ) );
+        }
+
+        /// <summary>
         /// Writes the planned pledges to the campaign's fund.
         /// </summary>
-        public void Load( Guid fundGuid )
+        public void Write()
         {
-            var fundId = _db.RequireIdByGuid( "FinancialAccount", fundGuid );
+            var fundId = _db.RequireIdByGuid( "FinancialAccount", _fundGuid );
             var frequencyIds = FrequencyGuids.ToDictionary( f => f.Key, f => _db.RequireIdByGuid( "DefinedValue", f.Value ) );
             var table = TableFactory.Create( "PersonAliasId:int", "AccountId:int", "TotalAmount:decimal", "PledgeFrequencyValueId:int", "StartDate:date", "EndDate:date", "StartDateKey:int", "EndDateKey:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
@@ -370,16 +395,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             _db.BulkInsert( "FinancialPledge", table, keepIdentity: false );
-
-            // Rock has no goal field, so the goal goes in the fund's description: a round number a little under
-            // the pledged total, so the campaign has passed its goal (docs/pledges.md).
-            var pledged = Pledges.Sum( p => p.Total );
-            var step = pledged >= 1000000 ? 100000m : pledged >= 100000 ? 10000m : 1000m;
-            var goal = Math.Floor( pledged * 0.95m / step ) * step;
-            _db.Execute( "UPDATE [FinancialAccount] SET [Description] = @Description, [PublicDescription] = @Description WHERE [Id] = @Id",
-                RockDatabase.P( "@Description", $"{_campaign.Description} Our goal is ${goal:N0}." ), RockDatabase.P( "@Id", fundId ) );
-
-            Console.WriteLine( $"  Pledges: {Pledges.Count:N0} (${pledged:N0} toward a ${goal:N0} goal), campaign gifts from {Giving.Count:N0} giving patterns" );
+            _db.Log.Write( $"  Pledges: {Pledges.Count:N0} (${Pledges.Sum( p => p.Total ):N0} toward a ${Goal:N0} goal), campaign gifts from {Giving.Count:N0} giving patterns" );
         }
 
         private static int DateKey( DateTime date ) => int.Parse( date.ToString( "yyyyMMdd" ) );

@@ -52,6 +52,15 @@ namespace RockSampleData.Builder
             var source = new SampleDataSource( repository );
             var datasetManifest = source.ReadDataset( dataset )
                 ?? throw new InvalidOperationException( $"There is no datasets/{dataset}.json." );
+
+            // Rock's installer shows this card, so a package is never built from a manifest without one.
+            var card = SampleDataDatasets.FromManifest( datasetManifest, $"datasets/{dataset}.json" );
+            var campusCount = source.Campuses.Campuses.Count( c => c.Datasets.Contains( dataset ) );
+            if ( card.Key != dataset || card.Campuses != campusCount )
+            {
+                throw new InvalidDataException( $"datasets/{dataset}.json says key {card.Key} and {card.Campuses} campuses, but it is {dataset}, which configuration/campuses.json gives {campusCount} campuses." );
+            }
+
             var files = new SortedDictionary<string, byte[]>( StringComparer.Ordinal );
 
             void AddFile( string path ) => files[path] = Normalize( path, repository.ReadBytes( path ) );

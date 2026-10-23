@@ -161,8 +161,8 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private void PlanGiving( StepTypeDefinition type )
         {
-            var startsAt = Enum.Parse<JourneyStage>( type.Source.StartsAt, true );
-            var endsAt = type.Source.EndsAt.Select( s => Enum.Parse<JourneyStage>( s, true ) ).ToHashSet();
+            var startsAt = ( JourneyStage ) Enum.Parse( typeof( JourneyStage ), type.Source.StartsAt, true );
+            var endsAt = type.Source.EndsAt.Select( s => ( JourneyStage ) Enum.Parse( typeof( JourneyStage ), s, true ) ).ToHashSet();
             var runs = new List<DateTime>();
             for ( var run = _facts.FinalJourneyRun; run >= _facts.HistoryStart; run = run.AddDays( -7 ) )
             {
@@ -592,7 +592,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             var needed = ( source.PercentOfActiveAdults * activeAdults.Count ) - ( 100.0 * ( activeAdults.Count - undecided.Count ) ) - ( source.VolunteersAndLeadersPercent * boosted );
-            return Math.Clamp( needed / ( undecided.Count - boosted ), 0, 100 );
+            return Math.Min( Math.Max( needed / ( undecided.Count - boosted ), 0 ), 100 );
         }
 
         /// <summary>
@@ -974,7 +974,7 @@ namespace RockSampleData.Loader.Generation
 
         public ClassSchedule( StepSource source, DateTime anchor, string key )
         {
-            var meetsOn = Enum.Parse<DayOfWeek>( source.MeetsOn, true );
+            var meetsOn = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), source.MeetsOn, true );
             var day = anchor.Date.AddDays( -7 * source.CurrentStartedWeeksAgo );
             _currentStart = day.AddDays( -( ( ( int ) day.DayOfWeek - ( int ) meetsOn + 7 ) % 7 ) );
             _everyDays = 7 * source.EveryWeeks;

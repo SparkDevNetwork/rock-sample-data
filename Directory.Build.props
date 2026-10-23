@@ -1,6 +1,6 @@
 <Project>
 
-  <!-- Settings shared by the builder, the loader library, and the loader CLI. -->
+  <!-- Settings shared by every project. The loader library and its compatibility check also build for net472. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>disable</Nullable>
@@ -19,6 +19,15 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
+
+    <!--
+      On .NET Framework, the loader uses Rock's Microsoft.Data.SqlClient 6.1.4, which brings
+      System.Security.Cryptography.Pkcs 8.0.1, the version Rock ships. A newer one would put a
+      second version into RockWeb/bin. The loader never reads certificates or signed data itself.
+      The .NET 10 build pins a fixed version. Remove these once Rock moves to a fixed version.
+    -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2fmv-rv2c-59x7" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-846f-f764-76mx" />
   </ItemGroup>
 
 </Project>

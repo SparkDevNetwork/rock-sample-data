@@ -47,6 +47,34 @@ namespace RockSampleData.Loader.Database
             _transaction = _connection.BeginTransaction();
         }
 
+        /*
+            10/21/26 - CLAUDE
+
+            Two loads started at once could both find a database with no people and both load. An
+            exclusive application lock owned by the transaction makes the second load fail at once,
+            from any web server. An in-process lock could not do that in a web farm. The lock ends
+            with the transaction. sp_getapplock runs as a stored procedure command, so the
+            write recorder does not list it among the Rock procedures the load runs.
+
+            Reason: The fresh-database guard must hold when two people press Load together.
+        */
+
+        /// <summary>
+        /// Takes the exclusive sample data load lock for the open transaction. Returns false when another load holds it.
+        /// </summary>
+        public bool TryLockLoad()
+        {
+            using var command = new SqlCommand( "sp_getapplock", _connection, _transaction ) { CommandType = CommandType.StoredProcedure };
+            command.Parameters.AddWithValue( "@Resource", "RockSampleData.Loader" );
+            command.Parameters.AddWithValue( "@LockMode", "Exclusive" );
+            command.Parameters.AddWithValue( "@LockOwner", "Transaction" );
+            command.Parameters.AddWithValue( "@LockTimeout", 0 );
+            var result = command.Parameters.Add( "@Result", SqlDbType.Int );
+            result.Direction = ParameterDirection.ReturnValue;
+            command.ExecuteNonQuery();
+            return ( int ) result.Value >= 0;
+        }
+
         /// <summary>
         /// Commits the transaction.
         /// </summary>
@@ -238,10 +266,12 @@ namespace RockSampleData.Loader.Database
         /// </summary>
         private void RebuildDisabledIndexes( string table )
         {
-            if ( !_disabledIndexes.Remove( table, out var names ) )
+            if ( !_disabledIndexes.TryGetValue( table, out var names ) )
             {
                 return;
             }
+
+            _disabledIndexes.Remove( table );
 
             foreach ( var name in names )
             {
@@ -253,6 +283,11 @@ namespace RockSampleData.Loader.Database
         /// When set, records every column written, Guid named, and procedure run (see <see cref="WriteRecorder"/>).
         /// </summary>
         public WriteRecorder Recorder { get; set; }
+
+        /// <summary>
+        /// Where the load reports its progress. Reports nothing until a load sets it.
+        /// </summary>
+        public LoadLog Log { get; set; } = new LoadLog( null );
 
         /// <summary>
         /// Rows and milliseconds for each bulk copy, for the end-of-load timing report.

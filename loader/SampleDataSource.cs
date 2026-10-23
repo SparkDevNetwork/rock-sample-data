@@ -71,7 +71,7 @@ namespace RockSampleData.Loader
         public SecurityRoleConfiguration SecurityRoles { get; }
 
         /// <summary>
-        /// The adult step program, or null in a package built before steps loaded.
+        /// The step programs, or null in a package built before steps loaded.
         /// </summary>
         public StepsConfiguration Steps { get; }
 

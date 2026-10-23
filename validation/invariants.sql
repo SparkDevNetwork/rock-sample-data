@@ -4,7 +4,9 @@
     The loader bulk-copies around Rock's save hooks, so Rock never gets to enforce these itself. The verify tool
     (verify/README.md) runs each check after a load and fails when any returns more than zero. Each check starts
     with "-- check: name", says why it matters on the next "-- why:" line, and returns one number: how many rows
-    break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1.
+    break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1. @CardPeople and @CardHouseholds
+    are the dataset card's numbers from datasets/{key}.json, or null when the load used another seed than the
+    default, which the card was not measured at.
 
     Rules that a foreign key or unique index already enforces are left out: the bulk copy checks those.
     "Every family has an adult" is left out on purpose: kids whose parents are not in Rock, and Jenny Greggs's
@@ -370,6 +372,20 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
         LEFT JOIN [Completions] AS [c] ON [c].[StepProgramId] = [st].[StepProgramId] AND [c].[PersonAliasId] = [s].[PersonAliasId]
         WHERE [st].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [s].[ForeignKey] = @ForeignKey
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: people-match-the-dataset-card
+-- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
+SELECT CASE WHEN @CardPeople IS NOT NULL AND ABS( [c].[People] - @CardPeople ) > @CardPeople * 0.02 THEN ABS( [c].[People] - @CardPeople ) ELSE 0 END
+FROM ( SELECT COUNT(*) AS [People] FROM [Person] WHERE [ForeignKey] = @ForeignKey ) AS [c];
+
+-- check: households-match-the-dataset-card
+-- why: Rock's installer shows the household count from datasets/{key}.json (@CardHouseholds). Returns how many households the load is off by when that is more than 2%.
+SELECT CASE WHEN @CardHouseholds IS NOT NULL AND ABS( [c].[Households] - @CardHouseholds ) > @CardHouseholds * 0.02 THEN ABS( [c].[Households] - @CardHouseholds ) ELSE 0 END
+FROM (
+    SELECT COUNT(*) AS [Households]
+    FROM [Group] AS [g]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];
 
 -- check: student-step-belongs-to-a-student
 -- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.

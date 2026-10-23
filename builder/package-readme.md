@@ -52,7 +52,7 @@ The loader library (`RockSampleData.Loader`) and its command line both install p
 rock-sample-data-load --package {{dataset}}.zip --connection "<connection string>" [--anchor yyyy-MM-dd] [--seed text]
 ```
 
-Before it writes anything, the loader checks the format version, every file's SHA-256, and that the database is Rock {{rockVersion}}. The load runs in one transaction, so a failure leaves nothing behind. Every row it writes carries `ForeignKey = SampleData:{{dataset}}`.
+Before it writes anything, the loader checks the format version, every file's SHA-256, that the database has no people beyond a new Rock install, and that it is Rock {{rockVersion}}. The load runs in one transaction, so a failure leaves nothing behind. Every row it writes carries `ForeignKey = SampleData:{{dataset}}`.
 
 ## More
 

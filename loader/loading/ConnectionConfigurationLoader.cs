@@ -102,14 +102,14 @@ ELSE
                 }
             }
 
-            Console.WriteLine( $"  Opportunity attributes: {string.Join( ", ", attributeIds.Keys )}" );
+            _db.Log.Write( $"  Opportunity attributes: {string.Join( ", ", attributeIds.Keys )}" );
         }
 
         private void LoadConnectionType( ConnectionTypeDefinition type, int id )
         {
             _db.Execute( "UPDATE [ConnectionType] SET [Name] = @Name, [Description] = @Description, [IconCssClass] = @Icon, [RequiresPlacementGroupToConnect] = @RequiresPlacement, [IsActive] = 1 WHERE [Id] = @Id",
                 P( "@Name", type.Name ), P( "@Description", type.Description ), P( "@Icon", type.IconCssClass ), P( "@RequiresPlacement", type.RequiresPlacementGroupToConnect ), P( "@Id", id ) );
-            Console.WriteLine( $"  Connection type: {type.Name}" );
+            _db.Log.Write( $"  Connection type: {type.Name}" );
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ VALUES ( @Name, @Description, @TypeId, @IsCritical, @IsDefault, 1, 0, @Order, @C
                 setup.RequestStatusIds[status.Name] = id.Value;
             }
 
-            Console.WriteLine( $"  Request statuses: {string.Join( ", ", statuses.Select( s => s.Name ) )}" );
+            _db.Log.Write( $"  Request statuses: {string.Join( ", ", statuses.Select( s => s.Name ) )}" );
         }
 
         private void LoadActivityTypes( List<NamedGuid> activityTypes, ConnectionSetup setup )
@@ -158,7 +158,7 @@ VALUES ( @Name, @TypeId, 1, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
                     P( "@Name", activityType.Name ), P( "@TypeId", setup.ConnectionTypeId ), P( "@Guid", activityType.Guid ), P( "@ForeignKey", _foreignKey ) ) );
             }
 
-            Console.WriteLine( $"  Activity types added: {string.Join( ", ", activityTypes.Select( a => a.Name ) )}" );
+            _db.Log.Write( $"  Activity types added: {string.Join( ", ", activityTypes.Select( a => a.Name ) )}" );
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ ELSE
                     P( "@OpportunityId", id ), P( "@GroupTypeId", _serving.GroupTypeId ), P( "@RoleId", placementRoleId ), P( "@Status", placementStatus ), P( "@ForeignKey", _foreignKey ) );
             }
 
-            Console.WriteLine( $"  Opportunities: {string.Join( ", ", config.Opportunities.Select( o => o.PublicName ) )}, each at {_campusIds.Count} campus(es)" );
+            _db.Log.Write( $"  Opportunities: {string.Join( ", ", config.Opportunities.Select( o => o.PublicName ) )}, each at {_campusIds.Count} campus(es)" );
         }
 
         private int UpsertOpportunity( ConnectionOpportunityDefinition opportunity, string name, int connectionTypeId, int order )

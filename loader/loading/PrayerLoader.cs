@@ -64,7 +64,7 @@ namespace RockSampleData.Loader.Loading
             var configuration = _source.ReadPrayerConfiguration();
             if ( configuration == null )
             {
-                Console.WriteLine( "  Skipped: this package has no configuration/prayer.json." );
+                _db.Log.Write( "  Skipped: this package has no configuration/prayer.json." );
                 return;
             }
 
@@ -94,8 +94,8 @@ namespace RockSampleData.Loader.Loading
             var prayers = plan.Requests.Sum( r => r.Prayers.Count );
             var comments = plan.Requests.Sum( r => r.Comments.Count );
             var waiting = plan.Requests.Count( r => !r.IsApproved );
-            Console.WriteLine( $"  Prayer requests: {plan.Requests.Count:N0} from {plan.ActiveAdults:N0} active adults, {castRequests.Count} of them the Cast's own ({waiting:N0} waiting for approval, {plan.Requests.Count( r => r.Answer != null ):N0} answered)" );
-            Console.WriteLine( $"  Prayer team: {plan.Team.Count:N0} people prayed {prayers:N0} times and left {comments:N0} comments" );
+            _db.Log.Write( $"  Prayer requests: {plan.Requests.Count:N0} from {plan.ActiveAdults:N0} active adults, {castRequests.Count} of them the Cast's own ({waiting:N0} waiting for approval, {plan.Requests.Count( r => r.Answer != null ):N0} answered)" );
+            _db.Log.Write( $"  Prayer team: {plan.Team.Count:N0} people prayed {prayers:N0} times and left {comments:N0} comments" );
         }
 
         /// <summary>

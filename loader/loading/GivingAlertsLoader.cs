@@ -88,7 +88,7 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "FinancialTransactionAlert", rows, keepIdentity: false );
 
             var counts = alertTypes.Select( t => $"{t.Name} {alerts.Count( a => a.AlertTypeId == t.Rules.Id ):N0}" );
-            Console.WriteLine( $"  Giving alerts: {alerts.Count:N0} over {HistoryMonths} months ({string.Join( ", ", counts )})" );
+            _db.Log.Write( $"  Giving alerts: {alerts.Count:N0} over {HistoryMonths} months ({string.Join( ", ", counts )})" );
         }
 
         /// <summary>

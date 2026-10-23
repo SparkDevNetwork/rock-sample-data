@@ -91,7 +91,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             tables.Write( _db );
-            Console.WriteLine( $"  Small groups: {plans.Count( p => p.Lifecycle is ActiveLifecycle )} active, {plans.Count( p => p.Lifecycle is InactiveLifecycle )} inactive, {plans.Count( p => p.Lifecycle is ArchivedLifecycle )} archived; "
+            _db.Log.Write( $"  Small groups: {plans.Count( p => p.Lifecycle is ActiveLifecycle )} active, {plans.Count( p => p.Lifecycle is InactiveLifecycle )} inactive, {plans.Count( p => p.Lifecycle is ArchivedLifecycle )} archived; "
                 + $"members: {tables.Members.Rows.Count:N0}, occurrences: {tables.Occurrences.Rows.Count:N0}, attendance: {tables.Attendance.Rows.Count:N0}" );
         }
 
@@ -284,7 +284,11 @@ namespace RockSampleData.Loader.Loading
                     var didAttend = familyAttended.TryGetValue( familyId, out var partner ) && random.Chance( attendance.SpouseTogetherPercent / 100.0 )
                         ? partner
                         : random.Chance( member.Plan.AttendancePercent / 100.0 );
-                    familyAttended.TryAdd( familyId, didAttend );
+                    if ( !familyAttended.ContainsKey( familyId ) )
+                    {
+                        familyAttended[familyId] = didAttend;
+                    }
+
                     tables.Attendance.Rows.Add( occurrenceId, member.Person.AliasId, group.CampusId, start, didAttend, Guid.NewGuid(), _foreignKey, start, start );
                 }
             }

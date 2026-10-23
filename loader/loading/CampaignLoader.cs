@@ -67,7 +67,7 @@ namespace RockSampleData.Loader.Loading
             var campaign = _source.Campaign;
             if ( campaign == null )
             {
-                Console.WriteLine( "  Campaign skipped (this package has no configuration/campaign.json)" );
+                _db.Log.Write( "  Campaign skipped (this package has no configuration/campaign.json)" );
                 return;
             }
 
@@ -86,7 +86,7 @@ namespace RockSampleData.Loader.Loading
             LoadPledgeEntry( campaign.PledgeEntry, fund.Guid, start, end );
             LoadStatementTemplate( campaign.StatementTemplateGuid, fundId );
 
-            Console.WriteLine( $"  Campaign: {campaign.Name}, {start:yyyy-MM-dd} to {end:yyyy-MM-dd}" );
+            _db.Log.Write( $"  Campaign: {campaign.Name}, {start:yyyy-MM-dd} to {end:yyyy-MM-dd}" );
         }
 
         /// <summary>

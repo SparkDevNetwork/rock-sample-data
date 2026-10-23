@@ -92,12 +92,12 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Sets up the note types and writes every note.
         /// </summary>
-        public void Load( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, string mainCampusKey, SecurityRolesLoader securityRoles )
+        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, SecurityRolesLoader securityRoles )
         {
             var configuration = _source.Notes;
             if ( configuration == null )
             {
-                Console.WriteLine( "  Skipped (this package has no configuration/notes.json)" );
+                _db.Log.Write( "  Skipped (this package has no configuration/notes.json)" );
                 return;
             }
 
@@ -112,8 +112,8 @@ namespace RockSampleData.Loader.Loading
             Insert();
 
             var byType = string.Join( ", ", _types.Values.OrderBy( t => t.Order ).Select( t => $"{t.Name} {_rows.Count( r => r.TypeKey == t.Key && r.ParentIndex == null ):N0}" ) );
-            Console.WriteLine( $"  Notes: {castCount:N0} Cast and {generatedCount:N0} generated, plus {_rows.Count( r => r.ParentIndex != null ):N0} replies ({byType})" );
-            Console.WriteLine( _keys?.IdKey( 1 ) != null
+            _db.Log.Write( $"  Notes: {castCount:N0} Cast and {generatedCount:N0} generated, plus {_rows.Count( r => r.ParentIndex != null ):N0} replies ({byType})" );
+            _db.Log.Write( _keys?.IdKey( 1 ) != null
                 ? "  Mentions link to staff (keyed from Rock's DataEncryptionKey)"
                 : "  No Rock DataEncryptionKey (give a Rock web.config); mentions are plain names" );
         }
@@ -213,7 +213,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
         /// <summary>
         /// Adds the hand-written notes in cast/notes. Returns the number of notes, not counting replies.
         /// </summary>
-        private int AddCastNotes( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys )
+        private int AddCastNotes( PeopleLoader people, HashSet<string> castHouseholdKeys )
         {
             var count = 0;
             var households = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).ToDictionary( h => h.Cast.Key );
@@ -313,7 +313,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
         /// <summary>
         /// Adds generated notes for every generated person. Returns the number of notes, not counting replies.
         /// </summary>
-        private int AddGeneratedNotes( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, string mainCampusKey, NotesConfiguration configuration, SecurityRolesLoader securityRoles )
+        private int AddGeneratedNotes( PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, NotesConfiguration configuration, SecurityRolesLoader securityRoles )
         {
             var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ).ToList();
             if ( generated.Count == 0 )
@@ -338,7 +338,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
 
             if ( campusPastors.Count > 0 )
             {
-                Console.WriteLine( $"  Campus pastors: {string.Join( ", ", campusPastors.OrderBy( p => p.Key ).Select( p => $"{p.Key} {p.Value.Cast.NickName ?? p.Value.Cast.FirstName} {p.Value.Cast.LastName}" ) )}" );
+                _db.Log.Write( $"  Campus pastors: {string.Join( ", ", campusPastors.OrderBy( p => p.Key ).Select( p => $"{p.Key} {p.Value.Cast.NickName ?? p.Value.Cast.FirstName} {p.Value.Cast.LastName}" ) )}" );
             }
             var count = 0;
 

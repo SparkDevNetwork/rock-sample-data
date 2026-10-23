@@ -81,7 +81,7 @@ namespace RockSampleData.Loader.Model
             }
 
             var length = Math.Max( 1, ( end - start ).TotalDays );
-            var expected = total.Value * ( decimal ) Math.Clamp( ( today - start ).TotalDays / length, 0, 1 );
+            var expected = total.Value * ( decimal ) Math.Min( 1, Math.Max( 0, ( today - start ).TotalDays / length ) );
             var gifts = GiftsPerYear.TryGetValue( frequency ?? string.Empty, out var perYear ) ? Math.Max( 1, perYear * length / 365.25 ) : 1;
             var tolerance = Math.Min( total.Value / 4, Math.Max( total.Value / ( decimal ) gifts, total.Value / 10 ) );
 

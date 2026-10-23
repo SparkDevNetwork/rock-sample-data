@@ -128,7 +128,7 @@ namespace RockSampleData.Loader.Loading
             var lastRunText = ( string.IsNullOrWhiteSpace( settings ) ? null : JsonNode.Parse( settings ) )?["GivingClassificationSettings"]?["LastRunDateTime"]?.GetValue<string>();
             if ( lastRunText == null || !DateTimeOffset.TryParse( lastRunText, out var lastRunOffset ) )
             {
-                Console.WriteLine( "  Rock's Giving Automation job has not recorded a run. Run it in Rock first." );
+                _db.Log.Write( "  Rock's Giving Automation job has not recorded a run. Run it in Rock first." );
                 return 1;
             }
 
@@ -177,11 +177,11 @@ WHERE [p].[ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
                 }
             }
 
-            Console.WriteLine( $"  Rock's job ran at {lastRunValue}. Compared {compared:N0} values for {units:N0} giving units." );
-            Console.WriteLine( differences.Count == 0 ? "  Parity: every value matches." : $"  Parity: {differences.Count:N0} of {compared:N0} values differ. The first ones:" );
+            _db.Log.Write( $"  Rock's job ran at {lastRunValue}. Compared {compared:N0} values for {units:N0} giving units." );
+            _db.Log.Write( differences.Count == 0 ? "  Parity: every value matches." : $"  Parity: {differences.Count:N0} of {compared:N0} values differ. The first ones:" );
             foreach ( var difference in differences.Take( 25 ) )
             {
-                Console.WriteLine( $"    {difference}" );
+                _db.Log.Write( $"    {difference}" );
             }
 
             return differences.Count;
@@ -236,8 +236,8 @@ WHERE [p].[ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
             TagProcedureRows();
             SaveLastRunDateTime( now );
 
-            Console.WriteLine( $"  Giving analytics: {classified:N0} giving units classified, {values.Rows.Count:N0} attribute values, journey stages replayed for {JourneyHistoryWeeks} weeks" );
-            Console.WriteLine( mismatches == 0
+            _db.Log.Write( $"  Giving analytics: {classified:N0} giving units classified, {values.Rows.Count:N0} attribute values, journey stages replayed for {JourneyHistoryWeeks} weeks" );
+            _db.Log.Write( mismatches == 0
                 ? $"  Journey stage check: Rock's final run made the {predicted.Count:N0} changes the replay predicted, and no others"
                 : $"  WARNING: Rock's final journey stage run differed from the replay for {mismatches:N0} people. Check RockGivingAutomation.GetJourneyStage against Rock." );
         }

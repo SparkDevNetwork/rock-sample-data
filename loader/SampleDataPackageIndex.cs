@@ -1,0 +1,223 @@
+// <copyright>
+// Copyright by the Spark Development Network
+//
+// Licensed under the Rock Community License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.rockrms.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+//
+
+using System.Text.Json;
+
+namespace RockSampleData.Loader
+{
+    /// <summary>
+    /// The hosted list of dataset packages, index.json (decision 123). The format is in the
+    /// loader README, under "The package index".
+    /// </summary>
+    public sealed class SampleDataPackageIndex
+    {
+        /// <summary>
+        /// The index format this loader reads.
+        /// </summary>
+        public const int CurrentFormatVersion = 1;
+
+        private static readonly JsonSerializerOptions Json = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+
+        private SampleDataPackageIndex( int formatVersion, IReadOnlyList<SampleDataPackageIndexEntry> packages )
+        {
+            FormatVersion = formatVersion;
+            Packages = packages;
+        }
+
+        /// <summary>
+        /// The index format.
+        /// </summary>
+        public int FormatVersion { get; }
+
+        /// <summary>
+        /// Every package in the index, in the order the index lists them.
+        /// </summary>
+        public IReadOnlyList<SampleDataPackageIndexEntry> Packages { get; }
+
+        /// <summary>
+        /// Reads index.json.
+        /// </summary>
+        /// <exception cref="InvalidDataException">The text is not JSON, uses another format version, or an entry is missing a required field.</exception>
+        public static SampleDataPackageIndex Parse( string json )
+        {
+            IndexFile file;
+            try
+            {
+                file = JsonSerializer.Deserialize<IndexFile>( json ?? string.Empty, Json );
+            }
+            catch ( JsonException ex )
+            {
+                throw new InvalidDataException( $"The package index is not valid JSON: {ex.Message}", ex );
+            }
+
+            if ( file == null )
+            {
+                throw new InvalidDataException( "The package index is empty." );
+            }
+
+            if ( file.FormatVersion != CurrentFormatVersion )
+            {
+                throw new InvalidDataException( $"The package index uses format {file.FormatVersion}; this loader reads format {CurrentFormatVersion}." );
+            }
+
+            var packages = ( file.Packages ?? new List<IndexFileEntry>() ).Select( ( entry, i ) => ToEntry( entry, i ) ).ToList();
+            return new SampleDataPackageIndex( file.FormatVersion, packages );
+        }
+
+        private static SampleDataPackageIndexEntry ToEntry( IndexFileEntry entry, int position )
+        {
+            string Required( string value, string name )
+            {
+                return string.IsNullOrWhiteSpace( value )
+                    ? throw new InvalidDataException( $"Package {position + 1} in the package index has no {name}." )
+                    : value;
+            }
+
+            var sha256 = Required( entry?.Sha256, "sha256" );
+            if ( sha256.Length != 64 || !sha256.All( Uri.IsHexDigit ) )
+            {
+                throw new InvalidDataException( $"Package {position + 1} in the package index has a sha256 that is not 64 hex digits." );
+            }
+
+            return new SampleDataPackageIndexEntry(
+                Required( entry.Dataset, "dataset" ),
+                Required( entry.Name, "name" ),
+                entry.Description ?? string.Empty,
+                entry.People,
+                entry.Campuses,
+                Required( entry.Version, "version" ),
+                Required( entry.Url, "url" ),
+                sha256.ToLowerInvariant(),
+                entry.Size,
+                Required( entry.RockVersion, "rockVersion" ),
+                Required( entry.RockMigration, "rockMigration" ) );
+        }
+
+        private sealed class IndexFile
+        {
+            public int FormatVersion { get; set; }
+
+            public List<IndexFileEntry> Packages { get; set; }
+        }
+
+        private sealed class IndexFileEntry
+        {
+            public string Dataset { get; set; }
+
+            public string Name { get; set; }
+
+            public string Description { get; set; }
+
+            public int People { get; set; }
+
+            public int Campuses { get; set; }
+
+            public string Version { get; set; }
+
+            public string Url { get; set; }
+
+            public string Sha256 { get; set; }
+
+            public long Size { get; set; }
+
+            public string RockVersion { get; set; }
+
+            public string RockMigration { get; set; }
+        }
+    }
+
+    /// <summary>
+    /// One package in the package index.
+    /// </summary>
+    public sealed class SampleDataPackageIndexEntry
+    {
+        internal SampleDataPackageIndexEntry( string dataset, string name, string description, int people, int campuses, string version, string url, string sha256, long size, string rockVersion, string rockMigration )
+        {
+            Dataset = dataset;
+            Name = name;
+            Description = description;
+            People = people;
+            Campuses = campuses;
+            Version = version;
+            Url = url;
+            Sha256 = sha256;
+            Size = size;
+            RockVersion = rockVersion;
+            RockMigration = rockMigration;
+        }
+
+        /// <summary>
+        /// The dataset key, for example "core-1".
+        /// </summary>
+        public string Dataset { get; }
+
+        /// <summary>
+        /// The dataset's name, for example "Core 1".
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// A sentence or two about the dataset. Empty when the index has none.
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
+        /// About how many people the dataset loads.
+        /// </summary>
+        public int People { get; }
+
+        /// <summary>
+        /// How many campuses the dataset has.
+        /// </summary>
+        public int Campuses { get; }
+
+        /// <summary>
+        /// The package release, for example "1.0.0".
+        /// </summary>
+        public string Version { get; }
+
+        /// <summary>
+        /// Where to download the package: an absolute URL, or one relative to the index's own URL.
+        /// </summary>
+        public string Url { get; }
+
+        /// <summary>
+        /// The SHA-256 of the package .zip, in lowercase hex. Check a download against it before opening it.
+        /// </summary>
+        public string Sha256 { get; }
+
+        /// <summary>
+        /// The size of the package .zip in bytes.
+        /// </summary>
+        public long Size { get; }
+
+        /// <summary>
+        /// The Rock version the package is for, for example "21.0.2".
+        /// </summary>
+        public string RockVersion { get; }
+
+        /// <summary>
+        /// The newest migration of that Rock. A database whose newest migration is different cannot take the package.
+        /// </summary>
+        public string RockMigration { get; }
+    }
+}

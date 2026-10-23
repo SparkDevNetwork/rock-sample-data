@@ -90,7 +90,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             Write( picks );
-            Console.WriteLine( $"  Photos: {castCount:N0} Cast people{( poolSummary.Count > 0 ? $"; from the pool, {string.Join( ", ", poolSummary )}" : string.Empty )}" );
+            _db.Log.Write( $"  Photos: {castCount:N0} Cast people{( poolSummary.Count > 0 ? $"; from the pool, {string.Join( ", ", poolSummary )}" : string.Empty )}" );
         }
 
         /// <summary>
@@ -207,9 +207,9 @@ namespace RockSampleData.Loader.Loading
             var fileIds = WriteFiles( PersonImageFileTypeGuid, ordered.Select( p => p.Value.File ).ToList(), "photos/manifest.json" );
 
             // A VALUES list holds at most 1,000 rows.
-            foreach ( var chunk in ordered.Select( ( p, i ) => (PersonId: p.Key, FileId: fileIds[i]) ).Chunk( 900 ) )
+            for ( var start = 0; start < ordered.Count; start += 900 )
             {
-                var values = string.Join( ", ", chunk.Select( c => $"( {c.PersonId}, {c.FileId} )" ) );
+                var values = string.Join( ", ", Enumerable.Range( start, Math.Min( 900, ordered.Count - start ) ).Select( i => $"( {ordered[i].Key}, {fileIds[i]} )" ) );
                 _db.Execute( $"UPDATE [p] SET [p].[PhotoId] = [v].[FileId] FROM [Person] AS [p] INNER JOIN ( VALUES {values} ) AS [v] ( [PersonId], [FileId] ) ON [v].[PersonId] = [p].[Id]" );
             }
         }

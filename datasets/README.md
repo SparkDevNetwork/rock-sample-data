@@ -6,7 +6,7 @@ One manifest per dataset: [core-1.json](core-1.json), [core-3.json](core-3.json)
 |---|---|---|---|---|
 | Core 1 | Cast | 1 | Every Cast person | Every check |
 | Core 3 | Cast plus 75 companion households each at Peoria and Gilbert | 3 | Cast, plus about half of companions | Every check |
-| Full 7 | Cast plus Crowd (about 25,000) | 7 | Cast only | Last 12 months |
+| Full 7 | Cast. The manifest lists no generated households yet, so the Crowd loads only with the CLI's `--crowd` | 7 | Cast only | Last 12 months |
 
 ## Manifest settings
 
@@ -19,3 +19,18 @@ One manifest per dataset: [core-1.json](core-1.json), [core-3.json](core-3.json)
 | `checkImages.months` | Months of check gifts, counting back from the anchor date, that get scanned check images. 0 means every check. Used only when the builder runs with `--check-images`; `--check-image-months` overrides it. |
 
 The manifest grows as the builder reads more settings from it. Campuses are listed per dataset in `../configuration/campuses.json`.
+
+## The dataset card
+
+Rock's installer shows a card for each dataset, so a church admin can choose one (decision 124). The loader embeds these fields and serves them as `SampleDataDatasets` (see the [loader README](../loader/README.md#the-dataset-catalog)). Every field is required, and the builder refuses a manifest that is missing one.
+
+| Field | Meaning |
+|---|---|
+| `summary` | One or two plain sentences: who is in the dataset. |
+| `bestFor` | One plain sentence: what the dataset is best for. |
+| `highlights` | Two to four short phrases. |
+| `people`, `households` | People and family households (businesses included) a load adds, measured from a real load at the default seed and 3 years of history. Verify fails a load more than 2% away from either. |
+| `campuses` | The dataset's campuses. Must match `../configuration/campuses.json`. |
+| `typicalInstallSeconds` | The median of three measured loads of every part, check images included, in whole seconds. |
+
+Write the text for a church admin choosing what to install. Follow the [content standards](../docs/content-standards.md) and the writing rules in [AGENTS.md](../AGENTS.md): plain, short sentences and no em dashes. Leave out numbers the number fields already give, so the text never goes stale.

@@ -32,7 +32,8 @@ namespace RockSampleData.Loader.Loading
         exactly its membership's dates. Gifts come from the same in-memory list the giving analytics replayed,
         so each Give step agrees with the journey stage Rock shows. Who is an active adult uses the prayer
         step's rule: an adult who attended, gave, or was in a small group in the last year. Student check-ins
-        are read back from the attendance rows, so the Student Path follows whatever attendance exists.
+        come from the attendance plan, the same check-ins the attendance step writes, so the Student Path is
+        the same whether or not the Attendance part loads (decision 125).
 
         Reason: Steps and the records they come from always agree (decision 86).
     */
@@ -52,9 +53,8 @@ namespace RockSampleData.Loader.Loading
         private readonly string _seed;
         private readonly DateTime _historyStart;
         private readonly Dictionary<string, int> _groupTypeIds;
-        private readonly IReadOnlyDictionary<string, int> _checkInGroupIds;
 
-        public StepsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed, DateTime historyStart, int smallGroupTypeId, int servingGroupTypeId, IReadOnlyDictionary<string, int> checkInGroupIds )
+        public StepsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed, DateTime historyStart, int smallGroupTypeId, int servingGroupTypeId )
         {
             _db = db;
             _source = source;
@@ -63,23 +63,22 @@ namespace RockSampleData.Loader.Loading
             _seed = seed;
             _historyStart = historyStart;
             _groupTypeIds = new Dictionary<string, int> { ["small-group"] = smallGroupTypeId, ["serving"] = servingGroupTypeId };
-            _checkInGroupIds = checkInGroupIds;
         }
 
         /// <summary>
         /// Sets up the programs and their step types, plans every step from what earlier steps wrote, and writes it.
         /// </summary>
-        public void Load( PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, Dictionary<int, HashSet<DateTime>> familySundays, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
             var config = _source.Steps;
             if ( config == null )
             {
-                Console.WriteLine( "  Skipped (this package has no configuration/steps.json)" );
+                _db.Log.Write( "  Skipped (this package has no configuration/steps.json)" );
                 return;
             }
 
             var setup = ConfigurePrograms( config );
-            var facts = ReadFacts( config, people, castHouseholdKeys, familySundays, gifts, finalJourneyRun );
+            var facts = ReadFacts( config, people, castHouseholdKeys, attendance, gifts, finalJourneyRun );
             var plan = StepPlanner.Plan( config, facts, _seed );
             Write( config, setup, plan );
 
@@ -91,7 +90,7 @@ namespace RockSampleData.Loader.Loading
                     var inProgress = steps.Count( s => s.Status == StepStatus.InProgress );
                     return $"{t.Name} {steps.Count:N0}{( inProgress > 0 ? $" ({inProgress:N0} in progress)" : string.Empty )}";
                 } ) );
-                Console.WriteLine( $"  {program.Name}: {byType}; program completions: {plan.Completions.Count( c => c.ProgramKey == program.Key ):N0}" );
+                _db.Log.Write( $"  {program.Name}: {byType}; program completions: {plan.Completions.Count( c => c.ProgramKey == program.Key ):N0}" );
             }
 
             var activeAdults = facts.People.Count( p => p.IsActiveAdult );
@@ -104,10 +103,10 @@ namespace RockSampleData.Loader.Loading
 
             var students = facts.People.Count( p => facts.StudentCheckIns.ContainsKey( p.PersonId ) );
             var studentBaptisms = facts.People.Count( p => !p.IsAdult && facts.StudentCheckIns.ContainsKey( p.PersonId ) && baptized.Contains( p.PersonId ) );
-            Console.WriteLine( $"  Active adults: {activeAdults:N0}; students: {students:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}; {studentBaptisms:N0} students)" );
+            _db.Log.Write( $"  Active adults: {activeAdults:N0}; students: {students:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}; {studentBaptisms:N0} students)" );
             if ( plan.Shares.Count > 0 )
             {
-                Console.WriteLine( $"  Shares (people who took the step of those who could): {string.Join( ", ", plan.Shares.Select( s => $"{s.Key} {s.Value.Chosen} of {s.Value.Candidates}" ) )}" );
+                _db.Log.Write( $"  Shares (people who took the step of those who could): {string.Join( ", ", plan.Shares.Select( s => $"{s.Key} {s.Value.Chosen} of {s.Value.Candidates}" ) )}" );
             }
         }
 
@@ -163,7 +162,7 @@ namespace RockSampleData.Loader.Loading
         private ProgramSetup ConfigureProgram( StepsConfiguration config, StepProgramDefinition program, int programOrder, Dictionary<string, int> typeIds )
         {
             var now = DateTime.Now;
-            var completionFlow = ( int ) Enum.Parse<CompletionFlow>( program.CompletionFlow, true );
+            var completionFlow = ( int ) ( CompletionFlow ) Enum.Parse( typeof( CompletionFlow ), program.CompletionFlow, true );
             int programId;
             if ( program.RockProgram )
             {
@@ -182,7 +181,7 @@ namespace RockSampleData.Loader.Loading
                 var objectiveId = _db.RequireIdByGuid( "DefinedValue", config.Objectives[type.Objective] );
                 var values = new[]
                 {
-                    P( "@Order", order ), P( "@EngagementType", ( int ) Enum.Parse<EngagementType>( type.Engagement, true ) ), P( "@ImpactWeight", type.Impact ),
+                    P( "@Order", order ), P( "@EngagementType", ( int ) ( EngagementType ) Enum.Parse( typeof( EngagementType ), type.Engagement, true ) ), P( "@ImpactWeight", type.Impact ),
                     P( "@ObjectiveId", objectiveId ), P( "@IconCssClass", type.IconCssClass ), P( "@HighlightColor", type.HighlightColor ),
                     P( "@AllowMultiple", type.AllowMultiple ), P( "@HasEndDate", type.HasEndDate ), P( "@Description", type.Description ),
                     P( "@CallToActionLabel", type.CallToActionLabel ), P( "@CallToActionDescription", type.CallToActionDescription ), P( "@Now", now )
@@ -277,7 +276,7 @@ VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now
 
         #region Facts
 
-        private StepFacts ReadFacts( StepsConfiguration config, PeopleLoader people, IReadOnlySet<string> castHouseholdKeys, Dictionary<int, HashSet<DateTime>> familySundays, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        private StepFacts ReadFacts( StepsConfiguration config, PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
             var yearAgo = _dates.Anchor.AddMonths( -12 );
             var facts = new StepFacts
@@ -286,7 +285,7 @@ VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now
                 HistoryStart = _historyStart,
                 FinalJourneyRun = finalJourneyRun,
                 Memberships = ReadMemberships(),
-                StudentCheckIns = ReadStudentCheckIns( config ),
+                StudentCheckIns = attendance.CheckInDays( config.Programs.Where( p => p.Students != null ).SelectMany( p => p.Students.CheckInGroups ) ),
                 GiftDatesByGivingId = gifts.ToDictionary( g => g.Key, g => g.Value.Select( gift => gift.When ).OrderBy( d => d ).ToList() ),
                 OpenServeRequests = _db.Query( @"
 SELECT DISTINCT [pa].[PersonId]
@@ -301,7 +300,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
             {
                 var isCast = castHouseholdKeys.Contains( household.Cast.Key );
                 var firstVisit = FirstVisit( household.Cast );
-                var attended = familySundays.TryGetValue( household.FamilyId, out var sundays ) && sundays.Any( s => s >= yearAgo );
+                var attended = attendance.FamilySundays.TryGetValue( household.FamilyId, out var sundays ) && sundays.Any( s => s >= yearAgo );
 
                 // A shared child is a member of two households; they belong to their primary family's.
                 foreach ( var person in household.Members.Where( m => m.FamilyId == household.FamilyId && m.Cast.RecordType != "business" ) )
@@ -329,30 +328,6 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
             }
 
             return facts;
-        }
-
-        /// <summary>
-        /// The days each person checked in to a student program's student service, read back from the attendance
-        /// the earlier step wrote. Whatever attendance exists is what the Student Path follows.
-        /// </summary>
-        private Dictionary<int, SortedSet<DateTime>> ReadStudentCheckIns( StepsConfiguration config )
-        {
-            var groupIds = config.Programs.Where( p => p.Students != null ).SelectMany( p => p.Students.CheckInGroups ).Distinct()
-                .Select( key => _checkInGroupIds.TryGetValue( key, out var id ) ? id : throw new InvalidOperationException( $"configuration/steps.json names check-in group \"{key}\", which configuration/checkin.json does not hold." ) )
-                .ToList();
-            if ( groupIds.Count == 0 )
-            {
-                return new Dictionary<int, SortedSet<DateTime>>();
-            }
-
-            return _db.Query( $@"
-SELECT DISTINCT [pa].[PersonId], [o].[OccurrenceDate]
-FROM [Attendance] AS [a]
-INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
-INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
-WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [o].[GroupId] IN ( {string.Join( ", ", groupIds )} )", P( "@ForeignKey", _foreignKey ) )
-                .GroupBy( r => ( int ) r["PersonId"] )
-                .ToDictionary( g => g.Key, g => new SortedSet<DateTime>( g.Select( r => ( ( DateTime ) r["OccurrenceDate"] ).Date ) ) );
         }
 
         /// <summary>

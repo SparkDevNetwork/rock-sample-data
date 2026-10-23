@@ -170,7 +170,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             tables.Write( _db );
-            Console.WriteLine( $"  Connection requests: {tables.Requests.Rows.Count:N0} with {tables.Activities.Rows.Count:N0} activities; {tables.Members.Rows.Count:N0} new volunteers waiting as Pending" );
+            _db.Log.Write( $"  Connection requests: {tables.Requests.Rows.Count:N0} with {tables.Activities.Rows.Count:N0} activities; {tables.Members.Rows.Count:N0} new volunteers waiting as Pending" );
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace RockSampleData.Loader.Loading
                 .Where( h => h.CampusKey == campusKey )
                 .SelectMany( h => h.Members )
                 .Where( p => p.IsAdult && p.CanAttend && !volunteers.Contains( p.Cast.Guid ) && !requested.Contains( p.PersonId ) && rules.RequesterStatuses.ContainsKey( p.Cast.ConnectionStatus ?? string.Empty ) )
-                .DistinctBy( p => p.PersonId )
+                .GroupBy( p => p.PersonId ).Select( g => g.First() )
                 .Select( p => (Person: p, Key: random.Between( 0.0, 1.0 ) / rules.RequesterStatuses[p.Cast.ConnectionStatus]) )
                 .OrderBy( x => x.Key )
                 .Select( x => x.Person )

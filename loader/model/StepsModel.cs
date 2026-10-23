@@ -405,7 +405,7 @@ namespace RockSampleData.Loader.Model
         public DateTime In( int year )
         {
             var first = new DateTime( year, Month, 1 );
-            var weekday = Enum.Parse<DayOfWeek>( Weekday, true );
+            var weekday = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), Weekday, true );
             return first.AddDays( ( ( 7 + ( int ) weekday - ( int ) first.DayOfWeek ) % 7 ) + ( 7 * ( Week - 1 ) ) );
         }
     }
