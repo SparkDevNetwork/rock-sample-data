@@ -253,9 +253,13 @@ jobs:
           nuspec=$("$tar" -xOf "$package" "$PACKAGE_ID.nuspec")
           grep -Eq "<repository type=\"git\" url=\"https://github.com/$GITHUB_REPOSITORY(\.git)?\" .*commit=\"$GITHUB_SHA\"" <<< "$nuspec" \
             || { echo "::error::The package does not name this repository and commit."; echo "$nuspec"; exit 1; }
+          # Extract each .pdb to a file before searching it. Piping tar into grep -q failed at random:
+          # grep stops at the first match, tar then fails writing to the closed pipe, and pipefail
+          # reports that as a missing Source Link (the v0.1.0-alpha.9 run).
+          pdb="$RUNNER_TEMP/RockSampleData.Loader.pdb"
           for framework in net472 net10.0; do
-            "$tar" -xOf "${package%.nupkg}.snupkg" "lib/$framework/RockSampleData.Loader.pdb" \
-              | grep -aq "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/" \
+            "$tar" -xOf "${package%.nupkg}.snupkg" "lib/$framework/RockSampleData.Loader.pdb" > "$pdb"
+            grep -aq "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/" "$pdb" \
               || { echo "::error::The $framework symbols have no Source Link to this commit."; exit 1; }
           done
           echo "$contents"
