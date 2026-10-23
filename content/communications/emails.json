@@ -1,0 +1,781 @@
+{
+  "$comment": "Every email other than the weekly newsletter (README.md, emails.json): seasonal sends, ministry sends, Pete Foster's pastoral letters, and one-to-one messages. 'daysBefore' counts back from the occasion, and a negative number is after it. Tokens fill in at load time, so no date, time, or name is fixed here.",
+  "emails": [
+    {
+      "key": "series-launch",
+      "occasion": "series-start",
+      "daysBefore": 4,
+      "audience": "everyone",
+      "topic": "general",
+      "sender": "church",
+      "subject": "A new series starts Sunday: {series}",
+      "preheader": "{seriesTagline} Join us this Sunday at {serviceTimes}.",
+      "body": [
+        { "h": "{series} starts this Sunday" },
+        { "p": "Hi {{ Person.NickName }}, this Sunday we start a brand new series called {series}. {seriesTagline}" },
+        { "p": "New series are a great time to invite someone. Services at Rock Solid {campus} are at {serviceTimes}, and Rock Solid Kids meets during every service." },
+        { "button": "Watch past series", "href": "/watch/series" }
+      ]
+    },
+    {
+      "key": "easter-invite",
+      "occasion": "easter",
+      "daysBefore": 10,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "You're invited to Easter at Rock Solid",
+      "preheader": "Services, kids, and what to expect on Easter Sunday.",
+      "body": [
+        { "h": "Easter is {eventDate}" },
+        { "p": "Hi {{ Person.NickName }}, Easter is the day we celebrate that Jesus is alive, and we would love for you to be there. Services at Rock Solid {campus} are at {serviceTimes}." },
+        { "list": [ "Rock Solid Kids has a special Easter morning for birth through grade 6.", "Every service is about an hour.", "Come early for coffee, donuts, and a photo with your family." ] },
+        { "p": "Who could you bring? Most people say yes when a friend asks." },
+        { "button": "Plan your Easter", "href": "/easter" }
+      ]
+    },
+    {
+      "key": "easter-service-times",
+      "occasion": "easter",
+      "daysBefore": 3,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Easter service times for Rock Solid {campus}",
+      "preheader": "Plan to arrive a little early this Sunday. Here is everything you need.",
+      "body": [
+        { "h": "See you Sunday at {serviceTimes}" },
+        { "p": "Hi {{ Person.NickName }}, Easter is almost here. Parking fills fast, so plan to arrive 15 minutes early and look for our parking team in orange shirts." },
+        { "p": "If you have kids, stop by kids check-in on your way in. First-time families can check in at the Welcome Center." },
+        { "button": "See Easter details", "href": "/easter" }
+      ]
+    },
+    {
+      "key": "easter-letter",
+      "occasion": "easter",
+      "daysBefore": 5,
+      "audience": "everyone",
+      "topic": "general",
+      "sender": "pastor",
+      "subject": "A note from Pastor Pete for Holy Week",
+      "preheader": "Why this week matters, and an invitation for Sunday.",
+      "body": [
+        { "p": "Dear {{ Person.NickName }}," },
+        { "p": "Every year this week slows me down. We remember the cross on Friday, we wait on Saturday, and on Sunday we hear the angel say, \"He is not here, for he has risen, just like he said.\" (Matthew 28:6, WEB)" },
+        { "p": "Whatever you are carrying into this week, I want you to know that the empty tomb changes it. Hope is not wishful thinking. It is a person, and he is alive." },
+        { "p": "I would be honored to see you on Sunday, and I hope you'll bring someone with you. With love, Pastor Pete" },
+        { "button": "Plan your Easter", "href": "/easter" }
+      ]
+    },
+    {
+      "key": "easter-prayer-team",
+      "occasion": "easter",
+      "daysBefore": 7,
+      "audience": "list:prayer-team",
+      "topic": "prayer",
+      "sender": "church",
+      "subject": "Pray with us for Easter weekend",
+      "preheader": "Five ways to pray for our guests, volunteers, and families this week.",
+      "body": [
+        { "h": "Thank you for praying" },
+        { "p": "Hi {{ Person.NickName }}, Easter is our biggest weekend of the year. Would you pray through this list each day this week?" },
+        { "list": [ "For every guest who walks in for the first time.", "For our volunteers, that they would have energy and joy.", "For kids hearing the Easter story.", "For Pastor Pete and our campus pastors as they preach.", "For people to take a next step after Sunday." ] },
+        { "button": "See prayer requests", "href": "/prayer" }
+      ]
+    },
+    {
+      "key": "christmas-invite",
+      "occasion": "christmas",
+      "daysBefore": 14,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Christmas Eve at Rock Solid Church",
+      "preheader": "Candles, carols, and a place for your whole family.",
+      "body": [
+        { "h": "Join us on Christmas Eve" },
+        { "p": "Hi {{ Person.NickName }}, our Christmas Eve services are a favorite night of the year. We'll sing the carols you love, hear the story of Jesus' birth, and light candles together." },
+        { "p": "Kids are welcome to stay in the service with you, and we'll have a nursery for little ones. It's a perfect night to invite a neighbor." },
+        { "button": "Find a service", "href": "/christmas" }
+      ]
+    },
+    {
+      "key": "christmas-service-times",
+      "occasion": "christmas",
+      "daysBefore": 3,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Christmas Eve service times in {campus}",
+      "preheader": "Everything you need to know before you come on {eventDate}.",
+      "body": [
+        { "h": "Christmas Eve is {eventDate}" },
+        { "p": "Hi {{ Person.NickName }}, we can't wait to celebrate with you. Here are a few tips for the night." },
+        { "list": [ "Services last about an hour.", "Arrive early for the best parking and seats.", "Nursery is open for kids under 3.", "Can't make it in person? Watch live online." ] },
+        { "button": "See service times", "href": "/christmas" }
+      ]
+    },
+    {
+      "key": "christmas-volunteers",
+      "occasion": "christmas",
+      "daysBefore": 21,
+      "audience": "list:volunteers",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Can you serve one Christmas Eve service?",
+      "preheader": "Greeters, parking, and kids teams need a few more people.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, Christmas Eve is one of the busiest nights of the year at Rock Solid {campus}, and we need a few more hands." },
+        { "p": "Pick one service, serve for about 90 minutes, and still make it home for dinner. Bring your family and serve together." },
+        { "button": "Sign up to serve", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "thanksgiving",
+      "occasion": "thanksgiving",
+      "daysBefore": 1,
+      "audience": "everyone",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Happy Thanksgiving from Rock Solid Church",
+      "preheader": "We're thankful for you, and our offices are closed this week.",
+      "body": [
+        { "h": "Thank you" },
+        { "p": "Hi {{ Person.NickName }}, this Thanksgiving we are grateful for you. Every week you help us love God, love people, and share Jesus across the Valley." },
+        { "p": "Our church offices are closed on {eventDate} and the day after. We'll see you Sunday at {serviceTimes}." },
+        { "button": "Share a prayer request", "href": "/prayer" }
+      ]
+    },
+    {
+      "key": "volunteer-thanks",
+      "occasion": "thanksgiving",
+      "daysBefore": 3,
+      "audience": "list:volunteers",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Thank you for serving this year",
+      "preheader": "A Thanksgiving thank you to every volunteer at Rock Solid.",
+      "body": [
+        { "h": "You make Sunday happen" },
+        { "p": "Hi {{ Person.NickName }}, every time you park a car, hold a baby, or hand someone a coffee, you show them they matter to God. We don't take that for granted." },
+        { "p": "This Thanksgiving our staff is thanking God for you by name. Thank you for giving your time so generously." },
+        { "button": "See your schedule", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "mens-breakfast",
+      "occasion": "thanksgiving",
+      "daysBefore": 12,
+      "audience": "list:men",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Men's Thanksgiving breakfast is coming up",
+      "preheader": "Eggs, coffee, and a short talk the Saturday before Thanksgiving.",
+      "body": [
+        { "h": "Men's breakfast" },
+        { "p": "Hi {{ Person.NickName }}, join the men of Rock Solid {campus} for breakfast on the Saturday before Thanksgiving. We'll eat, share what we're thankful for, and hear a short talk from Pastor Ted Decker." },
+        { "p": "Bring a friend, a neighbor, or your son. Breakfast is free, and we'll be done in plenty of time for your Saturday plans." },
+        { "button": "Learn more", "href": "/men" }
+      ]
+    },
+    {
+      "key": "year-end-letter",
+      "occasion": "year-end",
+      "daysBefore": 4,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "pastor",
+      "subject": "Looking back on {eventYear}, with thanks",
+      "preheader": "A year-end letter from Pastor Pete about what your generosity made possible.",
+      "body": [
+        { "p": "Dear {{ Person.NickName }}," },
+        { "p": "As the year ends, I keep thinking about the people who found a home here this year. Kids heard about Jesus, students went to camp, families were baptized, and neighbors were fed. Your generosity made every one of those moments possible." },
+        { "p": "Scripture says, \"Let each man give according as he has determined in his heart; not grudgingly, or under compulsion; for God loves a cheerful giver.\" (2 Corinthians 9:7, WEB) If you'd like to give before the year ends, gifts made online by {eventDate} count toward this year." },
+        { "p": "Thank you for being part of this church. I'm grateful for you. Pastor Pete" },
+        { "button": "Give online", "href": "/give" }
+      ]
+    },
+    {
+      "key": "year-end-last-day",
+      "occasion": "year-end",
+      "daysBefore": 0,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Today is the last day to give for {eventYear}",
+      "preheader": "Gifts made online before midnight count toward this year.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, today is the last day to make a gift that counts toward {eventYear}. It only takes a minute online." },
+        { "p": "Thank you for everything you've given this year. Happy New Year from all of us at Rock Solid Church." },
+        { "button": "Give now", "href": "/give" }
+      ]
+    },
+    {
+      "key": "giving-statements",
+      "occasion": "giving-statement",
+      "daysBefore": 0,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Your giving statement is ready",
+      "preheader": "View or print your statement for last year anytime.",
+      "body": [
+        { "h": "Your statement is ready" },
+        { "p": "Hi {{ Person.NickName }}, your giving statement for last year is ready. You can view it, download it, or print it online anytime." },
+        { "p": "If something looks off, reply to this email and Alisha Marble in our church office will help. Thank you for your faithful generosity." },
+        { "button": "View your statement", "href": "/give/statements" }
+      ]
+    },
+    {
+      "key": "commitment-sunday-invite",
+      "occasion": "commitment-sunday",
+      "daysBefore": 6,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Commitment Sunday is {eventDate}",
+      "preheader": "Bring your commitment card for Built on the Rock this Sunday.",
+      "body": [
+        { "h": "Built on the Rock" },
+        { "p": "Hi {{ Person.NickName }}, for four weeks we've been praying about Built on the Rock: a new Student Center at the Phoenix campus and new kids rooms at every campus." },
+        { "p": "This Sunday every family is invited to bring a commitment card. Every gift matters, and we're building something that will last for the next generation." },
+        { "p": "\"Everyone therefore who hears these words of mine, and does them, I will liken him to a wise man, who built his house on a rock.\" (Matthew 7:24, WEB)" },
+        { "button": "Read about the campaign", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "commitment-sunday-thanks",
+      "occasion": "commitment-sunday",
+      "daysBefore": -3,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Thank you for Commitment Sunday",
+      "preheader": "What happened on Sunday, and what comes next for Built on the Rock.",
+      "body": [
+        { "h": "What a Sunday" },
+        { "p": "Hi {{ Person.NickName }}, thank you. On Sunday, families across all of our campuses made commitments to Built on the Rock, and we celebrated together." },
+        { "p": "If you weren't able to turn in a card, it's not too late. You can make your commitment online anytime this month." },
+        { "button": "Make a commitment", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "campaign-update",
+      "occasion": "campaign-update",
+      "daysBefore": 0,
+      "audience": "everyone",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Built on the Rock: a progress update",
+      "preheader": "New photos from the Student Center and the kids rooms, and how giving is going.",
+      "body": [
+        { "h": "Here's where we are" },
+        { "p": "Hi {{ Person.NickName }}, thanks to your faithful giving, Built on the Rock keeps moving forward. Here is a quick look at the last few months." },
+        { "list": [ "Plans for the Phoenix Student Center keep moving forward.", "New kids rooms are taking shape across our campuses.", "Families are giving faithfully toward their commitments." ] },
+        { "p": "You can see photos, check your commitment, and give toward it online." },
+        { "button": "See the progress", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "baptism-sunday-invite",
+      "occasion": "baptism-sunday",
+      "daysBefore": 18,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Baptism Sunday is {eventDate}",
+      "preheader": "Ready to go public with your faith? Here's how to sign up.",
+      "body": [
+        { "h": "Celebrate new life" },
+        { "p": "Hi {{ Person.NickName }}, baptism is a way to tell everyone you love that you follow Jesus. On {eventDate} we'll celebrate baptisms at every campus." },
+        { "p": "If you've been thinking about it, sign up online. A pastor will call you before Sunday to hear your story and answer your questions." },
+        { "button": "Sign up for baptism", "href": "/baptism" }
+      ]
+    },
+    {
+      "key": "baptism-sign-up-reminder",
+      "occasion": "baptism-sunday",
+      "daysBefore": 6,
+      "audience": "everyone",
+      "topic": "events",
+      "sender": "church",
+      "subject": "There's still time to sign up for baptism",
+      "preheader": "We'll have a shirt, a towel, and a crowd cheering for you.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, baptism Sunday is {eventDate}, and there's still room for you." },
+        { "list": [ "Sign up online this week.", "Bring a change of clothes and a friend or two.", "We'll give you a shirt and a towel." ] },
+        { "button": "Sign up today", "href": "/baptism" }
+      ]
+    },
+    {
+      "key": "starting-point-invite",
+      "occasion": "starting-point",
+      "daysBefore": 10,
+      "audience": "newsletter",
+      "topic": "events",
+      "sender": "church",
+      "subject": "A new Starting Point Class begins {eventDate}",
+      "preheader": "Four Wednesday nights to learn who we are and how to get connected.",
+      "body": [
+        { "h": "Start here" },
+        { "p": "Hi {{ Person.NickName }}, if you're new to Rock Solid {campus} or just want to know us better, Starting Point is for you. It's four Wednesday nights, with dinner and childcare included." },
+        { "p": "You'll hear our story, learn what we believe, and find the next step that fits you. Bring your questions." },
+        { "button": "Save your seat", "href": "/starting-point" }
+      ]
+    },
+    {
+      "key": "foundations-welcome",
+      "occasion": "foundations",
+      "daysBefore": 2,
+      "audience": "class",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Foundations starts this {eventDay}",
+      "preheader": "What to bring to the first night of Foundations.",
+      "body": [
+        { "h": "Welcome to Foundations" },
+        { "p": "Hi {{ Person.NickName }}, we're so glad you signed up. Foundations starts {eventDate} at Rock Solid {campus}." },
+        { "list": [ "Bring a Bible, or borrow one of ours.", "Grab a coffee when you arrive.", "Come with your questions. No question is too small." ] },
+        { "button": "About Foundations", "href": "/foundations" }
+      ]
+    },
+    {
+      "key": "foundations-week-two",
+      "occasion": "foundations",
+      "daysBefore": -6,
+      "audience": "class",
+      "topic": "general",
+      "sender": "church",
+      "subject": "See you tomorrow night at Foundations",
+      "preheader": "This week we talk about how to read the Bible.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, thanks for a great first night. Tomorrow we'll talk about how to read the Bible and where to start." },
+        { "p": "If you missed last week, no problem. Come anyway, and your table leader will catch you up." },
+        { "button": "Course details", "href": "/foundations" }
+      ]
+    },
+    {
+      "key": "foundations-halfway",
+      "occasion": "foundations",
+      "daysBefore": -20,
+      "audience": "class",
+      "topic": "general",
+      "sender": "church",
+      "subject": "You're halfway through Foundations",
+      "preheader": "Tomorrow's session is all about prayer.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, you're halfway there. Tomorrow night we'll learn how to pray, and we'll practice together in small circles." },
+        { "p": "This week, try reading one chapter of the Gospel of Mark each morning. It's a great place to start." },
+        { "button": "About Foundations", "href": "/foundations" }
+      ]
+    },
+    {
+      "key": "foundations-last-night",
+      "occasion": "foundations",
+      "daysBefore": -34,
+      "audience": "class",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Tomorrow is the last night of Foundations",
+      "preheader": "We'll celebrate together and talk about your next step.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, tomorrow is our last night together, and we'll celebrate with dessert." },
+        { "p": "We'll also talk about what comes next. Many people join a small group or a serving team after Foundations." },
+        { "button": "Find a group", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "student-camp-register",
+      "occasion": "student-camp",
+      "daysBefore": 60,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Student Camp registration is open",
+      "preheader": "A week of fun, friends, and Jesus for grades 7 to 12. Register by {registerBy}.",
+      "body": [
+        { "h": "Student Camp starts {eventDate}" },
+        { "p": "Hi {{ Person.NickName }}, Student Camp is the best week of the summer. Students in grades 7 to 12 spend five days swimming, laughing, worshiping, and hearing about Jesus." },
+        { "p": "Register by {registerBy} to hold a spot. Scholarships are available, so please don't let cost keep anyone home." },
+        { "p": "Isaac Silva, Student Pastor" },
+        { "button": "Register for camp", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "student-camp-last-call",
+      "occasion": "student-camp",
+      "daysBefore": 16,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Last call for Student Camp",
+      "preheader": "Registration closes {registerBy}. A few spots are left.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, camp registration closes {registerBy}, and we still have a few spots. If your student has been on the fence, this is the week to decide." },
+        { "p": "Questions about cost, rides, or cabins? Reply to this email and our student team will help." },
+        { "button": "Register now", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "student-camp-packing",
+      "occasion": "student-camp",
+      "daysBefore": 7,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Your Student Camp packing list",
+      "preheader": "Everything to pack, and what to leave at home.",
+      "body": [
+        { "h": "Time to pack" },
+        { "p": "Hi {{ Person.NickName }}, camp is one week away. Here's what to bring." },
+        { "list": [ "Bible, notebook, and pen", "Sunscreen, a hat, and a refillable water bottle", "Swimsuit and a towel", "Clothes for five days, plus one that can get messy", "Sleeping bag and pillow", "Any medicine, labeled, to give to a leader" ] },
+        { "p": "Please leave valuables at home. Phones are welcome for the bus, and leaders collect them at bedtime." },
+        { "button": "Camp details", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "student-camp-starts",
+      "occasion": "student-camp",
+      "daysBefore": 2,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Camp starts Monday. We're ready!",
+      "preheader": "Drop-off details and how to follow along all week.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, Student Camp starts {eventDate}. Please arrive at your campus 30 minutes before the bus leaves so we can check everyone in." },
+        { "p": "Parents, we'll post photos in the app every night so you can follow along. Thank you for trusting us with your students this week." },
+        { "button": "Camp details", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "mission-trip-register",
+      "occasion": "mission-trip",
+      "daysBefore": 56,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "High schoolers: apply for the mission trip",
+      "preheader": "Eight days serving with a partner church. Applications are due {registerBy}.",
+      "body": [
+        { "h": "Serve somewhere new" },
+        { "p": "Hi {{ Person.NickName }}, our next student mission trip leaves {eventDate}. High school students will spend eight days serving alongside a partner church, helping with kids programs and building projects." },
+        { "p": "Applications are due {registerBy}. Every student raises support, and we'll show you how at the parent meeting." },
+        { "button": "Apply for the trip", "href": "/students/mission-trip" }
+      ]
+    },
+    {
+      "key": "mission-trip-parent-meeting",
+      "occasion": "mission-trip",
+      "daysBefore": 21,
+      "audience": "students-and-parents",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Mission trip parent meeting this Sunday",
+      "preheader": "Travel plans, packing, safety, and support letters.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, we're holding a parent meeting for the mission trip after the last service this Sunday in the student room." },
+        { "list": [ "Travel plans and the daily schedule", "Packing list and what to leave at home", "How our leaders keep students safe", "Support letters and payment deadlines" ] },
+        { "p": "Students are welcome too. The meeting will last about 45 minutes. Isaac Silva, Student Pastor" },
+        { "button": "Trip details", "href": "/students/mission-trip" }
+      ]
+    },
+    {
+      "key": "vbs-register",
+      "occasion": "vbs",
+      "daysBefore": 45,
+      "audience": "list:parents-of-kids",
+      "topic": "kids",
+      "sender": "church",
+      "subject": "VBS registration is open",
+      "preheader": "Five mornings of songs, games, and Bible stories for kids age 4 through grade 5.",
+      "body": [
+        { "h": "Vacation Bible School starts {eventDate}" },
+        { "p": "Hi {{ Person.NickName }}, VBS is coming back to Rock Solid {campus}. Kids will sing, play, make crafts, and learn how big God's love is, all week long." },
+        { "p": "Register by {registerBy} to get a free VBS shirt. Bring a friend, because VBS is better with buddies." },
+        { "button": "Register your kids", "href": "/kids/vbs" }
+      ]
+    },
+    {
+      "key": "vbs-volunteers",
+      "occasion": "vbs",
+      "daysBefore": 35,
+      "audience": "list:volunteers",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "VBS needs you this summer",
+      "preheader": "Lead a crew, run a game, or serve snacks for a morning or the whole week.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, VBS starts {eventDate}, and we need crew leaders, game leaders, and snack helpers to make it a great week." },
+        { "list": [ "Serve one morning or all five.", "Teens in grade 7 and up can serve too.", "Training is one short evening the week before." ] },
+        { "button": "Volunteer for VBS", "href": "/kids/vbs" }
+      ]
+    },
+    {
+      "key": "kids-parent-update",
+      "occasion": "series-start",
+      "daysBefore": 3,
+      "audience": "list:parents-of-kids",
+      "topic": "kids",
+      "sender": "church",
+      "subject": "What your kids are learning in Rock Solid Kids",
+      "preheader": "This month's Bible stories, memory verse, and a question for the car ride home.",
+      "body": [
+        { "h": "This month in Rock Solid Kids" },
+        { "p": "Hi {{ Person.NickName }}, while you're in {series}, your kids are learning the same big idea in their rooms. Ask them about it on the way home." },
+        { "p": "Try this question at dinner: \"When is it hard to trust God, and what helps?\" You might be surprised by what they say." },
+        { "button": "See what's new in kids", "href": "/kids" }
+      ]
+    },
+    {
+      "key": "group-launch",
+      "occasion": "group-launch",
+      "daysBefore": 10,
+      "audience": "everyone",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "New small groups start {eventDate}",
+      "preheader": "Find a group near you this season. There's one for every stage of life.",
+      "body": [
+        { "h": "Find your people" },
+        { "p": "Hi {{ Person.NickName }}, a new season of small groups starts {eventDate}. Groups meet in homes and at our campuses across the Valley." },
+        { "p": "There are groups for young adults, couples, parents, men, women, and empty nesters. Pick one, show up, and give it three weeks." },
+        { "button": "Find a group", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "group-launch-this-week",
+      "occasion": "group-launch",
+      "daysBefore": 2,
+      "audience": "everyone",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "Groups launch Sunday. Is there room for you?",
+      "preheader": "Most groups still have open seats. Join one before they fill up.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, small groups start this week, and most still have open seats. It's not too late to join one." },
+        { "p": "Visit the group table in the lobby on Sunday, or browse groups online and ask to join. A leader will reach out to you within a day or two." },
+        { "button": "Browse groups", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "group-leader-prep",
+      "occasion": "group-launch",
+      "daysBefore": 14,
+      "audience": "list:small-group-leaders",
+      "topic": "groups",
+      "sender": "church",
+      "bulk": false,
+      "subject": "Getting ready for the new group season",
+      "preheader": "Your study guide, a leader huddle, and three tips for your first night.",
+      "body": [
+        { "h": "Thank you for leading" },
+        { "p": "Hi {{ Person.NickName }}, groups launch {eventDate}, and new people will be looking for a place to belong. Thank you for opening your home and your life." },
+        { "list": [ "Pick up your study guides at the Welcome Center.", "Join the leader huddle after the last service this Sunday.", "On your first night, keep it short and plan a snack.", "Text new members before the first meeting." ] },
+        { "button": "Leader resources", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "womens-study",
+      "occasion": "group-launch",
+      "daysBefore": 12,
+      "audience": "list:women",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "Women's Bible study starts soon",
+      "preheader": "Morning and evening groups, with childcare for the morning study.",
+      "body": [
+        { "h": "Study with us this season" },
+        { "p": "Hi {{ Person.NickName }}, our women's Bible study starts the same week as small groups. We'll spend the season in the book of Ruth, a story of loyalty and kindness." },
+        { "p": "Choose a Tuesday morning group with childcare or a Thursday evening group at Rock Solid {campus}. Come as you are, and bring a friend." },
+        { "button": "Join a study", "href": "/women" }
+      ]
+    },
+    {
+      "key": "serve-sunday",
+      "occasion": "serve-sunday",
+      "daysBefore": 5,
+      "audience": "everyone",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Serve Sunday is {eventDate}",
+      "preheader": "Meet every team in the lobby and find a place to serve this fall.",
+      "body": [
+        { "h": "There's a place for you" },
+        { "p": "Hi {{ Person.NickName }}, this Sunday every serving team will set up a table in the lobby. Stop by after the service, meet the leaders, and try a team for a month." },
+        { "list": [ "Guest services and parking", "Rock Solid Kids and students", "Worship and production", "Outreach with Pastor Ted Decker" ] },
+        { "button": "Explore teams", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "prayer-team-weekly",
+      "occasion": "sunday",
+      "daysBefore": -1,
+      "audience": "list:prayer-team",
+      "topic": "prayer",
+      "sender": "church",
+      "bulk": false,
+      "subject": "This week's prayer list is ready",
+      "preheader": "New requests from Sunday, and a few answered prayers to celebrate.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, thank you for praying with us. New requests from Sunday are ready for you." },
+        { "p": "Please keep every request private, and mark each one as prayed when you're done. If a request needs a pastor's follow-up, let us know." },
+        { "button": "Open the prayer list", "href": "/prayer" }
+      ]
+    },
+    {
+      "key": "weather-closure",
+      "occasion": "weather",
+      "daysBefore": 0,
+      "audience": "everyone",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Weather update for Rock Solid {campus}",
+      "preheader": "Because of a strong storm, today's activities are canceled.",
+      "body": [
+        { "h": "Stay safe today" },
+        { "p": "Hi {{ Person.NickName }}, because of a strong monsoon storm in the area, all activities at Rock Solid {campus} on {eventDate} are canceled." },
+        { "p": "Please stay off flooded roads and check on your neighbors. We'll post updates in the app as we have them." },
+        { "button": "Watch online", "href": "/watch/live" }
+      ]
+    },
+    {
+      "key": "serving-scheduled",
+      "occasion": "serving-scheduled",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "You're scheduled to serve on {eventDate}",
+      "preheader": "Thanks for saying yes. Here are the details for your next serve.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, thanks for serving! You're on the schedule at Rock Solid {campus} on {eventDate}." },
+        { "p": "Please check in at the volunteer room 20 minutes before your service starts. If something comes up, let your team leader know as soon as you can." },
+        { "button": "See your schedule", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "serving-reminder",
+      "occasion": "serving-reminder",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Reminder: you're serving this {eventDay}",
+      "preheader": "A quick reminder from your team at Rock Solid {campus}.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, this is a friendly reminder that you're serving at Rock Solid {campus} on {eventDate}." },
+        { "p": "Grab a coffee in the volunteer room when you arrive. We're grateful for you." },
+        { "button": "View your schedule", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "connection-follow-up",
+      "occasion": "connection",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Thanks for your interest in serving",
+      "preheader": "We'd love to help you find the right team.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, thanks for letting us know you'd like to serve at Rock Solid {campus}. I'm one of the team connectors, and I'd love to help you find a great fit." },
+        { "p": "Could we meet for ten minutes after a service this Sunday? Just reply with the service that works best, and I'll look for you in the lobby." },
+        { "button": "See serving teams", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "prayer-answered",
+      "occasion": "prayer-answered",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "prayer",
+      "sender": "church",
+      "subject": "We're celebrating with you",
+      "preheader": "Your prayer request was marked answered. Thank you for letting us pray.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, we heard that your prayer request was answered, and our prayer team is celebrating with you." },
+        { "p": "Thank you for trusting us to pray. If there's anything else on your heart, we're always here." },
+        { "button": "Share another request", "href": "/prayer" }
+      ]
+    },
+    {
+      "key": "first-visit-welcome",
+      "occasion": "first-visit",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "It was great to meet you at Rock Solid {campus}",
+      "preheader": "Thanks for visiting. Here's what to expect next time.",
+      "body": [
+        { "h": "Thanks for visiting" },
+        { "p": "Hi {{ Person.NickName }}, thank you for joining us at Rock Solid {campus} last Sunday. We hope you felt at home." },
+        { "p": "Services are every Sunday at {serviceTimes}. If you'd like to get to know us better, the Starting Point Class is a great next step, and dinner is on us." },
+        { "p": "If you have any questions, just reply to this email. A real person will write you back." },
+        { "button": "Plan your next visit", "href": "/campuses/{campusKey}" }
+      ]
+    },
+    {
+      "key": "baptized-follow-up",
+      "occasion": "baptized",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Congratulations on your baptism!",
+      "preheader": "What a day. Here's a great next step to keep growing.",
+      "body": [
+        { "h": "We're so proud of you" },
+        { "p": "Hi {{ Person.NickName }}, it was a joy to celebrate your baptism. Thank you for sharing your story with us and with your family." },
+        { "p": "If you're wondering what's next, we'd love for you to join Foundations. It's a six-week course on what Christians believe, how to read the Bible, and how to pray." },
+        { "button": "Join Foundations", "href": "/foundations" }
+      ]
+    },
+    {
+      "key": "after-starting-point-thanks",
+      "occasion": "after-starting-point",
+      "daysBefore": -1,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Thanks for coming to Starting Point",
+      "preheader": "We loved getting to know you over these four weeks.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, thank you for spending four Wednesday nights with us at Starting Point. It was a gift to get to know you." },
+        { "p": "Over the next few weeks we'll send you a couple of ideas for your next step. In the meantime, we're praying for you." },
+        { "button": "See next steps", "href": "/next-steps" }
+      ]
+    },
+    {
+      "key": "after-starting-point-groups",
+      "occasion": "after-starting-point",
+      "daysBefore": -7,
+      "audience": "person",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "Your next step: find a small group",
+      "preheader": "A group is the best way to go from knowing names to having friends.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, a week ago you finished Starting Point. One of the best next steps is a small group." },
+        { "p": "A group is a few people who meet each week to talk about life and faith. Many groups at Rock Solid {campus} have open seats right now." },
+        { "button": "Find a group", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "after-starting-point-serve",
+      "occasion": "after-starting-point",
+      "daysBefore": -21,
+      "audience": "person",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Ready to serve? There's a team for you",
+      "preheader": "Use your gifts to make Sunday great for someone else.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, now that you've finished Starting Point, you can join any serving team at Rock Solid {campus}." },
+        { "p": "Greet guests, rock babies, run a camera, or serve coffee. Most teams serve once or twice a month, and we'll train you." },
+        { "button": "Find a team", "href": "/serve" }
+      ]
+    }
+  ]
+}

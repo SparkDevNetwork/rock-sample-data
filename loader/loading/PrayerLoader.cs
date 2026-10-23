@@ -54,6 +54,12 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The people on the prayer team, by person Id, once <see cref="Load"/> has run. The Prayer Team
+        /// communication list holds them.
+        /// </summary>
+        public HashSet<int> TeamPersonIds { get; } = new HashSet<int>();
+
+        /// <summary>
         /// Plans and writes every prayer request from <paramref name="historyStart"/> to the anchor.
         /// </summary>
         /// <param name="familySundays">Each family's attended Sundays, from the attendance step.</param>
@@ -76,6 +82,7 @@ namespace RockSampleData.Loader.Loading
             var people = People( households, familySundays, gifts, smallGroupTypeId );
             var planner = new PrayerPlanner( profile, _seed, historyStart, _dates.Anchor );
             var plan = planner.Plan( people, categories, text );
+            TeamPersonIds.UnionWith( plan.Team.Select( t => t.Person.PersonId ) );
 
             // The Cast's own requests come after the generated ones, so the generated rows keep their seeded Guids.
             var castRequests = _source.ReadCastPrayerRequests();

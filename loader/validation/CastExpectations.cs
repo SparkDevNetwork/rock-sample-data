@@ -139,7 +139,39 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, failures ) : 0;
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks that each Cast staff member's personal texting number is active and assigned to them, so
+        /// SMS Conversations shows it as theirs.
+        /// </summary>
+        private static int CheckPhoneNumbers( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var number in source.Communications?.PhoneNumbers.Numbers ?? new List<SystemPhoneNumberDefinition>() )
+            {
+                checks++;
+                var row = db.Query( @"
+SELECT [spn].[IsActive], [p].[Guid] AS [PersonGuid]
+FROM [SystemPhoneNumber] AS [spn]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [spn].[AssignedToPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [spn].[Guid] = @Guid", P( "@Guid", number.Guid ) ).FirstOrDefault();
+                var assignedTo = row == null ? null : Nullable( row["PersonGuid"] ) as Guid?;
+                if ( row == null || !( bool ) row["IsActive"] )
+                {
+                    failures.Add( $"Phone number {number.Name}: expected an active system phone number, Rock shows {( row == null ? "none" : "it inactive" )}" );
+                }
+                else if ( assignedTo != number.AssignedTo )
+                {
+                    failures.Add( $"Phone number {number.Name}: expected it assigned to {number.AssignedTo?.ToString() ?? "nobody"}, Rock shows {assignedTo?.ToString() ?? "nobody"}" );
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

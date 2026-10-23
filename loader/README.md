@@ -19,14 +19,14 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, and `Steps`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, and `Communications`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
-| `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests and validation. |
+| `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests. Full 7's manifest already lists its Crowd. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, and part 5 for prayer, against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (Full 7 with the crowd: about 29 seconds without, about 44 with). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (about 14 of Full 7's 55 seconds). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
@@ -69,6 +69,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 | `Prayer` | Prayer requests | Prayer requests with the prayer team's prayers, comments, and answers | Small groups |
 | `Notes` | Notes | Notes on people in six note types, secured to staff | |
 | `Steps` | Steps | Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with the Baptism Date on each baptized person and program completions | Small groups, serving teams, giving |
+| `Communications` | Communications | The church's texting numbers, its branded email template, and its communication lists, with members who match the people in the church | Small groups, serving teams, prayer requests |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
 `SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
@@ -77,9 +78,11 @@ A load can choose its parts (decision 121). Church setup and people always load.
 2. **Prayer needs small groups.** Some Cast prayer requests are shared with their small group, and who asks for prayer depends on who is in a group, which the prayer step reads from the loaded groups.
 3. **Steps need small groups, serving teams, and giving** (decision 125). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes. Student Path steps follow student check-ins, but they read them from the attendance plan, not the rows, so steps do not need attendance.
 
+4. **Communications need small groups, serving teams, and prayer requests.** The Volunteers and Small Group Leaders lists copy the team and group memberships read back from the rows those parts wrote, and the Prayer Team list holds the prayer part's team. Who is involved enough for a newsletter comes from the attendance and giving plans, so communications do not need those parts.
+
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
-Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, and step stories need `Steps`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, step stories need `Steps`, and staff texting numbers need `Communications`. A business's contacts are always checked, and its recent gifts only with `Giving`.
 
 On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same. After steps joined, a full Core 1 load matched main's load table by table, and so did Core 3 and Full 7. Core 1 without `Steps` differed from the full load only in the step tables (`Step`, `StepProgramCompletion`, `StepType`, and `StepProgram`) and in the 192 Baptism Date and Baptized Here values. Core 1 with `--parts Steps`, which adds small groups, serving teams, and giving, had the same steps, step values, memberships, gifts, and small group and serving attendance as the full load. On 2026-10-22, after the Cast's pledges joined giving, a load of every part matched main's load in every table for all three datasets. Core 1 without `Giving` (and so without steps and check images) had no pledges, and differed from the full load only in the giving tables, the giving attributes and giving automation setting, the campus tithe metric, and the step tables and Baptism values. Core 1 with `--parts Giving` had the same pledges, gifts, giving attributes, and tithe metric as the full load. After the Crowd and business pledges joined, a load of every part again matched main's load in every table for all three datasets. Core 3 has Crowd households and 27 pledges. Without `Giving` it had no pledges and the same fund and goal, and it differed from the full load in the same tables as Core 1 did. Core 3 with `--parts Giving` had the same 27 pledges and the same rows in every financial table as the full load.
 
@@ -196,15 +199,15 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured on 2026-10-21, again after the building campaign joined the load, with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Core 1 and Core 3 were measured on 2026-10-21, again after the building campaign joined the load. Full 7 was measured on 2026-10-23, after its manifest gained the Crowd (decision 136). Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
 | Core 1 | 185 | 87 | 1 | 10 seconds (10.4, 10.4, 10.5) |
 | Core 3 | 405 | 241 | 3 | 12 seconds (12.2, 12.0, 11.4) |
-| Full 7 | 185 | 87 | 7 | 9 seconds (9.2, 8.9, 9.0) |
+| Full 7 | 25,248 | 16,967 | 7 | 55 seconds (about 57, 54.3, 54.6) |
 
-Full 7 loads faster than Core 1 because it draws images only for the last 12 months of check gifts: 274 images, against 814 in Core 1. Full 7's manifest lists no generated households, so a load without `--crowd` has only the Cast, on the main campus. The Crowd and business pledges (decisions 113 and 114) add no people or households, so the cards stayed the same when they joined.
+Full 7 draws images only for the last 12 months of check gifts: 3,587 checks and 7,174 images (274 MB), about 14 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 
@@ -395,8 +398,9 @@ Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,50
 | Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
 | Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
 | Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 29 seconds (about 44 with check images) |
+| Full 7 with its Crowd (16,800 households), every part | 25,248 | 385,076 plus 322,543 | 91,250 | about 55 seconds with check images |
 
-The Full 7 times were measured on 2026-10-16, best of three, on a 16-core development machine with other work running. A Full 7 load with check images spends its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
+The last row was measured on 2026-10-23, the median of three runs. Its time goes to check images about 14 seconds, serving 7, people 5, giving 4.5, attendance 4, giving analytics 4, and every other step under 3. The spike crowd rows were measured on 2026-10-16, before serving, prayer, notes, and steps were built, best of three, on a 16-core development machine with other work running. Then, a Full 7 load with check images spent its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
 
 What keeps large loads fast:
 
@@ -465,6 +469,14 @@ A Cast story can set steps in its household file (`steps`): a class by how many 
 The load prints each program's steps by type and completions, the share of students who took each student step of those who could, and how many baptisms are students'.
 
 Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
+
+## Communications
+
+`loading/CommunicationsLoader.cs` sets up how the church communicates from `../configuration/communications.json`, and `generation/CommunicationListPlanner.cs` plans who is on each list. The design is in [Communications](../docs/communications.md).
+
+1. **Phone numbers.** Each system phone number, active and able to text, with forwarding off. A personal number is assigned to its staff member's primary alias. On the datasets the file lists, each campus pastor (`loading/CampusPastors.cs`, the same person the notes pick) gets one too. The Crowd generator never gives a generated person one of these numbers.
+2. **The template.** The logo PNG becomes a Rock file, and the template's logo image points at it through `GetImage.ashx`, the way Rock's template editor saves an uploaded logo. The template carries the church's from name and address and its Lava fields.
+3. **The lists.** One Communication List group per list, and one per campus for the newsletters, with Rock's Category (public lists only) and Public Name attributes. Members are active recipients, with their preference on the list and the day they joined. Volunteers and Small Group Leaders come from the `GroupMember` rows serving and small groups wrote. Each person draws from their own seeded stream for each list.
 
 ## Check images
 

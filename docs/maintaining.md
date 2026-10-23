@@ -148,6 +148,38 @@ A tag with a label, such as `v1.1.0-beta.1`, is a prerelease. NuGet lists the lo
 
 A manual run can also publish: run it on `main`, give a version, and tick "publish". Use this when a tag's run failed for a reason outside the repository. A run that failed partway can be run again: files already uploaded with the same bytes are skipped, and a version already on nuget.org is skipped.
 
+A tag never moves. If a run fails for a reason in the repository, fix it on a branch, land it on `main`, and tag the next version. Delete the failed tag only when nothing was published under it: check nuget.org and `storage.rockrms.com/sampledata/packages/v{version}/` first.
+
+Before a stable tag, read what it will ship: the cards in `datasets/*.json` become the index entries Rock shows, every card field included (decision D-index-cards-1), so their text must be current and their numbers must match what each package loads.
+
+### Releases so far
+
+Add a row for every tag, including failed ones.
+
+| Tag | Date | Kind | What happened |
+|---|---|---|---|
+| `v0.1.0-alpha.9` | 2026-10-23 | Prerelease | Nothing published. The Loader job's symbols check failed at random (see "When a release fails"). The tag was deleted. |
+| `v0.1.0-alpha.10` | 2026-10-23 | Prerelease | Published `SparkDevNetwork.Rock.SampleData.Loader` 0.1.0-alpha.10 to nuget.org, and Core 1, Core 3, and Full 7 for Rock 21.0.2 with `index-prerelease.json`. The first Publish attempt failed at the Azure sign-in (AADSTS700213); the re-run after the trust fix passed. Full 7 was still the Cast only. |
+
+`packages/index.json`, which Rock's installer block reads by default, stays empty until the first stable tag. The next one planned is `v1.0.0`, the first release with Full 7's Crowd (decision 136).
+
+### When a release fails
+
+Open the failed run in Actions, find the first failed step, and match it here.
+
+| Failed step | What it means | What to do |
+|---|---|---|
+| Any job, before it starts: "recent account payments have failed or your spending limit needs to be increased" | The organization's Actions billing is blocked. This only matters if the repository is private. | An organization owner fixes billing. Then re-run. |
+| Build Rock: App_Code errors such as `The type or namespace name 'Ical' could not be found` | RockWeb is a website, so MSBuild's restore and a solution restore both skip its `packages.config`, and a command-line build cannot resolve its netstandard2.0 DLLs (MSB3268). The workflow's "Restore RockWeb's packages" and "Copy RockWeb's referenced DLLs into Bin" steps handle both. | Check that those two steps ran. A new Rock may add a `.refresh` file the copy step skips as "not restored"; restore that package too. |
+| Check SQL Server sign-in, or the trusted base | SQL Server did not start, or the runner's account is not a sysadmin. | Re-run once. If it fails again, read the "Start SQL Server" step's log. |
+| Verify the packages, or the publishing gate | A package failed a check on this Rock. | Treat it like any verify failure: see [Verification](verification.md) and the [verify README](../verify/README.md#when-a-check-fails). Fix it on a branch and tag the next version. |
+| Check the package: "symbols have no Source Link to this commit" | Before 2026-10-23, piping `tar` into `grep -q` failed at random. The check now extracts each `.pdb` to a file first. | If it comes back, check that the step still extracts to a file, then re-run. |
+| Sign in to nuget.org | The trusted publishing policy does not match: owner `SparkDevelopmentNetwork`, repository `SparkDevNetwork/rock-sample-data`, workflow `release.yml`, environment `release`, package `SparkDevNetwork.Rock.SampleData.Loader`, and `NUGET_USER` the user who made the policy. | Fix the policy or the variable, then "Re-run failed jobs". |
+| Sign in to Azure: `AADSTS700213: No matching federated identity record` | The app's trust record does not match GitHub's token subject. This repository uses the immutable subject with IDs. | Set the trust as in step 2 of the one-time setup, then "Re-run failed jobs". |
+| Upload the packages and receipts: "already published with other bytes" | This version is already on storage with different files, so the run would change a published package. | Never overwrite it. Tag the next version. |
+
+A re-run skips what is already published, so "Re-run failed jobs" is safe after any fix outside the repository. It needs one approval again.
+
 ### Add or change a Rock release
 
 Each entry in `release/rock-releases.json` is a Rock version and the `ref` to check out from SparkDevNetwork/Rock: a release tag, or a full commit hash before Rock tags the release. The workflow stops if the ref's `Directory.Build.props` names a different version. When Rock publishes the tag for a pinned commit, change the `ref` to the tag.
