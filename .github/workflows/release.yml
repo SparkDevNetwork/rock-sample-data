@@ -1,0 +1,386 @@
+# Publishes a release (decisions 127 to 130). For each Rock release in
+# release/rock-releases.json, it builds that Rock, writes every dataset's package, verifies them,
+# and runs the publishing gate. It packs the loader NuGet package. Then, behind the
+# "release" environment, it pushes the loader to nuget.org and uploads the packages, their receipts,
+# and the package index to Azure Blob Storage, the index last.
+#
+# A version tag (v1.0.0, or v1.1.0-beta.1 for a prerelease) publishes. A manual run is a dry run
+# unless "publish" is ticked, and a run that publishes must be on main and name its version.
+# The setup it needs (the environment, the Azure identity, nuget.org trusted publishing, and these
+# variables) is in docs/maintaining.md, under "Publishing a release":
+#   vars.AZURE_CLIENT_ID, vars.AZURE_TENANT_ID, vars.AZURE_SUBSCRIPTION_ID,
+#   vars.AZURE_STORAGE_ACCOUNT, vars.NUGET_USER
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version, without the v (for example 1.0.0 or 1.1.0-beta.1). Needed to publish."
+        required: false
+        default: ""
+      publish:
+        description: "Publish to nuget.org and Azure. Only from main. Leave it off for a dry run."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  CONTAINER: sampledata
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      publish: ${{ steps.plan.outputs.publish }}
+      prerelease: ${{ steps.plan.outputs.prerelease }}
+      releases: ${{ steps.plan.outputs.releases }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the version and the Rock releases
+        id: plan
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT" = "push" && "$REF" == refs/tags/* ]]; then
+            version="${REF_NAME#v}"
+            publish=true
+          else
+            publish="${INPUT_PUBLISH:-false}"
+            version="${INPUT_VERSION#v}"
+            if [ "$publish" = "true" ]; then
+              [ "$REF" = "refs/heads/main" ] || { echo "::error::A run that publishes must be on main, not $REF."; exit 1; }
+              [ -n "$version" ] || { echo "::error::A run that publishes needs a version."; exit 1; }
+            fi
+            version="${version:-0.0.0-dryrun.$RUN_NUMBER}"
+          fi
+
+          # A NuGet version: three numbers, then an optional prerelease label.
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::$version is not a version like 1.0.0 or 1.1.0-beta.1."
+            exit 1
+          fi
+
+          prerelease=false
+          [[ "$version" == *-* ]] && prerelease=true
+          releases=$(jq -c '[.releases[] | { version, ref }]' release/rock-releases.json)
+          {
+            echo "version=$version"
+            echo "publish=$publish"
+            echo "prerelease=$prerelease"
+            echo "releases=$releases"
+          } >> "$GITHUB_OUTPUT"
+          echo "Version $version, publish $publish, prerelease $prerelease, Rock releases $releases"
+
+  packages:
+    name: Packages for Rock ${{ matrix.rock.version }}
+    needs: plan
+    # A GitHub-hosted runner by default. vars.PACKAGES_RUNNER, a JSON list of labels such as
+    # ["self-hosted","windows","rock-build"], moves it to a self-hosted runner (docs/maintaining.md).
+    runs-on: ${{ vars.PACKAGES_RUNNER && fromJSON(vars.PACKAGES_RUNNER) || 'windows-2025' }}
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        rock: ${{ fromJSON(needs.plan.outputs.releases) }}
+    env:
+      ROCK_VERSION: ${{ matrix.rock.version }}
+      ROCK_REF: ${{ matrix.rock.ref }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Outside the workspace: an untracked Rock folder would mark every package as built from
+      # uncommitted changes, and the publishing gate refuses those.
+      - name: Check out Rock ${{ matrix.rock.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rock="$RUNNER_TEMP/rock"
+          git config --global core.longpaths true
+          git init -q "$rock"
+          git -C "$rock" remote add origin https://github.com/SparkDevNetwork/Rock.git
+          git -C "$rock" fetch -q --depth 1 --no-tags origin "$ROCK_REF"
+          git -C "$rock" checkout -q FETCH_HEAD
+          found=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$rock/Directory.Build.props" | head -1)
+          [ "$found" = "$ROCK_VERSION" ] || { echo "::error::$ROCK_REF is Rock $found, not $ROCK_VERSION."; exit 1; }
+          echo "ROCK_PATH=$(cygpath -w "$rock")" >> "$GITHUB_ENV"
+          echo "Rock $found at $(git -C "$rock" rev-parse HEAD)"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # Rock's Obsidian projects need Node 24.5 or later.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - uses: NuGet/setup-nuget@v2
+
+      # RockWeb is a website, so MSBuild's restore skips its packages.config, and "nuget restore
+      # Rock.sln" skips it too. Without these packages RockWeb's App_Code cannot compile. They also
+      # hold ef6.exe, which the verify tool needs.
+      - name: Restore RockWeb's packages
+        working-directory: ${{ env.ROCK_PATH }}
+        run: nuget restore RockWeb/packages.config -SolutionDirectory . -NonInteractive
+
+      # Each RockWeb\Bin\*.refresh names a restored DLL for Bin. Visual Studio copies them, but a
+      # command-line website build cannot resolve the netstandard2.0 ones (MSB3268), so Ical.Net and
+      # others never reach Bin and App_Code fails to compile. Copy them first, as Visual Studio does.
+      # A .refresh for a package RockWeb no longer lists is skipped.
+      - name: Copy RockWeb's referenced DLLs into Bin
+        working-directory: ${{ env.ROCK_PATH }}
+        run: |
+          $copied = 0
+          Get-ChildItem RockWeb\Bin -Filter *.refresh | ForEach-Object {
+              $dll = Join-Path $_.DirectoryName $_.BaseName
+              $source = Join-Path (Resolve-Path RockWeb) (Get-Content $_.FullName -Raw).Trim()
+              if (Test-Path $dll) { return }
+              if (Test-Path $source) { Copy-Item $source $dll; $copied++ }
+              else { Write-Output "Skipped $($_.Name): $source is not restored." }
+          }
+          Write-Output "Copied $copied DLLs into RockWeb\Bin."
+
+      # dotnet build cannot build RockWeb (MSB4249), so use Visual Studio's MSBuild. The verify tool
+      # needs RockWeb\bin.
+      - name: Build Rock
+        working-directory: ${{ env.ROCK_PATH }}
+        run: msbuild Rock.sln -m -restore -p:RestorePackagesConfig=true -v:minimal -nologo
+
+      # A self-hosted runner has its own SQL Server, where the runner's account is a sysadmin.
+      - name: Start SQL Server
+        if: runner.environment == 'github-hosted'
+        uses: potatoqualitee/mssqlsuite@bc850f242e5fe551e36cea6fa4bed608c58fa489 # v2
+        with:
+          install: sqlengine
+          version: "2025"
+          sa-password: ${{ format('Rsd.{0}.{1}', github.run_id, github.run_attempt) }}
+
+      - name: Check SQL Server sign-in
+        run: sqlcmd -S localhost -E -C -Q "SELECT @@VERSION, SUSER_SNAME() AS [Login], IS_SRVROLEMEMBER('sysadmin') AS [IsSysAdmin];"
+
+      - name: Write the packages
+        run: dotnet run --project builder -c Release -- --rock "$env:ROCK_PATH" --out "packages/rock-$env:ROCK_VERSION"
+
+      - name: Verify the packages
+        run: dotnet run --project verify -c Release -- --rock "$env:ROCK_PATH" --packages "packages/rock-$env:ROCK_VERSION" --run ci
+
+      - name: Publishing gate
+        run: dotnet run --project verify -c Release --no-build -- --check-receipts "packages/rock-$env:ROCK_VERSION"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rock-${{ matrix.rock.version }}
+          path: packages/rock-${{ matrix.rock.version }}
+          if-no-files-found: warn
+          retention-days: 14
+
+  loader:
+    name: Loader NuGet package
+    needs: plan
+    runs-on: windows-2025
+    timeout-minutes: 30
+    outputs:
+      package-id: ${{ steps.id.outputs.package-id }}
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # The .NET Framework build Rock uses must derive the same keys, hashes, and draws as .NET 10.
+      - name: Check the .NET Framework build
+        run: |
+          dotnet run --project loader-compat-check -c Release -f net10.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project loader-compat-check -c Release -f net472
+
+      # The .NET SDK adds Source Link for GitHub on its own. ContinuousIntegrationBuild makes the
+      # build deterministic and maps paths to the repository.
+      - name: Pack the loader
+        run: >
+          dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts/nuget
+          -p:Version=$env:VERSION
+          -p:ContinuousIntegrationBuild=true
+          -p:PublishRepositoryUrl=true
+          -p:EmbedUntrackedSources=true
+          -p:IncludeSymbols=true
+          -p:SymbolPackageFormat=snupkg
+
+      # The package ID lives only in the project file, so the files below are named from it.
+      - name: Read the package ID
+        id: id
+        shell: bash
+        run: echo "package-id=$(dotnet msbuild loader/RockSampleData.Loader.csproj -getProperty:PackageId -nologo | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
+      - name: Check the package
+        shell: bash
+        env:
+          PACKAGE_ID: ${{ steps.id.outputs.package-id }}
+        run: |
+          set -euo pipefail
+          package="artifacts/nuget/$PACKAGE_ID.$VERSION.nupkg"
+          [ -f "$package" ] || { echo "::error::$package was not written."; exit 1; }
+          [ -f "${package%.nupkg}.snupkg" ] || { echo "::error::The symbols package was not written."; exit 1; }
+          # Windows' own tar reads zips; the tar in Git Bash does not.
+          tar=/c/Windows/System32/tar.exe
+          contents=$("$tar" -tf "$package")
+          for expected in LICENSE.md README.md lib/net472/RockSampleData.Loader.dll lib/net10.0/RockSampleData.Loader.dll; do
+            grep -qx "$expected" <<< "$contents" || { echo "::error::The package has no $expected."; exit 1; }
+          done
+          nuspec=$("$tar" -xOf "$package" "$PACKAGE_ID.nuspec")
+          grep -Eq "<repository type=\"git\" url=\"https://github.com/$GITHUB_REPOSITORY(\.git)?\" .*commit=\"$GITHUB_SHA\"" <<< "$nuspec" \
+            || { echo "::error::The package does not name this repository and commit."; echo "$nuspec"; exit 1; }
+          for framework in net472 net10.0; do
+            "$tar" -xOf "${package%.nupkg}.snupkg" "lib/$framework/RockSampleData.Loader.pdb" \
+              | grep -aq "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/" \
+              || { echo "::error::The $framework symbols have no Source Link to this commit."; exit 1; }
+          done
+          echo "$contents"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loader-nuget
+          path: artifacts/nuget
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish
+    needs: [plan, packages, loader]
+    if: needs.plan.outputs.publish == 'true'
+    runs-on: windows-2025
+    timeout-minutes: 60
+    environment: release
+    concurrency:
+      group: release-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      PRERELEASE: ${{ needs.plan.outputs.prerelease }}
+      ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rock-*
+          path: packages
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: loader-nuget
+          path: artifacts/nuget
+
+      # The gate again, on the exact bytes this job uploads.
+      - name: Publishing gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build verify -c Release -v:quiet -nologo
+          for folder in packages/rock-*; do
+            dotnet run --project verify -c Release --no-build -- --check-receipts "$folder"
+          done
+
+      - name: Sign in to nuget.org
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      # A version already on nuget.org is skipped, so a re-run after a later failure is safe.
+      - name: Push the loader to nuget.org
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+          PACKAGE_ID: ${{ needs.loader.outputs.package-id }}
+        run: dotnet nuget push "artifacts/nuget/$PACKAGE_ID.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # Versioned paths never change. A file already uploaded with the same bytes is skipped, so a
+      # re-run is safe; one with other bytes stops the run.
+      - name: Upload the packages and receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in packages/rock-*/*; do
+            name="packages/v$VERSION/${file#packages/}"
+            md5=$(openssl dgst -md5 -binary "$file" | base64)
+            type=application/zip
+            [[ "$file" == *.json ]] && type=application/json
+            hosted=$(az storage blob show --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n "$name" --query properties.contentSettings.contentMd5 -o tsv 2>/dev/null || true)
+            if [ -n "$hosted" ]; then
+              [ "$hosted" = "$md5" ] || { echo "::error::$name is already published with other bytes. Tag a new version."; exit 1; }
+              echo "Already published: $name"
+              continue
+            fi
+            az storage blob upload --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n "$name" -f "$file" \
+              --content-type "$type" --content-md5 "$md5" --content-cache-control "public, max-age=31536000, immutable" \
+              --overwrite false --only-show-errors -o none
+            echo "Uploaded: $name"
+          done
+
+      # A stable release updates index.json, and index-prerelease.json to match it. A prerelease
+      # updates only index-prerelease.json: the stable index plus the prerelease (decision 129).
+      - name: Upload the package index
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p index
+          az storage blob download --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n packages/index.json -f index/hosted.json --only-show-errors -o none 2>/dev/null \
+            || { echo "No index is hosted yet."; rm -f index/hosted.json; }
+          node release/merge-index.js --packages packages --version "$VERSION" --commit "$GITHUB_SHA" --index index/hosted.json --out index/index.json
+          targets="packages/index-prerelease.json"
+          [ "$PRERELEASE" = "true" ] || targets="$targets packages/index.json"
+          for name in $targets; do
+            az storage blob upload --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n "$name" -f index/index.json \
+              --content-type application/json --content-cache-control "public, max-age=300" \
+              --overwrite true --only-show-errors -o none
+            echo "Uploaded: $name"
+          done
+          {
+            echo "### Published v$VERSION"
+            echo
+            echo '```json'
+            cat index/index.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

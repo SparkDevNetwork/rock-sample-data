@@ -133,7 +133,7 @@ The two builds are meant to load the same rows. One difference is expected: .NET
 
 ## The package index
 
-The hosted list of packages is `index.json` (decision 123). The publishing workflow in the [roadmap](../docs/roadmap.md#publishing) uploads it last, beside the versioned packages. `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
+The hosted list of packages is `index.json` (decision 123). The [release workflow](../docs/maintaining.md#publishing-a-release) merges each release into it and uploads it last, at `https://storage.rockrms.com/sampledata/packages/index.json`, beside the versioned packages (decision 128). A prerelease changes only `index-prerelease.json` beside it (decision 129). `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
 
 ```json
 {
@@ -146,7 +146,7 @@ The hosted list of packages is `index.json` (decision 123). The publishing workf
       "people": 185,
       "campuses": 1,
       "version": "1.2.0",
-      "url": "v1.2.0/core-1.zip",
+      "url": "v1.2.0/rock-21.0.2/core-1.zip",
       "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
       "size": 15086598,
       "rockVersion": "21.0.2",
