@@ -102,8 +102,12 @@ namespace RockSampleData.Loader
                 Required( entry.Dataset, "dataset" ),
                 Required( entry.Name, "name" ),
                 entry.Description ?? string.Empty,
+                entry.BestFor ?? string.Empty,
+                ( entry.Highlights ?? new List<string>() ).Where( h => !string.IsNullOrWhiteSpace( h ) ).ToList(),
                 entry.People,
+                entry.Households,
                 entry.Campuses,
+                entry.TypicalInstallSeconds,
                 Required( entry.Version, "version" ),
                 Required( entry.Url, "url" ),
                 sha256.ToLowerInvariant(),
@@ -127,9 +131,17 @@ namespace RockSampleData.Loader
 
             public string Description { get; set; }
 
+            public string BestFor { get; set; }
+
+            public List<string> Highlights { get; set; }
+
             public int People { get; set; }
 
+            public int Households { get; set; }
+
             public int Campuses { get; set; }
+
+            public int TypicalInstallSeconds { get; set; }
 
             public string Version { get; set; }
 
@@ -150,13 +162,17 @@ namespace RockSampleData.Loader
     /// </summary>
     public sealed class SampleDataPackageIndexEntry
     {
-        internal SampleDataPackageIndexEntry( string dataset, string name, string description, int people, int campuses, string version, string url, string sha256, long size, string rockVersion, string rockMigration )
+        internal SampleDataPackageIndexEntry( string dataset, string name, string description, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, string version, string url, string sha256, long size, string rockVersion, string rockMigration )
         {
             Dataset = dataset;
             Name = name;
             Description = description;
+            BestFor = bestFor;
+            Highlights = highlights;
             People = people;
+            Households = households;
             Campuses = campuses;
+            TypicalInstallSeconds = typicalInstallSeconds;
             Version = version;
             Url = url;
             Sha256 = sha256;
@@ -176,19 +192,41 @@ namespace RockSampleData.Loader
         public string Name { get; }
 
         /// <summary>
-        /// A sentence or two about the dataset. Empty when the index has none.
+        /// A sentence or two about who is in the dataset: the card's summary. Empty when the index has none.
         /// </summary>
         public string Description { get; }
 
         /// <summary>
-        /// About how many people the dataset loads.
+        /// One sentence about what the dataset is best for. Empty when the index has none, as in an index
+        /// written before the full card joined it.
+        /// </summary>
+        public string BestFor { get; }
+
+        /// <summary>
+        /// Two to four short phrases worth knowing about the dataset. Empty when the index has none.
+        /// </summary>
+        public IReadOnlyList<string> Highlights { get; }
+
+        /// <summary>
+        /// About how many people the dataset loads. 0 when the index has none.
         /// </summary>
         public int People { get; }
 
         /// <summary>
-        /// How many campuses the dataset has.
+        /// About how many family households the dataset loads, businesses included. 0 when the index has none.
+        /// </summary>
+        public int Households { get; }
+
+        /// <summary>
+        /// How many campuses the dataset has. 0 when the index has none.
         /// </summary>
         public int Campuses { get; }
+
+        /// <summary>
+        /// About how long a load of every part takes, in seconds, measured on a developer workstation.
+        /// 0 when the index has none.
+        /// </summary>
+        public int TypicalInstallSeconds { get; }
 
         /// <summary>
         /// The package release, for example "1.0.0".

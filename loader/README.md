@@ -122,7 +122,7 @@ The .NET Framework build depends on the exact versions Rock ships: Microsoft.Dat
 
 `compat/` holds the few .NET 10 features .NET Framework lacks, as internal types under `#if NETFRAMEWORK`: the init-only marker, `GetValueOrDefault` and key-value pair deconstruction, and the two key derivations behind Rock's encryption (`KeyDerivation`: PBKDF2, and HKDF written out from RFC 5869). Everything else is written a way both understand, such as `list[list.Count - 1]` instead of `list[^1]`.
 
-The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. Run it for each build, and both must pass:
+The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also reads a package index written before the card fields and one with fields the loader does not know. Run it for each build, and both must pass:
 
 ```
 dotnet run --project loader-compat-check -f net10.0
@@ -145,9 +145,18 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
     {
       "dataset": "core-1",
       "name": "Core 1",
-      "description": "The Cast: 87 households and 185 people at one campus.",
+      "description": "The Cast: hand-designed households at one campus, each with its own story. The same families are in every dataset.",
+      "bestFor": "Automated tests, training, and everyday development.",
+      "highlights": [
+        "Families you can name in tests and help articles",
+        "Profile photos for nearly everyone",
+        "Three years of attendance, giving, groups, and serving",
+        "Scanned images of every check gift"
+      ],
       "people": 185,
+      "households": 87,
       "campuses": 1,
+      "typicalInstallSeconds": 10,
       "version": "1.2.0",
       "url": "v1.2.0/rock-21.0.2/core-1.zip",
       "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
@@ -164,16 +173,24 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | `formatVersion` | The index format. This loader reads format 1. Required. |
 | `packages` | Every package, in the order to show them. A dataset can appear once per Rock version. |
 | `dataset`, `name` | The dataset key and its name. Required. |
-| `description` | A sentence or two about the dataset. Optional. |
-| `people`, `campuses` | About how many people the dataset loads, and its campuses. |
+| `description` | A sentence or two about who is in the dataset: the card's `summary`. Optional. |
+| `bestFor`, `highlights` | What the dataset is best for, and two to four short phrases about it. Optional. |
+| `people`, `households`, `campuses` | About how many people and family households the dataset loads, and its campuses. Optional. |
+| `typicalInstallSeconds` | About how long a load of every part takes, in seconds. Optional. |
 | `version` | The package release, from the release tag. Required. |
 | `url` | Where to download the package: absolute, or relative to the index's own URL. Required. |
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
 | `rockVersion`, `rockMigration` | The Rock the package is for, the same values as its `package.json`. A caller can hide packages for another Rock without downloading them. Required. |
 
+Each entry carries the whole dataset card from the dataset's manifest, the same fields `SampleDataDatasets` serves (decision 144). `release/merge-index.js` writes them when a release joins the index. So Rock's installer can show its cards from the index, and every release updates the cards without a new loader in Rock.
+
+The card fields are optional, and format 1 stays format 1. `SampleDataPackageIndexEntry` reads a missing string as empty, missing highlights as an empty list, and a missing number as 0, so it reads an index written before the card fields joined it, such as the entries of `v0.1.0-alpha.10`. An older loader skips fields it does not know, so it reads a newer index too. `../loader-compat-check/` checks both on both builds.
+
 ## The dataset catalog
 
 `SampleDataDatasets.All` lists the datasets this loader can install, in key order: Core 1, Core 3, and Full 7 (decision 124). Rock's installer shows one card for each before it downloads anything. `SampleDataDatasets.Get( "core-3" )` returns one card, or null for an unknown key.
+
+The [package index](#the-package-index) carries the same card in each entry (decision 144). The catalog is fixed when the loader is built, and the index changes with every release, so Rock's installer should show the index's card and keep the catalog for when the index cannot be read. The CLI and the verify tool's card checks use the catalog.
 
 Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, and `TypicalInstallSeconds` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
 

@@ -20,7 +20,7 @@ const { sectionHead } = require( "../components" );
 
 const inside = [
     [ "People and households", "The Cast in every dataset, plus generated households in Core 3 and Full 7. Every Cast person has a photo, except a few left without one on purpose." ],
-    [ "Attendance and check-in", "Years of Sundays, with kids checked in by family security code and students checking in to the Sunday student service." ],
+    [ "Attendance and check-in", "Years of Sundays, with kids checked in by family security code and students checking in to the Sunday student service, sometimes on their own." ],
     [ "Giving", "Gifts on each giver's rhythm, through scheduled, online, and Sunday channels, in batches, with scanned checks that match each gift." ],
     [ "Giving analytics", "Giving attributes, journey stages, and a year of giving alerts, filled in the way Rock computes them." ],
     [ "Small groups", "Groups with leaders, hosts, topics, history, photos, and Group Finder test cases at every campus." ],

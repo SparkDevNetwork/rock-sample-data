@@ -161,11 +161,11 @@ On 2026-10-19 it passed for Core 1 (49 streaks and 5,009 attempts) and for Full 
 
 ## Where it stands
 
-The Full 7 package, with its own Crowd of 16,800 households (decision 136), passes 380 of 428 values (89%) on 2026-10-23, at the anchor 2026-10-22 and the default seed. Both business values and the pledge rate pass. The Phase 0 spike (Full 7 plus a 17,000-household crowd) passed 260 of 291 values (89%), with giving at 191 of 196 and small groups at 3 of 3. The largest remaining gaps:
+The Full 7 package, with its own Crowd of 16,800 households (decision 136), passes 382 of 428 values (89%) on 2026-10-23, at the anchor 2026-10-22 and the default seed, with students' own attendance (decisions 146 to 148). Main without it also passes 382. Both business values and the pledge rate pass. The Phase 0 spike (Full 7 plus a 17,000-household crowd) passed 260 of 291 values (89%), with giving at 191 of 196 and small groups at 3 of 3. The largest remaining gaps:
 
 1. First-time visitors run low, so Easter and fall kickoff do not spike with newcomers. A visitor model comes with the real Crowd.
-2. Teens (ages 12 to 17) run low.
-3. A few holiday attendance multipliers miss, and the engagement mix (attends, gives, groups, serves) waits on serving teams.
+2. Teens (ages 12 to 17) run low as a share of people, 16.5% against 22.7%. The value counts people, not attendance, so it needs the Crowd to make more teen children. Students' own attendance did not move it.
+3. A few holiday attendance multipliers miss. Christmas week's adult check-ins run 0.24 of a normal week against 0.30. The only adults who check in are volunteers and recent graduates. A recent graduate's student check-ins count as adult check-ins, because they are adults now, and students do not check in on Christmas week. The holiday first-time values swing a few points with each change, because few check-ins are first times (the first gap). The engagement mix (attends, gives, groups, serves) waits on serving teams.
 4. Giving's last misses are small: the largest gifts (99th percentile) run high, a few too many gifts are odd amounts, and last year's ACH share of gifts runs a little high.
 
 Small group size, leader share, and attendance are design targets, not gaps. They are recorded as overrides in `calibration/profiles/sample-church.json`, with reasons, so validation grades them against what we chose (see [small groups](../docs/small-groups.md)). The share of active adults in a group follows the measured rate and passes.
