@@ -165,7 +165,7 @@ Each run writes `{dataset}.verify.json` next to each package. A receipt records 
 
 **What it does.** `dotnet run -- --check-receipts ../packages` (in `verify/`) refuses to publish when any package has no receipt, its receipt is for different bytes, any check failed, the receipt is for a different Rock than the package, or either the package or the checks came from uncommitted changes.
 
-**Why it's there.** A receipt only matters if publishing depends on it. The publish workflow runs this gate before any upload (see the [roadmap](roadmap.md#publishing)).
+**Why it's there.** A receipt only matters if publishing depends on it. The release workflow runs this gate in each Packages job, and again in the Publish job on the exact files it uploads (see [Publishing a release](maintaining.md#publishing-a-release)).
 
 ## When a church installs
 

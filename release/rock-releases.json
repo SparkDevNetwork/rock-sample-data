@@ -1,0 +1,10 @@
+{
+  "$comment": "The Rock releases the release workflow builds packages for (decision 127). Each package is for one exact Rock (decision 52), so the workflow checks out each ref from SparkDevNetwork/Rock, builds it, writes and verifies every dataset's package for it, and publishes them under packages/v{tag}/rock-{version}/. 'ref' is a release tag once Rock tags the release, or a full commit hash before then. The workflow refuses a ref whose Directory.Build.props has a different version.",
+  "releases": [
+    {
+      "version": "21.0.2",
+      "ref": "b34e15fc211b8593a29526f936f5cd830fc52b91",
+      "$comment": "Rock 21.0.2 has no release tag yet. This is develop on 2026-10-21, the commit the packages were last verified on. Change it to the tag \"21.0.2\" once Rock publishes it."
+    }
+  ]
+}
