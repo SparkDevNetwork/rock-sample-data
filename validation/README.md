@@ -161,7 +161,7 @@ On 2026-10-19 it passed for Core 1 (49 streaks and 5,009 attempts) and for Full 
 
 ## Where it stands
 
-The Full 7 package, with its own Crowd of 16,800 households (decision D-full7-crowd-1), passes 380 of 428 values (89%) on 2026-10-23, at the anchor 2026-10-22 and the default seed. Both business values and the pledge rate pass. The Phase 0 spike (Full 7 plus a 17,000-household crowd) passed 260 of 291 values (89%), with giving at 191 of 196 and small groups at 3 of 3. The largest remaining gaps:
+The Full 7 package, with its own Crowd of 16,800 households (decision 136), passes 380 of 428 values (89%) on 2026-10-23, at the anchor 2026-10-22 and the default seed. Both business values and the pledge rate pass. The Phase 0 spike (Full 7 plus a 17,000-household crowd) passed 260 of 291 values (89%), with giving at 191 of 196 and small groups at 3 of 3. The largest remaining gaps:
 
 1. First-time visitors run low, so Easter and fall kickoff do not spike with newcomers. A visitor model comes with the real Crowd.
 2. Teens (ages 12 to 17) run low.

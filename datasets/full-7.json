@@ -18,7 +18,7 @@
     "months": 12
   },
   "generatedHouseholds": {
-    "$comment": "The Crowd (decision D-full7-crowd-1). Each campus stays under its share of addresses/pool.json, with room for its businesses.",
+    "$comment": "The Crowd (decision 136). Each campus stays under its share of addresses/pool.json, with room for its businesses.",
     "perCampus": {
       "phoenix": 3450,
       "peoria": 2250,

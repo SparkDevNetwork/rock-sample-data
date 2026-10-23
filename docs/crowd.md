@@ -11,7 +11,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 
 ## How big the Crowd is
 
-Full 7's manifest (`datasets/full-7.json`) sets how many households each campus gets (decision D-full7-crowd-1). Household shapes do not change by campus, so the counts alone set each campus's size. Each count stays under that campus's share of the [address pool](../addresses/README.md), with room for its businesses.
+Full 7's manifest (`datasets/full-7.json`) sets how many households each campus gets (decision 136). Household shapes do not change by campus, so the counts alone set each campus's size. Each count stays under that campus's share of the [address pool](../addresses/README.md), with room for its businesses.
 
 | Campus | Generated households | People, with the Cast and businesses |
 |---|---|---|

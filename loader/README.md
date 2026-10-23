@@ -179,7 +179,7 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Core 1 and Core 3 were measured on 2026-10-21, again after the building campaign joined the load. Full 7 was measured on 2026-10-23, after its manifest gained the Crowd (decision D-full7-crowd-1). Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. Core 1 and Core 3 were measured on 2026-10-21, again after the building campaign joined the load. Full 7 was measured on 2026-10-23, after its manifest gained the Crowd (decision 136). Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
