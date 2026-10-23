@@ -6,7 +6,7 @@ One manifest per dataset: [core-1.json](core-1.json), [core-3.json](core-3.json)
 |---|---|---|---|---|
 | Core 1 | Cast | 1 | Every Cast person | Every check |
 | Core 3 | Cast plus 75 companion households each at Peoria and Gilbert | 3 | Cast, plus about half of companions | Every check |
-| Full 7 | Cast. The manifest lists no generated households yet, so the Crowd loads only with the CLI's `--crowd` | 7 | Cast only | Last 12 months |
+| Full 7 | Cast plus the Crowd: 16,800 generated households across all seven campuses, the main campus included ([decision D-full7-crowd-1](../docs/decisions.md)) | 7 | Cast only | Last 12 months |
 
 ## Manifest settings
 
