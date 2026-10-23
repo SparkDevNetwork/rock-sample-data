@@ -139,9 +139,10 @@ A student's baptism goes on the Discipleship Path's Baptism step, with the Bapti
 - **Other students.** 10% of the other students are baptized here on a baptism Sunday after they started coming to the student service.
 - **Rules.** A student is 12 or older when baptized. A Baptism Date in a Cast file is kept as it is. The adult rates above are unchanged, because students are not adults.
 
-## Campus and program completions
+## Campus, history, and program completions
 
 - **Campus.** Every step's campus is the person's campus, and every step is on their primary alias.
+- **Person history.** Every step has the History tab line Rock's step save hook writes: "Added" with the step's name and campus on the day it started (decision 134). A step that started In Progress and was completed later (a class, or a Pending volunteer who became Active) also has its status change and completion date on the day it was completed. A step that ended has its end date on the day it ended.
 - **Program completions.** A person whose Complete steps cover every step type in a program gets a completion for that program, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install, in either program.
 
 ## How many
@@ -222,4 +223,3 @@ Jasmine's household file now sets her graduation as a relative date, this past M
 - **Links to learning and events.** When learning (LMS) and event registrations are built, Foundations can link to a learning class, and Student Camp and Mission Trip to a registration.
 - **Student small groups,** which would add a group step to the Student Path.
 - **Step workflows,** such as a follow-up after a baptism.
-- **Person history.** Rock's step save hook adds a line to the person's History tab for each new step. The loader does not write those yet, as it does not for group memberships.

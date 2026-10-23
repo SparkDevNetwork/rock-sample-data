@@ -137,6 +137,7 @@ It runs the checks below for every dataset. A full run takes about 5 minutes.
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
 | `serve-step-follows-starting-point` | Rock's prerequisite: every Serve step has a Starting Point Class completed before it. |
 | `give-step-agrees-with-journey-stage` | A giver Rock shows as Consistent has an open Give step, and an open Give step belongs to a Consistent or Occasional giver. |
+| `step-has-its-person-history` | Every step has one "Added" line on its person's History tab, dated the day it started, and a step completed after it started has its status change. Every step history line points at a step of that person. |
 | `program-completions-follow-rocks-rule` | Rock's Update Step Program Completions job finds nothing to add or fix after install, in any program the dataset has steps in. |
 | `student-step-belongs-to-a-student` | Every Student Path step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then. Mission Trip is high school only, and Student Leader is juniors and seniors only. |
 | `student-path-decisions-and-leaders` | Follow Jesus and Student Leader happen at most once per person. Student Leader ends at graduation in May, or stays open while the student is still in school. |
