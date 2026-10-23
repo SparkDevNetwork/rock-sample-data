@@ -210,6 +210,7 @@ function load() {
         campusPhotos,
         initiativeGraphics,
         campaign: readJson( "configuration/campaign.json" ),
+        communicationLists: exists( "configuration/communications.json" ) ? readJson( "configuration/communications.json" ).lists.lists : [],
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,

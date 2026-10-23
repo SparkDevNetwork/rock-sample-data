@@ -51,6 +51,7 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
+            ("Communications", SampleDataPart.Communications),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -376,9 +377,9 @@ namespace RockSampleData.Loader
             }
 
             // Prayer requests and the prayer team's activity. Who asks depends on who attended, gave, or is in a group.
+            var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
             if ( steps.Begin( "Prayer" ) )
             {
-                var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
                 prayer.Load( people.Households, attendance.FamilySundays, giving.QualifyingGifts, smallGroupSetup.GroupTypeId, calendar.HistoryStart, profile );
 
                 // Rock Cleanup's daily interaction counts, for every channel that keeps them. Run after the last step that writes interactions.
@@ -400,6 +401,15 @@ namespace RockSampleData.Loader
             {
                 new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
                     .Load( people, castHouseholdKeys, attendance, analytics.Gifts, analytics.FinalJourneyRun );
+            }
+
+            // The church's texting numbers, its branded template, and its communication lists. The lists copy the
+            // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
+            // who is involved enough for a newsletter comes from the attendance and giving plans.
+            if ( steps.Begin( "Communications" ) )
+            {
+                new CommunicationsLoader( db, source, dates, dataset, foreignKey, seed )
+                    .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
             }
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.

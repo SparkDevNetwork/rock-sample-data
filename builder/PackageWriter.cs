@@ -36,7 +36,7 @@ namespace RockSampleData.Builder
     {
         private const string PoolSet = "core-3-pool";
 
-        private static readonly string[] TextExtensions = { ".json", ".md", ".txt" };
+        private static readonly string[] TextExtensions = { ".json", ".md", ".txt", ".html" };
 
         /// <summary>
         /// Every zip entry gets this time, so the same inputs always make the same bytes.
@@ -118,11 +118,15 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // Fonts for check images, with their licenses, the prayer and note text pools, and the license for the data itself.
+            // Fonts for check images, with their licenses, the prayer and note text pools, the message library with the
+            // email template and its logo, and the license for the data itself.
             AddFolder( "content/notes", ".json" );
             AddFolder( "content/fonts" );
             AddFolder( "content/prayer", ".json" );
             AddFolder( "content/prayer/categories", ".json" );
+            AddFolder( SampleDataSource.CommunicationsContentFolder, ".json" );
+            AddFolder( SampleDataSource.CommunicationsContentFolder, ".html" );
+            AddFolder( SampleDataSource.CommunicationsContentFolder, ".png" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what
@@ -194,6 +198,12 @@ namespace RockSampleData.Builder
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.OpportunityPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
+            }
+
+            var template = source.Communications?.Template;
+            foreach ( var path in new[] { template?.Html, template?.Logo }.Where( p => p != null && !files.Exists( p ) ) )
+            {
+                throw new InvalidOperationException( $"configuration/communications.json names {path}, but the file is missing." );
             }
 
             source.ReadProfile();
