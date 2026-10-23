@@ -449,7 +449,7 @@ INNER JOIN (
 
                 Reason: Real check and Apple Pay shares follow age and gift size, not chance.
             */
-            var checkWeight = mix.GetValueOrDefault( "Check", 9 ) * CheckAgeWeight( age ) * SizeWeight( sizeRatio, 0.6 ) * CheckScale;
+            var checkWeight = mix.GetValueOrDefault( "Check", 9 ) * CheckAgeWeight( age ) * SizeWeight( sizeRatio, 0.6 ) * CheckScale * CheckWeightScale;
             var comesOnSunday = attendRate >= MailedCheckAttendRate;
             var cashWeight = comesOnSunday ? mix.GetValueOrDefault( "Cash", 4 ) * ( yearly < 1000 ? 1.5 : 0.5 ) * CashScale : 0;
             var applePayWeight = mix.GetValueOrDefault( "Apple Pay", 8 ) * ApplePayAgeWeight( age ) * ApplePayScale / SizeWeight( sizeRatio, 0.4 );
@@ -525,6 +525,11 @@ INNER JOIN (
         private const double AchScale = 1.0;
         private const double OneTimeAchScale = 0.06;
         private const double CheckScale = 0.8;
+
+        /// <summary>
+        /// The dataset manifest's check weight multiplier (1 keeps the measured mix).
+        /// </summary>
+        public double CheckWeightScale { get; set; } = 1;
         private const double CashScale = 6.0;
         private const double ApplePayScale = 0.5;
 
