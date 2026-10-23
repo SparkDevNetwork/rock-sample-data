@@ -1,6 +1,6 @@
 # Release
 
-What the release workflow, `.github/workflows/release.yml`, reads and runs. How to publish, and the one-time setup, are in [Maintaining](../docs/maintaining.md#publishing-a-release).
+What the release workflow, `.github/workflows/release.yml`, reads and runs. How to publish, the one-time setup, every release so far, and what to do when a run fails are in [Publishing a release](../docs/maintaining.md#publishing-a-release). Agents also follow the release rules in [AGENTS.md](../AGENTS.md#releases).
 
 | File | What it is |
 |---|---|
