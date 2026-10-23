@@ -49,6 +49,11 @@ namespace RockSampleData.Loader.Generation
         private const double EmailShare = 0.8;
 
         /// <summary>
+        /// The share of generated adults with a mobile phone.
+        /// </summary>
+        private const double MobileShare = 0.75;
+
+        /// <summary>
         /// Status weights, and the chance a record with that status shows any activity.
         /// Together these land near the profile's share of adult records with activity.
         /// </summary>
@@ -227,7 +232,7 @@ namespace RockSampleData.Loader.Generation
             var firstName = random.Pick( isFemale ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
             var isAdult = role == "adult";
             var hasEmail = isAdult && random.Chance( EmailShare );
-            var hasMobile = isAdult ? random.Chance( 0.75 ) : age >= 13 && random.Chance( 0.4 );
+            var hasMobile = isAdult ? random.Chance( MobileShare ) : age >= 13 && random.Chance( 0.4 );
 
             var person = new CastPerson
             {
@@ -256,6 +261,13 @@ namespace RockSampleData.Loader.Generation
 
                 // The measured share is of all adults, and only adults with an email can choose it.
                 person.EmailDoNotEmail = emailState.Chance( _profile.Number( "communicationDetail.people.pctDoNotEmail", 0 ) / 100 / EmailShare );
+            }
+
+            // A measured share of adults choose text as how the church reaches them. Only adults with a mobile can.
+            if ( isAdult && hasMobile )
+            {
+                var textState = new SeededRandom( $"{_seed}:crowd:text-state:{person.Guid}" );
+                person.PrefersText = textState.Chance( _profile.Number( "communicationDetail.people.pctPreferSms", 0 ) / 100 / MobileShare );
             }
 
             return person;

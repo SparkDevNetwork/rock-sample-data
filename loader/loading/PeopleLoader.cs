@@ -206,7 +206,7 @@ namespace RockSampleData.Loader.Loading
                         person.Email ?? ( object ) DBNull.Value,
                         person.EmailIsActive,
                         person.EmailDoNotEmail ? 2 : 0,
-                        1,
+                        person.PrefersText ? 2 : 1,
                         AgeClassification( person, isAdult, isBusiness, age ),
                         familyId, familyCampusId,
                         loaded.AliasId, loaded.AliasGuid,

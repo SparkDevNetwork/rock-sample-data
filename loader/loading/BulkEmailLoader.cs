@@ -54,6 +54,16 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The occasions' dates, once <see cref="Load"/> has run. Texts use the same calendar.
+        /// </summary>
+        public CommunicationCalendar Calendar { get; private set; }
+
+        /// <summary>
+        /// The dataset's campuses with their service times, once <see cref="Load"/> has run.
+        /// </summary>
+        public List<EmailCampus> CampusList { get; private set; }
+
+        /// <summary>
         /// Plans and writes every send. Unsubscribes mark their list members in <paramref name="members"/>.
         /// </summary>
         public void Load( CommunicationsConfiguration configuration, PeopleLoader people, List<ListCandidate> candidates, List<PlannedListMember> members,
@@ -61,7 +71,7 @@ namespace RockSampleData.Loader.Loading
         {
             var from = _dates.Anchor.AddYears( -2 );
             var series = _source.ReadSeriesLibrary();
-            var calendar = new CommunicationCalendar( _dates.Anchor, from, _source.Steps, _source.Campaign, configuration.Events, series, _seed );
+            var calendar = Calendar = new CommunicationCalendar( _dates.Anchor, from, _source.Steps, _source.Campaign, configuration.Events, series, _seed );
             var clients = configuration.EmailClients;
             var emailPeople = People( people, candidates, from, clients );
 
@@ -79,7 +89,7 @@ namespace RockSampleData.Loader.Loading
                 Members = members,
                 People = emailPeople,
                 PersonIdsByGuid = people.People.ToDictionary( p => p.Key, p => p.Value.PersonId ),
-                Campuses = Campuses( campusIds ),
+                Campuses = CampusList = Campuses( campusIds ),
                 MainCampusKey = mainCampusKey,
                 CastUnsubscribes = configuration.CastUnsubscribes,
                 Clients = clients

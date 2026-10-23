@@ -17,8 +17,9 @@
 
 /*
     Validates the Cast registry: required fields, Guid format, unique Guids,
-    every cross-reference between households and groups, and the delivered
-    photos in photos/manifest.json. Prints errors
+    every cross-reference between households and groups, the delivered
+    photos in photos/manifest.json, the prayer requests, the notes, and the
+    text threads in sms-threads.json. Prints errors
     (exit code 1) and warnings (exit code 0).
 
     Usage: node validate-cast.js
@@ -863,6 +864,216 @@ if ( fs.existsSync( prayerFile ) ) {
     }
 }
 
+/*
+    Pass 6: the Cast's text threads (cast/sms-threads.md). Each is one Cast person texting one of the church's
+    phone numbers, with messages in time order and a state SMS Conversations can show. Together they cover every
+    state, a long back-and-forth, a STOP opt-out, the student line, and every number, and a few are unread from
+    the last days before install, so every dataset opens to a live inbox.
+*/
+const SMS_STATES = [ "unread", "read", "stopped" ];
+const SMS_FROM = [ "person", "staff" ];
+const SMS_THREAD_FIELDS = [ "key", "person", "name", "number", "story", "state", "messages" ];
+const SMS_MESSAGE_FIELDS = [ "from", "daysAgo", "time", "text" ];
+const SMS_TEXT_LENGTH = { min: 1, max: 320 };
+const SMS_STOP = "STOP";
+const SMS_STOP_WINDOW_DAYS = 60;
+const SMS_COVERAGE = {
+    unread: { count: 4, minDaysAgo: 1, maxDaysAgo: 3 },
+    read: { count: 4, minDaysAgo: 2, maxDaysAgo: 300, newestAtMost: 30, oldestAtLeast: 180 },
+    longMessages: 12,
+    longSenderChanges: 6,
+    stopped: { count: 1, minDaysBefore: 3, maxDaysBefore: 50 },
+    perNumber: 2
+};
+
+// A Cast child with no grade on file is in grade (age - 5): Ava Brooks at 14 is a freshman, Ethan Fischer at 17 a senior.
+const GRADE_AGE_OFFSET = 5;
+const communicationConfiguration = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "communications.json" ), "utf8" ) );
+const PHONE_NUMBERS = new Map( communicationConfiguration.phoneNumbers.numbers.map( n => [ n.key, n ] ) );
+const STUDENT_GRADES = communicationConfiguration.lists.membership.studentGrades;
+
+/**
+ * True when a Cast person is a student in the student ministry's grades.
+ */
+function isStudent( p ) {
+    const grade = p.grade !== undefined ? p.grade : ( p.birth ? p.birth.age - GRADE_AGE_OFFSET : undefined );
+    return p.familyRole === "child" && grade >= STUDENT_GRADES.min && grade <= STUDENT_GRADES.max;
+}
+
+const smsFile = path.join( castDir, "sms-threads.json" );
+let smsThreadCount = 0;
+let smsMessageCount = 0;
+if ( fs.existsSync( smsFile ) ) {
+    const threads = JSON.parse( fs.readFileSync( smsFile, "utf8" ) ).threads;
+    if ( !Array.isArray( threads ) || threads.length === 0 ) {
+        errors.push( "sms-threads.json: threads must be a non-empty list." );
+    }
+    const threadKeys = new Set();
+    const valid = [];
+    for ( const t of Array.isArray( threads ) ? threads : [] ) {
+        smsThreadCount++;
+        const owner = `sms-threads.json (${t && t.key})`;
+        if ( !t || typeof t !== "object" || Array.isArray( t ) ) {
+            errors.push( `${owner}: must be an object.` );
+            continue;
+        }
+        for ( const field of SMS_THREAD_FIELDS.filter( f => t[ f ] === undefined ) ) {
+            errors.push( `${owner}: missing ${field}.` );
+        }
+        for ( const field of Object.keys( t ).filter( f => !SMS_THREAD_FIELDS.includes( f ) ) ) {
+            errors.push( `${owner}: unknown field "${field}".` );
+        }
+        if ( !KEY.test( t.key || "" ) || threadKeys.has( t.key ) ) {
+            errors.push( `${owner}: key must be a unique lowercase slug.` );
+        }
+        threadKeys.add( t.key );
+
+        // The person: a living Cast person on an active record, not a duplicate, with a mobile phone.
+        const entry = people.get( t.person );
+        if ( !entry ) {
+            errors.push( `${owner}: person ${t.person} is not a Cast person.` );
+        }
+        else {
+            const p = entry.person;
+            if ( p.isDeceased || p.recordStatus !== "active" || p.recordType === "business" || entry.household.duplicateOf ) {
+                errors.push( `${owner}: the person must be living, on an active record, and not a business or duplicate.` );
+            }
+            if ( !p.phones || !p.phones.mobile ) {
+                errors.push( `${owner}: ${p.firstName} ${p.lastName} has no mobile phone in ${entry.file}.` );
+            }
+            const name = `${p.nickName || p.firstName} ${p.lastName}`;
+            if ( t.name !== name ) {
+                errors.push( `${owner}: name "${t.name}" does not match the Cast person, "${name}".` );
+            }
+        }
+
+        // The number: a church phone number, never the person's own, and the student line only for students and their parents.
+        const number = PHONE_NUMBERS.get( t.number );
+        if ( !number ) {
+            errors.push( `${owner}: number "${t.number}" is not a phone number key in configuration/communications.json (${[ ...PHONE_NUMBERS.keys() ].join( ", " )}).` );
+        }
+        else if ( number.assignedTo && number.assignedTo === t.person ) {
+            errors.push( `${owner}: the person owns the "${t.number}" number, so they cannot text it.` );
+        }
+        if ( t.number === "students" && entry ) {
+            const isParent = entry.person.familyRole === "adult" && entry.household.members.some( isStudent );
+            if ( !isStudent( entry.person ) && !isParent ) {
+                errors.push( `${owner}: the student line is for students in grades ${STUDENT_GRADES.min} to ${STUDENT_GRADES.max} and their parents.` );
+            }
+        }
+        if ( typeof t.story !== "string" || !t.story.trim() ) {
+            errors.push( `${owner}: story is empty.` );
+        }
+        if ( !SMS_STATES.includes( t.state ) ) {
+            errors.push( `${owner}: state "${t.state}" is not one of ${SMS_STATES.join( ", " )}.` );
+        }
+
+        // The messages: known fields, plain text, and oldest first.
+        const messages = Array.isArray( t.messages ) ? t.messages : [];
+        if ( messages.length === 0 ) {
+            errors.push( `${owner}: messages must be a non-empty list.` );
+            continue;
+        }
+        let isWellFormed = true;
+        messages.forEach( ( msg, i ) => {
+            smsMessageCount++;
+            const at = `${owner} message ${i + 1}`;
+            if ( !msg || typeof msg !== "object" || Array.isArray( msg ) ) {
+                errors.push( `${at}: must be an object.` );
+                isWellFormed = false;
+                return;
+            }
+            const fields = Object.keys( msg );
+            if ( SMS_MESSAGE_FIELDS.some( f => msg[ f ] === undefined ) || fields.some( f => !SMS_MESSAGE_FIELDS.includes( f ) ) ) {
+                errors.push( `${at}: has exactly the fields ${SMS_MESSAGE_FIELDS.join( ", " )}.` );
+            }
+            if ( !SMS_FROM.includes( msg.from ) ) {
+                errors.push( `${at}: from "${msg.from}" is not one of ${SMS_FROM.join( ", " )}.` );
+            }
+            if ( !Number.isInteger( msg.daysAgo ) || msg.daysAgo < 0 ) {
+                errors.push( `${at}: daysAgo must be a whole number of days, 0 or more.` );
+                isWellFormed = false;
+            }
+            if ( !TIME.test( msg.time || "" ) ) {
+                errors.push( `${at}: time "${msg.time}" is not HH:mm on a 24-hour clock.` );
+                isWellFormed = false;
+            }
+            const text = typeof msg.text === "string" ? msg.text : "";
+            if ( text.length < SMS_TEXT_LENGTH.min || text.length > SMS_TEXT_LENGTH.max || text !== text.trim() ) {
+                errors.push( `${at}: text must be ${SMS_TEXT_LENGTH.min} to ${SMS_TEXT_LENGTH.max} characters with no leading or trailing spaces.` );
+            }
+            if ( /[^ -~]/.test( text ) || text.includes( "--" ) ) {
+                errors.push( `${at}: text has characters that are not plain. Use straight quotes, commas, or periods.` );
+            }
+            const previous = messages[ i - 1 ];
+            if ( i > 0 && previous && ( previous.daysAgo < msg.daysAgo || ( previous.daysAgo === msg.daysAgo && previous.time > msg.time ) ) ) {
+                errors.push( `${at}: comes before the message above it. Messages are oldest first.` );
+            }
+            if ( msg.from === "person" && text === SMS_STOP && !( t.state === "stopped" && i === messages.length - 1 ) ) {
+                errors.push( `${at}: only a stopped thread has a STOP, and it is the last message.` );
+            }
+        } );
+        if ( !isWellFormed ) {
+            continue;
+        }
+
+        // The state must agree with the messages.
+        const lastStaff = messages.map( msg => msg.from ).lastIndexOf( "staff" );
+        const lastPerson = messages.map( msg => msg.from ).lastIndexOf( "person" );
+        if ( t.state === "unread" && lastPerson < lastStaff ) {
+            errors.push( `${owner}: an unread thread needs at least one person text after the last staff text.` );
+        }
+        if ( t.state === "stopped" ) {
+            const stop = messages[ messages.length - 1 ];
+            const staffBefore = messages.filter( msg => msg.from === "staff" && msg.daysAgo - stop.daysAgo <= SMS_STOP_WINDOW_DAYS );
+            if ( stop.from !== "person" || stop.text !== SMS_STOP ) {
+                errors.push( `${owner}: a stopped thread ends with a person text that is exactly "${SMS_STOP}".` );
+            }
+            else if ( staffBefore.length === 0 ) {
+                errors.push( `${owner}: a stopped thread needs a staff text within the ${SMS_STOP_WINDOW_DAYS} days before the STOP.` );
+            }
+        }
+        valid.push( t );
+    }
+
+    // Coverage (cast/sms-threads.md, "What the threads cover").
+    const days = t => t.messages.map( msg => msg.daysAgo );
+    const unread = valid.filter( t => t.state === "unread" && days( t ).every( d => d >= SMS_COVERAGE.unread.minDaysAgo && d <= SMS_COVERAGE.unread.maxDaysAgo ) );
+    if ( unread.length < SMS_COVERAGE.unread.count ) {
+        errors.push( `sms-threads.json: ${unread.length} unread threads with every text ${SMS_COVERAGE.unread.minDaysAgo} to ${SMS_COVERAGE.unread.maxDaysAgo} days ago; at least ${SMS_COVERAGE.unread.count} keep every dataset's inbox live.` );
+    }
+    const readRule = SMS_COVERAGE.read;
+    const read = valid.filter( t => t.state === "read" );
+    for ( const t of read.filter( t => days( t ).some( d => d < readRule.minDaysAgo || d > readRule.maxDaysAgo ) ) ) {
+        errors.push( `sms-threads.json (${t.key}): a read thread's texts are ${readRule.minDaysAgo} to ${readRule.maxDaysAgo} days ago.` );
+    }
+    const lastDays = read.map( t => Math.min( ...days( t ) ) );
+    if ( read.length < readRule.count || Math.min( ...lastDays ) > readRule.newestAtMost || Math.max( ...lastDays ) < readRule.oldestAtLeast ) {
+        errors.push( `sms-threads.json: needs at least ${readRule.count} read threads, spread so one ends within ${readRule.newestAtMost} days and one ends ${readRule.oldestAtLeast} or more days ago.` );
+    }
+    const senderChanges = t => t.messages.filter( ( msg, i ) => i > 0 && msg.from !== t.messages[ i - 1 ].from ).length;
+    if ( !valid.some( t => t.messages.length >= SMS_COVERAGE.longMessages && senderChanges( t ) >= SMS_COVERAGE.longSenderChanges ) ) {
+        errors.push( `sms-threads.json: needs a back-and-forth of ${SMS_COVERAGE.longMessages} or more texts that changes sides at least ${SMS_COVERAGE.longSenderChanges} times.` );
+    }
+    const stopRule = SMS_COVERAGE.stopped;
+    const stopped = valid.filter( t => t.state === "stopped" );
+    if ( stopped.length !== stopRule.count ) {
+        errors.push( `sms-threads.json: has ${stopped.length} stopped threads; exactly ${stopRule.count} covers the STOP opt-out.` );
+    }
+    for ( const t of stopped ) {
+        const stopDay = t.messages[ t.messages.length - 1 ].daysAgo;
+        if ( !t.messages.some( msg => msg.from === "staff" && msg.daysAgo - stopDay >= stopRule.minDaysBefore && msg.daysAgo - stopDay <= stopRule.maxDaysBefore ) ) {
+            errors.push( `sms-threads.json (${t.key}): the STOP needs a staff text ${stopRule.minDaysBefore} to ${stopRule.maxDaysBefore} days before it.` );
+        }
+    }
+    for ( const key of PHONE_NUMBERS.keys() ) {
+        const count = valid.filter( t => t.number === key ).length;
+        if ( count < SMS_COVERAGE.perNumber ) {
+            errors.push( `sms-threads.json: ${count} threads on the "${key}" number; every number needs at least ${SMS_COVERAGE.perNumber}.` );
+        }
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -875,5 +1086,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

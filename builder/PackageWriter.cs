@@ -82,6 +82,11 @@ namespace RockSampleData.Builder
                 AddFile( SampleDataSource.CastPrayerRequestsPath );
             }
 
+            if ( repository.Exists( SampleDataSource.CastThreadsPath ) )
+            {
+                AddFile( SampleDataSource.CastThreadsPath );
+            }
+
             AddFile( $"datasets/{dataset}.json" );
 
             // The profile is resolved here, so a load never blends calibration sources itself.

@@ -143,7 +143,58 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckThreads( db, source, failures ) : 0;
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks that each Cast text thread shows in SMS Conversations the way its file says: every text the person sent
+        /// and every staff text, and the thread unread, read, or stopped.
+        /// </summary>
+        private static int CheckThreads( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var numbers = source.Communications?.PhoneNumbers.Numbers.ToDictionary( n => n.Key, n => n.Guid ) ?? new Dictionary<string, Guid>();
+            var checks = 0;
+            foreach ( var thread in source.ReadCastThreads() )
+            {
+                checks++;
+                var row = db.Query( @"
+SELECT
+    ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] ) AS [FromPerson],
+    ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] AND [r].[IsRead] = 0 ) AS [Unread],
+    ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [c].[SmsFromSystemPhoneNumberId] = [spn].[Id] AND [cr].[Status] = 1 AND [c].[IsBulkCommunication] = 0 ) AS [FromStaff],
+    ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [cr].[UnsubscribeLevel] = 1 ) AS [Stops]
+FROM [Person] AS [p]
+CROSS JOIN [SystemPhoneNumber] AS [spn]
+WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", thread.Person ), P( "@Number", numbers.GetValueOrDefault( thread.Number ) ) ).FirstOrDefault();
+                var fromPerson = thread.Messages.Count( m => m.From == "person" );
+                var fromStaff = thread.Messages.Count( m => m.From == "staff" );
+                var name = $"Text thread {thread.Key}";
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected the person and number, Rock shows neither" );
+                }
+                else if ( Convert.ToInt32( row["FromPerson"] ) != fromPerson || Convert.ToInt32( row["FromStaff"] ) != fromStaff )
+                {
+                    failures.Add( $"{name}: expected {fromPerson} texts from the person and {fromStaff} from staff, Rock shows {row["FromPerson"]} and {row["FromStaff"]}" );
+                }
+                else if ( thread.State == "unread" && Convert.ToInt32( row["Unread"] ) == 0 )
+                {
+                    failures.Add( $"{name}: expected unread texts, Rock shows the thread read" );
+                }
+                else if ( thread.State != "unread" && Convert.ToInt32( row["Unread"] ) > 0 )
+                {
+                    failures.Add( $"{name}: expected the thread read, Rock shows {row["Unread"]} unread" );
+                }
+                else if ( thread.State == "stopped" && Convert.ToInt32( row["Stops"] ) == 0 )
+                {
+                    failures.Add( $"{name}: expected the STOP to mark a text as unsubscribed, Rock shows none" );
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

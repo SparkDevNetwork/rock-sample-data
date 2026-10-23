@@ -108,6 +108,10 @@ namespace RockSampleData.Loader.Loading
             var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
             var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople );
             emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
+
+            // Texts reach list members who did not leave from an email, so they follow email.
+            new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople )
+                .Load( configuration, people, candidates, plan, listIds, mainCampusKey, campusIds, emails.Calendar, emails.CampusList );
             WriteMembers( plan, listIds );
 
             var sizes = plan.GroupBy( m => (m.ListKey, m.CampusKey) ).OrderBy( g => configuration.Lists.Lists.FindIndex( l => l.Key == g.Key.ListKey ) ).ThenBy( g => g.Key.CampusKey, StringComparer.Ordinal )

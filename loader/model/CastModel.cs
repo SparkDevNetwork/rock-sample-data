@@ -284,6 +284,11 @@ namespace RockSampleData.Loader.Model
 
         public bool EmailDoNotEmail { get; set; }
 
+        /// <summary>
+        /// True when the person's communication preference is text instead of email. Church-wide texts reach them.
+        /// </summary>
+        public bool PrefersText { get; set; }
+
         public CastPhones Phones { get; set; }
 
         /// <summary>

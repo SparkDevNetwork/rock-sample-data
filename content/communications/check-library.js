@@ -17,7 +17,7 @@
 
 /*
     Checks the message library in this folder against README.md: series.json, newsletter.json,
-    emails.json, and texts.json. For each entry it checks the required and allowed keys, unique
+    emails.json, texts.json, and conversations.json. For each entry it checks the required and allowed keys, unique
     keys, known occasions, audiences, topics, senders, lines, and mediums, the Lengths table,
     the allowed tokens and the one Lava merge field, links and button paths, email domains,
     plain characters, and no two entries in one list that start with the same five words.
@@ -69,8 +69,16 @@ const LENGTHS = {
     sms: { min: 40, max: 300 },
     pushTitle: { min: 5, max: 40 },
     pushText: { min: 20, max: 120 },
-    reply: { min: 2, max: 120 }
+    reply: { min: 2, max: 120 },
+    conversation: { min: 2, max: 300 }
 };
+
+// conversations.json: where a topic happens, who texts, its own tokens, and how many entries each list needs
+// so a generated thread rarely repeats. Every entry stands alone.
+const CONVERSATION_NUMBERS = [ "personal", "main", "students" ];
+const CONVERSATION_AUDIENCES = [ "adult", "parent", "student" ];
+const CONVERSATION_TOKENS = [ "{name}", "{staff}", "{campus}" ];
+const CONVERSATION_LISTS = { openers: 6, staffReplies: 6, personFollowUps: 5, staffFollowUps: 5, closings: 4 };
 
 // Most SMS texts should fit in one segment. It is reported, not enforced.
 const SMS_TYPICAL_MAX = 160;
@@ -210,9 +218,9 @@ function checkPath( at, href ) {
 /**
  * Checks a piece of message text: plain characters, the one Lava field, tokens, links, and email
  * addresses. 'allowed' is the list of tokens this field may use. 'linkable' fields may hold
- * Markdown links.
+ * Markdown links. 'known' is the file's own token list, and 'lava' is false for a file that uses no Lava.
  */
-function checkText( at, text, { allowed = TOKENS, linkable = false } = {} ) {
+function checkText( at, text, { allowed = TOKENS, linkable = false, known = TOKENS, lava = true } = {} ) {
     if ( typeof text !== "string" ) {
         return;
     }
@@ -235,19 +243,19 @@ function checkText( at, text, { allowed = TOKENS, linkable = false } = {} ) {
     }
 
     // Lava: only {{ Person.NickName }}, written exactly.
-    let withoutLava = outsideLinks.split( LAVA ).join( "" );
+    let withoutLava = lava ? outsideLinks.split( LAVA ).join( "" ) : outsideLinks;
     if ( /\{\{|\}\}|\{%|%\}/.test( withoutLava ) ) {
-        errors.push( `${at}: has Lava other than ${LAVA}.` );
+        errors.push( lava ? `${at}: has Lava other than ${LAVA}.` : `${at}: has Lava, which this file never uses.` );
         withoutLava = withoutLava.replace( /\{\{.*?\}\}|\{%.*?%\}/g, "" );
     }
 
     // Tokens: only the documented ones, and {campusKey} only inside a link path.
     const tokens = withoutLava.match( /\{[^{}]*\}/g ) || [];
     for ( const token of tokens ) {
-        if ( token === CAMPUS_KEY_TOKEN ) {
+        if ( token === CAMPUS_KEY_TOKEN && known.includes( token ) ) {
             errors.push( `${at}: uses ${CAMPUS_KEY_TOKEN} outside a link path.` );
         }
-        else if ( !TOKENS.includes( token ) ) {
+        else if ( !known.includes( token ) ) {
             errors.push( `${at}: uses unknown token ${token}.` );
         }
         else if ( !allowed.includes( token ) ) {
@@ -664,11 +672,67 @@ if ( textsFile && checkKeys( "texts.json", textsFile, [ "texts", "replies" ] ) )
     summary.push( `texts.json\n    ${sms} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer, ${asksReply} ask for a reply), ${push} pushes\n    replies: ${replyCounts.join( ", " )}` );
 }
 
+// conversations.json: the topics generated text conversations are built from.
+const conversationsFile = readFile( "conversations.json" );
+if ( conversationsFile && checkKeys( "conversations.json", conversationsFile, [ "topics" ] ) ) {
+    checkCharacters( "conversations.json", conversationsFile );
+    const keys = new Map();
+    const topics = checkArray( "conversations.json topics", conversationsFile.topics );
+    const byNumber = Object.fromEntries( CONVERSATION_NUMBERS.map( n => [ n, 0 ] ) );
+    let entries = 0;
+    let shortEntries = 0;
+    for ( const [ index, topic ] of topics.entries() ) {
+        const at = `conversations.json topics[${index}]`;
+        if ( !checkKeys( at, topic, [ "key", "numbers", "audience" ].concat( Object.keys( CONVERSATION_LISTS ) ) ) ) {
+            continue;
+        }
+        const label = `${at} (${topic.key})`;
+        checkKey( at, topic.key, keys );
+        const numbers = checkArray( `${label} numbers`, topic.numbers );
+        for ( const number of numbers ) {
+            if ( CONVERSATION_NUMBERS.includes( number ) ) {
+                byNumber[number]++;
+            }
+            else {
+                errors.push( `${label}: number "${number}" is not one of ${CONVERSATION_NUMBERS.join( ", " )}.` );
+            }
+        }
+        if ( new Set( numbers ).size !== numbers.length ) {
+            errors.push( `${label}: lists a number twice.` );
+        }
+        if ( !CONVERSATION_AUDIENCES.includes( topic.audience ) ) {
+            errors.push( `${label}: audience "${topic.audience}" is not one of ${CONVERSATION_AUDIENCES.join( ", " )}.` );
+        }
+        for ( const [ list, minimum ] of Object.entries( CONVERSATION_LISTS ) ) {
+            const texts = checkArray( `${label} ${list}`, topic[list] );
+            if ( texts.length && texts.length < minimum ) {
+                errors.push( `${label} ${list}: has ${texts.length} entries; it needs at least ${minimum}.` );
+            }
+            for ( const [ i, text ] of texts.entries() ) {
+                const textAt = `${label} ${list}[${i}]`;
+                if ( !checkString( textAt, text ) ) {
+                    continue;
+                }
+                checkText( textAt, text, { allowed: CONVERSATION_TOKENS, known: CONVERSATION_TOKENS, lava: false } );
+                checkLength( textAt, text, LENGTHS.conversation, "a conversation text" );
+                entries++;
+                if ( text.length <= SMS_TYPICAL_MAX ) {
+                    shortEntries++;
+                }
+            }
+            checkOpenings( `${label} ${list}`, texts.map( ( t, i ) => [ `[${i}]`, t ] ) );
+        }
+    }
+    const share = entries ? Math.round( 100 * shortEntries / entries ) : 0;
+    const where = Object.entries( byNumber ).map( ( [ k, v ] ) => `${v} ${k}` ).join( ", " );
+    summary.push( `conversations.json\n    ${topics.length} topics (${where}), ${entries} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
+}
+
 for ( const line of summary ) {
     console.log( line );
 }
 for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
-console.log( `\nMessage library: 4 files checked. ${errors.length} errors.` );
+console.log( `\nMessage library: 5 files checked. ${errors.length} errors.` );
 process.exit( errors.length ? 1 : 0 );

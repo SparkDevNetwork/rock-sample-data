@@ -127,14 +127,18 @@
     },
     {
       "path": "communicationDetail.design",
-      "reason": "Design choice. The measured data records no unsubscribes on recipient rows and too few bounces to shape, so these are designed (decision 131). Each person reads at their own rate by connection status, set so the sample church lands near the measured share of delivered emails opened. Unsubscribes are per 1,000 recipients of each kind of send: a newsletter, another list, and a church-wide send to someone on no list. A few active emails bounce during the window, and the rest of the measured inactive share was inactive before it (pctEmailsInactiveBeforeWindow). Sends with one link get all their clicks on it, so sends with more links give their first link a little less than the measured average.",
+      "reason": "Design choice. The measured data records no unsubscribes on recipient rows and too few bounces to shape, so these are designed (decision 131). Each person reads at their own rate by connection status, set so the sample church lands near the measured share of delivered emails opened. Unsubscribes are per 1,000 recipients of each kind of send: a newsletter, another list, and a church-wide send to someone on no list. A few active emails bounce during the window, and the rest of the measured inactive share was inactive before it (pctEmailsInactiveBeforeWindow). Sends with one link get all their clicks on it, so sends with more links give their first link a little less than the measured average. Replies to mass texts and generated conversations are designed too: the measured replies were never linked to their texts, and volume is designed (decision 91). Conversations land mostly on staff members' personal numbers, as measured, and a text with no staff answer after it is often left unread.",
       "value": {
         "openRateByStatus": { "Leading": 0.94, "Engaged": 0.88, "Connected": 0.8, "Participant": 0.64, "Known": 0.62, "Prospect": 0.56 },
         "openFactorBySend": { "newsletter": 0.95, "other": 1.05 },
         "unsubscribesPerThousandRecipients": { "newsletter": 0.15, "list": 0.5, "churchWide": 40 },
         "pctEmailsBouncingIn24Months": 1.8,
         "pctEmailsInactiveBeforeWindow": 2.8,
-        "pctClicksOnTopLinkOfMultiLinkSends": 74
+        "pctClicksOnTopLinkOfMultiLinkSends": 74,
+        "textReplies": { "pctOfAskingTextRecipients": 12, "pctOfOtherTextRecipients": 0.8, "kindMix": { "yes": 60, "no": 18, "question": 12, "thanks": 10 } },
+        "conversationsPerYearPerThousandActiveAdults": 50,
+        "conversationNumberMix": { "personal": 74.5, "main": 18, "students": 7.5 },
+        "unreadShareOfUnansweredTexts": { "recent": 80, "older": 35 }
       }
     },
     { "path": "communicationDetail.saturation.byMedium.Email.mass.00", "value": 47, "reason": "Design choice. A campus newsletter holds every involved adult with an active email plus a third of the others (decisions 133 and 138), so about half of active adults get mass email in a month, where the measured church reached about one in six. The other buckets shift with the month a load is graded in, because church-wide sends cluster around Easter, the fall launch, and Christmas, so only the share with none is graded." },

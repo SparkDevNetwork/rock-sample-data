@@ -660,3 +660,44 @@ WHERE [cr].[ForeignKey] = @ForeignKey
 SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
         WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [cr].[SendDateTime] IS NOT NULL )
     - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
+
+-- check: sent-text-is-delivered-with-its-text
+-- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 2
+    AND ( ( [cr].[SendDateTime] IS NOT NULL AND ( [cr].[Status] <> 1 OR ISNULL( [cr].[SentMessage], '' ) = '' OR [cr].[DeliveredDateTime] IS NULL OR [c].[SmsFromSystemPhoneNumberId] IS NULL ) )
+        OR ( [cr].[SendDateTime] IS NULL AND ( [cr].[Status] <> 2 OR [cr].[StatusNote] IS NULL ) ) );
+
+-- check: sent-text-has-its-history
+-- why: Rock's Twilio transport writes a "SMS message" line on the person's History tab for every text it sends.
+SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 2 AND [cr].[SendDateTime] IS NOT NULL )
+    - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'SMS message' ) );
+
+-- check: texted-stop-turns-off-texting
+-- why: Decision 131. A texted STOP marks the person's newest text as a level All unsubscribe and turns off texting on their mobile, and Rock records the opt-out on the phone. A phone opted out in the sample data came from a STOP.
+SELECT ( SELECT COUNT(*)
+        FROM [CommunicationRecipient] AS [cr]
+        INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+        WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 2 AND [cr].[UnsubscribeLevel] IS NOT NULL
+            AND ( [cr].[UnsubscribeLevel] <> 1 OR NOT EXISTS (
+                SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [pa].[PersonId] AND [pn].[IsMessagingOptedOut] = 1 AND [pn].[IsMessagingEnabled] = 0 AND [pn].[MessagingOptedOutDateTime] IS NOT NULL ) ) )
+    + ( SELECT COUNT(*)
+        FROM [PhoneNumber] AS [pn]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId]
+        WHERE [p].[ForeignKey] = @ForeignKey AND [pn].[IsMessagingOptedOut] = 1
+            AND NOT EXISTS ( SELECT 1 FROM [CommunicationResponse] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[FromPersonAliasId]
+                WHERE [pa].[PersonId] = [p].[Id] AND [r].[Response] = 'STOP' AND [r].[ForeignKey] = @ForeignKey ) );
+
+-- check: text-reply-comes-from-a-known-phone
+-- why: SMS Conversations groups a person's texts by their number, so every text a person sent comes from their own mobile, to one of the church's active texting numbers.
+SELECT COUNT(*)
+FROM [CommunicationResponse] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[FromPersonAliasId]
+LEFT JOIN [SystemPhoneNumber] AS [spn] ON [spn].[Id] = [r].[RelatedSmsFromSystemPhoneNumberId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [pa].[Id] IS NULL OR [spn].[Id] IS NULL OR [spn].[IsActive] = 0
+        OR NOT EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [pa].[PersonId] AND '1' + [pn].[Number] = [r].[MessageKey] ) );
