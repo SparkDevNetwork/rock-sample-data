@@ -69,7 +69,6 @@ namespace RockSampleData.Loader.Generation
             "Tax Service", "Graphic Design", "Handyman Service", "Dog Grooming", "Tutoring", "Construction"
         };
 
-        private static readonly string[] AreaCodes = { "602", "480", "623" };
 
         // Cadences sure to land gifts in the last 12 months, weighted toward where the profile has room.
         private static readonly Dictionary<string, double> PersonaWeights = new Dictionary<string, double>
@@ -91,14 +90,17 @@ namespace RockSampleData.Loader.Generation
         private readonly string _seed;
         private readonly AddressPool _addresses;
         private readonly Func<double, double> _annualTotal;
+        private readonly Func<SeededRandom, string> _phoneNumber;
         private readonly HashSet<string> _usedNames = new HashSet<string>();
 
-        public BusinessGenerator( ProfileTargets profile, string seed, AddressPool addresses, Func<double, double> annualTotal )
+        /// <param name="phoneNumber">Draws a reserved phone number that is not one of the church's own.</param>
+        public BusinessGenerator( ProfileTargets profile, string seed, AddressPool addresses, Func<double, double> annualTotal, Func<SeededRandom, string> phoneNumber )
         {
             _profile = profile;
             _seed = seed;
             _addresses = addresses;
             _annualTotal = annualTotal;
+            _phoneNumber = phoneNumber;
         }
 
         /// <summary>
@@ -190,7 +192,7 @@ namespace RockSampleData.Loader.Generation
                 RecordStatus = "active",
                 ConnectionStatus = "Prospect",
                 Email = $"{slug}@example.org",
-                Phones = new CastPhones { Work = $"{random.Pick( AreaCodes )}5550{random.Between( 100, 199 )}" }
+                Phones = new CastPhones { Work = _phoneNumber( random ) }
             } );
 
             return household;

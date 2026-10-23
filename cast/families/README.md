@@ -35,6 +35,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/peterson-brian.jpg" width="56" alt="Brian Peterson"> | [Peterson Family](peterson.md) | Brian, Becky | Married couple where one spouse has no email. |
 | <img src="../../photos/cast/ramirez-carlos.jpg" width="56" alt="Carlos Ramirez"> | [Ramirez Family](ramirez.md) | Carlos, Ana, Lucas, Mia | First-time guests: first visit two weeks ago. |
 | <img src="../../photos/cast/richards-dan.jpg" width="56" alt="Dan Richards"> | [Richards](richards.md) | Dan | Single Prospect who is already in a small group. |
+| <img src="../../photos/cast/silva-isaac.jpg" width="56" alt="Isaac Silva"> | [Silva Family](silva.md) | Isaac, Natalie | Every gift goes to two funds. |
 | <img src="../../photos/cast/simmons-jim.jpg" width="56" alt="Jim Simmons"> | [Simmons Family](simmons.md) | Jim, Sarah | Blended family with a child shared with another household. |
 | <img src="../../photos/cast/smith-john-other-john.jpg" width="56" alt="John Smith"> | [Smith Family](smith-john-other.md) | John | Duplicate detection: common name that must NOT be merged. |
 | <img src="../../photos/cast/smith-jon-jon.jpg" width="56" alt="Jon Smith"> | [Smith Family](smith-jon.md) | Jon | Duplicate detection: original record of a three-way duplicate. |

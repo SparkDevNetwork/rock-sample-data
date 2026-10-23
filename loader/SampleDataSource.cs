@@ -81,6 +81,11 @@ namespace RockSampleData.Loader
         public CampaignConfiguration Campaign { get; }
 
         /// <summary>
+        /// The phone numbers, senders, template, and communication lists, or null in a package built before communications loaded.
+        /// </summary>
+        public CommunicationsConfiguration Communications { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -100,6 +105,7 @@ namespace RockSampleData.Loader
             SecurityRoles = Files.Exists( SecurityRolesPath ) ? Read<SecurityRoleConfiguration>( SecurityRolesPath ) : null;
             Steps = Files.Exists( StepsConfigurationPath ) ? Read<StepsConfiguration>( StepsConfigurationPath ) : null;
             Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
+            Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -161,6 +167,13 @@ namespace RockSampleData.Loader
         public const string StepsConfigurationPath = "configuration/steps.json";
 
         public const string CampaignConfigurationPath = "configuration/campaign.json";
+
+        public const string CommunicationsConfigurationPath = "configuration/communications.json";
+
+        /// <summary>
+        /// The message library, the email template, and its logo.
+        /// </summary>
+        public const string CommunicationsContentFolder = "content/communications";
 
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
