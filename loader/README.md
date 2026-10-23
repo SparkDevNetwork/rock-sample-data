@@ -133,7 +133,7 @@ The two builds are meant to load the same rows. One difference is expected: .NET
 
 ## The package index
 
-The hosted list of packages is `index.json` (decision 123). The [release workflow](../docs/maintaining.md#publishing-a-release) merges each release into it and uploads it last, at `https://storage.rockrms.com/sampledata/packages/index.json`, beside the versioned packages (decision D-release-2). A prerelease changes only `index-prerelease.json` beside it (decision D-release-3). `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
+The hosted list of packages is `index.json` (decision 123). The [release workflow](../docs/maintaining.md#publishing-a-release) merges each release into it and uploads it last, at `https://storage.rockrms.com/sampledata/packages/index.json`, beside the versioned packages (decision 128). A prerelease changes only `index-prerelease.json` beside it (decision 129). `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
 
 ```json
 {

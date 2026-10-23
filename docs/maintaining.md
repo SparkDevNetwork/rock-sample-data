@@ -120,7 +120,7 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 
 ## Publishing a release
 
-The release workflow, `.github/workflows/release.yml`, publishes everything (decisions D-release-1 to D-release-4). It has four jobs:
+The release workflow, `.github/workflows/release.yml`, publishes everything (decisions 127 to 130). It has four jobs:
 
 | Job | Where | What it does |
 |---|---|---|
@@ -144,7 +144,7 @@ A run without "publish" stops after the first three jobs. That is a dry run.
 
 4. Approve the Publish job when GitHub asks.
 
-A tag with a label, such as `v1.1.0-beta.1`, is a prerelease. NuGet lists the loader as a prerelease, and only `packages/index-prerelease.json` changes (decision D-release-3). To try one in Rock, point the installer block at `https://storage.rockrms.com/sampledata/packages/index-prerelease.json`.
+A tag with a label, such as `v1.1.0-beta.1`, is a prerelease. NuGet lists the loader as a prerelease, and only `packages/index-prerelease.json` changes (decision 129). To try one in Rock, point the installer block at `https://storage.rockrms.com/sampledata/packages/index-prerelease.json`.
 
 A manual run can also publish: run it on `main`, give a version, and tick "publish". Use this when a tag's run failed for a reason outside the repository. A run that failed partway can be run again: files already uploaded with the same bytes are skipped, and a version already on nuget.org is skipped.
 

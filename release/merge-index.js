@@ -18,7 +18,7 @@
 /*
     Merges one release's packages into the hosted package index, index.json. The format is in the loader
     README, under "The package index". The release workflow runs it after every package passed the
-    publishing gate, and uploads the result last (decision D-release-2).
+    publishing gate, and uploads the result last (decision 128).
 
     Usage:
       node release/merge-index.js --packages <folder> --version 1.2.0 --out <new index.json>

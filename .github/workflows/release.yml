@@ -1,4 +1,4 @@
-# Publishes a release (decisions D-release-1 to D-release-4). For each Rock release in
+# Publishes a release (decisions 127 to 130). For each Rock release in
 # release/rock-releases.json, it builds that Rock, writes every dataset's package, verifies them,
 # and runs the publishing gate. It packs the loader NuGet package. Then, behind the
 # "release" environment, it pushes the loader to nuget.org and uploads the packages, their receipts,
@@ -360,7 +360,7 @@ jobs:
           done
 
       # A stable release updates index.json, and index-prerelease.json to match it. A prerelease
-      # updates only index-prerelease.json: the stable index plus the prerelease (decision D-release-3).
+      # updates only index-prerelease.json: the stable index plus the prerelease (decision 129).
       - name: Upload the package index
         shell: bash
         run: |
