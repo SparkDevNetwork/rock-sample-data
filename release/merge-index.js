@@ -32,7 +32,8 @@
     --out       Where to write the merged index.
 
     Each package becomes one entry. Its checksum, dataset, and Rock come from its receipt, its size from
-    the file, and its name, description, people, and campuses from the dataset's manifest in datasets/.
+    the file, and its dataset card from the dataset's manifest in datasets/: the name, the summary as the
+    description, bestFor, highlights, people, households, campuses, and typicalInstallSeconds.
     A new entry replaces the hosted entry for the same dataset and Rock version, so the index lists a
     dataset once per Rock. Entries for other Rock versions stay. Packages already published stay at
     their versioned paths; only the index stops listing them.
@@ -116,8 +117,12 @@ function toEntry( folder, rockFolder, receiptFile, version, commit ) {
         dataset,
         name: manifest.name,
         description: manifest.summary || manifest.description,
+        bestFor: manifest.bestFor,
+        highlights: manifest.highlights,
         people: manifest.people,
+        households: manifest.households,
         campuses: manifest.campuses,
+        typicalInstallSeconds: manifest.typicalInstallSeconds,
         version,
         url: `v${version}/${rockFolder}/${receipt.package.file}`,
         sha256: receipt.package.sha256,

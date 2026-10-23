@@ -192,9 +192,19 @@ namespace RockSampleData.Loader.Loading
 
                         Reason: Check-in and the Student Path follow a recent graduate's real school years (decision 118).
                     */
+                    /*
+                        10/23/26 - CLAUDE
+
+                        An adult keeps their file's graduation year too. Attendance reads it only when it falls inside
+                        the history window, as it does for the generated adults aged 18 to 20, whose graduation the
+                        Crowd sets: they check in as students until they graduate. The Cast's adult graduations are
+                        decades old, so nothing changes for the Cast.
+
+                        Reason: Recent graduates get their student years (decision 148).
+                    */
                     var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;
-                    loaded.GraduationYear = isAdult ? null : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
+                    loaded.GraduationYear = isAdult ? fileGraduationYear : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
                     loaded.IsAdult = isAdult;
                     loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive";
 

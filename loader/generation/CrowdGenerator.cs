@@ -238,6 +238,7 @@ namespace RockSampleData.Loader.Generation
                 Gender = isFemale ? "female" : "male",
                 FamilyRole = role,
                 Birth = new CastBirth { Age = age, Month = random.Between( 1, 12 ), Day = random.Between( 1, 28 ), IsUnrecorded = isAdult && !IsBirthDateRecorded( household, position ) },
+                Graduation = isAdult && age <= 20 ? RecentGraduation( age ) : null,
                 MaritalStatus = marital,
                 RecordStatus = "active",
                 ConnectionStatus = status,
@@ -256,6 +257,16 @@ namespace RockSampleData.Loader.Generation
         {
             var random = new SeededRandom( $"{_seed}:crowd-birth:{household.Key}-{position}" );
             return random.Chance( _profile.Number( "people.completeness.adult.pctBirthDate", 100 ) / 100 );
+        }
+
+        /// <summary>
+        /// The high school graduation of a generated adult aged 18 to 20, in late May of the year their age gives,
+        /// by the same grade rule as children. It adds no random draws, so the Crowd is otherwise unchanged.
+        /// </summary>
+        private RelativeDate RecentGraduation( int age )
+        {
+            var graduationYear = new AnchorDates( _anchor ).GraduationYear( age - 5 );
+            return new RelativeDate { YearsAgo = _anchor.Year - graduationYear, Month = 5, Day = 22 };
         }
 
         /// <summary>
