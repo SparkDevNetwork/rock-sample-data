@@ -37,7 +37,7 @@ const initiatives = [
         eyebrow: "A two-year building campaign",
         paragraphs: [
             "Built on the Rock pays for a Student Center at the Phoenix campus and more kids rooms at every campus. The name comes from the wise builder in Matthew 7, who built his house on the rock.",
-            "People and businesses at every campus made pledges. The campaign has its own fund, so Rock's pledge screens show real progress.",
+            "People and businesses at every campus made pledges. Rock's Building Fund is the campaign's fund, renamed Built on the Rock, and it holds only campaign gifts, so Rock's pledge screens show real progress.",
             "Every install lands about 40% through the campaign. Some pledges are ahead and some are behind, so each one has a story."
         ],
         card: [ "A Student Center at Phoenix.", "Kids rooms at every campus.", "Two years." ]

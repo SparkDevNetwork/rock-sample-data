@@ -337,13 +337,17 @@ namespace RockSampleData.Loader.Generation
 
             var perGift = ( decimal ) Math.Max( MinimumGift, annual / GiftsPerYear( persona ) );
 
-            var funds = new Dictionary<string, decimal>();
-            if ( random.Chance( 0.04 ) )
-            {
-                funds["Building Fund"] = Math.Round( perGift * 0.2m );
-                perGift -= funds["Building Fund"];
-            }
+            /*
+                10/23/26 - CLAUDE
 
+                About 4% of givers once split part of each gift to a Building Fund that ran all year. That fund
+                is now the building campaign's fund (decision 98), so the whole gift goes to the General Fund
+                (decision 99). The draw stays, so every later random choice, and so the rest of the Crowd, is
+                the same as before.
+            */
+            _ = random.Chance( 0.04 );
+
+            var funds = new Dictionary<string, decimal>();
             if ( random.Chance( 0.03 ) )
             {
                 funds["Mission Fund"] = Math.Round( perGift * 0.15m );

@@ -10,7 +10,7 @@
   "story": "James and Sarah Lee have six children, from a high school sophomore to a toddler. Sunday check-in for the Lees touches nearly every room.",
   "testPurposes": [
     "Family of eight with kids in every check-in area.",
-    "Weekly giver across two funds."
+    "Weekly giver with a building campaign line on each gift."
   ],
   "address": {
     "type": "home",
@@ -36,8 +36,7 @@
       "persona": "weekly",
       "person": "james",
       "funds": {
-        "General Fund": 150,
-        "Building Fund": 50
+        "General Fund": 200
       },
       "percentOfPeriodsGiven": 90,
       "specialGiftPercent": 35,

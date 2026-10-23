@@ -8,7 +8,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 |---|---|
 | `campuses.json` | Campuses, the datasets each appears in, and which service time slots each offers. |
 | `schedules.json` | The shared Sunday service time slots and the campus schedule types (Weekend Service, Student Service). |
-| `accounts.json` | Funds. General Fund, Building Fund, and the Built on the Rock campaign fund have one child account per campus. |
+| `accounts.json` | Funds. The General Fund and the Built on the Rock campaign fund have one child account per campus. |
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
@@ -40,9 +40,11 @@ The student service meets at Sunday 10:30am at every campus. On each campus, Sun
 
 ## Funds
 
-General Fund and Building Fund each have a child account per campus (for example "Phoenix General Fund"), with Rock's `UsesCampusChildAccounts` turned on. Gifts post to the giver's campus account. Mission Fund and Event Registration have no child accounts.
+The church has four funds: General Fund, Built on the Rock, Mission Fund, and Event Registration. All four are funds Rock ships. The loader sets each fund's name and public name from `accounts.json`.
 
-Built on the Rock is the building campaign's fund (decision 98). Rock does not ship it, so the loader adds it, with a child account per campus like the other two. Its start and end dates are the campaign's: Commitment Sunday is the Sunday 40 weeks before install day, and the campaign lasts two years. Its campus accounts share those dates. Rock's giving page hides an account outside its dates, so the fund takes gifts only during the campaign.
+General Fund and Built on the Rock each have a child account per campus (for example "Phoenix General Fund"), with Rock's `UsesCampusChildAccounts` turned on. Gifts post to the giver's campus account. Mission Fund and Event Registration have no child accounts.
+
+Built on the Rock is the building campaign's fund (decision 98). It is Rock's Building Fund, renamed, so it keeps Rock's Guid. The church has no standing building fund: upkeep comes from the General Fund (decision 99), so the fund has no gifts from before the campaign. Its start and end dates are the campaign's: Commitment Sunday is the Sunday 40 weeks before install day, and the campaign lasts two years. Its campus accounts share those dates. Rock's giving page hides an account outside its dates, so the fund takes gifts only during the campaign.
 
 The loader also points two Rock settings at the fund (decision 100). Rock has two pledge pages: (Public) Create Pledge in the Rock admin site, and Pledge under Give on the external website. The Pledge Entry block on each uses the fund and the campaign dates, and shows the pledge frequency as an optional choice. Rock ships the WebForms Pledge Entry block, and a Rock job swaps it for the Obsidian one after Rock starts, so the loader finds the block on each page by either block type. Rock's default contribution statement template shows pledges to the fund and counts gifts to its campus accounts toward them.
 

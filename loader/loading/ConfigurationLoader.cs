@@ -246,8 +246,8 @@ VALUES ( @CampusId, @ScheduleId, @TypeId, @Order, NEWID(), @ForeignKey, GETDATE(
         }
 
         /// <summary>
-        /// Adds the funds Rock does not ship, turns on campus child accounts for each per-campus fund, and adds
-        /// a child account per campus.
+        /// Adds the funds Rock does not ship, names every fund as configured, turns on campus child accounts for
+        /// each per-campus fund, and adds a child account per campus.
         /// </summary>
         private void LoadAccounts( List<CampusDefinition> campuses )
         {
@@ -268,10 +268,20 @@ VALUES ( @Name, @PublicName, @TaxDeductible, @Order, 1, 1, @Guid, @ForeignKey, G
                     _db.Log.Write( $"  Fund added: {fund.Name}" );
                 }
 
+                /*
+                    10/23/26 - CLAUDE
+
+                    The names come from configuration for Rock's own funds too, because the building campaign's
+                    fund is Rock's Building Fund, renamed (decision 98). A fund with no public
+                    name keeps Rock's.
+                */
                 var parentId = _db.RequireIdByGuid( "FinancialAccount", fund.Guid );
                 var usesChildren = fund.CampusAccounts.Count > 0;
-                _db.Execute( "UPDATE [FinancialAccount] SET [IsActive] = 1, [Order] = @Order, [UsesCampusChildAccounts] = @UsesChildren WHERE [Id] = @Id",
-                    P( "@Order", fund.Order ), P( "@UsesChildren", usesChildren ), P( "@Id", parentId ) );
+                _db.Execute( @"
+UPDATE [FinancialAccount]
+SET [Name] = @Name, [PublicName] = COALESCE( @PublicName, [PublicName] ), [IsActive] = 1, [Order] = @Order, [UsesCampusChildAccounts] = @UsesChildren
+WHERE [Id] = @Id",
+                    P( "@Name", fund.Name ), P( "@PublicName", fund.PublicName ), P( "@Order", fund.Order ), P( "@UsesChildren", usesChildren ), P( "@Id", parentId ) );
 
                 var childOrder = 0;
                 foreach ( var child in fund.CampusAccounts.Where( a => CampusIds.ContainsKey( a.Campus ) ) )
