@@ -333,7 +333,7 @@ namespace RockSampleData.Loader.Loading
                 foreach ( var sunday in _calendar.Sundays.Where( s => s >= started && s <= ended && !familySundays.Contains( s ) ) )
                 {
                     var groupKey = CheckInGroupFor( student, sunday );
-                    if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, StudentRules.OnTheirOwn[groupKey] * _calendar.Multiplier( sunday, "kids" ) ) ) )
+                    if ( IsStudentGroup( groupKey ) && random.Chance( Math.Min( 0.95, percent / 100.0 * StudentRules.OnTheirOwn[groupKey] * _calendar.Multiplier( sunday, "kids" ) ) ) )
                     {
                         AddCheckInOnTheirOwn( student, plan, groupKey, sunday, checkInRan, random );
                     }
@@ -688,12 +688,13 @@ namespace RockSampleData.Loader.Loading
             public static readonly HashSet<string> EngagedStatuses = new HashSet<string> { "Engaged", "Leading" };
 
             /// <summary>
-            /// The chance an engaged student comes on their own on a normal Sunday their family stayed home. High schoolers drive.
+            /// On a normal Sunday their family stayed home, an engaged student comes on their own with this share of the family's
+            /// own chance of coming, so a student from a family that rarely comes rarely comes alone. High schoolers drive.
             /// </summary>
             public static readonly Dictionary<string, double> OnTheirOwn = new Dictionary<string, double>
             {
-                ["grades-7-8"] = 0.15,
-                ["grades-9-12"] = 0.30
+                ["grades-7-8"] = 0.25,
+                ["grades-9-12"] = 0.50
             };
 
             /// <summary>
