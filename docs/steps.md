@@ -103,7 +103,7 @@ Who takes a class, in this order:
 
 ## How student steps are made
 
-Student steps come from the student check-ins the attendance step already writes (decision 115). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those Attendance rows back from the database. It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
+Student steps come from the student check-ins the attendance step already writes (decision 115). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those check-ins from the attendance plan, the same rows the attendance step writes, so a load that leaves out attendance still gets the same student steps (decision D-rock-loader-6). It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
 
 ### Who is a student
 
