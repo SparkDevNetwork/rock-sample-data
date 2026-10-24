@@ -85,6 +85,14 @@ namespace RockSampleData.Verify
         }
 
         /// <summary>
+        /// Today's date on this server (SQL Server's GETDATE), the clock Rock Cleanup computes ages and daily counts from.
+        /// </summary>
+        public DateTime Today()
+        {
+            return ( DateTime ) Scalar( "master", "SELECT CAST( GETDATE() AS date )" );
+        }
+
+        /// <summary>
         /// Runs a batch and returns the first column of the first row.
         /// </summary>
         public object Scalar( string database, string sql, params SqlParameter[] parameters )
