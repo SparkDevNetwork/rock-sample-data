@@ -130,6 +130,7 @@ namespace RockSampleData.Loader.Loading
             };
 
             // Serving: one confirmation per volunteer each day the scheduler asks them, and one reminder two days before each Sunday they did not decline.
+            // Rock's job only picks volunteers it can email, so a volunteer with no working email gets no serving email at all.
             var confirmationId = _db.RequireIdByGuid( "SystemCommunication", ScheduleConfirmationGuid );
             var reminderId = _db.RequireIdByGuid( "SystemCommunication", ScheduleReminderGuid );
             var requests = _db.Query( "SELECT [PersonAliasId], [CampusId], [StartDateTime], [RSVP], [CreatedDateTime] FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [RequestedToAttend] = 1 AND [ScheduleConfirmationSent] = 1",
@@ -142,6 +143,11 @@ namespace RockSampleData.Loader.Loading
             {
                 var first = day.OrderBy( r => r.Start ).First();
                 var sent = day.Key.Date.AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:confirm:{first.Person.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
+                if ( !emails.Planner.CanEmail( first.Person, sent ) )
+                {
+                    continue;
+                }
+
                 Add( "confirm", library["serving-scheduled"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = confirmationId } );
             }
 
@@ -149,6 +155,11 @@ namespace RockSampleData.Loader.Loading
             {
                 var first = day.OrderBy( r => r.Start ).First();
                 var sent = day.Key.Date.AddDays( -2 ).AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:remind:{first.Person.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
+                if ( !emails.Planner.CanEmail( first.Person, sent ) )
+                {
+                    continue;
+                }
+
                 Add( "remind", library["serving-reminder"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = reminderId } );
             }
 
