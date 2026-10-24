@@ -144,8 +144,9 @@ namespace RockSampleData.Builder
             files["README.md"] = Normalize( "README.md", Utf8( repository.ReadText( "builder/package-readme.md" )
                 .Replace( "{{name}}", datasetManifest.Name )
                 .Replace( "{{dataset}}", dataset )
+                .Replace( "{{rockMajor}}", rock?.Major.ToString() ?? "(unknown)" )
                 .Replace( "{{rockVersion}}", rock?.Version ?? "(unknown)" )
-                .Replace( "{{rockMigration}}", rock?.Migration ?? "(unknown)" ) ) );
+                .Replace( "{{minimumLoaderVersion}}", SampleDataPackage.MinimumLoaderVersion ) ) );
 
             var manifest = new PackageManifest
             {
@@ -154,7 +155,8 @@ namespace RockSampleData.Builder
                 Name = datasetManifest.Name,
                 Profile = profileName,
                 Source = ReadSource( root ),
-                Rock = rock
+                Rock = rock,
+                MinimumLoaderVersion = SampleDataPackage.MinimumLoaderVersion
             };
             foreach ( var (path, bytes) in files )
             {

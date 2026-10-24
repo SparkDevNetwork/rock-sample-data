@@ -18,13 +18,15 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
+using RockSampleData.Loader;
 using RockSampleData.Loader.Packages;
 
 namespace RockSampleData.Builder
 {
     /// <summary>
-    /// Reads which Rock a package is for from a Rock checkout: the version in Directory.Build.props
-    /// and the newest Entity Framework migration in Rock.Migrations.
+    /// Reads which Rock a package is for from a Rock checkout: the version in Directory.Build.props,
+    /// whose first number is the major release the package serves (decision 52), and the
+    /// newest Entity Framework migration in Rock.Migrations.
     /// </summary>
     internal static class RockCheckout
     {
@@ -47,7 +49,9 @@ namespace RockSampleData.Builder
                 throw new InvalidOperationException( "A package must say which Rock it is for. Pass --rock <Rock checkout> (or set ROCK_PATH), or both --rock-version and --rock-migration." );
             }
 
-            return new PackageRock { Version = version, Migration = migration };
+            var major = RockVersionInfo.MajorOf( version )
+                ?? throw new InvalidOperationException( $"The Rock version {version} does not start with a major release number, such as 21 in 21.0.2." );
+            return new PackageRock { Major = major, Version = version, Migration = migration };
         }
 
         /// <summary>

@@ -171,7 +171,7 @@ namespace RockSampleData.Loader.Generation
             var lastName = random.Pick( CrowdNames.LastNames );
             var status = PickStatus( random );
 
-            // Some one-person families are a child on their own (often a student who comes without parents).
+            // Some one-person families are a child on their own.
             var isChildAlone = size == 1 && random.Chance( _profile.Number( "people.familySizeMix.1.avgChildren", 0 ) );
             var adultCount = isChildAlone ? 0
                 : size == 1 ? 1
@@ -187,10 +187,15 @@ namespace RockSampleData.Loader.Generation
                 Address = NewAddress( random, campus )
             };
 
+            // A child on their own is a student, 12 to 17, who comes without parents (decision 157).
+            // The old band pick still takes its draw, so the stream stays aligned up to the person. A child of 13
+            // or more also rolls for a mobile phone, so the rest of that household's draws can differ from before.
+            // Other households have their own streams and do not change.
             if ( isChildAlone )
             {
-                var age = AgeInBand( random.Pick( AgeWeights( new[] { "06-11", "12-17" } ) ), random );
-                household.Members.Add( NewPerson( household, 0, random, lastName, Math.Max( age, 10 ), random.Chance( 0.5 ), "child", status, null ) );
+                random.Pick( AgeWeights( new[] { "06-11", "12-17" } ) );
+                var age = AgeInBand( "12-17", random );
+                household.Members.Add( NewPerson( household, 0, random, lastName, age, random.Chance( 0.5 ), "child", status, null ) );
                 return household;
             }
 

@@ -102,10 +102,10 @@ module.exports = function datasets( { model } ) {
       <p>Ages and grades never drift. A first-time guest always visited two weeks ago. Christmas and Easter always land where they should.</p>
     </div>
     <div class="split-text reveal">
-      <p class="eyebrow">One exact Rock</p>
+      <p class="eyebrow">Your Rock version</p>
       <h2>Made for your version.</h2>
-      <p>Each package is built for one exact Rock release. It records that Rock's version and newest migration, and the loader refuses a database that doesn't match.</p>
-      <p>Before a package is published, it's loaded into a clean copy of that Rock and checked. See <a href="how-its-built.html#trust">how we prove it</a>.</p>
+      <p>Each package is built for one Rock major release, such as Rock 21, and works on every update of it. The loader reads your Rock's version and refuses a different major release. Packages are made for Rock 20 and Rock 21.</p>
+      <p>Before a package is published, it's loaded into a clean copy of that Rock and checked, and every new Rock update is checked the same way. See <a href="how-its-built.html#trust">how we prove it</a>.</p>
     </div>
   </div>
 </section>

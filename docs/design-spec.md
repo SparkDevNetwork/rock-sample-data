@@ -213,7 +213,7 @@ Personas are behavior templates. Their numbers come from the calibration profile
 
 The package stores **who people are**: households, people, relationships, journeys, personas, and photo assignments. The loader generates **what people did** (gifts, attendance, check-ins, group attendance, communications, prayer, connections) at install time, using a seeded, calendar-aware timeline engine.
 
-The loader is one library, published to NuGet and called by Rock's installer and by a command line for test harnesses (decision 41). It contains only a generic, data-driven engine. All church-specific knowledge arrives in the package. Each package is for one exact Rock, identified by its newest migration (decision 52).
+The loader is one library, published to NuGet and called by Rock's installer and by a command line for test harnesses (decision 41). It contains only a generic, data-driven engine. All church-specific knowledge arrives in the package. Each package is for one Rock major release, read from Rock's `Rock.Version.dll` (decision 52).
 
 Load steps:
 

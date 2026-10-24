@@ -67,7 +67,7 @@ These need only Node.js, so every contributor runs them.
 
 ## Before publishing: the verify tool
 
-The [verify tool](../verify/README.md) proves that each package works on one exact Rock and writes a receipt next to it. Run it from `verify/` with the same built Rock checkout the packages were built from:
+The [verify tool](../verify/README.md) proves that each package works on the Rock release it was built on and writes a receipt next to it. A package serves every dot release of that Rock's major release (decision 52), so a release builds on the newest dot release, and each new dot release gets a verify run before churches use it (see [Add or change a Rock release](maintaining.md#add-or-change-a-rock-release)). Run it from `verify/` with the same built Rock checkout the packages were built from:
 
 ```
 dotnet run -- --rock C:\Development\Rock
@@ -95,9 +95,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Load
 
-**What it does.** Loads the package into a fresh copy of the trusted base, with check images on and Rock's real keys from the checkout's `web.config`, the way a release build does.
+**What it does.** Loads the package into a fresh copy of the trusted base, with check images on and Rock's real keys from the checkout's `web.config`, the way a release build does. It gives the loader the Rock version from the checkout's `RockWeb\bin\Rock.Version.dll`, as Rock's installer gives its own, and fails first if that differs from the checkout's `Directory.Build.props`, which means `RockWeb\bin` was built from other code.
 
-**Why it's there.** It proves the package installs on this exact Rock. Every check after it reads the loaded data.
+**Why it's there.** It proves the package installs on this Rock, through the same Rock version check a church's install runs. Every check after it reads the loaded data.
 
 ### Cast expectations
 
@@ -184,11 +184,11 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Receipt
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256 and source commit, the Rock version and migration that were checked, the trusted base's certificate and schema hash, the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, source commit, and minimum loader version, the Rock major release and the exact Rock version and migration that were checked, the trusted base's certificate and schema hash, the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
 
 ### Publishing gate
 
-**What it does.** `dotnet run -- --check-receipts ../packages` (in `verify/`) refuses to publish when any package has no receipt, its receipt is for different bytes, any check failed, the receipt is for a different Rock than the package, or either the package or the checks came from uncommitted changes.
+**What it does.** `dotnet run -- --check-receipts ../packages` (in `verify/`) refuses to publish when any package has no receipt, its receipt is for different bytes, any check failed, the receipt is for a different Rock than the package, the package names no minimum loader version or the receipt names another, or either the package or the checks came from uncommitted changes.
 
 **Why it's there.** A receipt only matters if publishing depends on it. The release workflow runs this gate in each Packages job, and again in the Publish job on the exact files it uploads (see [Publishing a release](maintaining.md#publishing-a-release)).
 
@@ -196,15 +196,15 @@ Each run writes `{dataset}.verify.json` next to each package. A receipt records 
 
 The loader runs five short checks before it writes anything, and stops the install if any fails:
 
-1. The package's format is one this loader reads.
+1. The package's format is one this loader reads, and this loader is at least the oldest loader the package names (decision 158).
 2. Every file matches its SHA-256 in `package.json`, nothing is missing, and nothing was added.
 3. No other sample data load is running on the database. The load holds an exclusive SQL Server application lock for its whole transaction.
 4. The database has no people beyond the five a new Rock install creates, so it holds no real people and no sample data yet (decision 122).
-5. The database's newest migration is the one the package was built for (decision 52).
+5. The database's Rock, read from Rock's `Rock.Version.dll`, is the package's major release (decision 52).
 
 Checks 3 to 5 run inside the load's transaction, so two loads started at once cannot both pass. During the load it also checks the Cast expectations of the parts it loaded, and it runs Rock's own journey stage procedure for the last week to confirm Rock makes exactly the changes the loader predicted. See [Loader](../loader/README.md#what-the-loader-checks-before-loading).
 
-**Why they're there.** These are the only checks that run on a church's server, so they are fast and protect only against a damaged package, the wrong database, or the wrong Rock. Everything slower happened before the package was published.
+**Why they're there.** These are the only checks that run on a church's server, so they are fast and protect only against a damaged package, a loader too old for it, the wrong database, or the wrong Rock major release. Everything slower happened before the package was published. They check nothing else about Rock's schema: Rock makes no model changes in a dot release, and the contract was checked on the Rock the package was built on.
 
 ## When the loader library changes
 
