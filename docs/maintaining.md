@@ -146,7 +146,7 @@ The release workflow, `.github/workflows/release.yml`, publishes everything (dec
 
 | Job | Where | What it does |
 |---|---|---|
-| Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`. |
+| Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`, with each one's major release. Refuses two releases for one major, and, for a run that publishes, a version below the packages' minimum loader version (`release/check-minimum-loader.js`). |
 | Packages for Rock X | Windows, once per Rock major release | Checks out that major's Rock release, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
 | Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs the loader (`SparkDevNetwork.Rock.SampleData.Loader`) with the release version, Source Link, symbols, the license, and the README. |
 | Publish | Windows, in the `release` environment | Runs the gate again, pushes the loader to nuget.org, uploads the packages and receipts, then merges and uploads the index last. |
@@ -201,6 +201,8 @@ Open the failed run in Actions, find the first failed step, and match it here.
 | Sign in to nuget.org | The trusted publishing policy does not match: owner `SparkDevelopmentNetwork`, repository `SparkDevNetwork/rock-sample-data`, workflow `release.yml`, environment `release`, package `SparkDevNetwork.Rock.SampleData.Loader`, and `NUGET_USER` the user who made the policy. | Fix the policy or the variable, then "Re-run failed jobs". |
 | Sign in to Azure: `AADSTS700213: No matching federated identity record` | The app's trust record does not match GitHub's token subject. This repository uses the immutable subject with IDs. | Set the trust as in step 2 of the one-time setup, then "Re-run failed jobs". |
 | Upload the packages and receipts: "already published with other bytes" | This version is already on storage with different files, so the run would change a published package. | Never overwrite it. Tag the next version. |
+| Read the version and the Rock releases: "is below SampleDataPackage.MinimumLoaderVersion" | The tag is older than the loader the packages need, so its loader would refuse its own packages (decision D-rock-major-1). Nothing was built. | Delete the tag, since nothing was published, and tag the minimum version or later. |
+| Read the version and the Rock releases: "two Rock releases for one major release" | `release/rock-releases.json` lists two dot releases of one major. Each major gets one package set (decision 52). | Keep only that major's newest dot release, on a branch, and run again. |
 
 A re-run skips what is already published, so "Re-run failed jobs" is safe after any fix outside the repository. It needs one approval again.
 

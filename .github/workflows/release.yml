@@ -77,9 +77,20 @@ jobs:
             exit 1
           fi
 
+          # A release's loader must load its own packages (decision D-rock-major-1).
+          if [ "$publish" = "true" ]; then
+            node release/check-minimum-loader.js --version "$version"
+          fi
+
           prerelease=false
           [[ "$version" == *-* ]] && prerelease=true
-          releases=$(jq -c '[.releases[] | { version, ref }]' release/rock-releases.json)
+
+          # One Rock release per major release, whose packages go under rock-{major} (decision 52).
+          releases=$(jq -c '[.releases[] | { version, ref, major: (.version | split(".")[0] | tonumber) }]' release/rock-releases.json)
+          if [ "$(jq '[.[].major] | length != (unique | length)' <<< "$releases")" = "true" ]; then
+            echo "::error::release/rock-releases.json lists two Rock releases for one major release."
+            exit 1
+          fi
           {
             echo "version=$version"
             echo "publish=$publish"
@@ -101,6 +112,7 @@ jobs:
         rock: ${{ fromJSON(needs.plan.outputs.releases) }}
     env:
       ROCK_VERSION: ${{ matrix.rock.version }}
+      ROCK_MAJOR: ${{ matrix.rock.major }}
       ROCK_REF: ${{ matrix.rock.ref }}
     steps:
       - uses: actions/checkout@v4
@@ -187,20 +199,21 @@ jobs:
       - name: Check SQL Server sign-in
         run: sqlcmd -S localhost -E -C -Q "SELECT @@VERSION, SUSER_SNAME() AS [Login], IS_SRVROLEMEMBER('sysadmin') AS [IsSysAdmin];"
 
+      # Each package serves every dot release of its major, so it is written and published under rock-{major}.
       - name: Write the packages
-        run: dotnet run --project builder -c Release -- --rock "$env:ROCK_PATH" --out "packages/rock-$env:ROCK_VERSION"
+        run: dotnet run --project builder -c Release -- --rock "$env:ROCK_PATH" --out "packages/rock-$env:ROCK_MAJOR"
 
       - name: Verify the packages
-        run: dotnet run --project verify -c Release -- --rock "$env:ROCK_PATH" --packages "packages/rock-$env:ROCK_VERSION" --run ci
+        run: dotnet run --project verify -c Release -- --rock "$env:ROCK_PATH" --packages "packages/rock-$env:ROCK_MAJOR" --run ci
 
       - name: Publishing gate
-        run: dotnet run --project verify -c Release --no-build -- --check-receipts "packages/rock-$env:ROCK_VERSION"
+        run: dotnet run --project verify -c Release --no-build -- --check-receipts "packages/rock-$env:ROCK_MAJOR"
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rock-${{ matrix.rock.version }}
-          path: packages/rock-${{ matrix.rock.version }}
+          name: rock-${{ matrix.rock.major }}
+          path: packages/rock-${{ matrix.rock.major }}
           if-no-files-found: warn
           retention-days: 14
 
