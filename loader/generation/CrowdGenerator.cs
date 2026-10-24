@@ -187,7 +187,7 @@ namespace RockSampleData.Loader.Generation
                 Address = NewAddress( random, campus )
             };
 
-            // A child on their own is a student, 12 to 17, who comes without parents (decision D-crowd-teens-2).
+            // A child on their own is a student, 12 to 17, who comes without parents (decision 157).
             // The old band pick still takes its draw, so the stream stays aligned up to the person. A child of 13
             // or more also rolls for a mobile phone, so the rest of that household's draws can differ from before.
             // Other households have their own streams and do not change.
