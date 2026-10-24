@@ -53,8 +53,10 @@ namespace RockSampleData.LoaderCli
                 var sql = new StreamReader( resource ).ReadToEnd();
 
                 // A freshly loaded database has not run Rock's post-update jobs, so it lacks the CommunicationRecipient
-                // index part 7 reads by. The loaded data is small enough to read without it.
-                sql = sql.Replace( "DECLARE @ReadWithoutIndex BIT = 0;", "DECLARE @ReadWithoutIndex BIT = 1;" );
+                // indexes part 7 reads by. The loaded data is small enough to read without them, and part 7 then samples a
+                // quarter of its texters, so it is asked for four times as many to keep the thread shapes steady.
+                sql = sql.Replace( "DECLARE @ReadWithoutIndex BIT = 0;", "DECLARE @ReadWithoutIndex BIT = 1;" )
+                    .Replace( "DECLARE @SampleTexters INT = 200;", "DECLARE @SampleTexters INT = 800;" );
                 using var command = new SqlCommand( sql, connection ) { CommandTimeout = 600 };
                 using var reader = command.ExecuteReader();
                 var sections = 0;

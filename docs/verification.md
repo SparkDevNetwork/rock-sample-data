@@ -101,7 +101,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member, and each scripted Cast unsubscribe there must show at its level, with the person Inactive in the list or on "No mass emails". This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member, and each scripted Cast unsubscribe there must show at its level, with the person Inactive in the list or on "No mass emails". Each Cast text thread in `cast/sms-threads.json` must show its texts and its state: unread, read, or stopped. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 
@@ -153,6 +153,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `opens-and-clicks-follow-an-open` | Every open and click is on the communication's component, points at an opened recipient, comes after their first open, and a click goes to the church's site. |
 | `unsubscribe-matches-the-person` | Decision 131: a list unsubscribe leaves the person Inactive in that list, and a Bulk one leaves them on "No mass emails" or stricter. |
 | `sent-email-has-its-history` | Every sent email recipient has Rock's "Sent" line on their History. |
+| `sent-text-is-delivered-with-its-text`, `sent-text-has-its-history` | SMS Conversations shows a text only when it is Delivered and reads its words from SentMessage, and Rock writes a "SMS message" History line for each text it sends. A text Rock could not send failed with its note. |
+| `texted-stop-turns-off-texting` | A STOP marks a level All unsubscribe and turns off and opts out texting on the person's mobile, and every opted-out phone came from a STOP. |
+| `text-reply-comes-from-a-known-phone` | Every text a person sent comes from their own mobile to an active church number, so SMS Conversations finds them. |
 | `system-phone-numbers-are-reserved-and-unused` | The church's texting numbers are active, can text, have forwarding off, use the reserved range, and are no loaded person's number (decision 93). |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 

@@ -168,12 +168,13 @@ Body blocks are `h` (a heading), `p` (a paragraph, which may hold Markdown links
     "yes": [ "..." ],
     "no": [ "..." ],
     "question": [ "..." ],
-    "thanks": [ "..." ]
+    "thanks": [ "..." ],
+    "staff": [ "..." ]
   }
 }
 ```
 
-A text that asks for an answer sets `"asksReply": true`, and its replies come from the pools. `line` is the phone number it goes out on: `main` or `students`. A push has a `title`.
+A text that asks for an answer sets `"asksReply": true`, and its replies come from the pools. Staff answer some replies with a line from `staff`. `line` is the phone number it goes out on: `main` or `students`. A push has a `title`.
 
 ## conversations.json
 

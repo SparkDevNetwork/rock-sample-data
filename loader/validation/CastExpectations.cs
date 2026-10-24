@@ -198,7 +198,7 @@ WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", thread.Per
         }
 
         /// <summary>
-        /// Checks each scripted Cast unsubscribe: one recipient row at the right level, and the person left the list,
+        /// Checks each scripted Cast email unsubscribe: one email recipient row at the right level, and the person left the list,
         /// or chose No mass emails, the way Rock's email preference page records it.
         /// </summary>
         private static int CheckUnsubscribes( RockDatabase db, SampleDataSource source, List<string> failures )
@@ -215,7 +215,7 @@ FROM [CommunicationRecipient] AS [cr]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[Guid] = @Guid AND [cr].[UnsubscribeDateTime] IS NOT NULL
+WHERE [p].[Guid] = @Guid AND [cr].[UnsubscribeDateTime] IS NOT NULL AND [c].[CommunicationType] = 1
 ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", unsubscribe.Person ) ).FirstOrDefault();
                 var name = unsubscribe.Person.ToString();
                 if ( row == null )

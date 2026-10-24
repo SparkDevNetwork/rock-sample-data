@@ -654,8 +654,8 @@ if ( textsFile && checkKeys( "texts.json", textsFile, [ "texts", "replies" ] ) )
     checkOpenings( "texts.json", texts.map( ( e, i ) => [ `texts[${i}]`, e && e.text ] ) );
 
     const replyCounts = [];
-    if ( checkKeys( "texts.json replies", textsFile.replies, [ "yes", "no", "question", "thanks" ] ) ) {
-        for ( const pool of [ "yes", "no", "question", "thanks" ] ) {
+    if ( checkKeys( "texts.json replies", textsFile.replies, [ "yes", "no", "question", "thanks", "staff" ] ) ) {
+        for ( const pool of [ "yes", "no", "question", "thanks", "staff" ] ) {
             const entries = checkArray( `texts.json replies.${pool}`, textsFile.replies[pool] );
             for ( const [ index, entry ] of entries.entries() ) {
                 const at = `texts.json replies.${pool}[${index}]`;

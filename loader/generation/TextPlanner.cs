@@ -188,8 +188,7 @@ namespace RockSampleData.Loader.Generation
                     var when = recipient.SendDateTime.Value.AddMinutes( StopDelayMinutes( random ) );
                     if ( when < _inputs.Anchor )
                     {
-                        Respond( person, send.NumberKey, when, "STOP", random.Chance( 0.5 ), seed );
-                        _optOuts[person.PersonId] = when;
+                        _optOuts[person.PersonId] = Respond( person, send.NumberKey, when, "STOP", random.Chance( 0.5 ), seed );
                     }
 
                     continue;
@@ -202,7 +201,15 @@ namespace RockSampleData.Loader.Generation
                     var when = recipient.SendDateTime.Value.AddMinutes( random.Chance( 0.7 ) ? random.Between( 1, 60 ) : random.Between( 60, 720 ) );
                     if ( pool != null && pool.Count > 0 && when < _inputs.Anchor )
                     {
-                        Respond( person, send.NumberKey, when, random.Pick( pool ), IsRead( random, when, false ), seed );
+                        // Staff answer many replies from SMS Conversations, which also marks them read.
+                        var staff = _inputs.Library.Replies.GetValueOrDefault( "staff" );
+                        var answered = staff != null && staff.Count > 0 && random.Chance( _inputs.Design.AnsweredReplyShare );
+                        var sentAt = Respond( person, send.NumberKey, when, random.Pick( pool ), answered || IsRead( random, when, false ), seed );
+                        var answerAt = sentAt.AddMinutes( Delay( random, _inputs.Design.StaffReplyDelay ) );
+                        if ( answered && answerAt < _inputs.Anchor && Number( send.NumberKey ) is TextNumber number )
+                        {
+                            AddStaffText( person, number, answerAt, random.Pick( staff ), $"{seed}:answer" );
+                        }
                     }
                 }
             }
@@ -303,12 +310,16 @@ namespace RockSampleData.Loader.Generation
                 return;
             }
 
+            // A few people text staff again and again, so their conversations run together into long threads.
             var weights = adults.Select( ( p, i ) => (i.ToString( CultureInfo.InvariantCulture ), Weight( p )) ).ToDictionary( x => x.Item1, x => x.Item2 );
+            var regulars = adults.Where( p => new SeededRandom( $"{_inputs.Seed}:sms-regular:{p.Guid}" ).Chance( design.RegularTexterShare * Weight( p ) / 2 ) ).ToList();
             for ( var n = 0; n < count; n++ )
             {
                 var seed = $"{_inputs.Seed}:sms-thread:{n}";
                 var random = new SeededRandom( seed );
-                var person = adults[int.Parse( random.Pick( weights ), CultureInfo.InvariantCulture )];
+                var person = regulars.Count > 0 && random.Chance( design.RegularConversationShare )
+                    ? random.Pick( regulars )
+                    : adults[int.Parse( random.Pick( weights ), CultureInfo.InvariantCulture )];
                 var start = StartTime( random );
                 if ( start < person.Since || ( _optOuts.TryGetValue( person.PersonId, out var stopped ) && stopped <= start ) )
                 {
@@ -410,15 +421,19 @@ namespace RockSampleData.Loader.Generation
             };
 
             var tokens = new Dictionary<string, string> { ["{name}"] = person.NickName, ["{staff}"] = number.StaffFirstName, ["{campus}"] = _inputs.Campuses.FirstOrDefault( c => c.Key == person.CampusKey )?.Name ?? string.Empty };
+            // Some short conversations never get a staff answer: the person texts once or twice more and gives up or calls.
+            var isUnanswered = length <= 3 && random.Chance( design.UnansweredShortShare );
             var messages = new List<(bool IsStaff, DateTime When, string Text)>();
             var when = start;
             for ( var i = 0; i < length; i++ )
             {
-                var isStaff = i % 2 == 1;
+                var isStaff = !isUnanswered && i % 2 == 1;
                 if ( i > 0 )
                 {
                     when = when.AddMinutes( Delay( random, isStaff ? design.StaffReplyDelay : design.PersonReplyDelay ) );
                 }
+
+                when = Waking( when, $"{seed}:{i}" );
 
                 if ( when >= _inputs.Anchor || ( _optOuts.TryGetValue( person.PersonId, out var stopped ) && stopped <= when ) )
                 {
@@ -514,9 +529,28 @@ namespace RockSampleData.Loader.Generation
             Texts.Add( send );
         }
 
-        private void Respond( TextPerson person, string numberKey, DateTime when, string text, bool isRead, string seed )
+        /// <summary>
+        /// Adds a text the person sent, at a waking hour, and returns when it was sent.
+        /// </summary>
+        private DateTime Respond( TextPerson person, string numberKey, DateTime when, string text, bool isRead, string seed )
         {
+            when = Waking( when, seed );
             Responses.Add( new PlannedResponse { Person = person, NumberKey = numberKey, When = when, Text = text, IsRead = isRead, Guid = SeededRandom.StableGuid( $"{seed}:response" ) } );
+            return when;
+        }
+
+        /// <summary>
+        /// People text while they are awake: a time overnight moves to the next morning.
+        /// </summary>
+        private DateTime Waking( DateTime when, string seed )
+        {
+            if ( when.Hour >= 6 && when.Hour < 23 )
+            {
+                return when;
+            }
+
+            var morning = ( when.Hour >= 23 ? when.Date.AddDays( 1 ) : when.Date ).AddHours( 7 ).AddMinutes( Math.Abs( StableNumber( seed ) ) % 120 );
+            return morning < _inputs.Anchor ? morning : when;
         }
 
         /// <summary>
@@ -608,6 +642,10 @@ namespace RockSampleData.Loader.Generation
             OtherReplyPercent = profile.Number( "communicationDetail.design.textReplies.pctOfOtherTextRecipients", 0.8 );
             ReplyMix = Fallback( profile.Map( "communicationDetail.design.textReplies.kindMix" ), "yes" );
             ConversationsPerYearPerThousand = profile.Number( "communicationDetail.design.conversationsPerYearPerThousandActiveAdults", 50 );
+            RegularTexterShare = profile.Number( "communicationDetail.design.regularTexters.pctOfPeople", 2 ) / 100;
+            RegularConversationShare = profile.Number( "communicationDetail.design.regularTexters.pctOfConversations", 40 ) / 100;
+            UnansweredShortShare = profile.Number( "communicationDetail.design.pctShortConversationsUnanswered", 30 ) / 100;
+            AnsweredReplyShare = profile.Number( "communicationDetail.design.textReplies.pctAnsweredByStaff", 55 ) / 100;
             ConversationNumberMix = Fallback( profile.Map( "communicationDetail.design.conversationNumberMix" ), "personal" );
             RecentUnreadShare = profile.Number( "communicationDetail.design.unreadShareOfUnansweredTexts.recent", 80 ) / 100;
             OlderUnreadShare = profile.Number( "communicationDetail.design.unreadShareOfUnansweredTexts.older", 35 ) / 100;
@@ -628,9 +666,26 @@ namespace RockSampleData.Loader.Generation
 
         public Dictionary<string, double> ReplyMix { get; }
 
+        /// <summary>
+        /// The share of replies to mass texts a staff member answers.
+        /// </summary>
+        public double AnsweredReplyShare { get; }
+
+        /// <summary>
+        /// The share of conversations of three texts or fewer that no staff member answers.
+        /// </summary>
+        public double UnansweredShortShare { get; }
+
         public double ConversationsPerYearPerThousand { get; }
 
         public Dictionary<string, double> ConversationNumberMix { get; }
+
+        /// <summary>
+        /// The share of people who text staff often, and the share of conversations that are theirs.
+        /// </summary>
+        public double RegularTexterShare { get; }
+
+        public double RegularConversationShare { get; }
 
         public double RecentUnreadShare { get; }
 
