@@ -301,6 +301,11 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
+        /// Whether Rock can email the person at a time: they have an email that has not bounced, and they did not choose "Do not email".
+        /// </summary>
+        public bool CanEmail( EmailPerson person, DateTime at ) => person.HasEmail && Refusal( person, new PlannedEmail { Sent = at } ) == null;
+
+        /// <summary>
         /// A personal email gets opened more often than a mass email does.
         /// </summary>
         private const double OneToOneOpenFactor = 1.1;

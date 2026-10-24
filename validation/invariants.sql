@@ -733,21 +733,34 @@ SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [
     - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
 
 -- check: serving-email-follows-a-request
--- why: Decision D-commsoneone-1. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each one-to-one serving email has the request it came from, and one recipient.
-SELECT COUNT(*)
-FROM [Communication] AS [c]
-INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [c].[SystemCommunicationId]
-WHERE [c].[ForeignKey] = @ForeignKey AND [sc].[Guid] IN ( 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC', '8A20FE79-B73C-447A-82B1-416F9B50C038' )
-    AND ( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] ) <> 1
-        OR NOT EXISTS (
-            SELECT 1
-            FROM [CommunicationRecipient] AS [cr]
-            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
-            INNER JOIN [PersonAlias] AS [aa] ON [aa].[PersonId] = [pa].[PersonId]
-            INNER JOIN [Attendance] AS [a] ON [a].[PersonAliasId] = [aa].[Id]
-            WHERE [cr].[CommunicationId] = [c].[Id] AND [a].[RequestedToAttend] = 1
-                AND ( ( [sc].[Guid] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND CONVERT( DATE, [a].[CreatedDateTime] ) = CONVERT( DATE, [c].[SendDateTime] ) AND [a].[ScheduleConfirmationSent] = 1 )
-                    OR ( [sc].[Guid] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND CONVERT( DATE, [a].[StartDateTime] ) = CONVERT( DATE, DATEADD( DAY, 2, [c].[SendDateTime] ) ) AND [a].[ScheduleReminderSent] = 1 AND ISNULL( [a].[RSVP], 3 ) <> 0 ) ) ) );
+-- why: Decision D-commsoneone-1. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each serving email has one recipient and the request it came from.
+WITH [Serving] AS (
+    SELECT [c].[Id], [c].[SendDateTime], [sc].[Guid] AS [Kind]
+    FROM [Communication] AS [c]
+    INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [c].[SystemCommunicationId]
+    WHERE [c].[ForeignKey] = @ForeignKey AND [sc].[Guid] IN ( 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC', '8A20FE79-B73C-447A-82B1-416F9B50C038' )
+), [Sent] AS (
+    SELECT [s].[Kind], [pa].[PersonId], CONVERT( DATE, [s].[SendDateTime] ) AS [Day], COUNT(*) AS [Recipients]
+    FROM [Serving] AS [s]
+    INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [s].[Id]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+    GROUP BY [s].[Id], [s].[Kind], [pa].[PersonId], CONVERT( DATE, [s].[SendDateTime] )
+), [Asked] AS (
+    SELECT DISTINCT [pa].[PersonId], CONVERT( DATE, [a].[CreatedDateTime] ) AS [Day]
+    FROM [Attendance] AS [a]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[RequestedToAttend] = 1 AND [a].[ScheduleConfirmationSent] = 1
+), [Reminded] AS (
+    SELECT DISTINCT [pa].[PersonId], CONVERT( DATE, DATEADD( DAY, -2, [a].[StartDateTime] ) ) AS [Day]
+    FROM [Attendance] AS [a]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[RequestedToAttend] = 1 AND [a].[ScheduleReminderSent] = 1 AND ISNULL( [a].[RSVP], 3 ) <> 0
+)
+SELECT ( SELECT COUNT(*) FROM [Serving] WHERE NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [Serving].[Id] ) )
+    + ( SELECT COUNT(*) FROM [Sent] AS [s]
+        WHERE [s].[Recipients] <> 1
+            OR ( [s].[Kind] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND NOT EXISTS ( SELECT 1 FROM [Asked] AS [q] WHERE [q].[PersonId] = [s].[PersonId] AND [q].[Day] = [s].[Day] ) )
+            OR ( [s].[Kind] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND NOT EXISTS ( SELECT 1 FROM [Reminded] AS [r] WHERE [r].[PersonId] = [s].[PersonId] AND [r].[Day] = [s].[Day] ) ) );
 
 -- check: one-to-one-email-skips-do-not-email
 -- why: Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". Every one-to-one email to a person on "Do not email" failed.
