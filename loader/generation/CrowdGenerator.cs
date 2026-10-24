@@ -242,7 +242,7 @@ namespace RockSampleData.Loader.Generation
                 LastName = lastName,
                 Gender = isFemale ? "female" : "male",
                 FamilyRole = role,
-                Birth = new CastBirth { Age = age, Month = random.Between( 1, 12 ), Day = random.Between( 1, 28 ), IsUnrecorded = isAdult && !IsBirthDateRecorded( household, position ) },
+                Birth = new CastBirth { Age = age, Month = random.Between( 1, 12 ), Day = random.Between( 1, 28 ) },
                 Graduation = isAdult && age <= 20 ? RecentGraduation( age ) : null,
                 MaritalStatus = marital,
                 RecordStatus = "active",
@@ -264,18 +264,6 @@ namespace RockSampleData.Loader.Generation
             }
 
             return person;
-        }
-
-        /// <summary>
-        /// Whether the church recorded an adult's birth date, at the profile's measured rate. Measured age
-        /// mixes count only people with a birth date, and about a quarter of adults have none (decision
-        /// D-crowd-teens-1). It draws from its own stream, so every other choice for the household is the same
-        /// as when every birth date was recorded.
-        /// </summary>
-        private bool IsBirthDateRecorded( CastHousehold household, int position )
-        {
-            var random = new SeededRandom( $"{_seed}:crowd-birth:{household.Key}-{position}" );
-            return random.Chance( _profile.Number( "people.completeness.adult.pctBirthDate", 100 ) / 100 );
         }
 
         /// <summary>

@@ -18,8 +18,8 @@ SELECT COUNT( * ) AS [Leaders], SUM( CASE WHEN [p].[Gender] <> 1 OR [p].[Age] < 
 FROM [GroupMember] AS [gm] INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gm].[GroupTypeId] = @SmallGroupTypeId AND [gm].[GroupRoleId] = @LeaderRoleId;
 
-PRINT '3. Members under 18, or without an age and not an adult (expect 0), youngest member';
-SELECT SUM( CASE WHEN [p].[Age] < 18 OR ( [p].[Age] IS NULL AND [p].[AgeClassification] <> 1 ) THEN 1 ELSE 0 END ) AS [Under18], MIN( [p].[Age] ) AS [Youngest], COUNT( * ) AS [Memberships]
+PRINT '3. Members under 18 or without an age (expect 0), youngest member';
+SELECT SUM( CASE WHEN [p].[Age] < 18 OR [p].[Age] IS NULL THEN 1 ELSE 0 END ) AS [Under18], MIN( [p].[Age] ) AS [Youngest], COUNT( * ) AS [Memberships]
 FROM [GroupMember] AS [gm] INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gm].[GroupTypeId] = @SmallGroupTypeId;
 
