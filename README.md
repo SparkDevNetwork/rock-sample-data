@@ -39,12 +39,26 @@ AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follo
 
 - **Several sessions at once:** start one integrator session, then one feature session per piece of work. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`.
 - **One session alone:** use solo mode. The session does the work and then lands it itself.
+- **Many sessions, one conversation:** also start a coordinator. It is the only session you talk to. The others send it their questions and status, and it brings you only the real decisions (see [The coordinator](docs/maintaining.md#the-coordinator)).
 
-Replace each `<...>` before you paste a prompt.
+Replace each `<...>` before you paste a prompt. If no coordinator is running, leave out the coordinator lines.
+
+### Prompt: coordinator
+
+Start this session first, and talk only to it.
+
+```text
+You are the coordinator for the rock-sample-data work. Read AGENTS.md (rule 19) and
+"The coordinator" in docs/maintaining.md. The other sessions send you their questions
+and status. Answer anything the decision log, AGENTS.md, or my earlier direction
+already settles. Bring me only real choices, numbered, each with one recommendation,
+and forward my answers in my own words. Keep a short list of what is in flight, what
+the next release waits on, and what is waiting on me.
+```
 
 ### Prompt: integrator
 
-Start this session first, and keep it open while the others work.
+Start this session next, and keep it open while the others work.
 
 ```text
 You are the integrator for the rock-sample-data repository. Read AGENTS.md and the
@@ -67,6 +81,8 @@ When a session tells you a branch is ready, land it in that branch's own worktre
 If a branch fails a check, send it back to its session with the failure instead of
 fixing it yourself. Push main after each landing. Ask me before anything that removes
 or rewrites history.
+
+Send your questions and status to the coordinator session, <coordinator name>.
 ```
 
 ### Prompt: feature session
@@ -82,6 +98,8 @@ public site current (AGENTS.md rule 15).
 
 When the work is done and its checks pass, message the integrator session with the
 branch, the worktree, what changed, and the checks you ran. Do not merge into main.
+
+Send your questions and status to the coordinator session, <coordinator name>.
 ```
 
 ### Prompt: one session alone (solo mode)
@@ -106,7 +124,8 @@ and push. Ask me before anything that removes or rewrites history.
 ### What to expect
 
 - The integrator pushes `main` only when your prompt says it may. The prompts above let it push after each landing.
-- It brings you any judgment call, such as dropping a branch that `main` already covers, or a check that fails for a reason outside the branch.
+- It brings you any judgment call, such as dropping a branch that `main` already covers, or a check that fails for a reason outside the branch. With a coordinator running, those calls reach you through the coordinator.
+- Some clicks still happen in other windows: tool permission prompts, and the yes for a tag, a push to another repository, or a squash. The coordinator tells you when one is coming.
 
 ## At a glance
 
