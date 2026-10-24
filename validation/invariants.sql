@@ -759,6 +759,38 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [c].[IsBulkCommunication] = 0 AND [p].[EmailPreference] = 2
     AND [cr].[Status] <> 2;
 
+-- check: sent-push-is-delivered-with-its-history
+-- why: Decision D-commspush-1. Rock Mobile Push marks a sent push Delivered with its send and delivered times and writes a "Push Notification" line on the person's History. A person with no device that takes notifications fails with Rock's note.
+SELECT ( SELECT COUNT(*)
+        FROM [CommunicationRecipient] AS [cr]
+        INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3
+            AND ( ( [cr].[Status] IN ( 1, 4 ) AND ( [cr].[SendDateTime] IS NULL OR [cr].[DeliveredDateTime] IS NULL OR [cr].[TransportEntityTypeName] <> 'Rock.Communication.Transport.RockMobilePush' ) )
+                OR ( [cr].[Status] = 4 AND ( [cr].[OpenedDateTime] IS NULL OR [cr].[OpenedDateTime] < [cr].[SendDateTime] ) )
+                OR ( [cr].[Status] = 2 AND ISNULL( [cr].[StatusNote], '' ) <> 'No Personal Devices with Messaging Enabled' )
+                OR [cr].[Status] NOT IN ( 1, 2, 4 ) OR [c].[PushData] IS NULL ) )
+    + ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+            WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3 AND [cr].[SendDateTime] IS NOT NULL )
+        - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Push Notification' ) );
+
+-- check: push-goes-to-a-device-that-takes-notifications
+-- why: Rock Mobile Push sends to every active device on the person with notifications on and a registration token. A delivered push had one when it was sent, and a failed one had none.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3
+    AND ( CASE WHEN EXISTS (
+            SELECT 1 FROM [PersonalDevice] AS [pd]
+            WHERE [pd].[PersonAliasId] = [cr].[PersonAliasId] AND [pd].[IsActive] = 1 AND [pd].[NotificationsEnabled] = 1
+                AND ISNULL( [pd].[DeviceRegistrationId], '' ) <> '' AND [pd].[CreatedDateTime] <= [c].[SendDateTime] ) THEN 1 ELSE 0 END )
+        <> ( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END );
+
+-- check: app-devices-never-reach-a-phone
+-- why: Decision 95. Every sample device's registration token starts with "sample-data-", which Firebase never issues, so a push sent from a sample database can never reach a real phone.
+SELECT COUNT(*)
+FROM [PersonalDevice] AS [pd]
+WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
+
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
 SELECT COUNT(*)

@@ -86,6 +86,11 @@ namespace RockSampleData.Loader
         public CommunicationsConfiguration Communications { get; }
 
         /// <summary>
+        /// The church's mobile app, its devices, and its pushes, or null in a package built before push loaded.
+        /// </summary>
+        public ChurchAppConfiguration ChurchApp { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -106,6 +111,7 @@ namespace RockSampleData.Loader
             Steps = Files.Exists( StepsConfigurationPath ) ? Read<StepsConfiguration>( StepsConfigurationPath ) : null;
             Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
             Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
+            ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -169,6 +175,8 @@ namespace RockSampleData.Loader
         public const string CampaignConfigurationPath = "configuration/campaign.json";
 
         public const string CommunicationsConfigurationPath = "configuration/communications.json";
+
+        public const string ChurchAppConfigurationPath = "configuration/church-app.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

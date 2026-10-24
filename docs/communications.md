@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup, bulk email, texts, and one-to-one emails are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, and two years of one-to-one email. Push and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, D-commstexts-1 to D-commstexts-3, and D-commsoneone-1 to D-commsoneone-2 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. The setup, bulk email, texts, one-to-one emails, and push are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, and the church's app with its devices and two years of pushes. Step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, D-commstexts-1 to D-commstexts-3, D-commsoneone-1 to D-commsoneone-2, and D-commspush-1 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -59,8 +59,8 @@ The loader's Communications part writes the setup, after steps. It needs the sma
 3. **Senders** (decision 139). Mass emails come from hello@rocksolidchurchdemo.com as "Rock Solid Church", sent in Rock by Daniel Peak, the Director of Communications. Pete Foster sends a few pastoral letters under his own name. Isaac Silva sends student texts from the student line. Daniel approves sends that need approval, and his own need none. The slices that write sends read these.
 4. **Templates** (decision 140). Rock's shipped templates, plus the "Rock Solid Church" template: the approved logo on a light gray page, a clean white body, and a footer with the church's name, address, and Rock's unsubscribe option. It is built for Outlook, with a table layout, inline styles, and Outlook conditional comments, and its colors are Lava fields. The HTML is [content/communications/email-template.html](../content/communications/email-template.html), and the logo is a Rock file, as if it had been uploaded in Rock's template editor.
 5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
-6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
-7. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them. Slice 6 loads them.
+6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). The loader writes the site with the Homepage and Full layouts and the homepage Rock seeds for a new app (decision D-commspush-1). Pages and app content come in later work.
+7. **Personal devices.** About 25% of active adults have the app, and every Cast staff member does. 89% have notifications on (measured), 70% are on an iPhone (designed, because the measured share comes from too few devices), and 80% were seen in the last 30 days. Each device is the row the app writes when it first opens, with a friendly model name. Every registration token starts with `sample-data-`, which Firebase never issues, so no push can ever reach a real phone (decision 95).
 
 ## The message library
 
@@ -121,8 +121,11 @@ Texts follow Rock's Twilio path (decision D-commstexts-1). On Full 7 there are a
 
 ## Push
 
-- Pushes go to people with the app: "we're live now" on Sunday mornings, event reminders, and the occasional announcement.
-- Opens are interactions on the same channel as email opens, mostly within an hour of the push.
+Pushes go through Rock Mobile Push, the way Rock's app sends them (decision D-commspush-1). On Core 1 there are about 130 pushes to 1,900 recipients.
+
+- **What goes out.** The 11 pushes in the message library: "We're live" every Sunday morning, Easter, Christmas Eve, Thanksgiving, a new series and its sermon notes, group launches, Serve Sunday, year-end giving, giving statements, and weather updates. Each goes once per campus to the campus's active adults who had the app by then.
+- **Who gets it.** Rock sends to every active device with notifications on and a registration token. A person whose device has notifications off fails with Rock's note, "No Personal Devices with Messaging Enabled". Each sent push has its "Push Notification" History line.
+- **Opens.** 12% of delivered pushes are opened, 75% of those within an hour. An open marks the recipient Opened and adds an "Opened" interaction on the communication, with the app as the device. The rates are designed, because the measured church sent almost no pushes.
 
 ## One-to-one messages
 
@@ -175,6 +178,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Push invariants (built):** every sent push is Delivered through Rock Mobile Push with its History line, a push went out only to a person with a device that takes notifications, and every device token starts with `sample-data-`.
 - **One-to-one invariants (built):** every serving email has the request it came from and one recipient, and no one on "Do not email" got a one-to-one email.
 - **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
 - **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
@@ -193,7 +197,7 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation. Done.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
 5. **One-to-one messages.** Serving, connections, prayer, first visits, and staff messages. Done.
-6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
+6. **Push.** The church app's site and layout, personal devices, pushes, and push opens. Done.
 7. **Steps.** Step messages and the finished Communication Flow, after steps land.
 
 ## Open questions

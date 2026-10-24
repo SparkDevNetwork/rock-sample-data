@@ -154,6 +154,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `unsubscribe-matches-the-person` | Decision 131: a list unsubscribe leaves the person Inactive in that list, and a Bulk one leaves them on "No mass emails" or stricter. |
 | `sent-email-has-its-history` | Every sent email recipient has Rock's "Sent" line on their History. |
 | `sent-text-is-delivered-with-its-text`, `sent-text-has-its-history` | SMS Conversations shows a text only when it is Delivered and reads its words from SentMessage, and Rock writes a "SMS message" History line for each text it sends. A text Rock could not send failed with its note. |
+| `sent-push-is-delivered-with-its-history` | Rock Mobile Push marks a sent push Delivered with its times and writes a "Push Notification" History line, and a person with no device that takes notifications fails with Rock's note. |
+| `push-goes-to-a-device-that-takes-notifications` | A delivered push had an active device with notifications on and a token when it went out, and a failed one had none. |
+| `app-devices-never-reach-a-phone` | Decision 95. Every device token starts with `sample-data-`, which Firebase never issues. |
 | `serving-email-follows-a-request` | Each serving confirmation and reminder links to Rock's system communication, has one recipient, and has the request it came from: asked that day, or serving two days later and not declined. |
 | `one-to-one-email-skips-do-not-email` | Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". |
 | `texted-stop-turns-off-texting` | A STOP marks a level All unsubscribe and turns off and opts out texting on the person's mobile, and every opted-out phone came from a STOP. |
