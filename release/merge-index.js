@@ -24,19 +24,21 @@
       node release/merge-index.js --packages <folder> --version 1.2.0 --out <new index.json>
                                   [--index <current index.json>] [--commit <full hash>]
 
-    --packages  The release's packages: one rock-{version} folder per Rock release, each holding
-                {dataset}.zip and its receipt, {dataset}.verify.json.
+    --packages  The release's packages: one rock-{major} folder per Rock major release, such as rock-21,
+                each holding {dataset}.zip and its receipt, {dataset}.verify.json.
     --version   The package release, from the tag, without the "v".
     --index     The index now hosted. Leave it out, or name a missing file, for the first release.
     --commit    Refuse a receipt for a package built from any other commit.
     --out       Where to write the merged index.
 
-    Each package becomes one entry. Its checksum, dataset, and Rock come from its receipt, its size from
-    the file, and its dataset card from the dataset's manifest in datasets/: the name, the summary as the
-    description, bestFor, highlights, people, households, campuses, and typicalInstallSeconds.
-    A new entry replaces the hosted entry for the same dataset and Rock version, so the index lists a
-    dataset once per Rock. Entries for other Rock versions stay. Packages already published stay at
-    their versioned paths; only the index stops listing them.
+    Each package becomes one entry. Its checksum, dataset, Rock, and minimum loader version come from its
+    receipt, its size from the file, and its dataset card from the dataset's manifest in datasets/: the name,
+    the summary as the description, bestFor, highlights, people, households, campuses, and
+    typicalInstallSeconds. A new entry replaces the hosted entry for the same dataset and Rock major release
+    (decision D-rock-major-1), so the index lists a dataset once per major, and a fix release replaces the
+    package every Rock on that major gets. A hosted entry from before rockMajor counts as the major of its
+    rockVersion. Entries for other majors stay. Packages already published stay at their versioned paths;
+    only the index stops listing them.
 
     Exits with 1, writing nothing, when a receipt did not pass, a field is missing, or the hosted index
     already lists this version of a package with different bytes.
@@ -66,19 +68,11 @@ function readArguments( args ) {
 }
 
 /**
- * Compares two Rock versions such as "21.0.2" by number, for sorting newest first.
+ * The Rock major release of an index entry or receipt Rock: its rockMajor or major, or the first number of
+ * its exact Rock version in one written before majors (decision D-rock-major-1).
  */
-function compareVersions( a, b ) {
-    const left = a.split( "." ).map( Number );
-    const right = b.split( "." ).map( Number );
-    for ( let i = 0; i < Math.max( left.length, right.length ); i++ ) {
-        const difference = ( right[ i ] || 0 ) - ( left[ i ] || 0 );
-        if ( difference !== 0 ) {
-            return difference;
-        }
-    }
-
-    return 0;
+function majorOf( major, version ) {
+    return major || Number( String( version || "" ).split( "." )[ 0 ] ) || undefined;
 }
 
 /**
@@ -127,6 +121,8 @@ function toEntry( folder, rockFolder, receiptFile, version, commit ) {
         url: `v${version}/${rockFolder}/${receipt.package.file}`,
         sha256: receipt.package.sha256,
         size: fs.statSync( path.join( folder, receipt.package.file ) ).size,
+        rockMajor: majorOf( receipt.rock.major, receipt.rock.version ),
+        minimumLoaderVersion: receipt.package.minimumLoaderVersion,
         rockVersion: receipt.rock.version,
         rockMigration: receipt.rock.migration
     };
@@ -138,7 +134,7 @@ function toEntry( folder, rockFolder, receiptFile, version, commit ) {
         }
     }
 
-    for ( const required of [ "dataset", "name", "version", "url", "sha256", "rockVersion", "rockMigration" ] ) {
+    for ( const required of [ "dataset", "name", "version", "url", "sha256", "rockMajor", "minimumLoaderVersion", "rockVersion", "rockMigration" ] ) {
         if ( !entry[ required ] ) {
             throw new Error( `${label} gives no ${required}.` );
         }
@@ -148,8 +144,8 @@ function toEntry( folder, rockFolder, receiptFile, version, commit ) {
         throw new Error( `${label} has a sha256 that is not 64 lowercase hex digits.` );
     }
 
-    if ( `rock-${entry.rockVersion}` !== rockFolder ) {
-        throw new Error( `${label} is for Rock ${entry.rockVersion}, but it is in ${rockFolder}.` );
+    if ( `rock-${entry.rockMajor}` !== rockFolder ) {
+        throw new Error( `${label} is for Rock ${entry.rockMajor}, but it is in ${rockFolder}.` );
     }
 
     return entry;
@@ -180,18 +176,19 @@ function main() {
     }
 
     const index = readIndex( options.index );
-    const key = entry => `${entry.dataset} ${entry.rockVersion}`;
+    const key = entry => `${entry.dataset} ${majorOf( entry.rockMajor, entry.rockVersion )}`;
     const replaced = new Set( added.map( key ) );
     for ( const hosted of index.packages ) {
         const same = added.find( entry => key( entry ) === key( hosted ) && entry.version === hosted.version );
         if ( same && same.sha256 !== hosted.sha256 ) {
-            throw new Error( `The index already lists ${hosted.dataset} ${hosted.version} for Rock ${hosted.rockVersion} with other bytes. Tag a new version instead.` );
+            throw new Error( `The index already lists ${hosted.dataset} ${hosted.version} for Rock ${majorOf( hosted.rockMajor, hosted.rockVersion )} with other bytes. Tag a new version instead.` );
         }
     }
 
-    // One entry per dataset and Rock: in dataset order, newest Rock first.
+    // One entry per dataset and Rock major release: in dataset order, newest Rock first. A new release's
+    // package replaces the hosted one for its major, so a fix reaches every Rock on that major.
     const packages = index.packages.filter( hosted => !replaced.has( key( hosted ) ) ).concat( added );
-    packages.sort( ( a, b ) => a.dataset.localeCompare( b.dataset, "en" ) || compareVersions( a.rockVersion, b.rockVersion ) );
+    packages.sort( ( a, b ) => a.dataset.localeCompare( b.dataset, "en" ) || majorOf( b.rockMajor, b.rockVersion ) - majorOf( a.rockMajor, a.rockVersion ) );
 
     fs.mkdirSync( path.dirname( path.resolve( options.out ) ), { recursive: true } );
     fs.writeFileSync( options.out, JSON.stringify( { formatVersion: FORMAT_VERSION, packages }, null, 2 ) + "\n" );
