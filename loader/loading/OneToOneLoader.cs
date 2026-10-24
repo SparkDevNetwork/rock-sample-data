@@ -184,6 +184,26 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [t].[Name] = @Activity", P( "@ForeignKe
                 }
             }
 
+            // Baptisms: the next morning, the church writes to invite the person to Foundations.
+            var baptism = _source.Steps?.StepTypes.FirstOrDefault( t => t.Key == "baptism" );
+            if ( baptism != null )
+            {
+                var baptized = _db.Query( @"
+SELECT [s].[PersonAliasId], [s].[CampusId], [s].[CompletedDateTime]
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", baptism.Guid ) );
+                foreach ( var row in baptized.OrderBy( r => ( DateTime ) r["CompletedDateTime"] ) )
+                {
+                    if ( byAlias.TryGetValue( ( int ) row["PersonAliasId"], out var person ) )
+                    {
+                        var day = (( DateTime ) row["CompletedDateTime"]).Date;
+                        var sent = day.AddDays( 1 ).AddHours( 10 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:baptized:{person.Guid}" ).Between( 0, 90 ) );
+                        Add( "baptized", library["baptized-follow-up"], person, sent, row["CampusId"] is int campus ? campusKeys.GetValueOrDefault( campus ) : null, day, churchSender );
+                    }
+                }
+            }
+
             // First visits: the Monday after a generated adult's first Sunday, from their campus pastor or the welcome sender.
             // The Cast's welcomes are their own hand-written emails.
             foreach ( var person in emails.EmailPeople.Where( p => p.IsAdult && !p.IsCast && p.Since > from ).OrderBy( p => p.Since ).ThenBy( p => p.PersonId ) )

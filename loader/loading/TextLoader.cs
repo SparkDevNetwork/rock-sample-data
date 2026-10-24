@@ -78,6 +78,17 @@ namespace RockSampleData.Loader.Loading
             return this;
         }
 
+        private Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> _classRosters = new Dictionary<(string, string, DateTime), List<int>>();
+
+        /// <summary>
+        /// Gives the loader each class's people, so class sends reach them.
+        /// </summary>
+        public TextLoader WithClassRosters( Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> rosters )
+        {
+            _classRosters = rosters;
+            return this;
+        }
+
         /// <summary>
         /// Plans and writes every text over the same 2 years as email.
         /// </summary>
@@ -102,6 +113,7 @@ namespace RockSampleData.Loader.Loading
                 PersonIdsByGuid = people.People.ToDictionary( p => p.Key, p => p.Value.PersonId ),
                 Campuses = campuses,
                 MainCampusKey = mainCampusKey,
+                ClassRosters = _classRosters,
                 Numbers = numbers,
                 TextSenderAliasId = people.People[configuration.Senders.Texts.Sender].AliasId,
                 StudentSenderAliasId = people.People[configuration.Senders.Students.Sender].AliasId,

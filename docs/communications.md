@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup, bulk email, texts, one-to-one emails, and push are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, and the church's app with its devices and two years of pushes. Step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, D-commstexts-1 to D-commstexts-3, D-commsoneone-1 to D-commsoneone-2, and D-commspush-1 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, D-commstexts-1 to D-commstexts-3, D-commsoneone-1 to D-commsoneone-2, D-commspush-1, and D-commssteps-1 to D-commssteps-2 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -141,7 +141,7 @@ One-to-one emails go through the bulk email planner, so they follow the same rul
 
 ## Messages tied to steps
 
-The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Once steps are built, their milestones get their own messages (decision 96):
+The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Their milestones get their own messages (decisions 96 and D-commssteps-1). The communications load runs after the steps load and reads each person's Step rows back.
 
 - **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters one finished Communication Flow, "After Starting Point": a thank-you the next day, a small group invitation a week later, and a serving invitation three weeks later. Each person's flow instance is complete, so Rock's flow screens have data.
 - **Baptism.** Baptism Sunday gets a mass invitation. Each person baptized gets a follow-up email that invites them to Foundations.
@@ -149,7 +149,16 @@ The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step St
 - **Student Path.** Student Camp and Mission Trip get registration emails and reminder texts to students and their parents on the student line.
 - **Serve and Lead.** These already get serving reminders (see One-to-one messages).
 
-This needs the step type Guids and each person's step dates from the steps work. The communications load runs after the steps load.
+Class emails and texts go to the people in that campus's class, matched by the class's first night. They are not flagged bulk, because they go to the people who signed up.
+
+### The After Starting Point flow
+
+"After Starting Point" is an on-demand Communication Flow (decision D-commssteps-2), the kind a workflow's Activate Communication Flow action fills. Rock 21 has no trigger for entering a data view.
+
+- **Instances.** Everyone who finishes a Starting Point Class joins the instance for the next day.
+- **Messages.** Three emails, each from its own flow template: a thank-you that day, a small group invitation 6 days later, and a serving invitation 14 days after that. Each is a bulk email named "After Starting Point – Thank You" and so on, with the rows Rock's Process Communication Flows job writes. A person on "No mass emails" does not get them.
+- **Goal.** Joining a small group within 30 days. Each conversion credits the newest email the person got before they joined.
+- **Finished.** Only classes whose last email went out before install day get an instance, and every instance is complete. The job never has a message left to send (decision 95).
 
 ## Volume and the history window
 
@@ -178,6 +187,7 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Step and flow invariants (built):** no flow instance is still sending, every flow email went out before install day, and each reaches exactly its instance's people from its message's flow template.
 - **Push invariants (built):** every sent push is Delivered through Rock Mobile Push with its History line, a push went out only to a person with a device that takes notifications, and every device token starts with `sample-data-`.
 - **One-to-one invariants (built):** every serving email has the request it came from and one recipient, and no one on "Do not email" got a one-to-one email.
 - **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
@@ -198,7 +208,7 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
 5. **One-to-one messages.** Serving, connections, prayer, first visits, and staff messages. Done.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens. Done.
-7. **Steps.** Step messages and the finished Communication Flow, after steps land.
+7. **Steps.** Step messages and the finished Communication Flow, after steps land. Done.
 
 ## Open questions
 

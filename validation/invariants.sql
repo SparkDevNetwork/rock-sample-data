@@ -791,6 +791,29 @@ SELECT COUNT(*)
 FROM [PersonalDevice] AS [pd]
 WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
 
+-- check: no-active-flow-instance
+-- why: Decisions 95 and 96. Rock's Process Communication Flows job sends the next message of any instance that is not complete, so every sample flow instance is complete and each of its emails already went out.
+SELECT ( SELECT COUNT(*) FROM [CommunicationFlowInstance] AS [i] WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 )
+    + ( SELECT COUNT(*)
+        FROM [CommunicationFlowInstanceCommunication] AS [ic]
+        INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
+        WHERE [ic].[ForeignKey] = @ForeignKey AND ( [c].[SendDateTime] IS NULL OR [c].[SendDateTime] > GETDATE() ) );
+
+-- check: flow-email-reaches-its-instance
+-- why: Decision 96. The job writes each flow message as a bulk email from its message's flow template, to exactly the instance's recipients.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceCommunication] AS [ic]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
+INNER JOIN [CommunicationFlowCommunication] AS [fc] ON [fc].[Id] = [ic].[CommunicationFlowCommunicationId]
+INNER JOIN [CommunicationTemplate] AS [t] ON [t].[Id] = [fc].[CommunicationTemplateId]
+WHERE [ic].[ForeignKey] = @ForeignKey
+    AND ( [c].[CommunicationType] <> 1 OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
+        OR ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
+            <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] )
+        OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
+            WHERE [cr].[CommunicationId] = [c].[Id]
+                AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) ) );
+
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
 SELECT COUNT(*)

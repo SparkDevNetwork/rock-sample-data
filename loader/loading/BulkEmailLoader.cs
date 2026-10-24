@@ -79,6 +79,11 @@ namespace RockSampleData.Loader.Loading
         public List<EmailClient> Clients { get; private set; }
 
         /// <summary>
+        /// The branded template's renderer, once <see cref="Load"/> has run.
+        /// </summary>
+        public MessageRenderer Renderer { get; private set; }
+
+        /// <summary>
         /// Plans and writes every send. Unsubscribes mark their list members in <paramref name="members"/>.
         /// </summary>
         public void Load( CommunicationsConfiguration configuration, PeopleLoader people, List<ListCandidate> candidates, List<PlannedListMember> members,
@@ -98,7 +103,7 @@ namespace RockSampleData.Loader.Loading
                 Anchor = _dates.Anchor,
                 From = from,
                 Calendar = calendar,
-                Renderer = new MessageRenderer( templateHtml ),
+                Renderer = Renderer = new MessageRenderer( templateHtml ),
                 Newsletter = _source.ReadNewsletterLibrary(),
                 Emails = _source.ReadEmailLibrary().Emails,
                 Lists = configuration.Lists.Lists,
@@ -107,6 +112,7 @@ namespace RockSampleData.Loader.Loading
                 PersonIdsByGuid = people.People.ToDictionary( p => p.Key, p => p.Value.PersonId ),
                 Campuses = CampusList = Campuses( campusIds ),
                 MainCampusKey = mainCampusKey,
+                ClassRosters = _classRosters,
                 CastUnsubscribes = configuration.CastUnsubscribes,
                 Clients = clients
             } );
@@ -217,6 +223,17 @@ namespace RockSampleData.Loader.Loading
         public BulkEmailLoader WithCast( IEnumerable<Guid> castPeople )
         {
             _castGuids = castPeople.ToHashSet();
+            return this;
+        }
+
+        private Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> _classRosters = new Dictionary<(string, string, DateTime), List<int>>();
+
+        /// <summary>
+        /// Gives the loader each class's people, so class sends reach them.
+        /// </summary>
+        public BulkEmailLoader WithClassRosters( Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> rosters )
+        {
+            _classRosters = rosters;
             return this;
         }
 

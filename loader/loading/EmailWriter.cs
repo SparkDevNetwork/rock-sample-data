@@ -133,11 +133,13 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
         }
 
         /// <summary>
-        /// Adds one send and everything about it.
+        /// Adds one send and everything about it. Returns the communication's Id and its first recipient's Id; the
+        /// rest follow in the send's recipient order.
         /// </summary>
-        public void Add( PlannedEmail send, EmailSendContext context, IReadOnlyList<EmailClient> clients )
+        public (int CommunicationId, int FirstRecipientId) Add( PlannedEmail send, EmailSendContext context, IReadOnlyList<EmailClient> clients )
         {
             var communicationId = _nextCommunicationId++;
+            var firstRecipientId = _nextRecipientId;
             Communications++;
             var reviewed = context.NeedsApproval ? send.Created.AddMinutes( 20 + ( send.Index % 200 ) ) : send.Created;
             var sendDateTime = send.Sent > reviewed ? send.Sent : reviewed.AddMinutes( 5 );
@@ -184,6 +186,8 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
             {
                 Flush();
             }
+
+            return (communicationId, firstRecipientId);
         }
 
         /// <summary>
