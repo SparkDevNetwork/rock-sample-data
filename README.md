@@ -37,14 +37,39 @@ AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follo
 
 ### Pick a way to work
 
-- **Several sessions at once:** start one integrator session, then one feature session per piece of work. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`.
+- **Start here (Claude desktop app):** paste the coordinator prompt. It is the only prompt you paste and the only session you talk to. It starts the integrator, and a feature session for each piece of work, by itself. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`. Every session sends the coordinator its questions and status, and it brings you only the real decisions (see [The coordinator](docs/maintaining.md#the-coordinator)).
 - **One session alone:** use solo mode. The session does the work and then lands it itself.
+- **In a terminal:** a terminal session cannot start other sessions. Start the integrator yourself, then one feature session per piece of work, with the fallback prompts below.
 
 Replace each `<...>` before you paste a prompt.
 
+### Prompt: coordinator (start here)
+
+```text
+You are the coordinator for the rock-sample-data work, and the only session I talk
+to. Read AGENTS.md (rule 19) and "Working in parallel" in docs/maintaining.md.
+
+1. Start an integrator session with the integrator prompt in the README's "Working
+   with AI agents" section. Fill in <path to your Rock checkout>, and name yourself
+   as its coordinator.
+2. For each piece of work I give you, start a feature session with the feature
+   prompt, its own branch name, and the work, and name yourself as its coordinator.
+3. Answer anything the decision log, AGENTS.md, or my earlier direction already
+   settles. Bring me only real choices, numbered, each with one recommendation, and
+   forward my answers in my own words.
+4. Keep a short list of what is in flight, what the next release waits on, and what
+   is waiting on me. Tell me before any click I must make in another window.
+
+The work: <describe each piece of work, or "none yet">.
+```
+
+### Fallback prompts
+
+The coordinator uses these as the briefs for the sessions it starts. In a terminal, paste them yourself: the integrator first, then one feature session per piece of work. If no coordinator is running, leave out the coordinator line.
+
 ### Prompt: integrator
 
-Start this session first, and keep it open while the others work.
+Keep this session open while the others work.
 
 ```text
 You are the integrator for the rock-sample-data repository. Read AGENTS.md and the
@@ -67,6 +92,8 @@ When a session tells you a branch is ready, land it in that branch's own worktre
 If a branch fails a check, send it back to its session with the failure instead of
 fixing it yourself. Push main after each landing. Ask me before anything that removes
 or rewrites history.
+
+Send your questions and status to the coordinator session, <coordinator name>.
 ```
 
 ### Prompt: feature session
@@ -82,6 +109,8 @@ public site current (AGENTS.md rule 15).
 
 When the work is done and its checks pass, message the integrator session with the
 branch, the worktree, what changed, and the checks you ran. Do not merge into main.
+
+Send your questions and status to the coordinator session, <coordinator name>.
 ```
 
 ### Prompt: one session alone (solo mode)
@@ -106,7 +135,8 @@ and push. Ask me before anything that removes or rewrites history.
 ### What to expect
 
 - The integrator pushes `main` only when your prompt says it may. The prompts above let it push after each landing.
-- It brings you any judgment call, such as dropping a branch that `main` already covers, or a check that fails for a reason outside the branch.
+- It brings you any judgment call, such as dropping a branch that `main` already covers, or a check that fails for a reason outside the branch. With a coordinator running, those calls reach you through the coordinator.
+- Some clicks still happen in other windows: tool permission prompts, and the yes for a tag, a push to another repository, or a squash. The coordinator tells you when one is coming.
 
 ## At a glance
 

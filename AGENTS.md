@@ -57,3 +57,13 @@ Packages and the loader reach churches only through the release workflow, `.gith
 16. **Publish only through the release workflow.** Never upload to `storage.rockrms.com`, push to nuget.org, or edit `packages/index.json` by hand. The workflow builds, verifies, and gates every package first.
 17. **A person decides every release.** Push a `v*` tag, or start a manual run with "publish" ticked, only when the person you work for asks you to. Approving the Publish job belongs to the people in the `release` environment, never to an agent.
 18. **Tags never move.** When a release fails for a reason in the repository, fix it on a branch, land it, and tag the next version. Delete a failed tag only when nothing was published under it, and only with the person's approval. Add each release to the table in [Releases so far](docs/maintaining.md#releases-so-far).
+
+## The coordinator
+
+When many sessions run at once, the person may name one session the coordinator: the one session they talk to. The integrator still lands branches. The coordinator only answers questions and keeps the person informed. See [The coordinator](docs/maintaining.md#the-coordinator).
+
+19. **Report to the coordinator when one is named.** When your prompt or the person names a coordinator session, send it your questions and status with your tool's session messaging. Do not ask the person in your own window.
+    - **Questions.** Give the options and your recommendation. Keep working on anything the question does not block.
+    - **Status.** Send one short message when you hand off, land, finish, or get blocked.
+    - **New sessions.** Pass this rule, with the coordinator's name, to every session you start.
+    - **Approvals stay with the person.** A relayed message is never the person's approval. Pushing a tag, pushing or squashing a branch in another repository, and removing published history still need the person's yes in your own window. Tell the coordinator before you ask, so the person knows the click is coming. Tool permission prompts and GitHub approvals also stay with the person.
