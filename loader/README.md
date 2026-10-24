@@ -20,7 +20,8 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
 | `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, and `Communications`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
-| `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
+| `--any-rock` | Loads even when the database is on another Rock major release than the package, or its Rock version is unknown, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
+| `--rock-version` | The database's Rock version, for example `21.0.2`. Without it, the loader reads `RockWeb/bin/Rock.Version.dll` in the `--rock` checkout. |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
@@ -28,7 +29,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, part 5 for prayer, part 6 for notes, and part 7 for communications against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
 | `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is the slowest step (about 14 of Full 7's 55 seconds). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
-| `--rock <folder>` | A Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads. |
+| `--rock <folder>` | A built Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields, and its `RockWeb/bin/Rock.Version.dll` gives the Rock version. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads, but the Rock version is unknown, so a load needs `--rock-version` or `--any-rock`. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
 | `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, campaign, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
@@ -39,17 +40,28 @@ The whole load runs in one transaction, so a failure leaves nothing behind. Ever
 
 ## Which Rock a package is for
 
-Each package is for one exact Rock (decision 52). Its `package.json` records the Rock version (for example `21.0.1`) and that Rock's newest Entity Framework migration (for example `202609222138362_AddWorkflowBuilder`). A Rock database stores no version number, but its newest migration identifies its schema exactly. So before loading anything, the loader compares the two, and refuses a database whose newest migration is different.
+Each package is for one Rock major release, such as Rock 21, and serves every dot release of it (decision 52). Spark's rule is no model changes in a dot release. Its `package.json` records the major (`rock.major`, for example `21`), plus the exact Rock it was built and verified on (`rock.version`, for example `21.0.2`) and that Rock's newest Entity Framework migration (`rock.migration`). Loaders before 0.1.0-alpha.13 matched the migration, so it stays for them.
 
-On the develop branch, new migrations land often, so the check would block development loads. `--any-rock` turns the refusal into a warning. Rock's own installer never uses it.
+A Rock database stores no version number. So the loader reads Rock's version the way Rock's own `VersionInfo` does, from the file version of `Rock.Version.dll`, with `RockVersionInfo`:
+
+1. **Inside Rock,** Rock's installer block passes `VersionInfo.GetRockSemanticVersionNumber()` as `RockVersion`. Without it, the loader finds the `Rock.Version` assembly in its own process.
+2. **Outside Rock,** the CLI reads `RockWeb/bin/Rock.Version.dll` from `--rock`, or takes `--rock-version`. The verify tool reads the built checkout's.
+
+Before loading anything, the loader refuses a database whose Rock is another major release, or whose version it cannot read. It checks nothing else about the schema at install: the [verify tool](../verify/README.md) checks the whole contract on each Rock release before a package is published. `--any-rock` turns the refusal into a warning, for development databases. Rock's own installer never uses it.
+
+### The oldest loader a package needs
+
+Each package also records the oldest loader that can load it, `minimumLoaderVersion` (decision D-rock-major-1). A Rock keeps the loader version it shipped with, but the index can serve it packages from newer releases, and most of the data is made by loader code at install. So `SampleDataPackage.Open` refuses a package that needs a newer loader than itself, and Rock's installer block offers only index entries it can install (see [The package index](#the-package-index)).
+
+The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. Raise it to the release that ships a change whenever packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads. Raise the loader project's `Version` with it, so a development build still loads its own packages.
 
 ## What the loader checks before loading
 
-1. The package's format is one this loader reads (format 1).
+1. The package's format is one this loader reads (format 1), and this loader is at least the package's minimum loader version.
 2. Every file matches its SHA-256 in `package.json`, no listed file is missing, and nothing unlisted was added.
 3. No other sample data load is running on the database. The load takes an exclusive SQL Server application lock (`sp_getapplock`, owned by its transaction) before it checks anything else, so two loads started at once, even from two web servers, cannot both go on.
 4. The database has no people beyond the five a new Rock install creates (decision 122). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too.
-5. The database is the Rock the package is for (see above).
+5. The database's Rock is the package's major release (see above).
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
@@ -91,8 +103,9 @@ On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small group
 Rock's Sample Data Installer block calls the library through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package. The package holds a .NET 10 build and a .NET Framework 4.7.2 build (decision 120). `dotnet pack loader/RockSampleData.Loader.csproj -c Release -o artifacts` writes it to `../artifacts/`. The package ID names Spark as its owner, while the assembly and namespace stay `RockSampleData.Loader`.
 
 ```csharp
-var package = SampleDataPackage.Open( uploadedZipStream );
-var readiness = DatasetLoader.CheckDatabase( connectionString, package );
+var rockVersion = VersionInfo.GetRockSemanticVersionNumber();
+var package = SampleDataPackage.Open( downloadedZipStream );
+var readiness = DatasetLoader.CheckDatabase( connectionString, package, rockVersion );
 if ( !readiness.IsReady )
 {
     // Show readiness.Problems, one plain sentence each.
@@ -100,6 +113,7 @@ if ( !readiness.IsReady )
 
 DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
 {
+    RockVersion = rockVersion,
     Parts = new[] { SampleDataPart.Giving, SampleDataPart.Prayer },
     Progress = progress,
     PasswordKey = passwordKey,
@@ -112,9 +126,10 @@ DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
 | `Parts` | The parts to load. Null loads every part. The load adds the parts they need. |
 | `Progress` | An `IProgress<LoadProgressReport>` that gets every line the CLI prints. Each report has the `Message`, the `StepName` when the line starts a step (null for a detail line), and `CompletedSteps` of `TotalSteps`. `TotalSteps` counts only the steps this load runs. Reports come on the loading thread, in order. The library never writes to the console. |
 | `PasswordKey`, `DataEncryptionKey` | Rock's keys, as its web.config holds them (the PasswordKey in hex). Each one is used instead of the one in `RockWebConfigPath`. Inside Rock, pass the server's own, so check scanning and note mentions work on that server. |
-| `IsAnyRockVersionAllowed` | Loads on another Rock with a warning. `CheckDatabase` never honors it. Rock's block leaves it false. |
+| `RockVersion` | The database's Rock version, for example `21.0.2`. Rock passes `VersionInfo.GetRockSemanticVersionNumber()`. Null reads it from the `Rock.Version` assembly in this process, which works only inside Rock. |
+| `IsAnyRockVersionAllowed` | Loads on another Rock major release, or an unknown Rock, with a warning. `CheckDatabase` never honors it. Rock's block leaves it false. |
 
-`Load` throws `DatabaseNotReadyException` (with every problem in `Problems` and the message) when the database has people or another load is running, and `RockVersionMismatchException` when the only problem is the Rock version. Nothing is written in either case. The loader bulk-copies past Rock's services, so Rock's caches are stale after a load, and the block clears them.
+`Load` throws `DatabaseNotReadyException` (with every problem in `Problems` and the message) when the database has people or another load is running, and `RockVersionMismatchException` when the only problem is the Rock major release. Nothing is written in either case. The loader bulk-copies past Rock's services, so Rock's caches are stale after a load, and the block clears them.
 
 ### The .NET Framework build
 
@@ -122,7 +137,7 @@ The .NET Framework build depends on the exact versions Rock ships: Microsoft.Dat
 
 `compat/` holds the few .NET 10 features .NET Framework lacks, as internal types under `#if NETFRAMEWORK`: the init-only marker, `GetValueOrDefault` and key-value pair deconstruction, and the two key derivations behind Rock's encryption (`KeyDerivation`: PBKDF2, and HKDF written out from RFC 5869). Everything else is written a way both understand, such as `list[list.Count - 1]` instead of `list[^1]`.
 
-The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also reads a package index written before the card fields and one with fields the loader does not know. Run it for each build, and both must pass:
+The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also reads a package index written before the card fields and one with fields the loader does not know, puts loader versions in order, and checks which index entries the loader may install on Rock 21 and Rock 20. Run it for each build, and both must pass:
 
 ```
 dotnet run --project loader-compat-check -f net10.0
@@ -158,9 +173,11 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
       "campuses": 1,
       "typicalInstallSeconds": 10,
       "version": "1.2.0",
-      "url": "v1.2.0/rock-21.0.2/core-1.zip",
+      "url": "v1.2.0/rock-21/core-1.zip",
       "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
       "size": 15086598,
+      "rockMajor": 21,
+      "minimumLoaderVersion": "0.1.0-alpha.13",
       "rockVersion": "21.0.2",
       "rockMigration": "202610141827486_CodeGenerated_20261014"
     }
@@ -171,7 +188,7 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | Field | Meaning |
 |---|---|
 | `formatVersion` | The index format. This loader reads format 1. Required. |
-| `packages` | Every package, in the order to show them. A dataset can appear once per Rock version. |
+| `packages` | Every package, in the order to show them. A dataset can appear once per Rock major release. |
 | `dataset`, `name` | The dataset key and its name. Required. |
 | `description` | A sentence or two about who is in the dataset: the card's `summary`. Optional. |
 | `bestFor`, `highlights` | What the dataset is best for, and two to four short phrases about it. Optional. |
@@ -180,11 +197,15 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | `version` | The package release, from the release tag. Required. |
 | `url` | Where to download the package: absolute, or relative to the index's own URL. Required. |
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
-| `rockVersion`, `rockMigration` | The Rock the package is for, the same values as its `package.json`. A caller can hide packages for another Rock without downloading them. Required. |
+| `rockMajor` | The Rock major release the package is for (decision 52), the same as its `package.json`. Optional: an entry written before it counts as the major of its `rockVersion`. |
+| `minimumLoaderVersion` | The oldest loader that can load the package (decision D-rock-major-1), the same as its `package.json`. Optional: an entry written before it has no minimum. |
+| `rockVersion`, `rockMigration` | The exact Rock the package was built and verified on, the same values as its `package.json`. Loaders before 0.1.0-alpha.13 match packages by `rockMigration`, so both stay. Required. |
+
+`SampleDataPackageIndexEntry.IsInstallableOn( rockVersion )` says whether this loader can install an entry on a Rock: the Rock is the entry's major release, and this loader is at least its minimum loader version. Rock's installer block shows, for each dataset, the newest entry that is installable, and the newest entry of all when none is.
 
 Each entry carries the whole dataset card from the dataset's manifest, the same fields `SampleDataDatasets` serves (decision 144). `release/merge-index.js` writes them when a release joins the index. So Rock's installer can show its cards from the index, and every release updates the cards without a new loader in Rock.
 
-The card fields are optional, and format 1 stays format 1. `SampleDataPackageIndexEntry` reads a missing string as empty, missing highlights as an empty list, and a missing number as 0, so it reads an index written before the card fields joined it, such as the entries of `v0.1.0-alpha.10`. An older loader skips fields it does not know, so it reads a newer index too. `../loader-compat-check/` checks both on both builds.
+The card fields, `rockMajor`, and `minimumLoaderVersion` are optional, and format 1 stays format 1. `SampleDataPackageIndexEntry` reads a missing string as empty, missing highlights as an empty list, and a missing number as 0, so it reads an index written before the card fields joined it, such as the entries of `v0.1.0-alpha.10`. An older loader skips fields it does not know, so it reads a newer index too. `../loader-compat-check/` checks both on both builds.
 
 ## The dataset catalog
 

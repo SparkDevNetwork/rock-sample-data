@@ -291,12 +291,12 @@ namespace RockSampleData.Loader
         public long Size { get; }
 
         /// <summary>
-        /// The Rock major release the package is for, for example 21 (decision D-rock-major-1).
+        /// The Rock major release the package is for, for example 21 (decision 52).
         /// </summary>
         public int RockMajor { get; }
 
         /// <summary>
-        /// The oldest loader that can load the package, for example "0.1.0-alpha.13" (decision D-rock-major-2).
+        /// The oldest loader that can load the package, for example "0.1.0-alpha.13" (decision D-rock-major-1).
         /// Null in an index written before it.
         /// </summary>
         public string MinimumLoaderVersion { get; }

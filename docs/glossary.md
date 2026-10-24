@@ -33,7 +33,7 @@ The words this project uses, in alphabetical order.
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
-| **Package** | A zip the builder writes for one dataset and one exact Rock: data files only, never SQL, with a checksum for every file in `package.json`. |
+| **Package** | A zip the builder writes for one dataset and one Rock major release, such as Rock 21: data files only, never SQL, with a checksum for every file in `package.json`. It serves every dot release of that major (decision 52). |
 | **Package index** | `index.json`, the hosted list of packages that Rock's installer block reads, at `storage.rockrms.com/sampledata/packages/`. Each entry carries its dataset's card (decision 144). The release workflow merges each release into it and uploads it last (decision 128). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |

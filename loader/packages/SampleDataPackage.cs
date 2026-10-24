@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Packages
         /// <summary>
         /// The oldest loader that can load the packages this code builds. The builder writes it into each
         /// package, and the release copies it into each index entry, so a Rock with an older loader never
-        /// offers the package (decision D-rock-major-2). Raise it to the release that ships the change
+        /// offers the package (decision D-rock-major-1). Raise it to the release that ships the change
         /// whenever packages start to need loader code that older loaders lack.
         /// </summary>
         public const string MinimumLoaderVersion = "0.1.0-alpha.13";

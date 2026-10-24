@@ -23,10 +23,10 @@ flowchart LR
 1. **Measure.** The calibration scripts run inside a Rock database and return only anonymous counts and ratios.
 2. **Normalize.** `calibration/normalize.js` turns that output into a source file of ratios. Raw exports never leave the git-ignored `calibration/raw/` folder.
 3. **Blend.** A profile (`calibration/profiles/sample-church.json`) blends one or more sources into target numbers, and records each exclusion and override with a reason. `resolve-profile.js` produces the final numbers.
-4. **Pack.** The [builder](../builder/README.md) reads the Cast, the configuration, the address pool, the photos, and the resolved profile, and writes one package per dataset for one exact Rock. A package holds data only, never SQL, and no dates are fixed in it.
-5. **Load.** The [loader](../loader/README.md) checks the package and the database's Rock, generates the timeline for the install day, and writes the dataset into a fresh Rock database.
+4. **Pack.** The [builder](../builder/README.md) reads the Cast, the configuration, the address pool, the photos, and the resolved profile, and writes one package per dataset for one Rock major release, such as Rock 21 (decision 52). A package holds data only, never SQL, and no dates are fixed in it.
+5. **Load.** The [loader](../loader/README.md) checks the package, that it is new enough for the package, and that the database's Rock is the package's major release, read from Rock's `Rock.Version.dll`. Then it generates the timeline for the install day, and writes the dataset into a fresh Rock database.
 6. **Grade.** The loader CLI runs the same calibration scripts against the loaded database, and `validation/validate.js` compares the results with the profile.
-7. **Verify.** Before a package is published, the [verify tool](../verify/README.md) loads it into a clean copy of its exact Rock release and checks it against Rock itself, then writes a receipt. Publishing needs a passing receipt. See [Verification](verification.md) for every check and why it is there.
+7. **Verify.** Before a package is published, the [verify tool](../verify/README.md) loads it into a clean copy of the Rock release it is built on, the newest dot release of its major, and checks it against Rock itself, then writes a receipt. Publishing needs a passing receipt. See [Verification](verification.md) for every check and why it is there.
 
 ## The data files
 

@@ -34,7 +34,7 @@ const ideas = [
 
 const pipeline = [
     [ "Data files", "The Cast, the church setup, and the target patterns, in plain JSON." ],
-    [ "Builder", "Turns the files into one package per dataset, for one exact Rock." ],
+    [ "Builder", "Turns the files into one package per dataset, for one Rock major release." ],
     [ "Verify", "Loads each package into a clean Rock and checks it. No pass, no publish." ],
     [ "Loader", "Loads a package into a fresh Rock database in seconds." ],
     [ "Rock", "A church with years of history, ready to explore." ]
@@ -49,7 +49,7 @@ const decisions = [
     [ 26, "Check gifts come with scanned check images that match the gift exactly: the writer, the date, the amount, and the check number." ],
     [ 28, "New people's photos are AI-generated, fictional faces. No new face may resemble a real or famous person." ],
     [ 41, "A dataset ships as a package of data, never SQL." ],
-    [ 52, "Each package is for one exact Rock. The loader refuses a database that doesn't match." ],
+    [ 52, "Each package is for one Rock major release and works on every update of it. The loader refuses a different major release." ],
     [ 66, "A package is published only with a passing receipt from the verify tool." ],
     [ 72, "A connected request adds the person to the team as Pending, as Rock ships it. The team leader makes them active as part of onboarding." ],
     [ 76, "Every team at every campus has volunteers and serving history on install, before any connection request." ]
@@ -110,7 +110,7 @@ module.exports = function how( { model } ) {
     ${sectionHead( { eyebrow: "Trust", title: "Rock checks our work.", lede: "The loader is fast because it copies data in bulk around Rock's business logic. So the proof has to come from Rock itself. Before any package is published, the verify tool does four things." } )}
     <div class="card-grid">
       <div class="card reveal"><h3>A clean Rock</h3><p>It builds a database made only by Rock's own migrations and start-up steps, then loads the package into a copy.</p></div>
-      <div class="card reveal"><h3>Rock's own columns</h3><p>It checks every table, column, and Guid the loader writes against that exact Rock release.</p></div>
+      <div class="card reveal"><h3>Rock's own columns</h3><p>It checks every table, column, and Guid the loader writes against the Rock release the package is built on.</p></div>
       <div class="card reveal"><h3>Rule checks</h3><p>It runs rules such as "every person is in a family" and "nothing is dated in the future," and confirms every Cast story shows what it should.</p></div>
       <div class="card reveal"><h3>Rock Cleanup</h3><p>It runs Rock's own Rock Cleanup job. If Rock finds anything in the sample data to fix, the package fails.</p></div>
     </div>

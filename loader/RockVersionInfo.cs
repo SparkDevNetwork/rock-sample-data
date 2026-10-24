@@ -22,7 +22,7 @@ namespace RockSampleData.Loader
 {
     /// <summary>
     /// Which Rock is running. A Rock database stores no version number, so the loader reads it the way
-    /// Rock's own VersionInfo does: from the file version of Rock's Rock.Version assembly (decision D-rock-major-1).
+    /// Rock's own VersionInfo does: from the file version of Rock's Rock.Version assembly (decision 52).
     /// </summary>
     public static class RockVersionInfo
     {

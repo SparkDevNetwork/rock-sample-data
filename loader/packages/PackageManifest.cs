@@ -100,7 +100,7 @@ namespace RockSampleData.Loader.Packages
     {
         /// <summary>
         /// The Rock major release the package is for, for example 21. Rock's rule is no model changes
-        /// in a dot release, so one package serves every Rock 21 (decision D-rock-major-1). 0 in packages
+        /// in a dot release, so one package serves every Rock 21 (decision 52). 0 in packages
         /// built before this field, whose major comes from <see cref="Version"/>.
         /// </summary>
         public int Major { get; set; }

@@ -25,7 +25,7 @@ namespace RockSampleData.Builder
 {
     /// <summary>
     /// Reads which Rock a package is for from a Rock checkout: the version in Directory.Build.props,
-    /// whose first number is the major release the package serves (decision D-rock-major-1), and the
+    /// whose first number is the major release the package serves (decision 52), and the
     /// newest Entity Framework migration in Rock.Migrations.
     /// </summary>
     internal static class RockCheckout

@@ -10,12 +10,12 @@ From the `builder` folder:
 dotnet run -- --rock C:\Development\Rock
 ```
 
-That writes every dataset's package to `../packages/` (git ignores it). Each package is for the Rock in the checkout you name.
+That writes every dataset's package to `../packages/` (git ignores it). Each package is for the major release of the Rock in the checkout you name, such as Rock 21, and serves every dot release of it (decision 52).
 
 | Option | Meaning |
 |---|---|
-| `--rock <folder>` | A Rock checkout. The package records its version (from `Directory.Build.props`) and its newest migration (from `Rock.Migrations/Migrations`). The `ROCK_PATH` environment variable does the same. Required unless both values below are given. |
-| `--rock-version` | The Rock version, for example `21.0.1`. Wins over the checkout's. |
+| `--rock <folder>` | A Rock checkout. The package records its version (from `Directory.Build.props`), whose first number is the major release, and its newest migration (from `Rock.Migrations/Migrations`). The `ROCK_PATH` environment variable does the same. Required unless both values below are given. |
+| `--rock-version` | The Rock version, for example `21.0.2`. Its first number is the package's major release. Wins over the checkout's. |
 | `--rock-migration` | The newest migration Id, for example `202609222138362_AddWorkflowBuilder`. Wins over the checkout's. |
 | `--dataset` | One dataset (`core-1`, `core-3`, or `full-7`), or `all` (the default). |
 | `--out <folder>` | Where to write packages. Defaults to `../packages`. |
@@ -28,7 +28,7 @@ A package is a zip of data, never SQL (decision 41). Files keep their paths from
 
 | Path | What it holds |
 |---|---|
-| `package.json` | The format version, the dataset, the source commit, the one Rock it is for (decision 52), and the SHA-256 of every other file. |
+| `package.json` | The format version, the dataset, the source commit, the Rock major release it is for and the exact Rock it was built on (decision 52), the oldest loader that can load it (decision D-rock-major-1), and the SHA-256 of every other file. |
 | `configuration/*.json` | The church setup, unchanged. |
 | `cast/households/*.json`, `cast/groups/*.json` | The Cast and its small group plans, unchanged. |
 | `datasets/{key}.json` | The dataset's settings and its [card](../datasets/README.md#the-dataset-card). |

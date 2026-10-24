@@ -35,7 +35,7 @@
     receipt, its size from the file, and its dataset card from the dataset's manifest in datasets/: the name,
     the summary as the description, bestFor, highlights, people, households, campuses, and
     typicalInstallSeconds. A new entry replaces the hosted entry for the same dataset and Rock major release
-    (decision D-rock-major-1), so the index lists a dataset once per major, and a fix release replaces the
+    (decision 52), so the index lists a dataset once per major, and a fix release replaces the
     package every Rock on that major gets. A hosted entry from before rockMajor counts as the major of its
     rockVersion. Entries for other majors stay. Packages already published stay at their versioned paths;
     only the index stops listing them.
@@ -69,7 +69,7 @@ function readArguments( args ) {
 
 /**
  * The Rock major release of an index entry or receipt Rock: its rockMajor or major, or the first number of
- * its exact Rock version in one written before majors (decision D-rock-major-1).
+ * its exact Rock version in one written before majors (decision 52).
  */
 function majorOf( major, version ) {
     return major || Number( String( version || "" ).split( "." )[ 0 ] ) || undefined;
