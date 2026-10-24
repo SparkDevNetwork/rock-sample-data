@@ -60,7 +60,7 @@ namespace RockSampleData.Loader
         /// Loads the package. Everything rolls back if any step fails.
         /// </summary>
         /// <exception cref="DatabaseNotReadyException">The database has people beyond a new Rock install, or another load is running. Nothing was loaded.</exception>
-        /// <exception cref="RockVersionMismatchException">The database's Rock is not the one the package was built for. Nothing was loaded.</exception>
+        /// <exception cref="RockVersionMismatchException">The database's Rock is not the package's major release, or is unknown. Nothing was loaded.</exception>
         /// <exception cref="ArgumentException">The PasswordKey option is not hex.</exception>
         public static void Load( string connectionString, SampleDataPackage package, DatasetLoadOptions options = null )
         {
@@ -85,10 +85,10 @@ namespace RockSampleData.Loader
                     throw new DatabaseNotReadyException( new[] { "Another sample data load is running on this database. Try again when it finishes." } );
                 }
 
-                CheckReadiness( db, package.Manifest, options.IsAnyRockVersionAllowed );
+                CheckReadiness( db, package.Manifest, options.RockVersion ?? RockVersionInfo.ReadRunning(), options.IsAnyRockVersionAllowed );
 
                 var total = Stopwatch.StartNew();
-                log.Write( $"Loading dataset {dataset} (built from {ShortCommit( package.Manifest )} for Rock {package.Manifest.Rock?.Version}, anchor {dates.Anchor:yyyy-MM-dd}){( options.IsDryRun ? " (dry run)" : string.Empty )}" );
+                log.Write( $"Loading dataset {dataset} (built from {ShortCommit( package.Manifest )} for Rock {package.Manifest.Rock?.MajorRelease}, verified on {package.Manifest.Rock?.Version}, anchor {dates.Anchor:yyyy-MM-dd}){( options.IsDryRun ? " (dry run)" : string.Empty )}" );
 
                 LoadSteps( db, source, dataset, foreignKey, dates, options, parts, keys );
                 foreach ( var timing in db.Timings )
@@ -116,14 +116,24 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// Checks whether a database can take sample data: a Rock database with no people beyond a new
-        /// install. With a package, also checks that the database is the Rock the package was built for.
+        /// install. With a package, also checks that the database's Rock is the package's major release,
+        /// reading the Rock version from the Rock.Version assembly this process runs (inside Rock).
         /// It never honors <see cref="DatasetLoadOptions.IsAnyRockVersionAllowed"/>; only a load does.
         /// <see cref="Load"/> runs the same check inside its transaction.
         /// </summary>
         public static DatabaseReadiness CheckDatabase( string connectionString, SampleDataPackage package = null )
         {
+            return CheckDatabase( connectionString, package, RockVersionInfo.ReadRunning() );
+        }
+
+        /// <summary>
+        /// Checks whether a database can take sample data, as <see cref="CheckDatabase(string, SampleDataPackage)"/>
+        /// does, for a database whose Rock version is given, for example "20.0.10".
+        /// </summary>
+        public static DatabaseReadiness CheckDatabase( string connectionString, SampleDataPackage package, string rockVersion )
+        {
             using var db = new RockDatabase( connectionString );
-            return DatabaseReadiness.Read( db, package?.Manifest );
+            return DatabaseReadiness.Read( db, package?.Manifest, rockVersion );
         }
 
         /// <summary>
@@ -155,12 +165,12 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// Refuses a database that is not ready, before anything is written. A database on another Rock
-        /// gets a warning instead when any Rock version is allowed.
+        /// major release, or an unknown Rock, gets a warning instead when any Rock version is allowed.
         /// </summary>
-        private static void CheckReadiness( RockDatabase db, PackageManifest manifest, bool isAnyVersionAllowed )
+        private static void CheckReadiness( RockDatabase db, PackageManifest manifest, string rockVersion, bool isAnyVersionAllowed )
         {
-            var readiness = DatabaseReadiness.Read( db, manifest );
-            var mismatch = readiness.IsMigrationMismatch ? DatabaseReadiness.MismatchMessage( manifest, readiness.NewestMigration ) : null;
+            var readiness = DatabaseReadiness.Read( db, manifest, rockVersion );
+            var mismatch = readiness.IsRockMismatch ? DatabaseReadiness.MismatchMessage( manifest, rockVersion ) : null;
             var problems = readiness.Problems.Where( p => !( isAnyVersionAllowed && p == mismatch ) ).ToList();
             if ( problems.Count == 1 && problems[0] == mismatch )
             {

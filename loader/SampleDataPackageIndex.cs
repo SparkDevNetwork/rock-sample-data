@@ -17,6 +17,8 @@
 
 using System.Text.Json;
 
+using RockSampleData.Loader.Packages;
+
 namespace RockSampleData.Loader
 {
     /// <summary>
@@ -112,8 +114,42 @@ namespace RockSampleData.Loader
                 Required( entry.Url, "url" ),
                 sha256.ToLowerInvariant(),
                 entry.Size,
+                RockMajor( entry, position ),
+                MinimumLoaderVersion( entry.MinimumLoaderVersion, position ),
                 Required( entry.RockVersion, "rockVersion" ),
                 Required( entry.RockMigration, "rockMigration" ) );
+        }
+
+        /// <summary>
+        /// The entry's Rock major release. An index written before rockMajor gives only the exact
+        /// Rock version, whose first number is the major.
+        /// </summary>
+        private static int RockMajor( IndexFileEntry entry, int position )
+        {
+            return entry.RockMajor > 0 ? entry.RockMajor
+                : RockVersionInfo.MajorOf( entry.RockVersion )
+                    ?? throw new InvalidDataException( $"Package {position + 1} in the package index has no rockMajor, and its rockVersion does not give one." );
+        }
+
+        /// <summary>
+        /// The entry's minimum loader version, checked to be a version. Null in an index written before it.
+        /// </summary>
+        private static string MinimumLoaderVersion( string version, int position )
+        {
+            if ( string.IsNullOrWhiteSpace( version ) )
+            {
+                return null;
+            }
+
+            try
+            {
+                LoaderVersion.Compare( version, version );
+                return version;
+            }
+            catch ( FormatException ex )
+            {
+                throw new InvalidDataException( $"Package {position + 1} in the package index has a minimumLoaderVersion that is not a version. {ex.Message}", ex );
+            }
         }
 
         private sealed class IndexFile
@@ -151,6 +187,10 @@ namespace RockSampleData.Loader
 
             public long Size { get; set; }
 
+            public int RockMajor { get; set; }
+
+            public string MinimumLoaderVersion { get; set; }
+
             public string RockVersion { get; set; }
 
             public string RockMigration { get; set; }
@@ -162,8 +202,10 @@ namespace RockSampleData.Loader
     /// </summary>
     public sealed class SampleDataPackageIndexEntry
     {
-        internal SampleDataPackageIndexEntry( string dataset, string name, string description, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, string version, string url, string sha256, long size, string rockVersion, string rockMigration )
+        internal SampleDataPackageIndexEntry( string dataset, string name, string description, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, string version, string url, string sha256, long size, int rockMajor, string minimumLoaderVersion, string rockVersion, string rockMigration )
         {
+            RockMajor = rockMajor;
+            MinimumLoaderVersion = minimumLoaderVersion;
             Dataset = dataset;
             Name = name;
             Description = description;
@@ -249,13 +291,34 @@ namespace RockSampleData.Loader
         public long Size { get; }
 
         /// <summary>
-        /// The Rock version the package is for, for example "21.0.2".
+        /// The Rock major release the package is for, for example 21 (decision D-rock-major-1).
+        /// </summary>
+        public int RockMajor { get; }
+
+        /// <summary>
+        /// The oldest loader that can load the package, for example "0.1.0-alpha.13" (decision D-rock-major-2).
+        /// Null in an index written before it.
+        /// </summary>
+        public string MinimumLoaderVersion { get; }
+
+        /// <summary>
+        /// The exact Rock the package was built and verified on, for example "21.0.2".
         /// </summary>
         public string RockVersion { get; }
 
         /// <summary>
-        /// The newest migration of that Rock. A database whose newest migration is different cannot take the package.
+        /// The newest migration of that Rock. Loaders before 0.1.0-alpha.13 match packages by it, so the
+        /// index keeps it for them. Newer loaders use <see cref="IsInstallableOn"/>.
         /// </summary>
         public string RockMigration { get; }
+
+        /// <summary>
+        /// True when this loader can install the package on a Rock, for example "20.0.10": the Rock is the
+        /// package's major release, and this loader is at least the package's minimum loader version.
+        /// </summary>
+        public bool IsInstallableOn( string rockVersion )
+        {
+            return RockVersionInfo.MajorOf( rockVersion ) == RockMajor && LoaderVersion.IsAtLeast( MinimumLoaderVersion );
+        }
     }
 }

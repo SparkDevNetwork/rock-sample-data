@@ -24,7 +24,7 @@ using RockSampleData.LoaderCli;
     harnesses. Rock's own installer uses the same loader library.
 
     Usage:
-      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--parts Photos,Giving,...] [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--any-rock] [--dry-run]
+      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--parts Photos,Giving,...] [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--rock-version 21.0.2] [--any-rock] [--dry-run]
       rock-sample-data-load --connection "<connection string>" --calibrate <output file>
       rock-sample-data-load --connection "<connection string>" --package core-1.zip --check-cast [--parts Photos,Giving,...]
       rock-sample-data-load --connection "<connection string>" --giving-parity [--dataset core-1]
@@ -88,6 +88,11 @@ try
     var rockPath = options.GetValueOrDefault( "rock" ) ?? Environment.GetEnvironmentVariable( "ROCK_PATH" );
     var webConfig = options.GetValueOrDefault( "web-config" ) ?? ( string.IsNullOrEmpty( rockPath ) ? null : Path.Combine( rockPath, "RockWeb", "web.config" ) );
 
+    // The database's Rock version: --rock-version, or the built checkout's RockWeb\bin\Rock.Version.dll.
+    var rockVersionAssembly = string.IsNullOrEmpty( rockPath ) ? null : Path.Combine( rockPath, "RockWeb", "bin", $"{RockVersionInfo.AssemblyName}.dll" );
+    var rockVersion = options.GetValueOrDefault( "rock-version" )
+        ?? ( rockVersionAssembly != null && File.Exists( rockVersionAssembly ) ? RockVersionInfo.Read( rockVersionAssembly ) : null );
+
     DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
     {
         Anchor = options.TryGetValue( "anchor", out var anchor ) ? DateTime.Parse( anchor ) : null,
@@ -99,6 +104,7 @@ try
         CheckImageMonths = options.TryGetValue( "check-image-months", out var months ) ? int.Parse( months ) : null,
         CheckImageCopyFolder = options.GetValueOrDefault( "check-image-copies" ),
         RockWebConfigPath = webConfig,
+        RockVersion = rockVersion,
         IsDryRun = options.ContainsKey( "dry-run" ),
         IsAnyRockVersionAllowed = options.ContainsKey( "any-rock" )
     } );

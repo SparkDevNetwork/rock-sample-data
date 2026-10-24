@@ -33,6 +33,14 @@ namespace RockSampleData.Loader.Packages
         /// </summary>
         public const int CurrentFormatVersion = 1;
 
+        /// <summary>
+        /// The oldest loader that can load the packages this code builds. The builder writes it into each
+        /// package, and the release copies it into each index entry, so a Rock with an older loader never
+        /// offers the package (decision D-rock-major-2). Raise it to the release that ships the change
+        /// whenever packages start to need loader code that older loaders lack.
+        /// </summary>
+        public const string MinimumLoaderVersion = "0.1.0-alpha.13";
+
         internal const string ManifestPath = "package.json";
 
         internal const string ProfilePath = "profile.json";
@@ -87,6 +95,21 @@ namespace RockSampleData.Loader.Packages
             if ( manifest.FormatVersion != CurrentFormatVersion )
             {
                 throw new InvalidDataException( $"The package uses format {manifest.FormatVersion}; this loader reads format {CurrentFormatVersion}." );
+            }
+
+            bool isLoaderNewEnough;
+            try
+            {
+                isLoaderNewEnough = LoaderVersion.IsAtLeast( manifest.MinimumLoaderVersion );
+            }
+            catch ( FormatException ex )
+            {
+                throw new InvalidDataException( $"The package's minimum loader version is not a version. {ex.Message}", ex );
+            }
+
+            if ( !isLoaderNewEnough )
+            {
+                throw new InvalidDataException( $"The package needs loader {manifest.MinimumLoaderVersion} or newer; this is loader {LoaderVersion.Current}." );
             }
 
             files.Remove( ManifestPath );

@@ -24,8 +24,8 @@ namespace RockSampleData.Loader
 {
     /// <summary>
     /// Whether a database can take sample data: it is a Rock database with no people beyond the ones a new
-    /// Rock install creates, and, when a package is given, it is the Rock the package was built for
-    /// (decision 122).
+    /// Rock install creates (decision 122), and, when a package is given, its Rock is the package's
+    /// major release (decision D-rock-major-1).
     /// </summary>
     public sealed class DatabaseReadiness
     {
@@ -54,12 +54,13 @@ namespace RockSampleData.Loader
 
         private static readonly Guid RestUserRecordTypeGuid = new Guid( "E2261A84-831D-4234-9BE0-4D628BBE751E" );
 
-        private DatabaseReadiness( string newestMigration, int existingPeopleCount, List<string> problems, bool isMigrationMismatch )
+        private DatabaseReadiness( string newestMigration, string rockVersion, int existingPeopleCount, List<string> problems, bool isRockMismatch )
         {
             NewestMigration = newestMigration;
+            RockVersion = rockVersion;
             ExistingPeopleCount = existingPeopleCount;
             Problems = problems;
-            IsMigrationMismatch = isMigrationMismatch;
+            IsRockMismatch = isRockMismatch;
         }
 
         /// <summary>
@@ -68,9 +69,16 @@ namespace RockSampleData.Loader
         public bool IsReady => Problems.Count == 0;
 
         /// <summary>
-        /// The database's newest Entity Framework migration, which names its Rock exactly. Null when it has none.
+        /// The database's newest Entity Framework migration. Null when it has none. Loaders before
+        /// 0.1.0-alpha.13 matched packages by it; Rock versions now come from <see cref="RockVersion"/>.
         /// </summary>
         public string NewestMigration { get; }
+
+        /// <summary>
+        /// The Rock the database belongs to, for example "20.0.10", as the check was given it or read it
+        /// from Rock's Rock.Version assembly. Null when it is unknown.
+        /// </summary>
+        public string RockVersion { get; }
 
         /// <summary>
         /// People beyond the five a new Rock install creates. RestUser records do not count.
@@ -83,20 +91,22 @@ namespace RockSampleData.Loader
         public IReadOnlyList<string> Problems { get; }
 
         /// <summary>
-        /// True when one of the problems is that the database is not the Rock the package was built for.
+        /// True when one of the problems is that the database is not on the package's Rock major release,
+        /// or its Rock is unknown.
         /// </summary>
-        internal bool IsMigrationMismatch { get; }
+        internal bool IsRockMismatch { get; }
 
         /// <summary>
-        /// Checks an open database. With a manifest, also checks that its Rock matches the database.
+        /// Checks an open database. With a manifest, also checks that the database's Rock is the package's
+        /// major release.
         /// </summary>
-        internal static DatabaseReadiness Read( RockDatabase db, PackageManifest manifest )
+        internal static DatabaseReadiness Read( RockDatabase db, PackageManifest manifest, string rockVersion )
         {
             var problems = new List<string>();
             if ( db.Scalar( "SELECT OBJECT_ID( N'[dbo].[__MigrationHistory]' )" ) == null || db.Scalar( "SELECT OBJECT_ID( N'[dbo].[Person]' )" ) == null )
             {
                 problems.Add( "This is not a Rock database: it has no Rock migrations or no Person table." );
-                return new DatabaseReadiness( null, 0, problems, false );
+                return new DatabaseReadiness( null, rockVersion, 0, problems, false );
             }
 
             var newestMigration = db.Scalar( "SELECT TOP 1 [MigrationId] FROM [__MigrationHistory] ORDER BY [MigrationId] DESC" ) as string;
@@ -114,22 +124,25 @@ WHERE [p].[Id] <> {AdminPersonId}
                 problems.Add( $"This database already has {existingPeople:N0} {( existingPeople == 1 ? "person" : "people" )} beyond the ones a new Rock install creates. Sample data loads only into a new Rock database." );
             }
 
-            var expected = manifest?.Rock?.Migration;
-            var isMismatch = manifest != null && !string.Equals( expected, newestMigration, StringComparison.Ordinal );
+            var major = RockVersionInfo.MajorOf( rockVersion );
+            var isMismatch = manifest != null && ( major == null || major != manifest.Rock?.MajorRelease );
             if ( isMismatch )
             {
-                problems.Add( MismatchMessage( manifest, newestMigration ) );
+                problems.Add( MismatchMessage( manifest, rockVersion ) );
             }
 
-            return new DatabaseReadiness( newestMigration, existingPeople, problems, isMismatch );
+            return new DatabaseReadiness( newestMigration, rockVersion, existingPeople, problems, isMismatch );
         }
 
         /// <summary>
-        /// The sentence that says a package is for another Rock.
+        /// The sentence that says a package is for another Rock major release, or that the database's Rock is unknown.
         /// </summary>
-        internal static string MismatchMessage( PackageManifest manifest, string newestMigration )
+        internal static string MismatchMessage( PackageManifest manifest, string rockVersion )
         {
-            return $"This package is for Rock {manifest.Rock?.Version} (newest migration {manifest.Rock?.Migration ?? "not recorded"}), but the database's newest migration is {newestMigration ?? "missing"}.";
+            var package = $"This package is for Rock {manifest.Rock?.MajorRelease?.ToString() ?? "(not recorded)"}";
+            return RockVersionInfo.MajorOf( rockVersion ) == null
+                ? $"{package}, but this database's Rock version is unknown. Rock passes its version; outside Rock, give the one in RockWeb\\bin\\Rock.Version.dll."
+                : $"{package}, but this database is Rock {rockVersion}.";
         }
     }
 
