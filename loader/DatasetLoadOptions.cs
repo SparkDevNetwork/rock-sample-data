@@ -23,8 +23,9 @@ namespace RockSampleData.Loader
     public sealed class DatasetLoadOptions
     {
         /// <summary>
-        /// The date every relative date counts back from. Null uses today. Tests pin it so a load
-        /// is the same every time.
+        /// The date every relative date counts back from. Null uses today on the database server
+        /// (SQL Server's GETDATE), the date Rock Cleanup uses for ages and daily counts. Tests pin it
+        /// so a load is the same every time.
         /// </summary>
         public DateTime? Anchor { get; set; }
 
