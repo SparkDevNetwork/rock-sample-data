@@ -791,12 +791,14 @@ SELECT ( SELECT COUNT(*)
 SELECT COUNT(*)
 FROM [CommunicationRecipient] AS [cr]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+LEFT JOIN (
+    SELECT [pd].[PersonAliasId], MIN( [pd].[CreatedDateTime] ) AS [FirstSeen]
+    FROM [PersonalDevice] AS [pd]
+    WHERE [pd].[IsActive] = 1 AND [pd].[NotificationsEnabled] = 1 AND ISNULL( [pd].[DeviceRegistrationId], '' ) <> ''
+    GROUP BY [pd].[PersonAliasId]
+) AS [d] ON [d].[PersonAliasId] = [cr].[PersonAliasId]
 WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3
-    AND ( CASE WHEN EXISTS (
-            SELECT 1 FROM [PersonalDevice] AS [pd]
-            WHERE [pd].[PersonAliasId] = [cr].[PersonAliasId] AND [pd].[IsActive] = 1 AND [pd].[NotificationsEnabled] = 1
-                AND ISNULL( [pd].[DeviceRegistrationId], '' ) <> '' AND [pd].[CreatedDateTime] <= [c].[SendDateTime] ) THEN 1 ELSE 0 END )
-        <> ( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END );
+    AND ( CASE WHEN [d].[FirstSeen] <= [c].[SendDateTime] THEN 1 ELSE 0 END ) <> ( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END );
 
 -- check: app-devices-never-reach-a-phone
 -- why: Decision 95. Every sample device's registration token starts with "sample-data-", which Firebase never issues, so a push sent from a sample database can never reach a real phone.
