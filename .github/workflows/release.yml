@@ -77,7 +77,7 @@ jobs:
             exit 1
           fi
 
-          # A release's loader must load its own packages (decision D-rock-major-1).
+          # A release's loader must load its own packages (decision 158).
           if [ "$publish" = "true" ]; then
             node release/check-minimum-loader.js --version "$version"
           fi

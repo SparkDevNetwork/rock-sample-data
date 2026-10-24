@@ -296,7 +296,7 @@ namespace RockSampleData.Loader
         public int RockMajor { get; }
 
         /// <summary>
-        /// The oldest loader that can load the package, for example "0.1.0-alpha.13" (decision D-rock-major-1).
+        /// The oldest loader that can load the package, for example "0.1.0-alpha.13" (decision 158).
         /// Null in an index written before it.
         /// </summary>
         public string MinimumLoaderVersion { get; }

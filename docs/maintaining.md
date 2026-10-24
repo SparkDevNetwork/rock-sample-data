@@ -137,7 +137,7 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 - Keep every random choice seeded, so the same seed and anchor give the same data.
 - Keep packages data only. A file the loader needs goes into the package through the builder, and the loader reads it through the package, never from the repository.
 - If a change alters the package layout in a way an older loader cannot read, raise the package format version.
-- If packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads, raise `SampleDataPackage.MinimumLoaderVersion` to the release that will ship the change, and the loader project's `Version` with it (decision D-rock-major-1). A Rock keeps the loader it shipped with, so without this an older Rock would download a package it cannot load.
+- If packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads, raise `SampleDataPackage.MinimumLoaderVersion` to the release that will ship the change, and the loader project's `Version` with it (decision 158). A Rock keeps the loader it shipped with, so without this an older Rock would download a package it cannot load.
 - Run validation on Full 7 before and after your change. A change should not lower the share of values within tolerance without a written reason. See [Validation](../validation/README.md).
 
 ## Publishing a release
@@ -201,7 +201,7 @@ Open the failed run in Actions, find the first failed step, and match it here.
 | Sign in to nuget.org | The trusted publishing policy does not match: owner `SparkDevelopmentNetwork`, repository `SparkDevNetwork/rock-sample-data`, workflow `release.yml`, environment `release`, package `SparkDevNetwork.Rock.SampleData.Loader`, and `NUGET_USER` the user who made the policy. | Fix the policy or the variable, then "Re-run failed jobs". |
 | Sign in to Azure: `AADSTS700213: No matching federated identity record` | The app's trust record does not match GitHub's token subject. This repository uses the immutable subject with IDs. | Set the trust as in step 2 of the one-time setup, then "Re-run failed jobs". |
 | Upload the packages and receipts: "already published with other bytes" | This version is already on storage with different files, so the run would change a published package. | Never overwrite it. Tag the next version. |
-| Read the version and the Rock releases: "is below SampleDataPackage.MinimumLoaderVersion" | The tag is older than the loader the packages need, so its loader would refuse its own packages (decision D-rock-major-1). Nothing was built. | Delete the tag, since nothing was published, and tag the minimum version or later. |
+| Read the version and the Rock releases: "is below SampleDataPackage.MinimumLoaderVersion" | The tag is older than the loader the packages need, so its loader would refuse its own packages (decision 158). Nothing was built. | Delete the tag, since nothing was published, and tag the minimum version or later. |
 | Read the version and the Rock releases: "two Rock releases for one major release" | `release/rock-releases.json` lists two dot releases of one major. Each major gets one package set (decision 52). | Keep only that major's newest dot release, on a branch, and run again. |
 
 A re-run skips what is already published, so "Re-run failed jobs" is safe after any fix outside the repository. It needs one approval again.

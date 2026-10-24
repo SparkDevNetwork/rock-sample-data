@@ -91,7 +91,7 @@ The verify tool runs `cast/validate-cast.js` and `validation/check-standards.js`
 
 ## Receipts and the publishing gate
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision D-rock-major-1), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
 
 Publishing runs the gate first:
 

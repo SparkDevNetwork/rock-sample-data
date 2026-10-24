@@ -21,7 +21,7 @@ namespace RockSampleData.Loader.Packages
 {
     /// <summary>
     /// This loader's own version, and the order of loader versions. A loader version is the NuGet
-    /// package's semantic version, for example "1.2.0" or "0.1.0-alpha.13" (decision D-rock-major-1).
+    /// package's semantic version, for example "1.2.0" or "0.1.0-alpha.13" (decision 158).
     /// </summary>
     public static class LoaderVersion
     {

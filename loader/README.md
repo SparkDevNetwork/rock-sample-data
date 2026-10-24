@@ -51,7 +51,7 @@ Before loading anything, the loader refuses a database whose Rock is another maj
 
 ### The oldest loader a package needs
 
-Each package also records the oldest loader that can load it, `minimumLoaderVersion` (decision D-rock-major-1). A Rock keeps the loader version it shipped with, but the index can serve it packages from newer releases, and most of the data is made by loader code at install. So `SampleDataPackage.Open` refuses a package that needs a newer loader than itself, and Rock's installer block offers only index entries it can install (see [The package index](#the-package-index)).
+Each package also records the oldest loader that can load it, `minimumLoaderVersion` (decision 158). A Rock keeps the loader version it shipped with, but the index can serve it packages from newer releases, and most of the data is made by loader code at install. So `SampleDataPackage.Open` refuses a package that needs a newer loader than itself, and Rock's installer block offers only index entries it can install (see [The package index](#the-package-index)).
 
 The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. Raise it to the release that ships a change whenever packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads. Raise the loader project's `Version` with it, so a development build still loads its own packages.
 
@@ -198,7 +198,7 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | `url` | Where to download the package: absolute, or relative to the index's own URL. Required. |
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
 | `rockMajor` | The Rock major release the package is for (decision 52), the same as its `package.json`. Optional: an entry written before it counts as the major of its `rockVersion`. |
-| `minimumLoaderVersion` | The oldest loader that can load the package (decision D-rock-major-1), the same as its `package.json`. Optional: an entry written before it has no minimum. |
+| `minimumLoaderVersion` | The oldest loader that can load the package (decision 158), the same as its `package.json`. Optional: an entry written before it has no minimum. |
 | `rockVersion`, `rockMigration` | The exact Rock the package was built and verified on, the same values as its `package.json`. Loaders before 0.1.0-alpha.13 match packages by `rockMigration`, so both stay. Required. |
 
 `SampleDataPackageIndexEntry.IsInstallableOn( rockVersion )` says whether this loader can install an entry on a Rock: the Rock is the entry's major release, and this loader is at least its minimum loader version. Rock's installer block shows, for each dataset, the newest entry that is installable, and the newest entry of all when none is.

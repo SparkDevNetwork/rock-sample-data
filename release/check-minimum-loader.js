@@ -16,7 +16,7 @@
 //
 
 /*
-    Refuses a release whose loader would be older than the packages it publishes (decision D-rock-major-1).
+    Refuses a release whose loader would be older than the packages it publishes (decision 158).
     The builder writes SampleDataPackage.MinimumLoaderVersion into every package, and the release packs the
     loader with the tag's version. A tag below that minimum would ship a loader that refuses its own packages.
 

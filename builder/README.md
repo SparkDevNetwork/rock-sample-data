@@ -28,7 +28,7 @@ A package is a zip of data, never SQL (decision 41). Files keep their paths from
 
 | Path | What it holds |
 |---|---|
-| `package.json` | The format version, the dataset, the source commit, the Rock major release it is for and the exact Rock it was built on (decision 52), the oldest loader that can load it (decision D-rock-major-1), and the SHA-256 of every other file. |
+| `package.json` | The format version, the dataset, the source commit, the Rock major release it is for and the exact Rock it was built on (decision 52), the oldest loader that can load it (decision 158), and the SHA-256 of every other file. |
 | `configuration/*.json` | The church setup, unchanged. |
 | `cast/households/*.json`, `cast/groups/*.json` | The Cast and its small group plans, unchanged. |
 | `datasets/{key}.json` | The dataset's settings and its [card](../datasets/README.md#the-dataset-card). |

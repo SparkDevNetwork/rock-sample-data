@@ -5,8 +5,8 @@ What the release workflow, `.github/workflows/release.yml`, reads and runs. How 
 | File | What it is |
 |---|---|
 | `rock-releases.json` | One Rock release for each supported Rock major release, its newest dot release, with the tag or commit to check out from SparkDevNetwork/Rock (decisions 52 and 127). |
-| `merge-index.js` | Merges one release's verified packages into the hosted `index.json` (decision 128). Each new entry carries its dataset's card from `datasets/*.json` (decision 144), its Rock major release, and its minimum loader version (decision D-rock-major-1). It replaces the hosted entry for the same dataset and major, and refuses two packages for one dataset and major. |
-| `check-minimum-loader.js` | Refuses a release version below `SampleDataPackage.MinimumLoaderVersion`, since that release's loader would refuse its own packages (decision D-rock-major-1). The workflow runs it before a publishing run builds anything. |
+| `merge-index.js` | Merges one release's verified packages into the hosted `index.json` (decision 128). Each new entry carries its dataset's card from `datasets/*.json` (decision 144), its Rock major release, and its minimum loader version (decision 158). It replaces the hosted entry for the same dataset and major, and refuses two packages for one dataset and major. |
+| `check-minimum-loader.js` | Refuses a release version below `SampleDataPackage.MinimumLoaderVersion`, since that release's loader would refuse its own packages (decision 158). The workflow runs it before a publishing run builds anything. |
 
 ## Trying the index merge
 

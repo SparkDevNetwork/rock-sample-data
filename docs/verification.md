@@ -189,7 +189,7 @@ Each run writes `{dataset}.verify.json` next to each package. A receipt records 
 
 The loader runs five short checks before it writes anything, and stops the install if any fails:
 
-1. The package's format is one this loader reads, and this loader is at least the oldest loader the package names (decision D-rock-major-1).
+1. The package's format is one this loader reads, and this loader is at least the oldest loader the package names (decision 158).
 2. Every file matches its SHA-256 in `package.json`, nothing is missing, and nothing was added.
 3. No other sample data load is running on the database. The load holds an exclusive SQL Server application lock for its whole transaction.
 4. The database has no people beyond the five a new Rock install creates, so it holds no real people and no sample data yet (decision 122).
