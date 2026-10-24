@@ -40,6 +40,7 @@ This log wins over the [design spec](design-spec.md) wherever the two disagree.
 | # | Date | Decision | Why |
 |---|---|---|---|
 | 6 | 2026-10-14 | Store who people are; generate what they did at install time, counting back from install day. Ages and grades never drift, and recent events (a first visit two weeks ago) stay recent. | Stored timelines go stale, and shifting fixed dates breaks Sundays, holidays, and paydays. |
+| D-anchor-clock-1 | 2026-10-23 | Install day, the anchor a load counts back from, is today on the database server (SQL Server's `GETDATE`), not on the machine running the load. An explicit anchor still wins. The verify tool judges Rock Cleanup only while the server and the machine running Rock are both on the anchor's date, checked before and after the job; otherwise it fails rock-cleanup with the dates and says to run again. The release workflow sets its runner to Arizona time. | Rock Cleanup computes ages and daily counts from `GETDATE`, and Rock uses the machine's time zone when `OrgTimeZone` is `Local`. On GitHub's UTC runners, a release started in the afternoon crossed midnight mid-verify (v0.1.0-alpha.11) and reported a year of false age changes. One clock for the load and the referee, and a clear failure when that clock moves, keep a passing receipt meaningful. |
 
 ## Realism and calibration
 

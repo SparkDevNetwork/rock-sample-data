@@ -68,7 +68,7 @@ The loader runs the steps below in one database transaction. A failure rolls eve
 ## Dates and repeatability
 
 - Every date in a data file is relative: `yearsAgo` plus a month and day, or `daysAgo` for recent events.
-- The **anchor** is the date everything counts back from. It defaults to today. Pass `--anchor yyyy-MM-dd` to pin it.
+- The **anchor** is the date everything counts back from. It defaults to today on the database server, the clock Rock Cleanup uses for ages (decision D-anchor-clock-1). Pass `--anchor yyyy-MM-dd` to pin it.
 - Every random choice comes from a stream seeded by the `--seed` text and the household. The same seed and anchor give the same data, row for row.
 
 ## The tools
