@@ -80,6 +80,27 @@ Start an integrator whenever two or more sessions will change the repository at 
 
 When only one session is working, it can be its own integrator (solo mode, rule 12 in [AGENTS.md](../AGENTS.md#handing-off)). The person turns it on by saying so. A session never assumes it, because it cannot see other sessions. A branch that changes only documentation (`.md` files outside `cast/` and `content/`) can skip the package build and verify, since docs cannot break a package.
 
+### The coordinator
+
+With more than two or three sessions running, following each one is hard. The person can name one session the coordinator and talk only to it. Every other session, the integrator included, sends the coordinator its questions and status (rule 19 in [AGENTS.md](../AGENTS.md#the-coordinator)).
+
+In the Claude desktop app, the coordinator starts the other sessions itself: the integrator first, then a feature session for each piece of work, each briefed with the README's fallback prompt and told who its coordinator is. The person pastes one prompt, the README's coordinator prompt. Sessions the coordinator starts report to it automatically when they finish a turn. A session started some other way can still report to the coordinator by name. A terminal session cannot start other sessions, so in a terminal the person starts the integrator and the feature sessions with the fallback prompts.
+
+The coordinator:
+
+1. **Answers what is already settled.** If the decision log, AGENTS.md, or the person's earlier direction covers a question, it answers the session itself. Technical calls with clear evidence, such as how a release fix should work, are settled the same way.
+2. **Brings real choices to the person.** Product choices and changes to the release plan go to the person, numbered, each with one recommendation. The coordinator forwards the answer and quotes the person's words.
+3. **Keeps the plan.** It tracks what is in flight, what each release waits on, and what is waiting on the person. It tells sessions when something they wait on lands.
+4. **Restarts stalled work.** It nudges sessions that stop on errors or usage limits.
+
+The coordinator cannot:
+
+- approve tool permission prompts in another session's window
+- approve a GitHub deployment, such as a release's Publish job
+- stand in for the person's yes on a tag, a push to another repository, a squash, or a history change. The session doing it asks the person directly, after telling the coordinator.
+
+Keep the coordinator and the integrator in separate sessions. The integrator spends long stretches in verify runs, and the coordinator must stay free to answer. On a quiet day, one session can be both.
+
 ## Add a Cast household
 
 1. **Copy a similar household** in `cast/households/` and give it a new file name. The file name is the household `key` (lowercase, hyphens).
