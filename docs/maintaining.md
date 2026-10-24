@@ -206,6 +206,8 @@ A re-run skips what is already published, so "Re-run failed jobs" is safe after 
 
 A package serves every dot release of one Rock major release (decision 52), so `release/rock-releases.json` has one entry per major. Each entry is that major's newest dot release, a Rock version such as `21.0.2`, and the `ref` to check out from SparkDevNetwork/Rock: a release tag, or a full commit hash before Rock tags the release. The packages are built and verified on it and published under `rock-{major}`. The workflow stops if the ref's `Directory.Build.props` names a different version. When Rock publishes the tag for a pinned commit, change the `ref` to the tag.
 
+Today it lists Rock 21 (21.0.2, a develop commit) and Rock 20 (20.0.10, a release-20.0 commit), so each release has two Packages jobs, run side by side.
+
 When Rock ships a new dot release of a supported major:
 
 1. Change that major's entry to the new version and ref, on a branch.
