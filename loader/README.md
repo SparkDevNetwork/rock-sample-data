@@ -21,7 +21,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--connection` | Connection string to a fresh Rock database. Required. |
 | `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, and `Communications`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
-| `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today. Pin it in tests for identical data. |
+| `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests. Full 7's manifest already lists its Crowd. |
@@ -249,7 +249,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 
 ### The anchor
 
-The anchor is the date everything counts back from (`--anchor`, default today). The seed decides how a family behaves; the anchor decides which Sundays and holidays fall in the history window. The same seed with a different anchor gives a different history, not just shifted dates.
+The anchor is the date everything counts back from (`--anchor`, default today on the database server). The seed decides how a family behaves; the anchor decides which Sundays and holidays fall in the history window. The same seed with a different anchor gives a different history, not just shifted dates.
 
 ### What is the same, and what is not
 
@@ -257,7 +257,7 @@ With the same package, seed, and anchor, the data is the same on every server, r
 
 These differ between installs, by design:
 
-1. **Install day.** The anchor defaults to today, so give the same `--anchor` to compare installs.
+1. **Install day.** The anchor defaults to today on the database server, so give the same `--anchor` to compare installs.
 2. **Ids.** Each table's Ids start after its highest existing Id, so they match only on databases that started the same.
 3. **Guids.** The Cast, generated people and families, accounts, and alert types keep stable Guids. Most other rows (attendance, gifts, attribute values, check image files) get a new Guid on every install.
 4. **Created and modified times**, a family member's date added, and check image file times come from the install clock.

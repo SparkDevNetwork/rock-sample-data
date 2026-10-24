@@ -102,6 +102,16 @@ namespace RockSampleData.Loader.Database
         }
 
         /// <summary>
+        /// Today's date on the database server (SQL Server's GETDATE). Rock Cleanup computes ages and
+        /// daily counts from this clock, so a load anchored to it agrees with Rock's own repairs, even
+        /// when the server keeps a different time zone from the machine running the load.
+        /// </summary>
+        public DateTime ServerToday()
+        {
+            return ( DateTime ) Scalar( "SELECT CAST( GETDATE() AS date )" );
+        }
+
+        /// <summary>
         /// Runs a command and returns the first column of the first row.
         /// </summary>
         public object Scalar( string sql, params SqlParameter[] parameters )
