@@ -9,6 +9,8 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 3. Names come from public-domain frequency data and never depend on photo ethnicity.
 4. Crowd households have no photos. About half of Core 3's companions get photos from the pool (see [Datasets](../datasets/README.md)).
 5. Core 3's companions use a more involved connection status mix than the Crowd, set in the dataset manifest, so more of them attend, give, and join groups (decision 142). Core 1 and Core 3 also scale up checks as a payment method, so check batches and check images have enough to show (decision 143).
+6. Every generated person has a birth date. Measured age mixes count only people with a birth date, so validation grades the age mix as shares of all people (decision D-crowd-teens-1).
+7. A child on their own, in a one-person family, is a student aged 12 to 17 (decision D-crowd-teens-2).
 
 ## How big the Crowd is
 
