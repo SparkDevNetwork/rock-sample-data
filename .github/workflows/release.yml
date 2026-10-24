@@ -105,6 +105,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # GitHub's runners keep UTC, so midnight falls at 5pm Arizona time, and a release started in the
+      # afternoon could cross it mid-verify (the v0.1.0-alpha.11 run). On Spark's time zone, SQL Server,
+      # Rock, and verify all share one date that only changes at midnight Arizona time. Set before SQL
+      # Server is installed, so it starts on this zone. A self-hosted runner keeps its own zone.
+      - name: Set the runner to Arizona time
+        if: runner.environment == 'github-hosted'
+        run: |
+          tzutil /s "US Mountain Standard Time"
+          Get-TimeZone | Select-Object -ExpandProperty Id
+
       # Outside the workspace: an untracked Rock folder would mark every package as built from
       # uncommitted changes, and the publishing gate refuses those.
       - name: Check out Rock ${{ matrix.rock.version }}

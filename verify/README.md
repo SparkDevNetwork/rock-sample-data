@@ -24,7 +24,7 @@ It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Ro
 | `--server` | The SQL Server. Defaults to `localhost`. |
 | `--base` | The trusted base's name. Defaults to `RockSampleVerify-base`. |
 | `--run <tag>` | The run tag in this run's database names. Defaults to the worktree's name. |
-| `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today and `rock-sample-data`. |
+| `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today on the database server and `rock-sample-data`. Rock Cleanup is judged only when the anchor is today (see `rock-cleanup` below). |
 | `--record-contract` | Records `validation/rock-contract.json` from these loads, instead of only checking it. Needs every dataset. |
 | `--keep` | Keeps each loaded database (`RockSampleVerify-<run tag>-core-1` and so on) for a look afterward. |
 | `--check-receipts [folder]` | Runs nothing else. The publishing gate: exits with 1 unless every package has a passing receipt. |
@@ -109,5 +109,6 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `contract-schema` | Rock changed under the loader. Read each line, update the loader if needed, then re-record. |
 | `contract-current` | The loader changed. Review the change, then re-record. |
 | `invariants` | The loader wrote data that breaks a rule. Fix the loader, or fix the rule if the rule is wrong. |
+| `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |
