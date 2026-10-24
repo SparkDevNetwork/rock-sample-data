@@ -1,0 +1,664 @@
+{
+  "$comment": "The pools that generated text conversations are built from (README.md, conversations.json). A generated thread is one topic: an opener from the person, a staff reply, then follow-ups back and forth, and sometimes a closing. Every entry stands alone, so any entry works with any other entry of the same topic. 'numbers' says where a topic happens (personal, main, or students), and 'audience' who texts (adult, parent, or student). Tokens: {name}, {staff}, and {campus}. The Cast's own threads are in cast/sms-threads.json.",
+  "topics": [
+    {
+      "key": "serving-swap",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi {staff}, can I swap my Sunday on the team this week? Something came up at work.",
+        "Hey, I'm on the schedule this Sunday but my son has a tournament. Any chance someone can cover for me?",
+        "Is it too late to trade my serving Sunday? We'll be out of town.",
+        "I'm so sorry for the short notice, but I can't make it to serve this Sunday.",
+        "Quick question. Could I move my serving week to the following Sunday instead?",
+        "Hi! My mom is visiting this weekend. Would it be OK if I skip my serving spot just this once?",
+        "Hey {staff}, a work trip overlaps my serving date. Who should I talk to about a swap?"
+      ],
+      "staffReplies": [
+        "No problem at all, {name}. I'll find someone to cover for you.",
+        "Thanks for the heads up! Let me check who's free and get back to you.",
+        "Of course. Family and life happen. I'll take care of it.",
+        "Totally fine. I'll post it to the team and see who can jump in.",
+        "Not too late at all! I'll move you and let the team leader at {campus} know.",
+        "Don't worry about Sunday, {name}. We'll get it covered."
+      ],
+      "personFollowUps": [
+        "Thank you! I can take an extra Sunday next month to make up for it.",
+        "I really appreciate it. Sorry again for the trouble.",
+        "If it helps, I could do the later service instead.",
+        "Do I need to do anything in the app to mark that I can't make it?",
+        "You're the best. Let me know if no one can, and I'll figure something out."
+      ],
+      "staffFollowUps": [
+        "Good news, someone is covering for you. You're all set.",
+        "Found a sub! Enjoy your weekend.",
+        "All taken care of. You don't need to do anything else.",
+        "Next time you can decline the date in the app, but I already updated it for you.",
+        "Done. Thanks for serving so faithfully, {name}."
+      ],
+      "closings": [
+        "Thank you so much!",
+        "Perfect, thanks!",
+        "That's a relief. Thank you.",
+        "Awesome, see you soon."
+      ]
+    },
+    {
+      "key": "prayer-request",
+      "numbers": [ "personal" ],
+      "audience": "adult",
+      "openers": [
+        "Hi {staff}, would you pray for my dad? He's having some tests done this week.",
+        "Could you pray for me? Work has been really stressful lately and I'm not sleeping well.",
+        "Hey, our family could use some prayer. We just got some hard news.",
+        "I don't usually ask, but would you keep my sister in your prayers? She's going through a lot.",
+        "Pray for us this week? We have a big decision to make and want to get it right.",
+        "Hi {staff}. I have a job interview tomorrow and I'm nervous. Would you pray for me?",
+        "Our son is having a hard time at school. Would you pray for him?"
+      ],
+      "staffReplies": [
+        "Of course, {name}. I'm praying right now.",
+        "Thank you for trusting me with this. I'll be praying for you all week.",
+        "Absolutely. Can I add this to our prayer team's list, or would you like to keep it between us?",
+        "I'm so glad you reached out. Praying for peace and for clear next steps.",
+        "Yes, I will. You're not walking through this alone, {name}.",
+        "Praying now. Is there anything else we can do, like a meal or a visit?"
+      ],
+      "personFollowUps": [
+        "Thank you. Just between us for now, if that's OK.",
+        "You can share it with the prayer team. We'll take all the prayer we can get.",
+        "That means more than you know.",
+        "We're OK for now, but I'll let you know if that changes.",
+        "I'll keep you posted on how it goes."
+      ],
+      "staffFollowUps": [
+        "Of course. Thinking of you today.",
+        "I checked in with the prayer team, and they're praying too.",
+        "Still praying, {name}. Let me know how it goes.",
+        "Anytime. Reach out whenever you need to talk.",
+        "Praying for you and your family tonight."
+      ],
+      "closings": [
+        "Thank you so much.",
+        "We really appreciate it.",
+        "Thanks again. It helps to know someone is praying.",
+        "Thank you, {staff}."
+      ]
+    },
+    {
+      "key": "small-group-question",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi! We're looking for a small group. Is there one that meets near us?",
+        "Do you have any small groups for young couples?",
+        "How do I join a small group? I filled out the form online but haven't heard anything.",
+        "Is there a group that meets on a weeknight? Sundays are hard for us.",
+        "My wife and I want to get into a group. Where should we start?",
+        "Are there any groups that have childcare?",
+        "Can I visit a small group once before I commit?"
+      ],
+      "staffReplies": [
+        "Hi {name}! I love that you're asking. Our group finder on the website lists every group at {campus}.",
+        "Great question! A few groups would be a good fit. Can I connect you with a leader?",
+        "Thanks for reaching out, {name}. I'll look into that and get back to you today.",
+        "Yes! I'll send your info to a couple of group leaders so they can reach out.",
+        "So glad you want to get connected. What part of town are you in?",
+        "Absolutely. Let me find a couple of options that fit your schedule."
+      ],
+      "personFollowUps": [
+        "We're close to the {campus} campus, so anything near there works.",
+        "Weeknights are best for us, but not Fridays.",
+        "Yes, please connect us. Thank you!",
+        "Do we need to bring anything the first time?",
+        "We have two little kids, so that matters for us."
+      ],
+      "staffFollowUps": [
+        "I just sent your info to a leader. Expect a text from them this week.",
+        "Nope, just bring yourselves. Most groups have snacks.",
+        "I found two groups that would be a great fit. I'll text you the details.",
+        "Several groups welcome kids or share a sitter. I'll point you to those.",
+        "The leader said they'd love to have you any week you can make it."
+      ],
+      "closings": [
+        "Thank you! We're excited.",
+        "Sounds great, thanks for the help.",
+        "Perfect. We'll check it out.",
+        "Thanks so much, {staff}!"
+      ]
+    },
+    {
+      "key": "first-visit-question",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi, we're thinking about visiting this Sunday. What should we expect?",
+        "Is there anything for kids during the service? We have two little ones.",
+        "What do people usually wear? We haven't been to church in a while.",
+        "Where should we park when we come Sunday?",
+        "We visited last week and really liked it. Is there a way to learn more about the church?",
+        "Hi! First time coming this weekend. Where do we check in our kids?"
+      ],
+      "staffReplies": [
+        "Hi {name}! We'd love to have you. Come as you are. Most people dress casual.",
+        "So glad you reached out! Look for the welcome tent near the front doors, and someone will show you around.",
+        "Welcome! If you have kids, check-in opens before each service, and a greeter can walk you there.",
+        "We'd love to meet you, {name}! There's guest parking right by the main entrance at {campus}.",
+        "Thanks for texting! Anything you need Sunday, just ask a greeter. They'll take care of you.",
+        "Great question. I'll meet you in the lobby Sunday and walk you through everything."
+      ],
+      "personFollowUps": [
+        "That's great to know. We'll probably come to the earlier service.",
+        "Do the kids need anything special, like a form?",
+        "Is there coffee? Asking for my husband.",
+        "How long is the service usually?",
+        "Thank you. We're a little nervous, honestly."
+      ],
+      "staffFollowUps": [
+        "Nope! We'll get the kids set up at check-in. It only takes a minute.",
+        "There's always coffee. It's in the lobby, and it's free.",
+        "A service runs a little over an hour.",
+        "That's totally normal. You'll be among friends. Ask for me when you get there.",
+        "Can't wait to meet you. Text me if anything comes up."
+      ],
+      "closings": [
+        "Thank you! See you Sunday.",
+        "Perfect, that helps a lot.",
+        "Thanks for being so welcoming.",
+        "Great, we'll be there."
+      ]
+    },
+    {
+      "key": "baptism-interest",
+      "numbers": [ "personal" ],
+      "audience": "adult",
+      "openers": [
+        "Hi {staff}, I've been thinking about getting baptized. How does that work?",
+        "Is there a class I need to take before baptism?",
+        "My daughter wants to be baptized. Who should we talk to?",
+        "I was baptized as a baby. Should I be baptized again?",
+        "When is the next baptism Sunday?",
+        "I think I'm ready to be baptized. What's the next step?"
+      ],
+      "staffReplies": [
+        "{name}, that's amazing news! I'd love to talk with you about it.",
+        "This makes my day. Can we grab coffee this week and talk it through?",
+        "Great question. There's a short class before baptism, and I can sign you up.",
+        "I'm so glad you're thinking about this. Let's find a time to talk.",
+        "Love this! Our next baptism Sunday is coming up. I'll send you the details.",
+        "Thanks for asking, {name}. There's no wrong question here. Let's talk soon."
+      ],
+      "personFollowUps": [
+        "Coffee sounds good. I'm free most afternoons.",
+        "Do I have to share my story in front of everyone?",
+        "Can my family be there?",
+        "What should I bring that day?",
+        "I'm nervous, but in a good way."
+      ],
+      "staffFollowUps": [
+        "Only if you want to. Some people share a short video, and some just get baptized.",
+        "Of course! Invite anyone you want. It's a celebration.",
+        "Bring a change of clothes and a towel. We'll have a shirt for you.",
+        "Let's meet in the {campus} lobby this week. I'll text you a time.",
+        "That's exactly how it should feel. This is a big step, and we're with you."
+      ],
+      "closings": [
+        "Thank you! I'm really excited.",
+        "Sounds great. See you soon.",
+        "Thanks for walking me through this.",
+        "Can't wait!"
+      ]
+    },
+    {
+      "key": "giving-question",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi, how do I set up a recurring gift online?",
+        "Can I get a copy of my giving statement for taxes?",
+        "I think my card was charged twice for my gift. Can you check?",
+        "Can I split my gift between two funds?",
+        "My card expired. How do I update it for my scheduled gift?",
+        "Do you take checks in the mail, or only online gifts?"
+      ],
+      "staffReplies": [
+        "Hi {name}, happy to help! Give me a few minutes to look into it.",
+        "Thanks for asking. You can manage all of that on the Give page, but I'm glad to walk you through it.",
+        "Great question. Let me check your account and text you back.",
+        "Of course! I'll take a look this afternoon.",
+        "Thank you for your generosity, {name}. Let me find the answer for you.",
+        "Sure thing. Our finance team can help, and I'll loop them in."
+      ],
+      "personFollowUps": [
+        "Thank you. I'm not great with the website.",
+        "No rush. Whenever you get a chance.",
+        "Is it safe to do it through the app?",
+        "Could you text me the steps?",
+        "Thanks. I just want to make sure it goes to the right place."
+      ],
+      "staffFollowUps": [
+        "All set! You should see the change on your next gift.",
+        "Yes, the app is secure. It uses the same system as the website.",
+        "I just checked, and everything looks right on our end.",
+        "Here are the steps: open the app, tap Give, then tap Manage Gifts.",
+        "Our finance team took care of it. Thanks for your patience."
+      ],
+      "closings": [
+        "Perfect, thank you!",
+        "Got it. Thanks so much.",
+        "That was easy. Thank you.",
+        "Thanks for the help."
+      ]
+    },
+    {
+      "key": "kids-check-in",
+      "numbers": [ "personal", "main" ],
+      "audience": "parent",
+      "openers": [
+        "Hi, I lost my kids' pickup tag. Can I still get them after service?",
+        "Our check-in label didn't print this morning. What should we do next time?",
+        "Can my mom pick up the kids Sunday? She isn't on our account.",
+        "How early can we check the kids in before service?",
+        "My son has a peanut allergy. How do I make sure his teacher knows?",
+        "Is there a way to check the kids in from my phone before we get there?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Great question. Our kids team at {campus} handles this every week.",
+        "Thanks for asking. Keeping kids safe is a big deal to us, so let me get you the right answer.",
+        "No problem at all. I'll check with our kids director and text you back.",
+        "Happy to help, {name}! Here's how it works.",
+        "Good question. A lot of parents ask this.",
+        "Thanks for letting us know. We'll take care of it."
+      ],
+      "personFollowUps": [
+        "Thank you. I just want to make sure we do it right.",
+        "Do I need to bring anything with me?",
+        "Is there a form I should fill out?",
+        "OK great. We usually come to the first service.",
+        "That's a relief. Thanks for checking."
+      ],
+      "staffFollowUps": [
+        "Just bring your ID to the check-in desk, and a leader will help you.",
+        "You can add a family member or an allergy in the app, under your family's profile.",
+        "Check-in opens 15 minutes before each service.",
+        "Our kids director will meet you at the check-in desk on Sunday.",
+        "A leader at the desk can update it for you in about a minute."
+      ],
+      "closings": [
+        "Thank you so much!",
+        "Perfect, see you Sunday.",
+        "Great, that helps.",
+        "Thanks for keeping them safe."
+      ]
+    },
+    {
+      "key": "hospital-visit-thanks",
+      "numbers": [ "personal" ],
+      "audience": "adult",
+      "openers": [
+        "Thank you for coming to the hospital yesterday. It meant so much to us.",
+        "{staff}, I just wanted to say thanks for the visit. Mom smiled for the first time all week.",
+        "We're home! Thank you for praying with us at the hospital.",
+        "I don't think I said it enough, but thank you for sitting with me while I waited.",
+        "Your visit was exactly what I needed. Thank you for making the drive.",
+        "Thanks for stopping by the hospital. The nurses asked who the nice visitor was."
+      ],
+      "staffReplies": [
+        "It was an honor to be there, {name}. How are you feeling today?",
+        "Of course. I'm so glad I could come. We're all praying for you.",
+        "Thank you for letting me be part of it. How is everyone doing?",
+        "That means a lot. I've been thinking about you all day.",
+        "Anytime, {name}. That's what church family is for.",
+        "So good to hear from you. Is there anything you need this week?"
+      ],
+      "personFollowUps": [
+        "Better every day. The doctors are happy with how things are going.",
+        "Still tired, but we're getting there.",
+        "Some meals would help this week, if anyone is able.",
+        "We're doing OK. Just taking it slow.",
+        "Thank you. The prayers have really carried us."
+      ],
+      "staffFollowUps": [
+        "So glad to hear it. I'll keep praying.",
+        "I'll set up a few meals for you. Someone will text you about times.",
+        "Rest up. Let me know if you need anything at all.",
+        "I'd love to stop by again once you're settled.",
+        "Praying for a smooth recovery, {name}."
+      ],
+      "closings": [
+        "Thank you again, {staff}.",
+        "We're so grateful for you.",
+        "God bless you.",
+        "You're the best."
+      ]
+    },
+    {
+      "key": "event-rsvp",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [
+        "Count us in for the church picnic! There will be four of us.",
+        "Is it too late to sign up for the women's night?",
+        "We'd like to come to the newcomers lunch. Do I need to RSVP somewhere?",
+        "Can I bring a friend to the men's breakfast?",
+        "Please add two more to our reservation for the dinner.",
+        "Hi! I want to sign up for the serve day. Is there still room?"
+      ],
+      "staffReplies": [
+        "Yay! You're on the list, {name}.",
+        "Not too late at all. I added you.",
+        "Love it! I've got you down, and we'll send details the day before.",
+        "Absolutely, the more the merrier.",
+        "Done! Thanks for letting us know.",
+        "So glad you're coming. I'll save you a spot."
+      ],
+      "personFollowUps": [
+        "Do we need to bring anything?",
+        "Is it OK to bring the kids?",
+        "What time should we get there?",
+        "Is there parking close by?",
+        "Thank you! We're looking forward to it."
+      ],
+      "staffFollowUps": [
+        "Just bring yourselves. We'll take care of the rest.",
+        "Kids are welcome! There will be plenty for them to do.",
+        "Plan to arrive about 15 minutes early to check in.",
+        "Park in the main lot at {campus}. Someone will point you in.",
+        "We'll text a reminder the day before."
+      ],
+      "closings": [
+        "Perfect, see you there!",
+        "Thanks so much!",
+        "Can't wait.",
+        "Great, we'll be there."
+      ]
+    },
+    {
+      "key": "service-times",
+      "numbers": [ "main" ],
+      "audience": "adult",
+      "openers": [
+        "What time are services this Sunday?",
+        "Hi, is there an evening service?",
+        "Do you have a service that works well for families with small kids?",
+        "Is the {campus} service time the same every week?",
+        "Hi! My parents are visiting. Which service is the least crowded?",
+        "Do you stream the service online too?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Sunday service times for {campus} are on the campus page of our website.",
+        "Great question! Every {campus} service has the same message and the same kids rooms.",
+        "Thanks for texting! The earliest service is usually the quietest.",
+        "Hi! Our Sunday schedule stays the same every week, except at Christmas and Easter.",
+        "Yes! Kids check-in opens 15 minutes before each service.",
+        "We'd love to see you, {name}. Here's what you need to know."
+      ],
+      "personFollowUps": [
+        "Thanks! How long does the service last?",
+        "Is there somewhere to get coffee?",
+        "Do we need to sign up ahead of time?",
+        "Can we watch online if someone in the family is sick?",
+        "Good to know. We'll aim for the early one."
+      ],
+      "staffFollowUps": [
+        "Services run a little over an hour.",
+        "No sign-up needed. Just come!",
+        "Yes, we stream every service live on the website and the app.",
+        "Coffee is in the lobby, and it's free.",
+        "A greeter at the front doors can help you find a seat."
+      ],
+      "closings": [
+        "Thank you!",
+        "Perfect, see you Sunday.",
+        "Great, thanks for the info.",
+        "Thanks, that helps."
+      ]
+    },
+    {
+      "key": "lost-and-found",
+      "numbers": [ "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi, did anyone turn in a blue jacket after the early service?",
+        "I think I left my Bible in the auditorium Sunday. Has anyone found it?",
+        "My daughter left her water bottle in the kids room. It has her name on it.",
+        "Did someone find a set of keys in the parking lot? They have a red keychain.",
+        "I lost my sunglasses at church Sunday. Long shot, but any chance they turned up?",
+        "Hi! We left a baby blanket in the nursery. Any chance it's still there?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Let me check the lost and found and get back to you.",
+        "Good news, I think we have it! Can you describe it a little more?",
+        "I'll check with the team who cleaned up after services.",
+        "We keep everything at the welcome desk for a few weeks. Let me look.",
+        "Oh no! I'll take a look this morning.",
+        "Thanks for texting. We get a lot of these, so let me dig through the bin."
+      ],
+      "personFollowUps": [
+        "Thank you! It's not a big deal, but I'd love to have it back.",
+        "It has my name written inside.",
+        "I can swing by this week if it's there.",
+        "If you don't find it, no worries.",
+        "That sounds like it! Thank you!"
+      ],
+      "staffFollowUps": [
+        "Found it! It's at the welcome desk with your name on it.",
+        "I looked but didn't see it yet. I'll keep an eye out this Sunday.",
+        "The office is open weekday mornings if you want to pick it up.",
+        "I set it aside for you. Just ask at the {campus} welcome desk.",
+        "Still looking. A few things haven't been sorted yet."
+      ],
+      "closings": [
+        "Thank you so much!",
+        "You're a lifesaver.",
+        "Thanks for looking.",
+        "Great, I'll grab it Sunday."
+      ]
+    },
+    {
+      "key": "event-details",
+      "numbers": [ "main" ],
+      "audience": "adult",
+      "openers": [
+        "Hi, what time does the event start on Saturday?",
+        "Is the family movie night inside or outside?",
+        "Is there a cost for the marriage retreat?",
+        "Where do I go for the serve day? I signed up online.",
+        "Is childcare available for the women's study?",
+        "Is the outreach event still on if it rains?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Great question. Let me grab the details for you.",
+        "Thanks for asking! I'll check with the team and text you back today.",
+        "Hi! All the details are on the Events page, but here's the short version.",
+        "Good question, {name}. Let me find out.",
+        "So glad you're coming! Here's what I know.",
+        "I'll double check with the event leader and get right back to you."
+      ],
+      "personFollowUps": [
+        "Thanks! Do I need to bring anything?",
+        "Should I register ahead of time?",
+        "Is it a good event for kids?",
+        "Where should I park?",
+        "OK great. Thank you for checking."
+      ],
+      "staffFollowUps": [
+        "It starts in the main lobby at {campus}. Look for the signs.",
+        "There's no cost at all, and kids are welcome.",
+        "Registration is open on the Events page. It only takes a minute.",
+        "The event leader said to plan on getting there a few minutes early.",
+        "If anything changes, we'll send a text that morning."
+      ],
+      "closings": [
+        "Perfect, thanks!",
+        "Sounds great.",
+        "Thanks for the info!",
+        "See you there."
+      ]
+    },
+    {
+      "key": "camp-form-student",
+      "numbers": [ "students" ],
+      "audience": "student",
+      "openers": [
+        "hey is the camp form due this week",
+        "Hi {staff}! Where do I turn in my camp form?",
+        "do i need a parent to sign the medical page",
+        "I lost my camp form lol. Can I get another one?",
+        "Is it too late to sign up for camp?",
+        "Can I room with my friends at camp?"
+      ],
+      "staffReplies": [
+        "Hey {name}! Great question.",
+        "So pumped you're thinking about camp, {name}!",
+        "Hey! Glad you asked. Let me help.",
+        "Hi {name}! Camp is going to be so good this year.",
+        "No worries! That happens a lot.",
+        "Hey {name}, I've got you."
+      ],
+      "personFollowUps": [
+        "ok cool. can i turn it in sunday",
+        "My mom said she'll sign it tonight.",
+        "What do I need to bring?",
+        "Is there a packing list?",
+        "ok thanks!!"
+      ],
+      "staffFollowUps": [
+        "You can turn it in Sunday or Wednesday night at the student check-in table.",
+        "Yep, a parent signs the form and the medical page.",
+        "The packing list is on the Students page of the website.",
+        "I'll have extra forms at the student table this week.",
+        "Room requests go on the form. We do our best to keep friends together!"
+      ],
+      "closings": [
+        "thank you!!",
+        "Ok cool see you Sunday",
+        "Thanks {staff}!",
+        "yay can't wait"
+      ]
+    },
+    {
+      "key": "camp-form-parent",
+      "numbers": [ "students" ],
+      "audience": "parent",
+      "openers": [
+        "Hi {staff}, this is {name}. When is the camp payment due?",
+        "Does my son need anything signed besides the medical form?",
+        "Is there financial help for camp? It's a tight month for us.",
+        "What's the best way to turn in the camp forms if we can't come Sunday?",
+        "Can my daughter take her medicine at camp? Who keeps track of it?",
+        "Hi! Who are the adult leaders going to camp this year?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Thanks for reaching out.",
+        "Great question, {name}. I'm glad you asked.",
+        "Thanks for asking! I want this to be easy for you.",
+        "Hi {name}, happy to help with that.",
+        "So glad your student is coming to camp!",
+        "Thanks for texting. Let me get you the details."
+      ],
+      "personFollowUps": [
+        "Thank you. This is our first time sending a kid to camp.",
+        "Can I just drop them at the church office?",
+        "Will you send an update when the bus gets there?",
+        "Is there a number to call while they're away?",
+        "That's really helpful, thank you."
+      ],
+      "staffFollowUps": [
+        "Forms can go to the church office any weekday, or to me on Sunday.",
+        "Our camp nurse keeps all medicine and gives it on schedule.",
+        "We'll text parents when the bus arrives and again before it heads home.",
+        "Every leader is background checked and trained, and I'll be there all week.",
+        "If cost is ever a worry, we have camp scholarships. Just let me know."
+      ],
+      "closings": [
+        "Thank you, {staff}!",
+        "Perfect, we'll get it in.",
+        "Thanks for taking care of our kids.",
+        "Great, that helps a lot."
+      ]
+    },
+    {
+      "key": "wednesday-night-student",
+      "numbers": [ "students" ],
+      "audience": "student",
+      "openers": [
+        "is there wednesday night this week",
+        "can i get a ride to wednesday night",
+        "Hey {staff}, can I bring a friend Wednesday?",
+        "what time do we get out wednesday",
+        "Is there food on Wednesday night? I come straight from practice.",
+        "I'm gonna be late Wednesday because of practice. Is that ok?"
+      ],
+      "staffReplies": [
+        "Hey {name}! Yes, we'd love to see you.",
+        "For sure! Wednesday is better with you there.",
+        "Hey! Totally fine. Come when you can.",
+        "Good question, {name}.",
+        "Hey {name}! Let me check and text you back.",
+        "Yo! Glad you asked."
+      ],
+      "personFollowUps": [
+        "ok cool",
+        "my mom can drop me off but i need a ride home",
+        "Can my friend come even if they don't go to church?",
+        "what are we doing this week",
+        "thanks!"
+      ],
+      "staffFollowUps": [
+        "Friends are always welcome. We'll save them a spot.",
+        "We can set up a ride. Have your mom or dad text me so they know the plan.",
+        "We wrap up in time for homework, promise.",
+        "There's pizza most weeks, so come hungry.",
+        "Games, worship, and small groups. You'll love it."
+      ],
+      "closings": [
+        "ok see you then",
+        "Thanks {staff}!!",
+        "cool thanks",
+        "Sweet, see you Wednesday."
+      ]
+    },
+    {
+      "key": "wednesday-night-parent",
+      "numbers": [ "students" ],
+      "audience": "parent",
+      "openers": [
+        "Hi {staff}, what time should I pick up from Wednesday night?",
+        "Is there a carpool for Wednesday night? We both work late.",
+        "My son wants to start coming on Wednesdays. Does he need to sign up?",
+        "Who drives the students if there's an outing on a Wednesday?",
+        "Is Wednesday night still on this week with the school break?",
+        "Do you need any parent volunteers on Wednesday nights?"
+      ],
+      "staffReplies": [
+        "Hi {name}! Thanks for reaching out.",
+        "Great question. Let me give you the details.",
+        "Hi! Happy to help with that.",
+        "Thanks for asking, {name}. We love having your family on Wednesdays.",
+        "Hi {name}, glad you texted.",
+        "Good question! A lot of parents ask that."
+      ],
+      "personFollowUps": [
+        "Thank you. We're still figuring out our schedule.",
+        "Is there a form for that?",
+        "Can I come in and see what it's like sometime?",
+        "That works for us.",
+        "Thank you for everything you do for these kids."
+      ],
+      "staffFollowUps": [
+        "Pickup is at the student entrance, and a leader stays until every student is picked up.",
+        "No sign-up needed. Students just check in at the student table.",
+        "A few families carpool. I can connect you with one near you.",
+        "Parents are always welcome to stop in. Come any Wednesday.",
+        "We'd love parent volunteers! Every volunteer has a background check first, and I'll walk you through it."
+      ],
+      "closings": [
+        "Perfect, thank you!",
+        "Thanks {staff}.",
+        "Sounds good. See you Wednesday.",
+        "Great, thanks for the help."
+      ]
+    }
+  ]
+}

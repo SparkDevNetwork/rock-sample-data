@@ -1,0 +1,240 @@
+{
+  "$comment": "The Cast's hand-written SMS conversations (cast/sms-threads.md, decision 93). Every load writes them. 'number' is a phone number key in configuration/communications.json, and messages are dated back from the install day, oldest first.",
+  "threads": [
+    {
+      "key": "hughes-jess-ted",
+      "person": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "number": "ted",
+      "story": "Jess asks Ted to pray the night before her youngest son, Jack, has ear tubes put in.",
+      "state": "unread",
+      "messages": [
+        { "from": "person", "daysAgo": 1, "time": "19:48", "text": "Hi Pastor Ted, it's Jess Hughes. Jack gets ear tubes put in early tomorrow morning. I know it's a small thing but I'm a nervous wreck. Would you pray for him?" },
+        { "from": "staff", "daysAgo": 1, "time": "20:05", "text": "Of course, Jess. Praying right now for Jack, for steady hands for his doctors, and for peace for you and Matt tonight." },
+        { "from": "person", "daysAgo": 1, "time": "20:11", "text": "Thank you. That means a lot." },
+        { "from": "person", "daysAgo": 1, "time": "21:37", "text": "We have to be there at 5:30. I'll text you when he's out." }
+      ]
+    },
+    {
+      "key": "ramirez-ana-ted",
+      "person": "112ECC26-08DF-4257-810E-7C848227519B",
+      "name": "Ana Ramirez",
+      "number": "ted",
+      "story": "Ted follows up after the Ramirez family's second Sunday, and Ana asks how to meet other families.",
+      "state": "unread",
+      "messages": [
+        { "from": "staff", "daysAgo": 3, "time": "10:15", "text": "Hi Ana, this is Ted Decker, one of the pastors at Rock Solid. Thanks for filling out a card, and it was great to see your family back on Sunday!" },
+        { "from": "person", "daysAgo": 2, "time": "12:40", "text": "Hi Pastor Ted! Thank you for reaching out. We really liked it. Lucas keeps asking when we can go back." },
+        { "from": "person", "daysAgo": 2, "time": "12:42", "text": "Is there a good way to meet some other families? We don't really know anyone there yet." }
+      ]
+    },
+    {
+      "key": "dawson-kevin-ted",
+      "person": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
+      "number": "ted",
+      "story": "Ted checks on Kevin after a men's breakfast falls on his weekend with the kids, and offers a weekday coffee instead.",
+      "state": "read",
+      "messages": [
+        { "from": "staff", "daysAgo": 47, "time": "08:30", "text": "Hey Kevin, we missed you at the men's breakfast. No pressure at all. I know some weekends are your time with Tyler and Emma." },
+        { "from": "person", "daysAgo": 47, "time": "11:12", "text": "Yeah, it was my weekend with them. The breakfasts always seem to land on my weekends." },
+        { "from": "staff", "daysAgo": 47, "time": "11:20", "text": "Totally get it. Those weekends matter. A few of us grab coffee at Javelina Wash Coffee on Tuesday mornings at 6:30, if that ever works better." },
+        { "from": "person", "daysAgo": 47, "time": "11:31", "text": "That might actually work. I don't start work until 8 on Tuesdays." },
+        { "from": "staff", "daysAgo": 47, "time": "11:33", "text": "Perfect. First cup is on me." },
+        { "from": "person", "daysAgo": 47, "time": "11:34", "text": "Ha, deal. See you there." }
+      ]
+    },
+    {
+      "key": "russell-hal-ted",
+      "person": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
+      "number": "ted",
+      "story": "Hal thanks Ted for coming along on the monthly communion visit to his home.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 26, "time": "15:02", "text": "Pastor Ted, thank you for coming by with the communion team yesterday. It was good to have company and good to pray together." },
+        { "from": "staff", "daysAgo": 26, "time": "16:20", "text": "Hal, it was a gift to sit with you. Thanks for the stories about the church's early days. I'll come back with the team next month." },
+        { "from": "person", "daysAgo": 26, "time": "16:45", "text": "I'll have the coffee on. God bless you." }
+      ]
+    },
+    {
+      "key": "sanders-josh-ted",
+      "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
+      "number": "ted",
+      "story": "Josh asks Ted what to bring to his baptism, then thanks him afterward.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 66, "time": "18:22", "text": "Hey Ted, I turned in my baptism form. What do I need to bring on Sunday?" },
+        { "from": "staff", "daysAgo": 66, "time": "18:40", "text": "Josh, this is so great! Bring a change of clothes and a towel. We'll have a shirt for you to wear. Plan to get there 30 minutes early." },
+        { "from": "person", "daysAgo": 66, "time": "18:44", "text": "Got it. Is it OK if my coworker comes to watch? He's the one who first brought me." },
+        { "from": "staff", "daysAgo": 66, "time": "18:47", "text": "Absolutely. Have him sit up front so he can see." },
+        { "from": "person", "daysAgo": 62, "time": "13:15", "text": "Thanks for Sunday. I'm still smiling." },
+        { "from": "staff", "daysAgo": 62, "time": "13:30", "text": "Me too. Proud of you, Josh. Let's grab lunch soon and talk about what's next." },
+        { "from": "person", "daysAgo": 62, "time": "13:32", "text": "I'd like that." }
+      ]
+    },
+    {
+      "key": "fischer-mark-isaac",
+      "person": "C0C87060-A64E-43F6-97AC-855873C83E5E",
+      "name": "Mark Fischer",
+      "number": "isaac",
+      "story": "Mark asks Isaac to meet with Ethan, who is torn about where to go to college.",
+      "state": "unread",
+      "messages": [
+        { "from": "person", "daysAgo": 2, "time": "21:10", "text": "Hi Isaac, it's Mark Fischer. Ethan is really torn about college, staying close or going out of state. Would you be willing to grab lunch with him sometime?" },
+        { "from": "staff", "daysAgo": 2, "time": "21:26", "text": "Hey Mark! I'd love to. He's a great kid. I'll reach out to him and set something up. Praying for all of you in this." },
+        { "from": "person", "daysAgo": 1, "time": "07:55", "text": "Thank you. Julie and I want him to choose well, not just choose what we want." },
+        { "from": "person", "daysAgo": 1, "time": "07:56", "text": "He's free after school most days except Thursday." }
+      ]
+    },
+    {
+      "key": "kim-drew-isaac",
+      "person": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
+      "name": "Drew Kim",
+      "number": "isaac",
+      "story": "Drew, a college student who grew up in the student ministry, asks Isaac about helping on Wednesday nights.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 141, "time": "16:05", "text": "Hey Isaac, it's Drew Kim. Do you need any college students to help out on Wednesday nights?" },
+        { "from": "staff", "daysAgo": 141, "time": "16:30", "text": "Drew! Yes, we always need good leaders. You'd need a quick background check and one training night. Want me to send the form?" },
+        { "from": "person", "daysAgo": 141, "time": "16:34", "text": "Yes please. My classes end at 5 on Wednesdays, so I can be there by 6." },
+        { "from": "staff", "daysAgo": 141, "time": "16:40", "text": "Perfect. I'll text you the form tonight." },
+        { "from": "person", "daysAgo": 140, "time": "09:12", "text": "Filled it out. Thanks!" },
+        { "from": "staff", "daysAgo": 140, "time": "09:30", "text": "You're the best. See you at training next week." }
+      ]
+    },
+    {
+      "key": "brooks-ava-students",
+      "person": "DAB43FB0-CF9F-4ACB-AF01-670BDA69BB39",
+      "name": "Ava Brooks",
+      "number": "students",
+      "story": "Ava asks the student line when her camp form is due and what has to come with it.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 150, "time": "17:20", "text": "Hi! This is Ava Brooks. Is the camp form due this Sunday?" },
+        { "from": "staff", "daysAgo": 150, "time": "17:41", "text": "Hey Ava! Yes, bring it Sunday or Wednesday night. Don't forget the medical page. It needs a parent signature." },
+        { "from": "person", "daysAgo": 150, "time": "17:45", "text": "Ok my mom signed it. Do I still need my shot records?" },
+        { "from": "staff", "daysAgo": 150, "time": "17:52", "text": "Nope, just the medical page and the signed form. Can't wait to have you back at camp!" },
+        { "from": "person", "daysAgo": 150, "time": "17:53", "text": "Yay thank you!!" }
+      ]
+    },
+    {
+      "key": "sullivan-jake-students",
+      "person": "F28080C9-B2A5-4C85-89EC-DAF84FC9CEA4",
+      "name": "Jake Sullivan",
+      "number": "students",
+      "story": "Jake answers the student line's Wednesday night reminder by asking for a ride.",
+      "state": "unread",
+      "messages": [
+        { "from": "staff", "daysAgo": 3, "time": "15:00", "text": "Hey Jake! Wednesday night is on this week in the student room. Bring a friend!" },
+        { "from": "person", "daysAgo": 3, "time": "15:42", "text": "can i get a ride? my dad works late on wednesdays" },
+        { "from": "person", "daysAgo": 1, "time": "16:10", "text": "also can my friend come too" }
+      ]
+    },
+    {
+      "key": "nguyen-michelle-alisha",
+      "person": "42E18942-04CB-49BC-A72B-5D121514520E",
+      "name": "Michelle Nguyen",
+      "number": "alisha",
+      "story": "Michelle, who leads the first-aid team, needs someone to cover her Sunday after she is called in for a shift.",
+      "state": "unread",
+      "messages": [
+        { "from": "person", "daysAgo": 2, "time": "22:15", "text": "Hi Alisha, I just got called in for a shift Sunday morning. Can you help me find someone to cover first aid at the 9:00?" },
+        { "from": "staff", "daysAgo": 1, "time": "08:40", "text": "Oh no, sorry Michelle! I'll ask around this morning. Is there anyone on the team you'd like me to try first?" },
+        { "from": "person", "daysAgo": 1, "time": "09:02", "text": "Maybe try the 10:30 folks first? I can take an extra Sunday next month to make up for it." },
+        { "from": "person", "daysAgo": 1, "time": "09:03", "text": "Thank you so much!" }
+      ]
+    },
+    {
+      "key": "hall-bri-alisha",
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "number": "alisha",
+      "story": "Bri needs a ride to her first Starting Point night while her car is in the shop, and Alisha finds her one.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 35, "time": "13:05", "text": "Hi, is this Alisha? This is Bri Hall. I signed up for Starting Point tonight." },
+        { "from": "staff", "daysAgo": 35, "time": "13:12", "text": "Hi Bri! Yes, this is Alisha. We're so glad you signed up. What can I do for you?" },
+        { "from": "person", "daysAgo": 35, "time": "13:15", "text": "My car is in the shop until Friday. Is there any way someone from church could give me a ride? I'm in Avondale." },
+        { "from": "staff", "daysAgo": 35, "time": "13:18", "text": "Let me check with a few people. What time are you out of class today?" },
+        { "from": "person", "daysAgo": 35, "time": "13:20", "text": "I'm done at 4:30. It starts at 6:30, right?" },
+        { "from": "staff", "daysAgo": 35, "time": "13:21", "text": "Yes, 6:30. Come a few minutes early for coffee if you can." },
+        { "from": "staff", "daysAgo": 35, "time": "14:02", "text": "Good news! Deb Bell from our greeter team can pick you up at 5:30. She drives a white SUV." },
+        { "from": "person", "daysAgo": 35, "time": "14:05", "text": "Oh that's so kind. Thank you!! Should I send her my address?" },
+        { "from": "staff", "daysAgo": 35, "time": "14:07", "text": "I'll give her the address from your card. She'll text you when she's on the way." },
+        { "from": "person", "daysAgo": 35, "time": "17:31", "text": "She's here! Thank you again." },
+        { "from": "staff", "daysAgo": 35, "time": "17:33", "text": "Have a great night! Find me at the welcome table if you need anything." },
+        { "from": "person", "daysAgo": 34, "time": "08:50", "text": "Last night was really good. Deb is the sweetest." },
+        { "from": "staff", "daysAgo": 34, "time": "09:10", "text": "She said the same about you! Do you still need a ride next week?" },
+        { "from": "person", "daysAgo": 34, "time": "09:12", "text": "No, I get my car back Friday. But I think I want to be a greeter like Deb." },
+        { "from": "staff", "daysAgo": 34, "time": "09:15", "text": "I love that. I'll let the greeter team know, and we'll get you started." },
+        { "from": "person", "daysAgo": 34, "time": "09:16", "text": "Yay! Thank you Alisha." }
+      ]
+    },
+    {
+      "key": "gray-emily-alisha",
+      "person": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "number": "alisha",
+      "story": "Alisha lets Emily know her scheduled gift did not go through because her card expired.",
+      "state": "read",
+      "messages": [
+        { "from": "staff", "daysAgo": 212, "time": "10:20", "text": "Hi Emily, this is Alisha from the church office. Just a heads up, your scheduled gift didn't go through this week. It looks like the card on file expired." },
+        { "from": "person", "daysAgo": 212, "time": "19:48", "text": "Oh no, thanks for telling me. I have a new card. I'll update it after this run of shifts." },
+        { "from": "staff", "daysAgo": 212, "time": "19:55", "text": "No rush at all. You can update it anytime on the Give page of our website, or I can walk you through it." },
+        { "from": "person", "daysAgo": 212, "time": "19:58", "text": "Thank you!" }
+      ]
+    },
+    {
+      "key": "evans-helen-main",
+      "person": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
+      "number": "main",
+      "story": "Helen texts the main line about serving in the children's ministry after a big event on campus, and no one has answered her yet.",
+      "state": "unread",
+      "messages": [
+        { "from": "person", "daysAgo": 2, "time": "20:30", "text": "Hi, my name is Helen Evans. I was at the big event on your campus and asked about helping with the kids ministry. Who should I talk to?" },
+        { "from": "person", "daysAgo": 1, "time": "12:15", "text": "Just checking in on my last message. I'd love to help with the kids if there's a spot." }
+      ]
+    },
+    {
+      "key": "coleman-tiffany-main",
+      "person": "8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F",
+      "name": "Tiffany Coleman",
+      "number": "main",
+      "story": "Tiffany asks the main line whether anyone turned in Zoe's water bottle from the preschool room.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 18, "time": "13:10", "text": "Hi! Did anyone turn in a purple water bottle from the preschool room on Sunday? It has Zoe's name on the bottom." },
+        { "from": "staff", "daysAgo": 18, "time": "13:42", "text": "Hi Tiffany! Yes, it's in the lost and found by the welcome desk. I'll set it aside with Zoe's name on it." },
+        { "from": "person", "daysAgo": 18, "time": "13:45", "text": "You're a lifesaver. She's been asking about it all day." }
+      ]
+    },
+    {
+      "key": "diaz-patty-main",
+      "person": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "name": "Patty Diaz",
+      "number": "main",
+      "story": "Patty asks the main line for service times before bringing her visiting sister.",
+      "state": "read",
+      "messages": [
+        { "from": "person", "daysAgo": 296, "time": "09:05", "text": "Good morning. What time are services this Sunday? My sister is visiting and wants to come with us." },
+        { "from": "staff", "daysAgo": 296, "time": "09:20", "text": "Good morning, Patty! Services are at 9:00, 10:30, and noon. We'd love to meet your sister. Kids check-in opens 15 minutes before each one." },
+        { "from": "person", "daysAgo": 296, "time": "09:22", "text": "Thank you! We'll be at the 10:30." }
+      ]
+    },
+    {
+      "key": "watson-brandon-main",
+      "person": "21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA",
+      "name": "Brandon Watson",
+      "number": "main",
+      "story": "Brandon replies STOP to a welcome text from the main line, which turns off texting to his phone.",
+      "state": "stopped",
+      "messages": [
+        { "from": "staff", "daysAgo": 20, "time": "16:00", "text": "Hi Brandon, this is Rock Solid Church. Thanks for being with us on Sunday! Reply anytime if there's something we can help with." },
+        { "from": "person", "daysAgo": 12, "time": "19:30", "text": "STOP" }
+      ]
+    }
+  ]
+}
