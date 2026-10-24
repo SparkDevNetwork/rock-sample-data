@@ -141,7 +141,51 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, failures ) : 0;
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks each scripted Cast unsubscribe: one recipient row at the right level, and the person left the list,
+        /// or chose No mass emails, the way Rock's email preference page records it.
+        /// </summary>
+        private static int CheckUnsubscribes( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var unsubscribe in source.Communications?.CastUnsubscribes ?? new List<CastUnsubscribe>() )
+            {
+                checks++;
+                var level = unsubscribe.List == null ? 2 : 3;
+                var row = db.Query( @"
+SELECT TOP 1 [cr].[UnsubscribeLevel], [p].[EmailPreference],
+    ( SELECT TOP 1 [gm].[GroupMemberStatus] FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [c].[ListGroupId] AND [gm].[PersonId] = [p].[Id] ) AS [ListStatus]
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[Guid] = @Guid AND [cr].[UnsubscribeDateTime] IS NOT NULL
+ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", unsubscribe.Person ) ).FirstOrDefault();
+                var name = unsubscribe.Person.ToString();
+                if ( row == null )
+                {
+                    failures.Add( $"Unsubscribe {name}: expected an unsubscribe, Rock shows none" );
+                }
+                else if ( Convert.ToInt32( row["UnsubscribeLevel"] ) != level )
+                {
+                    failures.Add( $"Unsubscribe {name}: expected level {level}, Rock shows {row["UnsubscribeLevel"]}" );
+                }
+                else if ( level == 3 && !( Nullable( row["ListStatus"] ) is int status && status == 0 ) )
+                {
+                    failures.Add( $"Unsubscribe {name}: expected them Inactive in the {unsubscribe.List} list" );
+                }
+                else if ( level == 2 && Convert.ToInt32( row["EmailPreference"] ) != 1 )
+                {
+                    failures.Add( $"Unsubscribe {name}: expected No mass emails, Rock shows email preference {row["EmailPreference"]}" );
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

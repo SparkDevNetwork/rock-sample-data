@@ -31,7 +31,8 @@ namespace RockSampleData.LoaderCli
             "Report_SampleDataCalibration_2_AttendanceAndGroups.sql",
             "Report_SampleDataCalibration_3_RegistrationsPrayerCommsConnections.sql",
             "Report_SampleDataCalibration_5_Prayer.sql",
-            "Report_SampleDataCalibration_6_PersonNotes.sql"
+            "Report_SampleDataCalibration_6_PersonNotes.sql",
+            "Report_SampleDataCalibration_7_Communications.sql"
         };
 
         /// <summary>
@@ -50,6 +51,10 @@ namespace RockSampleData.LoaderCli
                 using var resource = typeof( CalibrationRunner ).Assembly.GetManifestResourceStream( $"sql/{script}" )
                     ?? throw new InvalidOperationException( $"{script} is not built into this program." );
                 var sql = new StreamReader( resource ).ReadToEnd();
+
+                // A freshly loaded database has not run Rock's post-update jobs, so it lacks the CommunicationRecipient
+                // index part 7 reads by. The loaded data is small enough to read without it.
+                sql = sql.Replace( "DECLARE @ReadWithoutIndex BIT = 0;", "DECLARE @ReadWithoutIndex BIT = 1;" );
                 using var command = new SqlCommand( sql, connection ) { CommandTimeout = 600 };
                 using var reader = command.ExecuteReader();
                 var sections = 0;

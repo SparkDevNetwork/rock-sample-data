@@ -25,6 +25,7 @@ Brandon and Kristen Watson come about once a month and give once a year, in Dece
 
 - Year-end-only giver.
 - Occasional attenders with Known status.
+- Brandon is on no communication list and chose No mass emails from a church-wide email about three months ago (a Bulk unsubscribe).
 
 ## Activity
 

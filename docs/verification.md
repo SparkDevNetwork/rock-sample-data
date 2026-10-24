@@ -101,7 +101,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member, and each scripted Cast unsubscribe there must show at its level, with the person Inactive in the list or on "No mass emails". This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 
@@ -146,8 +146,13 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `onsite-gift-on-a-family-sunday` | Every gift in a Sunday Offering batch falls on a Sunday an adult of the giver's family came. A student on their own never makes a family Sunday (decision 146). |
 | `student-check-in-fits-the-grade` | Every student check-in fits the student's grade that day, so a recent graduate's student check-ins end at the June 1 grade change after they graduate (decision 148). |
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
-| `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an active email. |
+| `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an email that is active, or that bounced after they joined. |
 | `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |
+| `communication-is-sent-and-never-sends-again`, `no-recipient-waits-to-send` | Decision 95: every communication is Approved with its send time and date key, and no recipient is Pending or Sending, so Rock's send job finds nothing to send. |
+| `email-recipient-states-agree` | Each email recipient's status agrees with its send, delivery, and open times and its status note. Only a bounce fails after Rock sent it. |
+| `opens-and-clicks-follow-an-open` | Every open and click is on the communication's component, points at an opened recipient, comes after their first open, and a click goes to the church's site. |
+| `unsubscribe-matches-the-person` | Decision 131: a list unsubscribe leaves the person Inactive in that list, and a Bulk one leaves them on "No mass emails" or stricter. |
+| `sent-email-has-its-history` | Every sent email recipient has Rock's "Sent" line on their History. |
 | `system-phone-numbers-are-reserved-and-unused` | The church's texting numbers are active, can text, have forwarding off, use the reserved range, and are no loaded person's number (decision 93). |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 

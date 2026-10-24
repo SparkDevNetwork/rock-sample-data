@@ -58,7 +58,10 @@ namespace RockSampleData.Loader.Generation
         /// <param name="campusKeys">The dataset's campuses. A list per campus is planned for each.</param>
         /// <param name="anchor">The install day.</param>
         /// <param name="seed">The load's seed.</param>
-        public static List<PlannedListMember> Plan( IReadOnlyList<CommunicationListDefinition> lists, ListMembershipRules rules, IReadOnlyList<ListCandidate> people, IReadOnlyCollection<string> campusKeys, DateTime anchor, string seed )
+        /// <param name="forced">People a Cast story puts on a list, by list key.</param>
+        /// <param name="excluded">People a Cast story keeps off every list.</param>
+        public static List<PlannedListMember> Plan( IReadOnlyList<CommunicationListDefinition> lists, ListMembershipRules rules, IReadOnlyList<ListCandidate> people, IReadOnlyCollection<string> campusKeys, DateTime anchor, string seed,
+            ILookup<string, Guid> forced = null, ISet<Guid> excluded = null )
         {
             var unknown = lists.Select( l => l.Members ).FirstOrDefault( m => !Rules.Contains( m ) );
             if ( unknown != null )
@@ -71,13 +74,14 @@ namespace RockSampleData.Loader.Generation
             {
                 foreach ( var person in people.OrderBy( p => p.PersonId ) )
                 {
-                    if ( !person.MayGetMassMessages )
+                    if ( !person.MayGetMassMessages || excluded?.Contains( person.Guid ) == true )
                     {
                         continue;
                     }
 
                     var random = new SeededRandom( $"{seed}:communication-lists:{list.Key}:{person.Guid}" );
-                    if ( !IsMember( list.Members, person, rules, random ) )
+                    var isForced = forced != null && forced[list.Key].Contains( person.Guid );
+                    if ( !IsMember( list.Members, person, rules, random ) && !isForced )
                     {
                         continue;
                     }
@@ -248,6 +252,11 @@ namespace RockSampleData.Loader.Generation
         public int PersonId { get; set; }
 
         public DateTime Joined { get; set; }
+
+        /// <summary>
+        /// When the member left the list from one of its emails, which makes them Inactive in it, or null.
+        /// </summary>
+        public DateTime? UnsubscribedAt { get; set; }
 
         /// <summary>
         /// True when the member gets the list's messages by text.

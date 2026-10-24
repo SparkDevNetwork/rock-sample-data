@@ -618,17 +618,18 @@ WHERE [gt].[Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' AND [g].[ForeignKey] 
     AND [gm].[GroupMemberStatus] = 1 AND [p].[EmailPreference] <> 0;
 
 -- check: newsletter-members-belong-to-the-campus
--- why: A campus newsletter holds that campus's adults with an active email (decision 133), so a campus's news never goes to another campus or to an address that bounces.
+-- why: A campus newsletter holds that campus's adults with an active email (decision 133), so a campus's news never goes to another campus. An email that bounced after the person joined carries Rock's bounce note.
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
 INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gt].[Guid] = 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' AND [g].[ForeignKey] = @ForeignKey AND [g].[CampusId] IS NOT NULL
-    AND ( [p].[PrimaryCampusId] <> [g].[CampusId] OR ISNULL( [p].[Email], '' ) = '' OR [p].[IsEmailActive] = 0 OR [p].[AgeClassification] <> 1 );
+    AND ( [p].[PrimaryCampusId] <> [g].[CampusId] OR ISNULL( [p].[Email], '' ) = '' OR [p].[AgeClassification] <> 1
+        OR ( [p].[IsEmailActive] = 0 AND ISNULL( [p].[EmailNote], '' ) NOT LIKE 'Email experienced a Hard Bounce%' ) );
 
 -- check: volunteers-list-follows-the-teams
--- why: The Volunteers list is everyone active on a serving team (decision 92), so a message to volunteers reaches exactly the people who serve.
+-- why: The Volunteers list is everyone active on a serving team (decision 92), so a message to volunteers reaches exactly the people who serve. A volunteer who left the list from one of its emails stays on it as Inactive.
 WITH [Serving] AS (
     SELECT DISTINCT [gm].[PersonId]
     FROM [GroupMember] AS [gm]
@@ -642,13 +643,13 @@ WITH [Serving] AS (
     SELECT [gm].[PersonId]
     FROM [GroupMember] AS [gm]
     INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
-    WHERE [g].[Guid] = '7C040D39-B8F0-481E-95B3-9526D566C47F' AND [g].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] = 1
+    WHERE [g].[Guid] = '7C040D39-B8F0-481E-95B3-9526D566C47F' AND [g].[ForeignKey] = @ForeignKey
 )
 SELECT ( SELECT COUNT(*) FROM [Serving] AS [s] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [s].[PersonId] ) )
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Serving] AS [s] WHERE [s].[PersonId] = [l].[PersonId] ) );
 
 -- check: small-group-leaders-list-follows-the-groups
--- why: The Small Group Leaders list is everyone who leads an active small group (decision 92), so leader messages reach exactly the leaders.
+-- why: The Small Group Leaders list is everyone who leads an active small group (decision 92), so leader messages reach exactly the leaders. A leader who left the list from one of its emails stays on it as Inactive.
 WITH [Leading] AS (
     SELECT DISTINCT [gm].[PersonId]
     FROM [GroupMember] AS [gm]
@@ -663,7 +664,7 @@ WITH [Leading] AS (
     SELECT [gm].[PersonId]
     FROM [GroupMember] AS [gm]
     INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
-    WHERE [g].[Guid] = '3D755601-598D-4E8F-A13D-9DF0F0087CA9' AND [g].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] = 1
+    WHERE [g].[Guid] = '3D755601-598D-4E8F-A13D-9DF0F0087CA9' AND [g].[ForeignKey] = @ForeignKey
 )
 SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [x].[PersonId] ) )
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
@@ -676,3 +677,57 @@ WHERE [spn].[ForeignKey] = @ForeignKey
     AND ( [spn].[IsActive] = 0 OR [spn].[IsSmsEnabled] = 0 OR [spn].[IsSmsForwardingEnabled] = 1
         OR LEN( [spn].[Number] ) <> 12 OR LEFT( [spn].[Number], 2 ) <> '+1' OR SUBSTRING( [spn].[Number], 3, 3 ) NOT IN ( '602', '480', '623' ) OR SUBSTRING( [spn].[Number], 6, 5 ) <> '55501'
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE [p].[ForeignKey] = @ForeignKey AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
+
+-- check: communication-is-sent-and-never-sends-again
+-- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it.
+SELECT COUNT(*)
+FROM [Communication] AS [c]
+WHERE [c].[ForeignKey] = @ForeignKey
+    AND ( [c].[Status] <> 3 OR [c].[SendDateTime] IS NULL OR [c].[SendDateKey] IS NULL
+        OR [c].[SendDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [c].[SendDateTime], 112 ) ) );
+
+-- check: no-recipient-waits-to-send
+-- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 );
+
+-- check: email-recipient-states-agree
+-- why: Communication Detail counts and charts each status from these columns. A delivered or opened email was sent and confirmed, an opened one has its first open after the send, and a failed one says why. Only a bounce fails after Rock sent it.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1
+    AND ( ( [cr].[Status] IN ( 1, 4 ) AND ( [cr].[SendDateTime] IS NULL OR [cr].[DeliveredDateTime] IS NULL OR [cr].[DeliveredDateTime] < [cr].[SendDateTime] ) )
+        OR ( [cr].[Status] = 4 AND ( [cr].[OpenedDateTime] IS NULL OR [cr].[OpenedDateTime] < [cr].[SendDateTime] OR [cr].[OpenedClient] IS NULL ) )
+        OR ( [cr].[Status] <> 4 AND [cr].[OpenedDateTime] IS NOT NULL )
+        OR ( [cr].[Status] = 2 AND ( [cr].[StatusNote] IS NULL OR ( [cr].[SendDateTime] IS NOT NULL AND [cr].[StatusNote] NOT LIKE '5__ 5.%' ) ) ) );
+
+-- check: opens-and-clicks-follow-an-open
+-- why: Rock records an open or a click as an interaction on the communication's component, pointing at the recipient. Only an opened recipient has them, the first is an open at the recipient's open time, and nothing comes before the send.
+SELECT COUNT(*)
+FROM [Interaction] AS [i]
+INNER JOIN [InteractionComponent] AS [ic] ON [ic].[Id] = [i].[InteractionComponentId]
+INNER JOIN [InteractionChannel] AS [ch] ON [ch].[Id] = [ic].[InteractionChannelId]
+LEFT JOIN [CommunicationRecipient] AS [cr] ON [cr].[Id] = [i].[EntityId] AND [cr].[CommunicationId] = [ic].[EntityId]
+WHERE [ch].[Guid] = 'C88A187F-0343-4E7C-AF3F-79A8989DFA65' AND [i].[ForeignKey] = @ForeignKey
+    AND ( [cr].[Id] IS NULL OR [cr].[Status] <> 4 OR [i].[InteractionDateTime] < [cr].[OpenedDateTime] OR [i].[PersonAliasId] <> [cr].[PersonAliasId]
+        OR ( [i].[Operation] = 'Click' AND ISNULL( [i].[InteractionData], '' ) NOT LIKE 'https://rocksolidchurchdemo.com/%' ) );
+
+-- check: unsubscribe-matches-the-person
+-- why: Decision 131. A list unsubscribe leaves the person Inactive in that list, a Bulk one leaves them on "No mass emails" or stricter, and Rock records a level with every unsubscribe time.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [cr].[ForeignKey] = @ForeignKey
+    AND ( ( [cr].[UnsubscribeDateTime] IS NULL AND [cr].[UnsubscribeLevel] IS NOT NULL ) OR ( [cr].[UnsubscribeDateTime] IS NOT NULL AND [cr].[UnsubscribeLevel] IS NULL )
+        OR ( [cr].[UnsubscribeLevel] = 3 AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [c].[ListGroupId] AND [gm].[PersonId] = [p].[Id] AND [gm].[GroupMemberStatus] = 0 ) )
+        OR ( [cr].[UnsubscribeLevel] = 2 AND [p].[EmailPreference] = 0 ) );
+
+-- check: sent-email-has-its-history
+-- why: Rock's email transport writes a "Sent" line on the person's History tab for every email it sends, so every sent email recipient has one.
+SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [cr].[SendDateTime] IS NOT NULL )
+    - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
