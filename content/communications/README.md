@@ -10,6 +10,7 @@ The hand-written messages the sample church sends: emails, texts, and pushes. Th
 | `newsletter.json` | The pieces each campus's weekly newsletter is built from. |
 | `emails.json` | Every other email: seasonal sends, ministry sends, pastoral letters, and one-to-one messages. |
 | `texts.json` | Texts and pushes, plus the reply pools for texts that ask for an answer. |
+| `conversations.json` | The pools that generated text conversations are built from. |
 | `email-template.html` | The sample church's branded email template (see [configuration/communications.json](../../configuration/communications.json)). |
 | `email-logo.png` | The approved Rock Solid Church logo at 480 by 120 pixels with a transparent background, for the template. |
 | `check-library.js` | Checks every message file. Run `node content/communications/check-library.js` after any change. |
@@ -167,12 +168,35 @@ Body blocks are `h` (a heading), `p` (a paragraph, which may hold Markdown links
     "yes": [ "..." ],
     "no": [ "..." ],
     "question": [ "..." ],
-    "thanks": [ "..." ]
+    "thanks": [ "..." ],
+    "staff": [ "..." ]
   }
 }
 ```
 
-A text that asks for an answer sets `"asksReply": true`, and its replies come from the pools. `line` is the phone number it goes out on: `main` or `students`. A push has a `title`.
+A text that asks for an answer sets `"asksReply": true`, and its replies come from the pools. Staff answer some replies with a line from `staff`. `line` is the phone number it goes out on: `main` or `students`. A push has a `title`.
+
+## conversations.json
+
+```json
+{
+  "$comment": "...",
+  "topics": [
+    {
+      "key": "serving-swap",
+      "numbers": [ "personal", "main" ],
+      "audience": "adult",
+      "openers": [ "Hi {staff}, can I swap my Sunday on the greeter team?" ],
+      "staffReplies": [ "Hi {name}! Of course. I will find someone for {campus} this week." ],
+      "personFollowUps": [ "..." ],
+      "staffFollowUps": [ "..." ],
+      "closings": [ "Thank you so much!" ]
+    }
+  ]
+}
+```
+
+A generated thread is one topic: an opener from the person, a staff reply, then follow-ups back and forth to its length, and sometimes a closing. `numbers` says where the topic happens: `personal` (a staff member's personal number), `main` (the main line), or `students` (the student line). `audience` is `adult`, `parent`, or `student`. Tokens are `{name}` (the person's nickname), `{staff}` (the staff member's first name), and `{campus}`.
 
 ## Lengths
 
@@ -184,6 +208,7 @@ A text that asks for an answer sets `"asksReply": true`, and its replies come fr
 | Push `title` | 5 to 40 |
 | Push `text` | 20 to 120 |
 | Reply | 2 to 120 |
+| Conversation opener, reply, follow-up, or closing | 2 to 300, mostly under 160 |
 
 ## Rules
 

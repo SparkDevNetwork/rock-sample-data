@@ -108,7 +108,16 @@ namespace RockSampleData.Loader.Loading
             var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
             var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople );
             emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
+
+            // Texts reach list members who did not leave from an email, so they follow email.
+            new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople )
+                .Load( configuration, people, candidates, plan, listIds, mainCampusKey, campusIds, emails.Calendar, emails.CampusList );
             WriteMembers( plan, listIds );
+            var moved = MoveTextPreferencesWithoutPhones();
+            if ( moved > 0 )
+            {
+                _db.Log.Write( $"  Text preferences moved to email after STOPs: {moved:N0}" );
+            }
 
             var sizes = plan.GroupBy( m => (m.ListKey, m.CampusKey) ).OrderBy( g => configuration.Lists.Lists.FindIndex( l => l.Key == g.Key.ListKey ) ).ThenBy( g => g.Key.CampusKey, StringComparer.Ordinal )
                 .Select( g => $"{ListName( configuration.Lists.Lists.First( l => l.Key == g.Key.ListKey ), g.Key.CampusKey )} {g.Count():N0}" );
@@ -418,6 +427,35 @@ VALUES ( 0, @GroupTypeId, @CampusId, @Name, @Description, 0, 1, @IsPublic, @Orde
         private string CampusText( string text, string campusKey )
         {
             return campusKey == null ? text : text.Replace( "{campus}", _source.Campuses.Campuses.First( c => c.Key == campusKey ).Name );
+        }
+
+        /*
+            10/23/26 - CLAUDE
+
+            Rock Cleanup's "update sms communication preferences" task moves anyone whose preference is text
+            but who has no phone that can text to email, and their group memberships that prefer text to
+            recipient preference. A texted STOP turns texting off, so the people who stopped get this the
+            first night. The same updates run here, after the lists are written.
+
+            Reason: Mirrors RockCleanup.UpdateSmsCommunicationPreferences, so Rock Cleanup finds nothing to fix.
+        */
+
+        /// <summary>
+        /// Rock Cleanup's text preference fix for the sample people. Returns the rows changed.
+        /// </summary>
+        private int MoveTextPreferencesWithoutPhones()
+        {
+            return _db.Execute( @"
+UPDATE [p]
+SET [p].[CommunicationPreference] = 1
+FROM [Person] AS [p]
+WHERE [p].[ForeignKey] = @ForeignKey AND [p].[CommunicationPreference] = 2
+    AND NOT EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [p].[Id] AND [pn].[IsMessagingEnabled] = 1 );
+UPDATE [gm]
+SET [gm].[CommunicationPreference] = 0
+FROM [GroupMember] AS [gm]
+WHERE [gm].[ForeignKey] = @ForeignKey AND [gm].[CommunicationPreference] = 2
+    AND NOT EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [gm].[PersonId] AND [pn].[IsMessagingEnabled] = 1 );", P( "@ForeignKey", _foreignKey ) );
         }
 
         #endregion Lists

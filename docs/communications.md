@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup and bulk email are built: the texting numbers, the communication lists, the branded template, the message library, and two years of mass email. Texts, one-to-one messages, push, and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, and 149 to 151 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. The setup, bulk email, and texts are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, and two years of texts and SMS conversations. One-to-one messages, push, and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, and 153 to 155 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -111,10 +111,13 @@ Rock's Saturation report shows how many messages each adult got. A plan that sen
 
 ## Texts and SMS conversations
 
-- **Bulk texts** go out from the main line and the student line. Some ask for a reply ("Reply YES if you're coming"), and those replies link back to the text through `RelatedCommunicationId`.
-- **The Cast's threads.** About 15 hand-written threads tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a long back-and-forth, a STOP opt-out, a thread on the student line, and threads on the pastor's personal number. A few are always from the last 1 to 3 days before install, so even Core 1 opens to a live inbox (decision 93).
-- **Generated threads.** Short threads built from text pools, at the measured reply rate and reply delay.
-- **STOP.** A texted STOP is recorded the way Rock records it: a level All unsubscribe on the person's newest text, and texting turned off on their phone (see Unsubscribes).
+Texts follow Rock's Twilio path (decision 153). On Full 7 there are about 300 mass texts to 72,000 recipients, about 1,800 threads, and 5,800 texts from people over two years.
+
+- **Bulk texts** go out from the main line and the student line. Church-wide texts reach each campus's involved adults who chose text as their communication preference (about 11% of generated adults, as measured), and list texts reach the list's members. A member with no phone that can text fails with Rock's note. Each sent text keeps the words the person got in `SentMessage`, as SMS Conversations needs, and has Rock's "SMS message" History line.
+- **Replies.** Some texts ask for a reply ("Reply YES if you're coming"), and those get many more. Staff answer about half the replies from SMS Conversations, which marks them read. Replies are not linked to the text they answer through `RelatedCommunicationId`: Rock 21 looks for that text by comparing a communication Id with a recipient Id, so it almost never finds one, which is also why the measured data shows none.
+- **The Cast's threads** (decision 154). Sixteen hand-written threads in [cast/sms-threads.json](../cast/sms-threads.md), tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a 16-text back-and-forth, Brandon Watson's STOP, two threads on the student line, and threads on Ted Decker's, Alisha Marble's, and Isaac Silva's personal numbers. Six are from the last 1 to 3 days before install and unread, so even Core 1 opens to a live inbox (decision 93). Every load checks each thread.
+- **Generated threads.** About 70 conversations a year per 1,000 active adults, from the pools in `content/communications/conversations.json`. Most are on a staff member's personal number: each campus pastor's for their campus on Full 7, and Ted's or Alisha's otherwise. The rest are on the main and student lines. Lengths and reply delays follow the measured shape, people text during waking hours, a few regular texters write staff again and again, and some short conversations never get an answer. A text with no staff answer after it is often left unread.
+- **STOP.** A texted STOP comes at the measured rate, mostly the same day as a mass text. It is recorded the way Rock records it: a level All unsubscribe on the person's newest text in the last 60 days, and texting turned off and opted out on their mobile, with the History line Rock writes. Later texts to them fail.
 
 ## Push
 
@@ -169,11 +172,12 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
 - **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
-- **Cast expectations:** each Cast thread shows in SMS Conversations in its intended state, and the recent threads are unread.
-- **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month.
+- **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped.
+- **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision 155).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 
 ## Build order
@@ -183,7 +187,7 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 1. **Design and calibration.** This page, the decisions, the calibration part 7 script, and the church app stub. Done. Source-1 has run part 7, and its shapes are in the profile.
 2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Done.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation. Done.
-4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs.
+4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
 5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
 7. **Steps.** Step messages and the finished Communication Flow, after steps land.

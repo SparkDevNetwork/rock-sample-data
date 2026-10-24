@@ -157,4 +157,133 @@ namespace RockSampleData.Loader.Model
 
         public string Href { get; set; }
     }
+
+    /// <summary>
+    /// content/communications/texts.json: texts and pushes, and the reply pools for texts that ask for an answer.
+    /// </summary>
+    internal sealed class TextLibrary
+    {
+        public List<LibraryText> Texts { get; set; } = new List<LibraryText>();
+
+        /// <summary>
+        /// Short replies by kind: yes, no, question, and thanks.
+        /// </summary>
+        public Dictionary<string, List<string>> Replies { get; set; } = new Dictionary<string, List<string>>();
+    }
+
+    /// <summary>
+    /// One text or push in the library.
+    /// </summary>
+    internal sealed class LibraryText
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// sms or push.
+        /// </summary>
+        public string Medium { get; set; }
+
+        public string Occasion { get; set; }
+
+        public int DaysBefore { get; set; }
+
+        /// <summary>
+        /// The hour it goes out, 0 to 23.
+        /// </summary>
+        public int Hour { get; set; }
+
+        public string Audience { get; set; }
+
+        /// <summary>
+        /// The phone number a text goes out on: main or students.
+        /// </summary>
+        public string Line { get; set; }
+
+        public string Topic { get; set; }
+
+        public string Title { get; set; }
+
+        public string Text { get; set; }
+
+        public bool AsksReply { get; set; }
+    }
+
+    /// <summary>
+    /// content/communications/conversations.json: the pools generated text conversations are built from.
+    /// </summary>
+    internal sealed class ConversationLibrary
+    {
+        public List<ConversationTopic> Topics { get; set; } = new List<ConversationTopic>();
+    }
+
+    internal sealed class ConversationTopic
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Where the topic happens: personal, main, or students.
+        /// </summary>
+        public List<string> Numbers { get; set; } = new List<string>();
+
+        /// <summary>
+        /// adult, parent, or student.
+        /// </summary>
+        public string Audience { get; set; }
+
+        public List<string> Openers { get; set; } = new List<string>();
+
+        public List<string> StaffReplies { get; set; } = new List<string>();
+
+        public List<string> PersonFollowUps { get; set; } = new List<string>();
+
+        public List<string> StaffFollowUps { get; set; } = new List<string>();
+
+        public List<string> Closings { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// cast/sms-threads.json: the Cast's hand-written text conversations.
+    /// </summary>
+    internal sealed class CastThreadFile
+    {
+        public List<CastThread> Threads { get; set; } = new List<CastThread>();
+    }
+
+    internal sealed class CastThread
+    {
+        public string Key { get; set; }
+
+        public Guid Person { get; set; }
+
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The key of the phone number in configuration/communications.json.
+        /// </summary>
+        public string Number { get; set; }
+
+        /// <summary>
+        /// unread, read, or stopped.
+        /// </summary>
+        public string State { get; set; }
+
+        public List<CastThreadMessage> Messages { get; set; } = new List<CastThreadMessage>();
+    }
+
+    internal sealed class CastThreadMessage
+    {
+        /// <summary>
+        /// person or staff.
+        /// </summary>
+        public string From { get; set; }
+
+        public int DaysAgo { get; set; }
+
+        /// <summary>
+        /// HH:mm, 24-hour.
+        /// </summary>
+        public string Time { get; set; }
+
+        public string Text { get; set; }
+    }
 }

@@ -191,6 +191,23 @@ namespace RockSampleData.Loader
         public EmailLibrary ReadEmailLibrary() => Read<EmailLibrary>( $"{CommunicationsContentFolder}/emails.json" );
 
         /// <summary>
+        /// Reads the library's texts, pushes, and reply pools.
+        /// </summary>
+        public TextLibrary ReadTextLibrary() => Read<TextLibrary>( $"{CommunicationsContentFolder}/texts.json" );
+
+        /// <summary>
+        /// Reads the pools generated text conversations are built from.
+        /// </summary>
+        public ConversationLibrary ReadConversationLibrary() => Read<ConversationLibrary>( $"{CommunicationsContentFolder}/conversations.json" );
+
+        public const string CastThreadsPath = "cast/sms-threads.json";
+
+        /// <summary>
+        /// Reads the Cast's hand-written text threads, or none for a package built before they existed.
+        /// </summary>
+        public List<CastThread> ReadCastThreads() => Files.Exists( CastThreadsPath ) ? Read<CastThreadFile>( CastThreadsPath ).Threads : new List<CastThread>();
+
+        /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
         /// </summary>
         public List<CastNoteFile> ReadCastNotes()
