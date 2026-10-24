@@ -84,6 +84,8 @@ When only one session is working, it can be its own integrator (solo mode, rule 
 
 With more than two or three sessions running, following each one is hard. The person can name one session the coordinator and talk only to it. Every other session, the integrator included, sends the coordinator its questions and status (rule 19 in [AGENTS.md](../AGENTS.md#the-coordinator)).
 
+In the Claude desktop app, the coordinator starts the other sessions itself: the integrator first, then a feature session for each piece of work, each briefed with the README's fallback prompt and told who its coordinator is. The person pastes one prompt, the README's coordinator prompt. Sessions the coordinator starts report to it automatically when they finish a turn. A session started some other way can still report to the coordinator by name. A terminal session cannot start other sessions, so in a terminal the person starts the integrator and the feature sessions with the fallback prompts.
+
 The coordinator:
 
 1. **Answers what is already settled.** If the decision log, AGENTS.md, or the person's earlier direction covers a question, it answers the session itself. Technical calls with clear evidence, such as how a release fix should work, are settled the same way.

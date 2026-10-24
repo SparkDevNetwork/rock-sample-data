@@ -37,28 +37,39 @@ AI agents such as Claude Code read [AGENTS.md](AGENTS.md) on their own and follo
 
 ### Pick a way to work
 
-- **Several sessions at once:** start one integrator session, then one feature session per piece of work. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`.
+- **Start here (Claude desktop app):** paste the coordinator prompt. It is the only prompt you paste and the only session you talk to. It starts the integrator, and a feature session for each piece of work, by itself. Feature sessions hand finished branches to the integrator, and only the integrator merges into `main`. Every session sends the coordinator its questions and status, and it brings you only the real decisions (see [The coordinator](docs/maintaining.md#the-coordinator)).
 - **One session alone:** use solo mode. The session does the work and then lands it itself.
-- **Many sessions, one conversation:** also start a coordinator. It is the only session you talk to. The others send it their questions and status, and it brings you only the real decisions (see [The coordinator](docs/maintaining.md#the-coordinator)).
+- **In a terminal:** a terminal session cannot start other sessions. Start the integrator yourself, then one feature session per piece of work, with the fallback prompts below.
 
-Replace each `<...>` before you paste a prompt. If no coordinator is running, leave out the coordinator lines.
+Replace each `<...>` before you paste a prompt.
 
-### Prompt: coordinator
-
-Start this session first, and talk only to it.
+### Prompt: coordinator (start here)
 
 ```text
-You are the coordinator for the rock-sample-data work. Read AGENTS.md (rule 19) and
-"The coordinator" in docs/maintaining.md. The other sessions send you their questions
-and status. Answer anything the decision log, AGENTS.md, or my earlier direction
-already settles. Bring me only real choices, numbered, each with one recommendation,
-and forward my answers in my own words. Keep a short list of what is in flight, what
-the next release waits on, and what is waiting on me.
+You are the coordinator for the rock-sample-data work, and the only session I talk
+to. Read AGENTS.md (rule 19) and "Working in parallel" in docs/maintaining.md.
+
+1. Start an integrator session with the integrator prompt in the README's "Working
+   with AI agents" section. Fill in <path to your Rock checkout>, and name yourself
+   as its coordinator.
+2. For each piece of work I give you, start a feature session with the feature
+   prompt, its own branch name, and the work, and name yourself as its coordinator.
+3. Answer anything the decision log, AGENTS.md, or my earlier direction already
+   settles. Bring me only real choices, numbered, each with one recommendation, and
+   forward my answers in my own words.
+4. Keep a short list of what is in flight, what the next release waits on, and what
+   is waiting on me. Tell me before any click I must make in another window.
+
+The work: <describe each piece of work, or "none yet">.
 ```
+
+### Fallback prompts
+
+The coordinator uses these as the briefs for the sessions it starts. In a terminal, paste them yourself: the integrator first, then one feature session per piece of work. If no coordinator is running, leave out the coordinator line.
 
 ### Prompt: integrator
 
-Start this session next, and keep it open while the others work.
+Keep this session open while the others work.
 
 ```text
 You are the integrator for the rock-sample-data repository. Read AGENTS.md and the
