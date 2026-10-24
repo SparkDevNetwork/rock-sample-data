@@ -91,6 +91,10 @@ namespace RockSampleData.Loader.Loading
             var staff = _source.Notes?.Staff.ToDictionary( s => s.Key, s => people.People[s.Guid] ) ?? new Dictionary<string, LoadedPerson>();
 
             var sends = new List<(PlannedEmail Send, EmailPerson Person, OneToOneSender Sender)>();
+
+            // A person can get two of the same email in one minute, such as two connectors writing at once, so each key gets a number when it repeats.
+            var keys = new Dictionary<string, int>();
+            string Unique( string key ) => ( keys[key] = keys.GetValueOrDefault( key ) + 1 ) == 1 ? key : $"{key}:{keys[key]}";
             void Add( string kind, LibraryEmail message, EmailPerson person, DateTime sent, string campusKey, DateTime eventDate, OneToOneSender sender )
             {
                 if ( sent < from || sent >= _dates.Anchor || !loaded.TryGetValue( person.PersonId, out var who ) )
@@ -104,7 +108,7 @@ namespace RockSampleData.Loader.Loading
                 var (html, links) = MessageRenderer.Compact( message.Body, tokens );
                 sends.Add( (new PlannedEmail
                 {
-                    Key = $"{kind}:{person.Guid}:{sent:yyyyMMddHHmm}",
+                    Key = Unique( $"{kind}:{person.Guid}:{sent:yyyyMMddHHmm}" ),
                     Name = MessageRenderer.Fill( message.Subject, tokens ),
                     Subject = MessageRenderer.Fill( message.Subject, tokens ),
                     Html = html,

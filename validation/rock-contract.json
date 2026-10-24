@@ -590,7 +590,8 @@
         "SenderPersonAliasId",
         "SmsFromSystemPhoneNumberId",
         "Status",
-        "Subject"
+        "Subject",
+        "SystemCommunicationId"
       ],
       "rockColumns": {
         "AdditionalMergeFieldsJson": "nvarchar(max) null",
@@ -3730,6 +3731,13 @@
       "801CC43C-0641-4271-939E-75E428F31D06",
       "EFA15A4F-5666-4153-B92F-AF3ECD73C504",
       "F3585131-3EBF-49C4-83A0-3F88271A9B9B"
+    ],
+    "SystemCommunication": [
+      "8A20FE79-B73C-447A-82B1-416F9B50C038",
+      "BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC"
+    ],
+    "SystemEmail": [
+      "8A20FE79-B73C-447A-82B1-416F9B50C038"
     ]
   },
   "procedures": [
