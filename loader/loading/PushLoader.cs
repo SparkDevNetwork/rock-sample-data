@@ -44,7 +44,7 @@ namespace RockSampleData.Loader.Loading
         Every registration token starts with "sample-data-". Firebase rejects such a token, so no push sent
         from a sample database can ever reach a real phone.
 
-        Reason: decisions 94 and D-commspush-1, and nothing a load writes may ever send (decision 95).
+        Reason: decisions 94 and 161, and nothing a load writes may ever send (decision 95).
     */
 
     /// <summary>

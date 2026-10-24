@@ -36,7 +36,7 @@
     }
   ],
   "devices": {
-    "$comment": "Designed shares (decision D-commspush-1). About a quarter of active adults have the app, as Jon chose. Calibration part 7 measured 89% with notifications on, used here, and 94% on iPhone, from a church where only 1.4% of adults have the app, so the iPhone share is designed at 70%, like decision 101. Most devices were seen in the last month. Registration tokens start with sample-data-, so no push can ever reach a real phone (decision 95).",
+    "$comment": "Designed shares (decision 161). About a quarter of active adults have the app, as Jon chose. Calibration part 7 measured 89% with notifications on, used here, and 94% on iPhone, from a church where only 1.4% of adults have the app, so the iPhone share is designed at 70%, like decision 101. Most devices were seen in the last month. Registration tokens start with sample-data-, so no push can ever reach a real phone (decision 95).",
     "pctOfActiveAdults": 25,
     "pctIos": 70,
     "pctNotificationsOn": 89,

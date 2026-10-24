@@ -733,7 +733,7 @@ SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [
     - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
 
 -- check: serving-email-follows-a-request
--- why: Decision D-commsoneone-1. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each serving email has one recipient and the request it came from.
+-- why: Decision 159. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each serving email has one recipient and the request it came from.
 WITH [Serving] AS (
     SELECT [c].[Id], [c].[SendDateTime], [sc].[Guid] AS [Kind]
     FROM [Communication] AS [c]
@@ -773,7 +773,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [c].[I
     AND [cr].[Status] <> 2;
 
 -- check: sent-push-is-delivered-with-its-history
--- why: Decision D-commspush-1. Rock Mobile Push marks a sent push Delivered with its send and delivered times and writes a "Push Notification" line on the person's History. A person with no device that takes notifications fails with Rock's note.
+-- why: Decision 161. Rock Mobile Push marks a sent push Delivered with its send and delivered times and writes a "Push Notification" line on the person's History. A person with no device that takes notifications fails with Rock's note.
 SELECT ( SELECT COUNT(*)
         FROM [CommunicationRecipient] AS [cr]
         INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]

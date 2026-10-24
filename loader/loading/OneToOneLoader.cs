@@ -42,7 +42,7 @@ namespace RockSampleData.Loader.Loading
         included, at about 26 KB each, and Full 7 has over 120,000 of them. The stored message here is the
         library's short version of each, without the header and footer, so the database stays small.
 
-        Reason: most messages a real church sends go to one person (decision D-commsoneone-1).
+        Reason: most messages a real church sends go to one person (decision 159).
     */
 
     /// <summary>
