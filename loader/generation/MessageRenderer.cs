@@ -156,6 +156,43 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
+        /// Renders an email's body as plain HTML with no template, the way a one-to-one email is stored. A button
+        /// becomes a link. Returns the message and its links, in order.
+        /// </summary>
+        public static (string Html, List<string> Links) Compact( IEnumerable<EmailBlock> blocks, IReadOnlyDictionary<string, string> tokens )
+        {
+            var links = new List<string>();
+            var body = new StringBuilder();
+            foreach ( var block in blocks )
+            {
+                if ( block.H != null )
+                {
+                    body.Append( $"<h2>{Inline( block.H, tokens, links ).Replace( " style=\"color: {{ accentColor }}; text-decoration: underline;\"", string.Empty )}</h2>" );
+                }
+                else if ( block.P != null )
+                {
+                    body.Append( $"<p>{Inline( block.P, tokens, links ).Replace( " style=\"color: {{ accentColor }}; text-decoration: underline;\"", string.Empty )}</p>" );
+                }
+                else if ( block.List != null )
+                {
+                    body.Append( "<ul>" );
+                    foreach ( var item in block.List )
+                    {
+                        body.Append( $"<li>{Inline( item, tokens, links ).Replace( " style=\"color: {{ accentColor }}; text-decoration: underline;\"", string.Empty )}</li>" );
+                    }
+
+                    body.Append( "</ul>" );
+                }
+                else if ( block.Button != null )
+                {
+                    body.Append( $"<p><a href=\"{Url( block.Href, tokens, links )}\">{Escape( Fill( block.Button, tokens ) )}</a></p>" );
+                }
+            }
+
+            return (body.ToString(), links);
+        }
+
+        /// <summary>
         /// A button that holds its shape in Outlook: the color and padding sit on the table cell.
         /// </summary>
         public static string Button( string text, string url )

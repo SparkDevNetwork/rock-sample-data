@@ -69,7 +69,7 @@ namespace RockSampleData.Loader
         Steps,
 
         /// <summary>
-        /// The church's texting numbers, its branded email template, and its communication lists with their members.
+        /// Two years of email, texts, and pushes, with the lists, numbers, template, app, and flow they use.
         /// </summary>
         Communications
     }
@@ -133,9 +133,11 @@ namespace RockSampleData.Loader
             Give step must agree with the journey stage the giving part writes. Steps read the attendance
             plan only, so they do not need attendance.
 
-            Communications need small groups, serving, and prayer. The Volunteers and Small Group Leaders
+            Communications need small groups, serving, prayer, and steps. The Volunteers and Small Group Leaders
             lists copy the team and group memberships those parts wrote, and the Prayer Team list holds the
-            prayer part's team. Who is involved enough for a newsletter reads the attendance and giving
+            prayer part's team. Class emails and texts reach the people in each Starting Point Class and
+            Foundations course, baptisms get a follow-up, and the After Starting Point flow follows each
+            completed class, all read back from the steps part's rows. Who is involved enough for a newsletter reads the attendance and giving
             plans only, so communications do not need those parts.
 
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
@@ -154,7 +156,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
-            new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "The church's texting numbers, its branded email template, and its communication lists, with members who match the people in the church.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer ),
+            new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

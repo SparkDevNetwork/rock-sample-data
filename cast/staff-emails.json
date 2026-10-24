@@ -1,0 +1,256 @@
+{
+  "$comment": "Personal emails from Cast staff to Cast people, tied to their stories (cast/staff-emails.md). 'from' is a staff key in configuration/notes.json, 'to' is a Cast person Guid with an email that is active and allows email, and daysAgo and time date each email back from the install day. 'body' is the email's paragraphs: the first is the greeting and the last is the signature.",
+  "emails": [
+    {
+      "key": "isaac-torres-welcome-table",
+      "from": "isaac",
+      "to": "8CB1DBDE-271F-41E9-8B4A-142AF83D9F44",
+      "name": "Rosa Torres",
+      "story": "Valeria asked to help at the student welcome table, so Isaac checks with her mom before she starts.",
+      "daysAgo": 3,
+      "time": "10:20",
+      "subject": "Valeria and the student welcome table",
+      "body": [
+        "Hi Rosa,",
+        "Valeria brought two friends to student night again this week. She makes everyone feel like they belong, and she asked if she could help at our welcome table.",
+        "We would love to have her there. It means getting to student night about twenty minutes early, so I wanted to check with you before we put her on the list.",
+        "Pickup time stays the same. If the earlier start does not work for your family, just let me know and we will find another way for her to help.",
+        "Thanks for sharing her with us,",
+        "Isaac"
+      ]
+    },
+    {
+      "key": "pete-ramirez-lunch",
+      "from": "pete",
+      "to": "D41605ED-1652-421F-AC36-39DA3FE714E2",
+      "name": "Carlos Ramirez",
+      "story": "After the Ramirez family's second Sunday, Pete invites Carlos and Ana to the newcomers lunch.",
+      "daysAgo": 4,
+      "time": "09:45",
+      "subject": "Glad you came back on Sunday",
+      "body": [
+        "Hi Carlos,",
+        "Ted told me your family came back on Sunday, and that you and Ana stayed for coffee afterward. That made my week.",
+        "You asked Ted what a next step looks like for a family. The newcomers lunch is a good place to start, and Ana already has the date from her card.",
+        "I know Saturdays are work days for you, so we keep the lunch on Sunday right after the service. Childcare is in the same rooms Lucas and Mia already know.",
+        "I would love to meet you both there.",
+        "Pastor Pete"
+      ]
+    },
+    {
+      "key": "isaac-dawson-weekends",
+      "from": "isaac",
+      "to": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
+      "story": "Isaac lines up the student calendar with Kevin's every-other-weekend schedule so Tyler can join in.",
+      "daysAgo": 30,
+      "time": "14:10",
+      "subject": "Student events that land on your weekends",
+      "body": [
+        "Hi Kevin,",
+        "I sat down with the student calendar and marked the events that fall on your weekends with Tyler. The student retreat next month is one of them, and we would love to have him.",
+        "His small group leader will keep sending him a recap on the weeks he is with his mom. That way he never feels behind when he walks back in.",
+        "If the drive home from the retreat does not fit your plans, I can find Tyler a ride with another family. Emma is welcome in the kids rooms that morning too.",
+        "Glad you two are part of things,",
+        "Isaac"
+      ]
+    },
+    {
+      "key": "ted-coffee-baptism-story",
+      "from": "ted",
+      "to": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
+      "story": "Phil's coworker keeps asking about his baptism, and Ted asks Phil to share his story at the next baptism class.",
+      "daysAgo": 38,
+      "time": "11:05",
+      "subject": "Would you share your baptism story?",
+      "body": [
+        "Hi Phil,",
+        "I saw your prayer request about your coworker asking why you were baptized. I am praying with you, and I love that people come to you with those questions now.",
+        "That gave me an idea. Would you share your story for five minutes at our next baptism class? People who are thinking about baptism need to hear from someone who once sat in their seat.",
+        "You could tell it the way it happened, from Allie's Easter invite to the day you both went into the water. No notes needed.",
+        "And if your coworker ever comes on a Sunday, save me a seat next to you both.",
+        "Ted"
+      ]
+    },
+    {
+      "key": "pete-hayes-anniversary",
+      "from": "pete",
+      "to": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "name": "Bob Hayes",
+      "story": "Pete congratulates Bob on 46 years of marriage and thanks him and Linda for 25 years of faithful giving.",
+      "daysAgo": 57,
+      "time": "10:30",
+      "subject": "Forty-six years",
+      "body": [
+        "Dear Bob,",
+        "Linda's prayer request said the two of you celebrate 46 years of marriage this month. Congratulations to you both.",
+        "I also want to say thank you. For 25 years you have been in your seat at the 9:00 service, and you have given every single week. That kind of steady faithfulness holds a church together.",
+        "Pamela and I are praying for many more years for you and Linda.",
+        "With gratitude,",
+        "Pastor Pete"
+      ]
+    },
+    {
+      "key": "ted-ellis-welcome",
+      "from": "ted",
+      "to": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+      "name": "Hannah Ellis",
+      "story": "Ted welcomes Hannah and Jordan after their first few Sundays.",
+      "daysAgo": 106,
+      "time": "13:40",
+      "subject": "So glad you're here",
+      "body": [
+        "Hi Hannah,",
+        "It was great to meet you and Jordan at the welcome center a couple of weeks ago, and even better to see you back each Sunday since.",
+        "You said you were looking for a church where the two of you can grow together. Starting Point is a good first step for that, and it is an easy way to meet other couples.",
+        "There is no pressure to sign up for anything yet. Take your time and get to know the place.",
+        "If you ever have a question, just reply to this email.",
+        "Ted"
+      ]
+    },
+    {
+      "key": "isaac-brooks-camp",
+      "from": "isaac",
+      "to": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "name": "Nathan Brooks",
+      "story": "After Student Camp, Isaac writes to Nathan about Ava's decision to follow Jesus there.",
+      "daysAgo": 128,
+      "time": "15:15",
+      "subject": "A few words about Ava and camp",
+      "body": [
+        "Hi Nathan,",
+        "I know Ava already told you and Rachel her news from camp. I wanted you to hear from me too that her decision to follow Jesus was her own, and she was so clear about it.",
+        "She also stayed up late helping a younger girl in her cabin who was homesick. You are raising a kind and brave kid.",
+        "When she is ready, I would love to sit down with the three of you and talk about next steps. There is no rush at all.",
+        "Celebrating with you,",
+        "Isaac"
+      ]
+    },
+    {
+      "key": "alisha-shaw-membership",
+      "from": "alisha",
+      "to": "EA03C61D-F6B3-4B00-8028-5BC86F24CA09",
+      "name": "Lauren Shaw",
+      "story": "Lauren asked Pete about the membership class, and Alisha sends her the details.",
+      "daysAgo": 148,
+      "time": "09:25",
+      "subject": "Membership class details",
+      "body": [
+        "Hi Lauren,",
+        "Pastor Pete mentioned you asked about the membership class. I am so glad, and he was too.",
+        "The next class meets in three weeks, on a Sunday right after the 10:30 service. Lunch is provided, and Owen and Ella are welcome in the kids rooms while you are in class.",
+        "Just reply to this email and I will save seats for you and Andy.",
+        "Alisha Marble",
+        "Church Office"
+      ]
+    },
+    {
+      "key": "pete-greggs-anniversary",
+      "from": "pete",
+      "to": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
+      "story": "Pete writes to Lorraine gently during the week of the anniversary of Jenny's death.",
+      "daysAgo": 199,
+      "time": "08:50",
+      "subject": "Thinking of you this week",
+      "body": [
+        "Dear Lorraine,",
+        "I saw your prayer request last night. Pamela and I are holding you, Bob, Tim, and Jordan close in prayer this week.",
+        "There is no need to write back. I only wanted you to know that we remember Jenny with you.",
+        "If you and Bob want to take a week off from hosting the grief group, just say the word. Ted or I will gladly cover a night.",
+        "With love,",
+        "Pastor Pete"
+      ]
+    },
+    {
+      "key": "daniel-michaels-camp-page",
+      "from": "daniel",
+      "to": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "story": "Daniel thanks Jenny for helping build the camp and car show pages on the church website.",
+      "daysAgo": 205,
+      "time": "16:20",
+      "subject": "Thanks for your help with the camp page",
+      "body": [
+        "Hi Jenny,",
+        "The Student Camp page went live on the website this morning, and the first registrations are already in. Thank you for writing the packing list and the parent questions.",
+        "You also caught the broken link on the car show page before anyone else saw it. That saved me a lot of emails.",
+        "If you have time later, I would love your eyes on the volunteer sign-up page too. You think the way our families do.",
+        "Thanks again,",
+        "Daniel"
+      ]
+    },
+    {
+      "key": "alisha-kelly-rent",
+      "from": "alisha",
+      "to": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "name": "Ashley Kelly",
+      "story": "Alisha lets Ashley know the benevolence team's rent help went to her landlord, and shares the budgeting class.",
+      "daysAgo": 262,
+      "time": "11:30",
+      "subject": "Your rent payment went out today",
+      "body": [
+        "Hi Ashley,",
+        "I wanted you to know that the rent payment went to your landlord this morning. You do not need to do anything else.",
+        "Ted mentioned the budgeting class, and I am sending the dates in case they help. Free childcare is included, so Mason and Chloe are welcome. Come only if it works with your schedule.",
+        "If anything else comes up, please call or email me directly. That is what we are here for.",
+        "Alisha"
+      ]
+    },
+    {
+      "key": "ward-derek-check-in",
+      "from": "pete",
+      "to": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "name": "Derek Ward",
+      "story": "Three months after their counseling ended, Pete checks in on Derek as he promised.",
+      "daysAgo": 380,
+      "time": "10:05",
+      "subject": "Checking in, as promised",
+      "body": [
+        "Hi Derek,",
+        "It has been about three months since our last meeting, and I told you I would check in. How are you, Kayla, and the kids doing?",
+        "I think often about how hard you worked through a heavy season. Steady work and a family plan did not just happen. You fought for them.",
+        "No meeting is needed unless you want one. My door is open anytime, and I would love to grab lunch if you are free.",
+        "Proud of you,",
+        "Pastor Pete"
+      ]
+    },
+    {
+      "key": "pete-carter-thanks",
+      "from": "pete",
+      "to": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Peggy Carter",
+      "story": "Pete thanks Peggy for thirty years of faithful giving and for her place in the 9:00 service.",
+      "daysAgo": 520,
+      "time": "14:35",
+      "subject": "Thank you for thirty faithful years",
+      "body": [
+        "Dear Peggy,",
+        "Alisha told me your check arrived again this month, right on time as always. I do not say it often enough, so I want to say it now: thank you.",
+        "For thirty years you have given faithfully and sat in the same row at the 9:00 service. I still picture you and Walter there together, and I know how much that row means to you.",
+        "Your quiet faithfulness has helped this church through more seasons than most people know.",
+        "With deep thanks,",
+        "Pastor Pete"
+      ]
+    },
+    {
+      "key": "ted-song-baptism-helper",
+      "from": "ted",
+      "to": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
+      "name": "Allie Song",
+      "story": "Ted asks Allie, who was baptized alongside her neighbor Phil Coffee, to help at the next baptism Sunday.",
+      "daysAgo": 690,
+      "time": "12:15",
+      "subject": "Could you help at baptism Sunday?",
+      "body": [
+        "Hi Allie,",
+        "Our next baptism Sunday is coming up next month, and I would love for you to be one of our helpers.",
+        "Helpers hand out towels, help people find their changing rooms, and pray with anyone who is nervous. You know that feeling, since you and Phil went into the water on the same day.",
+        "Your story of inviting your neighbor to Easter still encourages people. Having you there would mean a lot to the folks being baptized.",
+        "Let me know if you can make it.",
+        "Ted"
+      ]
+    }
+  ]
+}

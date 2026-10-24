@@ -64,6 +64,26 @@ namespace RockSampleData.Loader.Loading
         public List<EmailCampus> CampusList { get; private set; }
 
         /// <summary>
+        /// The email planner, once <see cref="Load"/> has run, so one-to-one emails follow the same bounces.
+        /// </summary>
+        public EmailPlanner Planner { get; private set; }
+
+        /// <summary>
+        /// Everyone email may reach, with their reading habits and email state, once <see cref="Load"/> has run.
+        /// </summary>
+        public List<EmailPerson> EmailPeople { get; private set; }
+
+        /// <summary>
+        /// The email clients with their device type Ids, once <see cref="Load"/> has run.
+        /// </summary>
+        public List<EmailClient> Clients { get; private set; }
+
+        /// <summary>
+        /// The branded template's renderer, once <see cref="Load"/> has run.
+        /// </summary>
+        public MessageRenderer Renderer { get; private set; }
+
+        /// <summary>
         /// Plans and writes every send. Unsubscribes mark their list members in <paramref name="members"/>.
         /// </summary>
         public void Load( CommunicationsConfiguration configuration, PeopleLoader people, List<ListCandidate> candidates, List<PlannedListMember> members,
@@ -73,16 +93,17 @@ namespace RockSampleData.Loader.Loading
             var series = _source.ReadSeriesLibrary();
             var calendar = Calendar = new CommunicationCalendar( _dates.Anchor, from, _source.Steps, _source.Campaign, configuration.Events, series, _seed );
             var clients = configuration.EmailClients;
-            var emailPeople = People( people, candidates, from, clients );
+            var emailPeople = EmailPeople = People( people, candidates, from, clients );
+            Clients = clients;
 
-            var planner = new EmailPlanner( new EmailPlanInputs
+            var planner = Planner = new EmailPlanner( new EmailPlanInputs
             {
                 Profile = _profile,
                 Seed = _seed,
                 Anchor = _dates.Anchor,
                 From = from,
                 Calendar = calendar,
-                Renderer = new MessageRenderer( templateHtml ),
+                Renderer = Renderer = new MessageRenderer( templateHtml ),
                 Newsletter = _source.ReadNewsletterLibrary(),
                 Emails = _source.ReadEmailLibrary().Emails,
                 Lists = configuration.Lists.Lists,
@@ -91,6 +112,7 @@ namespace RockSampleData.Loader.Loading
                 PersonIdsByGuid = people.People.ToDictionary( p => p.Key, p => p.Value.PersonId ),
                 Campuses = CampusList = Campuses( campusIds ),
                 MainCampusKey = mainCampusKey,
+                ClassRosters = _classRosters,
                 CastUnsubscribes = configuration.CastUnsubscribes,
                 Clients = clients
             } );
@@ -204,6 +226,17 @@ namespace RockSampleData.Loader.Loading
             return this;
         }
 
+        private Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> _classRosters = new Dictionary<(string, string, DateTime), List<int>>();
+
+        /// <summary>
+        /// Gives the loader each class's people, so class sends reach them.
+        /// </summary>
+        public BulkEmailLoader WithClassRosters( Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> rosters )
+        {
+            _classRosters = rosters;
+            return this;
+        }
+
         /// <summary>
         /// The dataset's campuses in configuration order, with their Sunday service times.
         /// </summary>
@@ -238,7 +271,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// A person's address, from the ranges reserved for documentation, so no real computer is named.
         /// </summary>
-        private static string IpAddress( EmailPerson person )
+        internal static string IpAddress( EmailPerson person )
         {
             var nets = new[] { "192.0.2", "198.51.100", "203.0.113" };
             return $"{nets[person.PersonId % 3]}.{( person.PersonId / 3 % 254 ) + 1}";

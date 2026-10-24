@@ -17,11 +17,11 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
-| `communications.json` | The church's texting numbers, who sends mass emails and texts, who approves sends, Rock's communication topics, the branded email template, and the communication lists with the rules for who is on them. See [Communications](../docs/communications.md#the-setup). |
+| `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template, and the communication lists with the rules for who is on them. See [Communications](../docs/communications.md#the-setup). |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
 | `campaign.json` | The Built on the Rock building campaign: its fund, description, and dates, and the Rock settings that point at it. See [Pledges](../docs/pledges.md). |
 | `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
-| `church-app.json` | A stub for the Rock Solid Church App, the sample church's mobile app. The loader does not read it yet. See [Communications](../docs/communications.md). |
+| `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
 
 ## Service times
 

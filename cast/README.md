@@ -17,6 +17,7 @@ The Cast is the set of hand-designed households: today **87 households and 185 p
 |---|---|
 | `households/*.json` | One file per household. Format: `household.schema.json`. These are the source of truth. |
 | `notes/*.json` | Hand-written notes on Cast people, one file per household. Format: `note.schema.json`. See [Cast notes](notes/README.md). |
+| `staff-emails.json` | The Cast staff's hand-written personal emails to Cast people, tied to their stories. See [staff-emails.md](staff-emails.md). |
 | `sms-threads.json` | The Cast's hand-written text conversations, covering every SMS Conversations state, with several always from the last few days. See [sms-threads.md](sms-threads.md). |
 | `prayer-requests.json` | The Cast's own prayer requests, tied to their stories, covering every prayer screen state, with at least 8 always current. Format: `prayer-requests.schema.json`. |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |

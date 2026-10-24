@@ -158,6 +158,11 @@ namespace RockSampleData.Loader.Model
         public CommunicationSender Texts { get; set; }
 
         /// <summary>
+        /// Who welcomes a first-time guest at a campus with no campus pastor.
+        /// </summary>
+        public CommunicationSender Welcome { get; set; }
+
+        /// <summary>
         /// The Cast person who approves sends that need approval.
         /// </summary>
         public Guid Approver { get; set; }

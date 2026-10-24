@@ -63,7 +63,7 @@ namespace RockSampleData.Loader.Loading
         private readonly int _historyCategoryId;
 
         private readonly DataTable _communications = TableFactory.Create( "Id:int", "Name:string", "Subject:string", "CommunicationType:int", "Status:int", "IsBulkCommunication:bool",
-            "SenderPersonAliasId:int", "ReviewerPersonAliasId:int", "ReviewedDateTime:date", "ListGroupId:int", "SegmentCriteria:int", "CommunicationTemplateId:int", "FromName:string", "FromEmail:string",
+            "SenderPersonAliasId:int", "ReviewerPersonAliasId:int", "ReviewedDateTime:date", "ListGroupId:int", "SegmentCriteria:int", "CommunicationTemplateId:int", "SystemCommunicationId:int", "FromName:string", "FromEmail:string",
             "Message:string", "FutureSendDateTime:date", "SendDateTime:date", "SendDateKey:int", "ExcludeDuplicateRecipientAddress:bool", "CommunicationTopicValueId:int",
             "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int", "ForeignKey:string" );
 
@@ -133,19 +133,21 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
         }
 
         /// <summary>
-        /// Adds one send and everything about it.
+        /// Adds one send and everything about it. Returns the communication's Id and its first recipient's Id; the
+        /// rest follow in the send's recipient order.
         /// </summary>
-        public void Add( PlannedEmail send, EmailSendContext context, IReadOnlyList<EmailClient> clients )
+        public (int CommunicationId, int FirstRecipientId) Add( PlannedEmail send, EmailSendContext context, IReadOnlyList<EmailClient> clients )
         {
             var communicationId = _nextCommunicationId++;
+            var firstRecipientId = _nextRecipientId;
             Communications++;
             var reviewed = context.NeedsApproval ? send.Created.AddMinutes( 20 + ( send.Index % 200 ) ) : send.Created;
             var sendDateTime = send.Sent > reviewed ? send.Sent : reviewed.AddMinutes( 5 );
 
             _communications.Rows.Add( communicationId, send.Name, send.Subject, EmailType, ApprovedStatus, send.IsBulk,
-                context.SenderAliasId, context.ReviewerAliasId, reviewed, Value( context.ListGroupId ), 0, context.TemplateId, context.FromName, context.FromEmail,
+                Value( context.SenderAliasId ), Value( context.ReviewerAliasId ), reviewed, Value( context.ListGroupId ), 0, Value( context.TemplateId ), Value( context.SystemCommunicationId ), context.FromName, context.FromEmail,
                 send.Html, send.IsScheduled ? send.Sent : DBNull.Value, sendDateTime, DateKey( sendDateTime ), false, Value( context.TopicValueId ),
-                context.Guid, send.Created, sendDateTime, context.SenderAliasId, context.SenderAliasId, _foreignKey );
+                context.Guid, send.Created, sendDateTime, Value( context.SenderAliasId ), Value( context.SenderAliasId ), _foreignKey );
 
             var delivered = send.Recipients.Where( r => r.DeliveredDateTime.HasValue ).Select( r => r.DeliveredDateTime.Value ).DefaultIfEmpty( sendDateTime ).Min();
             var componentId = _nextComponentId++;
@@ -166,7 +168,7 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
                 {
                     _history.Rows.Add( false, _historyCategoryId, _personEntityTypeId, recipient.Person.PersonId, Truncate( send.Subject, 200 ), _communicationEntityTypeId, communicationId,
                         "SENT", "Record", "Communication", context.FromName, false, recipient.HistoryGuid, _foreignKey, recipient.SendDateTime.Value, recipient.SendDateTime.Value,
-                        context.SenderAliasId, context.SenderAliasId );
+                        Value( context.SenderAliasId ), Value( context.SenderAliasId ) );
                 }
 
                 foreach ( var interaction in recipient.Interactions )
@@ -184,6 +186,8 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
             {
                 Flush();
             }
+
+            return (communicationId, firstRecipientId);
         }
 
         /// <summary>
@@ -227,15 +231,23 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
     /// </summary>
     internal sealed class EmailSendContext
     {
-        public int SenderAliasId { get; set; }
+        /// <summary>
+        /// The person who sent it, or null for a system email Rock's jobs send.
+        /// </summary>
+        public int? SenderAliasId { get; set; }
 
-        public int ReviewerAliasId { get; set; }
+        public int? ReviewerAliasId { get; set; }
 
         public bool NeedsApproval { get; set; }
 
         public int? ListGroupId { get; set; }
 
-        public int TemplateId { get; set; }
+        public int? TemplateId { get; set; }
+
+        /// <summary>
+        /// The Rock system communication a job sent it from, or null.
+        /// </summary>
+        public int? SystemCommunicationId { get; set; }
 
         public int? TopicValueId { get; set; }
 

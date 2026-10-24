@@ -86,6 +86,11 @@ namespace RockSampleData.Loader
         public CommunicationsConfiguration Communications { get; }
 
         /// <summary>
+        /// The church's mobile app, its devices, and its pushes, or null in a package built before push loaded.
+        /// </summary>
+        public ChurchAppConfiguration ChurchApp { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -106,6 +111,7 @@ namespace RockSampleData.Loader
             Steps = Files.Exists( StepsConfigurationPath ) ? Read<StepsConfiguration>( StepsConfigurationPath ) : null;
             Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
             Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
+            ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -170,6 +176,8 @@ namespace RockSampleData.Loader
 
         public const string CommunicationsConfigurationPath = "configuration/communications.json";
 
+        public const string ChurchAppConfigurationPath = "configuration/church-app.json";
+
         /// <summary>
         /// The message library, the email template, and its logo.
         /// </summary>
@@ -206,6 +214,13 @@ namespace RockSampleData.Loader
         /// Reads the Cast's hand-written text threads, or none for a package built before they existed.
         /// </summary>
         public List<CastThread> ReadCastThreads() => Files.Exists( CastThreadsPath ) ? Read<CastThreadFile>( CastThreadsPath ).Threads : new List<CastThread>();
+
+        public const string CastStaffEmailsPath = "cast/staff-emails.json";
+
+        /// <summary>
+        /// Reads the Cast staff's hand-written personal emails, or none for a package built before they existed.
+        /// </summary>
+        public List<CastStaffEmail> ReadCastStaffEmails() => Files.Exists( CastStaffEmailsPath ) ? Read<CastStaffEmailFile>( CastStaffEmailsPath ).Emails : new List<CastStaffEmail>();
 
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.

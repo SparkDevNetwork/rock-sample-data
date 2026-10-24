@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup, bulk email, and texts are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, and two years of texts and SMS conversations. One-to-one messages, push, and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, and 153 to 155 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, 153 to 155, 159 to 160, 161, and 162 to 163 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -59,8 +59,8 @@ The loader's Communications part writes the setup, after steps. It needs the sma
 3. **Senders** (decision 139). Mass emails come from hello@rocksolidchurchdemo.com as "Rock Solid Church", sent in Rock by Daniel Peak, the Director of Communications. Pete Foster sends a few pastoral letters under his own name. Isaac Silva sends student texts from the student line. Daniel approves sends that need approval, and his own need none. The slices that write sends read these.
 4. **Templates** (decision 140). Rock's shipped templates, plus the "Rock Solid Church" template: the approved logo on a light gray page, a clean white body, and a footer with the church's name, address, and Rock's unsubscribe option. It is built for Outlook, with a table layout, inline styles, and Outlook conditional comments, and its colors are Lava fields. The HTML is [content/communications/email-template.html](../content/communications/email-template.html), and the logo is a Rock file, as if it had been uploaded in Rock's template editor.
 5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
-6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). Slice 6 loads the site and its layout. Pages and app content come in later work.
-7. **Personal devices.** A designed share of active adults have the app on an iPhone or an Android phone, with notifications on for most of them. Slice 6 loads them.
+6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). The loader writes the site with the Homepage and Full layouts and the homepage Rock seeds for a new app (decision 161). Pages and app content come in later work.
+7. **Personal devices.** About 25% of active adults have the app, and every Cast staff member does. 89% have notifications on (measured), 70% are on an iPhone (designed, because the measured share comes from too few devices), and 80% were seen in the last 30 days. Each device is the row the app writes when it first opens, with a friendly model name. Every registration token starts with `sample-data-`, which Firebase never issues, so no push can ever reach a real phone (decision 95).
 
 ## The message library
 
@@ -121,21 +121,27 @@ Texts follow Rock's Twilio path (decision 153). On Full 7 there are about 300 ma
 
 ## Push
 
-- Pushes go to people with the app: "we're live now" on Sunday mornings, event reminders, and the occasional announcement.
-- Opens are interactions on the same channel as email opens, mostly within an hour of the push.
+Pushes go through Rock Mobile Push, the way Rock's app sends them (decision 161). On Core 1 there are about 130 pushes to 1,900 recipients.
+
+- **What goes out.** The 11 pushes in the message library: "We're live" every Sunday morning, Easter, Christmas Eve, Thanksgiving, a new series and its sermon notes, group launches, Serve Sunday, year-end giving, giving statements, and weather updates. Each goes once per campus to the campus's active adults who had the app by then.
+- **Who gets it.** Rock sends to every active device with notifications on and a registration token. A person whose device has notifications off fails with Rock's note, "No Personal Devices with Messaging Enabled". Each sent push has its "Push Notification" History line.
+- **Opens.** 12% of delivered pushes are opened, 75% of those within an hour. An open marks the recipient Opened and adds an "Opened" interaction on the communication, with the app as the device. The rates are designed, because the measured church sent almost no pushes.
 
 ## One-to-one messages
 
-Most messages a real church sends go to one person. These come from data that is already loaded:
+Most messages a real church sends go to one person (decision 159). These come from data that is already loaded, over the same 2 years as bulk email. Each is its own communication with one recipient. On Full 7 there are about 120,000, almost all of them serving emails. Core 1 has about 5,400.
 
-- **Serving.** Schedule confirmations and reminders for every scheduled serve, by each volunteer's preferred medium.
-- **Connections.** Follow-up emails and texts from connectors.
-- **Prayer.** "Your prayer was answered" emails.
-- **Staff.** Personal emails from Cast staff to Cast people, tied to their stories.
+- **Serving.** A confirmation the day a volunteer is asked to serve, and a reminder at 4 p.m. two days before each Sunday they did not decline. Both come from the system communications Rock's Send Group Schedule Notifications job uses, so each email links to its system communication. They are email for everyone: Rock sends a texter an email when the system communication has no text message, and Rock ships none. The stored message is the library's short version, without Rock's global email header and footer, so the database stays small.
+- **Connections.** An email from the connector each time they log "Contacted Waiting for Response" on a request.
+- **Prayer.** A celebration email to the person who asked when their request is answered.
+- **First visits.** A welcome the Monday after a generated adult's first Sunday, from their campus pastor on Full 7, or Ted Decker otherwise.
+- **Staff** (decision 160). Fourteen personal emails from Cast staff to Cast people in [cast/staff-emails.json](../cast/staff-emails.md), each tied to a Cast story. Each comes from the staff member by name and their own email address.
+
+One-to-one emails go through the bulk email planner, so they follow the same rules. A person on "No mass emails" still gets them. A person on "Do not email", with no email, or with an address that bounced gets the note Rock writes instead. A personal email is opened a little more often than a mass email.
 
 ## Messages tied to steps
 
-The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Once steps are built, their milestones get their own messages (decision 96):
+The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Their milestones get their own messages (decisions 96 and 162). The communications load runs after the steps load and reads each person's Step rows back.
 
 - **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters one finished Communication Flow, "After Starting Point": a thank-you the next day, a small group invitation a week later, and a serving invitation three weeks later. Each person's flow instance is complete, so Rock's flow screens have data.
 - **Baptism.** Baptism Sunday gets a mass invitation. Each person baptized gets a follow-up email that invites them to Foundations.
@@ -143,7 +149,16 @@ The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step St
 - **Student Path.** Student Camp and Mission Trip get registration emails and reminder texts to students and their parents on the student line.
 - **Serve and Lead.** These already get serving reminders (see One-to-one messages).
 
-This needs the step type Guids and each person's step dates from the steps work. The communications load runs after the steps load.
+Class emails and texts go to the people in that campus's class, matched by the class's first night. They are not flagged bulk, because they go to the people who signed up.
+
+### The After Starting Point flow
+
+"After Starting Point" is an on-demand Communication Flow (decision 163), the kind a workflow's Activate Communication Flow action fills. Rock 21 has no trigger for entering a data view.
+
+- **Instances.** Everyone who finishes a Starting Point Class joins the instance for the next day.
+- **Messages.** Three emails, each from its own flow template: a thank-you that day, a small group invitation 6 days later, and a serving invitation 14 days after that. Each is a bulk email named "After Starting Point – Thank You" and so on, with the rows Rock's Process Communication Flows job writes. A person on "No mass emails" does not get them.
+- **Goal.** Joining a small group within 30 days. Each conversion credits the newest email the person got before they joined.
+- **Finished.** Only classes whose last email went out before install day get an instance, and every instance is complete. The job never has a message left to send (decision 95).
 
 ## Volume and the history window
 
@@ -172,11 +187,14 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **Step and flow invariants (built):** no flow instance is still sending, every flow email went out before install day, and each reaches exactly its instance's people from its message's flow template.
+- **Push invariants (built):** every sent push is Delivered through Rock Mobile Push with its History line, a push went out only to a person with a device that takes notifications, and every device token starts with `sample-data-`.
+- **One-to-one invariants (built):** every serving email has the request it came from and one recipient, and no one on "Do not email" got a one-to-one email.
 - **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
 - **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
-- **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped.
+- **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped. Each Cast staff email shows in the person's Communication History, delivered, from the staff member, on its day.
 - **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision 155).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 
@@ -188,9 +206,9 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Done.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation. Done.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
-5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
-6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
-7. **Steps.** Step messages and the finished Communication Flow, after steps land.
+5. **One-to-one messages.** Serving, connections, prayer, first visits, and staff messages. Done.
+6. **Push.** The church app's site and layout, personal devices, pushes, and push opens. Done.
+7. **Steps.** Step messages and the finished Communication Flow, after steps land. Done.
 
 ## Open questions
 

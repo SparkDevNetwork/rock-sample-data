@@ -22,12 +22,17 @@
     }
   },
   "senders": {
-    "$comment": "Who sends what (decision 132). Mass emails come from the shared inbox in the church's name, and Daniel Peak, the Director of Communications, sends them in Rock. Pete Foster's few pastoral letters (Easter and year-end giving) come from him by name. The student pastor sends student texts from the student line. Daniel approves sends that need approval, and his own need none.",
+    "$comment": "Who sends what (decision 132). Mass emails come from the shared inbox in the church's name, and Daniel Peak, the Director of Communications, sends them in Rock. Pete Foster's few pastoral letters (Easter and year-end giving) come from him by name. The student pastor sends student texts from the student line. Daniel approves sends that need approval, and his own need none. A first-time guest's welcome email comes from their campus pastor, or from 'welcome', the outreach pastor, at a campus with none.",
     "church": { "fromName": "Rock Solid Church", "fromEmail": "hello@rocksolidchurchdemo.com", "sender": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9" },
     "pastor": { "fromName": "Pete Foster", "fromEmail": "pete@rocksolidchurchdemo.com", "sender": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C" },
     "students": { "fromName": "Rock Solid Students", "fromEmail": "students@rocksolidchurchdemo.com", "sender": "581C940E-A788-4F32-BCF3-33F4D1948390", "phoneNumber": "students" },
     "texts": { "sender": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "phoneNumber": "main" },
-    "approver": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9"
+    "welcome": {
+   "fromName": "Ted Decker",
+   "fromEmail": "ted@rocksolidchurchdemo.com",
+   "sender": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
+  },
+  "approver": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9"
   },
   "$topicsComment": "Rock's 8 shipped communication topics (the Communication Topic defined type), unchanged. Mass sends name one by key.",
   "topics": {

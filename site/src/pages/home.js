@@ -30,7 +30,7 @@ const features = [
     [ "Prayer", "Requests in every state, an active prayer team, comments, and answers." ],
     [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions." ],
     [ "Steps", "A seven-step Discipleship Path and a four-step Student Path made from each person's records: classes, groups, baptism, serving, giving, leading, camps, and mission trips." ],
-    [ "Communications", "Weekly newsletters, church-wide and ministry emails, mass texts, and live SMS conversations." ],
+    [ "Communications", "Weekly newsletters, church-wide and ministry emails, mass texts, live SMS conversations, serving reminders, and app pushes." ],
     [ "Businesses", "Businesses that give, each with one or two contacts tied to people in the church." ]
 ];
 

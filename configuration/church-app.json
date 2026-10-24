@@ -1,5 +1,5 @@
 {
-  "$comment": "A stub for Rock Solid Church's mobile app (decision 94). Rock ships no mobile application site, so the sample church adds its own. The loader does not read this file yet: slice 6 in docs/communications.md writes the Site row (SiteType Mobile), its layout, and the personal devices, so push history has an app to point at. Pages, blocks, and app content come in later work. Device shares stay empty until calibration part 7 has data.",
+  "$comment": "Rock Solid Church's mobile app (decision 94). Rock ships no mobile application site, so the sample church adds its own. The loader writes the Site row (SiteType Mobile) with the two layouts and the homepage Rock seeds for a new app, the personal devices, and push history (docs/communications.md, Push). Pages, blocks, and app content come in later work.",
   "site": {
     "name": "Rock Solid Church App",
     "storeName": "Rock Solid Church",
@@ -13,25 +13,89 @@
     "deepLinkDomains": "rocksolidchurchdemo.com",
     "launchedYearsAgo": 3
   },
-  "layout": {
-    "name": "Main",
-    "guid": "C08625AD-D0C7-4A4F-A65B-B120CDA6B86C"
-  },
   "plannedTabs": [
-    { "name": "Home", "purpose": "This week's announcements and the next service." },
-    { "name": "Watch", "purpose": "The live stream and past sermons." },
-    { "name": "Events", "purpose": "The church calendar and registrations." },
-    { "name": "Give", "purpose": "Online giving." },
-    { "name": "More", "purpose": "Groups, serving, prayer, and the person's profile." }
+    {
+      "name": "Home",
+      "purpose": "This week's announcements and the next service."
+    },
+    {
+      "name": "Watch",
+      "purpose": "The live stream and past sermons."
+    },
+    {
+      "name": "Events",
+      "purpose": "The church calendar and registrations."
+    },
+    {
+      "name": "Give",
+      "purpose": "Online giving."
+    },
+    {
+      "name": "More",
+      "purpose": "Groups, serving, prayer, and the person's profile."
+    }
   ],
   "devices": {
-    "$comment": "Set from calibration part 7 when slice 6 is built. Platforms use Rock's personal device platform values.",
-    "pctOfActiveAdults": null,
-    "pctIos": null,
-    "pctNotificationsOn": null,
+    "$comment": "Designed shares (decision 161). About a quarter of active adults have the app, as Jon chose. Calibration part 7 measured 89% with notifications on, used here, and 94% on iPhone, from a church where only 1.4% of adults have the app, so the iPhone share is designed at 70%, like decision 101. Most devices were seen in the last month. Registration tokens start with sample-data-, so no push can ever reach a real phone (decision 95).",
+    "pctOfActiveAdults": 25,
+    "pctIos": 70,
+    "pctNotificationsOn": 89,
+    "pctSeenInLast30Days": 80,
     "platforms": {
       "ios": "F00515E7-4EF3-480D-A45D-372CE3D80E69",
       "android": "63464BB8-83E2-4914-B922-5075311758F9"
+    },
+    "iosModels": [
+      "iPhone 13",
+      "iPhone 14",
+      "iPhone 14 Pro",
+      "iPhone 15",
+      "iPhone 15 Pro",
+      "iPhone 16",
+      "iPhone 16 Pro",
+      "iPhone SE (3rd generation)"
+    ],
+    "androidModels": [
+      {
+        "manufacturer": "samsung",
+        "model": "Galaxy S23"
+      },
+      {
+        "manufacturer": "samsung",
+        "model": "Galaxy S24"
+      },
+      {
+        "manufacturer": "samsung",
+        "model": "Galaxy A54"
+      },
+      {
+        "manufacturer": "Google",
+        "model": "Pixel 8"
+      },
+      {
+        "manufacturer": "motorola",
+        "model": "moto g 5G"
+      }
+    ]
+  },
+  "layouts": [
+    {
+      "name": "Homepage",
+      "fileName": "Homepage.xaml",
+      "guid": "C08625AD-D0C7-4A4F-A65B-B120CDA6B86C"
+    },
+    {
+      "name": "Full",
+      "fileName": "Full.xaml",
+      "guid": "4E0E2B8B-6B53-4C1E-9D77-2E5C3C9A1F07"
     }
+  ],
+  "homepage": {
+    "guid": "B4E6F0D2-7A3C-4F8E-9B1D-6C2A5E8F3D90"
+  },
+  "push": {
+    "$comment": "Pushes come from the push entries in content/communications/texts.json, to each campus's active adults with the app. The open rate is designed, because the measured church sent almost no pushes.",
+    "pctOpened": 12,
+    "pctOpenedWithinHour": 75
   }
 }

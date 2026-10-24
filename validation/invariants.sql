@@ -732,6 +732,103 @@ SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [
         WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [cr].[SendDateTime] IS NOT NULL )
     - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
 
+-- check: serving-email-follows-a-request
+-- why: Decision 159. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each serving email has one recipient and the request it came from.
+WITH [Serving] AS (
+    SELECT [c].[Id], [c].[SendDateTime], [sc].[Guid] AS [Kind]
+    FROM [Communication] AS [c]
+    INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [c].[SystemCommunicationId]
+    WHERE [c].[ForeignKey] = @ForeignKey AND [sc].[Guid] IN ( 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC', '8A20FE79-B73C-447A-82B1-416F9B50C038' )
+), [Sent] AS (
+    SELECT [s].[Kind], [pa].[PersonId], CONVERT( DATE, [s].[SendDateTime] ) AS [Day], COUNT(*) AS [Recipients]
+    FROM [Serving] AS [s]
+    INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [s].[Id]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+    GROUP BY [s].[Id], [s].[Kind], [pa].[PersonId], CONVERT( DATE, [s].[SendDateTime] )
+), [Asked] AS (
+    SELECT DISTINCT [pa].[PersonId], CONVERT( DATE, [a].[CreatedDateTime] ) AS [Day]
+    FROM [Attendance] AS [a]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[RequestedToAttend] = 1 AND [a].[ScheduleConfirmationSent] = 1
+), [Reminded] AS (
+    SELECT DISTINCT [pa].[PersonId], CONVERT( DATE, DATEADD( DAY, -2, [a].[StartDateTime] ) ) AS [Day]
+    FROM [Attendance] AS [a]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[RequestedToAttend] = 1 AND [a].[ScheduleReminderSent] = 1 AND ISNULL( [a].[RSVP], 3 ) <> 0
+)
+SELECT ( SELECT COUNT(*) FROM [Serving] WHERE NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [Serving].[Id] ) )
+    + ( SELECT COUNT(*) FROM [Sent] AS [s]
+        WHERE [s].[Recipients] <> 1
+            OR ( [s].[Kind] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND NOT EXISTS ( SELECT 1 FROM [Asked] AS [q] WHERE [q].[PersonId] = [s].[PersonId] AND [q].[Day] = [s].[Day] ) )
+            OR ( [s].[Kind] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND NOT EXISTS ( SELECT 1 FROM [Reminded] AS [r] WHERE [r].[PersonId] = [s].[PersonId] AND [r].[Day] = [s].[Day] ) ) );
+
+-- check: one-to-one-email-skips-do-not-email
+-- why: Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". Every one-to-one email to a person on "Do not email" failed.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [c].[IsBulkCommunication] = 0 AND [p].[EmailPreference] = 2
+    AND [cr].[Status] <> 2;
+
+-- check: sent-push-is-delivered-with-its-history
+-- why: Decision 161. Rock Mobile Push marks a sent push Delivered with its send and delivered times and writes a "Push Notification" line on the person's History. A person with no device that takes notifications fails with Rock's note.
+SELECT ( SELECT COUNT(*)
+        FROM [CommunicationRecipient] AS [cr]
+        INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+        WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3
+            AND ( ( [cr].[Status] IN ( 1, 4 ) AND ( [cr].[SendDateTime] IS NULL OR [cr].[DeliveredDateTime] IS NULL OR [cr].[TransportEntityTypeName] <> 'Rock.Communication.Transport.RockMobilePush' ) )
+                OR ( [cr].[Status] = 4 AND ( [cr].[OpenedDateTime] IS NULL OR [cr].[OpenedDateTime] < [cr].[SendDateTime] ) )
+                OR ( [cr].[Status] = 2 AND ISNULL( [cr].[StatusNote], '' ) <> 'No Personal Devices with Messaging Enabled' )
+                OR [cr].[Status] NOT IN ( 1, 2, 4 ) OR [c].[PushData] IS NULL ) )
+    + ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+            WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3 AND [cr].[SendDateTime] IS NOT NULL )
+        - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Push Notification' ) );
+
+-- check: push-goes-to-a-device-that-takes-notifications
+-- why: Rock Mobile Push sends to every active device on the person with notifications on and a registration token. A delivered push had one when it was sent, and a failed one had none.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+LEFT JOIN (
+    SELECT [pd].[PersonAliasId], MIN( [pd].[CreatedDateTime] ) AS [FirstSeen]
+    FROM [PersonalDevice] AS [pd]
+    WHERE [pd].[IsActive] = 1 AND [pd].[NotificationsEnabled] = 1 AND ISNULL( [pd].[DeviceRegistrationId], '' ) <> ''
+    GROUP BY [pd].[PersonAliasId]
+) AS [d] ON [d].[PersonAliasId] = [cr].[PersonAliasId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 3
+    AND ( CASE WHEN [d].[FirstSeen] <= [c].[SendDateTime] THEN 1 ELSE 0 END ) <> ( CASE WHEN [cr].[Status] IN ( 1, 4 ) THEN 1 ELSE 0 END );
+
+-- check: app-devices-never-reach-a-phone
+-- why: Decision 95. Every sample device's registration token starts with "sample-data-", which Firebase never issues, so a push sent from a sample database can never reach a real phone.
+SELECT COUNT(*)
+FROM [PersonalDevice] AS [pd]
+WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
+
+-- check: no-active-flow-instance
+-- why: Decisions 95 and 96. Rock's Process Communication Flows job sends the next message of any instance that is not complete, so every sample flow instance is complete and each of its emails already went out.
+SELECT ( SELECT COUNT(*) FROM [CommunicationFlowInstance] AS [i] WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 )
+    + ( SELECT COUNT(*)
+        FROM [CommunicationFlowInstanceCommunication] AS [ic]
+        INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
+        WHERE [ic].[ForeignKey] = @ForeignKey AND ( [c].[SendDateTime] IS NULL OR [c].[SendDateTime] > GETDATE() ) );
+
+-- check: flow-email-reaches-its-instance
+-- why: Decision 96. The job writes each flow message as a bulk email from its message's flow template, to exactly the instance's recipients.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceCommunication] AS [ic]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
+INNER JOIN [CommunicationFlowCommunication] AS [fc] ON [fc].[Id] = [ic].[CommunicationFlowCommunicationId]
+INNER JOIN [CommunicationTemplate] AS [t] ON [t].[Id] = [fc].[CommunicationTemplateId]
+WHERE [ic].[ForeignKey] = @ForeignKey
+    AND ( [c].[CommunicationType] <> 1 OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
+        OR ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
+            <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] )
+        OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
+            WHERE [cr].[CommunicationId] = [c].[Id]
+                AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) ) );
+
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
 SELECT COUNT(*)

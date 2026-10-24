@@ -106,12 +106,23 @@ namespace RockSampleData.Loader.Loading
 
             // Bulk email runs before the members are written, because an unsubscribe makes a member Inactive.
             var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
-            var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople );
+            var rosters = ClassRosters( campusIds );
+            var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople ).WithClassRosters( rosters );
             emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
 
             // Texts reach list members who did not leave from an email, so they follow email.
-            new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople )
+            new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople ).WithClassRosters( rosters )
                 .Load( configuration, people, candidates, plan, listIds, mainCampusKey, campusIds, emails.Calendar, emails.CampusList );
+
+            // One-to-one emails follow bulk email, so a bounced address fails them too.
+            var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
+            new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, CampusPastors.Pick( generated, mainCampusKey ) );
+
+            // The app and its pushes reach the same active adults.
+            new PushLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails );
+
+            // Everyone who finishes a Starting Point Class goes through the After Starting Point flow.
+            new FlowLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, configuration.Template.Guid, smallGroupTypeId );
             WriteMembers( plan, listIds );
             var moved = MoveTextPreferencesWithoutPhones();
             if ( moved > 0 )
@@ -127,6 +138,59 @@ namespace RockSampleData.Loader.Loading
             var onANewsletter = plan.Where( m => m.ListKey == CommunicationListPlanner.Newsletter ).Select( m => m.PersonId ).Distinct().Count();
             _db.Log.Write( $"  {onANewsletter:N0} of {activeAdults:N0} active adults ({( activeAdults == 0 ? 0 : 100.0 * onANewsletter / activeAdults ):N0}%) get a weekly newsletter" );
         }
+
+        #region Classes
+
+        /// <summary>
+        /// The calendar occasion each class step type's messages use.
+        /// </summary>
+        private static readonly Dictionary<string, string> ClassOccasions = new Dictionary<string, string>
+        {
+            ["starting-point-class"] = "starting-point",
+            ["foundations"] = "foundations"
+        };
+
+        /// <summary>
+        /// The people in each class the steps part loaded, by occasion, campus, and first night. A class send reaches them.
+        /// </summary>
+        private Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> ClassRosters( IReadOnlyDictionary<string, int> campusIds )
+        {
+            var rosters = new Dictionary<(string, string, DateTime), List<int>>();
+            var campusKeys = campusIds.ToDictionary( c => c.Value, c => c.Key );
+            foreach ( var type in _source.Steps?.StepTypes.Where( t => ClassOccasions.ContainsKey( t.Key ) ) ?? Enumerable.Empty<StepTypeDefinition>() )
+            {
+                var rows = _db.Query( @"
+SELECT [pa].[PersonId], [s].[CampusId], [s].[StartDateTime]
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+WHERE [st].[Guid] = @Type AND [s].[StartDateTime] IS NOT NULL AND [s].[CampusId] IS NOT NULL", P( "@Type", type.Guid ) );
+                foreach ( var row in rows )
+                {
+                    if ( !campusKeys.TryGetValue( ( int ) row["CampusId"], out var campusKey ) )
+                    {
+                        continue;
+                    }
+
+                    var key = (ClassOccasions[type.Key], campusKey, (( DateTime ) row["StartDateTime"]).Date);
+                    if ( !rosters.TryGetValue( key, out var roster ) )
+                    {
+                        roster = rosters[key] = new List<int>();
+                    }
+
+                    roster.Add( ( int ) row["PersonId"] );
+                }
+            }
+
+            foreach ( var roster in rosters.Values )
+            {
+                roster.Sort();
+            }
+
+            return rosters;
+        }
+
+        #endregion Classes
 
         #region Phone numbers
 

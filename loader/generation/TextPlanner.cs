@@ -51,7 +51,7 @@ namespace RockSampleData.Loader.Generation
         public const int UnsubscribeAll = 1;
         public const string NoPhone = "No Phone Number with Messaging Enabled";
 
-        private static readonly HashSet<string> MassAudiences = new HashSet<string> { "everyone", "students-and-parents" };
+        private static readonly HashSet<string> MassAudiences = new HashSet<string> { "everyone", "students-and-parents", "class" };
         private static readonly string[] DelayBins = { "pctUnder15Minutes", "pct15To60Minutes", "pct1To4Hours", "pct4To24Hours", "pct1To7Days" };
         private static readonly (double From, double To)[] DelayMinutes = { (1, 15), (15, 60), (60, 240), (240, 1440), (1440, 10080) };
 
@@ -114,9 +114,19 @@ namespace RockSampleData.Loader.Generation
                     foreach ( var occasion in _inputs.Calendar.Dates( text.Occasion ) )
                     {
                         var day = occasion.AddDays( -text.DaysBefore );
+                        var isClass = text.Audience == "class";
+                        if ( isClass && !_inputs.ClassRosters.ContainsKey( (text.Occasion, campus.Key, occasion.Date) ) )
+                        {
+                            continue;
+                        }
+
                         if ( day >= _inputs.From.Date && day < _inputs.Anchor.Date )
                         {
-                            sends.Add( MassText( text, list, campus, occasion, day ) );
+                            var send = MassText( text, list, campus, occasion, day );
+                            send.IsBulk = !isClass;
+                            send.Occasion = text.Occasion;
+                            send.OccasionDate = occasion.Date;
+                            sends.Add( send );
                         }
                     }
                 }
@@ -223,6 +233,13 @@ namespace RockSampleData.Loader.Generation
             if ( send.Audience == "everyone" )
             {
                 return _inputs.People.Where( p => p.IsAdult && p.IsInvolved && p.PrefersText && p.Mobile != null && p.CampusKey == send.CampusKey && p.Since <= send.Sent );
+            }
+
+            if ( send.Audience == "class" )
+            {
+                return _inputs.ClassRosters.GetValueOrDefault( (send.Occasion, send.CampusKey, send.OccasionDate) ) is List<int> roster
+                    ? roster.Where( _people.ContainsKey ).Select( id => _people[id] ).OrderBy( p => p.PersonId )
+                    : Enumerable.Empty<TextPerson>();
             }
 
             if ( send.Audience == "students-and-parents" )
@@ -618,6 +635,11 @@ namespace RockSampleData.Loader.Generation
         public string MainCampusKey { get; set; }
 
         /// <summary>
+        /// The people in each class, by occasion, campus, and the class's first night.
+        /// </summary>
+        public Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> ClassRosters { get; set; } = new Dictionary<(string, string, DateTime), List<int>>();
+
+        /// <summary>
         /// The church's texting numbers, by key. Campus pastors' numbers have their campus.
         /// </summary>
         public Dictionary<string, TextNumber> Numbers { get; set; } = new Dictionary<string, TextNumber>();
@@ -818,6 +840,13 @@ namespace RockSampleData.Loader.Generation
         /// A staff text in a conversation, sent from SMS Conversations.
         /// </summary>
         public bool IsConversation { get; set; }
+
+        /// <summary>
+        /// The occasion a mass text is for, and its date. A class text reaches that class.
+        /// </summary>
+        public string Occasion { get; set; }
+
+        public DateTime OccasionDate { get; set; }
 
         public DateTime Created { get; set; }
 

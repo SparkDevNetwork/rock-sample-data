@@ -145,6 +145,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckThreads( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, failures ) : 0;
+
             return (checks, failures);
         }
 
@@ -195,6 +197,39 @@ WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", thread.Per
             }
 
             return checks;
+        }
+
+        /// <summary>
+        /// Checks that each Cast staff email shows in the person's Communication History: sent by the staff member, with its
+        /// subject, delivered, on its day.
+        /// </summary>
+        private static int CheckStaffEmails( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var staff = source.Notes?.Staff.ToDictionary( s => s.Key, s => s.Guid ) ?? new Dictionary<string, Guid>();
+            var checks = 0;
+            foreach ( var email in source.ReadCastStaffEmails() )
+            {
+                checks++;
+                var count = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+INNER JOIN [PersonAlias] AS [sa] ON [sa].[Id] = [c].[SenderPersonAliasId]
+INNER JOIN [Person] AS [s] ON [s].[Id] = [sa].[PersonId]
+WHERE [p].[Guid] = @Person AND [s].[Guid] = @Staff AND [c].[CommunicationType] = 1 AND [c].[Subject] = @Subject AND [cr].[Status] IN ( 1, 4 )
+    AND DATEDIFF( DAY, [cr].[SendDateTime], GETDATE() ) BETWEEN @DaysAgo - 1 AND @DaysAgo + 1",
+                    P( "@Person", email.To ), P( "@Staff", staff.GetValueOrDefault( email.From ) ), P( "@Subject", email.Subject ), P( "@DaysAgo", email.DaysAgo ) ) );
+                if ( count != 1 )
+                {
+                    failures.Add( $"Staff email {email.Key}: expected one delivered email from {email.From} about {days( email.DaysAgo )} with its subject, Rock shows {count}" );
+                }
+            }
+
+            return checks;
+
+            static string days( int count ) => count == 1 ? "1 day ago" : $"{count} days ago";
         }
 
         /// <summary>

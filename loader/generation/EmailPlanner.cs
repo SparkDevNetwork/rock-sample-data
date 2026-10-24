@@ -59,9 +59,10 @@ namespace RockSampleData.Loader.Generation
         public const int UnsubscribeCommunicationList = 3;
 
         /// <summary>
-        /// The audiences this slice sends to. Classes, flows, and one-to-one messages come later.
+        /// The audiences the planner sends to. A class send goes to the people in one campus's class. One-to-one
+        /// messages and flows plan their own sends.
         /// </summary>
-        private static readonly HashSet<string> MassAudiences = new HashSet<string> { "newsletter", "everyone", "students-and-parents" };
+        private static readonly HashSet<string> MassAudiences = new HashSet<string> { "newsletter", "everyone", "students-and-parents", "class" };
 
         private static readonly string[] DelayBins = { "1-under 1 hour", "2-1 to 6 hours", "3-6 to 24 hours", "4-1 to 3 days", "5-3 to 7 days", "6-7 days or more" };
         private static readonly (double From, double To)[] DelayHours = { (0.02, 1), (1, 6), (6, 24), (24, 72), (72, 168), (168, 336) };
@@ -144,6 +145,11 @@ namespace RockSampleData.Loader.Generation
                     foreach ( var occasion in _inputs.Calendar.Dates( email.Occasion ) )
                     {
                         var sendDay = occasion.AddDays( -email.DaysBefore );
+                        if ( email.Audience == "class" && !_inputs.ClassRosters.ContainsKey( (email.Occasion, campus.Key, occasion.Date) ) )
+                        {
+                            continue;
+                        }
+
                         if ( InWindow( sendDay ) )
                         {
                             sends.Add( LibrarySend( email, list, campus, occasion, sendDay ) );
@@ -257,6 +263,8 @@ namespace RockSampleData.Loader.Generation
                 Html = html,
                 Links = links,
                 Audience = email.Audience,
+                Occasion = email.Occasion,
+                OccasionDate = occasion.Date,
                 ListKey = list?.Key ?? ( email.Audience == "newsletter" ? CommunicationListPlanner.Newsletter : null ),
                 CampusKey = list != null && !list.Campus ? null : campus.Key,
                 ListCampusKey = email.Audience == "newsletter" ? campus.Key : listCampus,
@@ -269,6 +277,45 @@ namespace RockSampleData.Loader.Generation
         }
 
         #endregion Schedule
+
+        #region One-to-one
+
+        /// <summary>
+        /// One person's copy of a one-to-one or flow email, planned the way a bulk send's recipient is, but with no unsubscribe.
+        /// Rock sends a personal email to someone on "No mass emails", but not a flow email, which is bulk. Call it after
+        /// <see cref="Plan"/>, so bounces before the send are known.
+        /// </summary>
+        public void PlanOneToOne( PlannedEmail send, EmailPerson person, string seed )
+        {
+            var random = new SeededRandom( seed );
+            var recipient = new PlannedRecipient { Person = person, Seed = seed, Guid = SeededRandom.StableGuid( $"{seed}:recipient" ), HistoryGuid = SeededRandom.StableGuid( $"{seed}:history" ) };
+            send.Recipients.Add( recipient );
+            var refusal = !person.HasEmail ? "No Email Address" : Refusal( person, send );
+            if ( refusal != null )
+            {
+                recipient.Status = Failed;
+                recipient.StatusNote = refusal;
+                return;
+            }
+
+            recipient.SendDateTime = send.Sent;
+            recipient.Status = Delivered;
+            recipient.DeliveredDateTime = send.Sent.AddSeconds( random.Between( 2, 40 ) );
+            recipient.StatusNote = $"Confirmed delivered by Mailgun at {recipient.DeliveredDateTime.Value.ToString( "M/d/yyyy h:mm:ss tt", System.Globalization.CultureInfo.InvariantCulture )}";
+            PlanEngagement( send, recipient, random, false, OneToOneOpenFactor );
+        }
+
+        /// <summary>
+        /// Whether Rock can email the person at a time: they have an email that has not bounced, and they did not choose "Do not email".
+        /// </summary>
+        public bool CanEmail( EmailPerson person, DateTime at ) => person.HasEmail && Refusal( person, new PlannedEmail { Sent = at } ) == null;
+
+        /// <summary>
+        /// A personal email gets opened more often than a mass email does.
+        /// </summary>
+        private const double OneToOneOpenFactor = 1.1;
+
+        #endregion One-to-one
 
         #region Recipients
 
@@ -400,6 +447,13 @@ namespace RockSampleData.Loader.Generation
                     .Select( p => (p, ( PlannedListMember ) null) ).ToList();
             }
 
+            if ( send.Audience == "class" )
+            {
+                return _inputs.ClassRosters.GetValueOrDefault( (send.Occasion, send.CampusKey, send.OccasionDate) ) is List<int> roster
+                    ? roster.Where( _people.ContainsKey ).Select( id => _people[id] ).Where( p => p.HasEmail ).Select( p => (p, ( PlannedListMember ) null) ).ToList()
+                    : new List<(EmailPerson, PlannedListMember)>();
+            }
+
             if ( send.Audience == "students-and-parents" )
             {
                 var students = Members( CommunicationListPlanner.Students, null, send ).Select( m => m.Person ).Where( p => p.HasEmail && p.CampusKey == send.CampusKey ).ToList();
@@ -444,10 +498,10 @@ namespace RockSampleData.Loader.Generation
         /// Opens and clicks: a reader opens at their own rate, mostly soon after the send, and some click a link.
         /// An unsubscriber always opened first.
         /// </summary>
-        private void PlanEngagement( PlannedEmail send, PlannedRecipient recipient, SeededRandom random, bool mustOpen )
+        private void PlanEngagement( PlannedEmail send, PlannedRecipient recipient, SeededRandom random, bool mustOpen, double openFactor = 1 )
         {
             var person = recipient.Person;
-            if ( !mustOpen && !random.Chance( Math.Min( 0.98, person.OpenRate * _design.SendOpenFactor( send ) ) ) )
+            if ( !mustOpen && !random.Chance( Math.Min( 0.98, person.OpenRate * _design.SendOpenFactor( send ) * openFactor ) ) )
             {
                 return;
             }
@@ -657,6 +711,11 @@ namespace RockSampleData.Loader.Generation
         public List<CastUnsubscribe> CastUnsubscribes { get; set; } = new List<CastUnsubscribe>();
 
         /// <summary>
+        /// The people in each class, by occasion, campus, and the class's first night.
+        /// </summary>
+        public Dictionary<(string Occasion, string CampusKey, DateTime Start), List<int>> ClassRosters { get; set; } = new Dictionary<(string, string, DateTime), List<int>>();
+
+        /// <summary>
         /// The email clients people read on, by index.
         /// </summary>
         public List<EmailClient> Clients { get; set; } = new List<EmailClient>();
@@ -776,6 +835,13 @@ namespace RockSampleData.Loader.Generation
         public List<string> Links { get; set; } = new List<string>();
 
         public string Audience { get; set; }
+
+        /// <summary>
+        /// The occasion the send is for, and its date. A class send reaches that class.
+        /// </summary>
+        public string Occasion { get; set; }
+
+        public DateTime OccasionDate { get; set; }
 
         /// <summary>
         /// The communication list it went to, or null for a church-wide or student send.
