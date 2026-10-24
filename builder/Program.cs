@@ -62,8 +62,9 @@ if ( options.TryGetValue( "deliver-photos", out var photoBatch ) )
     }
 }
 
-// Otherwise, write packages. Every package is for one exact Rock: the version and newest migration
-// come from a Rock checkout (--rock, or ROCK_PATH), or are given directly.
+// Otherwise, write packages. Every package is for one Rock major release (decision 52): the version,
+// whose first number is the major, and the newest migration come from a Rock checkout (--rock, or
+// ROCK_PATH), or are given directly.
 try
 {
     var rock = RockCheckout.Read(

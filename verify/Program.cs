@@ -24,7 +24,7 @@ using RockSampleData.Loader.Validation;
 using RockSampleData.Verify;
 
 /*
-    The verify tool: proves that dataset packages work on one exact Rock, and writes a receipt for each.
+    The verify tool: proves that dataset packages work on the Rock release they were built on, and writes a receipt for each.
     It runs when packages are made, never when a church installs one. See README.md.
 
     Usage:
