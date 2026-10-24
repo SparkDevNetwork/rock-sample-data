@@ -31,6 +31,7 @@ Kevin Dawson is divorced and has his kids every other weekend. They come when th
 
 - Single dad with every-other-weekend attendance.
 - Irregular giver.
+- Left the Men list from its newest email: its breakfasts fall on weekends he has the kids (a communication list unsubscribe).
 
 ## Activity
 

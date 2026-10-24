@@ -176,6 +176,21 @@ namespace RockSampleData.Loader
         public const string CommunicationsContentFolder = "content/communications";
 
         /// <summary>
+        /// Reads the sermon series from the message library.
+        /// </summary>
+        public SeriesLibrary ReadSeriesLibrary() => Read<SeriesLibrary>( $"{CommunicationsContentFolder}/series.json" );
+
+        /// <summary>
+        /// Reads the weekly newsletter's pieces from the message library.
+        /// </summary>
+        public NewsletterLibrary ReadNewsletterLibrary() => Read<NewsletterLibrary>( $"{CommunicationsContentFolder}/newsletter.json" );
+
+        /// <summary>
+        /// Reads the library's emails.
+        /// </summary>
+        public EmailLibrary ReadEmailLibrary() => Read<EmailLibrary>( $"{CommunicationsContentFolder}/emails.json" );
+
+        /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
         /// </summary>
         public List<CastNoteFile> ReadCastNotes()

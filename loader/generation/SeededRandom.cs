@@ -93,6 +93,22 @@ namespace RockSampleData.Loader.Generation
             return items[_random.Next( items.Count )];
         }
 
+        [ThreadStatic]
+        private static System.Security.Cryptography.SHA256 _sha;
+
+        /// <summary>
+        /// A Guid from a 128-bit hash of the text, for tables with millions of rows: streams seeded from a 32-bit
+        /// hash repeat now and then at that size, and two rows would get the same Guid.
+        /// </summary>
+        public static Guid StableGuid( string text )
+        {
+            var sha = _sha ??= System.Security.Cryptography.SHA256.Create();
+            var bytes = sha.ComputeHash( System.Text.Encoding.UTF8.GetBytes( text ) ).Take( 16 ).ToArray();
+            bytes[7] = ( byte ) ( ( bytes[7] & 0x0F ) | 0x40 );
+            bytes[8] = ( byte ) ( ( bytes[8] & 0x3F ) | 0x80 );
+            return new Guid( bytes );
+        }
+
         /// <summary>
         /// A Guid from this stream, so generated records keep the same Guid on every run with the same seed.
         /// </summary>

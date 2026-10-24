@@ -89,5 +89,21 @@
     "fallGroupLaunch": { "month": 9, "weekday": "Sunday", "week": 2 },
     "springGroupLaunch": { "month": 1, "weekday": "Sunday", "week": 3 },
     "serveSunday": { "month": 8, "weekday": "Sunday", "week": 4 }
-  }
+  },
+  "$emailClientsComment": "The email clients people read on, as Mailgun reports them, with their shares. Rock stores each as an interaction device type, and Communication Detail charts opens by client. Each person reads mostly on one client.",
+  "emailClients": [
+    { "name": "Apple Mail", "operatingSystem": "iOS", "clientType": "email client", "deviceType": "mobile", "weight": 38 },
+    { "name": "Gmail", "operatingSystem": "Android", "clientType": "mobile browser", "deviceType": "mobile", "weight": 18 },
+    { "name": "Outlook", "operatingSystem": "Windows", "clientType": "email client", "deviceType": "desktop", "weight": 12 },
+    { "name": "Apple Mail", "operatingSystem": "macOS", "clientType": "email client", "deviceType": "desktop", "weight": 9 },
+    { "name": "Chrome", "operatingSystem": "Windows", "clientType": "browser", "deviceType": "desktop", "weight": 9 },
+    { "name": "Outlook", "operatingSystem": "iOS", "clientType": "email client", "deviceType": "mobile", "weight": 5 },
+    { "name": "Apple Mail", "operatingSystem": "iPadOS", "clientType": "email client", "deviceType": "tablet", "weight": 5 },
+    { "name": "Yahoo Mail", "operatingSystem": "Android", "clientType": "mobile browser", "deviceType": "mobile", "weight": 4 }
+  ],
+  "$castUnsubscribesComment": "Cast people whose stories include an unsubscribe, so tests can find a known case (decision 131). With a list, the person is on it and leaves it from the newest email sent to it at least daysAgo days before install day. With no list, the person is on no list and chooses No mass emails from the newest church-wide email at least daysAgo days before install day.",
+  "castUnsubscribes": [
+    { "person": "DE3E4484-6818-4919-978A-A2A2EBEFC64A", "name": "Kevin Dawson", "list": "men", "daysAgo": 0 },
+    { "person": "21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA", "name": "Brandon Watson", "daysAgo": 100 }
+  ]
 }

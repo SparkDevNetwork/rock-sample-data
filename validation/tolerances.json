@@ -20,7 +20,15 @@
     "personNotes.weekdayMix",
     "personNotes.hourBandMix",
     "personNotes.detail.textLengthP50",
-    "personNotes.detail.textLengthP90"
+    "personNotes.detail.textLengthP90",
+    "communicationDetail.outcomes.Email.pctOpenedOfDelivered",
+    "communicationDetail.engagement.Email",
+    "communicationDetail.responseDelay.Email.Opened",
+    "communicationDetail.links.pctClicksOnTopLinkAvg",
+    "communicationDetail.people.pctEmailsInactive",
+    "communicationDetail.people.pctNoMassEmails",
+    "communicationDetail.people.pctDoNotEmail",
+    "communicationDetail.saturation.byMedium.Email.mass.00"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",

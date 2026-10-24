@@ -52,15 +52,17 @@ namespace RockSampleData.Loader.Loading
 
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
+        private readonly ProfileTargets _profile;
         private readonly AnchorDates _dates;
         private readonly string _dataset;
         private readonly string _foreignKey;
         private readonly string _seed;
 
-        public CommunicationsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string dataset, string foreignKey, string seed )
+        public CommunicationsLoader( RockDatabase db, SampleDataSource source, ProfileTargets profile, AnchorDates dates, string dataset, string foreignKey, string seed )
         {
             _db = db;
             _source = source;
+            _profile = profile;
             _dates = dates;
             _dataset = dataset;
             _foreignKey = foreignKey;
@@ -92,12 +94,20 @@ namespace RockSampleData.Loader.Loading
             var numbers = AddPhoneNumbers( configuration.PhoneNumbers, people, castHouseholdKeys, mainCampusKey );
             _db.Log.Write( $"  Phone numbers: {numbers}" );
 
-            AddTemplate( configuration, people );
+            var (templateId, templateHtml) = AddTemplate( configuration, people );
             _db.Log.Write( $"  Email template: {configuration.Template.Name}" );
 
+            // A Cast story can put a person on a list, or keep them off every list, so their scripted unsubscribe can happen.
+            var forced = configuration.CastUnsubscribes.Where( u => u.List != null ).ToLookup( u => u.List, u => u.Person );
+            var excluded = configuration.CastUnsubscribes.Where( u => u.List == null ).Select( u => u.Person ).ToHashSet();
             var candidates = Candidates( people, familySundays, gifts, prayerTeam, smallGroupTypeId, servingTypeId, configuration.Lists.Membership );
-            var plan = CommunicationListPlanner.Plan( configuration.Lists.Lists, configuration.Lists.Membership, candidates, campusIds.Keys.ToList(), _dates.Anchor, _seed );
+            var plan = CommunicationListPlanner.Plan( configuration.Lists.Lists, configuration.Lists.Membership, candidates, campusIds.Keys.ToList(), _dates.Anchor, _seed, forced, excluded );
             var listIds = AddLists( configuration.Lists, campusIds );
+
+            // Bulk email runs before the members are written, because an unsubscribe makes a member Inactive.
+            var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
+            var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople );
+            emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
             WriteMembers( plan, listIds );
 
             var sizes = plan.GroupBy( m => (m.ListKey, m.CampusKey) ).OrderBy( g => configuration.Lists.Lists.FindIndex( l => l.Key == g.Key.ListKey ) ).ThenBy( g => g.Key.CampusKey, StringComparer.Ordinal )
@@ -182,7 +192,7 @@ VALUES ( @Name, @Description, @Number, 1, @Order, @AssignedTo, 1, 0, 0, 0, @Guid
         /// Adds the logo as a Rock file and the branded template that shows it, the way Rock's template
         /// editor saves a template with an uploaded logo.
         /// </summary>
-        private void AddTemplate( CommunicationsConfiguration configuration, PeopleLoader people )
+        private (int Id, string Html) AddTemplate( CommunicationsConfiguration configuration, PeopleLoader people )
         {
             var template = configuration.Template;
             var now = DateTime.Now;
@@ -215,14 +225,16 @@ VALUES ( @Id, @Content, NEWID(), @ForeignKey, @Now, @Now )",
             var church = configuration.Senders.Church;
             var author = people.People.TryGetValue( church.Sender, out var sender ) ? sender.AliasId : ( int? ) null;
 
-            _db.Execute( @"
+            var templateId = ( int ) _db.Scalar( @"
 INSERT INTO [CommunicationTemplate] ( [Name], [Description], [IsSystem], [FromName], [FromEmail], [Message], [IsActive], [LogoBinaryFileId], [CategoryId],
     [LavaFieldsJson], [CssInliningEnabled], [IsStarter], [Version], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
+OUTPUT INSERTED.[Id]
 VALUES ( @Name, @Description, 0, @FromName, @FromEmail, @Message, 1, @LogoId, @CategoryId,
     @LavaFields, 1, 0, 0, @Guid, @Now, @Now, @Author, @Author, @ForeignKey )",
                 P( "@Name", template.Name ), P( "@Description", template.Description ), P( "@FromName", church.FromName ), P( "@FromEmail", church.FromEmail ),
                 P( "@Message", html ), P( "@LogoId", logoId ), P( "@CategoryId", _db.RequireIdByGuid( "Category", template.CategoryGuid ) ),
                 P( "@LavaFields", JsonSerializer.Serialize( template.LavaFields ) ), P( "@Guid", template.Guid ), P( "@Now", now ), P( "@Author", author ), P( "@ForeignKey", _foreignKey ) );
+            return (templateId, html);
         }
 
         #endregion Template
@@ -387,12 +399,15 @@ VALUES ( 0, @GroupTypeId, @CampusId, @Name, @Description, 0, 1, @IsPublic, @Orde
             var nextId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [GroupMember]" ) );
             var random = new SeededRandom( $"{_seed}:communication-lists:guids" );
             var members = TableFactory.Create( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date",
-                "CommunicationPreference:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+                "CommunicationPreference:int", "InactiveDateTime:date", "Note:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
+            // A member who left from a list email is Inactive, with the note Rock's email preference page writes.
             foreach ( var member in plan )
             {
-                members.Rows.Add( nextId++, false, listIds[(member.ListKey, member.CampusKey)], groupTypeId, member.PersonId, roleId, 1, member.Joined,
-                    member.IsSms ? SmsPreference : EmailPreference, random.NextGuid(), _foreignKey, member.Joined, member.Joined );
+                var left = member.UnsubscribedAt;
+                members.Rows.Add( nextId++, false, listIds[(member.ListKey, member.CampusKey)], groupTypeId, member.PersonId, roleId, left.HasValue ? 0 : 1, member.Joined,
+                    member.IsSms ? SmsPreference : EmailPreference, left.HasValue ? left.Value : ( object ) DBNull.Value, left.HasValue ? "Unsubscribed" : ( object ) DBNull.Value,
+                    random.NextGuid(), _foreignKey, member.Joined, left ?? member.Joined );
             }
 
             _db.BulkInsert( "GroupMember", members, keepIdentity: true );
