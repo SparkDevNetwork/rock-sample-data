@@ -28,7 +28,11 @@
     "communicationDetail.people.pctEmailsInactive",
     "communicationDetail.people.pctNoMassEmails",
     "communicationDetail.people.pctDoNotEmail",
-    "communicationDetail.saturation.byMedium.Email.mass.00"
+    "communicationDetail.saturation.byMedium.Email.mass.00",
+    "communicationDetail.saturation.byMedium.SMS.mass.00",
+    "communicationDetail.sms.threads",
+    "communicationDetail.sms.inbound.pctStopWords",
+    "communicationDetail.sms.inbound.pctFromKnownPerson"
   ],
   "skipped": [
     "giving.refundsPerThousandGifts",
@@ -90,9 +94,13 @@
     },
     "giving.unitAnnualTotalPercentiles.p99": {
       "relative": 0.4
+    },
+    "communicationDetail.sms.threads": {
+      "points": 6
     }
   },
   "$ruleReasons": {
-    "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision 113)."
+    "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision 113).",
+    "communicationDetail.sms.threads": "Part 7 reads thread shapes from a sample of texters, so they move by a few points from one load to the next."
   }
 }
