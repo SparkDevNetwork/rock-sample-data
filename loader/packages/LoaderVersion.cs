@@ -33,12 +33,12 @@ namespace RockSampleData.Loader.Packages
             ?? typeof( LoaderVersion ).Assembly.GetName().Version.ToString( 3 );
 
         /// <summary>
-        /// True when this loader is the given version or newer. A null minimum is met by every loader.
+        /// True when this loader is the given version or newer. A missing or blank minimum is met by every loader.
         /// </summary>
         /// <exception cref="FormatException">The minimum is not a semantic version.</exception>
         public static bool IsAtLeast( string minimum )
         {
-            return minimum == null || Compare( Current, minimum ) >= 0;
+            return string.IsNullOrWhiteSpace( minimum ) || Compare( Current, minimum ) >= 0;
         }
 
         /// <summary>

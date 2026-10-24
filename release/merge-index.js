@@ -178,6 +178,10 @@ function main() {
     const index = readIndex( options.index );
     const key = entry => `${entry.dataset} ${majorOf( entry.rockMajor, entry.rockVersion )}`;
     const replaced = new Set( added.map( key ) );
+    if ( replaced.size !== added.length ) {
+        throw new Error( `${options.packages} has more than one package for the same dataset and Rock major release. release/rock-releases.json lists one Rock release per major.` );
+    }
+
     for ( const hosted of index.packages ) {
         const same = added.find( entry => key( entry ) === key( hosted ) && entry.version === hosted.version );
         if ( same && same.sha256 !== hosted.sha256 ) {
