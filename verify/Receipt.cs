@@ -73,6 +73,11 @@ namespace RockSampleData.Verify
             public string Dataset { get; set; }
 
             public PackageSource Source { get; set; }
+
+            /// <summary>
+            /// The oldest loader that can load the package, from its package.json. The release copies it into the package index.
+            /// </summary>
+            public string MinimumLoaderVersion { get; set; }
         }
 
         public static string PathFor( string packagePath )
@@ -131,9 +136,14 @@ namespace RockSampleData.Verify
                     problems.Add( $"{name}: verification failed ({string.Join( ", ", receipt.Checks.Where( c => !c.Passed ).Select( c => c.Name ) )})." );
                 }
 
-                if ( receipt.Rock?.Migration != manifest.Rock?.Migration || receipt.Rock?.Version != manifest.Rock?.Version )
+                if ( receipt.Rock?.Major != manifest.Rock?.Major || receipt.Rock?.Migration != manifest.Rock?.Migration || receipt.Rock?.Version != manifest.Rock?.Version )
                 {
-                    problems.Add( $"{name}: verified on Rock {receipt.Rock?.Version} ({receipt.Rock?.Migration}), but the package is for Rock {manifest.Rock?.Version} ({manifest.Rock?.Migration})." );
+                    problems.Add( $"{name}: verified on Rock {receipt.Rock?.Version} ({receipt.Rock?.Migration}), but the package is for Rock {manifest.Rock?.Major}, built on {manifest.Rock?.Version} ({manifest.Rock?.Migration})." );
+                }
+
+                if ( receipt.Package?.MinimumLoaderVersion != manifest.MinimumLoaderVersion || string.IsNullOrEmpty( manifest.MinimumLoaderVersion ) )
+                {
+                    problems.Add( $"{name}: the receipt says the package needs loader {receipt.Package?.MinimumLoaderVersion ?? "(none)"}, but its package.json says {manifest.MinimumLoaderVersion ?? "(none)"}. Every published package names its oldest loader." );
                 }
 
                 if ( manifest.Source?.IsModified != false )
