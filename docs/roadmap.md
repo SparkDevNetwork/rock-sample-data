@@ -55,7 +55,7 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 
 ## Next
 
-1. **Close validation gaps.** First-time visitors run low. Teens run low as a share of people. Only 16.5% of Full 7's people are 12 to 17, against 22.7% measured. That is how many teens the Crowd makes, not how often they come, so it needs the Crowd to make more teen children; attendance per person did not move it.
+1. **Close validation gaps.** First-time visitors run low. Three adult age bands miss: too few generated adults are 18 to 24, and too many are 25 to 44, because generated parents are all 25 to 54 (see [Validation](../validation/README.md#where-it-stands)). A later fix can draw the ages of adults without children from what the parents leave of each band.
 2. **Run the giving parity test** against a running Rock: load Full 7, run Rock's Giving Automation job, and compare (see [Validation](../validation/README.md#rock-version-guard)).
 3. **Real Crowd names** from public-domain frequency data by birth decade.
 
