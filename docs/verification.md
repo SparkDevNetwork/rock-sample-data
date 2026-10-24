@@ -164,7 +164,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** This is the most direct answer to "we skip Rock's business logic." Rock itself tells us what it would have done differently. On its first runs it found real loader gaps: primary aliases, known-relationship groups, search keys, sound-alike name entries, family salutations, and inactive dates. The [roadmap](roadmap.md) lists them.
 
-**When it is not judged.** Rock Cleanup recomputes ages and daily counts for today, from SQL Server's `GETDATE`. So the tool judges it only while the database server and the machine running Rock are both on the loads' anchor, checked before and after the job (decision D-anchor-clock-1). Otherwise the check fails with both dates and says to run again. A run that crosses midnight, or an `--anchor` that is not today, lands here instead of reporting false age changes.
+**When it is not judged.** Rock Cleanup recomputes ages and daily counts for today, from SQL Server's `GETDATE`. So the tool judges it only while the database server and the machine running Rock are both on the loads' anchor, checked before and after the job (decision 152). Otherwise the check fails with both dates and says to run again. A run that crosses midnight, or an `--anchor` that is not today, lands here instead of reporting false age changes.
 
 ### Unchanged during run
 

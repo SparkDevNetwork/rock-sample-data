@@ -21,7 +21,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--connection` | Connection string to a fresh Rock database. Required. |
 | `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, and `Communications`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is not the Rock the package was built for, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
-| `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision D-anchor-clock-1). Pin it in tests for identical data. |
+| `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
 | `--years` | Years of attendance and giving history. Defaults to 3. |
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests. Full 7's manifest already lists its Crowd. |

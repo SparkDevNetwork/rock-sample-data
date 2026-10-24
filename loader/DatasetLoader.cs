@@ -75,7 +75,7 @@ namespace RockSampleData.Loader
             using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder, Log = log };
 
             // Every relative date counts back from the anchor. Tests pin it. Without one, it is the database
-            // server's date, the clock Rock Cleanup uses for ages and daily counts (decision D-anchor-clock-1).
+            // server's date, the clock Rock Cleanup uses for ages and daily counts (decision 152).
             var dates = new AnchorDates( options.Anchor ?? db.ServerToday() );
 
             db.BeginTransaction();

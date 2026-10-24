@@ -60,7 +60,7 @@ try
 
     // Each run's own databases carry its tag (by default its worktree's name), so runs from different worktrees never meet.
     var runPrefix = $"{SqlServer.DatabasePrefix}-{RunTag( options.GetValueOrDefault( "run" ) ?? Path.GetFileName( root ) )}";
-    // The database server's date by default: Rock Cleanup, the referee, computes ages and daily counts from that clock (decision D-anchor-clock-1).
+    // The database server's date by default: Rock Cleanup, the referee, computes ages and daily counts from that clock (decision 152).
     var anchor = options.TryGetValue( "anchor", out var anchorText ) ? DateTime.Parse( anchorText ) : sql.Today();
     var seed = options.GetValueOrDefault( "seed", "rock-sample-data" );
     var isRecording = options.ContainsKey( "record-contract" );
