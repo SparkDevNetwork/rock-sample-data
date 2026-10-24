@@ -1,6 +1,6 @@
 # Verify
 
-The verify tool proves that each dataset package works on one exact Rock, and writes a receipt that says so. It runs when packages are made, never when a church installs one (decision 66).
+The verify tool proves that each dataset package works on the Rock release it was built on, and writes a receipt that says so. A package serves every dot release of that Rock's major release (decision 52), so each new dot release gets a verify run before a church uses it. It runs when packages are made, never when a church installs one (decision 66).
 
 The loader bulk-copies around Rock's business logic. That is what makes it fast, but it also means Rock never gets a chance to say "this is wrong." So the proof has to come from somewhere else. The verify tool gets it from Rock itself: a database made only by Rock's own migrations and start-up steps, Rock's own column list, and Rock's own Rock Cleanup job.
 
@@ -91,7 +91,7 @@ The verify tool runs `cast/validate-cast.js` and `validation/check-standards.js`
 
 ## Receipts and the publishing gate
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, the Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
 
 Publishing runs the gate first:
 

@@ -60,9 +60,16 @@ namespace RockSampleData.Loader.Packages
         public PackageSource Source { get; set; }
 
         /// <summary>
-        /// The one Rock version this package is for. The loader refuses any other.
+        /// The Rock major release this package is for, and the exact Rock it was built and verified on.
+        /// The loader refuses a database on any other major release.
         /// </summary>
         public PackageRock Rock { get; set; }
+
+        /// <summary>
+        /// The oldest loader that can load this package, for example "0.1.0-alpha.13". An older loader
+        /// refuses it. Null in packages built before loaders checked it.
+        /// </summary>
+        public string MinimumLoaderVersion { get; set; }
 
         /// <summary>
         /// Every file in the package except package.json, with its SHA-256 (lowercase hex), in ordinal order.
@@ -92,15 +99,27 @@ namespace RockSampleData.Loader.Packages
     public sealed class PackageRock
     {
         /// <summary>
-        /// The Rock version, for example "21.0.1". For people and the download list.
+        /// The Rock major release the package is for, for example 21. Rock's rule is no model changes
+        /// in a dot release, so one package serves every Rock 21 (decision 52). 0 in packages
+        /// built before this field, whose major comes from <see cref="Version"/>.
+        /// </summary>
+        public int Major { get; set; }
+
+        /// <summary>
+        /// The exact Rock the package was built and verified on, for example "21.0.2".
         /// </summary>
         public string Version { get; set; }
 
         /// <summary>
         /// The newest Entity Framework migration in that Rock, for example
-        /// "202609222138362_AddWorkflowBuilder". A Rock database stores no version number,
-        /// so the loader compares this with the database's newest migration.
+        /// "202610141827486_CodeGenerated_20261014". Loaders before 0.1.0-alpha.13 refuse a database
+        /// whose newest migration differs, so it stays for them. Newer loaders compare the major release.
         /// </summary>
         public string Migration { get; set; }
+
+        /// <summary>
+        /// The major release, read from <see cref="Version"/> in a package built before <see cref="Major"/>.
+        /// </summary>
+        internal int? MajorRelease => Major > 0 ? Major : RockVersionInfo.MajorOf( Version );
     }
 }

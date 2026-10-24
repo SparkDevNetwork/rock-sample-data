@@ -1,6 +1,6 @@
 # {{name}} sample data package
 
-This package installs the **{{name}}** dataset (`{{dataset}}`) of Rock Sample Data into a fresh Rock database. It is for Rock {{rockVersion}} (newest migration `{{rockMigration}}`). The loader refuses any other Rock.
+This package installs the **{{name}}** dataset (`{{dataset}}`) of Rock Sample Data into a fresh Rock database. It is for every Rock {{rockMajor}} release, and was verified on Rock {{rockVersion}}. The loader refuses any other major release of Rock. It needs loader {{minimumLoaderVersion}} or newer.
 
 All the people, families, and organizations in it are fictional.
 
@@ -17,7 +17,7 @@ The package holds the inputs, not the records. It has no attendance rows, gifts,
 | `addresses/pool.json` | Real-street addresses with house numbers that do not exist |
 | `photos/` | Profile photos, and a photo of each Cast small group |
 | `content/fonts/` | Fonts for the scanned check images, with their licenses |
-| `package.json` | The format version, the Rock this package is for, and a SHA-256 for every file |
+| `package.json` | The format version, the Rock major release this package is for, the oldest loader that can load it, and a SHA-256 for every file |
 | `LICENSE.md` | The license for this data |
 
 ## What the loader makes from it
@@ -52,7 +52,7 @@ The loader library (`RockSampleData.Loader`) and its command line both install p
 rock-sample-data-load --package {{dataset}}.zip --connection "<connection string>" [--anchor yyyy-MM-dd] [--seed text]
 ```
 
-Before it writes anything, the loader checks the format version, every file's SHA-256, that the database has no people beyond a new Rock install, and that it is Rock {{rockVersion}}. The load runs in one transaction, so a failure leaves nothing behind. Every row it writes carries `ForeignKey = SampleData:{{dataset}}`.
+Before it writes anything, the loader checks the format version, that it is loader {{minimumLoaderVersion}} or newer, every file's SHA-256, that the database has no people beyond a new Rock install, and that its Rock is a Rock {{rockMajor}} release. It reads Rock's version from `Rock.Version.dll`. The load runs in one transaction, so a failure leaves nothing behind. Every row it writes carries `ForeignKey = SampleData:{{dataset}}`.
 
 ## More
 

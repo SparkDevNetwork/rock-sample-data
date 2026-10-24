@@ -137,6 +137,7 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 - Keep every random choice seeded, so the same seed and anchor give the same data.
 - Keep packages data only. A file the loader needs goes into the package through the builder, and the loader reads it through the package, never from the repository.
 - If a change alters the package layout in a way an older loader cannot read, raise the package format version.
+- If packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads, raise `SampleDataPackage.MinimumLoaderVersion` to the release that will ship the change, and the loader project's `Version` with it (decision 158). A Rock keeps the loader it shipped with, so without this an older Rock would download a package it cannot load.
 - Run validation on Full 7 before and after your change. A change should not lower the share of values within tolerance without a written reason. See [Validation](../validation/README.md).
 
 ## Publishing a release
@@ -145,8 +146,8 @@ The release workflow, `.github/workflows/release.yml`, publishes everything (dec
 
 | Job | Where | What it does |
 |---|---|---|
-| Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`. |
-| Packages for Rock X | Windows, once per Rock release | Checks out that Rock, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
+| Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`, with each one's major release. Refuses two releases for one major, and, for a run that publishes, a version below the packages' minimum loader version (`release/check-minimum-loader.js`). |
+| Packages for Rock X | Windows, once per Rock major release | Checks out that major's Rock release, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
 | Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs the loader (`SparkDevNetwork.Rock.SampleData.Loader`) with the release version, Source Link, symbols, the license, and the README. |
 | Publish | Windows, in the `release` environment | Runs the gate again, pushes the loader to nuget.org, uploads the packages and receipts, then merges and uploads the index last. |
 
@@ -154,7 +155,7 @@ A run without "publish" stops after the first three jobs. That is a dry run.
 
 ### Release a version
 
-1. Make sure `main` has what you want to ship, and that `release/rock-releases.json` lists every Rock release to support.
+1. Make sure `main` has what you want to ship, and that `release/rock-releases.json` lists every Rock major release to support, each at its newest dot release.
 2. Do a dry run first: in GitHub, open Actions > Release > Run workflow, pick `main`, and leave "publish" off.
 3. Tag `main` and push the tag:
 
@@ -200,12 +201,25 @@ Open the failed run in Actions, find the first failed step, and match it here.
 | Sign in to nuget.org | The trusted publishing policy does not match: owner `SparkDevelopmentNetwork`, repository `SparkDevNetwork/rock-sample-data`, workflow `release.yml`, environment `release`, package `SparkDevNetwork.Rock.SampleData.Loader`, and `NUGET_USER` the user who made the policy. | Fix the policy or the variable, then "Re-run failed jobs". |
 | Sign in to Azure: `AADSTS700213: No matching federated identity record` | The app's trust record does not match GitHub's token subject. This repository uses the immutable subject with IDs. | Set the trust as in step 2 of the one-time setup, then "Re-run failed jobs". |
 | Upload the packages and receipts: "already published with other bytes" | This version is already on storage with different files, so the run would change a published package. | Never overwrite it. Tag the next version. |
+| Read the version and the Rock releases: "is below SampleDataPackage.MinimumLoaderVersion" | The tag is older than the loader the packages need, so its loader would refuse its own packages (decision 158). Nothing was built. | Delete the tag, since nothing was published, and tag the minimum version or later. |
+| Read the version and the Rock releases: "two Rock releases for one major release" | `release/rock-releases.json` lists two dot releases of one major. Each major gets one package set (decision 52). | Keep only that major's newest dot release, on a branch, and run again. |
 
 A re-run skips what is already published, so "Re-run failed jobs" is safe after any fix outside the repository. It needs one approval again.
 
 ### Add or change a Rock release
 
-Each entry in `release/rock-releases.json` is a Rock version and the `ref` to check out from SparkDevNetwork/Rock: a release tag, or a full commit hash before Rock tags the release. The workflow stops if the ref's `Directory.Build.props` names a different version. When Rock publishes the tag for a pinned commit, change the `ref` to the tag.
+A package serves every dot release of one Rock major release (decision 52), so `release/rock-releases.json` has one entry per major. Each entry is that major's newest dot release, a Rock version such as `21.0.2`, and the `ref` to check out from SparkDevNetwork/Rock: a release tag, or a full commit hash before Rock tags the release. The packages are built and verified on it and published under `rock-{major}`. The workflow stops if the ref's `Directory.Build.props` names a different version. When Rock publishes the tag for a pinned commit, change the `ref` to the tag.
+
+Today it lists Rock 21 (21.0.2, a develop commit) and Rock 20 (20.0.10, a release-20.0 commit), so each release has two Packages jobs, run side by side.
+
+When Rock ships a new dot release of a supported major:
+
+1. Change that major's entry to the new version and ref, on a branch.
+2. Build the new Rock and run the verify tool against it, as the dry run does.
+3. If every package passes, land the change. Churches on the new dot release already get the published packages, so no release is needed. The next release builds on the new dot release.
+4. If a check fails, fix it on the branch and release a new version. Its packages replace that major's in the index.
+
+To support a new major release, add an entry for it. Its packages appear in the next release beside the other majors'.
 
 ### Where files go
 
@@ -213,8 +227,8 @@ Everything goes in the `sampledata` container, which `storage.rockrms.com` serve
 
 | Path | What it is | Cache |
 |---|---|---|
-| `packages/v1.0.0/rock-21.0.2/core-1.zip` | A package. Never changes. | One year |
-| `packages/v1.0.0/rock-21.0.2/core-1.verify.json` | Its receipt. Never changes. | One year |
+| `packages/v1.0.0/rock-21/core-1.zip` | A package, for every Rock 21 release. Never changes. Releases up to `v0.1.0-alpha.12` used the exact Rock version, such as `rock-21.0.2`. | One year |
+| `packages/v1.0.0/rock-21/core-1.verify.json` | Its receipt. Never changes. | One year |
 | `packages/index.json` | The index Rock reads (format in the [loader README](../loader/README.md#the-package-index)). | 5 minutes |
 | `packages/index-prerelease.json` | The stable index plus the newest prerelease. | 5 minutes |
 

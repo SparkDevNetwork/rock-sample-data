@@ -151,7 +151,7 @@ and push. Ask me before anything that removes or rewrites history.
 - **Every campus has businesses** that give, each with one or two contacts. The main campus has at least 6 and every other campus at least 2.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
 - **Realism is measured.** The same scripts that measure real churches grade our data. Today 91% of measured values fall within tolerance, including serving, connections, and prayer.
-- **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of its exact Rock release, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
+- **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of the Rock release it is built on, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
 - **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today.
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
@@ -171,7 +171,7 @@ and push. Ask me before anything that removes or rewrites history.
 | [builder/](builder/README.md) | The .NET tool that turns this repository into one dataset package per dataset. |
 | [loader/](loader/README.md), `loader-cli/`, `loader-compat-check/` | The loader library that installs a package into a Rock database (for .NET 10 and for Rock's .NET Framework, as the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package), its command line for developers and test harnesses, and the check that both builds compute the same keys. |
 | [validation/](validation/README.md) | Tolerances and the script that grades generated data, plus the invariants, contract, and standards check the verify tool uses. |
-| [verify/](verify/README.md) | The tool that proves each package works on one exact Rock and writes its receipt. Publishing needs a passing receipt. |
+| [verify/](verify/README.md) | The tool that proves each package works on the Rock it is built on and writes its receipt. Publishing needs a passing receipt. |
 | [release/](release/README.md) | The Rock releases each release builds for, and the script that merges a release into the hosted package index. `.github/workflows/release.yml` publishes the packages and the loader on a version tag. How to release, what has shipped, and how to fix a failed run: [Publishing a release](docs/maintaining.md#publishing-a-release). |
 | [datasets/](datasets/README.md) | One manifest per dataset, with its settings. |
 | [content/](content/README.md) | Fonts for check images, and later the text pools. |
@@ -194,11 +194,11 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    dotnet run -- --rock C:\Development\Rock
    ```
 
-3. Load Core 1 into a fresh Rock database. Add `--dry-run` to roll everything back at the end. If your database is on a different migration than the checkout, add `--any-rock`.
+3. Load Core 1 into a fresh Rock database. `--rock` names your built Rock checkout, so the loader can read its version from `RockWeb\bin\Rock.Version.dll`. Add `--dry-run` to roll everything back at the end. If your database is on another Rock major release than the checkout, add `--any-rock`.
 
    ```
    cd ../loader-cli
-   dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
+   dotnet run -- --package ../packages/core-1.zip --rock C:\Development\Rock --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
    ```
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.

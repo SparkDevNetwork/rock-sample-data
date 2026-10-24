@@ -24,7 +24,7 @@ using RockSampleData.Loader.Validation;
 using RockSampleData.Verify;
 
 /*
-    The verify tool: proves that dataset packages work on one exact Rock, and writes a receipt for each.
+    The verify tool: proves that dataset packages work on the Rock release they were built on, and writes a receipt for each.
     It runs when packages are made, never when a church installs one. See README.md.
 
     Usage:
@@ -71,6 +71,15 @@ try
     if ( isRecording && !isEveryDataset )
     {
         throw new InvalidOperationException( "--record-contract needs every dataset, so the contract covers everything the loader writes." );
+    }
+
+    // The loader gets the Rock version from RockWeb\bin\Rock.Version.dll, as Rock's installer gets its own (decision 52).
+    // A different version from the checkout's props means RockWeb\bin was built from other code.
+    var rockMajor = RockVersionInfo.MajorOf( rock.Version ) ?? throw new InvalidOperationException( $"The checkout's version {rock.Version} does not start with a major release number." );
+    var builtRockVersion = RockVersionInfo.Read( Path.Combine( rock.BinPath, $"{RockVersionInfo.AssemblyName}.dll" ) );
+    if ( builtRockVersion != rock.Version )
+    {
+        throw new InvalidOperationException( $"RockWeb\\bin\\{RockVersionInfo.AssemblyName}.dll is Rock {builtRockVersion}, but the checkout is Rock {rock.Version}. Rebuild Rock." );
     }
 
     Console.WriteLine( $"Verifying {string.Join( ", ", datasets )} on Rock {rock.Version} (newest migration {rock.NewestMigration}) in {runPrefix}-* databases" );
@@ -124,9 +133,9 @@ try
             throw new InvalidOperationException( $"{packagePath} holds dataset {package.Manifest.Dataset}, not {dataset}." );
         }
 
-        if ( package.Manifest.Rock?.Version != rock.Version || package.Manifest.Rock?.Migration != rock.NewestMigration )
+        if ( package.Manifest.Rock?.Major != rockMajor || package.Manifest.Rock?.Version != rock.Version || package.Manifest.Rock?.Migration != rock.NewestMigration )
         {
-            throw new InvalidOperationException( $"{packagePath} is for Rock {package.Manifest.Rock?.Version} ({package.Manifest.Rock?.Migration}), not this checkout's {rock.Version} ({rock.NewestMigration}). Build packages from the same checkout." );
+            throw new InvalidOperationException( $"{packagePath} is for Rock {package.Manifest.Rock?.Major}, built on {package.Manifest.Rock?.Version} ({package.Manifest.Rock?.Migration}), not this checkout's {rock.Version} ({rock.NewestMigration}). Build packages from the same checkout." );
         }
 
         Console.WriteLine( $"\n{dataset}" );
@@ -145,6 +154,7 @@ try
                 Seed = seed,
                 Progress = new ConsoleProgress(),
                 RockWebConfigPath = rock.WebConfigPath,
+                RockVersion = builtRockVersion,
                 Recorder = recorder
             } );
             checks.Add( CheckResult.From( "load", $"Loaded into a copy of the trusted base in {load.Elapsed.TotalSeconds:N0} seconds", new List<string>() ) );
@@ -226,8 +236,8 @@ try
         var receipt = new Receipt
         {
             Passed = all.All( c => c.Passed ),
-            Package = new Receipt.ReceiptPackage { File = Path.GetFileName( packagePath ), Sha256 = sha256, Dataset = dataset, Source = manifest.Source },
-            Rock = new PackageRock { Version = rock.Version, Migration = rock.NewestMigration },
+            Package = new Receipt.ReceiptPackage { File = Path.GetFileName( packagePath ), Sha256 = sha256, Dataset = dataset, Source = manifest.Source, MinimumLoaderVersion = manifest.MinimumLoaderVersion },
+            Rock = new PackageRock { Major = rockMajor, Version = rock.Version, Migration = rock.NewestMigration },
             VerifiedAt = DateTime.UtcNow,
             Anchor = anchor.ToString( "yyyy-MM-dd" ),
             Seed = seed,

@@ -93,9 +93,16 @@ namespace RockSampleData.Loader
         public bool IsDryRun { get; set; }
 
         /// <summary>
-        /// True loads even when the database's newest migration is not the one the package was
-        /// built for, with a warning. For development databases, where new migrations land often.
-        /// Rock's own installer leaves this false.
+        /// The Rock the database belongs to, for example "20.0.10", from Rock's Rock.Version assembly.
+        /// Rock passes VersionInfo.GetRockSemanticVersionNumber(); outside Rock, read it with
+        /// <see cref="RockVersionInfo.Read"/>. Null reads it from the Rock.Version assembly this process
+        /// runs, which only works inside Rock. A package loads only on its own Rock major release.
+        /// </summary>
+        public string RockVersion { get; set; }
+
+        /// <summary>
+        /// True loads even when the database's Rock is another major release than the package's, or is
+        /// unknown, with a warning. For development databases. Rock's own installer leaves this false.
         /// </summary>
         public bool IsAnyRockVersionAllowed { get; set; }
 

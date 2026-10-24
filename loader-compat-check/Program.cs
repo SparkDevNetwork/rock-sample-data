@@ -32,8 +32,9 @@ using RockSampleData.Loader.Packages;
       dotnet run --project loader-compat-check -f net472
 
     Both must pass, which proves the .NET Framework build gives the same bytes as the .NET 10 build.
-    The last two checks read a package index from before the card fields joined it and one with fields
-    this loader does not know, so both builds stay able to read an older and a newer index.
+    The package index checks read an index from before the card fields joined it and one with fields
+    this loader does not know, so both builds stay able to read an older and a newer index. The last ones
+    check the order of loader versions and which index entries this loader may install on a Rock.
 */
 
 // Rock's Encryption salt and HKDF label, as in loader/database/RockKeys.cs and Rock/Security/Encryption.cs.
@@ -77,7 +78,23 @@ var checks = new (string Name, string Actual, string Expected)[]
         "core-1||0|185|0|1|0"),
     ("Package index with the card fields and fields this loader does not know",
         Card( SampleDataPackageIndex.Parse( Index( "\"bestFor\": \"Tests.\", \"highlights\": [ \"Photos\", \" \", \"Giving\" ], \"households\": 87, \"typicalInstallSeconds\": 10, \"futureField\": { \"nested\": [ 1, 2 ] }," ) ) ),
-        "core-1|Tests.|2|185|87|1|10")
+        "core-1|Tests.|2|185|87|1|10"),
+    ("Loader versions in order",
+        string.Join( ",", new[] { "1.0.0", "0.1.0-alpha.13", "0.1.0", "0.1.0-alpha.9", "1.0.0-rc.1", "0.1.0-beta", "0.1.0-alpha.13+abc" }
+            .OrderBy( v => v, Comparer<string>.Create( LoaderVersion.Compare ) ) ),
+        "0.1.0-alpha.9,0.1.0-alpha.13,0.1.0-alpha.13+abc,0.1.0-beta,0.1.0,1.0.0-rc.1,1.0.0"),
+    ("Rock major releases",
+        $"{RockVersionInfo.MajorOf( "20.0.10" )}|{RockVersionInfo.MajorOf( "21" )}|{RockVersionInfo.MajorOf( "Rock 21" )?.ToString() ?? "none"}",
+        "20|21|none"),
+    ("Package index entry from before rockMajor, on Rock 21.0.5 and 20.0.10",
+        Installable( SampleDataPackageIndex.Parse( Index( "" ) ) ),
+        "21|none|True|False"),
+    ("Package index entry for Rock 21 with a minimum loader this loader meets",
+        Installable( SampleDataPackageIndex.Parse( Index( "\"rockMajor\": 21, \"minimumLoaderVersion\": \"0.1.0-alpha.1\"," ) ) ),
+        "21|0.1.0-alpha.1|True|False"),
+    ("Package index entry that needs a newer loader",
+        Installable( SampleDataPackageIndex.Parse( Index( "\"rockMajor\": 21, \"minimumLoaderVersion\": \"99.0.0\"," ) ) ),
+        "21|99.0.0|False|False")
 };
 
 var failures = 0;
@@ -105,6 +122,12 @@ static byte[] Range( int start, int count ) => Enumerable.Range( start, count ).
 static string Index( string cardFields ) =>
     "{ \"formatVersion\": 1, \"futureRootField\": true, \"packages\": [ { \"dataset\": \"core-1\", \"name\": \"Core 1\", \"people\": 185, \"campuses\": 1, " + cardFields +
     " \"version\": \"1.0.0\", \"url\": \"v1.0.0/rock-21.0.2/core-1.zip\", \"sha256\": \"" + new string( 'a', 64 ) + "\", \"size\": 1, \"rockVersion\": \"21.0.2\", \"rockMigration\": \"202610141827486_CodeGenerated_20261014\" } ] }";
+
+static string Installable( SampleDataPackageIndex index )
+{
+    var entry = index.Packages.Single();
+    return $"{entry.RockMajor}|{entry.MinimumLoaderVersion ?? "none"}|{entry.IsInstallableOn( "21.0.5" )}|{entry.IsInstallableOn( "20.0.10" )}";
+}
 
 static string Card( SampleDataPackageIndex index )
 {
