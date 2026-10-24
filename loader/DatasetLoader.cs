@@ -72,10 +72,12 @@ namespace RockSampleData.Loader
             var keys = ReadKeys( options );
             var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) ) };
 
-            // Every relative date counts back from the anchor. Tests pin it.
-            var dates = new AnchorDates( options.Anchor ?? DateTime.Today );
-
             using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder, Log = log };
+
+            // Every relative date counts back from the anchor. Tests pin it. Without one, it is the database
+            // server's date, the clock Rock Cleanup uses for ages and daily counts (decision D-anchor-clock-1).
+            var dates = new AnchorDates( options.Anchor ?? db.ServerToday() );
+
             db.BeginTransaction();
             try
             {

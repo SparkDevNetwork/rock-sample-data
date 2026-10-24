@@ -60,7 +60,8 @@ try
 
     // Each run's own databases carry its tag (by default its worktree's name), so runs from different worktrees never meet.
     var runPrefix = $"{SqlServer.DatabasePrefix}-{RunTag( options.GetValueOrDefault( "run" ) ?? Path.GetFileName( root ) )}";
-    var anchor = options.TryGetValue( "anchor", out var anchorText ) ? DateTime.Parse( anchorText ) : DateTime.Today;
+    // The database server's date by default: Rock Cleanup, the referee, computes ages and daily counts from that clock (decision D-anchor-clock-1).
+    var anchor = options.TryGetValue( "anchor", out var anchorText ) ? DateTime.Parse( anchorText ) : sql.Today();
     var seed = options.GetValueOrDefault( "seed", "rock-sample-data" );
     var isRecording = options.ContainsKey( "record-contract" );
     var allDatasets = Directory.GetFiles( Path.Combine( root, "datasets" ), "*.json" ).Select( Path.GetFileNameWithoutExtension ).OrderBy( k => k, StringComparer.Ordinal ).ToList();
@@ -160,7 +161,10 @@ try
             var card = seed == new DatasetLoadOptions().Seed ? SampleDataDatasets.Get( dataset ) : null;
             checks.Add( Invariants.Run( sql, database, foreignKey, card, Path.Combine( root, "validation", "invariants.sql" ) ) );
             stage = "rock-cleanup";
-            checks.Add( referee.Referee( database, baseDatabase ) );
+            // Rock Cleanup recomputes ages and daily counts for "today", so it can only judge a load anchored to today.
+            // Checked before and after, because the job itself takes minutes and the date can change while it runs.
+            var cleanup = ClockCheck( sql, anchor ) ?? referee.Referee( database, baseDatabase );
+            checks.Add( ClockCheck( sql, anchor ) ?? cleanup );
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
@@ -245,6 +249,27 @@ catch ( Exception ex ) when ( ex is InvalidOperationException || ex is IOExcepti
 {
     Console.Error.WriteLine( $"Verification stopped. {ex.Message}" );
     return 1;
+}
+
+/// <summary>
+/// Null when the database server and this machine are both on the anchor's date, so Rock Cleanup's ages and
+/// daily counts can be compared with the load. Otherwise a failed rock-cleanup check that names the dates,
+/// instead of the false data changes Rock Cleanup would report. A run that crosses midnight lands here.
+/// </summary>
+static CheckResult ClockCheck( SqlServer sql, DateTime anchor )
+{
+    var serverToday = sql.Today();
+    var machineToday = DateTime.Today;
+    if ( serverToday == anchor.Date && machineToday == anchor.Date )
+    {
+        return null;
+    }
+
+    return CheckResult.From( "rock-cleanup", "Rock Cleanup was not judged: today's date is not the loads' anchor", new List<string>
+    {
+        $"The loads were anchored to {anchor:yyyy-MM-dd}, but the database server says {serverToday:yyyy-MM-dd} and this machine says {machineToday:yyyy-MM-dd}.",
+        "Rock Cleanup recomputes ages and daily counts for today, so it would report false changes. If the date changed during the run, run it again. Otherwise leave --anchor out, and keep the database server and this machine in one time zone."
+    } );
 }
 
 /// <summary>
