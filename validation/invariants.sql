@@ -732,6 +732,33 @@ SELECT ABS( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [
         WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [cr].[SendDateTime] IS NOT NULL )
     - ( SELECT COUNT(*) FROM [History] AS [h] WHERE [h].[ForeignKey] = @ForeignKey AND [h].[Verb] = 'SENT' AND [h].[ValueName] = 'Communication' ) );
 
+-- check: serving-email-follows-a-request
+-- why: Decision D-commsoneone-1. Rock's Send Group Schedule Notifications job sends a confirmation the day a volunteer is asked to serve, and a reminder two days before a Sunday they did not decline. Each one-to-one serving email has the request it came from, and one recipient.
+SELECT COUNT(*)
+FROM [Communication] AS [c]
+INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [c].[SystemCommunicationId]
+WHERE [c].[ForeignKey] = @ForeignKey AND [sc].[Guid] IN ( 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC', '8A20FE79-B73C-447A-82B1-416F9B50C038' )
+    AND ( ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] ) <> 1
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [CommunicationRecipient] AS [cr]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+            INNER JOIN [PersonAlias] AS [aa] ON [aa].[PersonId] = [pa].[PersonId]
+            INNER JOIN [Attendance] AS [a] ON [a].[PersonAliasId] = [aa].[Id]
+            WHERE [cr].[CommunicationId] = [c].[Id] AND [a].[RequestedToAttend] = 1
+                AND ( ( [sc].[Guid] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND CONVERT( DATE, [a].[CreatedDateTime] ) = CONVERT( DATE, [c].[SendDateTime] ) AND [a].[ScheduleConfirmationSent] = 1 )
+                    OR ( [sc].[Guid] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND CONVERT( DATE, [a].[StartDateTime] ) = CONVERT( DATE, DATEADD( DAY, 2, [c].[SendDateTime] ) ) AND [a].[ScheduleReminderSent] = 1 AND ISNULL( [a].[RSVP], 3 ) <> 0 ) ) ) );
+
+-- check: one-to-one-email-skips-do-not-email
+-- why: Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". Every one-to-one email to a person on "Do not email" failed.
+SELECT COUNT(*)
+FROM [CommunicationRecipient] AS [cr]
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [c].[CommunicationType] = 1 AND [c].[IsBulkCommunication] = 0 AND [p].[EmailPreference] = 2
+    AND [cr].[Status] <> 2;
+
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
 SELECT COUNT(*)

@@ -207,6 +207,13 @@ namespace RockSampleData.Loader
         /// </summary>
         public List<CastThread> ReadCastThreads() => Files.Exists( CastThreadsPath ) ? Read<CastThreadFile>( CastThreadsPath ).Threads : new List<CastThread>();
 
+        public const string CastStaffEmailsPath = "cast/staff-emails.json";
+
+        /// <summary>
+        /// Reads the Cast staff's hand-written personal emails, or none for a package built before they existed.
+        /// </summary>
+        public List<CastStaffEmail> ReadCastStaffEmails() => Files.Exists( CastStaffEmailsPath ) ? Read<CastStaffEmailFile>( CastStaffEmailsPath ).Emails : new List<CastStaffEmail>();
+
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
         /// </summary>

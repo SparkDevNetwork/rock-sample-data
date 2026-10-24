@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. The setup, bulk email, and texts are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, and two years of texts and SMS conversations. One-to-one messages, push, and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, and D-commstexts-1 to D-commstexts-3 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. The setup, bulk email, texts, and one-to-one emails are built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, and two years of one-to-one email. Push and step messages are still a plan. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, D-commstexts-1 to D-commstexts-3, and D-commsoneone-1 to D-commsoneone-2 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -126,12 +126,15 @@ Texts follow Rock's Twilio path (decision D-commstexts-1). On Full 7 there are a
 
 ## One-to-one messages
 
-Most messages a real church sends go to one person. These come from data that is already loaded:
+Most messages a real church sends go to one person (decision D-commsoneone-1). These come from data that is already loaded, over the same 2 years as bulk email. Each is its own communication with one recipient. On Full 7 there are about 120,000, almost all of them serving emails. Core 1 has about 5,400.
 
-- **Serving.** Schedule confirmations and reminders for every scheduled serve, by each volunteer's preferred medium.
-- **Connections.** Follow-up emails and texts from connectors.
-- **Prayer.** "Your prayer was answered" emails.
-- **Staff.** Personal emails from Cast staff to Cast people, tied to their stories.
+- **Serving.** A confirmation the day a volunteer is asked to serve, and a reminder at 4 p.m. two days before each Sunday they did not decline. Both come from the system communications Rock's Send Group Schedule Notifications job uses, so each email links to its system communication. They are email for everyone: Rock sends a texter an email when the system communication has no text message, and Rock ships none. The stored message is the library's short version, without Rock's global email header and footer, so the database stays small.
+- **Connections.** An email from the connector each time they log "Contacted Waiting for Response" on a request.
+- **Prayer.** A celebration email to the person who asked when their request is answered.
+- **First visits.** A welcome the Monday after a generated adult's first Sunday, from their campus pastor on Full 7, or Ted Decker otherwise.
+- **Staff** (decision D-commsoneone-2). Fourteen personal emails from Cast staff to Cast people in [cast/staff-emails.json](../cast/staff-emails.md), each tied to a Cast story. Each comes from the staff member by name and their own email address.
+
+One-to-one emails go through the bulk email planner, so they follow the same rules. A person on "No mass emails" still gets them. A person on "Do not email", with no email, or with an address that bounced gets the note Rock writes instead. A personal email is opened a little more often than a mass email.
 
 ## Messages tied to steps
 
@@ -172,11 +175,12 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
+- **One-to-one invariants (built):** every serving email has the request it came from and one recipient, and no one on "Do not email" got a one-to-one email.
 - **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
 - **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
-- **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped.
+- **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped. Each Cast staff email shows in the person's Communication History, delivered, from the staff member, on its day.
 - **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision D-commstexts-3).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 
@@ -188,7 +192,7 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 2. **Setup.** System phone numbers, communication lists with membership that follows involvement, topics, the sample church template, and the message library. Done.
 3. **Bulk email.** Sends flagged bulk with a sender, reviewer, and topic, recipients with their own send time, opens, clicks, failures, and unsubscribes that follow Rock's rules with matching History. Validation starts grading saturation. Done.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
-5. **One-to-one messages.** Serving, connections, prayer, and staff messages.
+5. **One-to-one messages.** Serving, connections, prayer, first visits, and staff messages. Done.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens.
 7. **Steps.** Step messages and the finished Communication Flow, after steps land.
 

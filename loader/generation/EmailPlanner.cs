@@ -270,6 +270,43 @@ namespace RockSampleData.Loader.Generation
 
         #endregion Schedule
 
+        #region One-to-one
+
+        /// <summary>
+        /// One person's copy of a one-to-one email, planned the way a bulk send's recipient is, but with no unsubscribe and
+        /// no bulk refusal: Rock sends a personal email to someone on "No mass emails". Call it after <see cref="Plan"/>,
+        /// so bounces before the send are known.
+        /// </summary>
+        public void PlanOneToOne( PlannedEmail send, EmailPerson person, string seed )
+        {
+            var random = new SeededRandom( seed );
+            var recipient = new PlannedRecipient { Person = person, Seed = seed, Guid = SeededRandom.StableGuid( $"{seed}:recipient" ), HistoryGuid = SeededRandom.StableGuid( $"{seed}:history" ) };
+            send.Recipients.Add( recipient );
+            var refusal = !person.HasEmail ? "No Email Address"
+                : !person.EmailActive || ( person.HasBounced && Bounces[person.PersonId] < send.Sent ) ? "Recipient Email Address is not active"
+                : person.Preference == 2 ? "Communication Preference of 'Do Not Send Communication'"
+                : null;
+            if ( refusal != null )
+            {
+                recipient.Status = Failed;
+                recipient.StatusNote = refusal;
+                return;
+            }
+
+            recipient.SendDateTime = send.Sent;
+            recipient.Status = Delivered;
+            recipient.DeliveredDateTime = send.Sent.AddSeconds( random.Between( 2, 40 ) );
+            recipient.StatusNote = $"Confirmed delivered by Mailgun at {recipient.DeliveredDateTime.Value.ToString( "M/d/yyyy h:mm:ss tt", System.Globalization.CultureInfo.InvariantCulture )}";
+            PlanEngagement( send, recipient, random, false, OneToOneOpenFactor );
+        }
+
+        /// <summary>
+        /// A personal email gets opened more often than a mass email does.
+        /// </summary>
+        private const double OneToOneOpenFactor = 1.1;
+
+        #endregion One-to-one
+
         #region Recipients
 
         /// <summary>
@@ -444,10 +481,10 @@ namespace RockSampleData.Loader.Generation
         /// Opens and clicks: a reader opens at their own rate, mostly soon after the send, and some click a link.
         /// An unsubscriber always opened first.
         /// </summary>
-        private void PlanEngagement( PlannedEmail send, PlannedRecipient recipient, SeededRandom random, bool mustOpen )
+        private void PlanEngagement( PlannedEmail send, PlannedRecipient recipient, SeededRandom random, bool mustOpen, double openFactor = 1 )
         {
             var person = recipient.Person;
-            if ( !mustOpen && !random.Chance( Math.Min( 0.98, person.OpenRate * _design.SendOpenFactor( send ) ) ) )
+            if ( !mustOpen && !random.Chance( Math.Min( 0.98, person.OpenRate * _design.SendOpenFactor( send ) * openFactor ) ) )
             {
                 return;
             }

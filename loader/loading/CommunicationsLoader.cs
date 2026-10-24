@@ -112,6 +112,10 @@ namespace RockSampleData.Loader.Loading
             // Texts reach list members who did not leave from an email, so they follow email.
             new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople )
                 .Load( configuration, people, candidates, plan, listIds, mainCampusKey, campusIds, emails.Calendar, emails.CampusList );
+
+            // One-to-one emails follow bulk email, so a bounced address fails them too.
+            var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
+            new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, CampusPastors.Pick( generated, mainCampusKey ) );
             WriteMembers( plan, listIds );
             var moved = MoveTextPreferencesWithoutPhones();
             if ( moved > 0 )

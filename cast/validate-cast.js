@@ -19,7 +19,8 @@
     Validates the Cast registry: required fields, Guid format, unique Guids,
     every cross-reference between households and groups, the delivered
     photos in photos/manifest.json, the prayer requests, the notes, and the
-    text threads in sms-threads.json. Prints errors
+    text threads in sms-threads.json, and the staff emails in
+    staff-emails.json. Prints errors
     (exit code 1) and warnings (exit code 0).
 
     Usage: node validate-cast.js
@@ -1074,6 +1075,107 @@ if ( fs.existsSync( smsFile ) ) {
     }
 }
 
+/*
+    Pass 7: the Cast's staff emails (cast/staff-emails.md). Each is one personal email from a staff member
+    in configuration/notes.json to a living Cast person on an active record whose email is active and
+    allows email, dated inside the last two years, with a short subject and a few plain-text paragraphs.
+*/
+const EMAIL_FIELDS = [ "key", "from", "to", "name", "story", "daysAgo", "time", "subject", "body" ];
+const EMAIL_DAYS_AGO = { min: 1, max: 730 };
+const EMAIL_SUBJECT_LENGTH = { min: 10, max: 70 };
+const EMAIL_PARAGRAPHS = { min: 3, max: 8 };
+const EMAIL_PARAGRAPH_LENGTH = { min: 2, max: 400 };
+const STAFF_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "notes.json" ), "utf8" ) ).staff.map( s => s.key );
+
+/**
+ * True when a string is plain printable ASCII with no double hyphen.
+ */
+function isPlainText( text ) {
+    return !/[^ -~]/.test( text ) && !text.includes( "--" );
+}
+
+const staffEmailFile = path.join( castDir, "staff-emails.json" );
+let staffEmailCount = 0;
+if ( fs.existsSync( staffEmailFile ) ) {
+    const emails = JSON.parse( fs.readFileSync( staffEmailFile, "utf8" ) ).emails;
+    if ( !Array.isArray( emails ) || emails.length === 0 ) {
+        errors.push( "staff-emails.json: emails must be a non-empty list." );
+    }
+    const emailKeys = new Set();
+    for ( const e of Array.isArray( emails ) ? emails : [] ) {
+        staffEmailCount++;
+        const owner = `staff-emails.json (${e && e.key})`;
+        if ( !e || typeof e !== "object" || Array.isArray( e ) ) {
+            errors.push( `${owner}: must be an object.` );
+            continue;
+        }
+        for ( const field of EMAIL_FIELDS.filter( f => e[ f ] === undefined ) ) {
+            errors.push( `${owner}: missing ${field}.` );
+        }
+        for ( const field of Object.keys( e ).filter( f => !EMAIL_FIELDS.includes( f ) ) ) {
+            errors.push( `${owner}: unknown field "${field}".` );
+        }
+        if ( !KEY.test( e.key || "" ) || emailKeys.has( e.key ) ) {
+            errors.push( `${owner}: key must be a unique lowercase slug.` );
+        }
+        emailKeys.add( e.key );
+        if ( !STAFF_KEYS.includes( e.from ) ) {
+            errors.push( `${owner}: from "${e.from}" is not a staff key in configuration/notes.json (${STAFF_KEYS.join( ", " )}).` );
+        }
+
+        // The recipient: a living Cast person on an active record, not a duplicate, with an active email that allows email.
+        const entry = people.get( e.to );
+        if ( !entry ) {
+            errors.push( `${owner}: to ${e.to} is not a Cast person.` );
+        }
+        else {
+            const p = entry.person;
+            if ( p.isDeceased || p.recordStatus !== "active" || p.recordType === "business" || entry.household.duplicateOf ) {
+                errors.push( `${owner}: the recipient must be living, on an active record, and not a business or duplicate.` );
+            }
+            if ( !p.email || p.emailIsActive !== true || p.emailDoNotEmail === true ) {
+                errors.push( `${owner}: ${p.firstName} ${p.lastName} needs an email that is active and allows email in ${entry.file}.` );
+            }
+            const name = `${p.nickName || p.firstName} ${p.lastName}`;
+            if ( e.name !== name ) {
+                errors.push( `${owner}: name "${e.name}" does not match the Cast person, "${name}".` );
+            }
+        }
+        if ( typeof e.story !== "string" || !e.story.trim() ) {
+            errors.push( `${owner}: story is empty.` );
+        }
+        if ( !Number.isInteger( e.daysAgo ) || e.daysAgo < EMAIL_DAYS_AGO.min || e.daysAgo > EMAIL_DAYS_AGO.max ) {
+            errors.push( `${owner}: daysAgo must be a whole number from ${EMAIL_DAYS_AGO.min} to ${EMAIL_DAYS_AGO.max}.` );
+        }
+        if ( !TIME.test( e.time || "" ) ) {
+            errors.push( `${owner}: time "${e.time}" is not HH:mm on a 24-hour clock.` );
+        }
+
+        // The subject and body: plain text, short, and a few paragraphs.
+        const subject = typeof e.subject === "string" ? e.subject : "";
+        if ( subject.length < EMAIL_SUBJECT_LENGTH.min || subject.length > EMAIL_SUBJECT_LENGTH.max || subject !== subject.trim() ) {
+            errors.push( `${owner}: subject must be ${EMAIL_SUBJECT_LENGTH.min} to ${EMAIL_SUBJECT_LENGTH.max} characters with no leading or trailing spaces.` );
+        }
+        if ( !isPlainText( subject ) ) {
+            errors.push( `${owner}: subject has characters that are not plain. Use straight quotes, commas, or periods.` );
+        }
+        const body = Array.isArray( e.body ) ? e.body : [];
+        if ( body.length < EMAIL_PARAGRAPHS.min || body.length > EMAIL_PARAGRAPHS.max ) {
+            errors.push( `${owner}: body must have ${EMAIL_PARAGRAPHS.min} to ${EMAIL_PARAGRAPHS.max} paragraphs.` );
+        }
+        body.forEach( ( paragraph, i ) => {
+            const at = `${owner} paragraph ${i + 1}`;
+            const text = typeof paragraph === "string" ? paragraph : "";
+            if ( text.length < EMAIL_PARAGRAPH_LENGTH.min || text.length > EMAIL_PARAGRAPH_LENGTH.max || text !== text.trim() ) {
+                errors.push( `${at}: must be ${EMAIL_PARAGRAPH_LENGTH.min} to ${EMAIL_PARAGRAPH_LENGTH.max} characters with no leading or trailing spaces.` );
+            }
+            if ( !isPlainText( text ) ) {
+                errors.push( `${at}: has characters that are not plain. Use straight quotes, commas, or periods.` );
+            }
+        } );
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -1086,5 +1188,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

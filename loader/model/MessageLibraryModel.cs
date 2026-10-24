@@ -242,6 +242,45 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// cast/staff-emails.json: personal emails from Cast staff to Cast people.
+    /// </summary>
+    internal sealed class CastStaffEmailFile
+    {
+        public List<CastStaffEmail> Emails { get; set; } = new List<CastStaffEmail>();
+    }
+
+    internal sealed class CastStaffEmail
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// A staff key in configuration/notes.json.
+        /// </summary>
+        public string From { get; set; }
+
+        /// <summary>
+        /// The Cast person the email goes to.
+        /// </summary>
+        public Guid To { get; set; }
+
+        public string Name { get; set; }
+
+        public int DaysAgo { get; set; }
+
+        /// <summary>
+        /// The time of day it was sent, such as "10:15".
+        /// </summary>
+        public string Time { get; set; }
+
+        public string Subject { get; set; }
+
+        /// <summary>
+        /// The paragraphs, greeting first and signature last.
+        /// </summary>
+        public List<string> Body { get; set; } = new List<string>();
+    }
+
+    /// <summary>
     /// cast/sms-threads.json: the Cast's hand-written text conversations.
     /// </summary>
     internal sealed class CastThreadFile

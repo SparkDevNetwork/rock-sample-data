@@ -29,7 +29,7 @@ const inside = [
     [ "Prayer", "Requests in every state, the prayer team's prayers and comments, and the Cast's own requests tied to their stories." ],
     [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions." ],
     [ "Steps", "Rock's Discipleship Path built out to seven steps and a four-step Student Path, each step made from a record the data already has, with classes in progress at every campus, camps and mission trips from student check-ins, and program completions." ],
-    [ "Communications", "Texting numbers, campus newsletters and ministry lists, a branded email template, two years of email with opens, clicks, bounces, and unsubscribes, and texts with live SMS conversations." ],
+    [ "Communications", "Texting numbers, campus newsletters and ministry lists, a branded email template, two years of email with opens, clicks, bounces, and unsubscribes, texts with live SMS conversations, and one-to-one emails for serving, connections, prayer, and first visits." ],
     [ "Achievements", "The Kids Check-in streak and its seven achievements, so check-in shows real progress." ],
     [ "Businesses", "Businesses at every campus that give, each with one or two contacts." ]
 ];
