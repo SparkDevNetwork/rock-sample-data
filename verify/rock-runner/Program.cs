@@ -30,9 +30,10 @@ namespace RockSampleData.RockRunner
     /// Usage: rock-runner --task startup|cleanup --rock-bin <RockWeb\bin folder> --config <config file>
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
-    ///            hotfix migrations, and the attribute value views, then Rock's one-time post-install job, which a new
-    ///            install runs on its first night. The trusted base runs it once after EF's migrations, so it matches
-    ///            a Rock that has started, not just a migrated database.
+    ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
+    ///            (which a new install runs on its first evening), and its one-time post-install job (its first night).
+    ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
+    ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
@@ -108,7 +109,7 @@ namespace RockSampleData.RockRunner
 
         /// <summary>
         /// Runs the start-up steps from RockApplicationStartupHelper that change the database, in Rock's order.
-        /// Steps that need a web server (block types from .ascx files, Lava) are left out.
+        /// Steps that need a web server (block types from .ascx files) are left out.
         /// </summary>
         public string Startup()
         {
@@ -135,6 +136,11 @@ namespace RockSampleData.RockRunner
 
                 Reason: The trusted base must match a Rock that has run its first evening's update jobs.
             */
+            // Rock starts its Lava engine before its job scheduler, and some update jobs need it: the nameless
+            // locations job formats each address through Lava, and without an engine it fails on an empty result.
+            CallStartup( "InitializeLava" );
+            steps.Add( "the Lava engine" );
+
             steps.Add( RunUpdateJobs() );
 
             /*
