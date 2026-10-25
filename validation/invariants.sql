@@ -762,6 +762,53 @@ SELECT ( SELECT COUNT(*) FROM [Serving] WHERE NOT EXISTS ( SELECT 1 FROM [Commun
             OR ( [s].[Kind] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND NOT EXISTS ( SELECT 1 FROM [Asked] AS [q] WHERE [q].[PersonId] = [s].[PersonId] AND [q].[Day] = [s].[Day] ) )
             OR ( [s].[Kind] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND NOT EXISTS ( SELECT 1 FROM [Reminded] AS [r] WHERE [r].[PersonId] = [s].[PersonId] AND [r].[Day] = [s].[Day] ) ) );
 
+-- check: serving-request-is-not-in-the-future
+-- why: Decision D-servingrequests-1. A request to serve, its answer, and its last change all happened by install day, even for a Sunday weeks ahead.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[RequestedToAttend] = 1
+    AND ( [a].[CreatedDateTime] > GETDATE() OR [a].[RSVPDateTime] > GETDATE() OR [a].[ModifiedDateTime] > GETDATE() );
+
+-- check: serving-flag-has-its-email
+-- why: Decision D-servingrequests-1. Rock's scheduling job marks a confirmation or a reminder sent only when it emailed the volunteer, and it reminded only volunteers who confirmed. In the 2 years of communication history before install day, each flag has its email.
+WITH [Window] AS (
+    SELECT DATEADD( DAY, 1, DATEADD( YEAR, -2, CONVERT( DATE, GETDATE() ) ) ) AS [Start], CONVERT( DATE, GETDATE() ) AS [Today]
+), [Emailed] AS (
+    SELECT DISTINCT [sc].[Guid] AS [Kind], [pa].[PersonId], CONVERT( DATE, [c].[SendDateTime] ) AS [Day]
+    FROM [Communication] AS [c]
+    INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [c].[SystemCommunicationId]
+    INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[CommunicationId] = [c].[Id]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+    WHERE [c].[ForeignKey] = @ForeignKey AND [sc].[Guid] IN ( 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC', '8A20FE79-B73C-447A-82B1-416F9B50C038' )
+), [Flagged] AS (
+    SELECT [pa].[PersonId], [a].[RSVP], [a].[ScheduleConfirmationSent], [a].[ScheduleReminderSent], [a].[StartDateTime],
+        CONVERT( DATE, [a].[CreatedDateTime] ) AS [AskedDay], CONVERT( DATE, DATEADD( DAY, -ISNULL( [gt].[ScheduleReminderEmailOffsetDays], 2 ), [a].[StartDateTime] ) ) AS [ReminderDay]
+    FROM [Attendance] AS [a]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    INNER JOIN [AttendanceOccurrence] AS [ao] ON [ao].[Id] = [a].[OccurrenceId]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [ao].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [a].[ForeignKey] = @ForeignKey AND [a].[RequestedToAttend] = 1 AND ( [a].[ScheduleConfirmationSent] = 1 OR [a].[ScheduleReminderSent] = 1 )
+)
+SELECT COUNT(*)
+FROM [Flagged] AS [f]
+CROSS JOIN [Window] AS [w]
+WHERE ( [f].[ScheduleReminderSent] = 1 AND [f].[ReminderDay] < [w].[Today] AND ISNULL( [f].[RSVP], 3 ) <> 1 )
+    OR ( [f].[ScheduleConfirmationSent] = 1 AND [f].[AskedDay] >= [w].[Start] AND [f].[AskedDay] < [w].[Today]
+        AND NOT EXISTS ( SELECT 1 FROM [Emailed] AS [e] WHERE [e].[Kind] = 'BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC' AND [e].[PersonId] = [f].[PersonId] AND [e].[Day] = [f].[AskedDay] ) )
+    OR ( [f].[ScheduleReminderSent] = 1 AND [f].[ReminderDay] >= [w].[Start] AND [f].[ReminderDay] < [w].[Today]
+        AND NOT EXISTS ( SELECT 1 FROM [Emailed] AS [e] WHERE [e].[Kind] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND [e].[PersonId] = [f].[PersonId] AND [e].[Day] = [f].[ReminderDay] ) );
+
+-- check: serving-job-has-nothing-to-send
+-- why: Decision 95. Rock's scheduling job emails any volunteer it can reach whose request for a coming Sunday is not yet marked confirmed, and reminds confirmed volunteers not yet reminded, so every such request is marked.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[RequestedToAttend] = 1 AND [a].[StartDateTime] >= CONVERT( DATE, GETDATE() )
+    AND ISNULL( [p].[Email], '' ) <> '' AND [p].[IsEmailActive] = 1 AND [p].[EmailPreference] <> 2
+    AND ( [a].[ScheduleConfirmationSent] = 0 OR ( [a].[ScheduleReminderSent] = 0 AND [a].[RSVP] = 1 ) );
+
 -- check: one-to-one-email-skips-do-not-email
 -- why: Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". Every one-to-one email to a person on "Do not email" failed.
 SELECT COUNT(*)

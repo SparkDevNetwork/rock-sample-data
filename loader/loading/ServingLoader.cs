@@ -60,6 +60,7 @@ namespace RockSampleData.Loader.Loading
         private readonly string _seed;
         private readonly int? _kioskDeviceId;
         private readonly DateTime _historyStart;
+        private int _reminderOffsetDays = 2;
         private int? _searchTypeId;
 
         public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed, int? kioskDeviceId, DateTime historyStart )
@@ -97,6 +98,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
             var tables = new Tables( _db );
             var today = _dates.Anchor.Date;
+            _reminderOffsetDays = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( [ScheduleReminderEmailOffsetDays], 2 ) FROM [GroupType] WHERE [Id] = @Id", P( "@Id", _setup.GroupTypeId ) ) );
             // The whole history window, like Sunday attendance, then the weeks ahead.
             var firstSunday = SundayCalendar.SundayOnOrAfter( _historyStart );
             var lastSunday = SundayCalendar.SundayOnOrAfter( today ).AddDays( 7 * _config.Scheduling.FutureWeeks );
@@ -286,6 +288,22 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             return (start, end);
         }
 
+        /*
+            10/25/26 - CLAUDE
+
+            Rock's Send Group Schedule Notifications job marks a request's confirmation sent, and its
+            reminder sent, only when it emailed the volunteer: the serving team type's system
+            communications have no text message, so a volunteer Rock cannot email gets neither, and the
+            job never picks them. It reminded only volunteers who confirmed. For a Sunday still ahead,
+            both flags stay set for every volunteer Rock can email, so the job has nothing left to send
+            after install. A request for a Sunday weeks ahead was made in the last few days, so nothing
+            is dated after install day. The communications part clears a past flag again when the
+            volunteer's email bounced before the job would have sent it.
+
+            Reason: the flags agree with each volunteer's Communication History, and nothing a load
+            writes may ever send (decisions 95 and D-servingrequests-1).
+        */
+
         /// <summary>
         /// Adds one request to serve, as it stands for its outcome.
         /// </summary>
@@ -298,8 +316,25 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 Outcome.Declined => (RsvpNo, false, false),
                 _ => (RsvpUnknown, false, false)
             };
+            var now = _dates.Anchor;
             var requested = start.AddDays( -random.Between( 8, 20 ) );
-            var answered = rsvp == RsvpUnknown ? DBNull.Value : ( object ) requested.AddDays( random.Between( 1, 5 ) );
+            var answeredAt = rsvp == RsvpUnknown ? ( DateTime? ) null : requested.AddDays( random.Between( 1, 5 ) );
+            if ( requested > now )
+            {
+                requested = now.Date.AddDays( -1 - ( start.DayOfYear % 6 ) ).AddHours( 9 + ( start.Day % 8 ) );
+            }
+
+            if ( answeredAt > now )
+            {
+                answeredAt = requested.AddTicks( ( now - requested ).Ticks / 2 );
+            }
+
+            var answered = answeredAt.HasValue ? answeredAt.Value : ( object ) DBNull.Value;
+            var modified = start <= now ? start : answeredAt ?? requested;
+            var cast = person.Cast;
+            var canEmail = !string.IsNullOrWhiteSpace( cast.Email ) && cast.EmailIsActive && !cast.EmailDoNotEmail;
+            var confirmationSent = canEmail;
+            var reminderSent = canEmail && ( rsvp == RsvpYes || start.Date.AddDays( -_reminderOffsetDays ) > now.Date );
             var declineReason = outcome == Outcome.Declined && declineReasonIds.Count > 0 ? random.Pick( declineReasonIds ) : ( object ) DBNull.Value;
 
             // A volunteer who served usually checked in at the kiosk a few minutes before the service.
@@ -307,10 +342,10 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             var checkedIn = outcome == Outcome.Attended && _kioskDeviceId.HasValue && random.Chance( checkIn.CheckInPercent / 100.0 );
             var present = checkedIn ? start.AddMinutes( -random.Between( ( int ) checkIn.ArrivesMinutesEarly.Min, ( int ) checkIn.ArrivesMinutesEarly.Max ) ) : ( object ) DBNull.Value;
 
-            tables.Attendance.Rows.Add( occurrenceId, person.AliasId, campusId, start, didAttend, rsvp, true, scheduled, true, true, answered, declineReason,
+            tables.Attendance.Rows.Add( occurrenceId, person.AliasId, campusId, start, didAttend, rsvp, true, scheduled, confirmationSent, reminderSent, answered, declineReason,
                 scheduledByAliasId.HasValue ? scheduledByAliasId.Value : ( object ) DBNull.Value,
                 checkedIn ? _kioskDeviceId.Value : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present,
-                Guid.NewGuid(), _foreignKey, requested, start );
+                Guid.NewGuid(), _foreignKey, requested, modified );
         }
 
         private enum Outcome
