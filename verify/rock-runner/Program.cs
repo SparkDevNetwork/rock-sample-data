@@ -125,6 +125,19 @@ namespace RockSampleData.RockRunner
             steps.Add( "the message bus" );
 
             /*
+                10/25/26 - CLAUDE
+
+                Rock's migrations queue one-time "Rock Update Helper" jobs (Rock.Jobs.Post...) for 9pm, and a new
+                install runs them on its first evening; each deletes itself when it finishes. Among them are the jobs
+                that swap WebForms blocks for Obsidian ones (Pledge Entry, Account Entry, Registration Entry, and more),
+                so a Rock that has run a night shows Obsidian blocks where a base made only by migrations still shows
+                WebForms ones. The loader's campaign step once broke on exactly that difference.
+
+                Reason: The trusted base must match a Rock that has run its first evening's update jobs.
+            */
+            steps.Add( RunUpdateJobs() );
+
+            /*
                 10/19/26 - CLAUDE
 
                 A new install schedules Rock's PostInstallDataMigrations job for 2am on its first night. It fills
@@ -163,6 +176,50 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs every stored "Rock Update Helper" job, oldest first, the way Rock's scheduler runs them: as its own
+        /// ServiceJob, so it reads its stored settings (such as which block types to swap) and deletes itself when done.
+        /// Any failure stops the caller.
+        /// </summary>
+        private string RunUpdateJobs()
+        {
+            var app = _rock.GetType( "Rock.Configuration.RockApp", true ).GetProperty( "Current" ).GetValue( null );
+            var createContext = app.GetType().GetMethod( "CreateRockContext", Hidden, null, Type.EmptyTypes, null )
+                ?? throw new InvalidOperationException( "This Rock has no RockApp.CreateRockContext(). The runner needs updating for this Rock." );
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            var jobType = _rock.GetType( "Rock.Model.ServiceJob", true );
+            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( app, null ) ), null );
+            var jobs = queryable
+                .Select( j => (Id: ( int ) jobType.GetProperty( "Id" ).GetValue( j ), Class: ( string ) jobType.GetProperty( "Class" ).GetValue( j ), Name: ( string ) jobType.GetProperty( "Name" ).GetValue( j )) )
+                .Where( j => j.Class.StartsWith( "Rock.Jobs.Post", StringComparison.Ordinal ) && j.Class != "Rock.Jobs.PostInstallDataMigrations" )
+                .OrderBy( j => j.Id )
+                .ToList();
+
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
+            foreach ( var (id, className, name) in jobs )
+            {
+                var type = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( className ) ).FirstOrDefault( t => t != null )
+                    ?? throw new InvalidOperationException( $"Rock has no job class {className} (job {id}, {name})." );
+                var job = Activator.CreateInstance( type );
+                var stored = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( app, null ) ), new object[] { id } );
+                loadAttributes.Invoke( null, new[] { stored } );
+                rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { id } );
+                rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
+                try
+                {
+                    Execute( job );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    throw new InvalidOperationException( $"Rock's update job {id} ({name}) failed: {ex.GetBaseException().Message}", ex.InnerException );
+                }
+            }
+
+            return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
         }
 
         /// <summary>
