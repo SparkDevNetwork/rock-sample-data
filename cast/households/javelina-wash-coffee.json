@@ -7,7 +7,7 @@
   "kind": "business",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Isaac Silva owns Javelina Wash Coffee, a small coffee shop. Like Isaac's own gifts, every business gift is split between the General Fund and the Mission Fund. Isaac mails a business check each month.",
+  "story": "Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision D-coffeeowner-1). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.",
   "testPurposes": [
     "Business gift split between two funds.",
     "Mailed monthly business checks, each split across two funds."
@@ -22,7 +22,7 @@
       },
       "percentOfPeriodsGiven": 95,
       "currency": "check",
-      "signer": "Isaac Silva",
+      "signer": "Natalie Silva",
       "started": {
         "yearsAgo": 2,
         "month": 1,
