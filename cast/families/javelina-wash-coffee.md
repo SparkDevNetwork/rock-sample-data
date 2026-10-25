@@ -2,7 +2,7 @@
 
 New household · Business · Phoenix campus · [source](../households/javelina-wash-coffee.json)
 
-Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision D-coffeeowner-1). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.
+Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
