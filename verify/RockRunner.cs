@@ -50,7 +50,10 @@ namespace RockSampleData.Verify
                 process.WaitForExit();
                 if ( process.ExitCode != 0 )
                 {
-                    throw new InvalidOperationException( $"Rock {task} did not run on {database}: {errors.Result.Trim().Split( '\n' )[0]}" );
+                    // The first line names the failure; the whole output, with Rock's stack trace, is kept for whoever fixes it.
+                    var log = Path.Combine( Path.GetTempPath(), $"rock-sample-data-runner-{database}-{task}.log" );
+                    File.WriteAllText( log, errors.Result );
+                    throw new InvalidOperationException( $"Rock {task} did not run on {database}: {errors.Result.Trim().Split( '\n' )[0]} (full output: {log})" );
                 }
 
                 return output;
