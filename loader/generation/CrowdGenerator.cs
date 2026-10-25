@@ -40,6 +40,7 @@ namespace RockSampleData.Loader.Generation
     {
         private static readonly string[] AgeBands = { "00-05", "06-11", "12-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+" };
         private static readonly string[] AdultBands = { "18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+" };
+        private static readonly string[] ParentBands = { "25-34", "35-44", "45-54" };
         private static readonly string[] Personas = { "one-time", "occasional", "weekly", "bi-weekly", "monthly", "quarterly", "irregular" };
         private static readonly string[] AreaCodes = { "602", "480", "623" };
 
@@ -72,6 +73,7 @@ namespace RockSampleData.Loader.Generation
         private readonly string _seed;
         private readonly DateTime _anchor;
         private readonly AddressPool _addresses;
+        private readonly AdultAgePlan _adultAges;
 
         /// <summary>
         /// Status weights from the dataset manifest, or null for the measured weights in <see cref="Statuses"/>.
@@ -90,6 +92,7 @@ namespace RockSampleData.Loader.Generation
             _seed = seed;
             _anchor = anchor;
             _addresses = AddressPool.Load( source.Files, seed );
+            _adultAges = PlanAdultAges();
 
             var numbers = source.Communications?.PhoneNumbers;
             _churchNumbers = ( numbers?.Numbers.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
@@ -199,11 +202,15 @@ namespace RockSampleData.Loader.Generation
                 return household;
             }
 
-            // Adults: a couple is usually one man and one woman of similar age. Parents are mostly 25 to 54.
+            // Adults: a couple is one man and one woman of similar age. Parents are mostly 25 to 54, and adults
+            // without children take the rest of each adult band (decision D-adult-ages-1). A single adult's chance
+            // of being a woman makes up for couples, who are always one of each (decision D-adult-ages-2).
             var hasChildren = size > adultCount;
-            var firstAge = AgeInBand( random.Pick( AgeWeights( hasChildren ? new[] { "25-34", "35-44", "45-54" } : AdultBands ) ), random );
-            var firstIsFemale = random.Chance( _profile.Number( $"people.pctFemaleByAge.{BandFor( firstAge )}", 55 ) / 100 );
             var isCouple = adultCount == 2;
+            var firstAge = AgeInBand( random.Pick( hasChildren ? AgeWeights( ParentBands ) : _adultAges.ChildlessBandWeights ), random );
+            var firstIsFemale = random.Chance( isCouple
+                ? _profile.Number( $"people.pctFemaleByAge.{BandFor( firstAge )}", 55 ) / 100
+                : _adultAges.SingleFemaleChance[BandFor( firstAge )] );
             var marital = isCouple ? "Married" : PickSingleMarital( random );
             household.Members.Add( NewPerson( household, 0, random, lastName, firstAge, firstIsFemale, "adult", status, marital ) );
             if ( isCouple )
@@ -593,6 +600,86 @@ namespace RockSampleData.Loader.Generation
         private Dictionary<string, double> AgeWeights( IEnumerable<string> bands )
         {
             return bands.ToDictionary( b => b, b => _profile.Number( $"people.ageMix.{b}", 1 ) );
+        }
+
+        /// <summary>
+        /// How the first adult of a household draws an age band and a gender.
+        /// </summary>
+        private sealed class AdultAgePlan
+        {
+            /// <summary>
+            /// Age band weights for the first adult of a household without children: what is left of each adult band after the parents.
+            /// </summary>
+            public Dictionary<string, double> ChildlessBandWeights { get; init; }
+
+            /// <summary>
+            /// The chance a single adult in each band is a woman, raised or lowered so the band's share of women matches the profile.
+            /// </summary>
+            public Dictionary<string, double> SingleFemaleChance { get; init; }
+        }
+
+        /*
+            10/25/26 - CLAUDE
+
+            Parents come only from 25 to 54. Adults without children used to draw from the whole adult age mix, so
+            parents came on top of a full share in those bands: 25 to 34 and 35 to 44 ran about 3 points high and 18 to
+            24 about 5 points low. The plan works out, from the household size mix, how many parents, single adults, and
+            couples each household makes on average. Adults without children then take what is left of each band. A
+            couple is always one man and one woman, so the bands full of couples ran short of women; single adults make
+            up the difference. The household draws stay the same, so only ages, genders, and what follows from them change.
+
+            Reason: Match the profile's adult age mix and share of women by age (decisions D-adult-ages-1 and D-adult-ages-2).
+        */
+
+        /// <summary>
+        /// Works out the adult age plan from the profile's household size mix, age mix, and share of women by age.
+        /// It follows the household rules in <see cref="NewHousehold"/>, and counts a spouse in the first adult's band.
+        /// </summary>
+        private AdultAgePlan PlanAdultAges()
+        {
+            // Expected adults per household of each kind.
+            double singleParents = 0, coupleParents = 0, singles = 0, couples = 0;
+            var sizeWeights = SizeWeights();
+            var totalWeight = sizeWeights.Values.Sum();
+            foreach ( var (sizeKey, weight) in sizeWeights )
+            {
+                var share = weight / totalWeight;
+                if ( sizeKey == "1" )
+                {
+                    singles += share * ( 1 - _profile.Number( "people.familySizeMix.1.avgChildren", 0 ) );
+                    continue;
+                }
+
+                var averageAdults = _profile.Number( $"people.familySizeMix.{sizeKey}.avgAdults", 1 );
+                var coupleChance = averageAdults >= 2 ? 1 : averageAdults >= 1 ? averageAdults % 1 : 0;
+                if ( sizeKey == "2" )
+                {
+                    couples += share * coupleChance;
+                    singleParents += share * ( 1 - coupleChance );
+                }
+                else
+                {
+                    coupleParents += share * coupleChance;
+                    singleParents += share * ( 1 - coupleChance );
+                }
+            }
+
+            var parentWeights = AgeWeights( ParentBands );
+            var adultWeights = AgeWeights( AdultBands );
+            var parentShare = AdultBands.ToDictionary( b => b, b => parentWeights.TryGetValue( b, out var w ) ? w / parentWeights.Values.Sum() : 0 );
+            var allAdults = singleParents + ( 2 * coupleParents ) + singles + ( 2 * couples );
+            var left = AdultBands.ToDictionary( b => b, b => Math.Max( 0, ( allAdults * adultWeights[b] / adultWeights.Values.Sum() ) - ( ( singleParents + ( 2 * coupleParents ) ) * parentShare[b] ) ) );
+            var childlessShare = AdultBands.ToDictionary( b => b, b => left[b] / left.Values.Sum() );
+
+            var singleFemaleChance = AdultBands.ToDictionary( b => b, b =>
+            {
+                var bandSingles = ( singleParents * parentShare[b] ) + ( singles * childlessShare[b] );
+                var bandCoupleAdults = 2 * ( ( coupleParents * parentShare[b] ) + ( couples * childlessShare[b] ) );
+                var femaleShare = _profile.Number( $"people.pctFemaleByAge.{b}", 55 ) / 100;
+                return bandSingles <= 0 ? femaleShare : Math.Min( 1, Math.Max( 0, ( ( femaleShare * ( bandSingles + bandCoupleAdults ) ) - ( 0.5 * bandCoupleAdults ) ) / bandSingles ) );
+            } );
+
+            return new AdultAgePlan { ChildlessBandWeights = left, SingleFemaleChance = singleFemaleChance };
         }
 
         private static int AgeInBand( string band, SeededRandom random )
