@@ -185,12 +185,14 @@ namespace RockSampleData.RockRunner
         /// </summary>
         private string RunUpdateJobs()
         {
-            var app = _rock.GetType( "Rock.Configuration.RockApp", true ).GetProperty( "Current" ).GetValue( null );
-            var createContext = app.GetType().GetMethod( "CreateRockContext", Hidden, null, Type.EmptyTypes, null )
-                ?? throw new InvalidOperationException( "This Rock has no RockApp.CreateRockContext(). The runner needs updating for this Rock." );
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                ?? throw new InvalidOperationException( "This Rock has no RockAppExtensions.CreateRockContext( RockApp ). The runner needs updating for this Rock." );
+            object NewContext() => createContext.Invoke( null, new[] { app } );
             var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
             var jobType = _rock.GetType( "Rock.Model.ServiceJob", true );
-            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( app, null ) ), null );
+            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), null );
             var jobs = queryable
                 .Select( j => (Id: ( int ) jobType.GetProperty( "Id" ).GetValue( j ), Class: ( string ) jobType.GetProperty( "Class" ).GetValue( j ), Name: ( string ) jobType.GetProperty( "Name" ).GetValue( j )) )
                 .Where( j => j.Class.StartsWith( "Rock.Jobs.Post", StringComparison.Ordinal ) && j.Class != "Rock.Jobs.PostInstallDataMigrations" )
@@ -205,7 +207,7 @@ namespace RockSampleData.RockRunner
                 var type = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( className ) ).FirstOrDefault( t => t != null )
                     ?? throw new InvalidOperationException( $"Rock has no job class {className} (job {id}, {name})." );
                 var job = Activator.CreateInstance( type );
-                var stored = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( app, null ) ), new object[] { id } );
+                var stored = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), new object[] { id } );
                 loadAttributes.Invoke( null, new[] { stored } );
                 rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { id } );
                 rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
