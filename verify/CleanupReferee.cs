@@ -44,6 +44,22 @@ namespace RockSampleData.Verify
         /// </summary>
         private static readonly string[] WebServerTasks = { "orphaned entity metadata", "connected services manifest" };
 
+        /*
+            10/25/26 - CLAUDE
+
+            Rock Cleanup rebuilds ScheduleDate for every schedule from RockDateTime.Now minus two years to now plus two
+            years, to the minute (ScheduleService.UpdateScheduleDates). The baseline run on the plain copy and the run on
+            each loaded copy happen minutes apart, so an occurrence at either edge of that window can fall inside one run
+            and outside the other. The plain copy then changed one row fewer than the loaded copy, and rock-cleanup failed
+            on base rows the load never touched (11,080 against 11,079, now and then).
+
+            Reason: Leave out only the rows within a day of the moving window's edges, in both runs, and compare the rest exactly.
+        */
+        private static readonly Dictionary<string, string> MovingWindowEdges = new Dictionary<string, string>( StringComparer.Ordinal )
+        {
+            ["ScheduleDate"] = WindowEdgeFilter( "StartDateTime", years: 2 )
+        };
+
         private readonly SqlServer _sql;
         private readonly RockRelease _rock;
         private readonly string _acceptedPath;
@@ -252,13 +268,23 @@ ORDER BY [t].[name], [c].[column_id]" )
         private void CompareWholeRows( string table, string live, string before, List<(string Name, string Type)> columns, Measurement measurement )
         {
             var list = string.Join( ", ", columns.Select( ( c, i ) => $"{Comparable( "t", c )} AS [c{i}]" ) );
+            var where = MovingWindowEdges.TryGetValue( table, out var edges ) ? $"WHERE {edges}" : string.Empty;
             var differing = Convert.ToInt64( _sql.Scalar( "master", $@"
-SELECT ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {live} AS [t] EXCEPT SELECT {list} FROM {before} AS [t] ) AS [x] )
-    + ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {before} AS [t] EXCEPT SELECT {list} FROM {live} AS [t] ) AS [x] )" ) );
+SELECT ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {live} AS [t] {where} EXCEPT SELECT {list} FROM {before} AS [t] {where} ) AS [x] )
+    + ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {before} AS [t] {where} EXCEPT SELECT {list} FROM {live} AS [t] {where} ) AS [x] )" ) );
             if ( differing > 0 )
             {
                 measurement.Changes[$"{table}: rows changed (no Id column)"] = new Change { Rows = differing };
             }
+        }
+
+        /// <summary>
+        /// A filter that keeps the rows more than a day from either edge of a window of now plus or minus the given years.
+        /// </summary>
+        private static string WindowEdgeFilter( string column, int years )
+        {
+            string Near( int offset ) => $"[t].[{column}] BETWEEN DATEADD( day, -1, DATEADD( year, {offset}, GETDATE() ) ) AND DATEADD( day, 1, DATEADD( year, {offset}, GETDATE() ) )";
+            return $"NOT ( {Near( -years )} OR {Near( years )} )";
         }
 
         private void CompareRows( string table, string live, string before, List<(string Name, string Type)> columns, Measurement measurement )
