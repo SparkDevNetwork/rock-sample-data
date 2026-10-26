@@ -160,6 +160,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `sent-push-is-delivered-with-its-history` | Rock Mobile Push marks a sent push Delivered with its times and writes a "Push Notification" History line, and a person with no device that takes notifications fails with Rock's note. |
 | `push-goes-to-a-device-that-takes-notifications` | A delivered push had an active device with notifications on and a token when it went out, and a failed one had none. |
 | `app-devices-never-reach-a-phone` | Decision 95. Every device token starts with `sample-data-`, which Firebase never issues. |
+| `serving-request-is-not-in-the-future` | A request to serve, its answer, and its last change all happened by install day. |
+| `serving-flag-has-its-email` | Before install day, each confirmation or reminder marked sent has its email, and only volunteers who confirmed were reminded. |
+| `serving-job-has-nothing-to-send` | Decision 95. Every request for a coming Sunday to a volunteer Rock can email is marked confirmed and reminded, so Rock's scheduling job sends nothing. |
 | `serving-email-follows-a-request` | Each serving confirmation and reminder links to Rock's system communication, has one recipient, and has the request it came from: asked that day, or serving two days later and not declined. |
 | `one-to-one-email-skips-do-not-email` | Rock sends a personal email to someone on "No mass emails", but never to someone on "Do not email". |
 | `texted-stop-turns-off-texting` | A STOP marks a level All unsubscribe and turns off and opts out texting on the person's mobile, and every opted-out phone came from a STOP. |
