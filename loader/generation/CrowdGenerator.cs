@@ -203,8 +203,8 @@ namespace RockSampleData.Loader.Generation
             }
 
             // Adults: a couple is one man and one woman of similar age. Parents are mostly 25 to 54, and adults
-            // without children take the rest of each adult band (decision D-adult-ages-1). A single adult's chance
-            // of being a woman makes up for couples, who are always one of each (decision D-adult-ages-2).
+            // without children take the rest of each adult band (decision 166). A single adult's chance
+            // of being a woman makes up for couples, who are always one of each (decision 167).
             var hasChildren = size > adultCount;
             var isCouple = adultCount == 2;
             var firstAge = AgeInBand( random.Pick( hasChildren ? AgeWeights( ParentBands ) : _adultAges.ChildlessBandWeights ), random );
@@ -628,7 +628,7 @@ namespace RockSampleData.Loader.Generation
             couple is always one man and one woman, so the bands full of couples ran short of women; single adults make
             up the difference. The household draws stay the same, so only ages, genders, and what follows from them change.
 
-            Reason: Match the profile's adult age mix and share of women by age (decisions D-adult-ages-1 and D-adult-ages-2).
+            Reason: Match the profile's adult age mix and share of women by age (decisions 166 and 167).
         */
 
         /// <summary>

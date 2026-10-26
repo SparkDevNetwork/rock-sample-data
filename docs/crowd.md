@@ -11,8 +11,8 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 5. Core 3's companions use a more involved connection status mix than the Crowd, set in the dataset manifest, so more of them attend, give, and join groups (decision 142). Core 1 and Core 3 also scale up checks as a payment method, so check batches and check images have enough to show (decision 143).
 6. Every generated person has a birth date. Measured age mixes count only people with a birth date, so the profile states the age mix as shares of all people, and validation grades it against people with a birth date, which is nearly all of them (decision 156).
 7. A child on their own, in a one-person family, is a student aged 12 to 17 (decision 157).
-8. Parents are 25 to 54. Adults without children take what is left of each adult band after the parents, so about 39% of them are 18 to 24 (decision D-adult-ages-1).
-9. A couple is one man and one woman. A single adult's chance of being a woman is set for each age band, so each band's share of women matches the profile (decision D-adult-ages-2).
+8. Parents are 25 to 54. Adults without children take what is left of each adult band after the parents, so about 39% of them are 18 to 24 (decision 166).
+9. A couple is one man and one woman. A single adult's chance of being a woman is set for each age band, so each band's share of women matches the profile (decision 167).
 
 ## How big the Crowd is
 
