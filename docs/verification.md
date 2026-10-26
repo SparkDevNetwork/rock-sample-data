@@ -134,6 +134,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |
 | `only-this-dataset` | One database holds one dataset. Another's rows mean the database was not fresh. |
+| `no-high-schooler-in-adult-groups` | Nobody joins or leads a small group or serving team while still in high school: each membership starts on or after the June 1 grade change in the person's graduation year. |
 | `step-matches-its-membership` | A Small Group, Serve, or Lead step records one membership, with its dates, and every membership that counts has its step. |
 | `step-looks-saved-by-rock` | Rock fills each step's date keys from its dates, and a Complete step has a completion date. Every step is on the person's primary alias and campus. |
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
@@ -217,7 +218,7 @@ Checks 3 to 5 run inside the load's transaction, so two loads started at once ca
 
 ### Loader compatibility check
 
-**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
+**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also opens the configuration of every published release, saved in `loader-compat-check/published/`, and checks that a file the loader cannot read gives a plain message (decision 168). Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
 
 **Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision 120). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
 

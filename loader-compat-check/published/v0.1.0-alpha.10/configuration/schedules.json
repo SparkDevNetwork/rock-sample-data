@@ -1,0 +1,49 @@
+{
+  "$comment": "Shared service time slots: Sunday 9:00am, 10:30am, and 12:00pm. Every campus uses these same slots; campuses differ only in which slots they offer. The student service meets at Sunday 10:30am at every campus.",
+  "category": "Service Times",
+  "checkInStartOffsetMinutes": 30,
+  "checkInEndOffsetMinutes": 30,
+  "scheduleTypes": [
+    {
+      "key": "weekend",
+      "name": "Weekend Service",
+      "guid": "033FC160-2650-4C97-8075-0C0114FA7A8D",
+      "rockDefault": true
+    },
+    {
+      "key": "student",
+      "name": "Student Service",
+      "guid": "82A1E288-6A12-49B6-8A32-B5104198D365",
+      "rockDefault": false
+    }
+  ],
+  "slots": [
+    {
+      "key": "sun-0900",
+      "name": "Sunday 9:00am",
+      "guid": "FF6FB240-0C32-4542-BE40-159C522F7E51",
+      "day": "Sunday",
+      "start": "09:00",
+      "minutes": 60,
+      "rockDefault": true
+    },
+    {
+      "key": "sun-1030",
+      "name": "Sunday 10:30am",
+      "guid": "4628D917-EC9C-4269-B39C-5BCBEF3658E7",
+      "day": "Sunday",
+      "start": "10:30",
+      "minutes": 60,
+      "rockDefault": true
+    },
+    {
+      "key": "sun-1200",
+      "name": "Sunday 12:00pm",
+      "guid": "1F6C15DA-982F-43B1-BDE9-D4E70CFBCB45",
+      "day": "Sunday",
+      "start": "12:00",
+      "minutes": 60,
+      "rockDefault": true
+    }
+  ]
+}

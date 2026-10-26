@@ -131,6 +131,25 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The day a person may first join an adult group or team: their birthday at the minimum age, or, when
+        /// their graduation is known, the grade transition date after it, whichever is later. Grade decides,
+        /// so an 18-year-old senior waits until they are out of high school (decision 169).
+        /// </summary>
+        public DateTime AdultSince( CastPerson person, int minimumAge )
+        {
+            // A few Cast adults have no birth date on file; their age is unknown, so only a known graduation limits them.
+            var byAge = person.Birth == null ? DateTime.MinValue : BirthDate( person.Birth ).AddYears( minimumAge );
+            var graduated = Resolve( person.Graduation );
+            if ( !graduated.HasValue )
+            {
+                return byAge;
+            }
+
+            var outOfHighSchool = new DateTime( graduated.Value.Year, GradeTransitionMonth, GradeTransitionDay );
+            return outOfHighSchool > byAge ? outOfHighSchool : byAge;
+        }
+
+        /// <summary>
         /// Rock's AgeBracket value for an age.
         /// </summary>
         public static int AgeBracket( int? age )

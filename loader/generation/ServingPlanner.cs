@@ -80,7 +80,7 @@ namespace RockSampleData.Loader.Generation
             var active = households.Where( IsActiveNow ).ToList();
             var activeAdults = households.Where( h => IsActiveNow( h ) || h.Giving.Any( g => g.Ended == null && g.Persona != "one-time" ) ).SelectMany( h => h.Members.Where( p => IsAdult( p, rules.MinimumAge ) ) ).Count();
             List<(CastPerson Person, CastHousehold Household)> WithStatus( string status ) => active
-                .SelectMany( h => h.Members.Where( p => IsAdult( p, rules.MinimumAge ) && p.ConnectionStatus == status ).Select( p => (Person: p, Household: h) ) )
+                .SelectMany( h => h.Members.Where( p => IsOutOfHighSchool( p, rules.MinimumAge, dates ) && p.ConnectionStatus == status ).Select( p => (Person: p, Household: h) ) )
                 .OrderBy( x => new SeededRandom( $"{seed}:serving:order:{x.Person.Guid}" ).Between( 0.0, 1.0 ) )
                 .ToList();
 
@@ -118,7 +118,7 @@ namespace RockSampleData.Loader.Generation
                 }
 
                 // Couples often serve together.
-                var spouse = household.Members.FirstOrDefault( p => p.Guid != person.Guid && candidates.Any( c => c.Person.Guid == p.Guid ) && !assigned.Contains( p.Guid ) && Fits( team, p, rules ) );
+                var spouse = household.Members.FirstOrDefault( p => p.Guid != person.Guid && candidates.Any( c => c.Person.Guid == p.Guid ) && !assigned.Contains( p.Guid ) && Fits( team, p, rules, dates ) );
                 if ( spouse != null && assigned.Count < target && random.Chance( rules.SpouseSameTeamPercent / 100.0 ) )
                 {
                     Add( team, spouse, household );
@@ -130,7 +130,7 @@ namespace RockSampleData.Loader.Generation
                 for ( var i = 0; i < queue.Count; i++ )
                 {
                     var next = queue.Dequeue();
-                    if ( !assigned.Contains( next.Person.Guid ) && Fits( team, next.Person, rules ) )
+                    if ( !assigned.Contains( next.Person.Guid ) && Fits( team, next.Person, rules, dates ) )
                     {
                         return next;
                     }
@@ -217,6 +217,12 @@ namespace RockSampleData.Loader.Generation
                 joined = started.Value.AddDays( 30 );
             }
 
+            var adultSince = dates.AdultSince( person, team.MinimumAge ?? rules.MinimumAge );
+            if ( joined < adultSince )
+            {
+                joined = adultSince;
+            }
+
             if ( joined > dates.Anchor.AddDays( -30 ) )
             {
                 joined = dates.Anchor.AddDays( -30 );
@@ -228,7 +234,14 @@ namespace RockSampleData.Loader.Generation
             return new ServingMemberPlan( person.Guid, isLeader, rotation, joined.Date, service, position );
         }
 
-        private static bool Fits( ServingTeamDefinition team, CastPerson person, VolunteerRules rules ) => IsAdult( person, team.MinimumAge ?? rules.MinimumAge );
+        private static bool Fits( ServingTeamDefinition team, CastPerson person, VolunteerRules rules, AnchorDates dates ) => IsOutOfHighSchool( person, team.MinimumAge ?? rules.MinimumAge, dates );
+
+        /// <summary>
+        /// An adult who was out of high school and old enough by the latest join date, a month before the anchor.
+        /// Serving teams are adult-only, so a senior who is already 18 does not serve (decision 169).
+        /// </summary>
+        private static bool IsOutOfHighSchool( CastPerson person, int minimumAge, AnchorDates dates ) =>
+            IsAdult( person, minimumAge ) && dates.AdultSince( person, minimumAge ) <= dates.Anchor.AddDays( -30 );
 
         private static bool IsAdult( CastPerson person, int minimumAge ) =>
             person.Birth?.Age >= minimumAge && string.Equals( person.RecordStatus, "active", StringComparison.OrdinalIgnoreCase ) && person.RecordType != "business";

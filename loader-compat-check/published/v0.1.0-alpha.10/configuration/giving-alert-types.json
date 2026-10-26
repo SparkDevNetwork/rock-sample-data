@@ -1,0 +1,33 @@
+{
+  "$comment": "The sample church's giving alert types. Rock ships none. The loader creates them as of 12 months before the anchor and writes the alerts Rock's Giving Automation job would have raised since then. Amounts are in dollars; sensitivity scales are in IQRs (amount) or standard deviations (frequency), as in Rock's Giving Alert Types page.",
+  "alertTypes": [
+    {
+      "key": "large-gift",
+      "name": "Large Gift",
+      "guid": "1D7AAA41-D2A7-4E7D-BD39-4B14131B8BA1",
+      "alertType": "gratitude",
+      "order": 0,
+      "minimumGiftAmount": 5000
+    },
+    {
+      "key": "smaller-than-usual",
+      "name": "Smaller Than Usual",
+      "guid": "56266D39-16C7-4AAA-A986-789CE645F74B",
+      "alertType": "followUp",
+      "order": 1,
+      "amountSensitivityScale": 2,
+      "minimumMedianGiftAmount": 100,
+      "repeatPreventionDuration": 90
+    },
+    {
+      "key": "late-gift",
+      "name": "Late Gift",
+      "guid": "1ABBDFF7-E6F4-49EA-92E4-D21CD6079F3E",
+      "alertType": "followUp",
+      "order": 2,
+      "frequencySensitivityScale": 3,
+      "minimumMedianGiftAmount": 50,
+      "repeatPreventionDuration": 60
+    }
+  ]
+}
