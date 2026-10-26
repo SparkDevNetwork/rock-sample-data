@@ -53,7 +53,7 @@ module.exports = function datasets( { model } ) {
   <div class="wrap dataset-grid">
     <article class="dataset reveal">
       <p class="dataset-size">Core 1</p>
-      <p class="dataset-time">Loads in about 4 seconds</p>
+      <p class="dataset-time">Loads in about 15 seconds</p>
       <ul>
         <li>The Cast: ${model.counts.households} households, ${model.counts.people} people</li>
         <li>1 campus: Phoenix</li>
@@ -63,7 +63,7 @@ module.exports = function datasets( { model } ) {
     </article>
     <article class="dataset dataset-mid reveal">
       <p class="dataset-size">Core 3</p>
-      <p class="dataset-time">Loads in under 10 seconds</p>
+      <p class="dataset-time">Loads in under 20 seconds</p>
       <ul>
         <li>The Cast, plus 75 generated households at each of Peoria and Gilbert</li>
         <li>3 campuses</li>
@@ -73,7 +73,7 @@ module.exports = function datasets( { model } ) {
     </article>
     <article class="dataset dataset-big reveal">
       <p class="dataset-size">Full 7</p>
-      <p class="dataset-time">Loads in about a minute</p>
+      <p class="dataset-time">Loads in about 4 minutes</p>
       <ul>
         <li>The Cast, plus the Crowd: about 25,000 people</li>
         <li>7 campuses across the Valley, each with its own people</li>

@@ -12,7 +12,7 @@
   "people": 25248,
   "households": 16967,
   "campuses": 7,
-  "typicalInstallSeconds": 55,
+  "typicalInstallSeconds": 228,
   "checkImages": {
     "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
     "months": 12
