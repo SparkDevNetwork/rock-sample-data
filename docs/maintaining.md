@@ -185,6 +185,7 @@ Add a row for every tag, including failed ones.
 | `v0.1.0-alpha.9` | 2026-10-23 | Prerelease | Nothing published. The Loader job's symbols check failed at random (see "When a release fails"). The tag was deleted. |
 | `v0.1.0-alpha.10` | 2026-10-23 | Prerelease | Published `SparkDevNetwork.Rock.SampleData.Loader` 0.1.0-alpha.10 to nuget.org, and Core 1, Core 3, and Full 7 for Rock 21.0.2 with `index-prerelease.json`. The first Publish attempt failed at the Azure sign-in (AADSTS700213); the re-run after the trust fix passed. Full 7 was still the Cast only. |
 | `v0.1.0-alpha.11` | 2026-10-23 | Prerelease | Nothing published. Verify failed rock-cleanup on all three packages because the run crossed midnight UTC mid-verify (see "When a release fails"); the re-run was cancelled so the next tag would carry the fix and later work. |
+| `v0.1.0-alpha.13` | 2026-10-26 | Prerelease | Published `SparkDevNetwork.Rock.SampleData.Loader` 0.1.0-alpha.13 to nuget.org, and Core 1, Core 3, and Full 7 for Rock 21.0.2 and Rock 20.0.10 with `index-prerelease.json`. The first release with Full 7's Crowd, Rock 20 packages, and install times on the dataset cards. Its first dry run failed with C: full on the runner; moving SQL Server's files to D: fixed it (see "When a release fails"). No `v0.1.0-alpha.12` tag was made. |
 
 `packages/index.json`, which Rock's installer block reads by default, stays empty until the first stable tag. The next one planned is `v1.0.0`, the first release with Full 7's Crowd (decision 136).
 
