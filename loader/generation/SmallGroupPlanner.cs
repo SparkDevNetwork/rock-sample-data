@@ -205,7 +205,7 @@ namespace RockSampleData.Loader.Generation
                     return false;
                 }
 
-                var adultSince = _clock.Dates.BirthDate( person.Birth ).AddYears( _rules.Members.MinimumAge );
+                var adultSince = _clock.Dates.AdultSince( person, _rules.Members.MinimumAge );
                 _adultSince[person.Guid] = adultSince;
                 return adultSince <= _clock.LatestChange;
             }

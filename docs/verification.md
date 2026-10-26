@@ -132,6 +132,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |
 | `only-this-dataset` | One database holds one dataset. Another's rows mean the database was not fresh. |
+| `no-high-schooler-in-adult-groups` | Nobody joins or leads a small group or serving team while still in high school: each membership starts on or after the June 1 grade change in the person's graduation year. |
 | `step-matches-its-membership` | A Small Group, Serve, or Lead step records one membership, with its dates, and every membership that counts has its step. |
 | `step-looks-saved-by-rock` | Rock fills each step's date keys from its dates, and a Complete step has a completion date. Every step is on the person's primary alias and campus. |
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
