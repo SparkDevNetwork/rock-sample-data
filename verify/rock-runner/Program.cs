@@ -138,7 +138,7 @@ namespace RockSampleData.RockRunner
             */
             // Rock starts its Lava engine before its job scheduler, and some update jobs need it: the nameless
             // locations job formats each address through Lava, and without an engine it fails on an empty result.
-            CallStartup( "InitializeLava" );
+            StartLava();
             steps.Add( "the Lava engine" );
 
             steps.Add( RunUpdateJobs() );
@@ -310,6 +310,30 @@ namespace RockSampleData.RockRunner
             }
 
             bus.GetProperty( "IsRockStarted", Hidden )?.SetValue( null, true );
+        }
+
+        /// <summary>
+        /// Starts Rock's Lava engine with Rock's default configuration. Rock's own InitializeLava gets the engine from an
+        /// ILavaEngineFactory service that only the web start-up registers, so the runner makes Rock's factory itself and
+        /// hands its engine to LavaService: the same engine and settings a running Rock has.
+        /// </summary>
+        private void StartLava()
+        {
+            var factory = Activator.CreateInstance( _rock.GetType( "Rock.Lava.LavaEngineFactory", true ), nonPublic: true );
+            var create = factory.GetType().GetMethod( "CreateEngine", Hidden )
+                ?? throw new InvalidOperationException( "This Rock has no LavaEngineFactory.CreateEngine. The runner needs updating for this Rock." );
+            var lavaService = _rock.GetType( "Rock.Lava.LavaService", true );
+            var engineInterface = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( "Rock.Lava.ILavaEngine" ) ).First( t => t != null );
+            var setCurrent = lavaService.GetMethod( "SetCurrentEngine", BindingFlags.Public | BindingFlags.Static, null, new[] { engineInterface }, null )
+                ?? throw new InvalidOperationException( "This Rock has no LavaService.SetCurrentEngine( ILavaEngine ). The runner needs updating for this Rock." );
+            try
+            {
+                setCurrent.Invoke( null, new[] { create.Invoke( factory, new object[] { null } ) } );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                throw new InvalidOperationException( $"The Lava engine did not start: {ex.GetBaseException().Message}", ex.InnerException );
+            }
         }
 
         private void CallStartup( string name )
