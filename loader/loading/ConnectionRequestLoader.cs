@@ -121,7 +121,7 @@ namespace RockSampleData.Loader.Loading
                 var cast = CastRequests( context, campusKey, people );
                 requests.AddRange( cast );
                 var requested = cast.Select( r => r.Person.PersonId ).ToHashSet();
-                var pool = Requesters( rules, people, campusKey, volunteers, requested, random );
+                var pool = Requesters( rules, people, campusKey, volunteers, requested, random, _dates );
 
                 var pendingCount = Math.Max( rules.PendingPerCampus.Min, ( int ) Math.Round( connectedCount * rules.PendingPerCampus.PercentOfConnected / 100.0 ) ) - cast.Count( r => r.IsPending );
                 var activeCount = ( int ) Math.Round( connectedCount * stateMix.GetValueOrDefault( "active" ) / stateMix["connected"] ) - cast.Count( r => r.State == StateActive );
@@ -193,12 +193,19 @@ namespace RockSampleData.Loader.Loading
         /// The campus's adults who might ask to serve, in a seeded order weighted by connection status.
         /// Volunteers and people with a Cast request are left out.
         /// </summary>
-        private static List<LoadedPerson> Requesters( ConnectionRequestRules rules, PeopleLoader people, string campusKey, HashSet<Guid> volunteers, HashSet<int> requested, SeededRandom random )
+        /// <summary>
+        /// A requester was out of high school before the earliest Pending placement, so nobody still in high school
+        /// joins an adult serving team (decision 169). Grade decides, not age.
+        /// </summary>
+        private static bool IsOutOfHighSchoolForPending( LoadedPerson person, ConnectionRequestRules rules, AnchorDates dates ) =>
+            dates.AdultSince( person.Cast, 0 ) <= dates.Anchor.Date.AddDays( -rules.PendingDaysAgo.Max );
+
+        private static List<LoadedPerson> Requesters( ConnectionRequestRules rules, PeopleLoader people, string campusKey, HashSet<Guid> volunteers, HashSet<int> requested, SeededRandom random, AnchorDates dates )
         {
             return people.Households
                 .Where( h => h.CampusKey == campusKey )
                 .SelectMany( h => h.Members )
-                .Where( p => p.IsAdult && p.CanAttend && !volunteers.Contains( p.Cast.Guid ) && !requested.Contains( p.PersonId ) && rules.RequesterStatuses.ContainsKey( p.Cast.ConnectionStatus ?? string.Empty ) )
+                .Where( p => p.IsAdult && p.CanAttend && IsOutOfHighSchoolForPending( p, rules, dates ) && !volunteers.Contains( p.Cast.Guid ) && !requested.Contains( p.PersonId ) && rules.RequesterStatuses.ContainsKey( p.Cast.ConnectionStatus ?? string.Empty ) )
                 .GroupBy( p => p.PersonId ).Select( g => g.First() )
                 .Select( p => (Person: p, Key: random.Between( 0.0, 1.0 ) / rules.RequesterStatuses[p.Cast.ConnectionStatus]) )
                 .OrderBy( x => x.Key )

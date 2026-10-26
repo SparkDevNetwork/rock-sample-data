@@ -213,6 +213,18 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR [n].[CreatedByPersonAliasId] IS NULL
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
+-- check: no-high-schooler-in-adult-groups
+-- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts on or after the June 1 grade change in the person's graduation year (decision 169).
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [gm].[ForeignKey] = @ForeignKey
+    AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
+    AND [p].[GraduationYear] IS NOT NULL
+    AND [gm].[DateTimeAdded] < DATEFROMPARTS( [p].[GraduationYear], 6, 1 );
+
 -- check: step-matches-its-membership
 -- why: A Small Group, Serve, or Lead step records one membership (decision 86): same person, group, and dates, In Progress only while the member is Pending. And every membership that counts has its step.
 WITH [Memberships] AS (
