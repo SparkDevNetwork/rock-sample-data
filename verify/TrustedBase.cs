@@ -53,8 +53,8 @@ namespace RockSampleData.Verify
         }
 
         /// <summary>
-        /// Checks that a database is a trusted base for this Rock: exactly this Rock's migrations, Rock's start-up steps run, no sample
-        /// data, and an empty Exception Log.
+        /// Checks that a database is a trusted base for this Rock: exactly this Rock's migrations, Rock's start-up steps, one-time
+        /// update jobs, and post-install job run, no sample data, and an empty Exception Log.
         /// </summary>
         public static (CheckResult Result, Certificate Certificate) Certify( SqlServer sql, string database, RockRelease rock )
         {
@@ -115,6 +115,13 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
                 problems.Add( "Rock's post-install job did not find its census data (AnalyticsSourcePostalCode is empty)." );
             }
 
+            // A new install runs Rock's one-time update jobs on its first evening, and each deletes itself (decision 170).
+            var waitingJobs = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [ServiceJob] WHERE [Class] LIKE 'Rock.Jobs.Post%' AND [Class] <> 'Rock.Jobs.PostInstallDataMigrations'" ) );
+            if ( waitingJobs > 0 )
+            {
+                problems.Add( $"Rock's one-time update jobs have not run on it ({waitingJobs:N0} are waiting), so it still has WebForms blocks that a Rock that has run a night has swapped for Obsidian ones." );
+            }
+
             var exceptions = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [ExceptionLog]" ) );
             if ( exceptions > 0 )
             {
@@ -139,7 +146,8 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
 
         /// <summary>
         /// Makes the base from nothing: an empty database, every Rock migration applied by EF's own tool (the way Rock's
-        /// developers run Update-Database), then Rock's own start-up steps, and a stamp of the Rock version. About 10 minutes.
+        /// developers run Update-Database), then Rock's own start-up steps and first-night jobs, and a stamp of the Rock version.
+        /// About 10 minutes.
         /// </summary>
         public static void Create( SqlServer sql, string database, RockRelease rock )
         {

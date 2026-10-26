@@ -30,9 +30,10 @@ namespace RockSampleData.RockRunner
     /// Usage: rock-runner --task startup|cleanup --rock-bin <RockWeb\bin folder> --config <config file>
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
-    ///            hotfix migrations, and the attribute value views, then Rock's one-time post-install job, which a new
-    ///            install runs on its first night. The trusted base runs it once after EF's migrations, so it matches
-    ///            a Rock that has started, not just a migrated database.
+    ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
+    ///            (which a new install runs on its first evening), and its one-time post-install job (its first night).
+    ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
+    ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
@@ -108,7 +109,7 @@ namespace RockSampleData.RockRunner
 
         /// <summary>
         /// Runs the start-up steps from RockApplicationStartupHelper that change the database, in Rock's order.
-        /// Steps that need a web server (block types from .ascx files, Lava) are left out.
+        /// Steps that need a web server (block types from .ascx files) are left out.
         /// </summary>
         public string Startup()
         {
@@ -123,6 +124,37 @@ namespace RockSampleData.RockRunner
 
             StartMessageBus();
             steps.Add( "the message bus" );
+
+            /*
+                10/25/26 - CLAUDE
+
+                Rock's migrations queue one-time "Rock Update Helper" jobs (Rock.Jobs.Post...) for 9pm, and a new
+                install runs them on its first evening; each deletes itself when it finishes. Among them are the jobs
+                that swap WebForms blocks for Obsidian ones (Pledge Entry, Account Entry, Registration Entry, and more),
+                so a Rock that has run a night shows Obsidian blocks where a base made only by migrations still shows
+                WebForms ones. The loader's campaign step once broke on exactly that difference.
+
+                Reason: The trusted base must match a Rock that has run its first evening's update jobs.
+            */
+            // Rock starts its Lava engine before its job scheduler, and some update jobs need it: the nameless
+            // locations job formats each address through Lava, and without an engine it fails on an empty result.
+            StartLava();
+            steps.Add( "the Lava engine" );
+
+            /*
+                10/26/26 - CLAUDE
+
+                Rock's web start-up compiles every block type and registers its settings before any job runs
+                (BlockTypeService.VerifyBlockTypeInstanceProperties), and marks each one verified. Compiling a WebForms
+                block type means compiling its .ascx, which only works inside IIS, so the trusted base has never done
+                it. The block swap jobs verify their replacement block types first, and each WebForms one among them
+                logged a BuildManager NullReferenceException (6 on Rock 21.0.2), which the base check rightly refuses.
+
+                Reason: Mark WebForms block types verified, as a started Rock has them, so the jobs never compile an .ascx.
+            */
+            MarkWebFormsBlockTypesVerified();
+
+            steps.Add( RunUpdateJobs() );
 
             /*
                 10/19/26 - CLAUDE
@@ -163,6 +195,52 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs every stored "Rock Update Helper" job, oldest first, the way Rock's scheduler runs them: as its own
+        /// ServiceJob, so it reads its stored settings (such as which block types to swap) and deletes itself when done.
+        /// Any failure stops the caller.
+        /// </summary>
+        private string RunUpdateJobs()
+        {
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                ?? throw new InvalidOperationException( "This Rock has no RockAppExtensions.CreateRockContext( RockApp ). The runner needs updating for this Rock." );
+            object NewContext() => createContext.Invoke( null, new[] { app } );
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            var jobType = _rock.GetType( "Rock.Model.ServiceJob", true );
+            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), null );
+            var jobs = queryable
+                .Select( j => (Id: ( int ) jobType.GetProperty( "Id" ).GetValue( j ), Class: ( string ) jobType.GetProperty( "Class" ).GetValue( j ), Name: ( string ) jobType.GetProperty( "Name" ).GetValue( j )) )
+                .Where( j => j.Class.StartsWith( "Rock.Jobs.Post", StringComparison.Ordinal ) && j.Class != "Rock.Jobs.PostInstallDataMigrations" )
+                .OrderBy( j => j.Id )
+                .ToList();
+
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
+            foreach ( var (id, className, name) in jobs )
+            {
+                var type = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( className ) ).FirstOrDefault( t => t != null )
+                    ?? throw new InvalidOperationException( $"Rock has no job class {className} (job {id}, {name})." );
+                var job = Activator.CreateInstance( type );
+                var stored = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), new object[] { id } );
+                loadAttributes.Invoke( null, new[] { stored } );
+                rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { id } );
+                rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
+                try
+                {
+                    Execute( job );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    throw new InvalidOperationException( $"Rock's update job {id} ({name}) failed: {ex.GetBaseException().Message}", ex.InnerException );
+                }
+            }
+
+            return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
         }
 
         /// <summary>
@@ -245,6 +323,46 @@ namespace RockSampleData.RockRunner
             }
 
             bus.GetProperty( "IsRockStarted", Hidden )?.SetValue( null, true );
+        }
+
+        /// <summary>
+        /// Marks every WebForms (.ascx) block type's instance properties verified in Rock's cache, the state Rock's web
+        /// start-up leaves them in, so nothing tries to compile an .ascx outside IIS. Obsidian block types are left alone.
+        /// </summary>
+        private void MarkWebFormsBlockTypesVerified()
+        {
+            var cache = _rock.GetType( "Rock.Web.Cache.BlockTypeCache", true );
+            var all = ( IEnumerable<object> ) cache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var mark = cache.GetMethod( "MarkInstancePropertiesVerified", new[] { typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no BlockTypeCache.MarkInstancePropertiesVerified( bool ). The runner needs updating for this Rock." );
+            foreach ( var blockType in all.Where( b => !string.IsNullOrWhiteSpace( ( string ) cache.GetProperty( "Path" ).GetValue( b ) ) ).ToList() )
+            {
+                mark.Invoke( blockType, new object[] { true } );
+            }
+        }
+
+        /// <summary>
+        /// Starts Rock's Lava engine with Rock's default configuration. Rock's own InitializeLava gets the engine from an
+        /// ILavaEngineFactory service that only the web start-up registers, so the runner makes Rock's factory itself and
+        /// hands its engine to LavaService: the same engine and settings a running Rock has.
+        /// </summary>
+        private void StartLava()
+        {
+            var factory = Activator.CreateInstance( _rock.GetType( "Rock.Lava.LavaEngineFactory", true ), nonPublic: true );
+            var create = factory.GetType().GetMethod( "CreateEngine", Hidden )
+                ?? throw new InvalidOperationException( "This Rock has no LavaEngineFactory.CreateEngine. The runner needs updating for this Rock." );
+            var lavaService = _rock.GetType( "Rock.Lava.LavaService", true );
+            var engineInterface = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( "Rock.Lava.ILavaEngine" ) ).First( t => t != null );
+            var setCurrent = lavaService.GetMethod( "SetCurrentEngine", BindingFlags.Public | BindingFlags.Static, null, new[] { engineInterface }, null )
+                ?? throw new InvalidOperationException( "This Rock has no LavaService.SetCurrentEngine( ILavaEngine ). The runner needs updating for this Rock." );
+            try
+            {
+                setCurrent.Invoke( null, new[] { create.Invoke( factory, new object[] { null } ) } );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                throw new InvalidOperationException( $"The Lava engine did not start: {ex.GetBaseException().Message}", ex.InnerException );
+            }
         }
 
         private void CallStartup( string name )

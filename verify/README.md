@@ -11,8 +11,10 @@ This page is about running the tool. For every check in the repository, what it 
 Build the packages first (see the [builder](../builder/README.md)), from the same built Rock checkout. Then, from this folder:
 
 ```
-dotnet run -- --rock C:\Development\Rock
+dotnet run -- --rock C:\Development\Rock-21
 ```
+
+Use a Rock checkout kept only for this, at the `ref` in [`release/rock-releases.json`](../release/rock-releases.json) for its major release, such as `C:\Development\Rock-21` and `C:\Development\Rock-20`, built with Visual Studio's MSBuild. Do not use the checkout you develop Rock in. Pulling develop there changes its migrations while `RockWeb\bin` still holds the old build, so the trusted base fails until you rebuild, and a run already going reads a mix of both.
 
 It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Rock checkout (`RockWeb\bin` must hold `Rock.dll`). It makes and drops its own databases, all named `RockSampleVerify-<run tag>-...`, and never touches any other database. The run tag is the worktree's folder name without "rock-sample-data-" (the main checkout is `main`), so runs from different worktrees can share a server. They share the trusted base, which a run locks while it uses it (see [Working in parallel](../docs/maintaining.md#shared-machine-resources)).
 
@@ -46,15 +48,16 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 
 ### The trusted base
 
-The base is an empty database made from nothing in three steps:
+The base is an empty database made from nothing in four steps:
 
 1. EF's own migration tool (`ef6.exe`, from the Rock checkout's packages) applies every Rock migration, the same way a Rock developer runs Update-Database.
 2. `rock-runner` runs Rock's own start-up steps that write to the database: the `RockGetDate` function, the plugin and hotfix migrations, and the attribute value views. Then it starts Rock's message bus, as Rock's startup does next. EF alone skips these. On Rock 21.0.1 that is 189 hotfix migrations, so a base made only by EF is not what a church has after Rock starts.
-3. `rock-runner` runs Rock's one-time post-install job (`PostInstallDataMigrations`), which a new install runs at 2am on its first night. It fills `AnalyticsSourceDate`, the identity verification codes, and `AnalyticsSourcePostalCode` (from `RockWebApp_DataFormatted_Census_Data.xlsx`, so Rock's AppDomain uses the RockWeb folder as its base, as under IIS). Rock Cleanup reads every person's age from `AnalyticsSourceDate`, so without this step Rock Cleanup sets every age to null, which no church that has run one night sees.
+3. `rock-runner` starts Rock's Lava engine, then runs Rock's one-time update jobs (the "Rock Update Helper" jobs, `Rock.Jobs.Post...`), which a new install runs at 9pm on its first evening (decision 170). Each runs as its own stored job, so it reads its settings and deletes itself, oldest first. Among them are the jobs that swap WebForms blocks for Obsidian ones, such as Pledge Entry, so the base has the blocks a Rock that has run a night has. The swap jobs first register their new block types' settings; Rock's web start-up has already done that for WebForms (`.ascx`) block types, which only compile inside IIS, so the runner marks those verified first. On Rock 21.0.2 that is 87 jobs.
+4. `rock-runner` runs Rock's one-time post-install job (`PostInstallDataMigrations`), which a new install runs at 2am on its first night. It fills `AnalyticsSourceDate`, the identity verification codes, and `AnalyticsSourcePostalCode` (from `RockWebApp_DataFormatted_Census_Data.xlsx`, so Rock's AppDomain uses the RockWeb folder as its base, as under IIS). Rock Cleanup reads every person's age from `AnalyticsSourceDate`, so without this step Rock Cleanup sets every age to null, which no church that has run one night sees.
 
 Nothing else ever touches the base; every load runs on a copy.
 
-Before each run, the tool checks the base: its `__MigrationHistory` must hold exactly the Rock checkout's migrations (read from each migration's designer file, since a file name is not always its Id), Rock's start-up steps and post-install job must have run (with the postal codes filled), and it must have no sample data and an empty Exception Log. A plugin migration that fails logs an exception, so the empty log also proves every hotfix applied. If the base is missing or does not match the checkout, the tool makes a new one. The receipt records the base's schema hash, so two receipts with the same hash were checked against the same schema.
+Before each run, the tool checks the base: its `__MigrationHistory` must hold exactly the Rock checkout's migrations (read from each migration's designer file, since a file name is not always its Id), Rock's start-up steps, every one-time update job, and the post-install job must have run (with the postal codes filled), and it must have no sample data and an empty Exception Log. A plugin migration that fails logs an exception, so the empty log also proves every hotfix applied. If the base is missing or does not match the checkout, the tool makes a new one. The receipt records the base's schema hash, so two receipts with the same hash were checked against the same schema.
 
 The tool writes its own config file for EF and for Rock, pointed at its own database. The checkout's `web.ConnectionStrings.config` is never read.
 
@@ -84,6 +87,8 @@ Rock's nightly Rock Cleanup job repairs what Rock's save hooks would have set: m
 The job runs outside IIS through `rock-runner/`, a small .NET Framework program that loads `Rock.dll` from the checkout's `RockWeb\bin` in its own AppDomain and starts Rock the way EF's design-time tools do. It also starts Rock's in-memory message bus before the job, as Rock's own startup does. Without it, each cache message the job publishes could log a bus error to the Exception Log, depending on timing, which made this check fail now and then for no data reason. It has no compile-time reference to Rock, so one build works with any Rock version. Two of the job's tasks need a web server (orphaned entity metadata and the connected services manifest). They fail the same way on the plain base, so they are noted, not failed. The campus tithe metric task runs for real once the base has its postal codes, so the loader sets that metric too.
 
 Rock's job also tidies things in any fresh database. So it runs once on a plain copy of the base too. A change Rock also makes there, to rows that are not sample data, is background and is reported but does not fail. A change we accept on purpose goes in `validation/cleanup-accepted.json` with a reason.
+
+Rock Cleanup rebuilds `ScheduleDate` for a window of now plus or minus two years, to the minute, and the plain copy and each loaded copy are cleaned minutes apart. So the comparison leaves out the `ScheduleDate` rows within a day of either edge of that window, in both runs, and compares the rest exactly. Before, an occurrence at an edge now and then fell inside one run and outside the other, and the check failed on base rows the load never touched.
 
 ### Content standards
 

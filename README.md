@@ -207,8 +207,10 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
 
    ```
    cd ../verify
-   dotnet run -- --rock C:\Development\Rock
+   dotnet run -- --rock C:\Development\Rock-21
    ```
+
+   Point `--rock` at a Rock checkout kept only for this, at the `ref` in `release/rock-releases.json`, not the one you develop Rock in. Pulling develop there breaks the trusted base until you rebuild Rock (see the [verify README](verify/README.md#running-it)).
 
 6. After you change a Cast file, rebuild the family pages:
 
