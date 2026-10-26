@@ -141,6 +141,19 @@ namespace RockSampleData.RockRunner
             StartLava();
             steps.Add( "the Lava engine" );
 
+            /*
+                10/26/26 - CLAUDE
+
+                Rock's web start-up compiles every block type and registers its settings before any job runs
+                (BlockTypeService.VerifyBlockTypeInstanceProperties), and marks each one verified. Compiling a WebForms
+                block type means compiling its .ascx, which only works inside IIS, so the trusted base has never done
+                it. The block swap jobs verify their replacement block types first, and each WebForms one among them
+                logged a BuildManager NullReferenceException (6 on Rock 21.0.2), which the base check rightly refuses.
+
+                Reason: Mark WebForms block types verified, as a started Rock has them, so the jobs never compile an .ascx.
+            */
+            MarkWebFormsBlockTypesVerified();
+
             steps.Add( RunUpdateJobs() );
 
             /*
@@ -310,6 +323,22 @@ namespace RockSampleData.RockRunner
             }
 
             bus.GetProperty( "IsRockStarted", Hidden )?.SetValue( null, true );
+        }
+
+        /// <summary>
+        /// Marks every WebForms (.ascx) block type's instance properties verified in Rock's cache, the state Rock's web
+        /// start-up leaves them in, so nothing tries to compile an .ascx outside IIS. Obsidian block types are left alone.
+        /// </summary>
+        private void MarkWebFormsBlockTypesVerified()
+        {
+            var cache = _rock.GetType( "Rock.Web.Cache.BlockTypeCache", true );
+            var all = ( IEnumerable<object> ) cache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var mark = cache.GetMethod( "MarkInstancePropertiesVerified", new[] { typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no BlockTypeCache.MarkInstancePropertiesVerified( bool ). The runner needs updating for this Rock." );
+            foreach ( var blockType in all.Where( b => !string.IsNullOrWhiteSpace( ( string ) cache.GetProperty( "Path" ).GetValue( b ) ) ).ToList() )
+            {
+                mark.Invoke( blockType, new object[] { true } );
+            }
         }
 
         /// <summary>
