@@ -138,6 +138,7 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 - Keep packages data only. A file the loader needs goes into the package through the builder, and the loader reads it through the package, never from the repository.
 - If a change alters the package layout in a way an older loader cannot read, raise the package format version.
 - If packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads, raise `SampleDataPackage.MinimumLoaderVersion` to the release that will ship the change, and the loader project's `Version` with it (decision 158). A Rock keeps the loader it shipped with, so without this an older Rock would download a package it cannot load.
+- A newer loader must still read every published package (decision D-churchappcompat-1). Make a new field in a model the loader reads nullable or give it a default, and treat a missing value as "off". `loader-compat-check` opens the configuration of every published release saved in `loader-compat-check/published/`, so a change that breaks one fails there before a release.
 - Run validation on Full 7 before and after your change. A change should not lower the share of values within tolerance without a written reason. See [Validation](../validation/README.md).
 
 ## Publishing a release
@@ -165,6 +166,7 @@ A run without "publish" stops after the first three jobs. That is a dry run.
    ```
 
 4. Approve the Publish job when GitHub asks.
+5. When the run published packages, save that release's configuration for the loader compatibility check, on a branch: make `loader-compat-check/published/<tag>/configuration/`, fill it with `git show <tag>:configuration/<file>` for each JSON file there, and add a check for it in `loader-compat-check/Program.cs` like the one for `v0.1.0-alpha.10`.
 
 A tag with a label, such as `v1.1.0-beta.1`, is a prerelease. NuGet lists the loader as a prerelease, and only `packages/index-prerelease.json` changes (decision 129). To try one in Rock, point the installer block at `https://storage.rockrms.com/sampledata/packages/index-prerelease.json`.
 

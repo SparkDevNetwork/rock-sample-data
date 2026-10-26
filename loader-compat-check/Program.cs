@@ -125,9 +125,16 @@ return failures == 0 ? 0 : 1;
 
 static string Published( string tag )
 {
-    var source = SampleDataSource.FromFolder( PublishedFolder( tag ) );
-    var app = source.ChurchApp == null ? "no church app" : source.ChurchApp.IsComplete ? "church app, push on" : "church app stub, push off";
-    return $"campuses {source.Campuses.Campuses.Count}|communications {( source.Communications == null ? "none" : "yes" )}|{app}";
+    try
+    {
+        var source = SampleDataSource.FromFolder( PublishedFolder( tag ) );
+        var app = source.ChurchApp == null ? "no church app" : source.ChurchApp.IsComplete ? "church app, push on" : "church app stub, push off";
+        return $"campuses {source.Campuses.Campuses.Count}|communications {( source.Communications == null ? "none" : "yes" )}|{app}";
+    }
+    catch ( Exception ex )
+    {
+        return $"{ex.Message} {ex.InnerException?.Message}";
+    }
 }
 
 static string PlainError( string tag )
