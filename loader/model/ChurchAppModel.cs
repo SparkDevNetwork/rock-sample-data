@@ -16,6 +16,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RockSampleData.Loader.Model
 {
@@ -33,6 +34,12 @@ namespace RockSampleData.Loader.Model
         public ChurchAppDevices Devices { get; set; }
 
         public ChurchAppPush Push { get; set; }
+
+        /// <summary>
+        /// The file has everything the push part loads. A package from before push was built carries a stub with no device
+        /// shares, and the push part loads nothing from it.
+        /// </summary>
+        public bool IsComplete => Site != null && Homepage != null && Layouts.Any( l => l.Name == "Homepage" ) && Devices?.IsDesigned == true && Push != null;
     }
 
     internal sealed class ChurchAppSite
@@ -73,13 +80,18 @@ namespace RockSampleData.Loader.Model
 
     internal sealed class ChurchAppDevices
     {
-        public double PctOfActiveAdults { get; set; }
+        /// <summary>
+        /// The share of active adults with the app. Null in the stub that packages from before push carry.
+        /// </summary>
+        public double? PctOfActiveAdults { get; set; }
 
-        public double PctIos { get; set; }
+        public double? PctIos { get; set; }
 
-        public double PctNotificationsOn { get; set; }
+        public double? PctNotificationsOn { get; set; }
 
-        public double PctSeenInLast30Days { get; set; }
+        public double? PctSeenInLast30Days { get; set; }
+
+        public bool IsDesigned => PctOfActiveAdults.HasValue && PctIos.HasValue && PctNotificationsOn.HasValue && PctSeenInLast30Days.HasValue;
 
         public Dictionary<string, Guid> Platforms { get; set; } = new Dictionary<string, Guid>();
 

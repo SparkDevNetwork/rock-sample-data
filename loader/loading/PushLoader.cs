@@ -102,9 +102,9 @@ namespace RockSampleData.Loader.Loading
         public void Load( CommunicationsConfiguration configuration, PeopleLoader people, BulkEmailLoader emails )
         {
             var app = _source.ChurchApp;
-            if ( app == null )
+            if ( app == null || !app.IsComplete )
             {
-                _db.Log.Write( "  Skipped the app (this package has no configuration/church-app.json)" );
+                _db.Log.Write( app == null ? "  Skipped the app (this package has no configuration/church-app.json)" : "  Skipped the app (this package's configuration/church-app.json is the stub from before push)" );
                 return;
             }
 
@@ -200,7 +200,7 @@ VALUES ( @Name, @Name, @Name, '', 0, @LayoutId, @SiteId, 0, 1, 1, 1, 1, 1, 0, 0,
             foreach ( var person in candidates.Where( p => p.IsAdult ).OrderBy( p => p.PersonId ) )
             {
                 var random = new SeededRandom( $"{_seed}:app:device:{person.Guid}" );
-                var hasApp = staff.Contains( person.Guid ) || ( person.IsInvolved && random.Chance( design.PctOfActiveAdults / 100 ) );
+                var hasApp = staff.Contains( person.Guid ) || ( person.IsInvolved && random.Chance( design.PctOfActiveAdults.Value / 100 ) );
                 if ( !hasApp )
                 {
                     continue;
@@ -209,7 +209,7 @@ VALUES ( @Name, @Name, @Name, '', 0, @LayoutId, @SiteId, 0, 1, 1, 1, 1, 1, 0, 0,
                 var start = person.Since > launched ? person.Since : launched;
                 var days = Math.Max( 1, ( int ) ( _dates.Anchor - start ).TotalDays );
                 var first = start.Date.AddDays( Math.Min( days - 1, ( int ) ( days * Math.Pow( random.Between( 0.0, 1.0 ), 1.6 ) ) ) ).AddHours( random.Between( 8, 21 ) ).AddMinutes( random.Between( 0, 59 ) );
-                var lastSeen = random.Chance( design.PctSeenInLast30Days / 100 ) || first > _dates.Anchor.AddDays( -30 )
+                var lastSeen = random.Chance( design.PctSeenInLast30Days.Value / 100 ) || first > _dates.Anchor.AddDays( -30 )
                     ? _dates.Anchor.AddDays( -random.Between( 0.0, 30.0 ) )
                     : first.AddDays( random.Between( 0.0, Math.Max( 0.0, ( _dates.Anchor.AddDays( -30 ) - first ).TotalDays ) ) );
                 if ( lastSeen < first )
@@ -217,7 +217,7 @@ VALUES ( @Name, @Name, @Name, '', 0, @LayoutId, @SiteId, 0, 1, 1, 1, 1, 1, 0, 0,
                     lastSeen = first;
                 }
 
-                var isIos = random.Chance( design.PctIos / 100 );
+                var isIos = random.Chance( design.PctIos.Value / 100 );
                 var nickName = names.GetValueOrDefault( person.PersonId, "My" );
                 string manufacturer, model, name, identifier;
                 if ( isIos )
@@ -240,7 +240,7 @@ VALUES ( @Name, @Name, @Name, '', 0, @LayoutId, @SiteId, 0, 1, 1, 1, 1, 1, 0, 0,
                 {
                     Person = person,
                     IsIos = isIos,
-                    NotificationsOn = random.Chance( design.PctNotificationsOn / 100 ),
+                    NotificationsOn = random.Chance( design.PctNotificationsOn.Value / 100 ),
                     FirstSeen = first,
                     LastSeen = lastSeen,
                     Manufacturer = manufacturer,

@@ -35,6 +35,10 @@ using RockSampleData.Loader.Packages;
     The package index checks read an index from before the card fields joined it and one with fields
     this loader does not know, so both builds stay able to read an older and a newer index. The last ones
     check the order of loader versions and which index entries this loader may install on a Rock.
+    The published package checks open the configuration of every published release, saved in
+    published/<tag>/, so a model change that would stop this loader from reading a package already on
+    storage fails here first (decision D-churchappcompat-1). Add a folder for each release that publishes
+    packages: git show <tag>:configuration/<file> for each JSON file.
 */
 
 // Rock's Encryption salt and HKDF label, as in loader/database/RockKeys.cs and Rock/Security/Encryption.cs.
@@ -94,7 +98,13 @@ var checks = new (string Name, string Actual, string Expected)[]
         "21|0.1.0-alpha.1|True|False"),
     ("Package index entry that needs a newer loader",
         Installable( SampleDataPackageIndex.Parse( Index( "\"rockMajor\": 21, \"minimumLoaderVersion\": \"99.0.0\"," ) ) ),
-        "21|99.0.0|False|False")
+        "21|99.0.0|False|False"),
+    ("Opens the configuration of the published v0.1.0-alpha.10 packages",
+        Published( "v0.1.0-alpha.10" ),
+        "campuses 7|communications none|church app stub, push off"),
+    ("A file this loader cannot read gives a plain message",
+        PlainError( "v0.1.0-alpha.10" ),
+        "InvalidDataException|This package can't be read by this loader: configuration/church-app.json is not in the form this loader reads. Use the package for this loader's release.|JsonException")
 };
 
 var failures = 0;
@@ -112,6 +122,28 @@ var target = ".NET 10";
 #endif
 Console.WriteLine( failures == 0 ? $"All {checks.Length} checks pass on {target}." : $"{failures} of {checks.Length} checks fail on {target}." );
 return failures == 0 ? 0 : 1;
+
+static string Published( string tag )
+{
+    var source = SampleDataSource.FromFolder( PublishedFolder( tag ) );
+    var app = source.ChurchApp == null ? "no church app" : source.ChurchApp.IsComplete ? "church app, push on" : "church app stub, push off";
+    return $"campuses {source.Campuses.Campuses.Count}|communications {( source.Communications == null ? "none" : "yes" )}|{app}";
+}
+
+static string PlainError( string tag )
+{
+    try
+    {
+        SampleDataSource.FromFolder( PublishedFolder( tag ) ).Read<int>( "configuration/church-app.json" );
+        return "no error";
+    }
+    catch ( Exception ex )
+    {
+        return $"{ex.GetType().Name}|{ex.Message}|{ex.InnerException?.GetType().Name}";
+    }
+}
+
+static string PublishedFolder( string tag ) => Path.Combine( SampleDataSource.FindRoot( AppContext.BaseDirectory ), "loader-compat-check", "published", tag );
 
 static string Hex( byte[] bytes ) => BitConverter.ToString( bytes ).Replace( "-", string.Empty ).ToLowerInvariant();
 

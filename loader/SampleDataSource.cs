@@ -242,7 +242,7 @@ namespace RockSampleData.Loader
             using var document = JsonDocument.Parse( Files.ReadText( $"content/notes/{typeKey}.json" ) );
             return document.RootElement.EnumerateObject()
                 .Where( p => !p.Name.StartsWith( "$", StringComparison.Ordinal ) )
-                .ToDictionary( p => p.Name, p => p.Value.Deserialize<NotePoolSection>( JsonOptions ) );
+                .ToDictionary( p => p.Name, p => Parse( $"content/notes/{typeKey}.json", () => p.Value.Deserialize<NotePoolSection>( JsonOptions ) ) );
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace RockSampleData.Loader
                 var isSmallGroup = document.RootElement.TryGetProperty( "type", out var type ) && type.GetString() == "small-group";
                 if ( isSmallGroup && !SmallGroups.Cast.NotInPattern.Contains( document.RootElement.GetProperty( "key" ).GetString() ) )
                 {
-                    plans.Add( JsonSerializer.Deserialize<SmallGroupPlan>( text, SmallGroupPlanJson.Options ) );
+                    plans.Add( Parse( file, () => JsonSerializer.Deserialize<SmallGroupPlan>( text, SmallGroupPlanJson.Options ) ) );
                 }
             }
 
@@ -358,7 +358,30 @@ namespace RockSampleData.Loader
         /// </summary>
         public T Read<T>( string path )
         {
-            return JsonSerializer.Deserialize<T>( Files.ReadText( path ), JsonOptions );
+            return Parse( path, () => JsonSerializer.Deserialize<T>( Files.ReadText( path ), JsonOptions ) );
+        }
+
+        /*
+            10/26/26 - CLAUDE
+
+            A package is built for the loader of its release. When a newer loader meets a file whose shape
+            it does not expect, the person installing sees a plain message instead of a JSON error, and the
+            JSON error stays as the inner exception for whoever reads the log.
+
+            Reason: a published package must never stop a newer loader with a raw parse error
+            (decision D-churchappcompat-1).
+        */
+
+        private static T Parse<T>( string path, Func<T> parse )
+        {
+            try
+            {
+                return parse();
+            }
+            catch ( JsonException ex )
+            {
+                throw new InvalidDataException( $"This package can't be read by this loader: {path} is not in the form this loader reads. Use the package for this loader's release.", ex );
+            }
         }
     }
 }

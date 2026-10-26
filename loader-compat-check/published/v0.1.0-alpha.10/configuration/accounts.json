@@ -1,0 +1,183 @@
+{
+  "$comment": "General and Building funds, and the Built on the Rock campaign fund, have one child account per campus (the traditional Rock pattern). Gifts post to the giver's campus account. Only campuses in the installed dataset get child accounts. Funds with rockDefault false are not in a new Rock database, so the loader adds them.",
+  "accounts": [
+    {
+      "key": "general",
+      "name": "General Fund",
+      "publicName": "General Fund",
+      "guid": "4410306F-3FB5-4A57-9A80-09A3F9D40D0C",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 0,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix General Fund",
+          "publicName": "General Fund",
+          "guid": "83BC835B-ECF2-4ED9-8C97-5EAE8DD3D1C9"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria General Fund",
+          "publicName": "General Fund",
+          "guid": "C4DC3E4F-9C20-408F-944B-A73184C3518A"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert General Fund",
+          "publicName": "General Fund",
+          "guid": "A3BB0A8F-E677-47EA-B7ED-634C303FA71D"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale General Fund",
+          "publicName": "General Fund",
+          "guid": "7F4DAC8C-A34B-42CF-9DF9-15DC8D0BA758"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler General Fund",
+          "publicName": "General Fund",
+          "guid": "9D9E2741-6E4C-4ACB-9B79-B12099265FBB"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear General Fund",
+          "publicName": "General Fund",
+          "guid": "6C49C147-2733-44A2-8F7E-735046D26B03"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe General Fund",
+          "publicName": "General Fund",
+          "guid": "50A5F9A0-CF9F-4DC8-B44A-E84DC9001878"
+        }
+      ]
+    },
+    {
+      "key": "building",
+      "name": "Building Fund",
+      "publicName": "Building Fund",
+      "guid": "67C6181C-1D8C-44D7-B262-B81E746F06D8",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 1,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix Building Fund",
+          "publicName": "Building Fund",
+          "guid": "40AE9CE9-614E-4184-8042-A8D22A82F47B"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria Building Fund",
+          "publicName": "Building Fund",
+          "guid": "24A0A703-B534-4521-B6AE-6F95A13847C7"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert Building Fund",
+          "publicName": "Building Fund",
+          "guid": "4AE39F60-85D6-4DED-A046-EA5CEE63DA1B"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale Building Fund",
+          "publicName": "Building Fund",
+          "guid": "3D7E6998-ADE3-4622-8AE7-0C9588EE269C"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler Building Fund",
+          "publicName": "Building Fund",
+          "guid": "FD457FC2-2DBA-45A4-90C3-1A76FC3A42D7"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear Building Fund",
+          "publicName": "Building Fund",
+          "guid": "CF6750B0-FF0C-44F8-A335-9F37D1D764BA"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe Building Fund",
+          "publicName": "Building Fund",
+          "guid": "539FC6F4-2B77-4551-8030-F6BEADE01065"
+        }
+      ]
+    },
+    {
+      "key": "campaign",
+      "name": "Built on the Rock",
+      "publicName": "Built on the Rock",
+      "guid": "D0E115C4-2945-4F22-BAFD-C57D0EA73BAE",
+      "rockDefault": false,
+      "isTaxDeductible": true,
+      "order": 2,
+      "campusAccounts": [
+        {
+          "campus": "phoenix",
+          "name": "Phoenix Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "D47F2BC4-1B1B-4C4C-B7CF-E20610EAF47B"
+        },
+        {
+          "campus": "peoria",
+          "name": "Peoria Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "6B82EE8E-8704-41FF-AC73-6DCA310BEA16"
+        },
+        {
+          "campus": "gilbert",
+          "name": "Gilbert Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "8FA6EAC8-A04A-46A3-9D8B-14A0CE9BF563"
+        },
+        {
+          "campus": "scottsdale",
+          "name": "Scottsdale Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "C92606F0-0FB3-429A-B483-C36009856B10"
+        },
+        {
+          "campus": "chandler",
+          "name": "Chandler Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "2BE296EF-4A15-4695-8235-44BF44ECB895"
+        },
+        {
+          "campus": "goodyear",
+          "name": "Goodyear Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "56F2C9FD-A1E8-45D6-AF74-30CA196F3C2F"
+        },
+        {
+          "campus": "tempe",
+          "name": "Tempe Built on the Rock",
+          "publicName": "Built on the Rock",
+          "guid": "F04D13D8-EF67-4926-BDC3-501F34D299A0"
+        }
+      ]
+    },
+    {
+      "key": "missions",
+      "name": "Mission Fund",
+      "publicName": "Mission Fund",
+      "guid": "BAB250EE-CAE6-4A41-9756-AD9327408BE0",
+      "rockDefault": true,
+      "isTaxDeductible": true,
+      "order": 3,
+      "campusAccounts": []
+    },
+    {
+      "key": "event-registration",
+      "name": "Event Registration",
+      "guid": "2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5",
+      "rockDefault": true,
+      "isTaxDeductible": false,
+      "order": 4,
+      "campusAccounts": []
+    }
+  ]
+}

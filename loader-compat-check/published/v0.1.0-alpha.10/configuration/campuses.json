@@ -1,0 +1,234 @@
+{
+  "$comment": "Campuses are named by city only. Coordinates are approximate area centers until the address pool assigns street addresses.",
+  "campuses": [
+    {
+      "key": "phoenix",
+      "name": "Phoenix",
+      "guid": "76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8",
+      "rockDefault": true,
+      "shortCode": "PHO",
+      "datasets": [
+        "core-1",
+        "core-3",
+        "full-7"
+      ],
+      "notes": "Rock's built-in main campus, renamed. North Phoenix, where the Cast lives. The original and largest campus.",
+      "location": {
+        "guid": "440ADDC1-48E8-4F61-9C8F-132CB8C8E01E",
+        "latitude": 33.5925,
+        "longitude": -112.126,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1200",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "peoria",
+      "name": "Peoria",
+      "guid": "5543B9D6-7571-4A0D-BFCC-09F3EF1B28F3",
+      "rockDefault": false,
+      "shortCode": "PEO",
+      "datasets": [
+        "core-3",
+        "full-7"
+      ],
+      "notes": "West Valley.",
+      "location": {
+        "guid": "81707791-E974-43CB-81D7-5CE5A5F877E2",
+        "latitude": 33.5806,
+        "longitude": -112.2374,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "gilbert",
+      "name": "Gilbert",
+      "guid": "340B5E66-A2D2-4578-A6C2-82C17E08232A",
+      "rockDefault": false,
+      "shortCode": "GIL",
+      "datasets": [
+        "core-3",
+        "full-7"
+      ],
+      "notes": "East Valley.",
+      "location": {
+        "guid": "69436C00-1976-45F8-A368-5DA5F4C43F6C",
+        "latitude": 33.3528,
+        "longitude": -111.789,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "scottsdale",
+      "name": "Scottsdale",
+      "guid": "B2D9137B-1081-4533-9C52-08CDE8222C57",
+      "rockDefault": false,
+      "shortCode": "SCO",
+      "datasets": [
+        "full-7"
+      ],
+      "notes": "Older, higher-income households.",
+      "location": {
+        "guid": "1BB80CE5-FF05-4B0A-91DB-9CCB5681C3DD",
+        "latitude": 33.4942,
+        "longitude": -111.9261,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "chandler",
+      "name": "Chandler",
+      "guid": "05AE81C6-14B8-4A03-8361-780B86AE085A",
+      "rockDefault": false,
+      "shortCode": "CHA",
+      "datasets": [
+        "full-7"
+      ],
+      "notes": "Young families; large kids ministry.",
+      "location": {
+        "guid": "30519E62-A6BF-44A4-90AB-50EDFED01B9B",
+        "latitude": 33.3062,
+        "longitude": -111.8413,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1200",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "goodyear",
+      "name": "Goodyear",
+      "guid": "6A7CF7E0-5AA3-4CC4-98C1-2FCAA0551239",
+      "rockDefault": false,
+      "shortCode": "GOO",
+      "datasets": [
+        "full-7"
+      ],
+      "notes": "Fast-growing far west; more first-time guests.",
+      "location": {
+        "guid": "22965911-06CE-4AAA-8A62-92098643DB12",
+        "latitude": 33.4353,
+        "longitude": -112.3577,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-0900",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    },
+    {
+      "key": "tempe",
+      "name": "Tempe",
+      "guid": "80432C19-58A7-4F5F-AE92-21204CD7BD4D",
+      "rockDefault": false,
+      "shortCode": "TEM",
+      "datasets": [
+        "full-7"
+      ],
+      "notes": "Urban; singles and young adults.",
+      "location": {
+        "guid": "223AB60B-D546-4E9C-9595-F50A9387576B",
+        "latitude": 33.4255,
+        "longitude": -111.94,
+        "addressPending": true
+      },
+      "schedules": [
+        {
+          "slot": "sun-1030",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1200",
+          "type": "weekend"
+        },
+        {
+          "slot": "sun-1030",
+          "type": "student"
+        }
+      ]
+    }
+  ]
+}
