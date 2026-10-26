@@ -37,7 +37,7 @@ Each request to serve is an Attendance row on the team's occurrence for that roo
 
 - **History.** Serving history covers the dataset's whole history window, like Sunday attendance. A volunteer served on a Sunday their family came. Otherwise they were often not scheduled at all, since the family planned to be away, or they declined with a reason, never answered, or confirmed and did not come.
 - **The weeks ahead.** The next six weeks mix confirmed (60%), pending (30%), and declined (10%), around a few blackout dates.
-- **Notifications.** Every confirmation and reminder is marked sent, so Rock's notification job never emails sample people.
+- **Notifications.** A confirmation and a reminder are marked sent only for volunteers Rock's notification job can email, as the job marks them (decision 165). Before install day, only volunteers who confirmed got a reminder. For a Sunday still ahead, both are marked sent for everyone the job can email, so it never emails sample people. No request is dated after install day.
 - **Check-in.** Volunteers check in to serve through Rock's Volunteer Check-in template, whose Serving Team area holds every team. A scheduled volunteer is pre-selected at the kiosk. Every time a volunteer served, they checked in a few minutes before the service.
 
 ## Requests to serve

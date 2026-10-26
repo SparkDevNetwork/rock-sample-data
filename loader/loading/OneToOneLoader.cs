@@ -54,7 +54,6 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid ScheduleConfirmationGuid = new Guid( "BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC" );
         private static readonly Guid ScheduleReminderGuid = new Guid( "8A20FE79-B73C-447A-82B1-416F9B50C038" );
         private const string ContactedActivity = "Contacted Waiting for Response";
-        private const int RsvpNo = 0;
 
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
@@ -95,11 +94,11 @@ namespace RockSampleData.Loader.Loading
             // A person can get two of the same email in one minute, such as two connectors writing at once, so each key gets a number when it repeats.
             var keys = new Dictionary<string, int>();
             string Unique( string key ) => ( keys[key] = keys.GetValueOrDefault( key ) + 1 ) == 1 ? key : $"{key}:{keys[key]}";
-            void Add( string kind, LibraryEmail message, EmailPerson person, DateTime sent, string campusKey, DateTime eventDate, OneToOneSender sender )
+            bool Add( string kind, LibraryEmail message, EmailPerson person, DateTime sent, string campusKey, DateTime eventDate, OneToOneSender sender )
             {
                 if ( sent < from || sent >= _dates.Anchor || !loaded.TryGetValue( person.PersonId, out var who ) )
                 {
-                    return;
+                    return false;
                 }
 
                 var campus = campuses.GetValueOrDefault( campusKey ?? person.CampusKey ?? string.Empty ) ?? campuses.Values.First();
@@ -119,6 +118,7 @@ namespace RockSampleData.Loader.Loading
                     Created = sent,
                     Sent = sent
                 }, person, sender) );
+                return true;
             }
 
             var churchSender = new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail };
@@ -129,39 +129,51 @@ namespace RockSampleData.Loader.Loading
                 FromEmail = string.IsNullOrWhiteSpace( person.Cast.Email ) ? church.FromEmail : person.Cast.Email
             };
 
-            // Serving: one confirmation per volunteer each day the scheduler asks them, and one reminder two days before each Sunday they did not decline.
-            // Rock's job only picks volunteers it can email, so a volunteer with no working email gets no serving email at all.
+            // Serving: one confirmation per volunteer each day the scheduler asks them, and one reminder before each Sunday they confirmed.
+            // The serving part set the flags for volunteers Rock can email. A past flag whose email Rock could not send, because the address
+            // bounced first, is cleared again, as the job never sets it then. A flag the job would still act on after install stays set.
             var confirmationId = _db.RequireIdByGuid( "SystemCommunication", ScheduleConfirmationGuid );
             var reminderId = _db.RequireIdByGuid( "SystemCommunication", ScheduleReminderGuid );
-            var requests = _db.Query( "SELECT [PersonAliasId], [CampusId], [StartDateTime], [RSVP], [CreatedDateTime] FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [RequestedToAttend] = 1 AND [ScheduleConfirmationSent] = 1",
-                P( "@ForeignKey", _foreignKey ) )
-                .Where( r => byAlias.ContainsKey( ( int ) r["PersonAliasId"] ) )
-                .Select( r => (Person: byAlias[( int ) r["PersonAliasId"]], CampusKey: r["CampusId"] is int c ? campusKeys.GetValueOrDefault( c ) : null, Start: ( DateTime ) r["StartDateTime"],
-                    Rsvp: Convert.ToInt32( r["RSVP"] ), Requested: ( DateTime ) r["CreatedDateTime"]) )
+            var reminderDays = Convert.ToInt32( _db.Scalar( @"
+SELECT TOP 1 ISNULL( [gt].[ScheduleReminderEmailOffsetDays], 2 )
+FROM [GroupType] AS [gt]
+INNER JOIN [SystemCommunication] AS [sc] ON [sc].[Id] = [gt].[ScheduleReminderSystemCommunicationId]
+WHERE [sc].[Guid] = @Guid", P( "@Guid", ScheduleReminderGuid ) ) ?? 2 );
+            var requests = _db.Query( @"
+SELECT [Id], [PersonAliasId], [CampusId], [StartDateTime], [CreatedDateTime], [ScheduleConfirmationSent], [ScheduleReminderSent]
+FROM [Attendance]
+WHERE [ForeignKey] = @ForeignKey AND [RequestedToAttend] = 1 AND ( [ScheduleConfirmationSent] = 1 OR [ScheduleReminderSent] = 1 )", P( "@ForeignKey", _foreignKey ) )
+                .Select( r => (Id: ( int ) r["Id"], Person: byAlias.GetValueOrDefault( ( int ) r["PersonAliasId"] ), CampusKey: r["CampusId"] is int c ? campusKeys.GetValueOrDefault( c ) : null,
+                    Start: ( DateTime ) r["StartDateTime"], Requested: ( DateTime ) r["CreatedDateTime"], Confirmed: ( bool ) r["ScheduleConfirmationSent"], Reminded: ( bool ) r["ScheduleReminderSent"]) )
                 .ToList();
-            foreach ( var day in requests.GroupBy( r => (r.Person.PersonId, r.Requested.Date) ).OrderBy( g => g.Key.Date ).ThenBy( g => g.Key.PersonId ) )
+            var unsentConfirmations = new List<int>();
+            var unsentReminders = new List<int>();
+            foreach ( var day in requests.Where( r => r.Confirmed ).GroupBy( r => (PersonId: r.Person?.PersonId ?? -r.Id, r.Requested.Date) ).OrderBy( g => g.Key.Date ).ThenBy( g => g.Key.PersonId ) )
             {
                 var first = day.OrderBy( r => r.Start ).First();
-                var sent = day.Key.Date.AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:confirm:{first.Person.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
-                if ( !emails.Planner.CanEmail( first.Person, sent ) )
+                var sent = day.Key.Date.AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:confirm:{first.Person?.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
+                var isSent = sent < from || sent >= _dates.Anchor || ( first.Person != null && emails.Planner.CanEmail( first.Person, sent )
+                    && Add( "confirm", library["serving-scheduled"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = confirmationId } ) );
+                if ( !isSent )
                 {
-                    continue;
+                    unsentConfirmations.AddRange( day.Select( r => r.Id ) );
                 }
-
-                Add( "confirm", library["serving-scheduled"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = confirmationId } );
             }
 
-            foreach ( var day in requests.Where( r => r.Rsvp != RsvpNo ).GroupBy( r => (r.Person.PersonId, r.Start.Date) ).OrderBy( g => g.Key.Date ).ThenBy( g => g.Key.PersonId ) )
+            foreach ( var day in requests.Where( r => r.Reminded && ( r.Start <= _dates.Anchor || r.Start.Date.AddDays( -reminderDays ) <= _dates.Anchor.Date ) ).GroupBy( r => (PersonId: r.Person?.PersonId ?? -r.Id, r.Start.Date) ).OrderBy( g => g.Key.Date ).ThenBy( g => g.Key.PersonId ) )
             {
                 var first = day.OrderBy( r => r.Start ).First();
-                var sent = day.Key.Date.AddDays( -2 ).AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:remind:{first.Person.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
-                if ( !emails.Planner.CanEmail( first.Person, sent ) )
+                var sent = day.Key.Date.AddDays( -reminderDays ).AddHours( 16 ).AddMinutes( new SeededRandom( $"{_seed}:oneone:remind:{first.Person?.Guid}:{day.Key.Date:yyyyMMdd}" ).Between( 1, 20 ) );
+                var isSent = sent < from || sent >= _dates.Anchor || ( first.Person != null && emails.Planner.CanEmail( first.Person, sent )
+                    && Add( "remind", library["serving-reminder"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = reminderId } ) );
+                if ( !isSent )
                 {
-                    continue;
+                    unsentReminders.AddRange( day.Select( r => r.Id ) );
                 }
-
-                Add( "remind", library["serving-reminder"], first.Person, sent, first.CampusKey, first.Start, new OneToOneSender { FromName = church.FromName, FromEmail = church.FromEmail, SystemCommunicationId = reminderId } );
             }
+
+            ClearFlags( "ScheduleConfirmationSent", unsentConfirmations );
+            ClearFlags( "ScheduleReminderSent", unsentReminders );
 
             // Connections: the connector's email when they log that they reached out and are waiting to hear back.
             var contacted = _db.Query( @"
@@ -254,6 +266,28 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", 
             }
 
             Write( sends, emails );
+        }
+
+        /// <summary>
+        /// Clears a serving request flag on the requests whose email Rock never sent.
+        /// </summary>
+        private void ClearFlags( string column, List<int> attendanceIds )
+        {
+            if ( attendanceIds.Count == 0 )
+            {
+                return;
+            }
+
+            var ids = TableFactory.Create( "Id:int" );
+            foreach ( var id in attendanceIds.Distinct() )
+            {
+                ids.Rows.Add( id );
+            }
+
+            _db.Execute( "CREATE TABLE #Unsent ( [Id] INT PRIMARY KEY )" );
+            _db.BulkInsert( "#Unsent", ids, keepIdentity: false );
+            _db.Execute( $"UPDATE [a] SET [a].[{column}] = 0 FROM [Attendance] AS [a] INNER JOIN #Unsent AS [u] ON [u].[Id] = [a].[Id]; DROP TABLE #Unsent;" );
+            _db.Log.Write( $"  Serving requests whose {( column == "ScheduleConfirmationSent" ? "confirmation" : "reminder" )} Rock could not email: {ids.Rows.Count:N0}" );
         }
 
         private void Write( List<(PlannedEmail Send, EmailPerson Person, OneToOneSender Sender)> sends, BulkEmailLoader emails )
