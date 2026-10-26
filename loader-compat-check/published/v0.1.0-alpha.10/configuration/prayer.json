@@ -1,0 +1,28 @@
+{
+  "$comment": "Prayer requests use the categories Rock ships, unchanged, under its All Church root (decision 67). Each category has a weight: its share of generated requests, in percent. The weights follow the measured shape: the top category holds about 65% of requests, the top 3 about 80%, and the top 5 about 89%. Each key names the category's text pool in content/prayer/categories. A category with weight 0 gets no generated requests, and its reason says why.",
+  "rootCategory": {
+    "name": "All Church",
+    "guid": "5A94E584-35F0-4214-91F1-D72531CC6325"
+  },
+  "categories": [
+    { "key": "general", "name": "General", "guid": "4B2D88F5-6E45-4B4B-8776-11118C8E8269", "weight": 65 },
+    { "key": "health-issues", "name": "Health Issues", "guid": "5C63A5B0-B2CF-4476-8F0E-D415BEE163D8", "weight": 8 },
+    { "key": "family-issues", "name": "Family Issues", "guid": "B08F10AA-CA78-4527-93BF-A0D5640E4549", "weight": 7 },
+    { "key": "hospitalization", "name": "Hospitalization", "guid": "9A15157F-4507-4975-A3B5-72D30BF503CD", "weight": 5 },
+    { "key": "comfort-grief", "name": "Comfort/Grief", "guid": "D12837CF-EEE7-4822-9899-36E8884CD848", "weight": 4.3 },
+    { "key": "finances-job", "name": "Finances/Job", "guid": "C35752E2-A575-4182-8B5A-8AE9D0694B97", "weight": 2.2 },
+    { "key": "life-transitions", "name": "Life Transitions", "guid": "0082F3FE-0FF3-4A90-B874-260BCEAED75E", "weight": 1.8 },
+    { "key": "salvation-rededication", "name": "Salvation/Rededication", "guid": "FB4A609E-3A7D-4AD0-A55A-D707638A35F5", "weight": 1.3 },
+    { "key": "marriage-relationship", "name": "Marriage/Relationship Problems", "guid": "4C4C9EC6-C3E4-4E06-B003-0F7701217EE9", "weight": 1 },
+    { "key": "travel", "name": "Travel", "guid": "AF51A735-59EF-4713-B9BD-604EBB86CA13", "weight": 0.8 },
+    { "key": "gods-will", "name": "God's Will", "guid": "9C9D56A2-6DE5-4871-9659-691210436F37", "weight": 0.7 },
+    { "key": "depression-anxiety", "name": "Depression/Anxiety", "guid": "AD4A08D6-4A60-456F-AFD0-660AA776021D", "weight": 0.7 },
+    { "key": "global-outreach", "name": "Global Outreach", "guid": "6C76B9D2-B298-4DAB-A34D-3363721672FC", "weight": 0.5 },
+    { "key": "addictive-behavior", "name": "Addictive Behavior", "guid": "3CB239E5-101B-4190-85C9-74C7EDBF2A06", "weight": 0.4 },
+    { "key": "persecuted-church", "name": "Persecuted Church", "guid": "9A16BA12-8564-4828-8F8A-4D83016DA4EB", "weight": 0.4 },
+    { "key": "spiritual-warfare", "name": "Spiritual Warfare", "guid": "3465AF21-0F66-465E-97F8-DBC18792986B", "weight": 0.3 },
+    { "key": "current-events", "name": "Current Events", "guid": "5412E4C8-6E51-4CA8-98A9-49AAC91486B5", "weight": 0.3 },
+    { "key": "nation", "name": "Nation", "guid": "50B8C809-DFFD-42D5-B127-6FCFD80A10B0", "weight": 0.3 },
+    { "key": "suicidal-tendencies", "name": "Suicidal Tendencies", "guid": "9572404F-55C9-4866-940F-3D1EDC9D8829", "weight": 0, "reason": "Too heavy for sample data that appears in demos and screenshots. The category stays in Rock, empty." }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "$comment": "The church's building campaign (docs/pledges.md, decisions 97 to 105). Its dates count back from install day, so every install is the same distance into the campaign. The fund itself is in accounts.json.",
+  "name": "Built on the Rock",
+  "fund": "Built on the Rock",
+  "description": "Built on the Rock is our two-year campaign to build a Student Center at the Phoenix campus and add kids rooms at every campus. Like the wise builder in Matthew 7, we want to build on a foundation that lasts.",
+  "commitmentSundayWeeksBeforeInstall": 40,
+  "lengthYears": 2,
+  "quietPhaseWeeks": {
+    "min": 6,
+    "max": 10
+  },
+  "$lineFactors": "Each pledge with a frequency gives a campaign line on the giver's usual gifts. The line is the pace that pays the pledge on the campaign's last day, times this factor. A stopped pledge gives on pace until it stops.",
+  "lineFactors": {
+    "ahead": 1.5,
+    "on-pace": 1,
+    "behind": 0.55,
+    "stopped": 1
+  },
+  "$generated": "How generated households and businesses take part (decisions 101 to 105). The loader picks pledgers to reach the profile's giving.pctUnitsWithPledge, weighting each giving unit: steady rhythmic givers with steadyYears at the church, other rhythmic givers, other givers, and businesses. Mixes are weights. A rhythmic giver's pledge 'same' frequency is their giving rhythm.",
+  "generated": {
+    "pledgerWeights": {
+      "business": 3,
+      "steady": 3,
+      "rhythmic": 1,
+      "other": 0.25
+    },
+    "steadyYears": 2,
+    "leadShare": 0.02,
+    "minimumPledgesPerCampus": 6,
+    "pledgeYears": {
+      "lead": {
+        "min": 1.5,
+        "max": 3
+      },
+      "other": {
+        "min": 0.75,
+        "max": 1.1
+      }
+    },
+    "pledged": {
+      "quiet-phase": 5,
+      "commitment-sunday": 75,
+      "soon-after": 15,
+      "later": 5
+    },
+    "rhythmicFrequency": {
+      "same": 75,
+      "one-time": 10,
+      "yearly": 5,
+      "none": 10
+    },
+    "otherFrequency": {
+      "one-time": 40,
+      "yearly": 20,
+      "none": 40
+    },
+    "lineFollowThrough": {
+      "ahead": 12,
+      "on-pace": 53,
+      "behind": 25,
+      "stopped": 7,
+      "not-started": 3
+    },
+    "oneTimeFollowThrough": {
+      "paid-in-full": 85,
+      "not-started": 15
+    },
+    "yearlyFollowThrough": {
+      "on-pace": 80,
+      "not-started": 20
+    },
+    "noFrequencyFollowThrough": {
+      "on-pace": 60,
+      "behind": 30,
+      "not-started": 10
+    },
+    "giftsOnlyShare": 0.05
+  },
+  "pledgeEntry": {
+    "$comment": "Rock's two pages with a Pledge Entry block: (Public) Create Pledge in Rock RMS, and Pledge under Give on the external website. Rock ships the WebForms block, and a Rock job later swaps it for the Obsidian block with a new block Guid, so the loader finds the block on each page by either block type.",
+    "pageGuids": [
+      "60051DAF-2986-406D-A78B-1609CBF2256D",
+      "A974A965-414B-47A6-9CC1-D3A175DA965B"
+    ],
+    "blockTypeGuids": [
+      "20B5568E-A010-4E15-9127-E63CF218D6E5",
+      "0455ECBD-D54D-4485-BF4D-F469048AE10F"
+    ],
+    "showPledgeFrequency": true
+  },
+  "statementTemplateGuid": "4B93657A-DD5F-4D8A-A13F-1B4E9ADBDAD0"
+}
