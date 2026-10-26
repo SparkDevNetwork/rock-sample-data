@@ -199,12 +199,44 @@ jobs:
       - name: Check SQL Server sign-in
         run: sqlcmd -S localhost -E -C -Q "SELECT @@VERSION, SUSER_SNAME() AS [Login], IS_SRVROLEMEMBER('sysadmin') AS [IsSysAdmin];"
 
+      # SQL Server installs its files on C:, which has too little free space for a verify run: the trusted base,
+      # its backup, each loaded copy (Full 7 loads in one transaction, so its log grows large), and the Rock
+      # Cleanup snapshot. Full 7 outgrew it in the v0.1.0-alpha.13 dry run ("PRIMARY filegroup is full").
+      # D: holds the workspace and has room, so new databases, backups, and tempdb go there.
+      - name: Keep SQL Server's files on D
+        if: runner.environment == 'github-hosted'
+        run: |
+          $folder = "D:\sqldata"
+          New-Item -ItemType Directory -Force $folder | Out-Null
+          icacls $folder /grant "NT SERVICE\MSSQLSERVER:(OI)(CI)F" | Out-Null
+          foreach ($name in "DefaultData", "DefaultLog", "BackupDirectory") {
+              sqlcmd -S localhost -E -C -b -Q "EXEC master.dbo.xp_instance_regwrite N'HKEY_LOCAL_MACHINE', N'Software\Microsoft\MSSQLServer\MSSQLServer', N'$name', REG_SZ, N'$folder';"
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          $moves = sqlcmd -S localhost -E -C -h -1 -W -Q "SET NOCOUNT ON; SELECT 'ALTER DATABASE [tempdb] MODIFY FILE ( NAME = N''' + [name] + ''', FILENAME = N''$folder\' + [name] + CASE [type] WHEN 1 THEN '.ldf' ELSE '.mdf' END + ''' );' FROM sys.master_files WHERE [database_id] = DB_ID( 'tempdb' );"
+          sqlcmd -S localhost -E -C -b -Q ($moves -join " ")
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Restart-Service MSSQLSERVER -Force
+          for ($i = 0; $i -lt 30; $i++) {
+              sqlcmd -S localhost -E -C -Q "SELECT 1" *> $null
+              if ($LASTEXITCODE -eq 0) { break }
+              Start-Sleep -Seconds 2
+          }
+          sqlcmd -S localhost -E -C -b -Q "SELECT SERVERPROPERTY('InstanceDefaultDataPath') AS [Data], SERVERPROPERTY('InstanceDefaultLogPath') AS [Log], SERVERPROPERTY('InstanceDefaultBackupPath') AS [Backup], ( SELECT TOP 1 [physical_name] FROM sys.master_files WHERE [database_id] = DB_ID( 'tempdb' ) ) AS [Tempdb];"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-PSDrive C, D | Format-Table Name, @{ n = "FreeGB"; e = { [math]::Round( $_.Free / 1GB, 1 ) } }, @{ n = "UsedGB"; e = { [math]::Round( $_.Used / 1GB, 1 ) } }
+
       # Each package serves every dot release of its major, so it is written and published under rock-{major}.
       - name: Write the packages
         run: dotnet run --project builder -c Release -- --rock "$env:ROCK_PATH" --out "packages/rock-$env:ROCK_MAJOR"
 
       - name: Verify the packages
         run: dotnet run --project verify -c Release -- --rock "$env:ROCK_PATH" --packages "packages/rock-$env:ROCK_MAJOR" --run ci
+
+      # How much room verify left, so a dataset that grows toward the limit shows before it fails.
+      - name: Free space after verify
+        if: always()
+        run: Get-PSDrive C, D | Format-Table Name, @{ n = "FreeGB"; e = { [math]::Round( $_.Free / 1GB, 1 ) } }, @{ n = "UsedGB"; e = { [math]::Round( $_.Used / 1GB, 1 ) } }
 
       - name: Publishing gate
         run: dotnet run --project verify -c Release --no-build -- --check-receipts "packages/rock-$env:ROCK_MAJOR"
