@@ -37,7 +37,7 @@ using RockSampleData.Loader.Packages;
     check the order of loader versions and which index entries this loader may install on a Rock.
     The published package checks open the configuration of every published release, saved in
     published/<tag>/, so a model change that would stop this loader from reading a package already on
-    storage fails here first (decision D-churchappcompat-1). Add a folder for each release that publishes
+    storage fails here first (decision 168). Add a folder for each release that publishes
     packages: git show <tag>:configuration/<file> for each JSON file.
 */
 

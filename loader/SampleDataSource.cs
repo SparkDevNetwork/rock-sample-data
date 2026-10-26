@@ -369,7 +369,7 @@ namespace RockSampleData.Loader
             JSON error stays as the inner exception for whoever reads the log.
 
             Reason: a published package must never stop a newer loader with a raw parse error
-            (decision D-churchappcompat-1).
+            (decision 168).
         */
 
         private static T Parse<T>( string path, Func<T> parse )

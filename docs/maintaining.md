@@ -138,7 +138,7 @@ Tests and documentation rely on Cast people. Treat a change like a code change:
 - Keep packages data only. A file the loader needs goes into the package through the builder, and the loader reads it through the package, never from the repository.
 - If a change alters the package layout in a way an older loader cannot read, raise the package format version.
 - If packages start to need loader code that older loaders lack, such as a new part, a new configuration file, or a new field a part reads, raise `SampleDataPackage.MinimumLoaderVersion` to the release that will ship the change, and the loader project's `Version` with it (decision 158). A Rock keeps the loader it shipped with, so without this an older Rock would download a package it cannot load.
-- A newer loader must still read every published package (decision D-churchappcompat-1). Make a new field in a model the loader reads nullable or give it a default, and treat a missing value as "off". `loader-compat-check` opens the configuration of every published release saved in `loader-compat-check/published/`, so a change that breaks one fails there before a release.
+- A newer loader must still read every published package (decision 168). Make a new field in a model the loader reads nullable or give it a default, and treat a missing value as "off". `loader-compat-check` opens the configuration of every published release saved in `loader-compat-check/published/`, so a change that breaks one fails there before a release.
 - Run validation on Full 7 before and after your change. A change should not lower the share of values within tolerance without a written reason. See [Validation](../validation/README.md).
 
 ## Publishing a release
