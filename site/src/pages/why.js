@@ -19,7 +19,7 @@ const { esc, html } = require( "../layout" );
 const { sectionHead } = require( "../components" );
 
 const problems = [
-    [ "It was slow.", "The old loader saved one record at a time through the full Rock model.", "The new loader loads the Cast into Rock in about 4 seconds, and 25,000 people in under a minute." ],
+    [ "It was slow.", "The old loader saved one record at a time through the full Rock model.", "The new loader loads the Cast into Rock in about 15 seconds, and 25,000 people with two years of email and texts in about 4 minutes." ],
     [ "It was thin.", "Connections, prayer, serving, and communications had little or no data.", "Every feature has history, from check-in streaks to giving alerts." ],
     [ "It wasn't realistic.", "Random numbers hid bugs and made demos look fake.", "Patterns come from summary-only queries on real churches, run with permission, and are graded every build." ],
     [ "It went stale.", "Fixed dates fell out of \"last 12 months\" reports.", "Every date counts back from install day, so reports are always full." ]

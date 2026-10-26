@@ -36,7 +36,7 @@ const pipeline = [
     [ "Data files", "The Cast, the church setup, and the target patterns, in plain JSON." ],
     [ "Builder", "Turns the files into one package per dataset, for one Rock major release." ],
     [ "Verify", "Loads each package into a clean Rock and checks it. No pass, no publish." ],
-    [ "Loader", "Loads a package into a fresh Rock database in seconds." ],
+    [ "Loader", "Loads a package into a fresh Rock database in seconds, or a few minutes for Full 7." ],
     [ "Rock", "A church with years of history, ready to explore." ]
 ];
 
