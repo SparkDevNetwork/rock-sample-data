@@ -68,7 +68,7 @@
       "guid": "581C940E-A788-4F32-BCF3-33F4D1948390",
       "firstName": "Isaac",
       "lastName": "Silva",
-      "bio": "Isaac led the Student Ministry team as a volunteer for three years, then joined staff this year as the Student Pastor. He texts students and parents from the student ministry line and has his own texting number. He still owns Javelina Wash Coffee, which Natalie now runs day to day.",
+      "bio": "Isaac led the Student Ministry team as a volunteer for three years, then joined staff this year as the Student Pastor. He texts students and parents from the student ministry line and has his own texting number. He started Javelina Wash Coffee, and Natalie took it over when he joined staff.",
       "gender": "male",
       "familyRole": "adult",
       "birth": {
@@ -92,12 +92,6 @@
       "photo": {
         "ethnicity": "white"
       },
-      "relationships": [
-        {
-          "type": "business",
-          "with": "6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8"
-        }
-      ],
       "attributes": {
         "Employer": "Rock Solid Church",
         "Position": "Student Pastor"
@@ -131,6 +125,17 @@
       "emailIsActive": true,
       "phones": {
         "mobile": "4805550132"
+      },
+      "bio": "Natalie owns and runs Javelina Wash Coffee, which Isaac started. She took it over when he joined staff as the Student Pastor. She mails the shop's monthly gift as a business check.",
+      "relationships": [
+        {
+          "type": "business",
+          "with": "6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8"
+        }
+      ],
+      "attributes": {
+        "Employer": "Javelina Wash Coffee",
+        "Position": "Owner"
       },
       "photo": {
         "ethnicity": "south-asian"
