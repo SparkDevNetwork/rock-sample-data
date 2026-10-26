@@ -133,7 +133,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// The day a person may first join an adult group or team: their birthday at the minimum age, or, when
         /// their graduation is known, the grade transition date after it, whichever is later. Grade decides,
-        /// so an 18-year-old senior waits until they are out of high school (decision D-hs-leaders-1).
+        /// so an 18-year-old senior waits until they are out of high school (decision 169).
         /// </summary>
         public DateTime AdultSince( CastPerson person, int minimumAge )
         {

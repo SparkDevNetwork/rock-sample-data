@@ -195,7 +195,7 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         /// <summary>
         /// A requester was out of high school before the earliest Pending placement, so nobody still in high school
-        /// joins an adult serving team (decision D-hs-leaders-1). Grade decides, not age.
+        /// joins an adult serving team (decision 169). Grade decides, not age.
         /// </summary>
         private static bool IsOutOfHighSchoolForPending( LoadedPerson person, ConnectionRequestRules rules, AnchorDates dates ) =>
             dates.AdultSince( person.Cast, 0 ) <= dates.Anchor.Date.AddDays( -rules.PendingDaysAgo.Max );

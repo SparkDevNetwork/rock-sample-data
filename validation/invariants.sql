@@ -214,7 +214,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
 -- check: no-high-schooler-in-adult-groups
--- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts on or after the June 1 grade change in the person's graduation year (decision D-hs-leaders-1).
+-- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts on or after the June 1 grade change in the person's graduation year (decision 169).
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]

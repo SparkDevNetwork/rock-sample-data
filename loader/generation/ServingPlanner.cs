@@ -238,7 +238,7 @@ namespace RockSampleData.Loader.Generation
 
         /// <summary>
         /// An adult who was out of high school and old enough by the latest join date, a month before the anchor.
-        /// Serving teams are adult-only, so a senior who is already 18 does not serve (decision D-hs-leaders-1).
+        /// Serving teams are adult-only, so a senior who is already 18 does not serve (decision 169).
         /// </summary>
         private static bool IsOutOfHighSchool( CastPerson person, int minimumAge, AnchorDates dates ) =>
             IsAdult( person, minimumAge ) && dates.AdultSince( person, minimumAge ) <= dates.Anchor.AddDays( -30 );

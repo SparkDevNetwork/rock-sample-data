@@ -6,7 +6,7 @@ How small groups look in the sample data, and why. Every number here lives in [c
 
 - **Size.** About 12 members, never fewer than 6 or more than 18. Capacity is 18.
 - **Leader.** One leader, a man who is at least 18, out of high school, and already Engaged or Leading. Leading a group makes him Leading. A campus with too few such men for its groups also takes Connected men, then Known men.
-- **Members.** Adults only, 18 and older and out of high school (decision D-hs-leaders-1). Spouses join together.
+- **Members.** Adults only, 18 and older and out of high school (decision 169). Spouses join together.
 - **Host.** In 60% of groups the leader's spouse is the host. In the rest, another member hosts, and the group meets at that member's home.
 - **Name.** The leader's last name plus "Group", for example "Decker Group." When two leaders share a last name, the first name is added: "Ben Jones Group."
 - **Topic.** One of ten topics: Sermon Discussion, Book of John, Marriage, Parenting, Men's Bible Study, Young Adults, Prayer, New to Faith, Grief and Loss, and Money and Generosity. A group only gets a topic its members fit: Marriage needs mostly married couples (80%), Parenting mostly parents (60%), Young Adults a median age of 35 or under, and Men's Bible Study only men. Each group gets a short, real description for Group Finder.
