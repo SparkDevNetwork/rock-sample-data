@@ -163,38 +163,38 @@ The rates are designed targets, not measured ones (decision 89). The sample chur
 
 An active adult is an adult on an active record who attended, gave, or was in a small group in the last year, the same rule prayer uses.
 
-What each dataset loads, at the anchor 2026-10-23 and the default seed:
+What each dataset loads, at the anchor 2026-10-25 and the default seed:
 
 | Step | Core 1 | Core 3 | Full 7 |
 |---|---|---|---|
-| Starting Point Class | 51 (3 in progress) | 94 (7 in progress) | 3,043 (17 in progress) |
-| Small Group | 171 | 299 | 7,490 |
-| Baptism | 67 (3 of them students) | 140 (5 of them students) | 6,715 (350 of them students) |
+| Starting Point Class | 51 (3 in progress) | 94 (7 in progress) | 3,047 (17 in progress) |
+| Small Group | 171 | 296 | 7,270 |
+| Baptism | 67 (3 of them students) | 140 (5 of them students) | 6,716 (349 of them students) |
 | Foundations | 23 (3 in progress) | 43 (8 in progress) | 1,497 (22 in progress) |
 | Serve | 49 (1 in progress) | 83 (3 in progress) | 1,564 (36 in progress) |
-| Give | 59 | 84 | 2,331 |
+| Give | 59 | 84 | 2,328 |
 | Lead | 20 | 48 | 471 |
-| Discipleship Path completions | 4 | 6 | 47 |
-| Student Camp | 6 (5 students) | 13 (11 students) | 794 (630 students) |
-| Follow Jesus | 4 | 11 | 646 |
-| Mission Trip | 2 | 4 | 267 |
-| Student Leader | 1 | 2 | 60 |
+| Discipleship Path completions | 4 | 6 | 48 |
+| Student Camp | 6 (5 students) | 16 (13 students) | 848 (679 students) |
+| Follow Jesus | 4 | 12 | 705 |
+| Mission Trip | 2 | 5 | 304 |
+| Student Leader | 1 | 2 | 70 |
 | Student Path completions | 1 | 1 | 1 |
 
-Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 62% of the generated active adults are baptized. Full 7 has 7,484 active adults, and 60% of its generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the others come from the same rules.
+Core 1 has 114 active adults, 54% of them baptized (some adults on the church's edge are baptized too). In Core 3, 62% of the generated active adults are baptized. Full 7 has 7,488 active adults, and 60% of its generated active adults are baptized. Ted Decker's completion is the one the Cast's story needs; the others come from the same rules.
 
-Core 1 has 13 students, Core 3 has 37, and Full 7 has 2,152. Students now come on their own on some Sundays their family stays home, and some keep coming after their family stops (decisions 146 and 147), so more of them have been attending when a camp or a school year starts. The load prints each share as people who took the step of those who could:
+Core 1 has 13 students, Core 3 has 40, and Full 7 has 2,348. Students now come on their own on some Sundays their family stays home, and some keep coming after their family stops (decisions 146 and 147), so more of them have been attending when a camp or a school year starts. The load prints each share as people who took the step of those who could:
 
 | Share | Core 1 | Core 3 | Full 7 |
 |---|---|---|---|
-| Student Camp | 5 of 12 | 11 of 26 | 630 of 1,400 |
-| Follow Jesus | 4 of 13 | 11 of 37 | 646 of 2,152 |
-| Mission Trip | 2 of 8 | 4 of 20 | 243 of 1,211 |
-| Student Leader | 1 of 3 | 2 of 9 | 60 of 592 |
+| Student Camp | 5 of 12 | 13 of 29 | 679 of 1,509 |
+| Follow Jesus | 4 of 13 | 12 of 40 | 705 of 2,348 |
+| Mission Trip | 2 of 8 | 5 of 23 | 273 of 1,365 |
+| Student Leader | 1 of 3 | 2 of 12 | 70 of 697 |
 | Baptized after a decision | 2 of 4 | 3 of 6 | 239 of 399 |
-| Other students baptized | 1 of 8 | 2 of 20 | 111 of 1,104 |
+| Other students baptized | 1 of 8 | 2 of 20 | 110 of 1,096 |
 
-Recent graduates count among the students. Generated adults aged 18 to 20 finished high school inside the history window, so they check in as students until they graduate (decision 148). Their Student Path steps come from the same rules, with no change to the steps. In Full 7, 435 recent graduates checked in as students, and 235 of them have Student Path steps (325 in all). The Cast has no recent graduates: its adults aged 18 to 20 have no graduation in their files, so the Cast's steps are the same in every dataset.
+Recent graduates count among the students. Generated adults aged 18 to 20 finished high school inside the history window, so they check in as students until they graduate (decision 148). Their Student Path steps come from the same rules, with no change to the steps. In Full 7, 2,061 generated adults are recent graduates, since adults without children take the rest of the 18 to 24 band (decision 166). 627 of them checked in as students, and 343 of them have Student Path steps (475 in all). The Cast has no recent graduates: its adults aged 18 to 20 have no graduation in their files, so the Cast's steps are the same in every dataset.
 
 Shares are rounded within the Cast and within the generated households, and a Cast story counts even past its share. So the small Cast has two mission trips (Benjamin Lee's and Jasmine Washington's stories) where 20% of 8 rounds to 2, and one Student Leader (Jasmine's story) where 10% of 3 rounds to none. Jasmine's completion is the one her story needs.
 
