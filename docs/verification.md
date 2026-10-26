@@ -70,8 +70,10 @@ These need only Node.js, so every contributor runs them.
 The [verify tool](../verify/README.md) proves that each package works on the Rock release it was built on and writes a receipt next to it. A package serves every dot release of that Rock's major release (decision 52), so a release builds on the newest dot release, and each new dot release gets a verify run before churches use it (see [Add or change a Rock release](maintaining.md#add-or-change-a-rock-release)). Run it from `verify/` with the same built Rock checkout the packages were built from:
 
 ```
-dotnet run -- --rock C:\Development\Rock
+dotnet run -- --rock C:\Development\Rock-21
 ```
+
+Run it against a Rock checkout kept only for verify, at the `ref` in `release/rock-releases.json`, not the one you develop Rock in (see the [verify README](../verify/README.md#running-it)).
 
 It runs the checks below for every dataset. A full run takes about 8 minutes, about 3 of them for Full 7.
 

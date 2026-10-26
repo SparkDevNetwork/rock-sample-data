@@ -11,8 +11,10 @@ This page is about running the tool. For every check in the repository, what it 
 Build the packages first (see the [builder](../builder/README.md)), from the same built Rock checkout. Then, from this folder:
 
 ```
-dotnet run -- --rock C:\Development\Rock
+dotnet run -- --rock C:\Development\Rock-21
 ```
+
+Use a Rock checkout kept only for this, at the `ref` in [`release/rock-releases.json`](../release/rock-releases.json) for its major release, such as `C:\Development\Rock-21` and `C:\Development\Rock-20`, built with Visual Studio's MSBuild. Do not use the checkout you develop Rock in. Pulling develop there changes its migrations while `RockWeb\bin` still holds the old build, so the trusted base fails until you rebuild, and a run already going reads a mix of both.
 
 It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Rock checkout (`RockWeb\bin` must hold `Rock.dll`). It makes and drops its own databases, all named `RockSampleVerify-<run tag>-...`, and never touches any other database. The run tag is the worktree's folder name without "rock-sample-data-" (the main checkout is `main`), so runs from different worktrees can share a server. They share the trusted base, which a run locks while it uses it (see [Working in parallel](../docs/maintaining.md#shared-machine-resources)).
 
