@@ -763,14 +763,14 @@ SELECT ( SELECT COUNT(*) FROM [Serving] WHERE NOT EXISTS ( SELECT 1 FROM [Commun
             OR ( [s].[Kind] = '8A20FE79-B73C-447A-82B1-416F9B50C038' AND NOT EXISTS ( SELECT 1 FROM [Reminded] AS [r] WHERE [r].[PersonId] = [s].[PersonId] AND [r].[Day] = [s].[Day] ) ) );
 
 -- check: serving-request-is-not-in-the-future
--- why: Decision D-servingrequests-1. A request to serve, its answer, and its last change all happened by install day, even for a Sunday weeks ahead.
+-- why: Decision 165. A request to serve, its answer, and its last change all happened by install day, even for a Sunday weeks ahead.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey AND [a].[RequestedToAttend] = 1
     AND ( [a].[CreatedDateTime] > GETDATE() OR [a].[RSVPDateTime] > GETDATE() OR [a].[ModifiedDateTime] > GETDATE() );
 
 -- check: serving-flag-has-its-email
--- why: Decision D-servingrequests-1. Rock's scheduling job marks a confirmation or a reminder sent only when it emailed the volunteer, and it reminded only volunteers who confirmed. In the 2 years of communication history before install day, each flag has its email.
+-- why: Decision 165. Rock's scheduling job marks a confirmation or a reminder sent only when it emailed the volunteer, and it reminded only volunteers who confirmed. In the 2 years of communication history before install day, each flag has its email.
 WITH [Window] AS (
     SELECT DATEADD( DAY, 1, DATEADD( YEAR, -2, CONVERT( DATE, GETDATE() ) ) ) AS [Start], CONVERT( DATE, GETDATE() ) AS [Today]
 ), [Emailed] AS (

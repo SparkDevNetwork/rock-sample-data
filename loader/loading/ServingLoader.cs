@@ -301,7 +301,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             volunteer's email bounced before the job would have sent it.
 
             Reason: the flags agree with each volunteer's Communication History, and nothing a load
-            writes may ever send (decisions 95 and D-servingrequests-1).
+            writes may ever send (decisions 95 and 165).
         */
 
         /// <summary>
