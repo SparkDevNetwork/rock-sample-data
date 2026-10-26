@@ -2,7 +2,7 @@
 
 New household · Business · Phoenix campus · [source](../households/javelina-wash-coffee.json)
 
-Isaac Silva owns Javelina Wash Coffee, a small coffee shop. Like Isaac's own gifts, every business gift is split between the General Fund and the Mission Fund. Isaac mails a business check each month.
+Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,7 +12,7 @@ Isaac Silva owns Javelina Wash Coffee, a small coffee shop. Like Isaac's own gif
 
 ### Javelina Wash Coffee
 
-- email javelinawashcoffee@example.org · contacts: Isaac Silva
+- email javelinawashcoffee@example.org · contacts: Natalie Silva
 - Person Guid `6C9B6B6C-B043-4E14-84C1-56D80AB0D9E8`
 
 ## What this family tests
