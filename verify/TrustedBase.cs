@@ -115,7 +115,7 @@ SELECT ( SELECT COUNT(*) FROM [Person] WHERE [ForeignKey] LIKE 'SampleData:%' )
                 problems.Add( "Rock's post-install job did not find its census data (AnalyticsSourcePostalCode is empty)." );
             }
 
-            // A new install runs Rock's one-time update jobs on its first evening, and each deletes itself (decision D-verify-housekeeping-1).
+            // A new install runs Rock's one-time update jobs on its first evening, and each deletes itself (decision 170).
             var waitingJobs = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [ServiceJob] WHERE [Class] LIKE 'Rock.Jobs.Post%' AND [Class] <> 'Rock.Jobs.PostInstallDataMigrations'" ) );
             if ( waitingJobs > 0 )
             {
