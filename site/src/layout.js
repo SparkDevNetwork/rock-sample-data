@@ -23,7 +23,7 @@
 const repoUrl = "https://github.com/SparkDevNetwork/rock-sample-data";
 
 // Link previews in Teams, Slack, and social apps need full URLs, so share tags use the published address.
-const siteUrl = "https://sparkdevnetwork.github.io/rock-sample-data/";
+const siteUrl = "https://sampledata.rockrms.com/";
 
 const nav = [
     { key: "why", label: "Why", href: "why.html" },
