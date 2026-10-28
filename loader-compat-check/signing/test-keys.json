@@ -1,0 +1,12 @@
+{
+  "$comment": "The public half of a throwaway test key that signed signed-index.json with release/sign-index.js --test-key. Only loader-compat-check trusts it; the private key was not kept.",
+  "keys": [
+    {
+      "keyId": "test",
+      "status": "active",
+      "algorithm": "ES256",
+      "x": "Z4ImS5K2/njrbakekKIpQMj9Guh7UK/O5Z4RcAS4P6o=",
+      "y": "K2nnCMU+7oWaYoiX7sbS99Wwr2j6Skdqe1ZlEMrMRFI="
+    }
+  ]
+}

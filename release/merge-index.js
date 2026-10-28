@@ -40,12 +40,19 @@
     rockVersion. Entries for other majors stay. Packages already published stay at their versioned paths;
     only the index stops listing them.
 
-    Exits with 1, writing nothing, when a receipt did not pass, a field is missing, or the hosted index
-    already lists this version of a package with different bytes.
+    The hosted index must be signed by a key in release/index-signing-keys.json, and only its signed payload
+    is read, so a changed index in storage is never merged and signed again (decision D-signing-1). The
+    index written here is unsigned; release/sign-index.js signs it.
+
+    Exits with 1, writing nothing, when a receipt did not pass, a field is missing, the hosted index is not
+    signed or its signature does not match, or the hosted index already lists this version of a package
+    with different bytes.
 */
 
 const fs = require( "fs" );
 const path = require( "path" );
+
+const signature = require( "./index-signature" );
 
 const FORMAT_VERSION = 1;
 const root = path.join( __dirname, ".." );
@@ -76,14 +83,21 @@ function majorOf( major, version ) {
 }
 
 /**
- * Reads the hosted index, or an empty one when there is none yet.
+ * Reads the hosted index, or an empty one when there is none yet. Only the payload Spark signed is read.
  */
 function readIndex( file ) {
     if ( !file || !fs.existsSync( file ) ) {
         return { formatVersion: FORMAT_VERSION, packages: [] };
     }
 
-    const index = JSON.parse( fs.readFileSync( file, "utf8" ) );
+    let index;
+    try {
+        index = signature.verify( fs.readFileSync( file, "utf8" ), signature.readKeys() );
+    }
+    catch ( e ) {
+        throw new Error( `${file} can't be trusted, so nothing was merged: ${e.message}` );
+    }
+
     if ( index.formatVersion !== FORMAT_VERSION ) {
         throw new Error( `${file} uses index format ${index.formatVersion}; this script writes format ${FORMAT_VERSION}.` );
     }

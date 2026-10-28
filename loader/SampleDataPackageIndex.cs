@@ -56,15 +56,26 @@ namespace RockSampleData.Loader
         public IReadOnlyList<SampleDataPackageIndexEntry> Packages { get; }
 
         /// <summary>
-        /// Reads index.json.
+        /// Reads index.json, after checking that Spark signed it. The index is read only from the bytes
+        /// the signature covers (decision D-signing-1).
         /// </summary>
-        /// <exception cref="InvalidDataException">The text is not JSON, uses another format version, or an entry is missing a required field.</exception>
+        /// <exception cref="InvalidDataException">The index is not signed by one of Spark's keys, its signature does not match, the text is not JSON, it uses another format version, or an entry is missing a required field.</exception>
         public static SampleDataPackageIndex Parse( string json )
         {
+            return Parse( json, IndexSignature.SparkKeys );
+        }
+
+        /// <summary>
+        /// Reads an index signed by one of the given keys. Only tests trust keys other than Spark's.
+        /// </summary>
+        internal static SampleDataPackageIndex Parse( string json, IReadOnlyList<IndexSigningKey> keys )
+        {
+            var signedJson = IndexSignature.Verify( json, keys );
+
             IndexFile file;
             try
             {
-                file = JsonSerializer.Deserialize<IndexFile>( json ?? string.Empty, Json );
+                file = JsonSerializer.Deserialize<IndexFile>( signedJson, Json );
             }
             catch ( JsonException ex )
             {

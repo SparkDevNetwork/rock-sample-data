@@ -50,6 +50,7 @@ Where the project stands: the team's working list. Update this page whenever som
   - A stable release (for example `v1.0.0`), which updates `index.json` for every Rock. The first prerelease, `v0.1.0-alpha.10` on 2026-10-23, published the loader to nuget.org and all three packages with `index-prerelease.json`.
   - Change the Rock 21.0.2 entry from a develop commit to its tag once Rock tags it, and the Rock 20.0.10 entry (release-20.0, added for `v0.1.0-alpha.13`) to the newest Rock 20 tag.
   - Rock 20 and Rock 21 packages from `v0.1.0-alpha.13` on. Each package serves every dot release of its major (decision 52). On 2026-10-23, Core 1, Core 3, and Full 7 passed every verify check on Rock 20.0.10 unchanged, and its trusted base had the same schema hash as Rock 21.0.2's.
+  - **The first signed index** (decision D-signing-1). The index signature is built: the Publish job signs the index with `sampledata-index-1` in Azure Key Vault before it publishes anything, and loaders from 0.1.0-alpha.14 read only a signed index (see [The signature](../loader/README.md#the-signature) and [Signing keys](maintaining.md#signing-keys)). The vault, both keys, the signer role, and the variables were set up on 2026-10-27. What is left: confirm the signer role is assigned to the release identity on the active key, release `v0.1.0-alpha.14`, the first signed index, and then bump Rock's installer block to that loader, with no other Rock change. Raised by the Sentinel security review of the installer block (SparkStealth/Rock-Mirror#65). It is required before Cast logins, and before v1.0.0 fixes the index format.
 
 ## Waiting on a decision
 
@@ -72,7 +73,7 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 ### People
 
-1. **Logins for Cast staff.** The Cast files list logins, but the loader does not load them yet, so no one can sign in as a Cast staff member. Direction from 2026-10-27: like the old Sample Data block, the person installing chooses the password, and the loader hashes it with the site's PasswordKey for every Cast login. No password ships in a package, so demo sites never share a published admin password. Logins wait on **signing the package index** (see Publishing): once a package can create logins, Rock must be able to prove the package is Spark's.
+1. **Logins for Cast staff.** The Cast files list logins, but the loader does not load them yet, so no one can sign in as a Cast staff member. Direction from 2026-10-27: like the old Sample Data block, the person installing chooses the password on the install form, and Rock hashes it the way its Database login does (BCrypt). No password ships in a package, so demo sites never share a published admin password. Logins wait on **the first signed index** (see In progress): once a package can create logins, Rock must be able to prove the package is Spark's. Planned for `v0.1.0-alpha.15`.
 2. **Cast group membership that disagrees with stories.** The Ortizes are active members of the Greggs group, though their story says they stopped coming six months ago, and the Ellises are in groups older than their first visit.
 3. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
 
@@ -100,13 +101,7 @@ Publishing the loader to NuGet is in the release workflow (see In progress).
 
 ### Publishing
 
-Publishing packages to Azure is in the release workflow (see In progress).
-
-1. **Sign the package index** (required before Cast logins, and before v1.0.0 fixes the index format). Today the SHA-256 in the index proves a download is intact, not that Spark made it, so anyone who could change the hosted index could swap in a package. The plan:
-   - An asymmetric signing key in Azure Key Vault, using the release workflow's existing Azure identity. The private key never leaves the vault; the Publish job asks the vault to sign.
-   - The Publish job signs `index.json` and `index-prerelease.json`. One signature covers every package, because the index lists each package's SHA-256. Carrying the signature inside the index file (rather than a separate file) means Rock's installer block needs no code change, only a newer loader package.
-   - The loader embeds the public key and refuses an index whose signature does not check out. It can carry more than one key, so a new key can be phased in with a loader release.
-   - Raised by the Sentinel security review of the installer block (SparkStealth/Rock-Mirror#65), which now pins the package location in code.
+Publishing packages to Azure is in the release workflow (see In progress). Signing the package index is built (see In progress).
 
 ## Later (Phase 1 and beyond)
 
