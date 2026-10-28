@@ -13,7 +13,7 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
 | Cast small groups | `Group.PhotoId` | AI-generated group photos of each group's real members, made from their profile photos, from the [group photo brief](group-brief.md) (decision 56) |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
-| Calendar events | `EventItem.PhotoId` | AI-generated 2:1 scenes of each event on the church calendar, with anonymous people, from the [event photo brief](event-brief.md) (decision 176) |
+| Calendar events | `EventItem.PhotoId` | AI-generated 2:1 images of each event on the church calendar from the [event image brief](event-brief.md): titled designs for most events, and photos with anonymous people for the rest (decisions 176 and 184) |
 | Scenes | Other groups' `Group.PhotoId`, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
 | Scanned checks | `FinancialTransactionImage` | Drawn at install from fictional check templates, for the months each [dataset](../datasets/README.md) sets |
 
@@ -74,7 +74,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Core 3 companions | About half, from a pool of 120 photos. |
 | Cast small groups (in every dataset) | All 12, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
-| Calendar events (in every dataset) | Each event listed in `events/manifest.json` gets its photo. None are made yet; the [event photo brief](event-brief.md) asks for all 49. |
+| Calendar events (in every dataset) | Each event listed in `events/manifest.json` gets its photo. None are made yet; the [event image brief](event-brief.md) asks for all 51. |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos
@@ -92,7 +92,7 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `groups/` | Delivered group photos, `{group-key}.jpg`, and their `manifest.json` | Yes |
 | `opportunity-brief.md` | The brief for the serving opportunity photos | Yes |
 | `opportunities/` | Delivered opportunity photos, `{team}.jpg`, and their `manifest.json` | Yes |
-| `event-brief.md` | The brief for the calendar event photos: sizes, look, rules, and one section per event | Yes |
+| `event-brief.md` | The brief for the calendar event images: sizes, the design and photo looks, rules, and one section per event | Yes |
 | `events/` | Delivered event photos, `{event-key}.jpg` at 1536 by 768, and their `manifest.json` | Yes |
 | `campuses/` | Seven distinct campus exterior JPEGs, their manifest, and reuse guide | Yes |
 | `originals/campuses/` | Full-size original campus exterior PNGs | Yes |
