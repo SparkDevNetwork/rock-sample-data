@@ -2,7 +2,7 @@
 
 You create one photo for each event on Rock Solid Church's calendar in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
 
-Work in the `rock-sample-data-calendar-events` worktree, on the `calendar-events` branch, until that branch is merged into `main`. After that, work on `main`'s files in your own branch. All paths are from the root of the repository.
+Work in your own branch from `main`. All paths are from the root of the repository.
 
 Each photo is the event's picture in Rock (`EventItem.PhotoId`). Rock shows it at the top of the event's page on the church website and in the church app. It should look like a photo a church would post to invite people to the event: real, warm, and inviting.
 
