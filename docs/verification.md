@@ -154,9 +154,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
 | `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an email that is active, or that bounced after they joined. |
 | `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |
-| `group-sync-targets-a-sync-group` | Every sync targets a group whose type Rock lets sync, with one of that type's roles and a person data view, so it opens and edits in Rock (decision D-group-sync-1). |
-| `group-sync-refreshed-at-install` | Every sync shows a last refresh from the load, as the job leaves it after a run (decision D-group-sync-3). |
-| `church-data-view-is-filed` | Every data view the church adds sits in a child of the Rock Solid Church category (decision D-group-sync-2). |
+| `group-sync-targets-a-sync-group` | Every sync targets a group whose type Rock lets sync, with one of that type's roles and a person data view, so it opens and edits in Rock (decision 186). |
+| `group-sync-refreshed-at-install` | Every sync shows a last refresh from the load, as the job leaves it after a run (decision 187). |
+| `church-data-view-is-filed` | Every data view the church adds sits in a child of the Rock Solid Church category (decision 185). |
 | `data-view-filter-tree-is-whole` | Every church data view has a root filter, every filter belongs to its view, and each single filter names its component and selection, so Rock can read the view. |
 | `communication-is-sent-and-never-sends-again`, `no-recipient-waits-to-send` | Decision 95: every communication is Approved with its send time and date key, and no recipient is Pending or Sending, so Rock's send job finds nothing to send. |
 | `email-recipient-states-agree` | Each email recipient's status agrees with its send, delivery, and open times and its status note. Only a bounce fails after Rock sent it. |
@@ -209,7 +209,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
 
-**Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision D-group-sync-3). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
+**Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision 187). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
 
 ### Unchanged during run
 

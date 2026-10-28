@@ -76,7 +76,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             // A Cast adult with the church app signed in to it, and one on the prayer team holds RSR - Prayer Access
-            // through group sync (decision D-group-sync-4), so one with no login in their file gets one by Rock's rule,
+            // through group sync (decision 188), so one with no login in their file gets one by Rock's rule,
             // after every listed Cast username. Someone who already has a login in Rock, such as Alisha Marble with
             // Rock's own admin, keeps only that one.
             foreach ( var (_, person) in people.Where( x => inputs.CastHouseholdKeys.Contains( x.Household.Cast.Key ) ) )
@@ -169,7 +169,7 @@ namespace RockSampleData.Loader.Generation
                 return 0;
             }
 
-            // A reason the file makes certain, such as the prayer team's security role (decision D-group-sync-4), is never scaled down.
+            // A reason the file makes certain, such as the prayer team's security role (decision 188), is never scaled down.
             if ( keys.Any( k => _config.Reasons.Any( r => r.Key == k && r.Percent >= 100 ) ) )
             {
                 return 100;

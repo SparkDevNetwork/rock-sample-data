@@ -22,7 +22,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Loading
 {
     /// <summary>
-    /// Adds the church's categories from configuration/categories.json (decision D-group-sync-2), parents before
+    /// Adds the church's categories from configuration/categories.json (decision 185), parents before
     /// children, so every part can file its rows under them by Guid.
     /// </summary>
     internal sealed class CategoriesLoader

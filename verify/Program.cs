@@ -349,7 +349,7 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 
 /// <summary>
 /// Runs Rock's own group sync on every sync the load wrote and expects it to add, remove, and refuse nobody (decision
-/// D-group-sync-3). Nothing changing proves the loader filled each group exactly as Rock's data views pick, and that the
+/// 187). Nothing changing proves the loader filled each group exactly as Rock's data views pick, and that the
 /// syncs' welcome and exit emails and logins wait for a later change. The views count from today, so like Rock Cleanup
 /// the check is judged only when today is the loads' anchor.
 /// </summary>

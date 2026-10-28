@@ -18,7 +18,7 @@
 namespace RockSampleData.Loader.Model
 {
     /// <summary>
-    /// configuration/categories.json: every category the sample church adds to Rock (decision D-group-sync-2).
+    /// configuration/categories.json: every category the sample church adds to Rock (decision 185).
     /// </summary>
     internal sealed class CategoryConfiguration
     {
@@ -68,7 +68,7 @@ namespace RockSampleData.Loader.Model
 
     /// <summary>
     /// configuration/group-syncs.json: the data views that feed groups, and the syncs that tie them together
-    /// (decisions D-group-sync-1 to D-group-sync-4).
+    /// (decisions 186 to 188).
     /// </summary>
     internal sealed class GroupSyncConfiguration
     {

@@ -29,7 +29,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 
 ## Categories
 
-Every category the church adds is in `categories.json` (decision D-group-sync-2), so its rows never mix with what Rock ships and later work knows where to file new rows. Categories always load, with the church setup.
+Every category the church adds is in `categories.json` (decision 185), so its rows never mix with what Rock ships and later work knows where to file new rows. Categories always load, with the church setup.
 
 | Holds | Tree | Used by |
 |---|---|---|

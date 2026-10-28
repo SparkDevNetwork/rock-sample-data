@@ -33,7 +33,7 @@ namespace RockSampleData.Loader.Loading
         people, each added when the job would have added them. The job's first real run then adds and removes
         nobody, so its welcome and exit emails and its logins wait for a person to join or leave later.
 
-        Reason: Decision D-group-sync-3. The loader sends nothing; the syncs act only on later changes.
+        Reason: Decision 187. The loader sends nothing; the syncs act only on later changes.
     */
 
     /// <summary>

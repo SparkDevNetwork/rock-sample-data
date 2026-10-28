@@ -701,7 +701,7 @@ SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM 
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
 
 -- check: group-sync-targets-a-sync-group
--- why: Decision D-group-sync-1. Rock's group detail shows the sync panel only on group types that allow group sync, and a sync's role must be one of its group's roles, so every sync opens and edits in Rock. Its data view is a person view, as Rock's sync requires.
+-- why: Decision 186. Rock's group detail shows the sync panel only on group types that allow group sync, and a sync's role must be one of its group's roles, so every sync opens and edits in Rock. Its data view is a person view, as Rock's sync requires.
 SELECT COUNT(*)
 FROM [GroupSync] AS [s]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [s].[GroupId]
@@ -713,13 +713,13 @@ WHERE [s].[ForeignKey] = @ForeignKey
         OR [dv].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) );
 
 -- check: group-sync-refreshed-at-install
--- why: Decision D-group-sync-3. Each sync is written as the job leaves it after a run on install day, so Rock's group detail shows when it last ran and a sync with an interval waits for it.
+-- why: Decision 187. Each sync is written as the job leaves it after a run on install day, so Rock's group detail shows when it last ran and a sync with an interval waits for it.
 SELECT COUNT(*)
 FROM [GroupSync]
 WHERE [ForeignKey] = @ForeignKey AND ( [LastRefreshDateTime] IS NULL OR [LastRefreshDateTime] < [CreatedDateTime] );
 
 -- check: church-data-view-is-filed
--- why: Decision D-group-sync-2. Every data view the church adds sits in a child of the church's own Rock Solid Church category, so it never mixes with the views Rock ships, and later views have a place to go.
+-- why: Decision 185. Every data view the church adds sits in a child of the church's own Rock Solid Church category, so it never mixes with the views Rock ships, and later views have a place to go.
 SELECT COUNT(*)
 FROM [DataView] AS [dv]
 LEFT JOIN [Category] AS [c] ON [c].[Id] = [dv].[CategoryId]
