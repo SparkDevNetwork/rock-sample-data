@@ -228,7 +228,7 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private HashSet<int> ChooseShare( string key, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
         {
-            var (chosen, count) = StepShares.Choose( _seed, key, candidates, percent, isForced );
+            var (chosen, count) = StepShares.Choose( $"{_seed}:steps:{key}", candidates, percent, isForced );
             _plan.Shares[key] = (chosen.Count, count);
             return chosen;
         }

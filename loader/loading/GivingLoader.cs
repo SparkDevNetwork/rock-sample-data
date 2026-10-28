@@ -41,7 +41,7 @@ namespace RockSampleData.Loader.Loading
     internal sealed class GivingLoader
     {
         private static readonly Guid ContributionGuid = new Guid( "2D607262-52D6-4724-910D-5C6E8FB89ACC" );
-        private static readonly Guid WebsiteSourceGuid = new Guid( "7D705CE7-7B11-4342-A58E-53617C5B4E69" );
+
         private static readonly Guid OnsiteSourceGuid = new Guid( "BE7ECF50-52BC-4774-808D-574BA842DB98" );
         private static readonly Guid WeeklyFrequencyGuid = new Guid( "35711E44-131B-4534-B0B2-F0A749292362" );
         private static readonly Guid MonthlyFrequencyGuid = new Guid( "1400753C-A0F9-4A45-8A1D-81C98450BD1F" );
@@ -62,15 +62,6 @@ namespace RockSampleData.Loader.Loading
             ["irregular"] = "Irregular"
         };
 
-        private static readonly Dictionary<string, Guid> CurrencyGuids = new Dictionary<string, Guid>
-        {
-            ["Cash"] = new Guid( "F3ADC889-1EE8-4EB6-B3FD-8C10F3C8AF93" ),
-            ["Check"] = new Guid( "8B086A19-405A-451F-8D44-174E92D6B402" ),
-            ["Credit Card"] = new Guid( "928A2E04-C77B-4282-888F-EC549CEE026A" ),
-            ["ACH"] = new Guid( "DABEE8FD-AEDF-43E1-8547-4C97FA14D9B6" ),
-            ["Apple Pay"] = new Guid( "D42C4DF7-1AE9-4DDE-ADA2-774B866B798C" ),
-            ["Non-Cash Asset"] = new Guid( "7950FF66-80EE-E8AB-4A77-4A13EDEB7513" )
-        };
 
         private static readonly string[] Weekdays = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
@@ -89,7 +80,7 @@ namespace RockSampleData.Loader.Loading
         private readonly string _foreignKey;
         private readonly string _seed;
         private readonly Dictionary<(string Fund, string Campus), int> _accountIds = new Dictionary<(string, string), int>();
-        private readonly Dictionary<string, int> _definedValueIds = new Dictionary<string, int>();
+        private readonly PaymentMethods _payments;
         private readonly Dictionary<int, Wallet> _wallets = new Dictionary<int, Wallet>();
 
         public GivingLoader( RockDatabase db, SampleDataSource source, ProfileTargets profile, SundayCalendar calendar, AnchorDates dates, ConfigurationLoader configuration, Dictionary<int, HashSet<DateTime>> familySundays, string foreignKey, string seed )
@@ -103,6 +94,7 @@ namespace RockSampleData.Loader.Loading
             _familySundays = familySundays;
             _foreignKey = foreignKey;
             _seed = seed;
+            _payments = new PaymentMethods( db );
         }
 
         /// <summary>
@@ -131,7 +123,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Rock's Website transaction source. A gift from it was given online.
         /// </summary>
-        public int WebsiteSourceId => DefinedValueId( WebsiteSourceGuid );
+        public int WebsiteSourceId => DefinedValueId( PaymentMethods.WebsiteSourceGuid );
 
         /// <summary>
         /// Rock's PasswordKey, used to fill the check scanner's matching fields. When null, those fields stay empty.
@@ -159,7 +151,7 @@ namespace RockSampleData.Loader.Loading
             var gatewayId = _db.Scalar( "SELECT TOP 1 [Id] FROM [FinancialGateway] WHERE [IsActive] = 1 ORDER BY [Id]" );
 
             var batches = TableFactory.Create( "Id:int", "Name:string", "BatchStartDateTime:date", "BatchEndDateTime:date", "Status:int", "CampusId:int", "ControlAmount:decimal", "ControlItemCount:int", "IsAutomated:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var paymentDetails = TableFactory.Create( "Id:int", "CurrencyTypeValueId:int", "CreditCardTypeValueId:int", "AccountNumberMasked:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var paymentDetails = PaymentMethods.PaymentDetailTable();
             var schedules = TableFactory.Create( "Id:int", "TransactionFrequencyValueId:int", "StartDate:date", "EndDate:date", "NextPaymentDate:date", "IsActive:bool", "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "SourceTypeValueId:int", "TransactionTypeValueId:int", "GatewayScheduleId:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var scheduleDetails = TableFactory.Create( "Id:int", "ScheduledTransactionId:int", "AccountId:int", "Amount:decimal", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var transactions = TableFactory.Create( "Id:int", "BatchId:int", "TransactionDateTime:date", "TransactionCode:string", "TransactionTypeValueId:int", "SourceTypeValueId:int", "ScheduledTransactionId:int", "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "IsSettled:bool", "SettledDate:date", "ShowAsAnonymous:bool", "SundayDate:date", "TransactionDateKey:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CheckMicrHash:string", "MICRStatus:int", "CheckMicrEncrypted:string", "CheckMicrParts:string" );
@@ -198,7 +190,7 @@ namespace RockSampleData.Loader.Loading
                     {
                         scheduleId = nextScheduleId++;
                         var paymentId = nextPaymentId++;
-                        paymentDetails.Rows.Add( paymentId, DefinedValueId( CurrencyGuids[channel.Currency] ), CardBrand( channel.Currency, wallet ), wallet.Masked( channel.Currency ) ?? ( object ) DBNull.Value, Guid.NewGuid(), _foreignKey, gifts[0].When, now );
+                        _payments.AddPaymentDetail( paymentDetails, paymentId, channel.Currency, wallet, Guid.NewGuid(), _foreignKey, gifts[0].When, now );
                         var isActive = ended == null || ended > _calendar.HistoryEnd;
                         var lastGift = gifts[gifts.Count - 1];
                         var (frequency, next) = pattern.Persona switch
@@ -209,7 +201,7 @@ namespace RockSampleData.Loader.Loading
                             _ => (MonthlyFrequencyGuid, lastGift.When.Date.AddMonths( 1 ))
                         };
                         schedules.Rows.Add( scheduleId, DefinedValueId( frequency ), gifts[0].When.Date, isActive ? DBNull.Value : ( object ) lastGift.When.Date, isActive ? ( object ) next : DBNull.Value, isActive,
-                            giver.AliasId, gatewayId ?? DBNull.Value, paymentId, DefinedValueId( WebsiteSourceGuid ), contributionId, $"SCH{scheduleId:D7}", Guid.NewGuid(), _foreignKey, gifts[0].When, now );
+                            giver.AliasId, gatewayId ?? DBNull.Value, paymentId, DefinedValueId( PaymentMethods.WebsiteSourceGuid ), contributionId, PaymentMethods.GatewayScheduleId( scheduleId.Value ), Guid.NewGuid(), _foreignKey, gifts[0].When, now );
                         foreach ( var amount in lastGift.Amounts )
                         {
                             scheduleDetails.Rows.Add( nextScheduleDetailId++, scheduleId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gifts[0].When, now );
@@ -247,12 +239,12 @@ namespace RockSampleData.Loader.Loading
                         batchTotals[batchId] = batchTotals.TryGetValue( batchId, out var t ) ? (t.Amount + total, t.Count + 1) : (total, 1);
 
                         var paymentId = nextPaymentId++;
-                        paymentDetails.Rows.Add( paymentId, DefinedValueId( CurrencyGuids[gift.Currency] ), CardBrand( gift.Currency, wallet ), wallet.Masked( gift.Currency ) ?? ( object ) DBNull.Value, Guid.NewGuid(), _foreignKey, gift.When, gift.When );
+                        _payments.AddPaymentDetail( paymentDetails, paymentId, gift.Currency, wallet, Guid.NewGuid(), _foreignKey, gift.When, gift.When );
 
                         var transactionId = nextTransactionId++;
                         // Check numbers are filled in after every gift is planned, in date order per writer.
-                        var code = isManual ? ( object ) DBNull.Value : $"T{random.Between( 100000000, 999999999 )}";
-                        var transactionRow = transactions.Rows.Add( transactionId, batchId, gift.When, code, contributionId, DefinedValueId( isManual ? OnsiteSourceGuid : WebsiteSourceGuid ),
+                        var code = isManual ? ( object ) DBNull.Value : PaymentMethods.TransactionCode( random );
+                        var transactionRow = transactions.Rows.Add( transactionId, batchId, gift.When, code, contributionId, DefinedValueId( isManual ? OnsiteSourceGuid : PaymentMethods.WebsiteSourceGuid ),
                             gift.ScheduleIndex.HasValue ? ( object ) scheduleId : DBNull.Value, giver.AliasId, isManual ? DBNull.Value : gatewayId ?? DBNull.Value, paymentId,
                             !isManual, isManual ? DBNull.Value : ( object ) date.AddDays( 1 ), false, SundayCalendar.SundayOnOrAfter( date ), int.Parse( date.ToString( "yyyyMMdd" ) ),
                             Guid.NewGuid(), _foreignKey, gift.When, gift.When );
@@ -268,7 +260,7 @@ namespace RockSampleData.Loader.Loading
                         if ( gift.Amounts.Keys.Any( taxDeductibleAccountIds.Contains ) && gift.Amounts.Values.Any( a => a > 0 ) )
                         {
                             qualifying.Add( new RockGift( transactionId, giver.AliasId, giver.GivingId, giver.CampusId, gift.When,
-                                DefinedValueId( isManual ? OnsiteSourceGuid : WebsiteSourceGuid ), DefinedValueId( CurrencyGuids[gift.Currency] ), gift.ScheduleIndex.HasValue,
+                                DefinedValueId( isManual ? OnsiteSourceGuid : PaymentMethods.WebsiteSourceGuid ), _payments.CurrencyId( gift.Currency ), gift.ScheduleIndex.HasValue,
                                 gift.Amounts.Where( a => a.Value != 0 ).OrderBy( a => a.Key ).Select( a => (a.Key, a.Value + 0.00m) ).ToList() ) );
                         }
 
@@ -1112,10 +1104,6 @@ INNER JOIN (
             return measured.ToDictionary( m => m.Key, m => Math.Max( even * 0.05, ( m.Value - ( ( 1 - share ) * even ) ) / Math.Max( 0.05, share ) ) );
         }
 
-        private object CardBrand( string currency, Wallet wallet )
-        {
-            return currency == "Credit Card" ? DefinedValueIdByName( "Credit Card Type", wallet.CardBrand ) : DBNull.Value;
-        }
 
         /// <summary>
         /// The giver's wallet, created on first use, so every pattern of one giver shares it.
@@ -1248,36 +1236,7 @@ INNER JOIN (
             return _accountIds.First( a => a.Value == accountId ).Key.Fund;
         }
 
-        private int DefinedValueId( Guid guid )
-        {
-            var key = guid.ToString();
-            if ( !_definedValueIds.TryGetValue( key, out var id ) )
-            {
-                id = _db.RequireIdByGuid( "DefinedValue", guid );
-                _definedValueIds[key] = id;
-            }
-
-            return id;
-        }
-
-        private object DefinedValueIdByName( string definedTypeName, string value )
-        {
-            var key = $"{definedTypeName}:{value}";
-            if ( !_definedValueIds.TryGetValue( key, out var id ) )
-            {
-                var found = _db.Scalar( "SELECT TOP 1 [dv].[Id] FROM [DefinedValue] AS [dv] INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId] WHERE [dt].[Name] = @Type AND [dv].[Value] = @Value",
-                    RockDatabase.P( "@Type", definedTypeName ), RockDatabase.P( "@Value", value ) );
-                if ( found == null )
-                {
-                    return DBNull.Value;
-                }
-
-                id = Convert.ToInt32( found );
-                _definedValueIds[key] = id;
-            }
-
-            return id;
-        }
+        private int DefinedValueId( Guid guid ) => _payments.DefinedValueId( guid );
 
         private int NextId( string table )
         {

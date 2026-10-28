@@ -253,7 +253,7 @@ namespace RockSampleData.Loader.Generation
 
         private HashSet<int> ChooseShare( string key, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
         {
-            var (chosen, count) = StepShares.Choose( _seed, key, candidates, percent, isForced );
+            var (chosen, count) = StepShares.Choose( $"{_seed}:steps:{key}", candidates, percent, isForced );
             _path.Shares[key] = (chosen.Count, count);
             return chosen;
         }
@@ -394,9 +394,9 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// The given share of the candidates, rounded, counted separately for the Cast and for the generated
         /// households. Forced people (the Cast's stories) count toward their share. The rest are drawn by a
-        /// seeded number per person. Returns the chosen people and how many could.
+        /// seeded number per person from the stream. Returns the chosen people and how many could.
         /// </summary>
-        public static (HashSet<int> Chosen, int Candidates) Choose( string seed, string key, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
+        public static (HashSet<int> Chosen, int Candidates) Choose( string stream, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
         {
             var chosen = new HashSet<int>();
             var count = 0;
@@ -408,7 +408,7 @@ namespace RockSampleData.Loader.Generation
                 count += people.Count;
                 chosen.UnionWith( forced.Select( p => p.PersonId ) );
                 chosen.UnionWith( people.Except( forced )
-                    .OrderBy( p => new SeededRandom( $"{seed}:steps:{key}:share:{p.Guid}" ).Between( 0.0, 1.0 ) ).ThenBy( p => p.Guid )
+                    .OrderBy( p => new SeededRandom( $"{stream}:share:{p.Guid}" ).Between( 0.0, 1.0 ) ).ThenBy( p => p.Guid )
                     .Take( Math.Max( 0, target - forced.Count ) )
                     .Select( p => p.PersonId ) );
             }
