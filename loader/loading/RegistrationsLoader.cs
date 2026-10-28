@@ -321,7 +321,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
             var attributes = TableFactory.Create( "Id:int", "IsSystem:bool", "FieldTypeId:int", "EntityTypeId:int", "EntityTypeQualifierColumn:string", "EntityTypeQualifierValue:string", "Key:string", "Name:string", "Description:string",
                 "Order:int", "IsGridColumn:bool", "DefaultValue:string", "IsMultiValue:bool", "IsRequired:bool", "AllowSearch:bool", "IsIndexEnabled:bool", "IsAnalytic:bool", "IsAnalyticHistory:bool", "IsActive:bool", "EnableHistory:bool",
                 "ShowOnBulk:bool", "IsPublic:bool", "IsDefaultPersistedValueDirty:bool", "IsSuppressHistoryLogging:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var qualifiers = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "Key:string", "Value:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var qualifiers = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "Key:string", "Value:string", "Guid:guid", "ForeignKey:string" );
 
             void Add( TemplateInfo info, RegistrationAttributeDefinition attribute, int entityTypeId, string kind, bool isRequired, int order )
             {
@@ -331,8 +331,8 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                     order, attribute.IsGridColumn, string.Empty, false, isRequired, false, false, false, false, true, false, false, false, true, false, guid, _foreignKey, info.Created, info.Created );
                 if ( attribute.FieldType == RegistrationAttributeFieldType.SingleSelect )
                 {
-                    qualifiers.Rows.Add( false, id, "values", string.Join( ",", attribute.Values ), SeededRandom.StableGuid( $"{guid}:values" ), _foreignKey, info.Created, info.Created );
-                    qualifiers.Rows.Add( false, id, "fieldtype", "ddl", SeededRandom.StableGuid( $"{guid}:fieldtype" ), _foreignKey, info.Created, info.Created );
+                    qualifiers.Rows.Add( false, id, "values", string.Join( ",", attribute.Values ), SeededRandom.StableGuid( $"{guid}:values" ), _foreignKey );
+                    qualifiers.Rows.Add( false, id, "fieldtype", "ddl", SeededRandom.StableGuid( $"{guid}:fieldtype" ), _foreignKey );
                 }
 
                 if ( kind == "registrant" )
