@@ -587,7 +587,7 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 5. **Contacts.** Named Cast staff, or each campus's campus pastor (`CampusPastors`), with Ted Decker standing in on the main campus. Ted approves every event.
 6. **Photos.** `PhotoLoader.LoadEventPhotos` sets each photo listed in `photos/events/manifest.json`.
 
-Speed: Core 1 had 309 occurrences, Core 3 657, and Full 7 1,326 with a six-month window. The 13-month window (decision D-registrations-2) adds about 28, 55, and 99; Core 1 loaded 359 on October 28, 2026. The step takes well under a second.
+Speed: with a six-month window, Core 1 had 323 occurrences, Core 3 675, and Full 7 1,349. The 13-month window (decision D-registrations-2) adds about 28, 55, and 99. The step takes well under a second.
 
 ## Registrations
 
