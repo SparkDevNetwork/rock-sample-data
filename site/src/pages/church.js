@@ -66,7 +66,16 @@ const week = [
     [ "Sunday, 12:00", "Third service", "Phoenix, Chandler, and Tempe add a noon service for later risers and young adults." ],
     [ "Sunday afternoon", "Prayer and follow-up", "The prayer team prays through new requests, and connectors follow up with people who asked to serve." ],
     [ "Sunday to Thursday", "Small groups", "Groups meet in homes, mostly at 7:00 in the evening, through fall and spring seasons and a light summer." ],
-    [ "Midweek", "Students check in", "Students check in again on a weeknight, so their streaks and attendance show up all week." ]
+    [ "Wednesday night", "Classes and Student Night", "Starting Point and Foundations classes meet, and Student Night is on the calendar every week. Students still check in only on Sunday." ]
+];
+
+// The calendar's Ministry by Design stages, in path order. The events in each come from configuration/calendar.json.
+const calendarStages = [
+    [ "Belong", "Front-door, family, community, and care events. A church's front door is wide, so this stage has the most." ],
+    [ "Equip", "Classes, studies, retreats, and the Sundays that help people grow." ],
+    [ "Contribute", "Serving, outreach, and generosity." ],
+    [ "Lead", "Training and huddles for the people who lead groups and teams." ],
+    [ "Staff", "Staff events on the Internal calendar. They run the church rather than serve a stage." ]
 ];
 
 function servingTime( slot ) {
@@ -209,7 +218,7 @@ module.exports = function church( { model, r } ) {
 
 ${model.communicationLists.length ? html`<section class="section" id="lists">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Staying in touch", title: "The lists the church writes to.", lede: "Each campus sends a weekly newsletter, and ministries write to their own lists. Who is on each list follows how involved they are, so the people who lead and serve hear the most." } )}
+    ${sectionHead( { eyebrow: "Staying in touch", title: "The lists the church writes to.", lede: `Each campus sends a weekly newsletter, and ministries write to their own lists. Who is on each list follows how involved they are, so the people who lead and serve hear the most.${model.syncedListKeys.length ? " Rock's group sync keeps some lists current from data views, so a new volunteer or a new guest joins the right list on their own." : ""}` } )}
     <div class="card-grid">
       ${model.communicationLists.map( l => html`<div class="card reveal">
         <h3>${esc( l.campus ? l.publicName.replace( "{campus} ", "" ) : l.publicName )}</h3>
@@ -220,7 +229,40 @@ ${model.communicationLists.length ? html`<section class="section" id="lists">
   </div>
 </section>` : ""}
 
-<section class="section section-sand">
+${model.calendarEvents.length ? html`<section class="section section-sand" id="calendar">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "The calendar", title: "A year of events, on purpose.", lede: `The church has ${model.calendarEvents.length} events on Rock's Public and Internal calendars, at every campus a dataset has. Each event serves one Ministry by Design stage, the same path the step programs follow: Belong, then Equip, then Contribute, then Lead.` } )}
+    <div class="card-grid">
+      ${calendarStages.map( ( [ stage, text ] ) => {
+          const events = model.calendarEvents.filter( e => e.stage === stage );
+          return events.length ? html`<div class="card reveal">
+        <h3>${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
+        <p>${esc( text )}</p>
+        <span class="tags">${events.map( e => html`<span class="tag">${esc( e.name )}</span>` )}</span>
+      </div>` : "";
+      } )}
+    </div>
+    <p class="fine">Dates count from install day and match the steps, the newsletters, and the Cast's stories. The car show was two days ago, and the student retreat is coming up.</p>
+  </div>
+</section>` : ""}
+
+${model.registrations.templates.length ? html`<section class="section" id="registrations">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Event registrations", title: "Register now, on every install day.", lede: `${model.registrations.templates.length} kinds of registration are linked to their calendar events, so each event's page shows a Register button. Each opens and closes on a rule counted from install day. Most open again the day after the last one closes, so some are always open and every feature can be tried.` } )}
+    <div class="card-grid">
+      ${model.registrations.categories.map( category => {
+          const templates = model.registrations.templates.filter( t => t.category === category.key );
+          return templates.length ? html`<div class="card reveal">
+        <h3>${esc( category.name )}</h3>
+        <span class="tags">${templates.map( t => html`<span class="tag">${esc( t.name )}</span>` )}</span>
+      </div>` : "";
+      } )}
+    </div>
+    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts. The people who register come in a later release.</p>
+  </div>
+</section>` : ""}
+
+<section class="section">
   <div class="wrap">
     ${sectionHead( { eyebrow: "A week at the church", title: "What the data remembers." } )}
     <ol class="timeline">

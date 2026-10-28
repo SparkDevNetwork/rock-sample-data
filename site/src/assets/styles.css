@@ -359,6 +359,9 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 /* Cards */
 
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card-grid-four { grid-template-columns: repeat(4, 1fr); }
+.card p + .tags { margin-top: 14px; }
+.card-grid + .fine { margin-top: 24px; }
 .card { background: var(--card); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); border-top: 4px solid transparent; border-image: var(--rock) 1; border-image-slice: 1 0 0 0; }
 .card p { color: var(--ink-2); margin: 0; }
 .section-ink .card { background: var(--night-2); box-shadow: none; }

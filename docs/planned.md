@@ -21,8 +21,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations,** with people: registrants, payments, payment plans, wait lists, and people placed in groups. The setup is built: templates, instances, and links to calendar events. See [Event registrations](registrations.md).
-- **Calendar:** 51 events on the Public and Internal calendars, at every campus a dataset has, with photos as they arrive. See [Calendar](calendar.md).
-- **Communications:** email, text, and push history, with very large mass emails, opens and clicks, SMS conversations with real back-and-forth threads, and messages tied to steps. See [Communications](communications.md).
+- **Event images:** a titled design or a photo for each of the calendar's 51 events. The calendar itself is built (see [Calendar](calendar.md)), and each image loads as it arrives.
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 
@@ -30,6 +29,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Installing and quality
 
-- **Install from inside Rock.** Choose a dataset in Rock and install it, instead of running a separate tool.
-- **Published packages.** Each release builds the datasets and publishes them automatically, so Rock always installs a tested version.
-- **Closer to real churches.** Today 89% of measured values fall within tolerance of real church patterns. The goal is 90% or more.
+- **Install from inside Rock.** Rock's Sample Data Installer block is built, so you choose a dataset in Rock and install it. It waits for a Rock release. Next it gets a field for the sample login password.
+- **A stable release.** Each release already builds, checks, and publishes the datasets as prereleases. The first stable release comes next, so Rock installs a tested version by default.
+- **Closer to real churches.** Today 91% of measured values fall within tolerance of real church patterns. We keep closing the gaps that remain, such as first-time visitors.

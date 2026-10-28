@@ -34,7 +34,7 @@ The first line turns on the hooks that guard `main`. The second makes every merg
 
 ## Handing off
 
-10. **Hand finished work to the integrator.** When your branch is ready, message the integrator session with the branch name, what changed, and the checks you ran. The integrator merges `main` into the branch, numbers decisions, re-records the contract, runs verify, merges into `main`, and pushes once the person running it agrees. Feature sessions do not merge into `main`, except in solo mode (rule 12).
+10. **Hand finished work to the integrator.** When your branch is ready, message the integrator session with the branch name, what changed, the checks you ran, and a **Docs and site** line (rule 15). The integrator merges `main` into the branch, numbers decisions, re-records the contract, runs verify, merges into `main`, and pushes once the person running it agrees. Feature sessions do not merge into `main`, except in solo mode (rule 12).
 11. **Before you hand off,** run `node cast/validate-cast.js`, `node validation/check-standards.js`, any checker for content you changed, and the verify tool on your branch. Update `docs/decisions.md` (with placeholders), `docs/roadmap.md`, any README your change affects, and the docs and site pages in rule 15.
 12. **Solo mode.** When only one session is working in the repository, the person may tell it to land its own branch, for example: "You are the only session working. Land it yourself." The session then follows the integrator's steps itself. Never assume solo mode. A session cannot see other sessions, so only the person can turn it on. A branch that changes only documentation (`.md` files outside `cast/` and `content/`) may skip the package build and verify.
 
@@ -49,6 +49,8 @@ The first line turns on the hooks that guard `main`. The second makes every merg
     - **Docs.** Search `docs/` for the feature, numbers, and file names you changed, and fix every page that describes them, such as [How it works](docs/how-it-works.md), [Verification](docs/verification.md), [Planned work](docs/planned.md), and the glossary.
     - **The site.** Most of the site is built from `cast/`, `configuration/`, `photos/`, `graphics/`, `docs/contributing.md`, and `docs/roadmap.md`, so those parts follow your change on the next build. The pages in `site/src/pages/` are hand-written, though. If one describes what you changed, such as the datasets, load times, or a feature, edit it.
     - **Check it.** After any change to those folders or the site, run `node site/build.js` and look at the pages your change touches. See the [site README](site/README.md) for its rules.
+    - **Say so in the hand-off.** Your hand-off message has a **Docs and site** line. It names each doc and site page you changed, or says "none needed" and why. The integrator sends back a branch that adds or changes a feature with no such line, or with "none needed" and no reason.
+    - **Never copy a number the repository already holds.** A site page reads counts and load times from the files that own them, such as `datasets/*.json` and `configuration/`, instead of typing them in.
 
 ## Releases
 
