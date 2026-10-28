@@ -65,6 +65,8 @@ const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", 
 const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
 const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
 const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+const REGISTRATIONS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "registrations.json" ), "utf8" ) );
+const REGISTRATION_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.registration.properties;
 const adultsWithoutPhotoEthnicity = [];
 const adminPeople = [];
 
@@ -409,6 +411,54 @@ for ( const { file, data: h } of households ) {
         const isLine = [ "ahead", "on-pace", "behind", "stopped" ].includes( c.followThrough );
         if ( isLine && !( h.giving || [] ).some( gv => gv.person === c.person && gv.persona === c.frequency ) ) {
             errors.push( `${owner}: a ${c.followThrough} pledge rides on usual gifts, so its frequency must match one of the giver's giving rhythms.` );
+        }
+    }
+
+    // Event registrations (docs/registrations.md): an instance rule with registrants, one of its occurrences, members of
+    // this household, and a payment the template allows. Expectations name the template's placements and discounts.
+    for ( const [ index, reg ] of ( h.registrations || [] ).entries() ) {
+        const owner = `${file}: registrations[${index}]`;
+        const rule = REGISTRATIONS.instances.find( i => i.key === reg.instance );
+        const template = rule && REGISTRATIONS.templates.find( t => t.key === rule.template );
+        if ( !rule || !rule.registrants ) {
+            errors.push( `${owner} names instance "${reg.instance}", which configuration/registrations.json does not hold with registrants.` );
+            continue;
+        }
+        if ( !rule.occurrences.includes( reg.occurrence ) ) {
+            errors.push( `${owner}: instance ${reg.instance} has no ${reg.occurrence} occurrence.` );
+        }
+        for ( const key of [ ...( reg.registrants || [] ), reg.registrar, reg.expect?.registrar ].filter( k => k !== undefined ) ) {
+            if ( !memberKeys.has( key ) ) {
+                errors.push( `${owner} names "${key}", who is not a member of the household.` );
+            }
+        }
+        if ( ( reg.registrants || [] ).length > ( template.maxRegistrants || 1 ) ) {
+            errors.push( `${owner} has more registrants than template ${template.key} allows on one registration.` );
+        }
+        for ( const field of [ "payment", "frequency" ] ) {
+            if ( reg[field] !== undefined && !REGISTRATION_SCHEMA[field].enum.includes( reg[field] ) ) {
+                errors.push( `${owner}: ${field} "${reg[field]}" is not one of ${REGISTRATION_SCHEMA[field].enum.join( ", " )}.` );
+            }
+        }
+        if ( reg.payment === "plan" && !( template.paymentPlan || [] ).length ) {
+            errors.push( `${owner} pays by plan, but template ${template.key} has no payment plans.` );
+        }
+        if ( reg.payment === "deposit" && template.fullPaymentOrPlanRequired ) {
+            errors.push( `${owner} pays a deposit, but template ${template.key} needs full payment or a plan.` );
+        }
+        if ( reg.frequency !== undefined && !( template.paymentPlan || [] ).includes( reg.frequency ) ) {
+            errors.push( `${owner}: template ${template.key} has no ${reg.frequency} payment plan.` );
+        }
+        for ( const key of Object.keys( reg.expect?.placements || {} ) ) {
+            if ( !( template.placements || [] ).some( p => p.key === key ) ) {
+                errors.push( `${owner} expects placement "${key}", which template ${template.key} does not hold.` );
+            }
+        }
+        if ( reg.expect?.payment !== undefined && !REGISTRATION_SCHEMA.expect.properties.payment.enum.includes( reg.expect.payment ) ) {
+            errors.push( `${owner}: expect.payment "${reg.expect.payment}" is not one of ${REGISTRATION_SCHEMA.expect.properties.payment.enum.join( ", " )}.` );
+        }
+        if ( reg.expect?.discount !== undefined && !( template.discounts || [] ).some( d => d.code === reg.expect.discount ) ) {
+            errors.push( `${owner} expects discount ${reg.expect.discount}, which template ${template.key} does not hold.` );
         }
     }
 

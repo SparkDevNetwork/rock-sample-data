@@ -88,14 +88,16 @@ namespace RockSampleData.Loader.Loading
         private readonly AnchorDates _dates;
         private readonly string _dataset;
         private readonly string _foreignKey;
+        private readonly string _seed;
 
-        public RegistrationsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string dataset, string foreignKey )
+        public RegistrationsLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string dataset, string foreignKey, string seed )
         {
             _db = db;
             _source = source;
             _dates = dates;
             _dataset = dataset;
             _foreignKey = foreignKey;
+            _seed = seed;
         }
 
         /// <summary>
@@ -105,7 +107,9 @@ namespace RockSampleData.Loader.Loading
         /// <param name="calendar">The calendar's planned events, from <see cref="CalendarLoader.Load"/>.</param>
         /// <param name="people">The loaded people: each instance's contact is a Cast person.</param>
         /// <param name="campusPlans">The dataset's campuses.</param>
-        public RegistrationPlan Load( List<PlannedEvent> calendar, PeopleLoader people, IReadOnlyDictionary<string, CampusPlan> campusPlans )
+        /// <param name="studentPath">The Student Path planned for this load, which students register from, or null when the package has no steps.</param>
+        /// <param name="castHouseholdKeys">The Cast's household keys, whose registrations lists pin stories.</param>
+        public RegistrationPlan Load( List<PlannedEvent> calendar, PeopleLoader people, IReadOnlyDictionary<string, CampusPlan> campusPlans, StudentPath studentPath, HashSet<string> castHouseholdKeys )
         {
             var config = _source.Registrations;
             if ( config == null || calendar == null )
@@ -122,12 +126,24 @@ namespace RockSampleData.Loader.Loading
             var groupTypes = WriteGroupTypes( config, Created( firstOpen ) );
             var templates = WriteTemplates( config, plan, categoryIds, groupTypes );
             var groupIds = WriteGroups( plan, groupTypes, campusPlans );
-            var instanceIds = WriteInstances( config, plan, templates, people );
+            var account = _source.Accounts.Accounts.FirstOrDefault( a => a.Key == config.Account )
+                ?? throw new InvalidDataException( $"configuration/registrations.json: account {config.Account} is not in configuration/accounts.json." );
+            var accountId = _db.RequireIdByGuid( "FinancialAccount", account.Guid );
+            var instanceIds = WriteInstances( plan, templates, people, accountId );
             WritePlacementGroupLinks( plan, instanceIds, groupIds, templates );
             WriteLinkages( plan, instanceIds, groupIds, campusPlans );
 
             var open = plan.Instances.Count( i => i.IsOpenOn( _dates.Anchor ) );
             _db.Log.Write( $"  Registrations: {config.Templates.Count} templates, {plan.Instances.Count} instances ({open} open today), {plan.Groups.Count} linked and placement groups" );
+
+            if ( studentPath == null || _source.Steps == null )
+            {
+                _db.Log.Write( "  Student registrations skipped (this package has no configuration/steps.json to plan the Student Path from)" );
+                return plan;
+            }
+
+            var registrations = new StudentRegistrationPlanner( config, _source.Steps, studentPath, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
+            new RegistrantsLoader( _db, _foreignKey, _seed, _dates ).Write( registrations, new RegistrationIds( templates, groupTypes, groupIds, instanceIds, campusPlans, accountId, _db.RequireIdByGuid( "FinancialGateway", config.Gateway ), config.BatchPrefix ) );
             return plan;
         }
 
@@ -166,9 +182,9 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Adds each group type and its roles, unless Rock already has a type with its Guid. Returns each type by key.
         /// </summary>
-        private Dictionary<string, GroupTypeInfo> WriteGroupTypes( RegistrationsConfiguration config, DateTime created )
+        private Dictionary<string, RegistrationGroupTypeIds> WriteGroupTypes( RegistrationsConfiguration config, DateTime created )
         {
-            var types = new Dictionary<string, GroupTypeInfo>( StringComparer.Ordinal );
+            var types = new Dictionary<string, RegistrationGroupTypeIds>( StringComparer.Ordinal );
             var nextTypeId = NextId( "GroupType" );
             var nextRoleId = NextId( "GroupTypeRole" );
             var groupTypes = TableFactory.Create( "Id:int", "IsSystem:bool", "Name:string", "Description:string", "GroupTerm:string", "GroupMemberTerm:string", "AllowMultipleLocations:bool", "ShowInGroupList:bool", "ShowInNavigation:bool",
@@ -183,7 +199,7 @@ namespace RockSampleData.Loader.Loading
                 if ( existingId != null )
                 {
                     var defaultRoleId = Convert.ToInt32( _db.Scalar( "SELECT [DefaultGroupRoleId] FROM [GroupType] WHERE [Id] = @Id", P( "@Id", existingId.Value ) ) );
-                    types[type.Key] = new GroupTypeInfo( existingId.Value, type.Roles.ToDictionary( r => r.Key, r => _db.IdByGuid( "GroupTypeRole", RoleGuid( type, r ) ) ?? defaultRoleId ), defaultRoleId );
+                    types[type.Key] = new RegistrationGroupTypeIds( existingId.Value, type.Roles.ToDictionary( r => r.Key, r => _db.IdByGuid( "GroupTypeRole", RoleGuid( type, r ) ) ?? defaultRoleId ), defaultRoleId );
                     continue;
                 }
 
@@ -201,7 +217,7 @@ namespace RockSampleData.Loader.Loading
                 }
 
                 var defaultRole = type.Roles.SingleOrDefault( r => r.IsDefault ) ?? throw new InvalidDataException( $"configuration/registrations.json: group type {type.Key} needs one default role." );
-                types[type.Key] = new GroupTypeInfo( typeId, roleIds, roleIds[defaultRole.Key] );
+                types[type.Key] = new RegistrationGroupTypeIds( typeId, roleIds, roleIds[defaultRole.Key] );
             }
 
             _db.BulkInsert( "GroupType", groupTypes, keepIdentity: true );
@@ -231,26 +247,26 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Adds every template with its attributes, forms, fees, discounts, and placements. Returns each template by key.
         /// </summary>
-        private Dictionary<string, TemplateInfo> WriteTemplates( RegistrationsConfiguration config, RegistrationPlan plan, Dictionary<string, int> categoryIds, Dictionary<string, GroupTypeInfo> groupTypes )
+        private Dictionary<string, RegistrationTemplateIds> WriteTemplates( RegistrationsConfiguration config, RegistrationPlan plan, Dictionary<string, int> categoryIds, Dictionary<string, RegistrationGroupTypeIds> groupTypes )
         {
-            var templates = new Dictionary<string, TemplateInfo>( StringComparer.Ordinal );
+            var templates = new Dictionary<string, RegistrationTemplateIds>( StringComparer.Ordinal );
             var nextId = NextId( "RegistrationTemplate" );
             foreach ( var template in config.Templates )
             {
                 var opens = plan.Instances.Where( i => i.Template == template ).Select( i => i.Opens ).DefaultIfEmpty( _dates.Anchor ).Min();
-                templates[template.Key] = new TemplateInfo( nextId++, template, Created( opens ) );
+                templates[template.Key] = new RegistrationTemplateIds( nextId++, template, Created( opens ) );
             }
 
             WriteTemplateRows( config, templates, categoryIds, groupTypes );
-            var attributeIds = WriteAttributes( config, templates );
-            WriteForms( templates, attributeIds );
+            WriteAttributes( config, templates );
+            WriteForms( templates );
             WriteFees( templates );
             WriteDiscounts( templates, plan );
             WritePlacements( templates, groupTypes );
             return templates;
         }
 
-        private void WriteTemplateRows( RegistrationsConfiguration config, Dictionary<string, TemplateInfo> templates, Dictionary<string, int> categoryIds, Dictionary<string, GroupTypeInfo> groupTypes )
+        private void WriteTemplateRows( RegistrationsConfiguration config, Dictionary<string, RegistrationTemplateIds> templates, Dictionary<string, int> categoryIds, Dictionary<string, RegistrationGroupTypeIds> groupTypes )
         {
             var rockTemplate = _db.Query( @"
 SELECT [FeeTerm], [RegistrationTerm], [DiscountCodeTerm], [ConfirmationEmailTemplate], [ReminderEmailTemplate], [RequestEntryName], [SuccessTitle], [SuccessText],
@@ -279,7 +295,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                 var template = info.Definition;
                 var categoryId = categoryIds.TryGetValue( template.Category, out var category ) ? category
                     : throw new InvalidDataException( $"configuration/registrations.json: template {template.Key} has category {template.Category}, which 'categories' does not hold." );
-                GroupTypeInfo groupType = null;
+                RegistrationGroupTypeIds groupType = null;
                 if ( template.GroupType != null && !groupTypes.TryGetValue( template.GroupType, out groupType ) )
                 {
                     throw new InvalidDataException( $"configuration/registrations.json: template {template.Key} has group type {template.GroupType}, which 'groupTypes' does not hold." );
@@ -304,10 +320,10 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         }
 
         /// <summary>
-        /// Adds each template's registrant attributes and the registration attributes every template asks. Returns
-        /// attribute Ids by template key and registrant attribute key.
+        /// Adds each template's registrant attributes and the registration attributes every template asks, and
+        /// records their Ids on each template.
         /// </summary>
-        private Dictionary<(string Template, string Key), int> WriteAttributes( RegistrationsConfiguration config, Dictionary<string, TemplateInfo> templates )
+        private void WriteAttributes( RegistrationsConfiguration config, Dictionary<string, RegistrationTemplateIds> templates )
         {
             var registrantEntityTypeId = _db.RequireIdByGuid( "EntityType", RegistrantEntityTypeGuid );
             var registrationEntityTypeId = _db.RequireIdByGuid( "EntityType", RegistrationEntityTypeGuid );
@@ -317,13 +333,12 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                 [RegistrationAttributeFieldType.SingleSelect] = _db.RequireIdByGuid( "FieldType", SingleSelectFieldTypeGuid )
             };
             var nextId = NextId( "Attribute" );
-            var ids = new Dictionary<(string Template, string Key), int>();
             var attributes = TableFactory.Create( "Id:int", "IsSystem:bool", "FieldTypeId:int", "EntityTypeId:int", "EntityTypeQualifierColumn:string", "EntityTypeQualifierValue:string", "Key:string", "Name:string", "Description:string",
                 "Order:int", "IsGridColumn:bool", "DefaultValue:string", "IsMultiValue:bool", "IsRequired:bool", "AllowSearch:bool", "IsIndexEnabled:bool", "IsAnalytic:bool", "IsAnalyticHistory:bool", "IsActive:bool", "EnableHistory:bool",
                 "ShowOnBulk:bool", "IsPublic:bool", "IsDefaultPersistedValueDirty:bool", "IsSuppressHistoryLogging:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var qualifiers = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "Key:string", "Value:string", "Guid:guid", "ForeignKey:string" );
 
-            void Add( TemplateInfo info, RegistrationAttributeDefinition attribute, int entityTypeId, string kind, bool isRequired, int order )
+            void Add( RegistrationTemplateIds info, RegistrationAttributeDefinition attribute, int entityTypeId, string kind, bool isRequired, int order )
             {
                 var id = nextId++;
                 var guid = SeededRandom.StableGuid( $"{kind}-attribute:{info.Definition.Key}:{attribute.Key}" );
@@ -335,10 +350,8 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                     qualifiers.Rows.Add( false, id, "fieldtype", "ddl", SeededRandom.StableGuid( $"{guid}:fieldtype" ), _foreignKey );
                 }
 
-                if ( kind == "registrant" )
-                {
-                    ids[(info.Definition.Key, attribute.Key)] = id;
-                }
+                var ids = kind == "registrant" ? info.RegistrantAttributeIds : info.RegistrationAttributeIds;
+                ids[attribute.Key] = id;
             }
 
             foreach ( var info in templates.Values )
@@ -359,13 +372,12 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
 
             _db.BulkInsert( "Attribute", attributes, keepIdentity: true );
             _db.BulkInsert( "AttributeQualifier", qualifiers, keepIdentity: false );
-            return ids;
         }
 
         /// <summary>
         /// Adds each template's forms and fields. First and last name sit side by side, as Rock's template screen sets them.
         /// </summary>
-        private void WriteForms( Dictionary<string, TemplateInfo> templates, Dictionary<(string Template, string Key), int> attributeIds )
+        private void WriteForms( Dictionary<string, RegistrationTemplateIds> templates )
         {
             var nextFormId = NextId( "RegistrationTemplateForm" );
             var personAttributeIds = new Dictionary<Guid, int>();
@@ -384,7 +396,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                     for ( var order = 0; order < form.Fields.Count; order++ )
                     {
                         var field = form.Fields[order];
-                        var (source, attributeId, isGrid) = FieldSource( template, field, attributeIds, personAttributeIds );
+                        var (source, attributeId, isGrid) = FieldSource( info, field, personAttributeIds );
                         var (preText, postText) = field.Person switch
                         {
                             RegistrationPersonField.FirstName => ("<div class='row'><div class='col-md-6'>", "    </div>"),
@@ -406,8 +418,9 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         /// <summary>
         /// A field's source in Rock's RegistrationFieldSource terms, its attribute, and whether it shows in the registrant grid.
         /// </summary>
-        private (int Source, int? AttributeId, bool IsGrid) FieldSource( RegistrationTemplateDefinition template, RegistrationFieldDefinition field, Dictionary<(string Template, string Key), int> attributeIds, Dictionary<Guid, int> personAttributeIds )
+        private (int Source, int? AttributeId, bool IsGrid) FieldSource( RegistrationTemplateIds info, RegistrationFieldDefinition field, Dictionary<Guid, int> personAttributeIds )
         {
+            var template = info.Definition;
             if ( field.Person is { } person )
             {
                 return (RegistrationFieldSourcePerson, null, person is RegistrationPersonField.FirstName or RegistrationPersonField.LastName);
@@ -425,18 +438,20 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
 
             var attribute = template.Attributes.FirstOrDefault( a => a.Key == field.Attribute )
                 ?? throw new InvalidDataException( $"configuration/registrations.json: template {template.Key} has a field for attribute {field.Attribute}, which its 'attributes' does not hold." );
-            return (RegistrationFieldSourceRegistrant, attributeIds[(template.Key, attribute.Key)], attribute.IsGridColumn);
+            return (RegistrationFieldSourceRegistrant, info.RegistrantAttributeIds[attribute.Key], attribute.IsGridColumn);
         }
 
         /// <summary>
-        /// Adds each template's fees and their items. A fee with more than one item is a multiple-choice fee.
+        /// Adds each template's fees and their items, and records their Ids on each template. A fee with more than one
+        /// item is a multiple-choice fee.
         /// </summary>
-        private void WriteFees( Dictionary<string, TemplateInfo> templates )
+        private void WriteFees( Dictionary<string, RegistrationTemplateIds> templates )
         {
             var nextFeeId = NextId( "RegistrationTemplateFee" );
+            var nextItemId = NextId( "RegistrationTemplateFeeItem" );
             var fees = TableFactory.Create( "Id:int", "Name:string", "RegistrationTemplateId:int", "FeeType:int", "DiscountApplies:bool", "AllowMultiple:bool", "Order:int", "IsActive:bool", "IsRequired:bool", "HideWhenNoneRemaining:bool",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var items = TableFactory.Create( "RegistrationTemplateFeeId:int", "Order:int", "IsActive:bool", "Name:string", "Cost:decimal", "MaximumUsageCount:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var items = TableFactory.Create( "Id:int", "RegistrationTemplateFeeId:int", "Order:int", "IsActive:bool", "Name:string", "Cost:decimal", "MaximumUsageCount:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             foreach ( var info in templates.Values )
             {
                 var template = info.Definition;
@@ -444,25 +459,28 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                 {
                     var fee = template.Fees[order];
                     var feeId = nextFeeId++;
+                    info.FeeIds[fee.Key] = feeId;
                     fees.Rows.Add( feeId, fee.Name, info.Id, fee.Items.Count > 1 ? FeeTypeMultiple : FeeTypeSingle, fee.DiscountApplies, fee.AllowMultiple, order, true, fee.Required, fee.HideWhenNoneRemaining,
                         SeededRandom.StableGuid( $"registration-fee:{template.Key}:{fee.Key}" ), _foreignKey, info.Created, info.Created );
                     for ( var itemOrder = 0; itemOrder < fee.Items.Count; itemOrder++ )
                     {
                         var item = fee.Items[itemOrder];
-                        items.Rows.Add( feeId, itemOrder, true, item.Name, item.Cost, ( object ) item.MaximumUsageCount ?? DBNull.Value, SeededRandom.StableGuid( $"registration-fee-item:{template.Key}:{fee.Key}:{itemOrder}" ),
+                        var itemId = nextItemId++;
+                        info.FeeItemIds[(fee.Key, itemOrder)] = itemId;
+                        items.Rows.Add( itemId, feeId, itemOrder, true, item.Name, item.Cost, ( object ) item.MaximumUsageCount ?? DBNull.Value, SeededRandom.StableGuid( $"registration-fee-item:{template.Key}:{fee.Key}:{itemOrder}" ),
                             _foreignKey, info.Created, info.Created );
                     }
                 }
             }
 
             _db.BulkInsert( "RegistrationTemplateFee", fees, keepIdentity: true );
-            _db.BulkInsert( "RegistrationTemplateFeeItem", items, keepIdentity: false );
+            _db.BulkInsert( "RegistrationTemplateFeeItem", items, keepIdentity: true );
         }
 
         /// <summary>
         /// Adds each template's discounts. An early bird ends on its day before the template's latest event.
         /// </summary>
-        private void WriteDiscounts( Dictionary<string, TemplateInfo> templates, RegistrationPlan plan )
+        private void WriteDiscounts( Dictionary<string, RegistrationTemplateIds> templates, RegistrationPlan plan )
         {
             var discounts = TableFactory.Create( "Code:string", "RegistrationTemplateId:int", "DiscountPercentage:decimal", "DiscountAmount:decimal", "Order:int", "MaxUsage:int", "MinRegistrants:int", "EndDate:date", "AutoApplyDiscount:bool",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -486,7 +504,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         /// <summary>
         /// Adds each template's placements, and records their Ids for the placement group links.
         /// </summary>
-        private void WritePlacements( Dictionary<string, TemplateInfo> templates, Dictionary<string, GroupTypeInfo> groupTypes )
+        private void WritePlacements( Dictionary<string, RegistrationTemplateIds> templates, Dictionary<string, RegistrationGroupTypeIds> groupTypes )
         {
             var nextId = NextId( "RegistrationTemplatePlacement" );
             var placements = TableFactory.Create( "Id:int", "Name:string", "RegistrationTemplateId:int", "GroupTypeId:int", "Order:int", "IconCssClass:string", "AllowMultiplePlacements:bool", "IsInternal:bool",
@@ -530,7 +548,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         /// <summary>
         /// Adds every linked group and placement group. A group belongs to its instance's campus, when it has one.
         /// </summary>
-        private Dictionary<string, int> WriteGroups( RegistrationPlan plan, Dictionary<string, GroupTypeInfo> groupTypes, IReadOnlyDictionary<string, CampusPlan> campusPlans )
+        private Dictionary<string, int> WriteGroups( RegistrationPlan plan, Dictionary<string, RegistrationGroupTypeIds> groupTypes, IReadOnlyDictionary<string, CampusPlan> campusPlans )
         {
             var nextId = NextId( "Group" );
             var ids = new Dictionary<string, int>( StringComparer.Ordinal );
@@ -555,11 +573,8 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         /// <summary>
         /// Adds every instance with its dates, limits, account, contact, and reminder.
         /// </summary>
-        private Dictionary<PlannedRegistrationInstance, int> WriteInstances( RegistrationsConfiguration config, RegistrationPlan plan, Dictionary<string, TemplateInfo> templates, PeopleLoader people )
+        private Dictionary<PlannedRegistrationInstance, int> WriteInstances( RegistrationPlan plan, Dictionary<string, RegistrationTemplateIds> templates, PeopleLoader people, int accountId )
         {
-            var account = _source.Accounts.Accounts.FirstOrDefault( a => a.Key == config.Account )
-                ?? throw new InvalidDataException( $"configuration/registrations.json: account {config.Account} is not in configuration/accounts.json." );
-            var accountId = _db.RequireIdByGuid( "FinancialAccount", account.Guid );
             var nextId = NextId( "RegistrationInstance" );
             var ids = new Dictionary<PlannedRegistrationInstance, int>();
             var rows = TableFactory.Create( "Id:int", "Name:string", "RegistrationTemplateId:int", "StartDateTime:date", "EndDateTime:date", "Details:string", "MaxAttendees:int", "AccountId:int", "IsActive:bool",
@@ -594,7 +609,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         /// Links each instance to its placement groups, the way Rock's placement screen does: a RelatedEntity from the
         /// instance to the group, qualified by the template placement's Id. A group two instances share is linked to both.
         /// </summary>
-        private void WritePlacementGroupLinks( RegistrationPlan plan, Dictionary<PlannedRegistrationInstance, int> instanceIds, Dictionary<string, int> groupIds, Dictionary<string, TemplateInfo> templates )
+        private void WritePlacementGroupLinks( RegistrationPlan plan, Dictionary<PlannedRegistrationInstance, int> instanceIds, Dictionary<string, int> groupIds, Dictionary<string, RegistrationTemplateIds> templates )
         {
             var instanceEntityTypeId = _db.RequireIdByGuid( "EntityType", InstanceEntityTypeGuid );
             var groupEntityTypeId = _db.RequireIdByGuid( "EntityType", GroupEntityTypeGuid );
@@ -645,30 +660,55 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
 
         private int NextId( string table ) => Convert.ToInt32( _db.Scalar( $"SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [{table}]" ) );
 
-        /// <summary>
-        /// A group type's Id, role Ids by key, and default role.
-        /// </summary>
-        private sealed record GroupTypeInfo( int Id, Dictionary<string, int> RoleIds, int DefaultRoleId );
-
-        /// <summary>
-        /// A template's Id, definition, audit date, and placement Ids by key.
-        /// </summary>
-        private sealed class TemplateInfo
-        {
-            public TemplateInfo( int id, RegistrationTemplateDefinition definition, DateTime created )
-            {
-                Id = id;
-                Definition = definition;
-                Created = created;
-            }
-
-            public int Id { get; }
-
-            public RegistrationTemplateDefinition Definition { get; }
-
-            public DateTime Created { get; }
-
-            public Dictionary<string, int> PlacementIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
-        }
     }
+
+    /// <summary>
+    /// A group type's Id, role Ids by key, and default role.
+    /// </summary>
+    internal sealed record RegistrationGroupTypeIds( int Id, Dictionary<string, int> RoleIds, int DefaultRoleId );
+
+    /// <summary>
+    /// A template's Id, definition, audit date, and the Ids of its placements, attributes, fees, and fee items.
+    /// </summary>
+    internal sealed class RegistrationTemplateIds
+    {
+        public RegistrationTemplateIds( int id, RegistrationTemplateDefinition definition, DateTime created )
+        {
+            Id = id;
+            Definition = definition;
+            Created = created;
+        }
+
+        public int Id { get; }
+
+        public RegistrationTemplateDefinition Definition { get; }
+
+        public DateTime Created { get; }
+
+        public Dictionary<string, int> PlacementIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
+
+        public Dictionary<string, int> RegistrantAttributeIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
+
+        public Dictionary<string, int> RegistrationAttributeIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
+
+        public Dictionary<string, int> FeeIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
+
+        /// <summary>
+        /// Fee item Ids by fee key and the item's place in the fee.
+        /// </summary>
+        public Dictionary<(string Fee, int Item), int> FeeItemIds { get; } = new Dictionary<(string Fee, int Item), int>();
+    }
+
+    /// <summary>
+    /// The Ids of the setup the registrations part wrote, which registrations point at.
+    /// </summary>
+    internal sealed record RegistrationIds(
+        Dictionary<string, RegistrationTemplateIds> Templates,
+        Dictionary<string, RegistrationGroupTypeIds> GroupTypes,
+        Dictionary<string, int> GroupIds,
+        Dictionary<PlannedRegistrationInstance, int> InstanceIds,
+        IReadOnlyDictionary<string, CampusPlan> CampusPlans,
+        int AccountId,
+        int GatewayId,
+        string BatchPrefix );
 }

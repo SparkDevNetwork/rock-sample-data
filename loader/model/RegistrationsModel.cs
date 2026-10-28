@@ -252,6 +252,29 @@ namespace RockSampleData.Loader.Model
         public List<string> Values { get; set; } = new List<string>();
 
         public bool IsGridColumn { get; set; }
+
+        /// <summary>
+        /// How the loader answers the attribute for each registrant or registration, or null to leave it blank.
+        /// </summary>
+        public RegistrationAttributeFill Fill { get; set; }
+    }
+
+    /// <summary>
+    /// How the loader answers an attribute: a weighted choice, a friend's name, or a parent's name or phone.
+    /// </summary>
+    internal sealed class RegistrationAttributeFill
+    {
+        public RegistrationAttributeFillKind Kind { get; set; }
+
+        /// <summary>
+        /// A choice's weights, in the order of the attribute's values.
+        /// </summary>
+        public List<double> Weights { get; set; } = new List<double>();
+
+        /// <summary>
+        /// How often a friend is named, from 0 to 100.
+        /// </summary>
+        public double Percent { get; set; }
     }
 
     /// <summary>
@@ -409,6 +432,189 @@ namespace RockSampleData.Loader.Model
         public RegistrationGroupRule LinkedGroup { get; set; }
 
         public List<RegistrationPlacementGroupRule> PlacementGroups { get; set; } = new List<RegistrationPlacementGroupRule>();
+
+        /// <summary>
+        /// Who registers and how they pay, or null for an instance nobody has registered for yet.
+        /// </summary>
+        public RegistrantRule Registrants { get; set; }
+    }
+
+    /// <summary>
+    /// Who registers for an instance, when, and how they pay. Designed targets, not calibration.
+    /// </summary>
+    internal sealed class RegistrantRule
+    {
+        public StudentRegistrantRule Students { get; set; }
+
+        /// <summary>
+        /// Current Student Leaders register on their own with a discount code.
+        /// </summary>
+        public StudentLeaderRule StudentLeaders { get; set; }
+
+        /// <summary>
+        /// Days in the window when registrations bunch up. The rest spread evenly across the window.
+        /// </summary>
+        public List<RegistrationBurst> Timing { get; set; } = new List<RegistrationBurst>();
+
+        /// <summary>
+        /// The share of registrations that pay each way.
+        /// </summary>
+        public Dictionary<RegistrationPayment, double> Payments { get; set; } = new Dictionary<RegistrationPayment, double>();
+
+        /// <summary>
+        /// The share of payment plans at each frequency.
+        /// </summary>
+        public Dictionary<PaymentPlanFrequency, double> PlanFrequencies { get; set; } = new Dictionary<PaymentPlanFrequency, double>();
+
+        /// <summary>
+        /// The share of registrants who choose each optional fee, by fee key.
+        /// </summary>
+        public Dictionary<string, double> Fees { get; set; } = new Dictionary<string, double>();
+
+        public RegistrantPlacementRule Placements { get; set; }
+
+        /// <summary>
+        /// Once the instance is full, the share of later registrations that join the wait list. The rest do not
+        /// register. Null means all of them join.
+        /// </summary>
+        public double? WaitListPercent { get; set; }
+    }
+
+    /// <summary>
+    /// Which students register: the share of a Student Path event step, or a share of the students who attend.
+    /// </summary>
+    internal sealed class StudentRegistrantRule
+    {
+        /// <summary>
+        /// A steps.json event step type. Its percentOfStudents is the share who register, and an instance whose
+        /// event has ended has exactly the people with that step at that event.
+        /// </summary>
+        public string StepType { get; set; }
+
+        /// <summary>
+        /// The share of attending students who register, when there is no step type.
+        /// </summary>
+        public double? Percent { get; set; }
+
+        /// <summary>
+        /// The gender an instance is for, such as camp's girls' instance.
+        /// </summary>
+        public RegistrationGender? Gender { get; set; }
+    }
+
+    internal sealed class StudentLeaderRule
+    {
+        /// <summary>
+        /// The steps.json school-years step type of a current leader.
+        /// </summary>
+        public string StepType { get; set; }
+
+        /// <summary>
+        /// The template's discount key leaders use.
+        /// </summary>
+        public string Discount { get; set; }
+
+        /// <summary>
+        /// How many of the code's uses stay unused, so it still works on install day.
+        /// </summary>
+        public int KeepUnused { get; set; }
+    }
+
+    /// <summary>
+    /// A share of the registrations in the days after or before a day of the window.
+    /// </summary>
+    internal sealed class RegistrationBurst
+    {
+        public RegistrationDay? After { get; set; }
+
+        public RegistrationDay? Before { get; set; }
+
+        public int Days { get; set; }
+
+        public double Percent { get; set; }
+    }
+
+    internal sealed class RegistrantPlacementRule
+    {
+        /// <summary>
+        /// How many groups of each placement every registrant is in once registration has closed.
+        /// </summary>
+        public Dictionary<string, int> Each { get; set; } = new Dictionary<string, int>();
+
+        /// <summary>
+        /// Placements made while registration is still open, for the people who registered early.
+        /// </summary>
+        public EarlyPlacementRule Early { get; set; }
+    }
+
+    internal sealed class EarlyPlacementRule
+    {
+        public List<string> Placements { get; set; } = new List<string>();
+
+        /// <summary>
+        /// People who registered within this many days of opening are placed.
+        /// </summary>
+        public int Days { get; set; }
+    }
+
+    /// <summary>
+    /// A day in a registration's window that registrations bunch around.
+    /// </summary>
+    [JsonConverter( typeof( JsonStringEnumConverter ) )]
+    internal enum RegistrationDay
+    {
+        [JsonStringEnumMemberName( "opens" )]
+        Opens,
+
+        [JsonStringEnumMemberName( "closes" )]
+        Closes,
+
+        [JsonStringEnumMemberName( "early-bird" )]
+        EarlyBird,
+
+        [JsonStringEnumMemberName( "payment-deadline" )]
+        PaymentDeadline
+    }
+
+    /// <summary>
+    /// How a registration pays.
+    /// </summary>
+    [JsonConverter( typeof( JsonStringEnumConverter ) )]
+    internal enum RegistrationPayment
+    {
+        /// <summary>
+        /// Everything owed, when registering.
+        /// </summary>
+        [JsonStringEnumMemberName( "paid-in-full" )]
+        PaidInFull,
+
+        /// <summary>
+        /// The minimum payment when registering, and the balance by the payment deadline.
+        /// </summary>
+        [JsonStringEnumMemberName( "deposit" )]
+        Deposit,
+
+        /// <summary>
+        /// The minimum payment when registering, then a payment plan that ends by the payment deadline.
+        /// </summary>
+        [JsonStringEnumMemberName( "plan" )]
+        Plan
+    }
+
+    [JsonConverter( typeof( JsonStringEnumConverter ) )]
+    internal enum RegistrationAttributeFillKind
+    {
+        [JsonStringEnumMemberName( "choice" )]
+        Choice,
+
+        [JsonStringEnumMemberName( "friend" )]
+        Friend,
+
+        [JsonStringEnumMemberName( "contact-name" )]
+        ContactName,
+
+        [JsonStringEnumMemberName( "contact-phone" )]
+        ContactPhone
     }
 
     /// <summary>

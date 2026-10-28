@@ -1,5 +1,5 @@
 {
-  "$comment": "Event registrations, slice 1: everything a church sets up before anyone registers (docs/registrations.md). Template categories, placement group types, templates with their forms, fees, discounts, and placements, and instance rules that link each registration to its calendar occurrence and group. Every date is a rule counted from the install day. Registrants, payments, and placed people come in later slices.",
+  "$comment": "Event registrations (docs/registrations.md). Slice 1 is everything a church sets up before anyone registers: template categories, placement group types, templates with their forms, fees, discounts, and placements, and instance rules that link each registration to its calendar occurrence and group. Slice 2 adds the students who registered for camp, the mission trip, and the fall retreat, through each instance rule's registrants. Every date is a rule counted from the install day.",
   "adminRole": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF",
   "$adminRoleComment": "Rock's RSR - Event Registration Administration role. Rock's v19 rollup gave it Edit and Administrate on every top-level template category that existed then, so the loader does the same for these new ones.",
   "gateway": "6432D2D2-32FF-443D-B5B3-FB6C8414C3AD",
@@ -166,10 +166,21 @@
         "Church app",
         "A friend",
         "Other"
-      ]
+      ],
+      "fill": {
+        "kind": "choice",
+        "weights": [
+          30,
+          15,
+          20,
+          15,
+          15,
+          5
+        ]
+      }
     }
   ],
-  "$registrationAttributesComment": "Asked once per registration on every template.",
+  "$registrationAttributesComment": "Asked once per registration on every template. fill says how the loader answers it for each registration (see $attributeFillComment).",
   "$templatesComment": "One template per kind of registration. A template is reused every year; each year's instances come from the instance rules below. eligibility: grades (7 to 12), ages, and gender, stored the way Rock's template screen stores them. Rock refuses a registrant it cannot check, so a template that limits grade asks for grade, one that limits age asks for birthdate, and one that limits gender asks for gender. paymentPlan lists the frequencies a plan may use.",
   "templates": [
     {
@@ -251,18 +262,28 @@
           "key": "RoommateRequest",
           "name": "Cabin Mate Request",
           "fieldType": "text",
-          "description": "One friend this camper would like to share a cabin with."
+          "description": "One friend this camper would like to share a cabin with.",
+          "fill": {
+            "kind": "friend",
+            "percent": 35
+          }
         },
         {
           "key": "EmergencyContactName",
           "name": "Emergency Contact Name",
           "fieldType": "text",
-          "isGridColumn": true
+          "isGridColumn": true,
+          "fill": {
+            "kind": "contact-name"
+          }
         },
         {
           "key": "EmergencyContactPhone",
           "name": "Emergency Contact Phone",
-          "fieldType": "text"
+          "fieldType": "text",
+          "fill": {
+            "kind": "contact-phone"
+          }
         }
       ],
       "fees": [
@@ -300,6 +321,13 @@
       ],
       "discounts": [
         {
+          "key": "siblings",
+          "code": "SIBLINGS",
+          "amount": 25,
+          "autoApply": true,
+          "minRegistrants": 2
+        },
+        {
           "key": "early-bird",
           "code": "EARLYBIRD",
           "amount": 30,
@@ -308,13 +336,6 @@
             "month": 4,
             "day": 30
           }
-        },
-        {
-          "key": "siblings",
-          "code": "SIBLINGS",
-          "amount": 25,
-          "autoApply": true,
-          "minRegistrants": 2
         }
       ],
       "placements": [
@@ -337,7 +358,8 @@
           "iconCssClass": "ti ti-ball-basketball",
           "allowMultiple": true
         }
-      ]
+      ],
+      "$discountsComment": "Rock applies one discount per registration: the first automatic one, in this order, that is valid on the day. So siblings who register together get the sibling discount, and anyone else who registers by April 30 gets the early bird."
     },
     {
       "key": "mission-trip",
@@ -413,7 +435,15 @@
             "I have applied",
             "I do not have one yet"
           ],
-          "description": "Spring trips cross the border, so every student needs a passport by the trip."
+          "description": "Spring trips cross the border, so every student needs a passport by the trip.",
+          "fill": {
+            "kind": "choice",
+            "weights": [
+              60,
+              25,
+              15
+            ]
+          }
         }
       ]
     },
@@ -895,7 +925,7 @@
       "maxAttendees": {
         "core-1": 25,
         "core-3": 60,
-        "full-7": 150
+        "full-7": 300
       },
       "contact": "jenny",
       "details": "Girls in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
@@ -936,7 +966,55 @@
             "Worship Band"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "students": {
+          "stepType": "student-camp",
+          "gender": "female"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 25
+          },
+          {
+            "before": "payment-deadline",
+            "days": 21,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 30,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 70,
+          "twice-monthly": 30
+        },
+        "fees": {
+          "t-shirt": 40
+        },
+        "placements": {
+          "each": {
+            "bus": 1,
+            "cabin": 1,
+            "activity": 2
+          },
+          "early": {
+            "placements": [
+              "activity"
+            ],
+            "days": 30
+          }
+        }
+      }
     },
     {
       "key": "student-camp-boys",
@@ -957,7 +1035,7 @@
       "maxAttendees": {
         "core-1": 25,
         "core-3": 60,
-        "full-7": 150
+        "full-7": 300
       },
       "contact": "jenny",
       "details": "Boys in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
@@ -998,7 +1076,55 @@
             "Worship Band"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "students": {
+          "stepType": "student-camp",
+          "gender": "male"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 25
+          },
+          {
+            "before": "payment-deadline",
+            "days": 21,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 30,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 70,
+          "twice-monthly": 30
+        },
+        "fees": {
+          "t-shirt": 40
+        },
+        "placements": {
+          "each": {
+            "bus": 1,
+            "cabin": 1,
+            "activity": 2
+          },
+          "early": {
+            "placements": [
+              "activity"
+            ],
+            "days": 30
+          }
+        }
+      }
     },
     {
       "key": "mission-trip",
@@ -1025,6 +1151,26 @@
       "linkedGroup": {
         "key": "mission-trip-{year}-{month}",
         "name": "Mission Trip Team, {month} {year}"
+      },
+      "registrants": {
+        "students": {
+          "stepType": "mission-trip"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 30,
+            "percent": 50
+          }
+        ],
+        "payments": {
+          "paid-in-full": 30,
+          "plan": 70
+        },
+        "planFrequencies": {
+          "monthly": 100
+        },
+        "waitListPercent": 20
       }
     },
     {
@@ -1047,6 +1193,35 @@
       "linkedGroup": {
         "key": "student-retreat-{year}",
         "name": "Student Fall Retreat {year}"
+      },
+      "registrants": {
+        "students": {
+          "percent": 30
+        },
+        "studentLeaders": {
+          "stepType": "student-leader",
+          "discount": "student-leader",
+          "keepUnused": 2
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 14,
+            "percent": 40
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 55
+        },
+        "fees": {
+          "hoodie": 35
+        }
       }
     },
     {
@@ -1215,5 +1390,7 @@
         "name": "Women's Retreat {year}"
       }
     }
-  ]
+  ],
+  "$attributeFillComment": "fill: how the loader answers an attribute for each registrant or registration. choice picks a value by weights, in the order of values. friend names another registrant of the same instance near the person's grade, percent of the time. contact-name and contact-phone give a parent or guardian other than the registrar when the family has one, otherwise the registrar.",
+  "$registrantsComment": "registrants: who registers for an instance, when, and how they pay (slice 2 has the student registrations). students: stepType makes the share of students who register the step type's percentOfStudents in configuration/steps.json, and an instance whose event has ended has exactly the people with that step at that event; percent is a share of the students attending the student service otherwise; gender limits an instance to girls or boys. A student registers when they are in the template's grades on the day they register (Rock's check) and on the event day, and have been attending the student service. Siblings in one family register together on one registration, by a parent or guardian, or by the student when they live on their own. studentLeaders: every current Student Leader who has been attending registers on their own with that discount code, leaving keepUnused of its uses. timing: percent of the registrations fall in the days after opens or before early-bird, payment-deadline, or closes; the rest spread across the window. Only registrations before the install day are written. payments: how registrations pay, by share: paid-in-full, deposit (the minimum now and the balance later), or plan (the minimum now and a payment plan to the payment deadline). After the deadline, every balance is paid. planFrequencies: how plans are split among frequencies. fees: the share of registrants who choose each optional fee. waitListPercent: once the instance is full, the share of later registrations that join its wait list; the rest do not register. placements: each registrant gets each placement this many times once registration closes; while it is open, people who registered in its first early.days days already have the early placements."
 }

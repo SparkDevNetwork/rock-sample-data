@@ -94,7 +94,7 @@ namespace RockSampleData.Loader.Generation
                             throw new InvalidDataException( $"configuration/registrations.json: instance {rule.Key} needs the {pick.ToString().ToLowerInvariant()} {rule.Event} occurrence, which the calendar does not plan. Raise monthsAhead in configuration/calendar.json." );
                         }
 
-                        plan.Instances.Add( Instance( rule, template, dates, index, occurrences.Key, plan ) );
+                        plan.Instances.Add( Instance( rule, template, pick, dates, index, occurrences.Key, plan ) );
                     }
                 }
             }
@@ -125,7 +125,7 @@ namespace RockSampleData.Loader.Generation
                 .ToList();
         }
 
-        private PlannedRegistrationInstance Instance( RegistrationInstanceRule rule, RegistrationTemplateDefinition template, List<EventDate> dates, int index, string campusKey, RegistrationPlan plan )
+        private PlannedRegistrationInstance Instance( RegistrationInstanceRule rule, RegistrationTemplateDefinition template, RegistrationOccurrencePick pick, List<EventDate> dates, int index, string campusKey, RegistrationPlan plan )
         {
             var date = dates[index];
             var day = date.Start.Date;
@@ -133,6 +133,7 @@ namespace RockSampleData.Loader.Generation
             {
                 Rule = rule,
                 Template = template,
+                Pick = pick,
                 Occurrence = date.Occurrence,
                 CampusKey = campusKey,
                 EventStart = date.Start,
@@ -229,7 +230,7 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// The last month and day on or before a day, such as April 30 before a June camp.
         /// </summary>
-        private static DateTime LastOnOrBefore( MonthDay monthDay, DateTime day )
+        internal static DateTime LastOnOrBefore( MonthDay monthDay, DateTime day )
         {
             var date = new DateTime( day.Year, monthDay.Month, monthDay.Day );
             return date <= day ? date : date.AddYears( -1 );
@@ -280,6 +281,11 @@ namespace RockSampleData.Loader.Generation
         public RegistrationInstanceRule Rule { get; set; }
 
         public RegistrationTemplateDefinition Template { get; set; }
+
+        /// <summary>
+        /// Whether this is the rule's next or last instance.
+        /// </summary>
+        public RegistrationOccurrencePick Pick { get; set; }
 
         /// <summary>
         /// The calendar occurrence the linkage points at.
