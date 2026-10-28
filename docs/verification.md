@@ -199,6 +199,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `registration-category-has-the-admin-role` | Rock's registration admin role can manage templates in the new categories, as Rock's v19 rollup set for older ones. |
 | `seven-registrations-are-open-today` | Seven registrations are open on every install day, each linked to its occurrence, so every feature can be tried (decision 190). |
 | `registrant-template-matches` | A registrant, its registration, and the registration's instance name one template, whose forms, fees, and attributes Rock reads. |
+| `registrant-required-answers-are-filled` | Every registrant answers each required registrant question its form shows, as Rock's form requires before it saves. |
 | `registrant-is-in-the-grades` | Rock checks a registrant's grade on the day they register, and the event is for those grades, so every registrant is in the template's grades on both days (decision D-registrations-9). |
 | `registration-is-inside-its-window` | A registration is made while its instance is open and before the install day, with the date key Rock writes. |
 | `registrants-fit-the-limit-and-join-the-group`, `wait-list-only-when-full` | No more registrants than the limit are off the wait list, each of them is in the linked group with the template's role and status, and a wait list exists only on a full instance. |

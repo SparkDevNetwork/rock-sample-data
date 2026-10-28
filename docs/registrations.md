@@ -143,7 +143,7 @@ A student registers on a day Rock lets them: Rock checks a registrant's grade on
 
 Rock gives a registration one discount: the first automatic one, in the template's order, that is valid that day. So camp's sibling discount comes before its early bird, and siblings who register together get $25 off each, while anyone else who registers by April 30 gets $30 off. Current Student Leaders register for the retreat with the STUDENTLEADER code, $40 off, and the loader leaves two of its 12 uses for someone trying it on a fresh install. Jasmine Washington graduated in May, so she is no longer a Student Leader and does not register.
 
-About 40% of campers add a camp T-shirt and 35% of retreat students a hoodie, older students in larger sizes. Each fee names its fee item, which Rock's placement board needs. Camp asks for an emergency contact (a parent or guardian other than the registrar when there is one) and, a third of the time, a cabin mate near the camper's grade. The trip asks about passports, and every registration answers "How did you hear about this event?"
+About 40% of campers add a camp T-shirt and 35% of retreat students a hoodie, older students in larger sizes. Each fee names its fee item, which Rock's placement board needs. Camp asks for an emergency contact, which is required: a parent or guardian other than the registrar when there is one, or the registrar. A student who registers themselves, or whose registrar has no phone, names a parent who is not in Rock, with a reserved 555 phone. Camp also asks, a third of the time, a cabin mate near the camper's grade. The trip asks about passports, and every registration answers "How did you hear about this event?"
 
 ### Payments
 

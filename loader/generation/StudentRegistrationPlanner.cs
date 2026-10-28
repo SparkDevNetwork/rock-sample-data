@@ -884,14 +884,45 @@ namespace RockSampleData.Loader.Generation
                         return null;
                     }
 
-                    var contact = Contact( registration, registrant );
-                    return contact == null ? null : fill.Kind == RegistrationAttributeFillKind.ContactName ? NameOf( contact ) : Phone( contact );
+                    var (name, phone) = EmergencyContact( registration, registrant );
+                    return fill.Kind == RegistrationAttributeFillKind.ContactName ? name : phone;
             }
         }
 
+        /*
+            10/28/26 - CLAUDE
+
+            Camp's emergency contact questions are required, so Rock's form never saves a registration without them.
+            A student who registers themselves has no parent in Rock, and some registrars have no phone. Their
+            answers name a parent who is not in Rock, drawn from the Crowd's name lists with the student's last name,
+            and a phone in the reserved 555-0100 to 555-0199 range. The draw is seeded by the student, so the name
+            and the phone answer agree.
+
+            Reason: Every required answer is filled, as Rock's form requires.
+        */
+
         /// <summary>
-        /// The registrant's emergency contact: a parent or guardian other than the registrar when the family has one,
-        /// otherwise the registrar. Null for a student who registered themselves, whose parents are not in Rock.
+        /// The registrant's emergency contact name and phone: a parent or guardian in Rock when one has a phone,
+        /// otherwise a parent who is not in Rock.
+        /// </summary>
+        private (string Name, string Phone) EmergencyContact( PlannedRegistration registration, PlannedRegistrant registrant )
+        {
+            var contact = Contact( registration, registrant );
+            var phone = contact == null ? null : Phone( contact );
+            if ( contact != null && phone != null )
+            {
+                return (NameOf( contact ), phone);
+            }
+
+            var random = new SeededRandom( $"{_seed}:emergency-contact:{registrant.Person.Cast.Guid}" );
+            var first = random.Pick( random.Chance( 0.6 ) ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
+            var name = contact == null ? $"{first} {registrant.Person.Cast.LastName}" : NameOf( contact );
+            return (name, $"({random.Pick( new[] { "602", "480", "623" } )}) 555-0{random.Between( 100, 199 )}");
+        }
+
+        /// <summary>
+        /// The registrant's emergency contact in Rock: a parent or guardian other than the registrar when the family
+        /// has one, otherwise the registrar. Null for a student who registered themselves, whose parents are not in Rock.
         /// </summary>
         private LoadedPerson Contact( PlannedRegistration registration, PlannedRegistrant registrant )
         {

@@ -1219,6 +1219,17 @@ INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstance
 WHERE [rr].[ForeignKey] = @ForeignKey
     AND ( [rr].[RegistrationTemplateId] <> [r].[RegistrationTemplateId] OR [r].[RegistrationTemplateId] <> [i].[RegistrationTemplateId] );
 
+-- check: registrant-required-answers-are-filled
+-- why: Rock's registration form does not save until every required question it shows is answered. A registrant has an answer to each required registrant question on its template, except one on the wait list that the wait list form does not show.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[RegistrationTemplateId] = [rr].[RegistrationTemplateId]
+INNER JOIN [RegistrationTemplateFormField] AS [ff] ON [ff].[RegistrationTemplateFormId] = [f].[Id] AND [ff].[FieldSource] = 4 AND [ff].[IsRequired] = 1
+LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [ff].[AttributeId] AND [av].[EntityId] = [rr].[Id]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND ( [rr].[OnWaitList] = 0 OR [ff].[ShowOnWaitlist] = 1 )
+    AND ISNULL( [av].[Value], '' ) = '';
+
 -- check: registrant-is-in-the-grades
 -- why: Rock checks a registrant's grade against the template's on the day they register (RegistrantEligibilityEvaluator), and the event is for those grades, so every registrant is in them on both days. A grade moves up each June 1, as check-in moves it.
 WITH [Registrants] AS (
