@@ -303,6 +303,121 @@ if ( registrations.registrationAttributes.length === 0 ) {
     problems.push( "every template should ask \"How did you hear?\" as a registration attribute" );
 }
 
+// Attribute fills (slice 2): a choice weighs each of its values, and the kinds the loader knows.
+const fillKinds = [ "choice", "friend", "contact-name", "contact-phone" ];
+for ( const [ owner, attribute ] of [
+    ...registrations.registrationAttributes.map( a => [ "registration attribute", a ] ),
+    ...registrations.templates.flatMap( t => ( t.attributes ?? [] ).map( a => [ `template ${t.key} attribute`, a ] ) ) ] ) {
+    const fill = attribute.fill;
+    if ( !fill ) {
+        continue;
+    }
+
+    if ( !fillKinds.includes( fill.kind ) ) {
+        problems.push( `${owner} ${attribute.key}: fill kind ${fill.kind} is not one of ${fillKinds.join( ", " )}` );
+    }
+    else if ( fill.kind === "choice" && ( attribute.fieldType !== "single-select" || ( fill.weights ?? [] ).length !== attribute.values.length ) ) {
+        problems.push( `${owner} ${attribute.key}: a choice fill needs a single-select attribute and one weight per value` );
+    }
+}
+
+// Registrant rules (slice 2): students come from a Student Path event step or a share, payments are ones the
+// template allows and add up to 100, and fees and placements are the template's.
+const steps = read( "configuration/steps.json" );
+const stepTypes = new Map( steps.programs.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+const burstDays = [ "opens", "closes", "early-bird", "payment-deadline" ];
+const sum = values => Object.values( values ?? {} ).reduce( ( total, value ) => total + value, 0 );
+for ( const rule of registrations.instances.filter( r => r.registrants ) ) {
+    const name = `instance ${rule.key} registrants`;
+    const template = templates.get( rule.template );
+    const registrants = rule.registrants;
+    const students = registrants.students ?? {};
+    if ( students.stepType !== undefined ) {
+        if ( stepTypes.get( students.stepType )?.source.kind !== "event" ) {
+            problems.push( `${name}: students.stepType ${students.stepType} is not an event step in configuration/steps.json` );
+        }
+    }
+    else if ( !( students.percent > 0 && students.percent <= 100 ) ) {
+        problems.push( `${name}: students needs a stepType or a percent from 1 to 100` );
+    }
+
+    if ( !template?.eligibility?.grades ) {
+        problems.push( `${name}: students register by grade, so template ${rule.template} needs eligibility.grades` );
+    }
+
+    if ( registrants.studentLeaders ) {
+        const leaders = registrants.studentLeaders;
+        const code = discounts( template ).find( d => d.key === leaders.discount );
+        if ( stepTypes.get( leaders.stepType )?.source.kind !== "school-years" ) {
+            problems.push( `${name}: studentLeaders.stepType ${leaders.stepType} is not a school-years step` );
+        }
+
+        if ( !code || code.autoApply || !( code.maxUsage > leaders.keepUnused ) ) {
+            problems.push( `${name}: studentLeaders.discount ${leaders.discount} must be a code (not automatic) with more uses than keepUnused` );
+        }
+    }
+
+    for ( const burst of registrants.timing ?? [] ) {
+        if ( !burstDays.includes( burst.after ?? burst.before ) || ( burst.after && burst.before ) || !( burst.days > 0 ) ) {
+            problems.push( `${name}: each timing burst needs after or before (${burstDays.join( ", " )}) and days` );
+        }
+    }
+
+    if ( sum( Object.fromEntries( ( registrants.timing ?? [] ).map( ( b, i ) => [ i, b.percent ] ) ) ) > 100 ) {
+        problems.push( `${name}: timing percents add up to more than 100` );
+    }
+
+    if ( sum( registrants.payments ) !== 100 ) {
+        problems.push( `${name}: payments must add up to 100` );
+    }
+
+    if ( registrants.payments?.plan && !( template.paymentPlan ?? [] ).length ) {
+        problems.push( `${name}: pays by plan, but template ${template.key} has no payment plans` );
+    }
+
+    if ( registrants.payments?.deposit && template.fullPaymentOrPlanRequired ) {
+        problems.push( `${name}: pays deposits, but template ${template.key} needs full payment or a plan` );
+    }
+
+    for ( const frequency of Object.keys( registrants.planFrequencies ?? {} ) ) {
+        if ( !( template.paymentPlan ?? [] ).includes( frequency ) ) {
+            problems.push( `${name}: plan frequency ${frequency} is not one template ${template.key} allows` );
+        }
+    }
+
+    for ( const fee of Object.keys( registrants.fees ?? {} ) ) {
+        if ( !fees( template ).some( f => f.key === fee && !f.required ) ) {
+            problems.push( `${name}: fee ${fee} is not an optional fee of template ${template.key}` );
+        }
+    }
+
+    const placements = registrants.placements;
+    for ( const key of [ ...Object.keys( placements?.each ?? {} ), ...( placements?.early?.placements ?? [] ) ] ) {
+        const placement = ( template.placements ?? [] ).find( p => p.key === key );
+        if ( !placement || !( rule.placementGroups ?? [] ).some( g => g.placement === key ) ) {
+            problems.push( `${name}: placement ${key} is not a placement of template ${template.key} with groups on this instance` );
+        }
+        else if ( ( placements.each?.[key] ?? 1 ) > 1 && !placement.allowMultiple ) {
+            problems.push( `${name}: placement ${key} gives several groups each, but the template does not allow multiple placements` );
+        }
+    }
+
+    if ( registrants.waitListPercent !== undefined && ( !template.waitList || !( registrants.waitListPercent >= 0 && registrants.waitListPercent <= 100 ) ) ) {
+        problems.push( `${name}: waitListPercent needs a template with a wait list and a share from 0 to 100` );
+    }
+}
+
+// Rock applies the first automatic discount, in order, that is valid on the day. A discount that needs several
+// registrants must come before an early bird, or a family registering early would never get it.
+for ( const template of registrations.templates ) {
+    const automatic = discounts( template ).filter( d => d.autoApply );
+    const earlyBird = automatic.findIndex( d => d.endsBefore );
+    const several = automatic.findIndex( d => d.minRegistrants > 1 );
+    if ( earlyBird >= 0 && several > earlyBird ) {
+        problems.push( `template ${template.key}: discount ${automatic[several].key} needs several registrants, so it must come before the early bird ${automatic[earlyBird].key}` );
+    }
+}
+
 const openTemplates = [ ...alwaysOpen.keys() ];
 console.log( `Registrations: ${registrations.templates.length} templates, ${registrations.instances.length} instance rules, ${openTemplates.length} always open (${openTemplates.join( ", " )}), ${features.length} features checked. ${problems.length} problems.` );
 for ( const problem of problems ) {
