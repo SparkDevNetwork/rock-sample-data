@@ -64,6 +64,7 @@ const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "co
 const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
 const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
 const adultsWithoutPhotoEthnicity = [];
+const adminPeople = [];
 
 /**
  * Reads every JSON file in a Cast subfolder.
@@ -156,7 +157,45 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${owner}: email domain ${domain} is not a reserved or church-owned domain.` );
             }
         }
+        if ( p.replacesAdmin ) {
+            adminPeople.push( owner );
+            // Rock's admin person is an adult in Rock Administrators, and keeps Rock's own login (decision 177).
+            if ( p.familyRole !== "adult" || p.recordType === "business" || p.recordStatus === "inactive" || p.isDeceased ) {
+                errors.push( `${owner}: replaces Rock's admin person, so must be an active adult person.` );
+            }
+            if ( !( p.securityRoles || [] ).includes( "Rock Administrators" ) ) {
+                errors.push( `${owner}: replaces Rock's admin person, so must list Rock Administrators.` );
+            }
+            if ( ( p.logins || [] ).length > 0 ) {
+                errors.push( `${owner}: replaces Rock's admin person, who signs in with Rock's admin login, so lists no logins.` );
+            }
+        }
+        for ( const status of ( p.connects && p.connects.statuses ) || [] ) {
+            if ( !connections.requestStatuses.some( s => s.name === status ) ) {
+                errors.push( `${owner}: connects requests in status "${status}", which is not in configuration/connections.json.` );
+            }
+        }
     }
+}
+
+// A staff connector's minimum must come from the Cast's own requests at their campus, so it holds in every dataset (decision 178).
+for ( const h of households.map( x => x.data ) ) {
+    for ( const p of h.members || [] ) {
+        if ( !p.connects || !p.connects.minimum ) {
+            continue;
+        }
+        const campus = h.campusSlot || "main";
+        const matching = households.map( x => x.data ).filter( o => ( o.campusSlot || "main" ) === campus )
+            .flatMap( o => ( o.members || [] ).filter( m => m.guid !== p.guid ).flatMap( m => m.connectionRequests || [] ) )
+            .filter( r => r.state === "Active" && r.connector && p.connects.statuses.includes( r.status ) );
+        if ( matching.length < p.connects.minimum ) {
+            errors.push( `${h.key} (${p.key}): connects at least ${p.connects.minimum} requests, but the Cast has only ${matching.length} active requests at that campus in ${p.connects.statuses.join( " or " )} with a connector.` );
+        }
+    }
+}
+
+if ( adminPeople.length !== 1 ) {
+    errors.push( `Exactly one Cast person replaces Rock's admin person (replacesAdmin); found ${adminPeople.length}: ${adminPeople.join( ", " ) || "none"}.` );
 }
 
 const groupKeys = new Set( groups.map( g => g.data.key ) );

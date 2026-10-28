@@ -10,7 +10,8 @@
   "story": "Derek and Kayla Ward gave a single large gift after the church helped them through a hard year.",
   "testPurposes": [
     "One-time giver.",
-    "Nursery and preschool check-in."
+    "Nursery and preschool check-in.",
+    "Open request to serve that Alisha Marble connects (In Progress)."
   ],
   "address": {
     "type": "home",
@@ -67,7 +68,19 @@
       },
       "photo": {
         "ethnicity": "south-asian"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "ushers",
+          "state": "Active",
+          "status": "In Progress",
+          "created": {
+            "daysAgo": 18
+          },
+          "connector": true,
+          "comment": "The church helped us through a hard year, and I'd like to give back."
+        }
+      ]
     },
     {
       "key": "kayla",

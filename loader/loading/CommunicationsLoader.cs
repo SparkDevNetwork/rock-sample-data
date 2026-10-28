@@ -509,11 +509,11 @@ VALUES ( 0, @GroupTypeId, @CampusId, @Name, @Description, 0, 1, @IsPublic, @Orde
         /// </summary>
         private int MoveTextPreferencesWithoutPhones()
         {
-            return _db.Execute( @"
+            return _db.Execute( $@"
 UPDATE [p]
 SET [p].[CommunicationPreference] = 1
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey AND [p].[CommunicationPreference] = 2
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [p].[CommunicationPreference] = 2
     AND NOT EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [p].[Id] AND [pn].[IsMessagingEnabled] = 1 );
 UPDATE [gm]
 SET [gm].[CommunicationPreference] = 0

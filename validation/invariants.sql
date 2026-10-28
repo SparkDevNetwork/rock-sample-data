@@ -6,7 +6,9 @@
     with "-- check: name", says why it matters on the next "-- why:" line, and returns one number: how many rows
     break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1. @CardPeople and @CardHouseholds
     are the dataset card's numbers from datasets/{key}.json, or null when the load used another seed than the
-    default, which the card was not measured at.
+    default, which the card was not measured at. @AdminPersonId is Rock's admin person (Person Id 1), which the load
+    turns into a Cast person but leaves without the dataset's ForeignKey (decision 177), so rules about this
+    dataset's people name it alongside @ForeignKey.
 
     Rules that a foreign key or unique index already enforces are left out: the bulk copy checks those.
     "Every family has an adult" is left out on purpose: kids whose parents are not in Rock, and Jenny Greggs's
@@ -17,11 +19,28 @@
 -- why: Every rule below looks only at this dataset's rows. A load that wrote nothing would pass them all.
 SELECT CASE WHEN EXISTS ( SELECT 1 FROM [Person] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
 
+-- check: admin-is-a-cast-person
+-- why: Decision 177. Rock's admin person becomes the Cast person who replaces it, so signing in as admin shows real data. It keeps Rock's admin login, Rock Administrators, and an empty ForeignKey, so nothing that removes sample data by ForeignKey can remove the site's admin. Its primary family is this dataset's, and it is in no other family, so Rock's empty Admin family is gone.
+SELECT CASE WHEN EXISTS (
+        SELECT 1
+        FROM [Person] AS [p]
+        INNER JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]
+        WHERE [p].[Id] = @AdminPersonId AND [p].[ForeignKey] IS NULL AND [f].[ForeignKey] = @ForeignKey
+            AND EXISTS ( SELECT 1 FROM [UserLogin] AS [ul] WHERE [ul].[PersonId] = [p].[Id] AND [ul].[UserName] = 'admin' )
+            AND EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] WHERE [gm].[PersonId] = [p].[Id] AND [g].[Guid] = '628C51A8-4613-43ED-A18D-4A6FB999273E' ) )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+        INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+        WHERE [gm].[PersonId] = @AdminPersonId AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' AND ISNULL( [g].[ForeignKey], '' ) <> @ForeignKey )
+    THEN 0 ELSE 1 END;
+
 -- check: person-has-one-primary-alias
 -- why: Rock finds a person through their primary alias; every audit column and gift points at it.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[PrimaryAliasId] IS NULL
         OR NOT EXISTS ( SELECT 1 FROM [PersonAlias] AS [pa] WHERE [pa].[Id] = [p].[PrimaryAliasId] AND [pa].[PersonId] = [p].[Id] AND [pa].[AliasPersonId] = [p].[Id] )
         OR ( SELECT COUNT(*) FROM [PersonAlias] AS [pa] WHERE [pa].[PersonId] = [p].[Id] AND [pa].[AliasPersonId] = [p].[Id] ) <> 1 );
@@ -30,7 +49,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
 -- why: Rock expects every person to belong to at least one family; profile pages and check-in break without one.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND NOT EXISTS (
         SELECT 1
         FROM [GroupMember] AS [gm]
@@ -42,7 +61,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
 -- why: Rock's save hook sets the primary family and campus; the loader fills them in itself.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[PrimaryFamilyId] IS NULL
         OR NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [p].[PrimaryFamilyId] AND [gm].[PersonId] = [p].[Id] ) );
 
@@ -51,14 +70,14 @@ WHERE [p].[ForeignKey] = @ForeignKey
 SELECT COUNT(*)
 FROM [Person] AS [p]
 INNER JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ISNULL( [p].[PrimaryCampusId], -1 ) <> ISNULL( [f].[CampusId], -1 );
 
 -- check: giving-id-matches-giving-group
 -- why: Rock groups gifts by GivingId (G + giving group, or P + person). A wrong one splits or merges giving units.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( ISNULL( [p].[GivingId], '' ) <> CASE WHEN [p].[GivingGroupId] IS NULL THEN 'P' + CAST( [p].[Id] AS VARCHAR(20) ) ELSE 'G' + CAST( [p].[GivingGroupId] AS VARCHAR(20) ) END
         OR [p].[GivingLeaderId] IS NULL );
 
@@ -66,7 +85,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
 -- why: The giving leader receives the statement; it must be the person or an adult of their giving group.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND [p].[GivingLeaderId] <> [p].[Id]
     AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [p].[GivingGroupId] AND [gm].[PersonId] = [p].[GivingLeaderId] );
 
@@ -74,7 +93,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
 -- why: Rock stores the birth date three ways (date, day/month/year, and a sortable key); reports read all three.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND [p].[BirthDate] IS NOT NULL
     AND ( [p].[BirthYear] <> YEAR( [p].[BirthDate] ) OR [p].[BirthMonth] <> MONTH( [p].[BirthDate] ) OR [p].[BirthDay] <> DAY( [p].[BirthDate] )
         OR [p].[BirthDateKey] <> YEAR( [p].[BirthDate] ) * 10000 + MONTH( [p].[BirthDate] ) * 100 + DAY( [p].[BirthDate] ) );
@@ -84,14 +103,14 @@ WHERE [p].[ForeignKey] = @ForeignKey
 SELECT COUNT(*)
 FROM [PhoneNumber] AS [pn]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( LEN( [pn].[Number] ) <> 10 OR LEFT( [pn].[Number], 3 ) NOT IN ( '602', '480', '623' ) OR SUBSTRING( [pn].[Number], 4, 5 ) <> '55501' );
 
 -- check: emails-use-reserved-domains
 -- why: Content standard 3. Emails use example.org, or rocksolidchurchdemo.com for the sample church's staff.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ISNULL( [p].[Email], '' ) <> ''
     AND [p].[Email] NOT LIKE '%@example.org'
     AND [p].[Email] NOT LIKE '%@rocksolidchurchdemo.com';
@@ -100,7 +119,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
 -- why: Content standard 8. Photo ethnicity only makes matching family photos; it never goes into Rock.
 SELECT COUNT(*)
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[RaceValueId] IS NOT NULL OR [p].[EthnicityValueId] IS NOT NULL );
 
 -- check: home-addresses-are-mapped
@@ -160,7 +179,7 @@ SELECT COUNT(*)
 FROM [Person] AS [p]
 LEFT JOIN [BinaryFile] AS [f] ON [f].[Id] = [p].[PhotoId]
 LEFT JOIN [BinaryFileType] AS [ft] ON [ft].[Id] = [f].[BinaryFileTypeId]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND [p].[PhotoId] IS NOT NULL
     AND ( [f].[Id] IS NULL
         OR [ft].[Guid] <> '03BD8476-8A9F-4078-B628-5B538F967AFC'
@@ -179,7 +198,7 @@ FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
 WHERE [n].[ForeignKey] = @ForeignKey
-    AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [n].[EntityId] AND [p].[ForeignKey] = @ForeignKey );
+    AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [n].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: note-reply-matches-its-parent
 -- why: Rock shows a reply under its parent, so it must be on the same entity, of the same type, and written after it.
@@ -323,7 +342,7 @@ WITH [Dates] AS (
     FROM [AttributeValue] AS [av]
     INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
-    WHERE [a].[Guid] = 'D42763FA-28E9-4A55-A25A-48998D7D7FEF' AND [p].[ForeignKey] = @ForeignKey AND ISNULL( [av].[Value], '' ) <> ''
+    WHERE [a].[Guid] = 'D42763FA-28E9-4A55-A25A-48998D7D7FEF' AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND ISNULL( [av].[Value], '' ) <> ''
 ),
 [Baptisms] AS (
     SELECT [pa].[PersonId], [s].[Id], [s].[StartDateTime], [s].[CompletedDateTime]
@@ -363,7 +382,7 @@ WITH [Stages] AS (
     FROM [Person] AS [p]
     INNER JOIN [AttributeValue] AS [av] ON [av].[EntityId] = [p].[Id]
     INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
-    WHERE [a].[Guid] = '13C55AEA-6D88-4470-B3AE-EE5138F044DF' AND [p].[ForeignKey] = @ForeignKey
+    WHERE [a].[Guid] = '13C55AEA-6D88-4470-B3AE-EE5138F044DF' AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         AND [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BF64ADD3-E70A-44CE-9C4B-E76BBED37550' )
 ),
 [OpenGive] AS (
@@ -417,7 +436,7 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
 -- check: people-match-the-dataset-card
 -- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
 SELECT CASE WHEN @CardPeople IS NOT NULL AND ABS( [c].[People] - @CardPeople ) > @CardPeople * 0.02 THEN ABS( [c].[People] - @CardPeople ) ELSE 0 END
-FROM ( SELECT COUNT(*) AS [People] FROM [Person] WHERE [ForeignKey] = @ForeignKey ) AS [c];
+FROM ( SELECT COUNT(*) AS [People] FROM [Person] AS [p] WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) ) AS [c];
 
 -- check: households-match-the-dataset-card
 -- why: Rock's installer shows the household count from datasets/{key}.json (@CardHouseholds). Returns how many households the load is off by when that is more than 2%.
@@ -648,7 +667,7 @@ WITH [Serving] AS (
     INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
     INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
-    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' AND [p].[ForeignKey] = @ForeignKey AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
+    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
         AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 AND [p].[EmailPreference] = 0
 ),
 [Listed] AS (
@@ -669,7 +688,7 @@ WITH [Leading] AS (
     INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
     INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
-    WHERE [gt].[Guid] = '50FCFB30-F51A-49DF-86F4-2B176EA1820B' AND [p].[ForeignKey] = @ForeignKey AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
+    WHERE [gt].[Guid] = '50FCFB30-F51A-49DF-86F4-2B176EA1820B' AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
         AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 AND [r].[IsLeader] = 1 AND [p].[EmailPreference] = 0
 ),
 [Listed] AS (
@@ -688,7 +707,7 @@ FROM [SystemPhoneNumber] AS [spn]
 WHERE [spn].[ForeignKey] = @ForeignKey
     AND ( [spn].[IsActive] = 0 OR [spn].[IsSmsEnabled] = 0 OR [spn].[IsSmsForwardingEnabled] = 1
         OR LEN( [spn].[Number] ) <> 12 OR LEFT( [spn].[Number], 2 ) <> '+1' OR SUBSTRING( [spn].[Number], 3, 3 ) NOT IN ( '602', '480', '623' ) OR SUBSTRING( [spn].[Number], 6, 5 ) <> '55501'
-        OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE [p].[ForeignKey] = @ForeignKey AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
+        OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
 
 -- check: communication-is-sent-and-never-sends-again
 -- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it.
@@ -915,7 +934,7 @@ SELECT ( SELECT COUNT(*)
     + ( SELECT COUNT(*)
         FROM [PhoneNumber] AS [pn]
         INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId]
-        WHERE [p].[ForeignKey] = @ForeignKey AND [pn].[IsMessagingOptedOut] = 1
+        WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [pn].[IsMessagingOptedOut] = 1
             AND NOT EXISTS ( SELECT 1 FROM [CommunicationResponse] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[FromPersonAliasId]
                 WHERE [pa].[PersonId] = [p].[Id] AND [r].[Response] = 'STOP' AND [r].[ForeignKey] = @ForeignKey ) );
 

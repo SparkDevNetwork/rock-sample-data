@@ -112,12 +112,12 @@ namespace RockSampleData.Loader.Loading
             var statusDue = _source.Connections.ConnectionType.DueDateCalculationMode == "DurationPerStatus"
                 ? _source.Connections.RequestStatuses.Where( s => s.DueInDays.HasValue ).ToDictionary( s => s.Name, s => (Due: s.DueInDays.Value, DueSoon: s.DueSoonInDays ?? s.DueInDays.Value) )
                 : new Dictionary<string, (int Due, int DueSoon)>();
-            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90, statusDue );
+            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90, statusDue ) { StaffConnectors = StaffConnectors( people ) };
             var monthStart = new DateTime( today.Year, today.Month, 1 );
             var workedStatuses = rules.ActiveStatuses.Where( s => s.Key != "No Contact" ).ToDictionary( s => s.Key, s => s.Value );
 
             // Connector group members are inserted one by one, so the bulk-copy Ids start after them.
-            SetDefaultConnectors( leaders );
+            SetDefaultConnectors( leaders, context.StaffConnectors.Values.Select( s => s.AliasId ) );
             var tables = new Tables( _db );
 
             foreach ( var campusKey in plans.Select( p => p.Campus ).Distinct() )
@@ -385,8 +385,7 @@ namespace RockSampleData.Loader.Loading
             var rules = context.Rules;
             var opportunityId = _connections.OpportunityIds[request.Team];
             var groupId = _serving.TeamGroupIds[(request.Campus, request.Team)];
-            var connector = request.WantsConnector ? context.Leaders.GetValueOrDefault( (request.Campus, request.Team) ) : ( int? ) null;
-            connector = connector == 0 ? null : connector;
+            var connector = Connector( context, request );
             var end = request.Connected ?? context.Today;
             var requestId = tables.NextRequestId++;
             var isConnected = request.State == StateConnected;
@@ -505,11 +504,63 @@ namespace RockSampleData.Loader.Loading
             tables.PersonValues.Rows.Add( false, ids["BackgroundCheckResult"], person.PersonId, result, DBNull.Value, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
         }
 
+        /*
+            10/27/26 - CLAUDE
+
+            The team leader at the person's campus connects every request that has a connector, except where a
+            Cast staff person's connects rule takes it: Alisha Marble, who signs in as Rock's admin, reaches out
+            first to the main campus's active requests at No Contact or In Progress. Which requests have a
+            connector does not change, so the measured share holds. The Cast's requests that need a connector
+            keep none, and no one connects their own request.
+
+            Reason: Signing in as admin shows real connection work on the board (decision 178).
+        */
+
         /// <summary>
-        /// Makes each team leader the default connector for their team's opportunity at their campus,
-        /// and a member of Rock's Global Connector Group, which every opportunity uses.
+        /// The Cast staff who connect requests at each campus by their connects rule, with the statuses they take.
         /// </summary>
-        private void SetDefaultConnectors( Dictionary<(string Campus, string Team), int> leaders )
+        private static Dictionary<string, StaffConnector> StaffConnectors( PeopleLoader people )
+        {
+            var staff = new Dictionary<string, StaffConnector>();
+            foreach ( var household in people.Households )
+            {
+                foreach ( var person in household.Members.Where( m => m.FamilyId == household.FamilyId && m.Cast.Connects != null ) )
+                {
+                    staff[household.CampusKey] = new StaffConnector { AliasId = person.AliasId, PersonId = person.PersonId, Statuses = person.Cast.Connects.Statuses.ToHashSet() };
+                }
+            }
+
+            return staff;
+        }
+
+        /// <summary>
+        /// The connector's alias for a request, or null when it has none.
+        /// </summary>
+        private static int? Connector( RequestContext context, PlannedRequest request )
+        {
+            if ( !request.WantsConnector )
+            {
+                return null;
+            }
+
+            var isStaffRequest = request.State == StateActive
+                && context.StaffConnectors.TryGetValue( request.Campus, out var staff )
+                && staff.Statuses.Contains( request.Status )
+                && staff.PersonId != request.Person.PersonId;
+            if ( isStaffRequest )
+            {
+                return context.StaffConnectors[request.Campus].AliasId;
+            }
+
+            var leader = context.Leaders.GetValueOrDefault( (request.Campus, request.Team) );
+            return leader == 0 ? null : leader;
+        }
+
+        /// <summary>
+        /// Makes each team leader the default connector for their team's opportunity at their campus, and
+        /// each leader and staff connector a member of Rock's Global Connector Group, which every opportunity uses.
+        /// </summary>
+        private void SetDefaultConnectors( Dictionary<(string Campus, string Team), int> leaders, IEnumerable<int> staffAliasIds )
         {
             var campusIds = _db.Query( "SELECT [Id], [Name] FROM [Campus]" ).ToDictionary( r => ( string ) r["Name"], r => Convert.ToInt32( r["Id"] ) );
             var connectorGroup = _db.Query( @"
@@ -523,18 +574,38 @@ WHERE [g].[Guid] = @Guid", P( "@Guid", GlobalConnectorGroupGuid ) ).FirstOrDefau
                 var campusName = _source.Campuses.Campuses.Single( c => c.Key == campusKey ).Name;
                 _db.Execute( "UPDATE [ConnectionOpportunityCampus] SET [DefaultConnectorPersonAliasId] = @AliasId WHERE [ConnectionOpportunityId] = @OpportunityId AND [CampusId] = @CampusId",
                     P( "@AliasId", aliasId ), P( "@OpportunityId", _connections.OpportunityIds[team] ), P( "@CampusId", campusIds[campusName] ) );
+            }
 
-                if ( connectorGroup != null )
-                {
-                    _db.Execute( @"
+            if ( connectorGroup == null )
+            {
+                return;
+            }
+
+            foreach ( var aliasId in leaders.Values.Concat( staffAliasIds ) )
+            {
+                _db.Execute( @"
 INSERT INTO [GroupMember] ( [IsSystem], [GroupId], [GroupTypeId], [PersonId], [GroupRoleId], [GroupMemberStatus], [DateTimeAdded], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 SELECT 0, @GroupId, @GroupTypeId, [pa].[PersonId], @RoleId, 1, GETDATE(), NEWID(), @ForeignKey, GETDATE(), GETDATE()
 FROM [PersonAlias] AS [pa]
 WHERE [pa].[Id] = @AliasId
     AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [m] WHERE [m].[GroupId] = @GroupId AND [m].[PersonId] = [pa].[PersonId] )",
-                        P( "@GroupId", connectorGroup["Id"] ), P( "@GroupTypeId", connectorGroup["GroupTypeId"] ), P( "@RoleId", connectorGroup["DefaultGroupRoleId"] ), P( "@AliasId", aliasId ), P( "@ForeignKey", _foreignKey ) );
-                }
+                    P( "@GroupId", connectorGroup["Id"] ), P( "@GroupTypeId", connectorGroup["GroupTypeId"] ), P( "@RoleId", connectorGroup["DefaultGroupRoleId"] ), P( "@AliasId", aliasId ), P( "@ForeignKey", _foreignKey ) );
             }
+        }
+
+        /// <summary>
+        /// A Cast staff person who connects some requests at their campus instead of the team leader.
+        /// </summary>
+        private sealed class StaffConnector
+        {
+            public int AliasId { get; set; }
+
+            public int PersonId { get; set; }
+
+            /// <summary>
+            /// The active request statuses this person connects.
+            /// </summary>
+            public HashSet<string> Statuses { get; set; }
         }
 
         private static object Value<T>( T? value ) where T : struct => value.HasValue ? value.Value : DBNull.Value;
@@ -613,6 +684,11 @@ WHERE [pa].[Id] = @AliasId
             public Dictionary<string, int> ActivityTypeIds { get; }
 
             public Dictionary<(string, string), int> Leaders { get; }
+
+            /// <summary>
+            /// The Cast staff connector at each campus that has one, by campus key.
+            /// </summary>
+            public Dictionary<string, StaffConnector> StaffConnectors { get; set; } = new Dictionary<string, StaffConnector>();
 
             /// <summary>
             /// Each status's due and due-soon days, when due dates run from the last status change. Empty otherwise.

@@ -37,6 +37,7 @@ Jason and Melissa Wood have a seventh grader and a fourth grader. Jason's gift g
 
 - Middle school student in the student check-in area.
 - Bi-weekly scheduled card giver.
+- Open request to serve that Alisha Marble connects (No Contact).
 
 ## Activity
 

@@ -37,6 +37,7 @@ Derek and Kayla Ward gave a single large gift after the church helped them throu
 
 - One-time giver.
 - Nursery and preschool check-in.
+- Open request to serve that Alisha Marble connects (In Progress).
 
 ## Activity
 

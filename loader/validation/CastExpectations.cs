@@ -17,6 +17,7 @@
 
 using RockSampleData.Loader.Database;
 using RockSampleData.Loader.Generation;
+using RockSampleData.Loader.Loading;
 using RockSampleData.Loader.Model;
 
 using static RockSampleData.Loader.Database.RockDatabase;
@@ -61,6 +62,7 @@ namespace RockSampleData.Loader.Validation
         public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
+            var guids = new CastPersonGuids( db, source );
             var checks = 0;
             var failures = new List<string>();
 
@@ -71,7 +73,7 @@ namespace RockSampleData.Loader.Validation
                 foreach ( var pattern in household.Giving.Where( g => g.Expect != null ) )
                 {
                     var giver = household.Members.First( m => m.Key == pattern.Person );
-                    var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", giver.Guid ) ).FirstOrDefault();
+                    var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", guids.Value( giver.Guid ) ) ).FirstOrDefault();
                     var name = $"{giver.NickName ?? giver.FirstName} {giver.LastName}";
                     if ( person == null )
                     {
@@ -129,25 +131,28 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                 }
             }
 
-            checks += parts.Contains( SampleDataPart.Attendance ) ? CheckAchievements( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Attendance ) ? CheckAchievements( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, failures ) : 0;
+            // Signing in as admin shows Alisha Marble's open requests (decision 178).
+            checks += parts.Contains( SampleDataPart.Serving ) ? CheckStaffConnectors( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Communications ) ? CheckThreads( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckThreads( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, guids, failures ) : 0;
+
+            checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
 
@@ -192,7 +197,7 @@ WHERE [e].[Guid] = @Event
         /// Checks that each Cast text thread shows in SMS Conversations the way its file says: every text the person sent
         /// and every staff text, and the thread unread, read, or stopped.
         /// </summary>
-        private static int CheckThreads( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckThreads( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var numbers = source.Communications?.PhoneNumbers.Numbers.ToDictionary( n => n.Key, n => n.Guid ) ?? new Dictionary<string, Guid>();
             var checks = 0;
@@ -208,7 +213,7 @@ SELECT
     ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [cr].[UnsubscribeLevel] = 1 ) AS [Stops]
 FROM [Person] AS [p]
 CROSS JOIN [SystemPhoneNumber] AS [spn]
-WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", thread.Person ), P( "@Number", numbers.GetValueOrDefault( thread.Number ) ) ).FirstOrDefault();
+WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", guids.Value( thread.Person ) ), P( "@Number", numbers.GetValueOrDefault( thread.Number ) ) ).FirstOrDefault();
                 var fromPerson = thread.Messages.Count( m => m.From == "person" );
                 var fromStaff = thread.Messages.Count( m => m.From == "staff" );
                 var name = $"Text thread {thread.Key}";
@@ -241,7 +246,7 @@ WHERE [p].[Guid] = @Person AND [spn].[Guid] = @Number", P( "@Person", thread.Per
         /// Checks that each Cast staff email shows in the person's Communication History: sent by the staff member, with its
         /// subject, delivered, on its day.
         /// </summary>
-        private static int CheckStaffEmails( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckStaffEmails( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var staff = source.Notes?.Staff.ToDictionary( s => s.Key, s => s.Guid ) ?? new Dictionary<string, Guid>();
             var checks = 0;
@@ -258,7 +263,7 @@ INNER JOIN [PersonAlias] AS [sa] ON [sa].[Id] = [c].[SenderPersonAliasId]
 INNER JOIN [Person] AS [s] ON [s].[Id] = [sa].[PersonId]
 WHERE [p].[Guid] = @Person AND [s].[Guid] = @Staff AND [c].[CommunicationType] = 1 AND [c].[Subject] = @Subject AND [cr].[Status] IN ( 1, 4 )
     AND DATEDIFF( DAY, [cr].[SendDateTime], GETDATE() ) BETWEEN @DaysAgo - 1 AND @DaysAgo + 1",
-                    P( "@Person", email.To ), P( "@Staff", staff.GetValueOrDefault( email.From ) ), P( "@Subject", email.Subject ), P( "@DaysAgo", email.DaysAgo ) ) );
+                    P( "@Person", guids.Value( email.To ) ), P( "@Staff", guids.Value( staff.GetValueOrDefault( email.From ) ) ), P( "@Subject", email.Subject ), P( "@DaysAgo", email.DaysAgo ) ) );
                 if ( count != 1 )
                 {
                     failures.Add( $"Staff email {email.Key}: expected one delivered email from {email.From} about {days( email.DaysAgo )} with its subject, Rock shows {count}" );
@@ -285,7 +290,7 @@ WHERE [p].[Guid] = @Person AND [s].[Guid] = @Staff AND [c].[CommunicationType] =
         /// <summary>
         /// Checks that each Cast note is on its person, with a type the person profile's Notes block shows.
         /// </summary>
-        private static int CheckProfileNotes( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckProfileNotes( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var shownTypes = db.Query( @"
 SELECT [nt].[Guid]
@@ -331,7 +336,7 @@ SELECT [nt].[Guid], [nt].[Name]
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [n].[EntityId]
-WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( "@Person", person.Guid ) ).FirstOrDefault();
+WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( "@Person", guids.Value( person.Guid ) ) ).FirstOrDefault();
                     var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
                     if ( type == null )
                     {
@@ -351,7 +356,7 @@ WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( 
         /// Checks each scripted Cast email unsubscribe: one email recipient row at the right level, and the person left the list,
         /// or chose No mass emails, the way Rock's email preference page records it.
         /// </summary>
-        private static int CheckUnsubscribes( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckUnsubscribes( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var checks = 0;
             foreach ( var unsubscribe in source.Communications?.CastUnsubscribes ?? new List<CastUnsubscribe>() )
@@ -366,7 +371,7 @@ INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [p].[Guid] = @Guid AND [cr].[UnsubscribeDateTime] IS NOT NULL AND [c].[CommunicationType] = 1
-ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", unsubscribe.Person ) ).FirstOrDefault();
+ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.Person ) ) ).FirstOrDefault();
                 var name = unsubscribe.Person.ToString();
                 if ( row == null )
                 {
@@ -390,10 +395,34 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", unsubscribe.Person ) ).Fi
         }
 
         /// <summary>
+        /// Checks that each Cast staff connector with a minimum connects at least that many active requests.
+        /// </summary>
+        private static int CheckStaffConnectors( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( m => m.Connects?.Minimum != null ) )
+            {
+                checks++;
+                var count = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [ConnectionRequest] AS [cr]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[ConnectorPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[Guid] = @Guid AND [cr].[ConnectionState] = 0", P( "@Guid", guids.Value( person.Guid ) ) ) );
+                if ( count < person.Connects.Minimum.Value )
+                {
+                    failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected to connect at least {person.Connects.Minimum} active requests, Rock shows {count}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
         /// Checks that each Cast staff member's personal texting number is active and assigned to them, so
         /// SMS Conversations shows it as theirs.
         /// </summary>
-        private static int CheckPhoneNumbers( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckPhoneNumbers( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var checks = 0;
             foreach ( var number in source.Communications?.PhoneNumbers.Numbers ?? new List<SystemPhoneNumberDefinition>() )
@@ -410,7 +439,7 @@ WHERE [spn].[Guid] = @Guid", P( "@Guid", number.Guid ) ).FirstOrDefault();
                 {
                     failures.Add( $"Phone number {number.Name}: expected an active system phone number, Rock shows {( row == null ? "none" : "it inactive" )}" );
                 }
-                else if ( assignedTo != number.AssignedTo )
+                else if ( assignedTo != ( number.AssignedTo.HasValue ? guids.Rock( number.AssignedTo.Value ) : ( Guid? ) null ) )
                 {
                     failures.Add( $"Phone number {number.Name}: expected it assigned to {number.AssignedTo?.ToString() ?? "nobody"}, Rock shows {assignedTo?.ToString() ?? "nobody"}" );
                 }
@@ -423,7 +452,7 @@ WHERE [spn].[Guid] = @Guid", P( "@Guid", number.Guid ) ).FirstOrDefault();
         /// Checks each Cast campaign entry: the pledge is there with its total, and the pledge is in the state its
         /// story says on install day (complete, ahead, on pace, behind, stopped, not started, or gifts only).
         /// </summary>
-        private static int CheckCampaign( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckCampaign( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var campaign = source.Campaign;
             if ( campaign == null )
@@ -450,7 +479,7 @@ WHERE [spn].[Guid] = @Guid", P( "@Guid", number.Guid ) ).FirstOrDefault();
                     checks++;
                     var giver = household.Members.First( m => m.Key == entry.Person );
                     var name = $"{giver.NickName ?? giver.FirstName ?? household.Name} {giver.LastName}".Trim();
-                    var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", giver.Guid ) ).FirstOrDefault();
+                    var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", guids.Value( giver.Guid ) ) ).FirstOrDefault();
                     if ( person == null )
                     {
                         failures.Add( $"{name}: not in the database" );
@@ -708,7 +737,7 @@ WHERE EXISTS (
         /// Checks each Cast person's step expectations against their steps and program completions in the loaded
         /// database. Returns how many were checked and adds each failure.
         /// </summary>
-        private static int CheckSteps( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckSteps( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             if ( source.Steps == null )
             {
@@ -728,7 +757,7 @@ INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
 INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Guid ) ) )
                     .Where( r => typeKeys.ContainsKey( ( Guid ) r["Guid"] ) )
                     .Select( r => (Key: typeKeys[( Guid ) r["Guid"]], IsComplete: ( bool ) r["IsCompleteStatus"]) )
                     .ToList();
@@ -762,7 +791,7 @@ FROM [StepProgramCompletion] AS [c]
 INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [c].[StepProgramId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [c].[PersonAliasId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Guid ) ) )
                         .Select( r => ( Guid ) r["Guid"] )
                         .Where( programKeys.ContainsKey )
                         .Select( g => programKeys[g] )
@@ -784,7 +813,7 @@ WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
         /// Checks each Cast person's achievement expectations against their attempts in the loaded database. Returns
         /// how many were checked and adds each failure.
         /// </summary>
-        private static int CheckAchievements( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckAchievements( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var typeKeys = source.Achievements.AchievementTypes.ToDictionary( t => t.Guid, t => t.Key );
             var checks = 0;
@@ -798,7 +827,7 @@ FROM [AchievementAttempt] AS [a]
 INNER JOIN [AchievementType] AS [t] ON [t].[Id] = [a].[AchievementTypeId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[AchieverEntityId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
+WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Guid ) ) )
                     .Where( r => typeKeys.ContainsKey( ( Guid ) r["Guid"] ) )
                     .Select( r => (Key: typeKeys[( Guid ) r["Guid"]], IsSuccessful: ( bool ) r["IsSuccessful"], IsClosed: ( bool ) r["IsClosed"]) )
                     .ToList();
@@ -836,6 +865,41 @@ WHERE [p].[Guid] = @Guid", P( "@Guid", person.Guid ) )
             }
 
             return checks;
+        }
+    }
+
+    /// <summary>
+    /// A Cast person's Guid in Rock. It is the Guid in their household file, except for the person who replaces
+    /// Rock's admin (decision 177), who keeps the Guid Rock gave Person 1 at install.
+    /// </summary>
+    internal sealed class CastPersonGuids
+    {
+        private readonly Guid _adminCastGuid;
+        private readonly Guid? _adminRockGuid;
+
+        public CastPersonGuids( RockDatabase db, SampleDataSource source )
+        {
+            _adminCastGuid = source.ReadHouseholds().SelectMany( h => h.Members ).FirstOrDefault( m => m.ReplacesAdmin )?.Guid ?? Guid.Empty;
+            _adminRockGuid = db.Scalar( "SELECT [Guid] FROM [Person] WHERE [Id] = @Id", P( "@Id", PeopleLoader.AdminPersonId ) ) as Guid?;
+        }
+
+        /// <summary>
+        /// The Rock Guid for a Cast Guid.
+        /// </summary>
+        public Guid Rock( Guid castGuid )
+        {
+            return castGuid == _adminCastGuid && _adminRockGuid.HasValue ? _adminRockGuid.Value : castGuid;
+        }
+
+        /// <summary>
+        /// The Rock Guid for a Cast Guid, as a SQL parameter value. The admin's Guid goes as text, which SQL Server
+        /// compares the same way: it differs on every install, so the contract recorder, which keeps every Guid
+        /// parameter that is in the trusted base, must not take it for a Rock Guid the loader depends on.
+        /// </summary>
+        public object Value( Guid castGuid )
+        {
+            var guid = Rock( castGuid );
+            return guid == castGuid ? guid : ( object ) guid.ToString();
         }
     }
 }

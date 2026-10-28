@@ -10,7 +10,8 @@
   "story": "Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a sophomore who comes to the student service and the midweek student night.",
   "testPurposes": [
     "High school students, including a senior about to graduate.",
-    "Monthly scheduled giver."
+    "Monthly scheduled giver.",
+    "Open request to serve that Alisha Marble connects (In Progress)."
   ],
   "address": {
     "type": "home",
@@ -68,7 +69,19 @@
       },
       "photo": {
         "ethnicity": "black"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "production-team",
+          "state": "Active",
+          "status": "In Progress",
+          "created": {
+            "daysAgo": 5
+          },
+          "connector": true,
+          "comment": "I run sound for a local band and could help in the booth."
+        }
+      ]
     },
     {
       "key": "julie",

@@ -37,6 +37,7 @@ Anthony and Tiffany Coleman both work full time. Elijah is in the 2-3 room and Z
 
 - Two working parents, two check-in rooms.
 - Bi-weekly giver.
+- Open request to serve that Alisha Marble connects (No Contact).
 
 ## Activity
 

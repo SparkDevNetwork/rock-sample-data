@@ -305,6 +305,17 @@ namespace RockSampleData.Loader.Model
         public List<string> SecurityRoles { get; set; } = new List<string>();
 
         /// <summary>
+        /// True for the one Cast person who loads into the admin person a new Rock creates (Person Id 1)
+        /// instead of a new person (decision 177).
+        /// </summary>
+        public bool ReplacesAdmin { get; set; }
+
+        /// <summary>
+        /// The requests to serve this staff person connects instead of the team leader, or null (decision 178).
+        /// </summary>
+        public CastConnects Connects { get; set; }
+
+        /// <summary>
         /// What Rock should show for this person after a load, or null. Checked after every load.
         /// </summary>
         public CastPersonExpect Expect { get; set; }
@@ -324,6 +335,20 @@ namespace RockSampleData.Loader.Model
         /// Requests to serve that tell this person's story.
         /// </summary>
         public List<CastConnectionRequest> ConnectionRequests { get; set; } = new List<CastConnectionRequest>();
+    }
+
+    /// <summary>
+    /// The requests to serve a staff person connects: active requests at their campus, in these statuses,
+    /// that have a connector.
+    /// </summary>
+    internal sealed class CastConnects
+    {
+        public List<string> Statuses { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The fewest active requests this person connects in every dataset, checked after every load, or null.
+        /// </summary>
+        public int? Minimum { get; set; }
     }
 
     /// <summary>

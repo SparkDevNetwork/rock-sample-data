@@ -257,6 +257,17 @@
         "attributes": { "type": "object", "description": "Person attribute values by key. Date values use relativeDate objects." },
         "logins": { "type": "array", "items": { "type": "string" } },
         "securityRoles": { "type": "array", "items": { "type": "string" } },
+        "replacesAdmin": { "type": "boolean", "description": "True for the one Cast person who loads into the admin person a new Rock creates (Person Id 1) instead of a new person. That person keeps Rock's Id, Guid, admin login, and roles, so signing in as admin signs in as them (decision 177)." },
+        "connects": {
+          "type": "object",
+          "required": [ "statuses" ],
+          "additionalProperties": false,
+          "description": "Requests to serve this staff person connects instead of the team leader (decision 178): active requests at their campus, in these statuses, that have a connector.",
+          "properties": {
+            "statuses": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Request status names from configuration/connections.json." },
+            "minimum": { "type": "integer", "minimum": 1, "description": "The fewest active requests this person connects in every dataset. The Cast's own requests must reach it alone, and every load checks it." }
+          }
+        },
         "relationships": {
           "type": "array",
           "items": {

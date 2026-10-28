@@ -61,6 +61,12 @@ Each of the main campus's eight serving teams has a roster in `groups/serving-{t
 
 A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, and an optional background check result. The loader adds the activity history. See [Serving](../docs/serving.md).
 
+A staff person's `connects` rule names the active request statuses they connect at their campus instead of the team leader, and an optional `minimum`. Alisha Marble connects the main campus's No Contact and In Progress requests, at least 8 in every dataset (decision 178). `validate-cast.js` checks that the Cast's own requests reach the minimum, so a Cast change cannot leave her board thin.
+
+## Rock's admin person
+
+Exactly one Cast person sets `replacesAdmin`: Alisha Marble. The loader writes her over the admin person a new Rock creates (Person Id 1) instead of adding her, so the `admin` login signs in as her. She keeps Rock's Id, Guid, login, roles, and empty ForeignKey, so her Rock Guid is not the Guid in her household file, and she lists no logins of her own (decision 177). The Cast expectations look her up through Person 1. `validate-cast.js` checks there is exactly one, an active adult in Rock Administrators.
+
 ## Bios and photos
 
 - A person's `bio` is a short backstory for documentation and test writers. Featured families have one for each person. Bios are never written to Rock.
