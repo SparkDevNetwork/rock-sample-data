@@ -52,6 +52,9 @@
         "Employer": "Sonoran Systems",
         "Position": "Systems Engineer"
       },
+      "logins": [
+        "jmichaels"
+      ],
       "securityRoles": [
         "Staff-Like Users"
       ]

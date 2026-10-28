@@ -298,6 +298,12 @@ namespace RockSampleData.Loader.Model
         public List<CastRelationship> Relationships { get; set; } = new List<CastRelationship>();
 
         /// <summary>
+        /// This person's Rock Database usernames (decision 179). They load only when the person installing
+        /// gives a password, and every login uses it.
+        /// </summary>
+        public List<string> Logins { get; set; } = new List<string>();
+
+        /// <summary>
         /// The security roles this person's story gives them, by the names in configuration/security-roles.json.
         /// The person joins each name's Rock role. "Prayer Team" is not a Rock role; it and "Prayer Administrators"
         /// also pick who prays for and approves prayer requests.

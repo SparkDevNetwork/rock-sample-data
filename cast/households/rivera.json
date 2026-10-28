@@ -69,7 +69,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "mrivera"
+      ]
     },
     {
       "key": "jennifer",
@@ -94,7 +97,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "jrivera"
+      ]
     },
     {
       "key": "joy",

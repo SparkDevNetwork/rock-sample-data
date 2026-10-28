@@ -57,7 +57,10 @@
         "Baptized": "No",
         "Employer": "Mesa Ridge Electronics",
         "Position": "Electrical Engineer"
-      }
+      },
+      "logins": [
+        "rgreggs"
+      ]
     },
     {
       "key": "lorraine",
@@ -93,7 +96,10 @@
         "Baptized": "No",
         "Employer": "Mesa Ridge Electronics",
         "Position": "Financial Analyst"
-      }
+      },
+      "logins": [
+        "lgreggs"
+      ]
     },
     {
       "key": "tim",

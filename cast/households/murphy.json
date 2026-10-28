@@ -82,7 +82,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "pmurphy"
+      ]
     },
     {
       "key": "erin",

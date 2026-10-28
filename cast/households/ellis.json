@@ -78,7 +78,10 @@
         "FirstVisit": {
           "daysAgo": 120
         }
-      }
+      },
+      "logins": [
+        "jellis"
+      ]
     },
     {
       "key": "hannah",

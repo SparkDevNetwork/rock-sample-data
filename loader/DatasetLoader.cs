@@ -53,6 +53,7 @@ namespace RockSampleData.Loader
             ("Steps", SampleDataPart.Steps),
             ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
+            ("Logins", null),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -71,6 +72,11 @@ namespace RockSampleData.Loader
             var source = new SampleDataSource( package );
             var parts = SampleDataParts.WithDependencies( options.Parts ?? SampleDataParts.All.Select( p => p.Part ).ToList() );
             var keys = ReadKeys( options );
+            if ( options.LoginPasswordHash != null && !LoginsLoader.IsBcryptHash( options.LoginPasswordHash ) )
+            {
+                throw new ArgumentException( "LoginPasswordHash must be a BCrypt hash, made the way Rock's Database login stores a password. Nothing was loaded." );
+            }
+
             var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) ) };
 
             using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder, Log = log };
@@ -462,6 +468,40 @@ namespace RockSampleData.Loader
             {
                 new CalendarLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusPlans );
             }
+
+            // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
+            // app devices when those parts load. They load only with a password hash. Account protection follows
+            // logins, security roles, and scheduled gifts, so every load sets it here.
+            steps.Begin( "Logins" );
+            var logins = new LoginsLoader( db, foreignKey );
+            if ( options.LoginPasswordHash == null || source.Logins == null )
+            {
+                log.Write( options.LoginPasswordHash == null ? "  No password was given, so no logins were made." : "  Skipped (this package has no configuration/logins.json)" );
+            }
+            else
+            {
+                var plannedLogins = new LoginPlanner( source.Logins, dates, calendar.HistoryStart, seed ).Plan( new LoginInputs
+                {
+                    Households = people.Households,
+                    CastHouseholdKeys = castHouseholdKeys,
+                    CampusPastors = CampusPastors.Pick( people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey ),
+                    GroupPlans = groupPlans,
+                    ServingPlans = servingPlans,
+                    Gifts = giving.QualifyingGifts,
+                    WebsiteSourceId = giving.WebsiteSourceId,
+                    PrayerTeam = prayer.TeamPersonIds,
+                    AppFirstSeen = logins.AppFirstSeen(),
+                    TakenUserNames = logins.TakenUserNames(),
+                    PeopleWithLogins = logins.PeopleWithLogins(),
+                    RockRoleNames = source.SecurityRoles?.Roles.Select( r => r.Name ).ToHashSet() ?? new HashSet<string>()
+                } );
+                logins.Write( plannedLogins, options.LoginPasswordHash );
+                var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.PersonId ).ToHashSet();
+                var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
+                log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
+            }
+
+            log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             steps.Begin( "Cast expectations" );

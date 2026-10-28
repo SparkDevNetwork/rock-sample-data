@@ -28,6 +28,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Cast expectations](#cast-expectations) | Verify tool, and every load | The Cast givers that docs and tests rely on still show what their stories say. |
 | [Invariants](#invariants) | Verify tool | Rules Rock relies on hold in the loaded data. |
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
+| [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
 | [Install-time checks](#when-a-church-installs) | Every install | The package is intact, meant for this Rock, and going into a database with no people yet. |
@@ -42,7 +43,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Cast validator
 
-**What it does.** `node cast/validate-cast.js` reads every Cast household and group file. It checks required fields, Guid format and uniqueness, every cross-reference (members, groups, hosts, relationships, follows, notes), connection statuses, giving expectations, campaign pledges and gifts, small group rules, and email domains. It also checks every delivered photo: each is a 400 by 400 JPEG with an original, named for its person, and matching that person's gender.
+**What it does.** `node cast/validate-cast.js` reads every Cast household and group file. It checks required fields, Guid format and uniqueness, every cross-reference (members, groups, hosts, relationships, follows, notes), connection statuses, giving expectations, campaign pledges and gifts, small group rules, and email domains. Logins must be lowercase letters and digits, unique, never `admin`, and only on adults, and everyone with a Rock security role must have one (decision 179). It also checks every delivered photo: each is a 400 by 400 JPEG with an original, named for its person, and matching that person's gender.
 
 **Why it's there.** Tests and documentation rely on Cast people by Guid. A broken reference or a reused Guid would break them quietly, long after the change that caused it.
 
@@ -97,7 +98,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Load
 
-**What it does.** Loads the package into a fresh copy of the trusted base, with check images on and Rock's real keys from the checkout's `web.config`, the way a release build does. It gives the loader the Rock version from the checkout's `RockWeb\bin\Rock.Version.dll`, as Rock's installer gives its own, and fails first if that differs from the checkout's `Directory.Build.props`, which means `RockWeb\bin` was built from other code.
+**What it does.** Loads the package into a fresh copy of the trusted base, with check images on and Rock's real keys from the checkout's `web.config`, the way a release build does. It loads logins with a test password that Rock's own Database login hashed through `verify/rock-runner`, the way Rock's installer block hashes the one a person types (decision 180). It gives the loader the Rock version from the checkout's `RockWeb\bin\Rock.Version.dll`, as Rock's installer gives its own, and fails first if that differs from the checkout's `Directory.Build.props`, which means `RockWeb\bin` was built from other code.
 
 **Why it's there.** It proves the package installs on this Rock, through the same Rock version check a church's install runs. Every check after it reads the loaded data.
 
@@ -171,6 +172,14 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `texted-stop-turns-off-texting` | A STOP marks a level All unsubscribe and turns off and opts out texting on the person's mobile, and every opted-out phone came from a STOP. |
 | `text-reply-comes-from-a-known-phone` | Every text a person sent comes from their own mobile to an active church number, so SMS Conversations finds them. |
 | `system-phone-numbers-are-reserved-and-unused` | The church's texting numbers are active, can text, have forwarding off, use the reserved range, and are no loaded person's number (decision 93). |
+| `dataset-has-logins` | Verify always loads with a test password, so a load with no logins means logins broke (decision 179). |
+| `login-is-a-database-login-rock-can-check` | Every login is a Database login with a BCrypt hash Rock reads, on a person, never locked out or sent to change its password, and last used only after it was made and only when confirmed (decision 180). |
+| `login-username-is-plain` | Usernames are lowercase letters and digits only, and never Rock's own `admin`. |
+| `login-belongs-to-an-adult` | Only adults 18 and older have logins, never a child or a business. |
+| `security-role-member-can-sign-in` | Everyone the load puts in a security role can sign in to see what the role allows (decision 79). |
+| `app-user-can-sign-in` | A church app device tied to a person means they signed in to the app. |
+| `login-has-its-history` | Every login has the "User Login" line Rock's save hook writes on the person's History tab (decision 181). |
+| `account-protection-matches-rock` | Every loaded person's account protection profile is what Rock's Process Elevated Security job would set (decision 182). Rock Cleanup does not set it, so the referee cannot catch it. |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
@@ -184,6 +193,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **The moving window.** Rock Cleanup rebuilds `ScheduleDate` from now minus two years to now plus two years, to the minute. The plain copy and each loaded copy are cleaned minutes apart, so the tool leaves out the rows within a day of either edge, in both runs, and compares the rest exactly. Before, an occurrence at an edge sometimes fell inside one run and outside the other, and rock-cleanup failed on base rows the load never touched (11,080 against 11,079 changed rows).
 
 **When it is not judged.** Rock Cleanup recomputes ages and daily counts for today, from SQL Server's `GETDATE`. So the tool judges it only while the database server and the machine running Rock are both on the loads' anchor, checked before and after the job (decision 152). Otherwise the check fails with both dates and says to run again. A run that crosses midnight, or an `--anchor` that is not today, lands here instead of reporting false age changes.
+
+### Sign-in
+
+**What it does.** After the referee, `verify/rock-runner` signs in through Rock's own Database login, the check Rock's login block makes: the login exists, is confirmed, and Rock accepts the password. It signs in as Ted Decker (`tdecker`) and as the load's newest confirmed login with the test password, and as Ted with a wrong password, which Rock must refuse (decision 180). It runs after the referee, because a sign-in can rewrite a hash at the site's cost setting.
+
+**Why it's there.** The loader writes the hash with SQL, so only Rock itself can prove the hash is one it accepts, and that a person installing could sign in as the Cast.
 
 ### Unchanged during run
 

@@ -83,7 +83,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "dkim"
+      ]
     },
     {
       "key": "susan",
