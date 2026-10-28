@@ -89,8 +89,9 @@ When a session tells you a branch is ready, land it in that branch's own worktre
 4. Commit on the branch, merge it into main from the main checkout, and push.
 5. Tell every other session that main moved, so they merge it.
 
-If a branch fails a check, send it back to its session with the failure instead of
-fixing it yourself. Push main after each landing. Ask me before anything that removes
+If a branch fails a check, or adds a feature with no "Docs and site" line in its
+hand-off (AGENTS.md rule 15), send it back to its session instead of fixing it
+yourself. Push main after each landing. Ask me before anything that removes
 or rewrites history.
 
 Send your questions and status to the coordinator session, <coordinator name>.
@@ -108,7 +109,9 @@ Give any new decision a placeholder such as D-<branch>-1. Keep the docs and the
 public site current (AGENTS.md rule 15).
 
 When the work is done and its checks pass, message the integrator session with the
-branch, the worktree, what changed, and the checks you ran. Do not merge into main.
+branch, the worktree, what changed, the checks you ran, and a "Docs and site" line
+naming each doc and site page you changed (or "none needed" and why). Do not merge
+into main.
 
 Send your questions and status to the coordinator session, <coordinator name>.
 ```
@@ -142,9 +145,11 @@ and push. Ask me before anything that removes or rewrites history.
 
 | Dataset | People | Campuses | Load time |
 |---|---|---|---|
-| **Core 1** | The Cast (87 households, 185 people) | 1 | About 15 seconds |
-| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | Under 20 seconds |
+| **Core 1** | The Cast (87 households, 185 people) | 1 | About 13 seconds |
+| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds |
 | **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 4 minutes |
+
+Load times are each dataset's `typicalInstallSeconds` in [datasets/](datasets/README.md). The public site reads them from there, so change them there. [Performance](docs/performance.md) has where Full 7's time goes, step by step.
 
 - **The Cast** is hand-designed, the same in every dataset, and safe for tests to rely on by Guid. Every Cast person has a profile photo, except a few left without one on purpose.
 - **The Crowd** is generated from measured church patterns to give volume.
@@ -152,7 +157,11 @@ and push. Ask me before anything that removes or rewrites history.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
 - **Realism is measured.** The same scripts that measure real churches grade our data. Today 91% of measured values fall within tolerance, including serving, connections, and prayer.
 - **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of the Rock release it is built on, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
-- **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today.
+- **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff.
+- **People can sign in.** When the person installing gives a password, about 30% of Full 7's adults get a Rock login, shaped like a real church: staff, leaders, volunteers, online givers, and app users. Every sample login uses that one password, which is never stored. Sign in as `admin` (Alisha Marble, who Rock's own admin person becomes), `tdecker` (Ted Decker, the Outreach Pastor), `pfoster` (Pete Foster, the Senior Pastor), or `cdecker` (Cindy Decker). See [How logins load](loader/README.md#how-logins-load).
+- **The calendar is full.** 51 events on Rock's Public and Internal calendars, at every campus a dataset has, each serving a Ministry by Design stage. See [Calendar](docs/calendar.md).
+- **Connection requests come due.** Involvement's due dates run by status, so every board has requests due later, due this week, and past due on install day.
+- **Group sync keeps lists current.** Five data views, filed in the church's own category tree, keep the Volunteers and Small Group Leaders lists, the RSR - Prayer Access role, and the New Here and We Miss You care lists in step. See [Group sync](docs/communications.md#group-sync).
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 
@@ -161,7 +170,7 @@ and push. Ask me before anything that removes or rewrites history.
 | Folder | What it holds |
 |---|---|
 | [site/](site/README.md) | The public site: why the sample data matters, the church, the Cast, the datasets, and the brand kit and photo downloads. GitHub Pages publishes it from `main` at [sampledata.rockrms.com](https://sampledata.rockrms.com/). |
-| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, the Crowd and personas, and the design spec. |
+| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, pledges, performance, the Crowd and personas, and the design spec. |
 | [cast/](cast/README.md) | The hand-designed households and groups, their schemas, the validator, and the [family pages](cast/families/README.md). |
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |
@@ -194,7 +203,7 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    dotnet run -- --rock C:\Development\Rock
    ```
 
-3. Load Core 1 into a fresh Rock database. `--rock` names your built Rock checkout, so the loader can read its version from `RockWeb\bin\Rock.Version.dll`. Add `--dry-run` to roll everything back at the end. If your database is on another Rock major release than the checkout, add `--any-rock`.
+3. Load Core 1 into a fresh Rock database. `--rock` names your built Rock checkout, so the loader can read its version from `RockWeb\bin\Rock.Version.dll`. Add `--dry-run` to roll everything back at the end. If your database is on another Rock major release than the checkout, add `--any-rock`. To load sample logins, add `--login-password` with a password of your choice; without it, no sample logins load.
 
    ```
    cd ../loader-cli
