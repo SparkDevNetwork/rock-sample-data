@@ -39,7 +39,7 @@ namespace RockSampleData.Loader.Packages
         /// offers the package (decision 158). Raise it to the release that ships the change
         /// whenever packages start to need loader code that older loaders lack.
         /// </summary>
-        public const string MinimumLoaderVersion = "0.1.0-alpha.13";
+        public const string MinimumLoaderVersion = "0.1.0-alpha.14";
 
         internal const string ManifestPath = "package.json";
 
