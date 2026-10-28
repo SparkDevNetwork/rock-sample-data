@@ -22,7 +22,7 @@ using System.Text.Json;
 namespace RockSampleData.Loader.Packages
 {
     /// <summary>
-    /// Checks the signature on the package index (decision D-signing-1). The release workflow signs the
+    /// Checks the signature on the package index (decision 172). The release workflow signs the
     /// index's exact bytes with a key in Spark's Azure Key Vault and carries them, base64, in the index's
     /// "signed" object. This class checks the signature against the public keys in
     /// release/index-signing-keys.json, which the loader embeds, and returns those exact bytes as text.

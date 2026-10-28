@@ -1,5 +1,5 @@
 {
-  "$comment": "The public keys that may sign the package index (decision D-signing-1). The private keys stay in Spark's Azure Key Vault, kv-spark-core, and never leave it. The loader embeds this file and trusts only these keys; release/sign-index.js and release/merge-index.js read it too. x and y are the P-256 point in standard base64, as 'az keyvault key show --query key' gives them. 'active' signs every release. 'spare' signs nothing until the active key is lost or retired; see Maintaining, 'Signing keys'. A new key needs a loader release before it can sign.",
+  "$comment": "The public keys that may sign the package index (decision 172). The private keys stay in Spark's Azure Key Vault, kv-spark-core, and never leave it. The loader embeds this file and trusts only these keys; release/sign-index.js and release/merge-index.js read it too. x and y are the P-256 point in standard base64, as 'az keyvault key show --query key' gives them. 'active' signs every release. 'spare' signs nothing until the active key is lost or retired; see Maintaining, 'Signing keys'. A new key needs a loader release before it can sign.",
   "keys": [
     {
       "keyId": "sampledata-index-1",

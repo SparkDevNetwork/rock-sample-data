@@ -17,7 +17,7 @@
 
 /*
     The package index's signature, shared by release/sign-index.js and release/merge-index.js
-    (decision D-signing-1). The loader's loader/packages/IndexSignature.cs reads the same format:
+    (decision 172). The loader's loader/packages/IndexSignature.cs reads the same format:
 
       {
         "formatVersion": 1,

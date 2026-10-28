@@ -84,7 +84,7 @@ jobs:
           fi
 
           # The index signing code signs and checks a sample with a throwaway key, and the keys file
-          # has an active key and a spare (decision D-signing-1).
+          # has an active key and a spare (decision 172).
           node release/sign-index.js --self-test
 
           prerelease=false
@@ -388,7 +388,7 @@ jobs:
 
       # The index is merged and signed before anything is published, so a signing failure publishes
       # nothing. merge-index.js reads only a hosted index Spark signed, and sign-index.js checks its own
-      # signature with release/index-signing-keys.json before it writes the file (decision D-signing-1).
+      # signature with release/index-signing-keys.json before it writes the file (decision 172).
       - name: Sign the package index
         shell: bash
         env:

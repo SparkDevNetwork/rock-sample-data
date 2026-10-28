@@ -34,7 +34,7 @@
     <EmbeddedResource Include="..\datasets\*.json" LogicalName="RockSampleData.Loader.datasets.%(Filename)%(Extension)" Visible="false" />
   </ItemGroup>
 
-  <!-- The public keys that may sign the package index: the loader trusts no others (decision D-signing-1). -->
+  <!-- The public keys that may sign the package index: the loader trusts no others (decision 172). -->
   <ItemGroup>
     <EmbeddedResource Include="..\release\index-signing-keys.json" LogicalName="RockSampleData.Loader.index-signing-keys.json" Visible="false" />
   </ItemGroup>
