@@ -71,7 +71,7 @@ copyInto( churchDir, path.join( dist, "downloads/church" ), model.churchViews.fl
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "downloads/groups" ), groupFiles );
 copyInto( path.join( repo, "photos/originals/groups" ), path.join( dist, "downloads/groups" ), groupFiles.map( f => f.replace( /\.jpg$/, ".png" ) ) );
 
-// The original full-group photos are downloads only: no package carries them (decision D-group-leaders-1).
+// The original full-group photos are downloads only: no package carries them (decision 196).
 const fullGroupDir = path.join( repo, "photos/groups-full-members" );
 const fullGroupFiles = model.fullGroupPhotos.map( p => p.photo );
 copyInto( fullGroupDir, path.join( dist, "images/groups-full-members" ), fullGroupFiles );

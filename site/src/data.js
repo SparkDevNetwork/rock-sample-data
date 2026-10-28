@@ -207,7 +207,7 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
-    // The original full-group photos: download-only assets, never in a package (decision D-group-leaders-1).
+    // The original full-group photos: download-only assets, never in a package (decision 196).
     const fullGroupManifest = "photos/groups-full-members/manifest.json";
     const fullGroupPhotos = exists( fullGroupManifest )
         ? readJson( fullGroupManifest ).images.map( p => {

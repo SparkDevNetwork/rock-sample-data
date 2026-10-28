@@ -2,7 +2,7 @@
 
 The first group photos showed every member of each Cast small group: 12 photos of 129 people, made on October 19, 2026 from the [original brief](brief.md) and reported in its [handback](handback.md) (decision 56).
 
-Group photos now show only each group's leader and spouse (decision D-group-leaders-1), from the [current group photo brief](../group-brief.md). These full-group photos are kept because they are good photos, but only as downloads on the public site's brand page:
+Group photos now show only each group's leader and spouse (decision 196), from the [current group photo brief](../group-brief.md). These full-group photos are kept because they are good photos, but only as downloads on the public site's brand page:
 
 - No package carries them. The builder reads group photos only from `photos/groups/manifest.json`.
 - The loader never sets them as a group's photo in Rock.

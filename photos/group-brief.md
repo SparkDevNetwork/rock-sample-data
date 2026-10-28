@@ -6,7 +6,7 @@ Each photo shows **only the group's leader and the leader's spouse**. If the lea
 
 Rock shows the photo on Group Finder cards and on the group's page. It should feel like an invitation: a warm, friendly couple at home who would love to have you join them.
 
-**Delivered 2026-10-28.** All 12 photos are in `photos/groups/`, with their originals in `photos/originals/groups/` and their prompts in `photos/groups/manifest.json` (decision D-group-leaders-1). The changes Jon asked for during review are written into this page: no bike or ball at the Deckers', no lemonade at the Lees', closed books at the Hughes', and a closed Bible at Hal's. Use this page to remake a photo, or for a new group's leaders.
+**Delivered 2026-10-28.** All 12 photos are in `photos/groups/`, with their originals in `photos/originals/groups/` and their prompts in `photos/groups/manifest.json` (decision 196). The changes Jon asked for during review are written into this page: no bike or ball at the Deckers', no lemonade at the Lees', closed books at the Hughes', and a closed Bible at Hal's. Use this page to remake a photo, or for a new group's leaders.
 
 The photos before these showed every member of each group. They are kept as download-only assets in [groups-full-members/](groups-full-members/README.md), and no package carries them.
 

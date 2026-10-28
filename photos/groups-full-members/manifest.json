@@ -1,5 +1,5 @@
 {
-  "$comment": "The original full-group photos: each Cast small group with all its members (decision 56). Kept as download-only assets on the public site since the group photos became leaders and spouses (decision D-group-leaders-1). The builder never packs this folder and the loader never loads it. Originals are in originals/.",
+  "$comment": "The original full-group photos: each Cast small group with all its members (decision 56). Kept as download-only assets on the public site since the group photos became leaders and spouses (decision 196). The builder never packs this folder and the loader never loads it. Originals are in originals/.",
   "model": "OpenAI built-in image_gen (underlying model identifier not exposed)",
   "images": [
     {

@@ -11,7 +11,7 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | Kind | Rock field | Source |
 |---|---|---|
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
-| Cast small groups | `Group.PhotoId` | AI-generated photos of each group's leader and spouse (Hal Russell alone), made from their profile photos, from the [group photo brief](group-brief.md) (decisions 56 and D-group-leaders-1). The original full-group photos are [download-only assets](groups-full-members/README.md). |
+| Cast small groups | `Group.PhotoId` | AI-generated photos of each group's leader and spouse (Hal Russell alone), made from their profile photos, from the [group photo brief](group-brief.md) (decisions 56 and 196). The original full-group photos are [download-only assets](groups-full-members/README.md). |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
 | Calendar events | `EventItem.PhotoId` | AI-generated 2:1 images of each event on the church calendar from the [event image brief](event-brief.md): titled designs for most events, and photos with anonymous people for the rest (decisions 176 and 184) |
 | Scenes | Other groups' `Group.PhotoId`, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |

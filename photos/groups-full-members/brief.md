@@ -1,6 +1,6 @@
 # Group photo brief: create small group photos
 
-> **Archived.** This page made the original full-group photos in this folder. Group photos now show each group's leader and spouse, from the [current group photo brief](../group-brief.md) (decision D-group-leaders-1). The member lists below were written by `photos/build-group-brief.js`, which is retired. Paths on this page are where the files lived then; they are now in this folder.
+> **Archived.** This page made the original full-group photos in this folder. Group photos now show each group's leader and spouse, from the [current group photo brief](../group-brief.md) (decision 196). The member lists below were written by `photos/build-group-brief.js`, which is retired. Paths on this page are where the files lived then; they are now in this folder.
 
 You create one photo for each of the Cast's small groups in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start. All paths are from the root of the `rock-sample-data` repository.
 
