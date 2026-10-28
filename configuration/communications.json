@@ -1,7 +1,7 @@
 {
   "$comment": "How the sample church communicates (docs/communications.md, decisions 90 to 96 and 131 to 133). Slice 2 loads the phone numbers, the branded email template, and the communication lists with their members. The senders, the approver, and the topics are read by the slices that write sends. Messages come from content/communications. Person Guids are Cast people.",
   "phoneNumbers": {
-    "$comment": "Rock system phone numbers, in the reserved 555-0100 to 555-0199 range and never a Cast person's number (validation/check-standards.js checks both). 'assignedTo' is a Cast person, which makes the number that person's personal texting number in SMS Conversations. 'campusPastors' gives every campus other than the main one a personal number for its campus pastor (configuration/notes.json picks the campus pastor), in the datasets listed. Rock stores numbers in E.164 form.",
+    "$comment": "Rock system phone numbers, in the reserved 555-0100 to 555-0199 range and never a Cast person's number (validation/check-standards.js checks both). 'assignedTo' is a Cast person, which makes the number that person's personal texting number in SMS Conversations. 'campusPastors' gives every campus a personal number for its campus pastor (configuration/staff.json names them), in the datasets listed, so each number follows its pastor (decision D-staff-1). Rock stores numbers in E.164 form.",
     "numbers": [
       { "key": "main", "name": "Rock Solid Church", "description": "The church's main texting line. Mass texts and replies to them come here.", "number": "+16235550150", "guid": "BADCB9D8-34C3-4257-8F54-C77BFC44FE35", "order": 0 },
       { "key": "students", "name": "Rock Solid Students", "description": "The student ministry's texting line. The student pastor texts students and parents from it.", "number": "+16235550160", "guid": "8DDE5E41-0771-493D-BB8D-6B675CBF9D7C", "order": 1 },
@@ -10,8 +10,9 @@
       { "key": "isaac", "name": "Isaac Silva", "description": "Isaac Silva's personal texting number.", "number": "+16235550144", "guid": "9C106E50-6DB1-4695-A1F7-ABE1CF8C4586", "order": 4, "assignedTo": "581C940E-A788-4F32-BCF3-33F4D1948390" }
     ],
     "campusPastors": {
-      "datasets": [ "full-7" ],
+      "datasets": [ "core-1", "core-3", "full-7" ],
       "numbers": {
+        "phoenix": { "number": "+16025550140", "guid": "6ACB8AEC-1853-4FAC-86B8-EFA8F92BBD3B" },
         "peoria": { "number": "+16235550145", "guid": "0DAA3B56-9061-424A-9CF5-AA5CD9F89933" },
         "gilbert": { "number": "+14805550140", "guid": "CC54EA27-9473-40C1-B137-52F535AA4BFA" },
         "scottsdale": { "number": "+14805550141", "guid": "C2E121D8-6C69-4876-BE8F-6C62E1A12A4A" },
@@ -22,7 +23,7 @@
     }
   },
   "senders": {
-    "$comment": "Who sends what (decision 132). Mass emails come from the shared inbox in the church's name, and Daniel Peak, the Director of Communications, sends them in Rock. Pete Foster's few pastoral letters (Easter and year-end giving) come from him by name. The student pastor sends student texts from the student line. Daniel approves sends that need approval, and his own need none. A first-time guest's welcome email comes from their campus pastor, or from 'welcome', the outreach pastor, at a campus with none.",
+    "$comment": "Who sends what (decision 132). Mass emails come from the shared inbox in the church's name, and Daniel Peak, the Director of Communications, sends them in Rock. Pete Foster's few pastoral letters (Easter and year-end giving) come from him by name. The student pastor sends student texts from the student line. Daniel approves sends that need approval, and his own need none. A first-time guest's welcome email comes from their campus pastor (configuration/staff.json). 'welcome', the outreach pastor, sends it only from a package with no named campus pastors.",
     "church": { "fromName": "Rock Solid Church", "fromEmail": "hello@rocksolidchurchdemo.com", "sender": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9" },
     "pastor": { "fromName": "Pete Foster", "fromEmail": "pete@rocksolidchurchdemo.com", "sender": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C" },
     "students": { "fromName": "Rock Solid Students", "fromEmail": "students@rocksolidchurchdemo.com", "sender": "581C940E-A788-4F32-BCF3-33F4D1948390", "phoneNumber": "students" },

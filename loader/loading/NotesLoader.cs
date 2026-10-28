@@ -325,7 +325,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             var pools = _types.Keys.ToDictionary( k => k, k => _source.ReadNotePool( k ) );
             var shared = _source.ReadSharedNotePool();
             var campusNames = _source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
-            var campusPastors = CampusPastors.Pick( generated, mainCampusKey );
+            var campusPastors = CampusPastors.Pick( people, generated, mainCampusKey, _source.Staff );
 
             // Campus pastors join the staff roles that let them view what they write, Counseling included.
             foreach ( var pastor in campusPastors.Values )

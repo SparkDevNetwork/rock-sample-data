@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 87 hand-designed households and 185 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
+The Cast is 94 hand-designed households and 206 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -22,6 +22,9 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | (no photo, on purpose) | [Greggs](greggs-jenny.md) | Jenny | Deceased child record kept in its own family. |
 | <img src="../../photos/cast/greggs-bob.jpg" width="56" alt="Bob Greggs"> | [Greggs](greggs.md) | Bob, Lorraine, Tim, Jordan | Grieving family with sensitive alert notes. |
 | <img src="../../photos/cast/hanks-sam.jpg" width="56" alt="Sam Hanks"> | [Hanks Family](hanks.md) | Sam | Engaged non-staff adult who could be recruited to serve. |
+| (photo coming) | [Hargrove Family](hargrove.md) | Walt, June | Named campus pastor at Scottsdale, loaded only in Full 7. |
+| (photo coming) | [Haywood Family](haywood.md) | Andre, Keisha, Isaiah | Named campus pastor at Peoria, loaded only in datasets with the Peoria campus. |
+| (photo coming) | [Ibarra Family](ibarra.md) | Rafael, Elisa, Nico | Named campus pastor at Goodyear, loaded only in Full 7. |
 | <img src="../../photos/cast/jackson-mariah.jpg" width="56" alt="Mariah Jackson"> | [Jackson Family](jackson.md) | Mariah, Maddie | Single parent whose child has a different last name. |
 | <img src="../../photos/cast/jones-ben-ben.jpg" width="56" alt="Ben Jones"> | [Jones Family](jones-ben.md) | Ben, Brian | Divorced parent with joint custody; the child belongs to two families. |
 | <img src="../../photos/cast/kelly-ashley.jpg" width="56" alt="Ashley Kelly"> | [Kelly Family](kelly.md) | Ashley, Mason, Chloe | Benevolence request (Phase 1). |
@@ -31,6 +34,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/michaels-jenny.jpg" width="56" alt="Jenny Michaels"> | [Michaels Family](michaels.md) | Jenny | Volunteer with the Staff-Like Users role. |
 | (no photo, on purpose) | [Miller Family](miller-thomas.md) | Thomas | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | <img src="../../photos/cast/miller-tom-tom.jpg" width="56" alt="Tom Miller"> | [Miller Family](miller-tom.md) | Tom | Original half of a duplicate pair for merge testing. |
+| (photo coming) | [Mitchell Family](mitchell.md) | Aaron, Beth, Jonah, Clara | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
 | <img src="../../photos/cast/peak-daniel.jpg" width="56" alt="Daniel Peak"> | [Peak Family](peak.md) | Daniel | Staff member with website and communication administrator roles. |
 | <img src="../../photos/cast/peterson-brian.jpg" width="56" alt="Brian Peterson"> | [Peterson Family](peterson.md) | Brian, Becky | Married couple where one spouse has no email. |
 | <img src="../../photos/cast/ramirez-carlos.jpg" width="56" alt="Carlos Ramirez"> | [Ramirez Family](ramirez.md) | Carlos, Ana, Lucas, Mia | First-time guests: first visit two weeks ago. |
@@ -40,8 +44,11 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/smith-john-other-john.jpg" width="56" alt="John Smith"> | [Smith Family](smith-john-other.md) | John | Duplicate detection: common name that must NOT be merged. |
 | <img src="../../photos/cast/smith-jon-jon.jpg" width="56" alt="Jon Smith"> | [Smith Family](smith-jon.md) | Jon | Duplicate detection: original record of a three-way duplicate. |
 | <img src="../../photos/cast/song-allie.jpg" width="56" alt="Allie Song"> | [Song](song.md) | Allie | The inviting friend in an invitation story. |
+| (photo coming) | [Tsosie Family](tsosie.md) | Leah | Named campus pastor at Tempe, loaded only in Full 7. |
+| (photo coming) | [Vu Family](vu.md) | Tina, Minh, Ellie, Theo | Named campus pastor at Chandler, loaded only in Full 7. |
 | <img src="../../photos/cast/washington-marcus.jpg" width="56" alt="Marcus Washington"> | [Washington Family](washington.md) | Marcus, Denise, Jasmine | An 18-year-old who is still a child in the family. |
 | <img src="../../photos/cast/webb-marty.jpg" width="56" alt="Marty Webb"> | [Webb](webb.md) | Marty, Deb | Married couple who are still Prospects but already in a small group. |
+| (photo coming) | [Whitlock Family](whitlock.md) | Dana, Scott, Harper, Wes | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
 
 ## All families
 
@@ -75,10 +82,13 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Hall Family](hall.md) | new | 1 | Participant | Participant: one in-person touch (a serve day), no Sunday attendance. |
 | [Hanks Family](hanks.md) | legacy | 1 | Engaged | Engaged non-staff adult who could be recruited to serve. |
 | [Hansen](hansen.md) | legacy | 1 | Prospect | Open connection request that needs a connector. |
+| [Hargrove Family](hargrove.md) | new | 2 | Engaged | Named campus pastor at Scottsdale, loaded only in Full 7. |
 | [Harper Family](harper.md) | legacy | 1 | Connected | Pending record that needs review. |
 | [Hayes Family](hayes.md) | new | 2 | Engaged | Senior couple with a long anniversary. |
+| [Haywood Family](haywood.md) | new | 3 | Engaged | Named campus pastor at Peoria, loaded only in datasets with the Peoria campus. |
 | [Hernandez Family](hernandez.md) | new | 1 | Engaged | Young single volunteer on the Phoenix Worship Team. |
 | [Hughes Family](hughes.md) | new | 5 | Engaged | Three kids in three check-in rooms, from nursery to kindergarten. |
+| [Ibarra Family](ibarra.md) | new | 3 | Engaged | Named campus pastor at Goodyear, loaded only in Full 7. |
 | [Jackson Family](jackson.md) | legacy | 2 | Engaged | Single parent whose child has a different last name. |
 | [Javelina Wash Coffee](javelina-wash-coffee.md) | new | 1 | Prospect | Business gift split between two funds. |
 | [Jenkins Family](jenkins.md) | new | 3 | Engaged | Grandparents raising a grandchild. |
@@ -94,6 +104,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Michaels Family](michaels.md) | legacy | 1 | Engaged | Volunteer with the Staff-Like Users role. |
 | [Miller Family](miller-thomas.md) | legacy | 1 | Prospect | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |
+| [Mitchell Family](mitchell.md) | new | 4 | Engaged | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
 | [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
 | [Nguyen Family](nguyen.md) | new | 1 | Leading | Single adult who gives weekly online by card. |
@@ -125,12 +136,15 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Sweeney Family](sweeney.md) | legacy | 2 | Connected | Married couple in the same small group. |
 | [Tennant Family](tennant.md) | legacy | 2 | Connected | Married couple with different employers. |
 | [Torres Family](torres.md) | new | 3 | Participant, Connected | Teen who is more engaged than her parents. |
+| [Tsosie Family](tsosie.md) | new | 1 | Engaged | Named campus pastor at Tempe, loaded only in Full 7. |
 | [Tucker Family](tucker.md) | legacy | 1 | Connected | Pending record that needs review. |
 | [Turner](turner.md) | legacy | 1 | Prospect | Open connection request that needs a connector. |
+| [Vu Family](vu.md) | new | 4 | Engaged | Named campus pastor at Chandler, loaded only in Full 7. |
 | [Ward Family](ward.md) | new | 4 | Connected | One-time giver. |
 | [Washington Family](washington.md) | new | 3 | Engaged | An 18-year-old who is still a child in the family. |
 | [Watson Family](watson.md) | new | 2 | Known | Year-end-only giver. |
 | [Webb](webb.md) | legacy | 2 | Prospect | Married couple who are still Prospects but already in a small group. |
+| [Whitlock Family](whitlock.md) | new | 4 | Engaged | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
 | [Wood Family](wood.md) | new | 4 | Connected | Middle school student in the student check-in area. |
 | [Wright Family](wright.md) | new | 2 | Leading, Engaged | Weekly cash giver. |
 | [Young Family](young.md) | new | 2 | Participant | Participant through a community event. |

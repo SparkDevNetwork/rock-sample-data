@@ -122,7 +122,7 @@ module.exports = function church( { model, r } ) {
     <div class="split-text reveal">
       <p class="eyebrow">Who we are</p>
       <h2>Rock Solid Church</h2>
-      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where the Cast lives, and has grown to seven campuses across the Valley.</p>
+      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where most of the Cast lives, and has grown to seven campuses across the Valley.</p>
       <p>The original Phoenix building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. The other campuses have their own buildings, including a high school auditorium in Goodyear, where volunteers set up and tear down every Sunday. Scottsdale meets in a traditional church building. It was an independent church until it merged with Rock Solid Church. The sample data uses the same room setup at every campus, so check-in and serving work the same everywhere.</p>
       <p>The church is in the middle of Built on the Rock, a two-year building campaign for a Student Center at Phoenix and more kids rooms at every campus. People and businesses at every campus have pledged.</p>
     </div>
@@ -153,7 +153,7 @@ module.exports = function church( { model, r } ) {
         ${c.photo ? zoomable( { src: r( "images/campuses/" + c.photo ), alt: c.photoDescription, className: "campus-photo" } ) : ""}
         <span class="campus-number">${String( i + 1 ).padStart( 2, "0" )}</span>
         <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Broadcast campus</span>` : ""}</h3>
-        <p>${esc( c.rockDefault ? "North Phoenix, where the Cast lives. The original and largest campus." : c.notes )}</p>
+        <p>${esc( c.rockDefault ? "North Phoenix, where most of the Cast lives. The original and largest campus." : c.notes )}</p>
         <p>${esc( c.buildingType )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>

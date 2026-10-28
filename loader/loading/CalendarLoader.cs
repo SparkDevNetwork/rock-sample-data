@@ -73,8 +73,8 @@ namespace RockSampleData.Loader.Loading
         /// Plans and writes every event. Run after people load.
         /// </summary>
         /// <param name="people">The loaded people: contacts and the approver are Cast people.</param>
-        /// <param name="castHouseholdKeys">The Cast's households. Campus pastors come from the rest.</param>
-        /// <param name="mainCampusKey">The main campus, whose stand-in campus pastor is a Cast person.</param>
+        /// <param name="castHouseholdKeys">The Cast's households. A package without staff.json picks campus pastors from the rest.</param>
+        /// <param name="mainCampusKey">The main campus, whose campus pastor is the calendar's mainCampusPastor contact.</param>
         /// <param name="campusPlans">The dataset's campuses with their Sunday services.</param>
         public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, IReadOnlyDictionary<string, CampusPlan> campusPlans )
         {
@@ -91,7 +91,7 @@ namespace RockSampleData.Loader.Loading
                 .ToList();
             var planned = new CalendarPlanner( calendar, _source.Steps, _source.Communications?.Events, _source.Campaign, _dates.Anchor, _historyStart ).Plan( campusServices );
 
-            var contacts = Contacts( calendar, people, castHouseholdKeys, mainCampusKey );
+            var contacts = Contacts( calendar, people, castHouseholdKeys, mainCampusKey, _source.Staff );
             var approverAliasId = people.People.TryGetValue( ApproverGuid, out var approver ) ? approver.AliasId : ( int? ) null;
             var calendarIds = calendar.Calendars.ToDictionary( c => c.Key, c => _db.RequireIdByGuid( "EventCalendar", c.Value ) );
             var audienceIds = calendar.Audiences.ToDictionary( a => a.Key, a => _db.RequireIdByGuid( "DefinedValue", a.Value ) );
@@ -119,7 +119,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Each contact key's person and details, and each campus's campus pastor under "campus-pastor:{campus}".
         /// </summary>
-        private static Dictionary<string, (int AliasId, string Email, string Phone)> Contacts( CalendarConfiguration calendar, PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey )
+        private static Dictionary<string, (int AliasId, string Email, string Phone)> Contacts( CalendarConfiguration calendar, PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, StaffConfiguration staff )
         {
             var contacts = new Dictionary<string, (int, string, string)>( StringComparer.Ordinal );
             foreach ( var (key, contact) in calendar.Contacts )
@@ -130,7 +130,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) );
-            foreach ( var (campus, pastor) in CampusPastors.Pick( generated, mainCampusKey ) )
+            foreach ( var (campus, pastor) in CampusPastors.Pick( people, generated, mainCampusKey, staff ) )
             {
                 contacts[$"{CampusPastor}:{campus}"] = (pastor.AliasId, $"{campus}@rocksolidchurchdemo.com", calendar.CampusPastorPhone);
             }
@@ -277,7 +277,7 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
 
         /// <summary>
         /// The contact for an occurrence: a named contact, or the campus's campus pastor. The main campus, a church-wide
-        /// event, and a campus with no campus pastor use the main campus's stand-in.
+        /// event, and a campus with no campus pastor use the main campus's campus pastor contact.
         /// </summary>
         private static (int AliasId, string Email, string Phone) Contact( CalendarEvent item, string campus, string mainCampus, CalendarConfiguration calendar, Dictionary<string, (int AliasId, string Email, string Phone)> contacts )
         {

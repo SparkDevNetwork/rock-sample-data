@@ -17,16 +17,17 @@
   },
   "$windowComment": "Occurrences fall from the start of the history window to monthsAhead months after the install day. A weekly or monthly occurrence starts at the history window's start and has no end.",
   "monthsAhead": 6,
-  "$contactsComment": "Who to contact, by key: a Cast person and the email and phone shown on the event. 'campus-pastor' is each campus's campus pastor (configuration/notes.json picks them), with the campus's own address at the church's domain, and mainCampusPastor stands in on the main campus.",
+  "$contactsComment": "Who to contact, by key: a Cast person and the email and phone shown on the event. 'campus-pastor' is each campus's campus pastor (configuration/staff.json names them), with the campus's own address at the church's domain. mainCampusPastor is the main campus's campus pastor, who is also the contact for church-wide campus events.",
   "contacts": {
     "pete": { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "email": "peter@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
     "ted": { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "email": "ted@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
     "isaac": { "person": "581C940E-A788-4F32-BCF3-33F4D1948390", "email": "students@rocksolidchurchdemo.com", "phone": "(623) 555-0160" },
     "alisha": { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "email": "alisha.marble@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
     "jenny": { "person": "82309081-A110-496F-8295-CE6A4720D7A8", "email": "jenny@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
-    "rachel": { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "email": "kids@rocksolidchurchdemo.com", "phone": "(623) 555-0108" }
+    "rachel": { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "email": "kids@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
+    "aaron": { "person": "8A798763-D95F-4EE8-BF7F-FA320226335B", "email": "phoenix@rocksolidchurchdemo.com", "phone": "(623) 555-0108" }
   },
-  "mainCampusPastor": "ted",
+  "mainCampusPastor": "aaron",
   "campusPastorPhone": "(623) 555-0108",
   "$locationsComment": "Room names are the same at every campus. A campus can rename a room: Goodyear meets in a high school auditorium on Sundays and in a small leased ministry center during the week.",
   "locationNames": {

@@ -28,7 +28,7 @@ Sample data that:
 | **Core 3** | The Cast plus 75 generated "companion" households at each of Peoria and Gilbert | 3 | Campus features |
 | **Full 7** | The Cast plus the Crowd (about 25,000 generated people) | 7 | Demos, performance, and reports |
 
-The **Cast** is a set of hand-designed households: today 83 households and 181 people. The Cast is identical in every dataset and always lives on the main campus, so a test or a help article can name Ted Decker by Guid and trust that he is there. Every Cast household exists for a reason, written in its `testPurposes`. [Meet the Cast](../cast/families/README.md).
+The **Cast** is a set of hand-designed households: today 83 households and 181 people. Most of the Cast lives on the main campus and is identical in every dataset, so a test or a help article can name Ted Decker by Guid and trust that he is there. Each other campus's campus pastor is in the Cast too, in the datasets that have that campus. Every Cast household exists for a reason, written in its `testPurposes`. [Meet the Cast](../cast/families/README.md).
 
 The **Crowd** is generated. It gives volume and statistical realism. Crowd people are never named in tests.
 

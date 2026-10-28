@@ -118,6 +118,22 @@ Four businesses were added so the main campus has six (decision 63). Each is tie
 
 The Cast is now 87 households and 185 people, with 6 businesses.
 
+## Campus pastors (2026-10-28)
+
+Seven households were added so every campus has a named campus pastor who is always the same (decision D-staff-1). Each lives near their own campus. The six outside Phoenix load only in datasets with their campus (decision D-staff-2): Core 1 has the Mitchells, Core 3 adds the Haywoods and Whitlocks, and Full 7 has all seven.
+
+| Household | Campus | Members (child age) | Main test purpose |
+|---|---|---|---|
+| [mitchell](households/mitchell.json) | Phoenix | Aaron (campus pastor), Beth, Jonah 12, Clara 9 | Phoenix's campus pastor: notes, welcomes, and Phoenix campus events. |
+| [haywood](households/haywood.json) | Peoria | Andre (campus pastor), Keisha, Isaiah 16 | Cast family on a campus other than the main one. |
+| [whitlock](households/whitlock.json) | Gilbert | Dana (campus pastor), Scott, Harper 10, Wes 7 | Campus pastor whose spouse is not on staff. |
+| [hargrove](households/hargrove.json) | Scottsdale | Walt (campus pastor), June | Pastor who came over in the Scottsdale merger. |
+| [vu](households/vu.json) | Chandler | Tina (campus pastor), Minh, Ellie 5, Theo 2 | Staff family with a toddler and a preschooler. |
+| [ibarra](households/ibarra.json) | Goodyear | Rafael (campus pastor), Elisa, Nico 1 | Staff family with a baby in the nursery. |
+| [tsosie](households/tsosie.json) | Tempe | Leah (campus pastor) | Single adult on staff, living alone. |
+
+The Cast is now 94 households and 206 people. Their profile photos are still to be made.
+
 ## Issues to fix during Cast review
 
 Each household file lists its own `reviewNotes`. The main themes:
