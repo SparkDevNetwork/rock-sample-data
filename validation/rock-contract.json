@@ -1384,6 +1384,127 @@
         "Value": "nvarchar(250) not null"
       }
     },
+    "EventCalendarItem": {
+      "written": [
+        "CreatedDateTime",
+        "EventCalendarId",
+        "EventItemId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EventCalendarId": "int not null",
+        "EventItemId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
+    "EventItem": {
+      "written": [
+        "ApprovedByPersonAliasId",
+        "ApprovedOnDateTime",
+        "CreatedDateTime",
+        "Description",
+        "DetailsUrl",
+        "ForeignKey",
+        "Guid",
+        "Id",
+        "IsActive",
+        "IsApproved",
+        "ModifiedDateTime",
+        "Name",
+        "PhotoId",
+        "Summary"
+      ],
+      "rockColumns": {
+        "ApprovedByPersonAliasId": "int null",
+        "ApprovedOnDateTime": "datetime null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "DetailsUrl": "nvarchar(200) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "IsApproved": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "PhotoId": "int null",
+        "Summary": "nvarchar(max) null"
+      }
+    },
+    "EventItemAudience": {
+      "written": [
+        "CreatedDateTime",
+        "DefinedValueId",
+        "EventItemId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DefinedValueId": "int not null",
+        "EventItemId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
+    "EventItemOccurrence": {
+      "written": [
+        "CampusId",
+        "ContactEmail",
+        "ContactPersonAliasId",
+        "ContactPhone",
+        "CreatedDateTime",
+        "EventItemId",
+        "ForeignKey",
+        "Guid",
+        "Location",
+        "ModifiedDateTime",
+        "NextStartDateTime",
+        "Note",
+        "ScheduleId"
+      ],
+      "rockColumns": {
+        "CampusId": "int null",
+        "ContactEmail": "nvarchar(75) null",
+        "ContactPersonAliasId": "int null",
+        "ContactPhone": "nvarchar(20) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EventItemId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "Location": "nvarchar(200) null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "NextStartDateTime": "datetime null",
+        "Note": "nvarchar(max) null",
+        "ScheduleId": "int null"
+      }
+    },
     "FinancialAccount": {
       "written": [
         "CampusId",
@@ -3417,6 +3538,8 @@
       "written": [
         "AutoInactivateWhenComplete",
         "CreatedDateTime",
+        "EffectiveEndDate",
+        "EffectiveStartDate",
         "ForeignKey",
         "Guid",
         "Id",
@@ -3453,6 +3576,20 @@
         "WeeklyDayOfWeek": "int null",
         "WeeklyTimeOfDay": "time null",
         "iCalendarContent": "nvarchar(max) null"
+      }
+    },
+    "ScheduleDate": {
+      "written": [
+        "EndDateTime",
+        "ScheduleId",
+        "StartDateKey",
+        "StartDateTime"
+      ],
+      "rockColumns": {
+        "EndDateTime": "datetime not null",
+        "ScheduleId": "int not null",
+        "StartDateKey": "int not null",
+        "StartDateTime": "datetime not null"
       }
     },
     "Site": {
@@ -3901,9 +4038,14 @@
     "BinaryFileData",
     "CampusSchedule",
     "DefinedValue",
+    "EventCalendarItem",
+    "EventItemAudience",
+    "EventItemOccurrence",
     "Group",
     "GroupLocationSchedule",
-    "GroupLocationScheduleConfig"
+    "GroupLocationScheduleConfig",
+    "Schedule",
+    "ScheduleDate"
   ],
   "guids": {
     "Attribute": [
@@ -4015,8 +4157,11 @@
       "407E7E45-7B2E-4FCD-9605-ECB1339F2453",
       "41540783-D9EF-4C70-8F1D-C9E83D91ED5F",
       "46B017B1-2232-481D-81C5-A48D9B7CABEE",
+      "4CE2E860-2F03-40F9-8B60-68EBDB21E026",
+      "59CD7FD8-6A62-4C3B-8966-1520E74EED58",
       "5A8F264F-3BE6-4F15-912A-3CE93A98E8F6",
       "5FE5A540-7D9F-433E-B47E-4229D1472248",
+      "6107EA37-5DD3-4E4F-A2D0-1D4010811D4D",
       "618F906C-C33D-4FA3-8AEF-E58CB7B63F1E",
       "63464BB8-83E2-4914-B922-5075311758F9",
       "721300ED-1267-4DA0-B4F2-6C6B5B17B1C5",
@@ -4024,13 +4169,16 @@
       "7950FF66-80EE-E8AB-4A77-4A13EDEB7513",
       "7D705CE7-7B11-4342-A58E-53617C5B4E69",
       "82614683-7FB4-4F16-9087-6F85945A7B16",
+      "833EE2C7-F83A-4744-AD14-6907554DF8AE",
       "8B086A19-405A-451F-8D44-174E92D6B402",
       "8C52E53C-2A66-435A-AE6E-5EE307D9A0DC",
       "8EBC0CEB-474D-4C1B-A6BA-734C3A9AB061",
       "928A2E04-C77B-4282-888F-EC549CEE026A",
+      "95E49778-AE72-454F-91CC-2FC864557DEC",
       "96D540F5-071D-4BBD-9906-28F0A64D39C4",
       "96E49813-322C-4465-9800-BAECBB8958F4",
       "9DFD8F1E-922E-420D-AE00-F640A2EFF405",
+      "A4BEBC2F-09F0-488A-B2F3-C416F4D02E35",
       "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303",
       "AC88C37A-901E-4CBB-947B-11348C208192",
       "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022",
@@ -4047,6 +4195,7 @@
       "E2261A84-831D-4234-9BE0-4D628BBE751E",
       "E9054E68-9BF0-4AB9-8216-1B8D29D6C51D",
       "F00515E7-4EF3-480D-A45D-372CE3D80E69",
+      "F2BFF319-A109-4B42-BEC2-76590E11627B",
       "F3ADC889-1EE8-4EB6-B3FD-8C10F3C8AF93",
       "F3F66040-C50F-4D13-9652-780305FFFE23"
     ],
@@ -4064,6 +4213,16 @@
       "C4CCBD91-1264-48BF-BC33-92751C8948B5",
       "CF9FD146-8623-4D9A-98E6-4BD710F071A4",
       "D953B0A5-0065-4624-8844-10010DE01E5C"
+    ],
+    "EventCalendar": [
+      "8A444668-19AF-4417-9C74-09F842572974",
+      "8C7F7F4E-1C51-41D3-9AC3-02B3F4054798"
+    ],
+    "EventItem": [
+      "64966C21-648E-4B31-8D97-DE1B62FA0820",
+      "6BB29D45-D5A0-4381-A0D9-E5490A58E20B",
+      "6EFC00B0-F5D3-4352-BC3B-F09852FB5788",
+      "93104654-DAFA-489B-A175-5F2AB3A846F1"
     ],
     "FieldType": [
       "1EDAFDED-DFE6-4334-B019-6EECBA89E05A",
