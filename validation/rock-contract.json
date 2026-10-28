@@ -3903,7 +3903,8 @@
     "DefinedValue",
     "Group",
     "GroupLocationSchedule",
-    "GroupLocationScheduleConfig"
+    "GroupLocationScheduleConfig",
+    "GroupMember"
   ],
   "guids": {
     "Attribute": [
