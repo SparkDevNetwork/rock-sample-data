@@ -28,6 +28,98 @@
           "text": "Thanks. I let the snack coordinators know too."
         }
       ]
+    },
+    {
+      "key": "ted-young-adults",
+      "guid": "A97ECEBC-CD9C-430E-BDEE-3446E4D1F97D",
+      "about": "ted",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 3494
+      },
+      "time": "14:23",
+      "text": "Talked to Ted today about starting a new young adults ministry.",
+      "testPurpose": "A legacy note from Rock's original sample data, on Rock's own Personal Note type."
+    },
+    {
+      "key": "ted-mother-hospital",
+      "guid": "4541A3C6-2E27-401B-9EE9-C3B5A69AA6B8",
+      "about": "ted",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 3495
+      },
+      "time": "16:10",
+      "text": "Called Ted and heard that his mother is in the hospital and could use prayer.",
+      "isAlert": true,
+      "testPurpose": "A legacy alert note on a staff member, from Rock's original sample data."
+    },
+    {
+      "key": "ted-leadership",
+      "guid": "CB35F623-69D5-4E7B-A28E-6B501CF47FA3",
+      "about": "ted",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 3508
+      },
+      "time": "11:05",
+      "text": "Ted has strong leadership skills.",
+      "isPrivate": true,
+      "testPurpose": "A legacy private note: only Pete, its author, sees it on Ted's profile."
+    },
+    {
+      "key": "cindy-prayer-training",
+      "guid": "DCFFDF99-1452-48FC-84C0-4F276656D6AD",
+      "about": "cindy",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 120
+      },
+      "time": "10:40",
+      "text": "Cindy offered to help train the new prayer team volunteers this fall. {@alisha} can you add her to the training schedule?",
+      "testPurpose": "A note with a mention and a reply on a staff spouse, so her profile is not empty.",
+      "replies": [
+        {
+          "guid": "2538B5D1-B9FF-4897-B39B-6AE43CF162C8",
+          "author": "alisha",
+          "written": {
+            "daysAgo": 119
+          },
+          "time": "08:50",
+          "text": "Done. She is on the schedule for the first two Sundays."
+        }
+      ]
+    },
+    {
+      "key": "cindy-grandparents-weekends",
+      "guid": "0D236068-6619-4EED-B3BE-04089A31EC19",
+      "about": "cindy",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 25
+      },
+      "time": "11:15",
+      "text": "Cindy called to say the kids will be at their grandparents for the next two weekends. She asked us to tell their room leaders so no one worries when they are out.",
+      "testPurpose": "A recent Phone Note."
+    },
+    {
+      "key": "noah-booth-pickup",
+      "guid": "2D6735CE-2590-4D7C-99B5-7F71E71354DE",
+      "about": "noah",
+      "type": "safetyAlert",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 150
+      },
+      "time": "09:10",
+      "isAlert": true,
+      "text": "Noah may leave the Grades 4-6 room on his own only to meet his dad in the production booth. Any other pickup needs his check-in tag.",
+      "testPurpose": "A Safety Alert about pickup on a staff child, written by staff outside the family."
     }
   ]
 }

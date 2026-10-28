@@ -6,7 +6,7 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 
 - **38 households** (36 families and 2 businesses), **55 people**, and **14 groups**.
 - Every Guid is unchanged, so anything that refers to these people today still finds them. Guids are now uppercase.
-- Stories, notes, relationships, security roles, logins, follows, connection requests, giving, and attendance all came over.
+- Stories, notes, relationships, security roles, logins, follows, connection requests, giving, and attendance all came over. The legacy notes live in [notes/](notes/README.md), in the same format as every other Cast note.
 - Dates are now relative. The legacy file kept ages current as of mid 2023, so a 2012 date became "11 years before the anchor."
 - Emails at `fakeinbox.com` (a real disposable-mail service) now use `example.org`. Staff emails at `rocksolidchurchdemo.com` are unchanged.
 

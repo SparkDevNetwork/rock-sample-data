@@ -1,0 +1,81 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "marble",
+  "notes": [
+    {
+      "key": "bill-baptism-class",
+      "guid": "601006ED-FB93-4245-BD24-7C082D76B586",
+      "about": "bill",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 45
+      },
+      "time": "14:30",
+      "text": "Three people in Bill's group are asking about baptism. Meeting with him next week to plan a class for them.",
+      "testPurpose": "A Follow-up note with a reply on a small group leader.",
+      "replies": [
+        {
+          "guid": "12B26A6A-7A95-4D14-BDBA-E0CA6095D986",
+          "author": "pete",
+          "written": {
+            "daysAgo": 44
+          },
+          "time": "09:05",
+          "text": "Count me in to teach the first session."
+        }
+      ]
+    },
+    {
+      "key": "bill-new-believers-lunch",
+      "guid": "6D679EEA-0741-4E1A-A603-1C289D7C0E23",
+      "about": "bill",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 200
+      },
+      "time": "12:20",
+      "text": "Bill offered to host the new believers lunch at his business again this spring. He covers the food every year and asks that we not announce it.",
+      "testPurpose": "A Personal Note on a generous giver who leads a group for people new to faith."
+    },
+    {
+      "key": "alisha-dad-procedure",
+      "guid": "DDF74DF2-DC6D-491F-8044-C6B3403E95C5",
+      "about": "alisha",
+      "type": "pastoral",
+      "author": "pete",
+      "written": {
+        "daysAgo": 300
+      },
+      "time": "16:45",
+      "text": "Talked with Alisha after her dad's heart procedure. He is home and recovering well. She asked for prayer for the drives back and forth to Tucson this month.",
+      "testPurpose": "A Pastoral note with a reply on the Rock administrator.",
+      "replies": [
+        {
+          "guid": "9A285F37-CC38-4F19-BE6D-8513349F9D9B",
+          "author": "ted",
+          "written": {
+            "daysAgo": 300
+          },
+          "time": "17:30",
+          "text": "Praying. Let us know if meals would help while she is on the road."
+        }
+      ]
+    },
+    {
+      "key": "bill-work-hours",
+      "guid": "FB6A24A2-20C3-4A06-ABCB-9F317DDB4C4C",
+      "about": "bill",
+      "type": "counseling",
+      "author": "pete",
+      "written": {
+        "daysAgo": 70
+      },
+      "time": "15:00",
+      "text": "Met with Bill about the stress of growing his business. Talked through limits on work hours and protecting time at home. Meeting again in three weeks.",
+      "testPurpose": "A Counseling note, seen only by pastoral workers and Rock administrators."
+    }
+  ]
+}

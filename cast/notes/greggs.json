@@ -37,6 +37,20 @@
       },
       "time": "10:30",
       "text": "Coffee with Lorraine. She said leading the grief group has been healing and hard at the same time. Encouraged her to take a week off when she needs it, and offered to cover a night."
+    },
+    {
+      "key": "lorraine-jenny-anniversary",
+      "guid": "AE070C6E-D768-4601-8F41-8EB8BD35D088",
+      "about": "lorraine",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 4428
+      },
+      "time": "09:01",
+      "text": "Lorraine's daughter, Jenny, went to be with the Lord yesterday. Remember to be gentle with Lorraine around this time each year.",
+      "isAlert": true,
+      "testPurpose": "A legacy alert note from Rock's original sample data that her bio refers to."
     }
   ]
 }

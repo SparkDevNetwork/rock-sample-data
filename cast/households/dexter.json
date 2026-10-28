@@ -121,19 +121,6 @@
       "logins": [
         "fdexter"
       ],
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Talked to Frank about his misdemeanor to determine if he can serve.",
-          "date": {
-            "yearsAgo": 8,
-            "month": 5,
-            "day": 3,
-            "time": "18:03"
-          },
-          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23"
-        }
-      ],
       "connectionRequests": [
         {
           "opportunity": "kids-ministry",

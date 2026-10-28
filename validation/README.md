@@ -86,6 +86,15 @@ The Cast expectations hold at every anchor date tested. They cover the Deckers (
 
 Every Cast prayer request in `cast/prayer-requests.json` names the state Rock should show: current, waiting, flagged, expired, or answered. Every load checks each one: its state, its prayers and prayer count, its answer, its urgent and private settings, its category, its group, its requester or guest, and its comments and reply. A current request must still be in Rock's prayer session on the install day, which its `daysAgo` date gives back, so a later `--check-cast` run gets the same answer. At least 8 must be, so every dataset's prayer list and prayer session have requests to pray through.
 
+## Cast note expectations
+
+Every load with the notes part checks each Cast note in `cast/notes/` (decision D-profile-notes-1):
+
+1. The note is in Rock, by its Guid, on the person it is about.
+2. Its type is one the person profile's Notes block (TimeLine, Guid `0B2B550C-B0C9-420E-9CF3-BEC8979108F2`) shows: a person note type with no qualifier, and one of the block's Note Types when that setting names any. Rock's own setting is empty, which shows every person note type.
+
+This catches what kept Rock's legacy notes on Ted Decker and others off their profiles: a note that never loads, or a type the profile hides. It does not check who may see a note. Rock shows a private note only to its author, and each type's View security decides the rest (decision 78).
+
 ## Business expectations
 
 Every load also checks the businesses, Cast and generated alike, and prints the result after the Cast expectations:

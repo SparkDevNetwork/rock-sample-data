@@ -46,20 +46,6 @@
           "with": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718"
         }
       ],
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Jenny went to be with the Lord yesterday. She was three years old.",
-          "date": {
-            "yearsAgo": 12,
-            "month": 9,
-            "day": 12,
-            "time": "09:02"
-          },
-          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
-          "isAlert": true
-        }
-      ],
       "photo": {
         "isOmitted": true
       }

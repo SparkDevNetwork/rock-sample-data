@@ -65,30 +65,7 @@
           "month": 4,
           "day": 8
         }
-      },
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Is interested in learning about baptism.",
-          "date": {
-            "yearsAgo": 9,
-            "month": 5,
-            "day": 1
-          },
-          "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
-          "isAlert": true
-        },
-        {
-          "type": "Personal Note",
-          "text": "Phil Coffee is good friends with Allie Song.",
-          "date": {
-            "yearsAgo": 9,
-            "month": 5,
-            "day": 4
-          },
-          "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
-        }
-      ]
+      }
     }
   ]
 }
