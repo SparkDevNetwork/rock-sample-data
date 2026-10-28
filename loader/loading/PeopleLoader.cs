@@ -64,6 +64,29 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid KnownRelationshipOwnerRoleGuid = new Guid( "7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42" );
         private static readonly Guid AlternateIdSearchKeyGuid = new Guid( "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022" );
 
+        /// <summary>
+        /// The admin person Rock's first migration inserts. Its Guid differs between installs, so it is known by its Id.
+        /// </summary>
+        internal const int AdminPersonId = 1;
+
+        /// <summary>
+        /// The Person columns the admin person keeps from Rock: its identity, its system flag, its alias, when Rock made
+        /// it, and its empty ForeignKey, so nothing that removes sample data by ForeignKey can ever remove the site's admin.
+        /// </summary>
+        private static readonly HashSet<string> AdminKeptColumns = new HashSet<string>( StringComparer.Ordinal )
+        {
+            "Id", "Guid", "IsSystem", "PrimaryAliasId", "PrimaryAliasGuid", "CreatedDateTime", "ForeignKey"
+        };
+
+        /// <summary>
+        /// A SQL condition for this dataset's people, for the Person table under this alias: every person the load added
+        /// (marked by @ForeignKey), and Rock's admin person, which the load turned into a Cast person (decision D-admin-1).
+        /// </summary>
+        internal static string DatasetPersonFilter( string alias )
+        {
+            return $"( [{alias}].[ForeignKey] = @ForeignKey OR [{alias}].[Id] = {AdminPersonId} )";
+        }
+
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
         private readonly AnchorDates _dates;
@@ -110,6 +133,7 @@ namespace RockSampleData.Loader.Loading
             var relationshipOwnerRoleId = _db.RequireIdByGuid( "GroupTypeRole", KnownRelationshipOwnerRoleGuid );
             var relationshipGroupName = ( string ) _db.Scalar( "SELECT [Name] FROM [GroupType] WHERE [Id] = @Id", P( "@Id", relationshipTypeId ) );
             var lookups = new Lookups( _db, _source );
+            var admin = ReadAdmin( familyTypeId, relationshipTypeId, relationshipOwnerRoleId );
 
             var nextGroupId = NextId( "Group" );
             var nextPersonId = NextId( "Person" );
@@ -144,7 +168,9 @@ namespace RockSampleData.Loader.Loading
                 var campusId = _campusIds[CampusKeyFor( household )];
                 foreach ( var person in household.Members )
                 {
-                    People[person.Guid] = new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, AliasGuid = Guid.NewGuid(), FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
+                    People[person.Guid] = person.ReplacesAdmin && admin != null
+                        ? new LoadedPerson { PersonId = AdminPersonId, AliasId = admin.AliasId, AliasGuid = admin.AliasGuid, KnownRelationshipGroupId = admin.KnownRelationshipGroupId, IsRockAdmin = true, FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person }
+                        : new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, AliasGuid = Guid.NewGuid(), FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
                 }
             }
 
@@ -222,7 +248,11 @@ namespace RockSampleData.Loader.Loading
                         loaded.AliasId, loaded.AliasGuid,
                         person.Guid, _foreignKey, _now, _now );
 
-                    aliases.Rows.Add( loaded.AliasId, loaded.PersonId, loaded.PersonId, person.Guid, loaded.AliasGuid, _foreignKey );
+                    if ( !loaded.IsRockAdmin )
+                    {
+                        aliases.Rows.Add( loaded.AliasId, loaded.PersonId, loaded.PersonId, person.Guid, loaded.AliasGuid, _foreignKey );
+                    }
+
                     members.Rows.Add( nextMemberId++, false, familyId, familyTypeId, loaded.PersonId, isAdult ? adultRoleId : childRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
                     familySalutationMembers.Add( SalutationMemberFor( person, isAdult, age ) );
 
@@ -295,10 +325,28 @@ namespace RockSampleData.Loader.Loading
                 Households.Add( loadedHousehold );
             }
 
+            // The admin person's row updates Person 1 after the other people are in, since its giving leader may be one of them.
+            var adminRow = persons.Rows.Cast<DataRow>().SingleOrDefault( r => ( int ) r["Id"] == AdminPersonId && admin != null );
+            var adminValues = adminRow?.Table.Columns.Cast<DataColumn>().ToDictionary( c => c.ColumnName, c => adminRow[c] );
+            if ( adminRow != null )
+            {
+                persons.Rows.Remove( adminRow );
+            }
+
             _db.BulkInsert( "Group", groups, keepIdentity: true );
             _db.BulkInsert( "Person", persons, keepIdentity: true );
+            if ( adminValues != null )
+            {
+                UpdateAdmin( adminValues );
+            }
+
             _db.BulkInsert( "PersonAlias", aliases, keepIdentity: true );
             _db.BulkInsert( "GroupMember", members, keepIdentity: true );
+            if ( adminValues != null )
+            {
+                RemoveAdminFamilies( admin );
+            }
+
             _db.BulkInsert( "Location", locations, keepIdentity: true );
             _db.BulkInsert( "GroupLocation", groupLocations, keepIdentity: true );
             _db.BulkInsert( "PhoneNumber", phones, keepIdentity: true );
@@ -306,7 +354,8 @@ namespace RockSampleData.Loader.Loading
             var newMetaphoneNames = AddNewMetaphones( metaphones );
             SetGeoPoints( geo );
 
-            _db.Log.Write( $"  Families: {households.Count}, people: {persons.Rows.Count}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
+            var adminText = adminValues == null ? "" : $" (and {adminValues["NickName"]} {adminValues["LastName"]} in Rock's admin person)";
+            _db.Log.Write( $"  Families: {households.Count}, people: {persons.Rows.Count}{adminText}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
                 + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {newMetaphoneNames}" );
         }
 
@@ -411,19 +460,22 @@ namespace RockSampleData.Loader.Loading
         */
 
         /// <summary>
-        /// Adds one Known Relationship group per person, with the person as Owner. Returns how many.
+        /// Adds one Known Relationship group per person, with the person as Owner, except the admin person, who
+        /// owns one from Rock's install. Returns how many.
         /// </summary>
         private int AddKnownRelationshipGroups( DataTable groups, DataTable members, ref int nextGroupId, ref int nextMemberId, int groupTypeId, int ownerRoleId, string groupName )
         {
-            foreach ( var person in People.Values )
+            var count = 0;
+            foreach ( var person in People.Values.Where( p => p.KnownRelationshipGroupId == 0 ) )
             {
+                count++;
                 var groupId = nextGroupId++;
                 person.KnownRelationshipGroupId = groupId;
                 groups.Rows.Add( groupId, false, groupTypeId, DBNull.Value, groupName, false, true, 0, Guid.NewGuid(), _foreignKey, _now, _now, DBNull.Value, DBNull.Value );
                 members.Rows.Add( nextMemberId++, false, groupId, groupTypeId, person.PersonId, ownerRoleId, 1, _now, Guid.NewGuid(), _foreignKey, _now, _now );
             }
 
-            return People.Count;
+            return count;
         }
 
         /*
@@ -570,6 +622,84 @@ INNER JOIN #LocationGeo AS [g] ON [g].[Id] = [l].[Id];
 DROP TABLE #LocationGeo;" );
         }
 
+        /*
+            10/27/26 - CLAUDE
+
+            A new Rock has one admin person (Person Id 1) with the admin login, in Rock Administrators, alone in a
+            family named "Admin". People sign in as admin, so the Cast person marked replacesAdmin (Alisha Marble)
+            loads into that person instead of a new one: the loader updates Person 1 with everything the Cast gives
+            her, moves her into her Cast family, and deletes the empty Admin family. Person 1 keeps Rock's Id, Guid,
+            primary alias, system flag, login, roles, Known Relationship group, and empty ForeignKey, so every
+            audit column and alias Rock wrote at install stays valid, and nothing that removes sample data by
+            ForeignKey can ever remove the site's admin. Her new rows (memberships, notes she writes, connector
+            rows) carry the ForeignKey as usual. Queries and invariants that mean "this dataset's people" use
+            DatasetPersonFilter, which counts Person 1 in. A database with no Person 1 loads her as a new person.
+
+            Reason: Signing in as admin signs in as a Cast person with real data (decision D-admin-1).
+        */
+
+        /// <summary>
+        /// Rock's admin person: its primary alias, the Known Relationship group it owns, and its families. Null when
+        /// the database has no Person 1.
+        /// </summary>
+        private AdminPerson ReadAdmin( int familyTypeId, int relationshipTypeId, int relationshipOwnerRoleId )
+        {
+            var row = _db.Query( @"
+SELECT [pa].[Id], [pa].[Guid]
+FROM [PersonAlias] AS [pa]
+WHERE [pa].[PersonId] = @Id AND [pa].[AliasPersonId] = @Id", P( "@Id", AdminPersonId ) ).FirstOrDefault();
+            if ( row == null )
+            {
+                return null;
+            }
+
+            var relationshipGroupId = _db.Scalar( @"
+SELECT TOP 1 [GroupId]
+FROM [GroupMember]
+WHERE [PersonId] = @Id AND [GroupTypeId] = @TypeId AND [GroupRoleId] = @OwnerRoleId
+ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId ), P( "@OwnerRoleId", relationshipOwnerRoleId ) );
+
+            var familyIds = _db.Query( "SELECT [GroupId] FROM [GroupMember] WHERE [PersonId] = @Id AND [GroupTypeId] = @TypeId", P( "@Id", AdminPersonId ), P( "@TypeId", familyTypeId ) )
+                .Select( r => Convert.ToInt32( r["GroupId"] ) )
+                .ToList();
+
+            return new AdminPerson
+            {
+                AliasId = Convert.ToInt32( row["Id"] ),
+                AliasGuid = ( Guid ) row["Guid"],
+                KnownRelationshipGroupId = relationshipGroupId == null ? 0 : Convert.ToInt32( relationshipGroupId ),
+                FamilyTypeId = familyTypeId,
+                FamilyIds = familyIds
+            };
+        }
+
+        /// <summary>
+        /// Writes the admin person's built row over Person 1, keeping the columns Rock owns.
+        /// </summary>
+        private void UpdateAdmin( Dictionary<string, object> values )
+        {
+            var columns = values.Keys.Where( c => !AdminKeptColumns.Contains( c ) ).ToList();
+            var parameters = columns.Select( c => P( $"@{c}", values[c] ) ).ToList();
+            parameters.Add( P( "@Id", AdminPersonId ) );
+            _db.Execute( $"UPDATE [Person] SET {string.Join( ", ", columns.Select( c => $"[{c}] = @{c}" ) )} WHERE [Id] = @Id", parameters.ToArray() );
+        }
+
+        /// <summary>
+        /// Takes the admin person out of the families Rock put it in, and deletes those families once they are empty.
+        /// </summary>
+        private void RemoveAdminFamilies( AdminPerson admin )
+        {
+            if ( admin.FamilyIds.Count == 0 )
+            {
+                return;
+            }
+
+            var ids = string.Join( ", ", admin.FamilyIds );
+            _db.Execute( $"DELETE FROM [GroupMember] WHERE [PersonId] = @Id AND [GroupId] IN ( {ids} )", P( "@Id", AdminPersonId ) );
+            _db.Execute( $"DELETE FROM [Group] WHERE [Id] IN ( {ids} ) AND [GroupTypeId] = @TypeId AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [Group].[Id] )",
+                P( "@TypeId", admin.FamilyTypeId ) );
+        }
+
         /// <summary>
         /// The next free Id in a table.
         /// </summary>
@@ -695,7 +825,34 @@ DROP TABLE #LocationGeo;" );
         /// </summary>
         public bool CanAttend { get; set; }
 
+        /// <summary>
+        /// True for the Cast person loaded into Rock's admin person (Person Id 1) instead of a new person.
+        /// </summary>
+        public bool IsRockAdmin { get; set; }
+
         public CastPerson Cast { get; set; }
+    }
+
+    /// <summary>
+    /// What the loader reads about Rock's admin person before it becomes a Cast person.
+    /// </summary>
+    internal sealed class AdminPerson
+    {
+        public int AliasId { get; set; }
+
+        public Guid AliasGuid { get; set; }
+
+        /// <summary>
+        /// The Known Relationship group the admin owns, or 0 when it owns none.
+        /// </summary>
+        public int KnownRelationshipGroupId { get; set; }
+
+        public int FamilyTypeId { get; set; }
+
+        /// <summary>
+        /// The families Rock put the admin in. A new Rock has one, named "Admin".
+        /// </summary>
+        public List<int> FamilyIds { get; set; }
     }
 
     /// <summary>

@@ -37,6 +37,7 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 
 - High school students, including a senior about to graduate.
 - Monthly scheduled giver.
+- Open request to serve that Alisha Marble connects (In Progress).
 
 ## Activity
 

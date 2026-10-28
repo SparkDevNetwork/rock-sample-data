@@ -10,7 +10,8 @@
   "story": "Jason and Melissa Wood have a seventh grader and a fourth grader. Jason's gift goes out by card every other week.",
   "testPurposes": [
     "Middle school student in the student check-in area.",
-    "Bi-weekly scheduled card giver."
+    "Bi-weekly scheduled card giver.",
+    "Open request to serve that Alisha Marble connects (No Contact)."
   ],
   "address": {
     "type": "home",
@@ -89,7 +90,19 @@
       "emailIsActive": true,
       "photo": {
         "ethnicity": "black"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "greeters",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 8
+          },
+          "connector": true,
+          "comment": "I'd like to serve during the service my kids are in their classes."
+        }
+      ]
     },
     {
       "key": "ryan",

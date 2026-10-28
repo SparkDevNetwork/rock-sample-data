@@ -48,7 +48,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 - **Statuses.** No Contact, In Progress, Background Check, and Shadowing, each a real onboarding step.
 - **Connected requests.** Every volunteer who joined in the last two years has the request that put them on their team, ending the day they joined.
 - **Open requests.** People who are not serving ask to serve in the profile's mix of active and inactive requests, with one future follow-up and one transferred request per campus. Each request has the activity a connector would leave.
-- **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured.
+- **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured. At the main campus, Alisha Marble connects the active requests still at No Contact or In Progress, as the staff person who reaches out first, and at least eight in every dataset (decision D-admin-2). She is Rock's admin person, so signing in as admin shows her requests on the connection board.
 - **Person history.** Each request shows on the person's History tab, the way Rock records it: added, status changed, connected, and set aside or saved for a future follow-up.
 
 ## The Cast's stories
@@ -63,6 +63,10 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 | Sam Hanks | Production Team, No Contact | 75 days with no follow-up |
 | Bri Hall | Greeters, Connected | Just connected, waiting as a Pending greeter |
 | Ryan Patel | Production Team, future follow-up | Contact him again after his work travel |
+| Lauren Shaw, Derek Ward, Mark Fischer, Sheryl Tennant | Greeters, Ushers, Production Team, and Prayer Team, In Progress | Requests Alisha Marble is working, from 5 to 26 days old |
+| Tiffany Coleman, Susan Kim, Melissa Wood | Kids Ministry, Prayer Team, and Greeters, No Contact | New requests assigned to Alisha Marble that she has not reached yet |
+
+With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so signing in as admin shows at least eight on her connection board in every dataset. A Cast expectation checks that floor on every load (decision D-admin-2).
 
 ## How the numbers compare
 

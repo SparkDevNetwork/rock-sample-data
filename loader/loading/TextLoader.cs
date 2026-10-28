@@ -307,7 +307,7 @@ namespace RockSampleData.Loader.Loading
             var categoryId = _db.RequireIdByGuid( "Category", DemographicHistoryCategoryGuid );
             var updates = TableFactory.Create( "Id:int", "MessagingOptedOutDateTime:date" );
             var people = planner.Responses.Select( r => r.Person ).GroupBy( p => p.PersonId ).ToDictionary( g => g.Key, g => g.First() );
-            var names = _db.Query( "SELECT [Id], [NickName], [LastName] FROM [Person] WHERE [ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
+            var names = _db.Query( $"SELECT [p].[Id], [p].[NickName], [p].[LastName] FROM [Person] AS [p] WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey ) )
                 .ToDictionary( r => ( int ) r["Id"], r => $"{r["NickName"]} {r["LastName"]}" );
             foreach ( var (personId, when) in planner.OptOuts.OrderBy( o => o.Key ) )
             {

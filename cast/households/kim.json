@@ -11,7 +11,8 @@
   "testPurposes": [
     "Adult child living at home (adult role in the family).",
     "Monthly giver.",
-    "An adult son at home gives on his own (his own giving unit)."
+    "An adult son at home gives on his own (his own giving unit).",
+    "Open request to serve that Alisha Marble connects (No Contact)."
   ],
   "address": {
     "type": "home",
@@ -106,7 +107,19 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "prayer-team",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 1
+          },
+          "connector": true,
+          "comment": "I'd like to pray with people after the service."
+        }
+      ]
     },
     {
       "key": "andrew",

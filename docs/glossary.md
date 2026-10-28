@@ -21,7 +21,7 @@ The words this project uses, in alphabetical order.
 | **Companion** | A generated household on one of Core 3's two extra campuses. Companions are more involved than the Crowd, so each campus looks like a healthy congregation (decision 142). |
 | **Connection request** | A person's request to serve on a team, in Rock's Involvement connection type. It moves through statuses until it is connected, set aside as inactive, or saved for a future follow-up. |
 | **Connection status** | A person's place in the journey: Prospect, Participant, Known, Connected, Engaged, or Leading. |
-| **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus. |
+| **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus, except that Alisha Marble connects the main campus's new requests (decision D-admin-2). |
 | **Core 1, Core 3, Full 7** | The three datasets. The number is how many campuses each has. |
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Dataset** | One installable set of sample data. |

@@ -32,6 +32,7 @@ David and Susan Kim's son Andrew is 20, in college, and still lives at home.
 - Adult child living at home (adult role in the family).
 - Monthly giver.
 - An adult son at home gives on his own (his own giving unit).
+- Open request to serve that Alisha Marble connects (No Contact).
 
 ## Activity
 

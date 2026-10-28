@@ -60,7 +60,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 1. The package's format is one this loader reads (format 1), and this loader is at least the package's minimum loader version.
 2. Every file matches its SHA-256 in `package.json`, no listed file is missing, and nothing unlisted was added.
 3. No other sample data load is running on the database. The load takes an exclusive SQL Server application lock (`sp_getapplock`, owned by its transaction) before it checks anything else, so two loads started at once, even from two web servers, cannot both go on.
-4. The database has no people beyond the five a new Rock install creates (decision 122). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too.
+4. The database has no people beyond the five a new Rock install creates (decision 122). They are Admin (Person Id 1, because its Guid differs between installs), Anonymous Giver, Presence, Anonymous Visitor, and System Sender. RestUser records, which are API keys, never count. A database that already has sample data fails this check too. After a load, Person Id 1 is Alisha Marble (decision D-admin-1), and the people the load added still fail it.
 5. The database's Rock is the package's major release (see above).
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
