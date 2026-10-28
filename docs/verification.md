@@ -219,7 +219,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Receipt
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, source commit, and minimum loader version, the Rock major release and the exact Rock version and migration that were checked, the trusted base's certificate and schema hash, the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, source commit, and minimum loader version, the Rock major release and the exact Rock version and migration that were checked, the trusted base's certificate and schema hash, the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes. It also records the load's step timings and peak space, which no check reads (see [Performance](performance.md)).
 
 ### Publishing gate
 

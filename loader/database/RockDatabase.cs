@@ -198,13 +198,12 @@ namespace RockSampleData.Loader.Database
             }
 
             bulk.WriteToServer( rows );
+            Timings.Add( new LoadTiming( LoadTimingKind.BulkCopy, table, Log.CurrentStep, timer.ElapsedMilliseconds, rows.Rows.Count ) );
 
             if ( !_deferredRebuilds.Contains( table ) )
             {
                 RebuildDisabledIndexes( table );
             }
-
-            Timings.Add( (table, rows.Rows.Count, timer.ElapsedMilliseconds) );
         }
 
         /// <summary>
@@ -283,10 +282,13 @@ namespace RockSampleData.Loader.Database
 
             _disabledIndexes.Remove( table );
 
+            var timer = System.Diagnostics.Stopwatch.StartNew();
             foreach ( var name in names )
             {
                 Execute( $"ALTER INDEX [{name}] ON [{table}] REBUILD" );
             }
+
+            Timings.Add( new LoadTiming( LoadTimingKind.IndexRebuild, table, Log.CurrentStep, timer.ElapsedMilliseconds ) );
         }
 
         /// <summary>
@@ -300,9 +302,9 @@ namespace RockSampleData.Loader.Database
         public LoadLog Log { get; set; } = new LoadLog( null );
 
         /// <summary>
-        /// Rows and milliseconds for each bulk copy, for the end-of-load timing report.
+        /// Each bulk copy and index rebuild, with the step it ran in, for the end-of-load timing report.
         /// </summary>
-        public List<(string Table, int Rows, long Milliseconds)> Timings { get; } = new List<(string, int, long)>();
+        public List<LoadTiming> Timings { get; } = new List<LoadTiming>();
 
         /// <summary>
         /// Creates a command bound to the open transaction. Use it directly for commands that need special

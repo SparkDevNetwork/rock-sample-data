@@ -102,7 +102,7 @@ The verify tool runs `cast/validate-cast.js` and `validation/check-standards.js`
 
 ## Receipts and the publishing gate
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes. Its `load` section records how long the load took, step by step (every timing the loader reports), and the space it used: the peak used data and log space, sampled once a second, the file sizes, the file growths the default trace saw, the recovery model, and whether instant file initialization is on. No check reads it; it is there so every run leaves a timing record (see [Performance](../docs/performance.md)).
 
 Publishing runs the gate first:
 

@@ -21,13 +21,19 @@ namespace RockSampleData.Verify
 {
     /// <summary>
     /// Prints each progress line as the loader reports it. Unlike <see cref="Progress{T}"/>, it prints on
-    /// the loading thread, so lines keep their order.
+    /// the loading thread, so lines keep their order. It keeps every timing the load reports, for the receipt.
     /// </summary>
     internal sealed class ConsoleProgress : IProgress<LoadProgressReport>
     {
+        public List<LoadTiming> Timings { get; } = new List<LoadTiming>();
+
         public void Report( LoadProgressReport value )
         {
             Console.WriteLine( value.Message );
+            if ( value.Timing != null )
+            {
+                Timings.Add( value.Timing );
+            }
         }
     }
 }

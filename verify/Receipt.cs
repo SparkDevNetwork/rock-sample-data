@@ -17,7 +17,9 @@
 
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
+using RockSampleData.Loader;
 using RockSampleData.Loader.Packages;
 
 namespace RockSampleData.Verify
@@ -63,6 +65,45 @@ namespace RockSampleData.Verify
         public TrustedBase.Certificate Base { get; set; }
 
         public List<CheckResult> Checks { get; set; } = new List<CheckResult>();
+
+        /// <summary>
+        /// How long the verification load took, step by step, and the space it used. A record only: no check reads it.
+        /// Null when the load did not run.
+        /// </summary>
+        public ReceiptLoad Load { get; set; }
+
+        internal sealed class ReceiptLoad
+        {
+            /// <summary>
+            /// Every timing the loader reported, in order: steps, parts of steps, bulk copies, index rebuilds, the commit, and the whole load.
+            /// </summary>
+            public List<ReceiptTiming> Timings { get; set; } = new List<ReceiptTiming>();
+
+            public SpaceSampler.Space Space { get; set; }
+        }
+
+        internal sealed class ReceiptTiming
+        {
+            /// <summary>
+            /// Step, Part, BulkCopy, IndexRebuild, or Load (see LoadTimingKind).
+            /// </summary>
+            public string Kind { get; set; }
+
+            public string Name { get; set; }
+
+            [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+            public string Step { get; set; }
+
+            public long Milliseconds { get; set; }
+
+            [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+            public int? Rows { get; set; }
+
+            public static ReceiptTiming From( LoadTiming timing )
+            {
+                return new ReceiptTiming { Kind = timing.Kind.ToString(), Name = timing.Name, Step = timing.StepName, Milliseconds = timing.Milliseconds, Rows = timing.Rows };
+            }
+        }
 
         internal sealed class ReceiptPackage
         {
