@@ -152,7 +152,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, guids, failures ) : 0;
 
-            checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, failures ) : 0;
+            checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
             return (checks, failures);
         }
@@ -254,7 +254,7 @@ WHERE [p].[Guid] = @Person AND [s].[Guid] = @Staff AND [c].[CommunicationType] =
         /// <summary>
         /// Checks that each Cast note is on its person, with a type the person profile's Notes block shows.
         /// </summary>
-        private static int CheckProfileNotes( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckProfileNotes( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
             var shownTypes = db.Query( @"
 SELECT [nt].[Guid]
@@ -300,7 +300,7 @@ SELECT [nt].[Guid], [nt].[Name]
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [n].[EntityId]
-WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( "@Person", person.Guid ) ).FirstOrDefault();
+WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( "@Person", guids.Value( person.Guid ) ) ).FirstOrDefault();
                     var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
                     if ( type == null )
                     {
