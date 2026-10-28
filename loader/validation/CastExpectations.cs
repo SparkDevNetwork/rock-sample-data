@@ -143,7 +143,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;
 
-            // Signing in as admin shows Alisha Marble's open requests (decision 175).
+            // Signing in as admin shows Alisha Marble's open requests (decision D-admin-2).
             checks += parts.Contains( SampleDataPart.Serving ) ? CheckStaffConnectors( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, guids, failures ) : 0;
@@ -834,7 +834,7 @@ WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Guid ) ) )
 
     /// <summary>
     /// A Cast person's Guid in Rock. It is the Guid in their household file, except for the person who replaces
-    /// Rock's admin (decision 174), who keeps the Guid Rock gave Person 1 at install.
+    /// Rock's admin (decision D-admin-1), who keeps the Guid Rock gave Person 1 at install.
     /// </summary>
     internal sealed class CastPersonGuids
     {

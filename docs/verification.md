@@ -109,14 +109,14 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Invariants
 
-**What it does.** Runs every rule in `validation/invariants.sql` against the loaded dataset. Each rule returns how many rows break it, and must return zero. Rules that a foreign key or unique index already enforces are left out, because the bulk copy checks those. A rule about this dataset's people covers the rows marked with the dataset's ForeignKey and Rock's admin person (Person Id 1), which the load turns into Alisha Marble without that ForeignKey (decision 174).
+**What it does.** Runs every rule in `validation/invariants.sql` against the loaded dataset. Each rule returns how many rows break it, and must return zero. Rules that a foreign key or unique index already enforces are left out, because the bulk copy checks those. A rule about this dataset's people covers the rows marked with the dataset's ForeignKey and Rock's admin person (Person Id 1), which the load turns into Alisha Marble without that ForeignKey (decision D-admin-1).
 
 **Why it's there.** These are the rules Rock's save hooks and screens rely on, which the loader must now keep by itself.
 
 | Rule | Why |
 |---|---|
 | `dataset-has-people` | Every other rule looks only at this dataset's rows, so a load that wrote nothing would pass them all. |
-| `admin-is-a-cast-person` | Signing in as admin signs in as Alisha Marble, who keeps Rock's admin login and Rock Administrators, lives in her Cast family, and has no ForeignKey, so removing sample data can never remove the site's admin (decision 174). |
+| `admin-is-a-cast-person` | Signing in as admin signs in as Alisha Marble, who keeps Rock's admin login and Rock Administrators, lives in her Cast family, and has no ForeignKey, so removing sample data can never remove the site's admin (decision D-admin-1). |
 | `person-has-one-primary-alias` | Rock finds a person through their primary alias, and every audit column and gift points at it. |
 | `person-is-in-a-family` | Profile pages and check-in break for a person with no family. |
 | `primary-family-is-a-family-the-person-is-in` | Rock's save hook sets the primary family; the loader sets it instead. |
