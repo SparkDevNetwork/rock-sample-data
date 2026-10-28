@@ -585,7 +585,7 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 5. **Contacts.** Named Cast staff, or each campus's campus pastor (`CampusPastors`), with Ted Decker standing in on the main campus. Ted approves every event.
 6. **Photos.** `PhotoLoader.LoadEventPhotos` sets each photo listed in `photos/events/manifest.json`.
 
-Speed: Core 1 has 309 occurrences, Core 3 has 657, and Full 7 has 1,326. The step takes well under a second.
+Speed: Core 1 has 323 occurrences, Core 3 has 675, and Full 7 has 1,349. The step takes well under a second.
 
 ## Check images
 

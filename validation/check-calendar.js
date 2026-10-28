@@ -16,7 +16,7 @@
 //
 
 // Checks configuration/calendar.json against the files it names and the event photo brief (docs/calendar.md):
-// unique keys and Guids, known calendars, audiences, contacts, and campuses, a brief section for every event,
+// unique keys and Guids, a Ministry by Design stage on every event (Staff events on the Internal calendar only), known calendars, audiences, contacts, and campuses, a brief section for every event,
 // and a photo manifest whose entries name real events and files. Run: node validation/check-calendar.js
 
 const fs = require( "fs" );
@@ -29,6 +29,7 @@ const problems = [];
 const calendar = read( "configuration/calendar.json" );
 const campuses = new Set( read( "configuration/campuses.json" ).campuses.map( c => c.key ) );
 const guidPattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
+const stages = new Set( [ "Belong", "Equip", "Contribute", "Lead", "Staff" ] );
 const kinds = new Set( [ "weekly", "monthly", "yearly", "date", "easter", "occasion", "class", "step-season", "seasons", "pinned" ] );
 
 const keys = new Set();
@@ -74,6 +75,14 @@ for ( const event of calendar.events ) {
         problems.push( `${name}: campuses must be "all", "church-wide", or a list` );
     }
 
+    if ( !stages.has( event.stage ) ) {
+        problems.push( `${name}: stage ${event.stage} is not Belong, Equip, Contribute, Lead, or Staff` );
+    }
+
+    if ( event.stage === "Staff" && event.calendars.includes( "public" ) ) {
+        problems.push( `${name}: a Staff event belongs on the Internal calendar only` );
+    }
+
     if ( !kinds.has( event.when?.kind ) ) {
         problems.push( `${name}: 'when' kind ${event.when?.kind} is not one the loader knows` );
     }
@@ -87,9 +96,24 @@ for ( const event of calendar.events ) {
     }
 }
 
-// Every event has a section in the photo brief, and every section is an event.
-const brief = fs.readFileSync( path.join( root, "photos/event-brief.md" ), "utf8" );
-const sections = [ ...brief.matchAll( /^### .+ \(`([a-z0-9-]+)`\)$/gm ) ].map( m => m[1] );
+// Every event has a section in the photo brief, under its stage's heading, and every section is an event.
+const brief = fs.readFileSync( path.join( root, "photos/event-brief.md" ), "utf8" ).replace( /\r\n/g, "\n" );
+const sections = [];
+let briefStage = null;
+for ( const line of brief.split( "\n" ) ) {
+    const stageHeading = line.match( /^### (\w+)$/ );
+    const eventHeading = line.match( /^#### .+ \(`([a-z0-9-]+)`\)$/ );
+    if ( stageHeading ) {
+        briefStage = stageHeading[1];
+    }
+    else if ( eventHeading ) {
+        sections.push( eventHeading[1] );
+        const event = calendar.events.find( e => e.key === eventHeading[1] );
+        if ( event && event.stage !== briefStage ) {
+            problems.push( `photos/event-brief.md lists ${event.key} under ${briefStage}, but its stage is ${event.stage}` );
+        }
+    }
+}
 for ( const key of [ ...keys ].filter( k => !sections.includes( k ) ) ) {
     problems.push( `photos/event-brief.md has no section for event ${key}` );
 }
