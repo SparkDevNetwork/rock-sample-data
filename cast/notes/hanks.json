@@ -1,0 +1,20 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "hanks",
+  "notes": [
+    {
+      "key": "sam-tech-volunteer",
+      "guid": "59E87351-2D83-4B4D-9CCA-1F417700D81C",
+      "about": "sam",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 1911
+      },
+      "time": "13:22",
+      "text": "Called Sam to see if he would be interested in volunteering on some development projects we're thinking about.",
+      "testPurpose": "A legacy note from Rock's original sample data. No one followed up, as his story says."
+    }
+  ]
+}

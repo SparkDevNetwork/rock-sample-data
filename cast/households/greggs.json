@@ -93,21 +93,7 @@
         "Baptized": "No",
         "Employer": "Mesa Ridge Electronics",
         "Position": "Financial Analyst"
-      },
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Lorraine's daughter, Jenny, went to be with the Lord on Sept 11. Remember to be sensitive to Lorraine on this day.",
-          "date": {
-            "yearsAgo": 12,
-            "month": 9,
-            "day": 12,
-            "time": "09:01"
-          },
-          "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
-          "isAlert": true
-        }
-      ]
+      }
     },
     {
       "key": "tim",
