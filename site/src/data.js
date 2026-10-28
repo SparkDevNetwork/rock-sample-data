@@ -199,12 +199,28 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
+    // The original full-group photos: download-only assets, never in a package (decision D-group-leaders-1).
+    const fullGroupManifest = "photos/groups-full-members/manifest.json";
+    const fullGroupPhotos = exists( fullGroupManifest )
+        ? readJson( fullGroupManifest ).images.map( p => {
+            const group = groups.find( g => g.key === p.group );
+            return {
+                key: p.group,
+                name: group ? group.name : p.group,
+                photo: path.basename( p.file ),
+                original: path.basename( p.original ),
+                photoPeople: p.people
+            };
+        } )
+        : [];
+
     return {
         root,
         households,
         people,
         groups,
         smallGroups,
+        fullGroupPhotos,
         opportunities,
         campuses,
         campusPhotos,

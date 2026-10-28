@@ -193,7 +193,7 @@ module.exports = function church( { model, r } ) {
 
 <section class="section" id="groups">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its actual members, made from their profile photos." } )}
+    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its leaders, made from their profile photos." } )}
     <div class="group-grid">
       ${model.smallGroups.filter( g => g.photo ).map( g => html`<article class="group reveal">
         ${zoomable( { src: r( "images/groups/" + g.photo ), alt: `${g.name}: ${g.photoPeople.join( ", " )}` } )}

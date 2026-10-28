@@ -1,6 +1,8 @@
 # Group photo completion handback
 
-Completed October 19, 2026. All 12 Cast small-group photos from the [group photo brief](group-brief.md) have been generated, reviewed, saved, and committed. This includes eight active groups, two inactive groups, and two archived groups, covering 129 member appearances. Some people appear in more than one group; no members were invented.
+> **Archived.** This page made the original full-group photos in this folder. Group photos now show each group's leader and spouse, from the [current group photo brief](../group-brief.md) (decision D-group-leaders-1). The member lists below were written by `photos/build-group-brief.js`, which is retired. Paths on this page are where the files lived then; they are now in this folder.
+
+Completed October 19, 2026. All 12 Cast small-group photos from the [group photo brief](brief.md) have been generated, reviewed, saved, and committed. This includes eight active groups, two inactive groups, and two archived groups, covering 129 member appearances. Some people appear in more than one group; no members were invented.
 
 The user reviewed Wright and Greggs first, approved the visual direction, and requested completion of the remaining ten. Each group has its own setting, with distinct architecture, furnishings, lighting, and views. Interiors follow Phoenix-area homes, and outdoor scenes include desert landscaping and local building materials.
 
