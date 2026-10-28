@@ -200,36 +200,73 @@ namespace RockSampleData.Loader.Database
             bulk.WriteToServer( rows );
             Timings.Add( new LoadTiming( LoadTimingKind.BulkCopy, table, Log.CurrentStep, timer.ElapsedMilliseconds, rows.Rows.Count ) );
 
-            if ( !_deferredRebuilds.Contains( table ) )
+            if ( !_deferredRebuilds.ContainsKey( table ) )
             {
                 RebuildDisabledIndexes( table );
             }
         }
+
+        /*
+            10/28/26 - CLAUDE
+
+            A deferral is counted, so deferrals nest. The Communications step defers the
+            email tables for the whole step, and each email writer inside it defers them too.
+            A writer's rebuild then only ends its own deferral, and the indexes are rebuilt
+            once, when the step ends its deferral. Before, each writer rebuilt them, and texts
+            and push rebuilt them after their own copies: 3 or 4 rebuilds of tables that
+            already held 1.3 to 1.9 million rows, about 118 of Full 7's 238 seconds.
+
+            Reason: Rebuild each large table's indexes once per step, not once per writer.
+        */
 
         /// <summary>
         /// Leaves a table's nonclustered indexes off after a large copy, so a later copy into the same table
-        /// does not rebuild them twice. Call <see cref="RebuildDeferredIndexes"/> before anything reads the table.
+        /// does not rebuild them again. Deferrals nest: each call needs a matching <see cref="RebuildDeferredIndexes"/>,
+        /// and the indexes are rebuilt when the last one ends. Rebuild before anything reads the table.
         /// </summary>
         public void DeferIndexRebuild( string table )
         {
-            _deferredRebuilds.Add( table );
+            _deferredRebuilds[table] = _deferredRebuilds.TryGetValue( table, out var count ) ? count + 1 : 1;
         }
 
         /// <summary>
-        /// Rebuilds the indexes of every table passed to <see cref="DeferIndexRebuild"/>.
+        /// Ends one deferral of each table, and rebuilds the indexes of each table that no deferral holds any more.
         /// </summary>
-        public void RebuildDeferredIndexes()
+        public void RebuildDeferredIndexes( params string[] tables )
         {
-            foreach ( var table in _deferredRebuilds )
+            foreach ( var table in tables )
             {
+                if ( !_deferredRebuilds.TryGetValue( table, out var count ) )
+                {
+                    continue;
+                }
+
+                if ( count > 1 )
+                {
+                    _deferredRebuilds[table] = count - 1;
+                    continue;
+                }
+
+                _deferredRebuilds.Remove( table );
                 RebuildDisabledIndexes( table );
             }
+        }
 
-            _deferredRebuilds.Clear();
+        /// <summary>
+        /// Throws when any table still has a deferred rebuild or indexes this load turned off, so a load never
+        /// commits a Rock database with disabled indexes.
+        /// </summary>
+        public void RequireIndexesRebuilt()
+        {
+            var tables = _deferredRebuilds.Keys.Concat( _disabledIndexes.Keys ).Distinct( StringComparer.OrdinalIgnoreCase ).ToList();
+            if ( tables.Count > 0 )
+            {
+                throw new InvalidOperationException( $"The load ended with indexes still off on {string.Join( ", ", tables )}." );
+            }
         }
 
         private readonly Dictionary<string, List<string>> _disabledIndexes = new Dictionary<string, List<string>>( StringComparer.OrdinalIgnoreCase );
-        private readonly HashSet<string> _deferredRebuilds = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+        private readonly Dictionary<string, int> _deferredRebuilds = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase );
 
         /*
             10/15/26 - CLAUDE
