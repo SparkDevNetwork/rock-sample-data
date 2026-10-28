@@ -10,6 +10,14 @@
       "campus": null
     },
     {
+      "key": "greg",
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "title": "Executive Pastor",
+      "department": "executive",
+      "campus": null
+    },
+    {
       "key": "ted",
       "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
       "name": "Ted Decker",
@@ -34,11 +42,67 @@
       "campus": null
     },
     {
+      "key": "priya",
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "title": "Finance Director",
+      "department": "administration",
+      "campus": null
+    },
+    {
+      "key": "ray",
+      "person": "201B7E08-7C29-4472-931F-047B4A310347",
+      "name": "Ray Delgado",
+      "title": "Facilities Director",
+      "department": "administration",
+      "campus": null
+    },
+    {
+      "key": "naomi",
+      "person": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
+      "name": "Naomi Castillo",
+      "title": "Worship Pastor",
+      "department": "worship",
+      "campus": null
+    },
+    {
+      "key": "kelsey",
+      "person": "2D46542F-54ED-4511-AD8F-A4F7E887A11B",
+      "name": "Kelsey Morrow",
+      "title": "Production Director",
+      "department": "worship",
+      "campus": null
+    },
+    {
+      "key": "rachel",
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "title": "Kids Director",
+      "department": "kids",
+      "campus": null
+    },
+    {
       "key": "isaac",
       "person": "581C940E-A788-4F32-BCF3-33F4D1948390",
       "name": "Isaac Silva",
       "title": "Student Pastor",
       "department": "students",
+      "campus": null
+    },
+    {
+      "key": "jamal",
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "title": "Groups Pastor",
+      "department": "connections",
+      "campus": null
+    },
+    {
+      "key": "dee",
+      "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "name": "Dee Navarro",
+      "title": "Care Pastor",
+      "department": "connections",
       "campus": null
     },
     {

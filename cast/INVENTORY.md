@@ -134,6 +134,22 @@ Seven households were added so every campus has a named campus pastor who is alw
 
 The Cast is now 94 households and 206 people. Their profile photos are still to be made.
 
+## Central staff (2026-10-28)
+
+Seven households were added so the church has 20 named staff (decision D-staff-3). All live near Phoenix and load in every dataset. Rachel Brooks, already in the Cast, joined staff as the Kids Director.
+
+| Household | Members (child age) | Main test purpose |
+|---|---|---|
+| [holloway](households/holloway.json) | Greg (Executive Pastor), Lisa | Executive Pastor: the campus pastors and most directors report to him. |
+| [castillo](households/castillo.json) | Naomi (Worship Pastor) | Worship Pastor, single and living alone. |
+| [pierce](households/pierce.json) | Jamal (Groups Pastor), Renee, Micah 9 | Groups Pastor with Rock's connection administration role. |
+| [navarro](households/navarro.json) | Dee (Care Pastor), Hector | Care Pastor with prayer administration and benevolence. Dolores goes by Dee. |
+| [raman](households/raman.json) | Priya (Finance Director), Sunil, Anika 15 | Finance Director with Rock's finance administration role. |
+| [delgado](households/delgado.json) | Ray (Facilities Director), Carmen | Facilities Director with Rock's safety and security role. |
+| [morrow](households/morrow.json) | Kelsey (Production Director), Evan | Production Director who oversees every campus's production team. |
+
+The Cast is now 101 households and 221 people. The 36 new people's profile photos are still to be made.
+
 ## Issues to fix during Cast review
 
 Each household file lists its own `reviewNotes`. The main themes:

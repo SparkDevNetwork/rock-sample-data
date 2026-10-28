@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 94 hand-designed households and 206 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
+The Cast is 101 hand-designed households and 221 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -13,8 +13,10 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/alvarez-marco.jpg" width="56" alt="Marco Alvarez"> | [Alvarez Family](alvarez.md) | Marco, Elena, Sofia, Mateo | Newborn in the nursery and a preschooler, so two check-in areas for one family. |
 | <img src="../../photos/cast/brooks-nathan.jpg" width="56" alt="Nathan Brooks"> | [Brooks Family](brooks.md) | Nathan, Rachel, Ava, Caleb, Lily | Three kids across the student and elementary check-in areas. |
 | <img src="../../photos/cast/carter-margaret.jpg" width="56" alt="Peggy Carter"> | [Carter Family](carter.md) | Peggy | Widow living alone, age 78. |
+| (photo coming) | [Castillo Family](castillo.md) | Naomi | Worship Pastor who oversees worship at every campus. |
 | <img src="../../photos/cast/coffee-phil.jpg" width="56" alt="Phil Coffee"> | [Coffee](coffee.md) | Phil | Invited-by-a-friend journey from first visit to baptism. |
 | <img src="../../photos/cast/decker-ted.jpg" width="56" alt="Ted Decker"> | [Decker Family](decker.md) | Ted, Cindy, Noah, Alex | Primary demo family used in documentation and screenshots. |
+| (photo coming) | [Delgado Family](delgado.md) | Ray, Carmen | Facilities Director with Rock's safety and security role. |
 | <img src="../../photos/cast/dexter-frank.jpg" width="56" alt="Frank Dexter"> | [Dexter Family](dexter.md) | Frank | Failed background check that needs review. |
 | <img src="../../photos/cast/foster-pete.jpg" width="56" alt="Pete Foster"> | [Foster Family](foster.md) | Pete, Pamela | Senior pastor with pastoral and staff security roles. |
 | <img src="../../photos/cast/garcia-daniel.jpg" width="56" alt="Daniel Garcia"> | [Garcia Family](garcia.md) | Daniel, Maria, Olivia, Bella, Leo | Twins with the same birthday. |
@@ -24,6 +26,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/hanks-sam.jpg" width="56" alt="Sam Hanks"> | [Hanks Family](hanks.md) | Sam | Engaged non-staff adult who could be recruited to serve. |
 | (photo coming) | [Hargrove Family](hargrove.md) | Walt, June | Named campus pastor at Scottsdale, loaded only in Full 7. |
 | (photo coming) | [Haywood Family](haywood.md) | Andre, Keisha, Isaiah | Named campus pastor at Peoria, loaded only in datasets with the Peoria campus. |
+| (photo coming) | [Holloway Family](holloway.md) | Greg, Lisa | Executive Pastor: the campus pastors and most directors report to him. |
 | (photo coming) | [Ibarra Family](ibarra.md) | Rafael, Elisa, Nico | Named campus pastor at Goodyear, loaded only in Full 7. |
 | <img src="../../photos/cast/jackson-mariah.jpg" width="56" alt="Mariah Jackson"> | [Jackson Family](jackson.md) | Mariah, Maddie | Single parent whose child has a different last name. |
 | <img src="../../photos/cast/jones-ben-ben.jpg" width="56" alt="Ben Jones"> | [Jones Family](jones-ben.md) | Ben, Brian | Divorced parent with joint custody; the child belongs to two families. |
@@ -35,8 +38,12 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | (no photo, on purpose) | [Miller Family](miller-thomas.md) | Thomas | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | <img src="../../photos/cast/miller-tom-tom.jpg" width="56" alt="Tom Miller"> | [Miller Family](miller-tom.md) | Tom | Original half of a duplicate pair for merge testing. |
 | (photo coming) | [Mitchell Family](mitchell.md) | Aaron, Beth, Jonah, Clara | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
+| (photo coming) | [Morrow Family](morrow.md) | Kelsey, Evan | Production Director who oversees every campus's production team. |
+| (photo coming) | [Navarro Family](navarro.md) | Dee, Hector | Care Pastor with the prayer administration and benevolence roles. |
 | <img src="../../photos/cast/peak-daniel.jpg" width="56" alt="Daniel Peak"> | [Peak Family](peak.md) | Daniel | Staff member with website and communication administrator roles. |
 | <img src="../../photos/cast/peterson-brian.jpg" width="56" alt="Brian Peterson"> | [Peterson Family](peterson.md) | Brian, Becky | Married couple where one spouse has no email. |
+| (photo coming) | [Pierce Family](pierce.md) | Jamal, Renee, Micah | Groups Pastor with Rock's connection administration role. |
+| (photo coming) | [Raman Family](raman.md) | Priya, Sunil, Anika | Finance Director with Rock's finance administration role. |
 | <img src="../../photos/cast/ramirez-carlos.jpg" width="56" alt="Carlos Ramirez"> | [Ramirez Family](ramirez.md) | Carlos, Ana, Lucas, Mia | First-time guests: first visit two weeks ago. |
 | <img src="../../photos/cast/richards-dan.jpg" width="56" alt="Dan Richards"> | [Richards](richards.md) | Dan | Single Prospect who is already in a small group. |
 | <img src="../../photos/cast/silva-isaac.jpg" width="56" alt="Isaac Silva"> | [Silva Family](silva.md) | Isaac, Natalie | Every gift goes to two funds. |
@@ -59,6 +66,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Bennett Family](bennett.md) | new | 3 | Connected | Middle school student whose attendance drops in spring. |
 | [Brooks Family](brooks.md) | new | 5 | Engaged, Leading | Three kids across the student and elementary check-in areas. |
 | [Carter Family](carter.md) | new | 1 | Engaged | Widow living alone, age 78. |
+| [Castillo Family](castillo.md) | new | 1 | Engaged | Worship Pastor who oversees worship at every campus. |
 | [Cholla Creek Hardware](cholla-creek-hardware.md) | legacy | 1 | Prospect | Business record. |
 | [Coffee](coffee.md) | legacy | 1 | Engaged | Invited-by-a-friend journey from first visit to baptism. |
 | [Coleman Family](coleman.md) | new | 4 | Connected | Two working parents, two check-in rooms. |
@@ -66,6 +74,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Cruz Family](cruz.md) | new | 4 | Participant | Participants through an event registration (VBS). |
 | [Dawson Family](dawson.md) | new | 3 | Connected | Single dad with every-other-weekend attendance. |
 | [Decker Family](decker.md) | legacy | 4 | Leading, Engaged, Connected | Primary demo family used in documentation and screenshots. |
+| [Delgado Family](delgado.md) | new | 2 | Engaged | Facilities Director with Rock's safety and security role. |
 | [Desert Bloom Landscaping](desert-bloom-landscaping.md) | new | 1 | Prospect | Business with two contacts, a married couple who own it together. |
 | [Dexter Family](dexter.md) | legacy | 1 | Engaged | Failed background check that needs review. |
 | [Diaz Family](diaz.md) | new | 2 | Known | Holiday-only attenders. |
@@ -87,6 +96,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Hayes Family](hayes.md) | new | 2 | Engaged | Senior couple with a long anniversary. |
 | [Haywood Family](haywood.md) | new | 3 | Engaged | Named campus pastor at Peoria, loaded only in datasets with the Peoria campus. |
 | [Hernandez Family](hernandez.md) | new | 1 | Engaged | Young single volunteer on the Phoenix Worship Team. |
+| [Holloway Family](holloway.md) | new | 2 | Engaged | Executive Pastor: the campus pastors and most directors report to him. |
 | [Hughes Family](hughes.md) | new | 5 | Engaged | Three kids in three check-in rooms, from nursery to kindergarten. |
 | [Ibarra Family](ibarra.md) | new | 3 | Engaged | Named campus pastor at Goodyear, loaded only in Full 7. |
 | [Jackson Family](jackson.md) | legacy | 2 | Engaged | Single parent whose child has a different last name. |
@@ -106,14 +116,18 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |
 | [Mitchell Family](mitchell.md) | new | 4 | Engaged | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
 | [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
+| [Morrow Family](morrow.md) | new | 2 | Engaged | Production Director who oversees every campus's production team. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
+| [Navarro Family](navarro.md) | new | 2 | Engaged | Care Pastor with the prayer administration and benevolence roles. |
 | [Nguyen Family](nguyen.md) | new | 1 | Leading | Single adult who gives weekly online by card. |
 | [Ortiz Family](ortiz.md) | new | 3 | Connected | Lapsed family: attendance and giving stopped about six months ago. |
 | [Patel Family](patel.md) | new | 2 | Engaged | Gives every week but seldom attends in person. |
 | [Peak Family](peak.md) | legacy | 1 | Engaged | Staff member with website and communication administrator roles. |
 | [Perry Family](perry.md) | new | 1 | Known | Married man attending without his spouse (spouse not in the database). |
 | [Peterson Family](peterson.md) | legacy | 2 | Connected | Married couple where one spouse has no email. |
+| [Pierce Family](pierce.md) | new | 3 | Engaged | Groups Pastor with Rock's connection administration role. |
 | [Price Family](price.md) | new | 2 | Engaged | Top 1% giver with large quarterly gifts. |
+| [Raman Family](raman.md) | new | 3 | Engaged | Finance Director with Rock's finance administration role. |
 | [Ramirez Family](ramirez.md) | new | 4 | Prospect | First-time guests: first visit two weeks ago. |
 | [Ramos Family](ramos.md) | new | 1 | Known | Group-first connection (Phase 1). |
 | [Richards](richards.md) | legacy | 1 | Prospect | Single Prospect who is already in a small group. |

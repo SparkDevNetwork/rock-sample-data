@@ -1,0 +1,125 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "delgado",
+  "guid": "4991AC0A-752E-4BFD-AC2B-CA0E5B9A797D",
+  "name": "Delgado Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Ray Delgado is the Facilities Director. He keeps seven sites running, from rooms and repairs to the safety team. He and Carmen raised three children at the church.",
+  "testPurposes": [
+    "Facilities Director with Rock's safety and security role.",
+    "Long-time attenders on staff."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10296 N 40th Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85051",
+    "latitude": 33.58016,
+    "longitude": -112.146433
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 93,
+    "started": {
+      "yearsAgo": 14,
+      "month": 6,
+      "day": 9
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "ray",
+      "funds": {
+        "General Fund": 80
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 14,
+        "month": 6,
+        "day": 16
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "ray",
+      "guid": "201B7E08-7C29-4472-931F-047B4A310347",
+      "firstName": "Raymond",
+      "nickName": "Ray",
+      "lastName": "Delgado",
+      "bio": "Ray is the Facilities Director. He joined staff ten years ago after a career in building maintenance, and he looks after every campus's buildings, rooms, and safety team.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 58,
+        "month": 5,
+        "day": 2
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 34,
+        "month": 6,
+        "day": 23
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "ray@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550193"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Facilities Director"
+      },
+      "logins": [
+        "rdelgado"
+      ],
+      "securityRoles": [
+        "Safety & Security Workers",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "carmen",
+      "guid": "601DC9DE-C9F1-4DDC-8126-88EDB4BDDC23",
+      "firstName": "Carmen",
+      "lastName": "Delgado",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 56,
+        "month": 11,
+        "day": 17
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 34,
+        "month": 6,
+        "day": 23
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "carmen.delgado@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550192"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Ocotillo Market",
+        "Position": "Store Manager"
+      }
+    }
+  ]
+}

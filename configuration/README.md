@@ -23,7 +23,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
 | `logins.json` | Who among generated adults has a Rock Database login: each reason and its designed chance, the inactive and older-adult shares, and the unconfirmed share (decision 179). The Cast's logins are in their own files. Logins load only when the person installing gives a password. See [How logins load](../loader/README.md#how-logins-load). |
 | `calendar.json` | The church's calendar: its events on Rock's Public and Internal calendars, with audiences, campuses, places, contacts, and the rule for each event's dates. See [Calendar](../docs/calendar.md). |
-| `staff.json` | The church staff, every one a Cast person, with their title, department, and campus, and the named campus pastor of every campus (decision D-staff-1). Notes, the calendar, first-visit welcomes, and campus texting numbers read the campus pastors from it. |
+| `staff.json` | The church's 20 staff, every one a Cast person, with their title, department, and campus, and the named campus pastor of every campus (decision D-staff-1). Notes, the calendar, first-visit welcomes, and campus texting numbers read the campus pastors from it. |
 | `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
 | `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
 | `group-syncs.json` | The church's data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
@@ -86,7 +86,7 @@ People have six note types (decision 78). Three are Rock's own, updated in place
 
 "Staff" means Rock's Staff Workers and Staff Like Workers roles, plus Rock Administration. Everyone else is denied, so notes never show to someone who is not staff.
 
-Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, and Aaron Mitchell, the Phoenix campus pastor, write the main campus's notes. Every other campus's notes come from its named campus pastor in `staff.json` (decision D-staff-1). Campus pastors are in RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
+Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, Dee Navarro (the Care Pastor, who writes most Counseling notes), Jamal Pierce, and Aaron Mitchell, the Phoenix campus pastor, write the main campus's notes. Every other campus's notes come from its named campus pastor in `staff.json` (decision D-staff-1). Campus pastors are in RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
 
 ## Check-in
 

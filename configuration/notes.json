@@ -10,10 +10,12 @@
   "staff": [
     { "key": "pete", "name": "Pete Foster", "guid": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "role": "Senior Pastor" },
     { "key": "ted", "name": "Ted Decker", "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "role": "Outreach Pastor" },
-    { "key": "alisha", "name": "Alisha Marble", "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "role": "Assistant" },
+    { "key": "alisha", "name": "Alisha Marble", "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "role": "Executive Assistant" },
     { "key": "daniel", "name": "Daniel Peak", "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "role": "Director of Communications" },
     { "key": "isaac", "name": "Isaac Silva", "guid": "581C940E-A788-4F32-BCF3-33F4D1948390", "role": "Student Pastor" },
-    { "key": "aaron", "name": "Aaron Mitchell", "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B", "role": "Phoenix Campus Pastor" }
+    { "key": "aaron", "name": "Aaron Mitchell", "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B", "role": "Phoenix Campus Pastor" },
+    { "key": "dee", "name": "Dee Navarro", "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "role": "Care Pastor" },
+    { "key": "jamal", "name": "Jamal Pierce", "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2", "role": "Groups Pastor" }
   ],
   "campusPastor": {
     "$comment": "Each campus has one named campus pastor in configuration/staff.json. The Phoenix campus pastor writes main campus notes as one of each type's authors. On every other campus, the campus pastor writes that campus's notes, and joins the 'roles' (keys of staffRoles) so they can view them, including Counseling. Alisha still writes its phone notes and safety alerts, because the church office takes calls for every campus.",
@@ -32,7 +34,7 @@
       "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "weights": { "guest": 25, "attender": 30, "child": 55 },
-      "authors": { "pete": 20, "ted": 25, "alisha": 25, "daniel": 10, "aaron": 20 }
+      "authors": { "pete": 15, "ted": 20, "alisha": 25, "daniel": 10, "aaron": 20, "jamal": 10 }
     },
     {
       "key": "pastoral",
@@ -44,7 +46,7 @@
       "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "weights": { "guest": 5, "attender": 30 },
-      "authors": { "pete": 35, "ted": 25, "aaron": 40 }
+      "authors": { "dee": 40, "aaron": 30, "pete": 20, "ted": 10 }
     },
     {
       "key": "followUp",
@@ -56,7 +58,7 @@
       "viewers": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "editors": [ "staffWorkers", "staffLikeWorkers", "rockAdministration" ],
       "weights": { "guest": 45, "attender": 15, "child": 25 },
-      "authors": { "ted": 45, "aaron": 30, "alisha": 15, "pete": 10 }
+      "authors": { "ted": 35, "aaron": 25, "jamal": 20, "alisha": 10, "pete": 10 }
     },
     {
       "key": "phone",
@@ -81,7 +83,7 @@
       "viewers": [ "pastoralWorkers", "rockAdministration" ],
       "editors": [ "pastoralWorkers", "rockAdministration" ],
       "weights": { "attender": 6 },
-      "authors": { "pete": 50, "aaron": 30, "ted": 20 }
+      "authors": { "dee": 50, "pete": 25, "aaron": 15, "ted": 10 }
     },
     {
       "key": "safetyAlert",

@@ -1,0 +1,144 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "raman",
+  "guid": "98A502C0-4B6B-41AF-8AE8-FBFA94C623E8",
+  "name": "Raman Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Priya Raman is the Finance Director. She runs payroll, deposits, giving statements, and the Built on the Rock campaign's books. Sunil is an engineer, and their daughter Anika checks in to the student service.",
+  "testPurposes": [
+    "Finance Director with Rock's finance administration role.",
+    "Staff family with a high school student."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11694 N 48th Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85304",
+    "latitude": 33.592683,
+    "longitude": -112.162158
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 89,
+    "started": {
+      "yearsAgo": 7,
+      "month": 5,
+      "day": 4
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "priya",
+      "funds": {
+        "General Fund": 500
+      },
+      "percentOfPeriodsGiven": 99,
+      "started": {
+        "yearsAgo": 7,
+        "month": 5,
+        "day": 1
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "priya",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "firstName": "Priya",
+      "lastName": "Raman",
+      "bio": "Priya is the Finance Director. She joined staff seven years ago and runs payroll, deposits, giving statements, and the building campaign's books.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 1,
+        "day": 28
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 12,
+        "day": 15
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "priya@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550190"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Finance Director"
+      },
+      "logins": [
+        "praman"
+      ],
+      "securityRoles": [
+        "Finance Administrators",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "sunil",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "firstName": "Sunil",
+      "lastName": "Raman",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 48,
+        "month": 8,
+        "day": 21
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 12,
+        "day": 15
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "sunil.raman@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550189"
+      },
+      "photo": {
+        "ethnicity": "south-asian"
+      },
+      "attributes": {
+        "Employer": "Mesa Ridge Electronics",
+        "Position": "Electrical Engineer"
+      }
+    },
+    {
+      "key": "anika",
+      "guid": "36C184F9-ECFF-4060-ADF3-18B664BF533C",
+      "firstName": "Anika",
+      "lastName": "Raman",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 15,
+        "month": 4,
+        "day": 14
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "anika.raman@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550187"
+      }
+    }
+  ]
+}

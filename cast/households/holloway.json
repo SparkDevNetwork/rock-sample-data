@@ -1,0 +1,127 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "holloway",
+  "guid": "A9E45A02-11CA-4FFF-8B0B-D31C13A24058",
+  "name": "Holloway Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Greg Holloway is the Executive Pastor. He runs the staff, the budget, and the seven campuses, so Pete can preach and lead. He and Lisa have two grown sons who live out of state.",
+  "testPurposes": [
+    "Executive Pastor: the campus pastors and most directors report to him.",
+    "Staff member with finance and pastoral roles.",
+    "Empty-nest couple."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "10253 N 52nd Dr",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85302",
+    "latitude": 33.579327,
+    "longitude": -112.172198
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 92,
+    "started": {
+      "yearsAgo": 6,
+      "month": 3,
+      "day": 1
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "greg",
+      "funds": {
+        "General Fund": 225
+      },
+      "percentOfPeriodsGiven": 97,
+      "started": {
+        "yearsAgo": 6,
+        "month": 3,
+        "day": 8
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "greg",
+      "guid": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "firstName": "Gregory",
+      "nickName": "Greg",
+      "lastName": "Holloway",
+      "bio": "Greg is the Executive Pastor. He came on staff six years ago from a business career and leads the staff, the budget, and the campus pastors.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 55,
+        "month": 11,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 30,
+        "month": 8,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "greg@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550192"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Executive Pastor"
+      },
+      "logins": [
+        "gholloway"
+      ],
+      "securityRoles": [
+        "Finance Users",
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "lisa",
+      "guid": "AB789D5A-01BD-499C-BEB8-B6C5465088A2",
+      "firstName": "Lisa",
+      "lastName": "Holloway",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 53,
+        "month": 2,
+        "day": 12
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 30,
+        "month": 8,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "lisa.holloway@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550191"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Valley Water District",
+        "Position": "Program Manager"
+      }
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "pierce",
+  "guid": "28056C4E-3D01-43AF-BD02-C9D7221369DE",
+  "name": "Pierce Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Jamal Pierce is the Groups Pastor, who helps every campus start and lead small groups. Renee is a nurse, and their son Micah is in the elementary rooms.",
+  "testPurposes": [
+    "Groups Pastor with Rock's connection administration role.",
+    "Mixed couple with one child."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1075 E Acoma Dr",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85022",
+    "latitude": 33.618021,
+    "longitude": -112.059004
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 90,
+    "started": {
+      "yearsAgo": 5,
+      "month": 9,
+      "day": 15
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "jamal",
+      "funds": {
+        "General Fund": 70
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 22
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "jamal",
+      "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "firstName": "Jamal",
+      "lastName": "Pierce",
+      "bio": "Jamal is the Groups Pastor. He joined staff five years ago and helps every campus start, fill, and lead small groups.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 42,
+        "month": 9,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 13,
+        "month": 4,
+        "day": 27
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "jamal@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550196"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Groups Pastor"
+      },
+      "logins": [
+        "jpierce"
+      ],
+      "securityRoles": [
+        "Connection Administrators",
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "renee",
+      "guid": "E4098D5B-4D01-476A-A951-37FD8E7E901B",
+      "firstName": "Renee",
+      "lastName": "Pierce",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 40,
+        "month": 3,
+        "day": 30
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 13,
+        "month": 4,
+        "day": 27
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "renee.pierce@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550194"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Ocotillo Market",
+        "Position": "Pharmacist"
+      }
+    },
+    {
+      "key": "micah",
+      "guid": "5F7CDC78-5070-4D3B-9A6A-645C15DCCB52",
+      "firstName": "Micah",
+      "lastName": "Pierce",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 12,
+        "day": 6
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}
