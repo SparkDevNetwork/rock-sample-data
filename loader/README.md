@@ -181,7 +181,7 @@ This is the index that is signed. The file itself wraps it, as the next section 
       "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
       "size": 15086598,
       "rockMajor": 21,
-      "minimumLoaderVersion": "0.1.0-alpha.13",
+      "minimumLoaderVersion": "0.1.0-alpha.14",
       "rockVersion": "21.0.2",
       "rockMigration": "202610141827486_CodeGenerated_20261014"
     }
