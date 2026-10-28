@@ -50,6 +50,19 @@
       },
       "time": "10:20",
       "text": "Peggy called to make sure her monthly check arrived, since the mail has been slow. It came in on Tuesday and is recorded. She asked us to say hello to Pastor Pete."
+    },
+    {
+      "key": "margaret-anniversary-call",
+      "guid": "4FFC8C3A-ED02-48E4-A8F8-19E0F99BC10B",
+      "about": "margaret",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 1286
+      },
+      "time": "10:15",
+      "text": "Peggy's husband, Walter, passed away this spring. She appreciates a call around the anniversary.",
+      "testPurpose": "A legacy note from Rock's original sample data that her bio refers to."
     }
   ]
 }

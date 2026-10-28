@@ -1,0 +1,21 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "greggs-jenny",
+  "notes": [
+    {
+      "key": "jenny-passed",
+      "guid": "BCA9A654-20D4-4497-8A19-8FA8D00E5C1E",
+      "about": "jenny",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 4428
+      },
+      "time": "09:02",
+      "text": "Jenny went to be with the Lord yesterday. She was three years old.",
+      "isAlert": true,
+      "testPurpose": "A legacy alert note on a deceased child, from Rock's original sample data."
+    }
+  ]
+}

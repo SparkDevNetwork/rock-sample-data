@@ -1,0 +1,31 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "silva",
+  "notes": [
+    {
+      "key": "natalie-volunteer-coffee",
+      "guid": "CF07B95A-9441-4A00-AEE9-768D3A7701F8",
+      "about": "natalie",
+      "type": "personal",
+      "author": "daniel",
+      "written": {
+        "daysAgo": 150
+      },
+      "time": "11:30",
+      "text": "Natalie offered coffee from her shop for the volunteer appreciation night. {@alisha} has the order details.",
+      "testPurpose": "A Personal Note with a mention and a reply.",
+      "replies": [
+        {
+          "guid": "73503BB8-2156-452C-9551-BD9B663F5F1A",
+          "author": "alisha",
+          "written": {
+            "daysAgo": 149
+          },
+          "time": "09:40",
+          "text": "Got it. Three carafes and cups for eighty, ready by 5:30."
+        }
+      ]
+    }
+  ]
+}

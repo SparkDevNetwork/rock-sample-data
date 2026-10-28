@@ -88,18 +88,7 @@
       },
       "photo": {
         "ethnicity": "white"
-      },
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Peggy's husband, Walter, passed away three years ago this spring. She appreciates a call around the anniversary.",
-          "date": {
-            "yearsAgo": 3,
-            "month": 4,
-            "day": 20
-          }
-        }
-      ]
+      }
     }
   ]
 }

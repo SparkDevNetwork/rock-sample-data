@@ -30,6 +30,19 @@
       "text": "Meeting with Frank on Thursday to go over the background review. I want to hear his side before the staff conversation.",
       "isPrivate": true,
       "testPurpose": "A private note from the senior pastor."
+    },
+    {
+      "key": "frank-serving-review",
+      "guid": "265B9CC0-B9FC-41CD-A3E4-7ED4DCE630A9",
+      "about": "frank",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 3099
+      },
+      "time": "18:03",
+      "text": "Talked to Frank about his misdemeanor to determine if he can serve.",
+      "testPurpose": "A legacy note from Rock's original sample data, before his background check."
     }
   ]
 }

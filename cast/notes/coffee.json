@@ -1,0 +1,34 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "coffee",
+  "notes": [
+    {
+      "key": "phil-baptism-interest",
+      "guid": "E77EB0C6-9380-4F91-B01C-D568D677A444",
+      "about": "phil",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 3466
+      },
+      "time": "15:40",
+      "text": "Phil is interested in learning about baptism.",
+      "isAlert": true,
+      "testPurpose": "A legacy alert note from Rock's original sample data, months before his baptism."
+    },
+    {
+      "key": "phil-friend-allie",
+      "guid": "7A5A9C7A-4A5E-43DE-A52A-CF4B06E2452F",
+      "about": "phil",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 3463
+      },
+      "time": "09:20",
+      "text": "Phil is good friends with Allie Song, his neighbor who invited him at Easter.",
+      "testPurpose": "A legacy note from Rock's original sample data."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "peak",
+  "notes": [
+    {
+      "key": "daniel-job-call",
+      "guid": "CCCF2F9E-D4A1-4893-9C24-9B9B2C3908B3",
+      "about": "daniel",
+      "type": "personal",
+      "author": "ted",
+      "written": {
+        "daysAgo": 4192
+      },
+      "time": "14:03",
+      "text": "Called Daniel to see if he would be interested in joining our team as the Director of Communications.",
+      "testPurpose": "A legacy note from Rock's original sample data, before he joined staff."
+    }
+  ]
+}
