@@ -41,6 +41,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - Full 7 has its Crowd (decision 136). Its manifest lists 16,800 generated households across all seven campuses, so a load has 25,248 people in 16,967 households, where it had only the Cast's 185 people before. It loads in about 55 seconds with check images, and the package stays 14.6 MB, because the Crowd is generated at install time.
 - Attendance per person for students (decisions 146 to 148). An engaged student comes to the student service on some Sundays their family stays home (High School more than Jr High), and some keep coming for a while after their family stops. Generated adults aged 18 to 20 check in as students until they graduate, then attend as adults, and some come home from college only at Christmas, Easter, and summer. Every adult's and young kid's attendance, and every gift, is exactly what it was before. A load of main and of the branch with the same seed and anchor match row for row. Full 7 has 1,881 students, about 440 more than before, and three new invariants guard the rules.
 - Generated adult ages match the profile (decisions 166 and 167). Adults without children take what is left of each adult band after the parents, so many more are 18 to 24, and single adults make up the share of women that couples cannot. Every adult age band and every share of women by age now passes in Full 7.
+- Logins (decisions D-logins-1 to D-logins-4; see [How logins load](../loader/README.md#how-logins-load)). When the person installing gives a password, the Cast's logins load from their files: the ten legacy ones (Alisha Marble keeps only Rock's own `admin`), every Cast person with a security role, 39 more whose stories suggest an account, and any Cast adult with the church app. Every campus pastor has one, and generated adults get one with the chance of their strongest reason in `configuration/logins.json`. Usernames follow Rock's own rule, such as `tdecker`. Every login uses the one password, hashed by Rock's own Database login (BCrypt), and no password or hash is in a package. Each login has Rock's person history, and every load sets each person's account protection profile the way Rock does. Core 1 has 64 logins, Core 3 131, and Full 7 5,271, 31% of its adults. Verify signs in through Rock's own Database login on every dataset. It ships in `v0.1.0-alpha.15`, after the first signed index; Rock's installer block then adds a password field.
 
 ## In progress
 
@@ -73,9 +74,8 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 ### People
 
-1. **Logins for Cast staff.** The Cast files list logins, but the loader does not load them yet, so no one can sign in as a Cast staff member. Direction from 2026-10-27: like the old Sample Data block, the person installing chooses the password on the install form, and Rock hashes it the way its Database login does (BCrypt). No password ships in a package, so demo sites never share a published admin password. Logins wait on **the first signed index** (see In progress): once a package can create logins, Rock must be able to prove the package is Spark's. Planned for `v0.1.0-alpha.15`.
-2. **Cast group membership that disagrees with stories.** The Ortizes are active members of the Greggs group, though their story says they stopped coming six months ago, and the Ellises are in groups older than their first visit.
-3. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
+1. **Cast group membership that disagrees with stories.** The Ortizes are active members of the Greggs group, though their story says they stopped coming six months ago, and the Ellises are in groups older than their first visit.
+2. **The Cast's other known relationships.** Some Cast people list `can-check-in` and `allow-check-in-by` relationships. Only `business` loads so far.
 
 ### Serving
 

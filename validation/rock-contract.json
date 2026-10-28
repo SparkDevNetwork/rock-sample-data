@@ -3045,6 +3045,7 @@
     },
     "Person": {
       "written": [
+        "AccountProtectionProfile",
         "Age",
         "AgeBracket",
         "AgeClassification",
@@ -3891,6 +3892,54 @@
         "SmsReceivedWorkflowTypeId": "int null",
         "SuppressSmsOptInOutAutoReplies": "bit not null"
       }
+    },
+    "UserLogin": {
+      "written": [
+        "CreatedDateTime",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "Id",
+        "IsConfirmed",
+        "IsLockedOut",
+        "IsPasswordChangeRequired",
+        "LastActivityDateTime",
+        "LastLoginDateTime",
+        "LastPasswordChangedDateTime",
+        "ModifiedDateTime",
+        "Password",
+        "PersonId",
+        "UserName"
+      ],
+      "rockColumns": {
+        "ApiKey": "nvarchar(50) null",
+        "ApiKeyPurpose": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(250) null",
+        "EntityTypeId": "int not null",
+        "FailedPasswordAttemptCount": "int null",
+        "FailedPasswordAttemptWindowStartDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsConfirmed": "bit null",
+        "IsLockedOut": "bit null",
+        "IsOnLine": "bit null",
+        "IsPasswordChangeRequired": "bit null",
+        "LastActivityDateTime": "datetime null",
+        "LastLockedOutDateTime": "datetime null",
+        "LastLoginDateTime": "datetime null",
+        "LastPasswordChangedDateTime": "datetime null",
+        "LastPasswordExpirationWarningDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Password": "nvarchar(128) null",
+        "PersonId": "int null",
+        "UserName": "nvarchar(255) not null"
+      }
     }
   },
   "deletes": [
@@ -3950,6 +3999,7 @@
     ],
     "Category": [
       "0082F3FE-0FF3-4A90-B874-260BCEAED75E",
+      "0836845E-5ED8-4ABE-8787-3B61EF2F0FA5",
       "3465AF21-0F66-465E-97F8-DBC18792986B",
       "3CB239E5-101B-4190-85C9-74C7EDBF2A06",
       "4B2D88F5-6E45-4B4B-8776-11118C8E8269",
@@ -4054,6 +4104,7 @@
       "337EED57-D4AB-4EED-BBDB-0CB3A467DBCC",
       "3638C6DF-4FF3-4A52-B4B8-AFB754991597",
       "4BC02764-512A-4A10-ACDE-586F71D8A8BD",
+      "4E9B798F-BB68-4C0E-9707-0928D15AB020",
       "5A653EBE-6803-44B4-85D2-FB7B8146D55D",
       "72657ED8-D16E-492E-AC12-144C5E7567E7",
       "90F5E87B-F0D5-4617-8AE9-EB57E673F36F",
@@ -4109,6 +4160,7 @@
       "790E3215-3B10-442B-AF69-616C0DCB998E",
       "7A17235B-69AD-439B-BAB0-1A0A472DB96F",
       "9A88743B-F336-4404-B877-2A623689195D",
+      "AECE949F-704C-483E-A4FB-93D5E4720C4C",
       "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8",
       "D1D95777-FFA3-CBB3-4A6D-658706DAED33",
       "E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF",
