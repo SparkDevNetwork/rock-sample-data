@@ -214,7 +214,7 @@ ${model.communicationLists.length ? html`<section class="section" id="lists">
       ${model.communicationLists.map( l => html`<div class="card reveal">
         <h3>${esc( l.campus ? l.publicName.replace( "{campus} ", "" ) : l.publicName )}</h3>
         <p>${esc( l.description )}</p>
-        <span class="tags"><span class="tag">${l.isPublic ? "Anyone can join" : "Staff-managed"}</span>${l.campus ? html` <span class="tag">One per campus</span>` : ""}</span>
+        <span class="tags"><span class="tag">${l.isPublic ? "Anyone can join" : "Staff-managed"}</span>${l.campus ? html` <span class="tag">One per campus</span>` : ""}${model.syncedListKeys.includes( l.key ) ? html` <span class="tag">Kept by group sync</span>` : ""}</span>
       </div>` )}
     </div>
   </div>

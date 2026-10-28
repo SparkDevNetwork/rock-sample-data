@@ -42,17 +42,18 @@ A loaded database must never email, text, or push to anyone, even though every a
 - No recipient is Pending or Sending.
 - Every flow instance is finished and inactive, so the flow job has nothing to do.
 - The verify tool gets an invariant for each of these.
+- Group syncs carry Rock's welcome and exit emails, and some make logins, but only for a person who joins or leaves a synced group after install. Each synced group already holds exactly its data view's people, so the Group Sync job's first run adds and removes nobody, and verify proves it on every load (decision 187). See [Group sync](#group-sync).
 
 ## The setup
 
 The loader's Communications part writes the setup, after steps. It needs the small groups, serving, and prayer parts, because three lists copy them. The settings are in [configuration/communications.json](../configuration/communications.json).
 
 1. **System phone numbers** (decision 93). A main church line, a student ministry line, and personal texting numbers for Ted Decker, Alisha Marble, and Isaac Silva, the student pastor (decision 137). Full 7 adds a personal number for each other campus's campus pastor, so every campus has one. Pete Foster has none. Every number is in the reserved 555-0100 to 555-0199 range, and no loaded person has it: the Cast never does, and generated people are never given one. Forwarding is off, so a real text is never passed on.
-2. **Communication lists** (decision 138). A weekly newsletter per campus (such as "Phoenix Weekly"), plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, and Small Group Leaders.
+2. **Communication lists** (decision 138). A weekly newsletter per campus (such as "Phoenix Weekly"), plus Men, Women, Parents of Kids, Students, Volunteers, Prayer Team, Small Group Leaders, New Here, and We Miss You.
    - **Public** lists show on Rock's email preference page under its Public category: the newsletters, Men, Women, and Parents of Kids.
-   - **Private** lists are staff-managed: Students, Volunteers, Prayer Team, and Small Group Leaders.
+   - **Private** lists are staff-managed: Students, Volunteers, Prayer Team, and Small Group Leaders, and the two care lists, New Here and We Miss You, in the church's Care list category. Group sync fills the care lists, and they get no sends yet (decision 186).
    - **Members follow involvement** (decision 133). A newsletter holds its campus's adults with an active email who attended, gave, or were in a small group in the last year, plus a third of the others. Men and Women are opt-in, joined far more often by Leading and Engaged adults than by Known adults. Parents of Kids holds parents of children through grade 6 whose family came in the last year, plus a third of other such parents. Students holds students in grades 7 to 12 who came in the last year, by text when they have a phone that can text.
-   - **Staff lists copy the data.** Volunteers is everyone active on a serving team, Small Group Leaders is everyone who leads an active small group, and Prayer Team is the prayer team. Invariants check that the first two match.
+   - **Staff lists copy the data.** Volunteers is everyone active on a serving team, Small Group Leaders is everyone who leads an active small group, and Prayer Team is the prayer team. Invariants check that the first two match, and group sync keeps them that way after install.
    - **Nobody who chose "No mass emails" or "Do not email"** is on any list.
    - **Join dates.** A member joined two to six years ago, or soon after their household's first Sunday when that came later. A staff list member joined when they joined the team or became a leader.
    - Rock ships four lists of its own (Members and Attendees, Parents of Children, Parents of Youth, and Sports Ministry). They stay as Rock made them, with no members.
@@ -61,6 +62,27 @@ The loader's Communications part writes the setup, after steps. It needs the sma
 5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
 6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). The loader writes the site with the Homepage and Full layouts and the homepage Rock seeds for a new app (decision 161). A package from before push carries the old stub, with no device shares, and the loader writes no app from it (decision 168). Pages and app content come in later work.
 7. **Personal devices.** About 25% of active adults have the app, and every Cast staff member does. 89% have notifications on (measured), 70% are on an iPhone (designed, because the measured share comes from too few devices), and 80% were seen in the last 30 days. Each device is the row the app writes when it first opens, with a friendly model name. Every registration token starts with `sample-data-`, which Firebase never issues, so no push can ever reach a real phone (decision 95).
+8. **Group syncs** come last in the part, after every send has changed what it changes. See [Group sync](#group-sync).
+
+## Group sync
+
+Rock's group sync keeps a group in step with a person data view. Rock's Group Sync job runs every 20 minutes: it adds everyone the view finds and removes everyone it no longer finds, and it can send a welcome or exit email and make a login. Rock lets two group types sync: Security Role and Communication List. The settings are in [configuration/group-syncs.json](../configuration/group-syncs.json), and the data views use Rock's own data filters, so each opens and edits in Rock like one a person made.
+
+| Group | Data view | Interval | Welcome and exit emails | Create login |
+|---|---|---|---|---|
+| Volunteers list | Active members of active serving teams who accept mass email | Every run | Yes | No |
+| Small Group Leaders list | Active leaders of active small groups who accept mass email | Every run | Yes | Yes |
+| RSR - Prayer Access security role | People on the Prayer Team list who have an email | Every run | Yes | Yes |
+| New Here list | Adults who accept mass email and first came to worship in the last 6 months | Daily | No | No |
+| We Miss You list | Adults who accept mass email, came to worship 10 or more times in the last 18 months, and not in the last 90 days | Daily | No | No |
+
+- **Why these** (decision 186). The two staff lists already followed the teams, so their syncs keep them that way. The role sync gives the prayer team access to Rock's prayer pages. New Here and We Miss You are the follow-up lists a church keeps. Nobody gets an email saying they were put on We Miss You, so the care lists send none.
+- **What install leaves** (decision 187). Each synced group holds exactly its view's people, as the job would leave it, and each sync's last refresh is the install time. The loader finds the people in SQL, following Rock's own filters, and adds each person to an empty group when the job would have: New Here's on the day after their first visit, and We Miss You's the day after their 90 days without a visit. A list another step already filled must match its view, or the load stops, so a sync never removes someone a Cast story put there.
+- **Nothing sends at install.** Because each group already matches, the job's first run adds and removes nobody, so no welcome or exit email goes out and no login is made. Verify runs Rock's real group sync on every load and fails if it changes anyone. Later, when someone joins a team or leaves the prayer team, the job sends Rock's shipped Sync Welcome To Group or Sync Exit From Group email, and makes a login where the sync says to. A site with no email transport set up sends nothing.
+- **After install day.** No new attendance arrives after install, so New Here shrinks as first visits pass 6 months, and We Miss You changes as last visits pass 90 days. The staff lists and the role change only when someone edits a team, a group, or the prayer team. That is how a quiet Rock site behaves.
+- **The Cast.** Jordan and Hannah Ellis, who first visited this summer, are on New Here. Luis and Teresa Ortiz, regulars for seven years who stopped about six months ago, are on We Miss You. Cindy Decker, on the prayer team, holds RSR - Prayer Access. Every load checks them.
+- **Logins.** The prayer team's members all have logins when the person installing gives a password (decision 188), because everyone in a security role has one.
+- **Categories.** The data views sit in the Group Sync category under Rock Solid Church, the church's own data view category (decision 185). See [Configuration](../configuration/README.md#categories).
 
 ## The message library
 
