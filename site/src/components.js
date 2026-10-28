@@ -98,4 +98,14 @@ function formatSize( bytes ) {
     return `${Math.max( 1, Math.round( bytes / 1024 ) )} KB`;
 }
 
-module.exports = { sectionHead, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials };
+// A dataset's typical load time in words, from typicalInstallSeconds in datasets/*.json, so the site never drifts from it.
+function loadTime( dataset ) {
+    const seconds = dataset.typicalInstallSeconds;
+    if ( seconds < 90 ) {
+        return `about ${seconds} seconds`;
+    }
+
+    return `about ${Math.round( seconds / 60 )} minutes`;
+}
+
+module.exports = { sectionHead, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials, loadTime };
