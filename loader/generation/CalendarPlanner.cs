@@ -441,6 +441,16 @@ namespace RockSampleData.Loader.Generation
         public string Location { get; set; }
 
         public PlannedSchedule Schedule { get; set; }
+
+        /// <summary>
+        /// The key every row of this occurrence takes its Guid from: the event, the campus or "church-wide", and the first start.
+        /// </summary>
+        public string Key => $"{EventKey}:{CampusKey ?? "church-wide"}:{Schedule.FirstStart:s}";
+
+        /// <summary>
+        /// The EventItemOccurrence row's Guid, which the registrations part finds it by.
+        /// </summary>
+        public Guid Guid => SeededRandom.StableGuid( $"calendar-occurrence:{Key}" );
     }
 
     /// <summary>
