@@ -267,6 +267,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public string Preference { get; set; } = "email";
 
+        /// <summary>
+        /// The church's list category from configuration/categories.json for a private list, or null.
+        /// </summary>
+        public Guid? CategoryGuid { get; set; }
+
         public Guid? Guid { get; set; }
 
         /// <summary>

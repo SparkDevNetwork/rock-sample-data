@@ -46,6 +46,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
+| `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 
 ### The trusted base
 
@@ -121,4 +122,5 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `invariants` | The loader wrote data that breaks a rule. Fix the loader, or fix the rule if the rule is wrong. |
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
+| `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |

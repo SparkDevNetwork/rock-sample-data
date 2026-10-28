@@ -190,6 +190,10 @@ try
             // After the referee, because a sign-in can rewrite a password hash.
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
+
+            // Last, because a failing sync adds or removes members, and could make logins.
+            stage = "group-sync";
+            checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
@@ -328,6 +332,43 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 
     var accepted = string.Join( " and ", tries.Where( t => t.IsAccepted ).Select( t => t.UserName ) );
     return CheckResult.From( "sign-in", problems.Count == 0 ? $"Rock signed in as {accepted} and refused a wrong password" : "Rock's Database login did not treat the sample logins as it should", problems );
+}
+
+/// <summary>
+/// Runs Rock's own group sync on every sync the load wrote and expects it to add, remove, and refuse nobody (decision
+/// D-group-sync-3). Nothing changing proves the loader filled each group exactly as Rock's data views pick, and that the
+/// syncs' welcome and exit emails and logins wait for a later change. The views count from today, so like Rock Cleanup
+/// the check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var expected = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [GroupSync] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "group-sync", "Group sync was not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. The sync data views count from today, so run it again on one day."
+        } );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "group-sync" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    int Count( string label ) => lines.Where( l => l.StartsWith( label + " ", StringComparison.Ordinal ) ).Select( l => int.Parse( l.Substring( label.Length + 1 ) ) ).FirstOrDefault( -1 );
+    var problems = new List<string>();
+    if ( Count( "syncs" ) != expected )
+    {
+        problems.Add( $"Rock synced {Count( "syncs" )} groups, but the load wrote {expected} syncs." );
+    }
+
+    foreach ( var label in new[] { "added", "removed", "not added" } )
+    {
+        if ( Count( label ) != 0 )
+        {
+            problems.Add( $"Rock's group sync {label} {Count( label )} members. The loader must fill each synced group exactly as its data view picks." );
+        }
+    }
+
+    problems.AddRange( lines.Where( l => l.StartsWith( "warning ", StringComparison.Ordinal ) ).Select( l => $"Rock's group sync warned: {l.Substring( 8 )}" ) );
+    return CheckResult.From( "group-sync", problems.Count == 0 ? $"Rock's group sync changed nothing in the {expected} synced groups" : "Rock's group sync would change the synced groups", problems );
 }
 
 /// <summary>

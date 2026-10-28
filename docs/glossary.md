@@ -24,12 +24,14 @@ The words this project uses, in alphabetical order.
 | **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus, except that Alisha Marble connects the main campus's new requests (decision 178). |
 | **Core 1, Core 3, Full 7** | The three datasets. The number is how many campuses each has. |
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
+| **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Featured family** | A Cast household with a bio for each person. These are the families most used in testing. |
 | **Giving alert** | A note Rock raises about a gift: a large gift, a smaller gift than usual, or a gift that is late. |
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |
+| **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |

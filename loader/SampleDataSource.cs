@@ -101,6 +101,16 @@ namespace RockSampleData.Loader
         public LoginsConfiguration Logins { get; }
 
         /// <summary>
+        /// The categories the church adds, or null in a package built before they existed.
+        /// </summary>
+        public CategoryConfiguration Categories { get; }
+
+        /// <summary>
+        /// The church's data views and group syncs, or null in a package built before group sync loaded.
+        /// </summary>
+        public GroupSyncConfiguration GroupSyncs { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -124,6 +134,8 @@ namespace RockSampleData.Loader
             ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
             Calendar = Files.Exists( CalendarConfigurationPath ) ? Read<CalendarConfiguration>( CalendarConfigurationPath ) : null;
             Logins = Files.Exists( LoginsConfigurationPath ) ? Read<LoginsConfiguration>( LoginsConfigurationPath ) : null;
+            Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
+            GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -203,6 +215,10 @@ namespace RockSampleData.Loader
         public const string EventPhotoManifestPath = "photos/events/manifest.json";
 
         public const string LoginsConfigurationPath = "configuration/logins.json";
+
+        public const string CategoriesConfigurationPath = "configuration/categories.json";
+
+        public const string GroupSyncsConfigurationPath = "configuration/group-syncs.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.
