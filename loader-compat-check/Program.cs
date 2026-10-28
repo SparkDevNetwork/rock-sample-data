@@ -44,6 +44,9 @@ using RockSampleData.Loader.Packages;
     release/sign-index.js signed with a throwaway test key, so both builds read what the Node signer
     writes. The other index checks sign their index here with a key made for this run. Neither key is
     one the shipped loader trusts.
+    The registration dates check plans the repository's calendar and registrations for install day
+    2026-10-28 and compares each instance's dates with the example dates the approved registrations
+    proposal lists for that day (decision D-registrations-2), so a rule change that moves a date fails here.
 */
 
 // Rock's Encryption salt and HKDF label, as in loader/database/RockKeys.cs and Rock/Security/Encryption.cs.
@@ -140,7 +143,23 @@ var checks = new (string Name, string Actual, string Expected)[]
         "campuses 7|communications none|church app stub, push off"),
     ("A file this loader cannot read gives a plain message",
         PlainError( "v0.1.0-alpha.10" ),
-        "InvalidDataException|This package can't be read by this loader: configuration/church-app.json is not in the form this loader reads. Use the package for this loader's release.|JsonException")
+        "InvalidDataException|This package can't be read by this loader: configuration/church-app.json is not in the form this loader reads. Use the package for this loader's release.|JsonException"),
+    ("Registration dates for install day 2026-10-28",
+        RegistrationDates( new DateTime( 2026, 10, 28 ) ),
+        "student-camp-girls 2026-06-22 opens 2025-06-23 closes 2026-06-21 pays 2026-06-08 closed"
+        + " | student-camp-girls 2027-06-28 opens 2026-06-22 closes 2027-06-27 pays 2027-06-14 open"
+        + " | student-camp-boys 2026-06-22 opens 2025-06-23 closes 2026-06-21 pays 2026-06-08 closed"
+        + " | student-camp-boys 2027-06-28 opens 2026-06-22 closes 2027-06-27 pays 2027-06-14 open"
+        + " | mission-trip 2027-03-13 opens 2026-05-06 closes 2027-01-12 pays 2027-02-11 open"
+        + " | student-retreat 2026-11-13 opens 2026-09-14 closes 2026-11-10 pays none open"
+        + " | vbs 2026-06-08 opens 2026-04-09 closes 2026-06-01 pays none closed"
+        + " | vbs 2027-06-14 opens 2027-04-15 closes 2027-06-07 pays none closed"
+        + " | parents-night-out 2026-11-06 opens 2026-10-01 closes 2026-11-04 pays none open"
+        + " | community-serve-day 2026-09-19 opens 2026-08-08 closes 2026-09-16 pays none closed"
+        + " | money-matters 2027-01-11 opens 2026-09-21 closes 2027-01-10 pays none open"
+        + " | date-night 2027-02-12 opens 2026-10-07 closes 2027-02-09 pays none open"
+        + " | womens-retreat 2027-04-23 opens 2026-04-11 closes 2027-04-09 pays 2027-04-09 open"
+        + " | early birds student-camp 2027-04-30, womens-retreat 2026-10-31")
 };
 
 var failures = 0;
@@ -183,6 +202,27 @@ static string PlainError( string tag )
     catch ( Exception ex )
     {
         return $"{ex.GetType().Name}|{ex.Message}|{ex.InnerException?.GetType().Name}";
+    }
+}
+
+// Every registration instance at Phoenix for one install day: its event day, opening, closing, and payment days, and
+// whether it is open that day, then each early-bird discount's last day.
+static string RegistrationDates( DateTime anchor )
+{
+    try
+    {
+        var source = SampleDataSource.FromFolder( SampleDataSource.FindRoot( AppContext.BaseDirectory ) );
+        var phoenix = new List<(string, IReadOnlyList<TimeSpan>)> { ("phoenix", new List<TimeSpan>()) };
+        var calendar = new CalendarPlanner( source.Calendar, source.Steps, source.Communications?.Events, source.Campaign, anchor, anchor.AddYears( -3 ) ).Plan( phoenix );
+        var plan = new RegistrationPlanner( source.Registrations, "core-1", anchor, new Dictionary<string, string> { ["phoenix"] = "Phoenix" } ).Plan( calendar );
+        static string Day( DateTime? day ) => day?.ToString( "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture ) ?? "none";
+        var instances = plan.Instances.Select( i => $"{i.Rule.Key} {Day( i.EventDay )} opens {Day( i.Opens )} closes {Day( i.Closes )} pays {Day( i.PaymentDeadline )} {( i.IsOpenOn( anchor ) ? "open" : "closed" )}" );
+        var earlyBirds = plan.DiscountEnds.Select( d => $"{d.Key.Template} {Day( d.Value )}" );
+        return $"{string.Join( " | ", instances )} | early birds {string.Join( ", ", earlyBirds )}";
+    }
+    catch ( Exception ex )
+    {
+        return $"{ex.GetType().Name}|{ex.Message}";
     }
 }
 
