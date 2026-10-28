@@ -69,7 +69,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "mwashington"
+      ]
     },
     {
       "key": "denise",
@@ -94,7 +97,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "dwashington"
+      ]
     },
     {
       "key": "jasmine",

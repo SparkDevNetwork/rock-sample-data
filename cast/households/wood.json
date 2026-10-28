@@ -69,7 +69,10 @@
       },
       "photo": {
         "ethnicity": "black"
-      }
+      },
+      "logins": [
+        "jwood"
+      ]
     },
     {
       "key": "melissa",

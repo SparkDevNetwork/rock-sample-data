@@ -97,7 +97,10 @@
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "ssimmons"
+      ]
     }
   ]
 }

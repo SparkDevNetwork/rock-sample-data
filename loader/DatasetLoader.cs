@@ -53,6 +53,7 @@ namespace RockSampleData.Loader
             ("Steps", SampleDataPart.Steps),
             ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
+            ("Logins", null),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -71,6 +72,11 @@ namespace RockSampleData.Loader
             var source = new SampleDataSource( package );
             var parts = SampleDataParts.WithDependencies( options.Parts ?? SampleDataParts.All.Select( p => p.Part ).ToList() );
             var keys = ReadKeys( options );
+            if ( options.LoginPasswordHash != null && !LoginsLoader.IsBcryptHash( options.LoginPasswordHash ) )
+            {
+                throw new ArgumentException( "LoginPasswordHash must be a BCrypt hash, made the way Rock's Database login stores a password. Nothing was loaded." );
+            }
+
             var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) ) };
 
             using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder, Log = log };
@@ -96,18 +102,23 @@ namespace RockSampleData.Loader
                 LoadSteps( db, source, dataset, foreignKey, dates, options, parts, keys );
                 foreach ( var timing in db.Timings )
                 {
-                    log.Write( $"    bulk {timing.Table,-14} {timing.Rows,8:N0} rows {timing.Milliseconds,7:N0} ms" );
+                    log.WriteTiming( timing.Kind == LoadTimingKind.BulkCopy
+                        ? $"    bulk {timing.Name,-14} {timing.Rows,8:N0} rows {timing.Milliseconds,7:N0} ms"
+                        : $"    index {timing.Name,-13} {string.Empty,13} {timing.Milliseconds,7:N0} ms", timing );
                 }
 
+                var finish = Stopwatch.StartNew();
                 if ( options.IsDryRun )
                 {
                     db.Rollback();
-                    log.Write( $"Dry run complete in {total.ElapsedMilliseconds:N0} ms. Everything was rolled back." );
+                    log.WriteTiming( $"  (Rollback: {finish.ElapsedMilliseconds:N0} ms)", new LoadTiming( LoadTimingKind.Load, "Rollback", null, finish.ElapsedMilliseconds ) );
+                    log.WriteTiming( $"Dry run complete in {total.ElapsedMilliseconds:N0} ms. Everything was rolled back.", new LoadTiming( LoadTimingKind.Load, "Load", null, total.ElapsedMilliseconds ) );
                 }
                 else
                 {
                     db.Commit();
-                    log.Write( $"Done in {total.ElapsedMilliseconds:N0} ms." );
+                    log.WriteTiming( $"  (Commit: {finish.ElapsedMilliseconds:N0} ms)", new LoadTiming( LoadTimingKind.Load, "Commit", null, finish.ElapsedMilliseconds ) );
+                    log.WriteTiming( $"Done in {total.ElapsedMilliseconds:N0} ms.", new LoadTiming( LoadTimingKind.Load, "Load", null, total.ElapsedMilliseconds ) );
                 }
             }
             catch
@@ -250,54 +261,65 @@ namespace RockSampleData.Loader
             var groupPlans = source.ReadCastSmallGroupPlans();
             var generator = new CrowdGenerator( profile, source, seed, dates.Anchor );
             List<CastHousehold> generated = null;
-            if ( options.CrowdHouseholds is { } crowd )
+            using ( log.TimePart( "Generate the Crowd" ) )
             {
-                generated = generator.Generate( crowd, configuration.CampusIds.Keys.ToList(), mainCampusKey, years );
-            }
-            else if ( manifest?.GeneratedHouseholds?.PerCampus is { } perCampus )
-            {
-                var unknownCampuses = perCampus.Keys.Except( configuration.CampusIds.Keys ).ToList();
-                if ( unknownCampuses.Count > 0 )
+                if ( options.CrowdHouseholds is { } crowd )
                 {
-                    throw new InvalidOperationException( $"datasets/{dataset}.json lists generated households for campuses not in the dataset: {string.Join( ", ", unknownCampuses )}" );
+                    generated = generator.Generate( crowd, configuration.CampusIds.Keys.ToList(), mainCampusKey, years );
+                }
+                else if ( manifest?.GeneratedHouseholds?.PerCampus is { } perCampus )
+                {
+                    var unknownCampuses = perCampus.Keys.Except( configuration.CampusIds.Keys ).ToList();
+                    if ( unknownCampuses.Count > 0 )
+                    {
+                        throw new InvalidOperationException( $"datasets/{dataset}.json lists generated households for campuses not in the dataset: {string.Join( ", ", unknownCampuses )}" );
+                    }
+
+                    var countsByCampus = configuration.CampusIds.Keys.Where( perCampus.ContainsKey ).Select( k => (k, perCampus[k]) ).ToList();
+                    if ( manifest.GeneratedHouseholds.StatusWeights is { } statusWeights )
+                    {
+                        generator.UseStatusWeights( statusWeights );
+                    }
+
+                    generated = generator.Generate( countsByCampus, years );
                 }
 
-                var countsByCampus = configuration.CampusIds.Keys.Where( perCampus.ContainsKey ).Select( k => (k, perCampus[k]) ).ToList();
-                if ( manifest.GeneratedHouseholds.StatusWeights is { } statusWeights )
+                if ( generated != null )
                 {
-                    generator.UseStatusWeights( statusWeights );
+                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
+                    households.AddRange( generated );
+                    groupPlans.AddRange( generatedPlans );
+                    var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
+                    log.Write( $"  Generated: {generated.Count:N0} households ({perCampusText}) and {generatedPlans.Count:N0} small groups ({steps.Elapsed:N0} ms)" );
+
+                    // Businesses come after small groups are planned, so they never change a planned group.
+                    var castMainCampusBusinesses = households.Count( h => h.Kind == "business" && castHouseholdKeys.Contains( h.Key ) );
+                    var businesses = generator.GenerateBusinesses( generated, configuration.CampusIds.Keys.ToList(), mainCampusKey, castMainCampusBusinesses );
+                    households.AddRange( businesses );
+                    var businessText = string.Join( ", ", businesses.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
+                    log.Write( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
                 }
-
-                generated = generator.Generate( countsByCampus, years );
-            }
-
-            if ( generated != null )
-            {
-                var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
-                households.AddRange( generated );
-                groupPlans.AddRange( generatedPlans );
-                var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
-                log.Write( $"  Generated: {generated.Count:N0} households ({perCampusText}) and {generatedPlans.Count:N0} small groups ({steps.Elapsed:N0} ms)" );
-
-                // Businesses come after small groups are planned, so they never change a planned group.
-                var castMainCampusBusinesses = households.Count( h => h.Kind == "business" && castHouseholdKeys.Contains( h.Key ) );
-                var businesses = generator.GenerateBusinesses( generated, configuration.CampusIds.Keys.ToList(), mainCampusKey, castMainCampusBusinesses );
-                households.AddRange( businesses );
-                var businessText = string.Join( ", ", businesses.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
-                log.Write( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
             }
 
             // Serving is planned before people load too, so new team leaders load as Leading.
-            var servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+            List<ServingTeamPlan> servingPlans;
+            using ( log.TimePart( "Plan serving" ) )
+            {
+                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+            }
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
-            people.Load( households );
-            var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
-            log.Write( $"  Business contacts: {contactCount:N0}" );
+            SecurityRolesLoader securityRoles;
+            using ( log.TimePart( "Write people" ) )
+            {
+                people.Load( households );
+                var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
+                log.Write( $"  Business contacts: {contactCount:N0}" );
 
-            // Cast staff join the security roles their stories give them, all roles Rock ships.
-            var securityRoles = new SecurityRolesLoader( db, foreignKey );
-            log.Write( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
+                // Cast staff join the security roles their stories give them, all roles Rock ships.
+                securityRoles = new SecurityRolesLoader( db, foreignKey );
+                log.Write( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
+            }
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
             if ( steps.Begin( "Photos" ) )
@@ -314,10 +336,17 @@ namespace RockSampleData.Loader
 
             var isAttendanceLoaded = steps.Begin( "Attendance" );
             var attendance = new AttendanceLoader( db, calendar, dates, configuration, foreignKey, seed );
-            attendance.Plan( people.Households );
+            using ( log.TimePart( "Plan attendance" ) )
+            {
+                attendance.Plan( people.Households );
+            }
+
             if ( isAttendanceLoaded )
             {
-                attendance.Write();
+                using ( log.TimePart( "Write attendance" ) )
+                {
+                    attendance.Write();
+                }
             }
 
             // Kids check-in streaks and achievements come straight from the check-ins just planned. They read the plan
@@ -362,17 +391,25 @@ namespace RockSampleData.Loader
             // The pledges and campaign gifts are the giving part's rows, but the fund is church setup, so its goal
             // is written in every load (decision 126).
             var pledges = source.Campaign == null ? null : new PledgeLoader( db, source.Campaign, source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid, dates, foreignKey, seed );
-            pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
-            pledges?.WriteGoal();
-            var giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving, CheckWeightScale = manifest?.Giving?.CheckWeightScale ?? 1 };
-            giving.Plan( people.Households );
+            GivingLoader giving;
+            using ( log.TimePart( "Plan gifts" ) )
+            {
+                pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
+                pledges?.WriteGoal();
+                giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving, CheckWeightScale = manifest?.Giving?.CheckWeightScale ?? 1 };
+                giving.Plan( people.Households );
+            }
+
             if ( isGivingLoaded )
             {
-                giving.Write();
-                pledges?.Write();
+                using ( log.TimePart( "Write gifts" ) )
+                {
+                    giving.Write();
+                    pledges?.Write();
 
-                // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
-                log.Write( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
+                    // Rock Cleanup's nightly campus tithe metric, from the postal codes of the families that gave.
+                    log.Write( $"  Campus tithe metrics: {giving.UpdateCampusTitheMetric()}" );
+                }
             }
 
             // Giving attributes, bins, and journey stages, as if Rock's Giving Automation job had run every night.
@@ -431,6 +468,40 @@ namespace RockSampleData.Loader
             {
                 new CalendarLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusPlans );
             }
+
+            // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
+            // app devices when those parts load. They load only with a password hash. Account protection follows
+            // logins, security roles, and scheduled gifts, so every load sets it here.
+            steps.Begin( "Logins" );
+            var logins = new LoginsLoader( db, foreignKey );
+            if ( options.LoginPasswordHash == null || source.Logins == null )
+            {
+                log.Write( options.LoginPasswordHash == null ? "  No password was given, so no logins were made." : "  Skipped (this package has no configuration/logins.json)" );
+            }
+            else
+            {
+                var plannedLogins = new LoginPlanner( source.Logins, dates, calendar.HistoryStart, seed ).Plan( new LoginInputs
+                {
+                    Households = people.Households,
+                    CastHouseholdKeys = castHouseholdKeys,
+                    CampusPastors = CampusPastors.Pick( people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey ),
+                    GroupPlans = groupPlans,
+                    ServingPlans = servingPlans,
+                    Gifts = giving.QualifyingGifts,
+                    WebsiteSourceId = giving.WebsiteSourceId,
+                    PrayerTeam = prayer.TeamPersonIds,
+                    AppFirstSeen = logins.AppFirstSeen(),
+                    TakenUserNames = logins.TakenUserNames(),
+                    PeopleWithLogins = logins.PeopleWithLogins(),
+                    RockRoleNames = source.SecurityRoles?.Roles.Select( r => r.Name ).ToHashSet() ?? new HashSet<string>()
+                } );
+                logins.Write( plannedLogins, options.LoginPasswordHash );
+                var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.PersonId ).ToHashSet();
+                var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
+                log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
+            }
+
+            log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             steps.Begin( "Cast expectations" );
@@ -525,7 +596,8 @@ namespace RockSampleData.Loader
                     return;
                 }
 
-                _log.Write( $"  ({_timer.ElapsedMilliseconds:N0} ms)" );
+                var milliseconds = _timer.ElapsedMilliseconds;
+                _log.WriteTiming( $"  ({milliseconds:N0} ms)", new LoadTiming( LoadTimingKind.Step, _log.CurrentStep, _log.CurrentStep, milliseconds ) );
                 _log.FinishStep();
                 _isRunning = false;
             }

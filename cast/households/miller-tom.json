@@ -44,7 +44,10 @@
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "tmiller"
+      ]
     }
   ]
 }

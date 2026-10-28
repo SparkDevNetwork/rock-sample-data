@@ -53,7 +53,10 @@
       "emailIsActive": true,
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "mjackson"
+      ]
     },
     {
       "key": "maddie",

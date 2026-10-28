@@ -116,7 +116,10 @@
       },
       "photo": {
         "ethnicity": "middle-eastern-north-african"
-      }
+      },
+      "logins": [
+        "csullivan"
+      ]
     },
     {
       "key": "amanda",
@@ -145,7 +148,10 @@
       },
       "photo": {
         "ethnicity": "middle-eastern-north-african"
-      }
+      },
+      "logins": [
+        "asullivan"
+      ]
     },
     {
       "key": "jake",

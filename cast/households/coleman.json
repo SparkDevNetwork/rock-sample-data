@@ -97,6 +97,9 @@
       "photo": {
         "ethnicity": "black"
       },
+      "logins": [
+        "tcoleman"
+      ],
       "connectionRequests": [
         {
           "opportunity": "kids-ministry",

@@ -45,6 +45,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `cast-expectations` | Every Cast giver whose story says what Rock should show still shows it ([validation](../validation/README.md#cast-expectations)). |
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
+| `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
 
 ### The trusted base
 
@@ -90,13 +91,17 @@ Rock's job also tidies things in any fresh database. So it runs once on a plain 
 
 Rock Cleanup rebuilds `ScheduleDate` for a window of now plus or minus two years, to the minute, and the plain copy and each loaded copy are cleaned minutes apart. So the comparison leaves out the `ScheduleDate` rows within a day of either edge of that window, in both runs, and compares the rest exactly. Before, an occurrence at an edge now and then fell inside one run and outside the other, and the check failed on base rows the load never touched.
 
+### Logins and sign-in
+
+Every load makes its logins with the test password `sample-data-verify`, hashed by Rock's own Database login through `rock-runner --task hash-password`, the way Rock's installer block hashes the one a person types (decision 180). It is not a secret: it signs in only to the run's throwaway databases. After the referee, `rock-runner --task sign-in` signs in through Rock's Database login, the check Rock's login block makes, and the `sign-in` check fails unless Rock accepts the sample logins and refuses a wrong password. It runs after the referee because a sign-in can rewrite a hash at the site's cost setting.
+
 ### Content standards
 
 The verify tool runs `cast/validate-cast.js` and `validation/check-standards.js`. Both need only Node, so contributors run them too. The [content standards](../docs/content-standards.md) say which rule each script checks, and which rules still need a person.
 
 ## Receipts and the publishing gate
 
-Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes.
+Each run writes `{dataset}.verify.json` next to each package. A receipt records the package's SHA-256, its source commit, its minimum loader version (decision 158), the Rock major release and the exact Rock version and migration, the trusted base's certificate (including its schema hash), the anchor and seed, this repository's commit, and every check with its details. A package passes only when every check passes. Its `load` section records how long the load took, step by step (every timing the loader reports), and the space it used: the peak used data and log space, sampled once a second, the file sizes, the file growths the default trace saw, the recovery model, and whether instant file initialization is on. No check reads it; it is there so every run leaves a timing record (see [Performance](../docs/performance.md)).
 
 Publishing runs the gate first:
 

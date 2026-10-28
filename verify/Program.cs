@@ -17,6 +17,8 @@
 
 using System.Diagnostics;
 
+using Microsoft.Data.SqlClient;
+
 using RockSampleData.Loader;
 using RockSampleData.Loader.Database;
 using RockSampleData.Loader.Packages;
@@ -122,7 +124,13 @@ try
     var referee = new CleanupReferee( sql, rock, Path.Combine( root, "validation", "cleanup-accepted.json" ), runPrefix );
     // The receipt binds the bytes and the commit read now, before the long run, and checks at the end that neither moved.
     var verifier = Git.Source( root );
-    var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks)>();
+    var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks, Receipt.ReceiptLoad Load)>();
+
+    // Every load makes its logins with a test password that Rock's own Database login hashed, the way the Sample Data
+    // Installer block hashes the one a person types (decision 180). It is not a secret: it signs in only to this
+    // run's throwaway databases.
+    const string TestLoginPassword = "sample-data-verify";
+    string loginPasswordHash = null;
     foreach ( var dataset in datasets )
     {
         var packagePath = Path.Combine( packagesFolder, $"{dataset}.zip" );
@@ -143,20 +151,35 @@ try
         var connection = sql.ConnectionString( database );
         var foreignKey = $"SampleData:{dataset}";
         var checks = new List<CheckResult>();
+        Receipt.ReceiptLoad loadRecord = null;
         sql.Copy( baseDatabase, database );
         var stage = "load";
         try
         {
+            stage = "load";
+            loginPasswordHash ??= RockRunner.Run( rock, sql, database, "hash-password", new[] { TestLoginPassword } ).Trim();
             var load = Stopwatch.StartNew();
-            DatasetLoader.Load( connection, package, new DatasetLoadOptions
+            var progress = new ConsoleProgress();
+            var space = new SpaceSampler( sql, database );
+            try
             {
-                Anchor = anchor,
-                Seed = seed,
-                Progress = new ConsoleProgress(),
-                RockWebConfigPath = rock.WebConfigPath,
-                RockVersion = builtRockVersion,
-                Recorder = recorder
-            } );
+                DatasetLoader.Load( connection, package, new DatasetLoadOptions
+                {
+                    Anchor = anchor,
+                    Seed = seed,
+                    Progress = progress,
+                    RockWebConfigPath = rock.WebConfigPath,
+                    RockVersion = builtRockVersion,
+                    LoginPasswordHash = loginPasswordHash,
+                    Recorder = recorder
+                } );
+            }
+            finally
+            {
+                loadRecord = new Receipt.ReceiptLoad { Timings = progress.Timings.Select( Receipt.ReceiptTiming.From ).ToList(), Space = space.Stop() };
+            }
+
+            Console.WriteLine( $"  Space: {loadRecord.Space}" );
             checks.Add( CheckResult.From( "load", $"Loaded into a copy of the trusted base in {load.Elapsed.TotalSeconds:N0} seconds", new List<string>() ) );
 
             stage = "cast-expectations";
@@ -175,6 +198,10 @@ try
             // Checked before and after, because the job itself takes minutes and the date can change while it runs.
             var cleanup = ClockCheck( sql, anchor ) ?? referee.Referee( database, baseDatabase );
             checks.Add( ClockCheck( sql, anchor ) ?? cleanup );
+
+            // After the referee, because a sign-in can rewrite a password hash.
+            stage = "sign-in";
+            checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
@@ -193,7 +220,7 @@ try
             check.Print();
         }
 
-        perDataset[dataset] = (packagePath, sha256, package.Manifest, checks);
+        perDataset[dataset] = (packagePath, sha256, package.Manifest, checks, loadRecord);
     }
 
     // 4. The contract: recorded from these loads, compared with validation/rock-contract.json and with this Rock.
@@ -218,7 +245,7 @@ try
     var verifierNow = Git.Source( root );
     var isEverythingPassed = true;
     Console.WriteLine();
-    foreach ( var (dataset, (packagePath, sha256, manifest, checks)) in perDataset )
+    foreach ( var (dataset, (packagePath, sha256, manifest, checks, loadRecord)) in perDataset )
     {
         var moved = new List<string>();
         if ( Receipt.Sha256( packagePath ) != sha256 )
@@ -243,7 +270,8 @@ try
             Seed = seed,
             Verifier = verifier,
             Base = certificate,
-            Checks = all
+            Checks = all,
+            Load = loadRecord
         };
         var receiptPath = Receipt.PathFor( packagePath );
         receipt.Save( receiptPath );
@@ -280,6 +308,39 @@ static CheckResult ClockCheck( SqlServer sql, DateTime anchor )
         $"The loads were anchored to {anchor:yyyy-MM-dd}, but the database server says {serverToday:yyyy-MM-dd} and this machine says {machineToday:yyyy-MM-dd}.",
         "Rock Cleanup recomputes ages and daily counts for today, so it would report false changes. If the date changed during the run, run it again. Otherwise leave --anchor out, and keep the database server and this machine in one time zone."
     } );
+}
+
+/// <summary>
+/// Signs in through Rock's own Database login, the check Rock's login block makes (decision 180): as Ted Decker,
+/// the Cast's best-known login, and as the load's newest confirmed login, with the test password, and as Ted with a
+/// wrong password, which Rock must refuse. This proves Rock accepts the hash the load wrote.
+/// </summary>
+static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, string foreignKey, string password )
+{
+    var newest = sql.Scalar( database, "SELECT TOP 1 [UserName] FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey AND [IsConfirmed] = 1 AND [UserName] <> 'tdecker' ORDER BY [Id] DESC",
+        new SqlParameter( "@ForeignKey", foreignKey ) ) as string;
+    var tries = new List<(string UserName, string Password, bool IsAccepted)> { ("tdecker", password, true) };
+    if ( newest != null )
+    {
+        tries.Add( (newest, password, true) );
+    }
+
+    tries.Add( ("tdecker", $"not-{password}", false) );
+    var results = RockRunner.Run( rock, sql, database, "sign-in", tries.Select( t => $"{t.UserName}\t{t.Password}" ) )
+        .Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    for ( var i = 0; i < tries.Count; i++ )
+    {
+        var expected = $"{tries[i].UserName} {( tries[i].IsAccepted ? "signed in" : "refused" )}";
+        var actual = i < results.Length ? results[i] : "no answer";
+        if ( actual != expected )
+        {
+            problems.Add( $"Expected \"{expected}\" from Rock's Database login{( tries[i].IsAccepted ? string.Empty : " with a wrong password" )}, but got \"{actual}\"." );
+        }
+    }
+
+    var accepted = string.Join( " and ", tries.Where( t => t.IsAccepted ).Select( t => t.UserName ) );
+    return CheckResult.From( "sign-in", problems.Count == 0 ? $"Rock signed in as {accepted} and refused a wrong password" : "Rock's Database login did not treat the sample logins as it should", problems );
 }
 
 /// <summary>

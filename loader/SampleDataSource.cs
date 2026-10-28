@@ -96,6 +96,11 @@ namespace RockSampleData.Loader
         public CalendarConfiguration Calendar { get; }
 
         /// <summary>
+        /// Who among generated adults has a login, or null in a package built before logins loaded.
+        /// </summary>
+        public LoginsConfiguration Logins { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -118,6 +123,7 @@ namespace RockSampleData.Loader
             Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
             ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
             Calendar = Files.Exists( CalendarConfigurationPath ) ? Read<CalendarConfiguration>( CalendarConfigurationPath ) : null;
+            Logins = Files.Exists( LoginsConfigurationPath ) ? Read<LoginsConfiguration>( LoginsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -195,6 +201,8 @@ namespace RockSampleData.Loader
         }
 
         public const string EventPhotoManifestPath = "photos/events/manifest.json";
+
+        public const string LoginsConfigurationPath = "configuration/logins.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

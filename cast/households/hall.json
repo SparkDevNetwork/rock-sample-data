@@ -51,6 +51,9 @@
       "photo": {
         "ethnicity": "hispanic-latino"
       },
+      "logins": [
+        "bhall"
+      ],
       "steps": {
         "starting-point-class": {
           "classesAgo": 1

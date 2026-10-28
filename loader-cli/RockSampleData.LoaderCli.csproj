@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Hashes the login password option the way Rock's Database login does: BCrypt, in the $2a$ form Rock's BCrypt library reads. -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- The calibration scripts the calibrate command runs. They are built into the CLI, never shipped in a package. -->
     <EmbeddedResource Include="..\calibration\sql\Report_SampleDataCalibration_*.sql" LogicalName="sql/%(Filename)%(Extension)" />
   </ItemGroup>

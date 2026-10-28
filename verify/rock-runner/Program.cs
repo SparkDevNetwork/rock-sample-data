@@ -27,7 +27,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup --rock-bin <RockWeb\bin folder> --config <config file>
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -35,6 +35,10 @@ namespace RockSampleData.RockRunner
     ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
     ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
+    ///   hash-password  Rock's Database login hash of the password on the input file's first line, the way the
+    ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
+    ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
+    ///            a tab, and prints "username signed in" or "username refused" for each.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -48,9 +52,11 @@ namespace RockSampleData.RockRunner
             var task = Argument( args, "--task" ) ?? "cleanup";
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
-            if ( rockBin == null || config == null || ( task != "startup" && task != "cleanup" ) )
+            var input = Argument( args, "--input" );
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup --rock-bin <RockWeb\\bin folder> --config <config file>" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -75,7 +81,14 @@ namespace RockSampleData.RockRunner
             try
             {
                 var worker = ( RockWorker ) domain.CreateInstanceFromAndUnwrap( typeof( RockWorker ).Assembly.Location, typeof( RockWorker ).FullName );
-                Console.WriteLine( task == "startup" ? worker.Startup() : worker.Cleanup() );
+                var lines = input == null ? null : File.ReadAllLines( input );
+                Console.WriteLine( task switch
+                {
+                    "startup" => worker.Startup(),
+                    "hash-password" => worker.HashPassword( lines.FirstOrDefault() ?? string.Empty ),
+                    "sign-in" => worker.SignIn( lines ),
+                    _ => worker.Cleanup()
+                } );
                 return 0;
             }
             catch ( Exception ex )
@@ -195,6 +208,52 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Hashes a password with Rock's Database login, as Rock's own account pages and the Sample Data Installer block do.
+        /// </summary>
+        public string HashPassword( string password )
+        {
+            Start();
+            var database = DatabaseLogin();
+            return ( string ) database.GetType().GetMethod( "EncryptPassword", new[] { typeof( string ) } ).Invoke( database, new object[] { password } );
+        }
+
+        /// <summary>
+        /// Signs in through Rock's Database login with each "username, tab, password" line, the check Rock's login block
+        /// makes: the login exists, is confirmed, and Rock's Database login accepts the password.
+        /// </summary>
+        public string SignIn( string[] lines )
+        {
+            Start();
+            var database = DatabaseLogin();
+            var authenticate = database.GetType().GetMethods().First( m => m.Name == "Authenticate" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == typeof( string ) );
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.UserLoginService", true );
+            var service = Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var userName = line.Substring( 0, line.IndexOf( '\t' ) );
+                var password = line.Substring( line.IndexOf( '\t' ) + 1 );
+                var user = serviceType.GetMethod( "GetByUserName", new[] { typeof( string ) } ).Invoke( service, new object[] { userName } );
+                var isConfirmed = user != null && ( ( bool? ) user.GetType().GetProperty( "IsConfirmed" ).GetValue( user ) ?? false );
+                var isAccepted = isConfirmed && ( bool ) authenticate.Invoke( database, new[] { user, password } );
+                results.Add( $"{userName} {( isAccepted ? "signed in" : "refused" )}" );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Rock's Database authentication component, with its settings read from the database.
+        /// </summary>
+        private object DatabaseLogin()
+        {
+            return Activator.CreateInstance( _rock.GetType( "Rock.Security.Authentication.Database", true ) );
         }
 
         /// <summary>

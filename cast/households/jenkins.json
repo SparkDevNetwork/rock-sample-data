@@ -73,7 +73,10 @@
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "gjenkins"
+      ]
     },
     {
       "key": "barbara",

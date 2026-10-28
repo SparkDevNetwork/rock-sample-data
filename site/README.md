@@ -1,6 +1,6 @@
 # Site
 
-The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision 80).
+The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision 80) at [sampledata.rockrms.com](https://sampledata.rockrms.com/). The domain is a CNAME in rockrms.com's DNS (DNSimple) pointing to `sparkdevnetwork.github.io`, set as the custom domain in the repository's Pages settings. The old address, sparkdevnetwork.github.io/rock-sample-data, redirects to it.
 
 The site is built from the repository's own files, so it never keeps a copy of the Cast or the church. Change a household in `cast/households/`, and its page changes on the next build.
 
