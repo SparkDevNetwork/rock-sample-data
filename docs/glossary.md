@@ -25,6 +25,8 @@ The words this project uses, in alphabetical order.
 | **Core 1, Core 3, Full 7** | The three datasets. The number is how many campuses each has. |
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Dataset** | One installable set of sample data. |
+| **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
+| **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Featured family** | A Cast household with a bio for each person. These are the families most used in testing. |
 | **Giving alert** | A note Rock raises about a gift: a large gift, a smaller gift than usual, or a gift that is late. |
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |

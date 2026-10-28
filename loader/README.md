@@ -19,7 +19,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, and `Communications`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, `Communications`, and `Calendar`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is on another Rock major release than the package, or its Rock version is unknown, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--rock-version` | The database's Rock version, for example `21.0.2`. Without it, the loader reads `RockWeb/bin/Rock.Version.dll` in the `--rock` checkout. |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
@@ -32,7 +32,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--rock <folder>` | A built Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields, and its `RockWeb/bin/Rock.Version.dll` gives the Rock version. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads, but the Rock version is unknown, so a load needs `--rock-version` or `--any-rock`. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
-| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, campaign, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
+| `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, campaign, achievements, businesses, prayer, steps, and calendar) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
 | `--dry-run` | Do everything, then roll it all back. |
 
@@ -65,7 +65,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, communications, calendar, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
 
 ## Parts
 
@@ -82,6 +82,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 | `Notes` | Notes | Notes on people in six note types, secured to staff | |
 | `Steps` | Steps | Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with the Baptism Date on each baptized person and program completions | Small groups, serving teams, giving |
 | `Communications` | Communications | Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use | Small groups, serving teams, prayer requests, steps |
+| `Calendar` | Calendar events | Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos | |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
 `SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
@@ -94,7 +95,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
-Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, step stories need `Steps`, and staff texting numbers need `Communications`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, step stories need `Steps`, staff texting numbers need `Communications`, and calendar stories need `Calendar`. A business's contacts are always checked, and its recent gifts only with `Giving`.
 
 On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same. After steps joined, a full Core 1 load matched main's load table by table, and so did Core 3 and Full 7. Core 1 without `Steps` differed from the full load only in the step tables (`Step`, `StepProgramCompletion`, `StepType`, and `StepProgram`) and in the 192 Baptism Date and Baptized Here values. Core 1 with `--parts Steps`, which adds small groups, serving teams, and giving, had the same steps, step values, memberships, gifts, and small group and serving attendance as the full load. On 2026-10-22, after the Cast's pledges joined giving, a load of every part matched main's load in every table for all three datasets. Core 1 without `Giving` (and so without steps and check images) had no pledges, and differed from the full load only in the giving tables, the giving attributes and giving automation setting, the campus tithe metric, and the step tables and Baptism values. Core 1 with `--parts Giving` had the same pledges, gifts, giving attributes, and tithe metric as the full load. After the Crowd and business pledges joined, a load of every part again matched main's load in every table for all three datasets. Core 3 has Crowd households and 27 pledges. Without `Giving` it had no pledges and the same fund and goal, and it differed from the full load in the same tables as Core 1 did. Core 3 with `--parts Giving` had the same 27 pledges and the same rows in every financial table as the full load.
 
@@ -556,6 +557,19 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 6. **One-to-one email.** `loading/OneToOneLoader.cs` reads the loaded serving requests, connection activities, answered prayer requests, and first visits, adds the Cast staff's emails, and plans each one through `EmailPlanner.PlanOneToOne`, so bounces and preferences match bulk email. `EmailWriter` writes them, with the system communication on serving emails.
 7. **Push.** `loading/PushLoader.cs` writes the app site from `configuration/church-app.json`, its devices, and each push in the library once per campus and occasion, with Rock Mobile Push's recipient fields, History lines, and opens.
 8. **Steps and the flow.** `CommunicationsLoader` reads each class's people from the Step rows, so the email and text planners send class messages to them. `loading/FlowLoader.cs` writes the After Starting Point flow, its templates and messages, and an instance with its emails and conversions for each finished class.
+
+## Calendar
+
+`generation/CalendarPlanner.cs` plans every event's occurrences from `../configuration/calendar.json`, and `loading/CalendarLoader.cs` writes them. The design is in [Calendar](../docs/calendar.md).
+
+1. **Dates.** Each event's rule gives its dates from the install day. Rules other features own come from their files: Easter, the baptism Sundays, the class schedules (`ClassSchedule`), and the camp and trip seasons from `steps.json`, VBS, the group launches, and Serve Sunday from `communications.json`, and Commitment Sunday from `campaign.json`.
+2. **Occurrences.** One per campus and start time, each with its own unnamed schedule: a weekly or monthly rule with no end, one date, a list of dates, a weekly rule with a count, or one multi-day block.
+3. **What Rock's hooks set.** Each schedule's effective dates, its `ScheduleDate` rows for now plus or minus two years, and each occurrence's next start, so Rock Cleanup finds nothing to fix.
+4. **Rock's sample events.** Rock's four sample events are updated in place under their Guids, and their old occurrences and schedules removed.
+5. **Contacts.** Named Cast staff, or each campus's campus pastor (`CampusPastors`), with Ted Decker standing in on the main campus. Ted approves every event.
+6. **Photos.** `PhotoLoader.LoadEventPhotos` sets each photo listed in `photos/events/manifest.json`.
+
+Speed: Core 1 has 309 occurrences, Core 3 has 657, and Full 7 has 1,326. The step takes well under a second.
 
 ## Check images
 

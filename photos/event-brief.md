@@ -10,7 +10,7 @@ Each photo is the event's picture in Rock (`EventItem.PhotoId`). Rock shows it a
 
 One photo per event in [The events](#the-events) below: 49 photos. Make them in the order listed. The first 42 are on the Public calendar, so people see them. The last 7 are staff events on the Internal calendar. They are lower priority, because Rock's public pages never show them.
 
-The events, their dates, and their wording live in `configuration/calendar.json`, which arrives with the calendar loader on the `calendar-events` branch. You do not need it: this page has everything. Each event's heading below gives its `key` from that file. Do not change that file.
+The events, their dates, and their wording live in [configuration/calendar.json](../configuration/calendar.json). Each event's heading below gives its `key` from that file. Do not change that file.
 
 ## Image size
 
@@ -68,7 +68,7 @@ For a reference image, use this instruction from the reference pack: "Use the at
 
 1. Save your full-size image to `photos/originals/events/{key}.png` (or `.jpg`, in the format your tool made), where `{key}` is the event's key.
 2. Save the delivered 2:1 JPEG, 1536 by 768 pixels, quality 85, sRGB, with image metadata removed, to `photos/events/{key}.jpg`. Keep it under 500 KB.
-3. Add one entry per photo to `photos/events/manifest.json`. Create the file if it does not exist. Keep the entries in the order of this page.
+3. Add one entry per photo to `photos/events/manifest.json`. The file exists with an empty `images` list. Keep the entries in the order of this page.
 
 ```json
 {
@@ -88,9 +88,9 @@ For a reference image, use this instruction from the reference pack: "Use the at
 
 ## How the photos reach Rock
 
-No code changes when photos arrive. Once the calendar loader lands (the `calendar-events` branch), the builder packs every photo listed in `photos/events/manifest.json` into every dataset, and the loader sets it as that event's photo in Rock. An event with no entry loads with no photo. So you can deliver photos a few at a time: each one shows up in the next package build.
+No code changes when photos arrive. The builder packs every photo listed in `photos/events/manifest.json` into every dataset, and the loader sets it as that event's photo in Rock. An event with no entry loads with no photo. So you can deliver photos a few at a time: each one shows up in the next package build.
 
-Until then, the photos wait in the repository. The builder refuses a manifest entry whose `event` is not a key in `configuration/calendar.json`, or whose file is missing.
+The builder refuses a manifest entry whose `event` is not a key in `configuration/calendar.json`, or whose file is missing.
 
 ## Check every image
 

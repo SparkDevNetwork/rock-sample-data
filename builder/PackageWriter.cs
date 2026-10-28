@@ -128,6 +128,16 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // Every dataset has the calendar, so every package carries the event photos delivered so far.
+            if ( repository.Exists( SampleDataSource.EventPhotoManifestPath ) )
+            {
+                AddFile( SampleDataSource.EventPhotoManifestPath );
+                foreach ( var photo in source.ReadEventPhotoManifest().Images )
+                {
+                    AddFile( $"photos/{photo.File}" );
+                }
+            }
+
             // Fonts for check images, with their licenses, the prayer and note text pools, the message library with the
             // email template and its logo, and the license for the data itself.
             AddFolder( "content/notes", ".json" );
@@ -209,6 +219,20 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.OpportunityPhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            var eventKeys = source.Calendar?.Events.Select( e => e.Key ).ToHashSet() ?? new HashSet<string>();
+            foreach ( var photo in source.ReadEventPhotoManifest().Images )
+            {
+                if ( !eventKeys.Contains( photo.Event ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.EventPhotoManifestPath} has a photo for {photo.Event}, which is not an event in configuration/calendar.json." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.EventPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

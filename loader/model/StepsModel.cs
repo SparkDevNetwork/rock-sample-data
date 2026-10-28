@@ -393,7 +393,7 @@ namespace RockSampleData.Loader.Model
         public int Month { get; set; }
 
         /// <summary>
-        /// Which such weekday of the month, from 1.
+        /// Which such weekday of the month, from 1. -1 is the last one.
         /// </summary>
         public int Week { get; set; }
 
@@ -404,8 +404,14 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public DateTime In( int year )
         {
-            var first = new DateTime( year, Month, 1 );
             var weekday = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), Weekday, true );
+            if ( Week < 0 )
+            {
+                var last = new DateTime( year, Month, DateTime.DaysInMonth( year, Month ) );
+                return last.AddDays( -( ( 7 + ( int ) last.DayOfWeek - ( int ) weekday ) % 7 ) );
+            }
+
+            var first = new DateTime( year, Month, 1 );
             return first.AddDays( ( ( 7 + ( int ) weekday - ( int ) first.DayOfWeek ) % 7 ) + ( 7 * ( Week - 1 ) ) );
         }
     }
