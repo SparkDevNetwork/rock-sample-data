@@ -158,13 +158,14 @@ module.exports = function brand( { model, r, downloads } ) {
 
 <section class="section section-sand" id="photos">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Photos", title: "Download the pictures.", lede: "Every photo is AI-generated and fictional. Download a whole set as a zip, or pick single building views and small group photos below." } )}
+    ${sectionHead( { eyebrow: "Photos", title: "Download the pictures.", lede: "Every photo is AI-generated and fictional. Download a whole set as a zip, or pick single building views, small group photos, and event graphics below." } )}
     <div class="pack-grid">
       ${[
             [ "building", "Building views", "12 empty rooms and exterior views, JPEG" ],
             [ "campuses", "Campus exteriors", "7 distinct campuses ready for Sunday, without people, JPEG" ],
             [ "serving", "Serving teams", "8 photos of Cast volunteers at work, JPEG" ],
             [ "groups", "Small groups", "12 Cast small group photos, JPEG" ],
+            [ "events", "Calendar events", `${model.calendarEvents.filter( e => e.photo ).length} event graphics and photos, 2:1, JPEG` ],
             [ "portraits", "Cast portraits", `${model.counts.photos} profile photos, JPEG` ]
         ].map( ( [ key, title, detail ] ) => html`<a class="pack reveal" href="${r( "downloads/" + downloads.zips[key].name )}" download>
           <span class="pack-title">${esc( title )}</span>
@@ -231,6 +232,20 @@ module.exports = function brand( { model, r, downloads } ) {
         } )}
     </div>
     <p class="fine">All images are 1536 by 1024 pixels. The PNG files are the full-quality masters.</p>
+    <h3 class="view-heading">Calendar events</h3>
+    <div class="view-grid">
+      ${model.calendarEvents.filter( e => e.photo ).map( e => html`<figure class="view view-wide reveal">
+        <img src="${r( "images/events/" + e.photo )}" alt="${esc( e.name )}" loading="lazy" width="1536" height="768">
+        <figcaption>
+          <span>${esc( e.name )} <span class="view-topic">${esc( e.stage )}</span></span>
+          <span class="view-links">
+            <a href="${r( "downloads/events/" + e.photo )}" download>JPEG ${formatSize( d( "events/" + e.photo ).size )}</a>
+            <a href="${r( "downloads/events/" + e.original )}" download>PNG ${formatSize( d( "events/" + e.original ).size )}</a>
+          </span>
+        </figcaption>
+      </figure>` )}
+    </div>
+    <p class="fine">Event images are 1536 by 768 pixels, the 2:1 shape Rock's app shows. The PNG files are the full-quality masters.</p>
   </div>
 </section>
 `

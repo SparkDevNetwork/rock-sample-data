@@ -232,16 +232,19 @@ ${model.communicationLists.length ? html`<section class="section" id="lists">
 ${model.calendarEvents.length ? html`<section class="section section-sand" id="calendar">
   <div class="wrap">
     ${sectionHead( { eyebrow: "The calendar", title: "A year of events, on purpose.", lede: `The church has ${model.calendarEvents.length} events on Rock's Public and Internal calendars, at every campus a dataset has. Each event serves one Ministry by Design stage, the same path the step programs follow: Belong, then Equip, then Contribute, then Lead.` } )}
-    <div class="card-grid">
-      ${calendarStages.map( ( [ stage, text ] ) => {
+    ${calendarStages.map( ( [ stage, text ] ) => {
           const events = model.calendarEvents.filter( e => e.stage === stage );
-          return events.length ? html`<div class="card reveal">
-        <h3>${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
-        <p>${esc( text )}</p>
-        <span class="tags">${events.map( e => html`<span class="tag">${esc( e.name )}</span>` )}</span>
-      </div>` : "";
+          return events.length ? html`<div class="calendar-stage">
+      <h3 class="view-heading">${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
+      <p class="calendar-stage-text">${esc( text )}</p>
+      <div class="event-grid">
+        ${events.map( e => html`<div class="event-tile reveal">
+          ${e.photo ? zoomable( { src: r( "images/events/" + e.photo ), alt: e.name, className: "event-art", width: 1536, height: 768 } ) : ""}
+          <p class="event-name">${esc( e.name )}${e.calendars.includes( "public" ) ? "" : html` <span class="tag">Internal</span>`}</p>
+        </div>` )}
+      </div>
+    </div>` : "";
       } )}
-    </div>
     <p class="fine">Dates count from install day and match the steps, the newsletters, and the Cast's stories. The car show was two days ago, and the student retreat is coming up.</p>
   </div>
 </section>` : ""}

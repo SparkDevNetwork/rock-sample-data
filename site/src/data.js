@@ -207,6 +207,9 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
+    // Each calendar event's delivered image, by event key (decision D-event-images-1).
+    const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
+
     return {
         root,
         households,
@@ -223,7 +226,10 @@ function load() {
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,
-        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events : [],
+        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events.map( e => {
+            const photo = eventPhotos.find( p => p.event === e.key );
+            return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
+        } ) : [],
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {
             households: households.length,

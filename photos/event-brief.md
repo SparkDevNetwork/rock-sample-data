@@ -4,7 +4,22 @@ You create one image for each event on Rock Solid Church's calendar in Rock RMS 
 
 Work in your own branch from `main`. All paths are from the root of the repository.
 
+**Delivered 2026-10-28.** All 51 images are in `photos/events/`, with their originals in `photos/originals/events/` and their prompts and approval in `photos/events/manifest.json` (decision D-event-images-1). Jon approved every one, and some of his choices differ from this page; [What changed after review](#what-changed-after-review) lists them. Use this page to remake an image or to make one for a new event, and follow the approved images where they differ.
+
 Each image is the event's picture in Rock (`EventItem.PhotoId`). Rock shows it at the top of the event's page on the church website and in the church app. It should look like what a real church posts to invite people to the event.
+
+## What changed after review
+
+Jon reviewed every image and approved choices that differ from the rules below. His approvals win over this page:
+
+1. **Vacation Bible School shows children's faces.** Kids making a paper mural, with the title in charcoal and teal on the left. A clear child's face is fine here because the kids are made up and the scene is a craft table.
+2. **Baby Dedication shows Pete Foster,** the senior pastor, praying over the families, from his Cast profile photo.
+3. **The High School Mission Trip is in Mexico,** with a partner church, not a made-up place in the Southwest.
+4. **The women's events have their own purple family.** Women's Night Out, the Women's Christmas Brunch, the Women's Bible Study, and the Women's Retreat share a smoky plum look, inside the church's brand.
+5. **Not every event looks like Arizona.** Some designs are about the event, not the desert.
+6. **Some events switched between design and photo** after review, so the Kind lines below are where each one started, not always where it ended.
+7. **The Internal calendar's staff events are photos with no text.**
+8. **The Women's Retreat is approved for now,** and may be remade later.
 
 ## Two kinds of image
 
