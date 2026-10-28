@@ -107,7 +107,10 @@
       "emailIsActive": true,
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "tlowe"
+      ]
     }
   ]
 }

@@ -68,7 +68,10 @@
       },
       "photo": {
         "ethnicity": "black"
-      }
+      },
+      "logins": [
+        "mfischer"
+      ]
     },
     {
       "key": "julie",

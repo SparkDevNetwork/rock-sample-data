@@ -79,7 +79,10 @@
       },
       "photo": {
         "ethnicity": "east-asian"
-      }
+      },
+      "logins": [
+        "jlee"
+      ]
     },
     {
       "key": "sarah",
@@ -103,7 +106,10 @@
       },
       "photo": {
         "ethnicity": "east-asian"
-      }
+      },
+      "logins": [
+        "slee"
+      ]
     },
     {
       "key": "benjamin",

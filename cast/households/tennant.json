@@ -85,7 +85,10 @@
       "attributes": {
         "Employer": "Palo Verde Technical College",
         "Position": "Supply Manager"
-      }
+      },
+      "logins": [
+        "rtennant"
+      ]
     },
     {
       "key": "sheryl",

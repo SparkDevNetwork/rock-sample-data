@@ -65,7 +65,10 @@
           "month": 4,
           "day": 8
         }
-      }
+      },
+      "logins": [
+        "pcoffee"
+      ]
     }
   ]
 }

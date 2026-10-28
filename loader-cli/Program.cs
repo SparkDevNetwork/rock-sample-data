@@ -24,7 +24,7 @@ using RockSampleData.LoaderCli;
     harnesses. Rock's own installer uses the same loader library.
 
     Usage:
-      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--parts Photos,Giving,...] [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--rock-version 21.0.2] [--any-rock] [--dry-run]
+      rock-sample-data-load --package core-1.zip --connection "<connection string>" [--parts Photos,Giving,...] [--anchor yyyy-MM-dd] [--seed text] [--years 3] [--crowd N] [--check-images] [--check-image-months N] [--check-image-copies <folder>] [--rock <Rock checkout> | --web-config <file>] [--rock-version 21.0.2] [--login-password <password>] [--any-rock] [--dry-run]
       rock-sample-data-load --connection "<connection string>" --calibrate <output file>
       rock-sample-data-load --connection "<connection string>" --package core-1.zip --check-cast [--parts Photos,Giving,...]
       rock-sample-data-load --connection "<connection string>" --giving-parity [--dataset core-1]
@@ -105,6 +105,7 @@ try
         CheckImageCopyFolder = options.GetValueOrDefault( "check-image-copies" ),
         RockWebConfigPath = webConfig,
         RockVersion = rockVersion,
+        LoginPasswordHash = options.TryGetValue( "login-password", out var loginPassword ) ? HashLoginPassword( loginPassword ) : null,
         IsDryRun = options.ContainsKey( "dry-run" ),
         IsAnyRockVersionAllowed = options.ContainsKey( "any-rock" )
     } );
@@ -153,6 +154,21 @@ static List<SampleDataPart> ParseParts( string names )
     }
 
     return parts;
+}
+
+/// <summary>
+/// Hashes the password every sample login uses the way Rock's Database login does (decision D-logins-2): BCrypt at
+/// Rock's default cost of 11, in the $2a$ form Rock's BCrypt library reads. A site with another cost setting
+/// rehashes it the first time someone signs in.
+/// </summary>
+static string HashLoginPassword( string password )
+{
+    if ( string.IsNullOrWhiteSpace( password ) || password == "true" )
+    {
+        throw new ArgumentException( "--login-password needs a password. Leave it out to load no logins." );
+    }
+
+    return BCrypt.Net.BCrypt.HashPassword( password, BCrypt.Net.BCrypt.GenerateSalt( 11, 'a' ) );
 }
 
 /// <summary>

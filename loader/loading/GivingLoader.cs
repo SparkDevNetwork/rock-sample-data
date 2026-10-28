@@ -129,6 +129,11 @@ namespace RockSampleData.Loader.Loading
         public Dictionary<string, List<RockGift>> QualifyingGifts { get; private set; }
 
         /// <summary>
+        /// Rock's Website transaction source. A gift from it was given online.
+        /// </summary>
+        public int WebsiteSourceId => DefinedValueId( WebsiteSourceGuid );
+
+        /// <summary>
         /// Rock's PasswordKey, used to fill the check scanner's matching fields. When null, those fields stay empty.
         /// </summary>
         public RockKeys Keys { get; set; }

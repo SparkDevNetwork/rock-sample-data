@@ -13,6 +13,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 7. A child on their own, in a one-person family, is a student aged 12 to 17 (decision 157).
 8. Parents are 25 to 54. Adults without children take what is left of each adult band after the parents, so about 39% of them are 18 to 24 (decision 166).
 9. A couple is one man and one woman. A single adult's chance of being a woman is set for each age band, so each band's share of women matches the profile (decision 167).
+10. When the person installing gives a password, about 30% of active generated adults have a Rock login, and most people have none. Each adult's chance comes from their strongest reason in `configuration/logins.json`, such as the church app, leading, or giving online, and every campus pastor has one (decision D-logins-1). See [How logins load](../loader/README.md#how-logins-load).
 
 ## How big the Crowd is
 

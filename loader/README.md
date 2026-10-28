@@ -34,6 +34,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--check-image-copies <folder>` | Also saves each check image to this folder, for looking at them. Implies `--check-images`. |
 | `--check-cast` | Loads nothing. Checks the package's Cast expectations (giving, campaign, achievements, businesses, prayer, and steps) against an already loaded database (see [validation/](../validation/README.md#cast-expectations)) and exits with 1 if any fail. Every load also checks them. With `--parts`, it checks only those parts. |
 | `--giving-parity` | Loads nothing. The release-time parity test: after Rock's own Giving Automation job has run on a loaded database, compares what Rock wrote with the loader's port (see [validation/](../validation/README.md#rock-version-guard)). Use with `--dataset` or `--package`. |
+| `--login-password <password>` | Loads logins, every one with this password, hashed the way Rock's Database login does (see [How logins load](#how-logins-load)). Without it, no logins load. |
 | `--dry-run` | Do everything, then roll it all back. |
 
 The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` rows, which have no such column (see [How people load](#how-people-load)).
@@ -117,7 +118,8 @@ DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
     Parts = new[] { SampleDataPart.Giving, SampleDataPart.Prayer },
     Progress = progress,
     PasswordKey = passwordKey,
-    DataEncryptionKey = dataEncryptionKey
+    DataEncryptionKey = dataEncryptionKey,
+    LoginPasswordHash = databaseLogin.EncodePassword( null, passwordFromTheForm )
 } );
 ```
 
@@ -126,6 +128,7 @@ DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
 | `Parts` | The parts to load. Null loads every part. The load adds the parts they need. |
 | `Progress` | An `IProgress<LoadProgressReport>` that gets every line the CLI prints. Each report has the `Message`, the `StepName` when the line starts a step (null for a detail line), and `CompletedSteps` of `TotalSteps`. `TotalSteps` counts only the steps this load runs. Reports come on the loading thread, in order. The library never writes to the console. |
 | `PasswordKey`, `DataEncryptionKey` | Rock's keys, as its web.config holds them (the PasswordKey in hex). Each one is used instead of the one in `RockWebConfigPath`. Inside Rock, pass the server's own, so check scanning and note mentions work on that server. |
+| `LoginPasswordHash` | The password hash every sample login uses. Inside Rock, pass Rock's Database authentication component's `EncodePassword` of the password the person installing typed, so the loader never sees the password. It must be a BCrypt hash. Null loads no logins (see [How logins load](#how-logins-load)). |
 | `RockVersion` | The database's Rock version, for example `21.0.2`. Rock passes `VersionInfo.GetRockSemanticVersionNumber()`. Null reads it from the `Rock.Version` assembly in this process, which works only inside Rock. |
 | `IsAnyRockVersionAllowed` | Loads on another Rock major release, or an unknown Rock, with a warning. `CheckDatabase` never honors it. Rock's block leaves it false. |
 
@@ -356,6 +359,18 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 
+## How logins load
+
+Logins load last, in the always-on Logins step, and only when the load has a password hash (decisions D-logins-1 to D-logins-4). Every login is a Rock Database login with that one hash.
+
+1. **The password.** Rock's Database login stores a BCrypt hash. PasswordKey only checks very old SHA-1 hashes, so it plays no part. Inside Rock, the installer block hashes the typed password with Rock's own Database authentication component and passes `LoginPasswordHash`; the loader never sees the password. The CLI's `--login-password` hashes at Rock's default cost of 11 in the `$2a$` form. A site with another cost setting rehashes the password the first time someone signs in. No password or hash is ever in a package.
+2. **The Cast.** Their usernames are in their files (`logins` in `../cast/households`), so docs can name them, such as `tdecker`. They are reserved before any generated one. Alisha Marble signs in only with Rock's own `admin`.
+3. **Everyone else.** Each campus pastor gets one. A generated adult 18 or older gets one with the chance of their strongest reason in `../configuration/logins.json`: the church app, leading a group or team, a scheduled or one-time online gift, the prayer team, a serving team, a small group, or their connection status. The reasons come from the group, serving, and giving plans every load makes. The app and the prayer team exist only when communications and prayer load, so they count only then. Generated adults need an email address unless they have the app. Each person draws from their own seeded stream, after every other planner, so logins never change another row.
+4. **Usernames** follow Rock's own `Database.GenerateUsername`: the first name's first letter and the last name, lowercase, then 1, 2, and so on when taken. Accents are folded and anything but a to z and 0 to 9 is dropped. Every username already in the database, such as `admin`, is left alone.
+5. **What each login looks like.** It was made on the day of its first reason, such as a first online gift, or on a day in the history window. Staff signed in within days, app users and leaders within weeks, and many occasional users never after the day they made it. About 3% of occasional ones were never confirmed. None is locked out or marked as needing a new password.
+6. **Person history.** Each login gets the History rows Rock's login save hook writes: the authentication provider, the username, Is Confirmed, and Is Password Change Required.
+7. **Account protection.** Every load, with or without logins, sets each loaded person's account protection profile the way Rock's Process Elevated Security job does: Extreme or High from a security role's level, High for an active scheduled gift or saved account, Medium for a login, and Low otherwise.
+
 ## How photos load
 
 `loading/PhotoLoader.cs` attaches profile photos as Rock person images in database storage, one file per person, and sets each person's photo. The rules are in [Photos](../photos/README.md).
@@ -512,7 +527,8 @@ See [validation/](../validation/README.md). The first Full 7 run passed 55% of p
 | Adult steps: Rock's Discipleship Path built out to seven step types, with steps from memberships, the giving journey, the Baptism Date, and class schedules, and program completions the way Rock's job records them. See [How steps load](#how-steps-load). | Done |
 | Student steps: the Student Path, a new program with four step types from student check-ins (camps, trips, the Follow Jesus decision, and student leaders), student baptisms, and its program completions | Done |
 | Security roles: Cast people join the roles Rock ships, mapped in `configuration/security-roles.json`, and campus pastors join the staff and pastoral roles | Done |
-| People, the rest: person attributes, logins, relationships, follows, and the Cast's general groups | Later (Phase 1) |
+| Logins: the Cast's, every campus pastor's, and a designed share of generated adults, all with the password chosen at install, with their person history and every person's account protection profile | Done |
+| People, the rest: person attributes, relationships, follows, and the Cast's general groups | Later (Phase 1) |
 
 ## Notes
 

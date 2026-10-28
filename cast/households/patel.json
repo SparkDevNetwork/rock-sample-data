@@ -69,6 +69,9 @@
       "photo": {
         "ethnicity": "hispanic-latino"
       },
+      "logins": [
+        "rpatel"
+      ],
       "connectionRequests": [
         {
           "opportunity": "production-team",

@@ -88,6 +88,14 @@ namespace RockSampleData.Loader
         public string DataEncryptionKey { get; set; }
 
         /// <summary>
+        /// The BCrypt hash of the password every sample login uses, made the way Rock's Database login stores it
+        /// (decision D-logins-2). Rock passes its own Database authentication component's EncodePassword of the
+        /// password the person installing typed, so the loader never sees the password. Null loads no logins.
+        /// No password or hash is ever in a package.
+        /// </summary>
+        public string LoginPasswordHash { get; set; }
+
+        /// <summary>
         /// True rolls everything back at the end, which is handy for testing.
         /// </summary>
         public bool IsDryRun { get; set; }

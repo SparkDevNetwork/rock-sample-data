@@ -95,7 +95,10 @@
       },
       "photo": {
         "ethnicity": "black"
-      }
+      },
+      "logins": [
+        "tcoleman"
+      ]
     },
     {
       "key": "elijah",

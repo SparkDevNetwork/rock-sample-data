@@ -91,6 +91,11 @@ namespace RockSampleData.Loader
         public ChurchAppConfiguration ChurchApp { get; }
 
         /// <summary>
+        /// Who among generated adults has a login, or null in a package built before logins loaded.
+        /// </summary>
+        public LoginsConfiguration Logins { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -112,6 +117,7 @@ namespace RockSampleData.Loader
             Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
             Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
             ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
+            Logins = Files.Exists( LoginsConfigurationPath ) ? Read<LoginsConfiguration>( LoginsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -177,6 +183,8 @@ namespace RockSampleData.Loader
         public const string CommunicationsConfigurationPath = "configuration/communications.json";
 
         public const string ChurchAppConfigurationPath = "configuration/church-app.json";
+
+        public const string LoginsConfigurationPath = "configuration/logins.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

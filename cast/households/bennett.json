@@ -109,7 +109,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "rbennett"
+      ]
     },
     {
       "key": "nick",

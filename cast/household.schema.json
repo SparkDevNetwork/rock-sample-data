@@ -255,7 +255,7 @@
           }
         },
         "attributes": { "type": "object", "description": "Person attribute values by key. Date values use relativeDate objects." },
-        "logins": { "type": "array", "items": { "type": "string" } },
+        "logins": { "type": "array", "description": "The person's Rock Database logins: the first initial of the first name plus the last name, lowercase, letters and digits only (decision D-logins-1). Every login uses the password chosen at install.", "items": { "type": "string", "pattern": "^[a-z0-9]+$" } },
         "securityRoles": { "type": "array", "items": { "type": "string" } },
         "relationships": {
           "type": "array",
