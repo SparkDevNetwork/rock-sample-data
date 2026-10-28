@@ -75,14 +75,16 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
-            // A Cast adult with the church app signed in to it, so one with no login in their file gets one by Rock's
-            // rule, after every listed Cast username. Someone who already has a login in Rock, such as Alisha Marble
-            // with Rock's own admin, keeps only that one.
+            // A Cast adult with the church app signed in to it, and one on the prayer team holds RSR - Prayer Access
+            // through group sync (decision 188), so one with no login in their file gets one by Rock's rule,
+            // after every listed Cast username. Someone who already has a login in Rock, such as Alisha Marble with
+            // Rock's own admin, keeps only that one.
             foreach ( var (_, person) in people.Where( x => inputs.CastHouseholdKeys.Contains( x.Household.Cast.Key ) ) )
             {
                 var personReasons = reasons.GetValueOrDefault( person.PersonId );
                 var hasApp = personReasons?.Any( r => r.Key == "app" ) == true;
-                if ( !hasApp || ( person.Cast.Logins?.Count ?? 0 ) > 0 || inputs.PeopleWithLogins.Contains( person.PersonId ) || !IsOldEnough( person ) )
+                var isPrayerTeam = personReasons?.Any( r => r.Key == "prayer-team" ) == true;
+                if ( !( hasApp || isPrayerTeam ) || ( person.Cast.Logins?.Count ?? 0 ) > 0 || inputs.PeopleWithLogins.Contains( person.PersonId ) || !IsOldEnough( person ) )
                 {
                     continue;
                 }
@@ -90,7 +92,7 @@ namespace RockSampleData.Loader.Generation
                 var userName = UniqueUserName( person.Cast.FirstName, person.Cast.LastName, taken );
                 if ( userName != null )
                 {
-                    logins.Add( Login( person, userName, personReasons, Tier.Frequent, canBeUnconfirmed: false ) );
+                    logins.Add( Login( person, userName, personReasons, hasApp ? Tier.Frequent : Tier.Active, canBeUnconfirmed: false ) );
                 }
             }
 
@@ -165,6 +167,12 @@ namespace RockSampleData.Loader.Generation
             if ( string.IsNullOrWhiteSpace( person.Cast.Email ) )
             {
                 return 0;
+            }
+
+            // A reason the file makes certain, such as the prayer team's security role (decision 188), is never scaled down.
+            if ( keys.Any( k => _config.Reasons.Any( r => r.Key == k && r.Percent >= 100 ) ) )
+            {
+                return 100;
             }
 
             var chance = person.Cast.RecordStatus == "inactive"

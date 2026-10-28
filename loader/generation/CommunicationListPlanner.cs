@@ -47,7 +47,12 @@ namespace RockSampleData.Loader.Generation
         public const string PrayerTeam = "prayer-team";
         public const string SmallGroupLeaders = "small-group-leaders";
 
-        private static readonly HashSet<string> Rules = new HashSet<string> { Newsletter, Men, Women, ParentsOfKids, Students, Volunteers, PrayerTeam, SmallGroupLeaders };
+        /// <summary>
+        /// A list whose members its group sync writes (configuration/group-syncs.json), so the planner gives it none.
+        /// </summary>
+        public const string GroupSync = "group-sync";
+
+        private static readonly HashSet<string> Rules = new HashSet<string> { Newsletter, Men, Women, ParentsOfKids, Students, Volunteers, PrayerTeam, SmallGroupLeaders, GroupSync };
 
         /// <summary>
         /// Plans every list's members, in list order and then person order.
@@ -134,6 +139,9 @@ namespace RockSampleData.Loader.Generation
 
                 case PrayerTeam:
                     return person.IsPrayerTeam;
+
+                case GroupSync:
+                    return false;
 
                 default:
                     return person.LeadingSince.HasValue;

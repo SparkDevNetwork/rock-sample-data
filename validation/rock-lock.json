@@ -5,6 +5,57 @@
   "checkedDate": "2026-10-21",
   "files": [
     {
+      "path": "Rock/Model/Group/GroupSync/GroupSyncService.cs",
+      "why": "Rock's group sync: who it adds, removes, and restores, and when it sends welcome and exit emails and makes logins. The loader fills each synced group so this finds nothing to change.",
+      "mirroredBy": [
+        "loader/loading/GroupSyncLoader.cs"
+      ],
+      "sha256": "a975f1f29ba58d6a9a6ea42ad0c515b4c5d7c855d46121e17527a2c462a2dbfd"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/InGroupFilter.cs",
+      "why": "The in-group data filter's selection and rules, which the loader evaluates in SQL.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs"
+      ],
+      "sha256": "fa931cd1f791c22d28c6c6c103246ac75e1ce20d70cca0fa0d4a81970dcc8797"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/InGroupGroupTypeFilter.cs",
+      "why": "The in-group-type data filter's selection and rules, which the loader evaluates in SQL.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs"
+      ],
+      "sha256": "d1ba5063bfd658c9e0bc8e2bc4830bb65d765971ca9bcd73e3c12a078894a392"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/GroupTypeAttendanceFilter.cs",
+      "why": "The attendance count data filter's selection and rules, which the loader evaluates in SQL.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs"
+      ],
+      "sha256": "8603a6b1e3f7edacf60584d6b7f4f7c9c3ecc5a80c16b8f4dfeb6b88c74d2839"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/GroupTypeFirstAttendanceFilter.cs",
+      "why": "The first attendance data filter's selection and rules, which the loader evaluates in SQL.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs"
+      ],
+      "sha256": "bfc5d5c788623c4f5b88295e3500477e5ac7e114ad56beec34f0754103d81dc8"
+    },
+    {
+      "path": "Rock/Utility/RockDateTimeHelper.cs",
+      "section": "CalculateDateRangeFromDelimitedValues for Current, Last, and Previous",
+      "from": "internal static DateRange CalculateDateRangeFromDelimitedValues( string value",
+      "to": "else if ( ( Enums.Controls.SlidingDateRangeType.Next",
+      "why": "How a sliding date range such as Last 6 Months becomes dates, which the loader repeats for the install day.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs"
+      ],
+      "sha256": "3fc9345ded27cd8e89056de35a11b3881efd2e3672c404f327e55d1d434e5409"
+    },
+    {
       "path": "Rock/Jobs/GivingAutomation.cs",
       "why": "The job: which gifts count, when units are reclassified, the attribute values, and the recent and late alert rules.",
       "mirroredBy": [

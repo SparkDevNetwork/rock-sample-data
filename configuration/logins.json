@@ -6,7 +6,7 @@
     { "key": "campus-pastor", "percent": 100, "why": "Each campus pastor is staff, in RSR - Staff Workers and RSR - Pastoral Workers, and writes notes." },
     { "key": "leader", "percent": 90, "why": "Small group leaders and serving team leaders use Rock's group and scheduling tools, which need a login." },
     { "key": "scheduled-online", "percent": 85, "why": "Most churches have givers set up and change a scheduled gift in their account." },
-    { "key": "prayer-team", "percent": 80, "why": "Praying through requests online needs a login. Counts only when prayer loads, since the prayer team is part of it." },
+    { "key": "prayer-team", "percent": 100, "why": "Praying through requests online needs a login, and group sync puts the prayer team in RSR - Prayer Access, a security role (decision 188). Counts only when prayer loads, since the prayer team is part of it." },
     { "key": "volunteer", "percent": 60, "why": "Volunteers accept and decline in the Group Schedule Toolbox, though some only answer texts and emails." },
     { "key": "online-one-time", "percent": 50, "why": "Many one-time online givers give as guests." },
     { "key": "group-member", "percent": 45, "why": "Some join through Group Finder with an account." },

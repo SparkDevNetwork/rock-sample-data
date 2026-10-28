@@ -39,6 +39,9 @@ namespace RockSampleData.RockRunner
     ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
     ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
     ///            a tab, and prints "username signed in" or "username refused" for each.
+    ///   group-sync  Runs Rock's own group sync (GroupSyncService.SyncGroups, what the Group Sync job calls) on every sync,
+    ///            whatever its interval, and prints how many syncs ran, the members added, removed, and not added, and
+    ///            each warning.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -53,10 +56,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -87,6 +90,7 @@ namespace RockSampleData.RockRunner
                     "startup" => worker.Startup(),
                     "hash-password" => worker.HashPassword( lines.FirstOrDefault() ?? string.Empty ),
                     "sign-in" => worker.SignIn( lines ),
+                    "group-sync" => worker.GroupSync(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -246,6 +250,49 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Runs Rock's group sync on every sync in the database, the call the Group Sync job makes, and reports what it changed.
+        /// The job itself would skip a sync whose interval has not passed, so the runner hands Rock every sync.
+        /// </summary>
+        public string GroupSync()
+        {
+            Start();
+            StartMessageBus();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.GroupSyncService", true );
+            var syncType = _rock.GetType( "Rock.Model.GroupSync", true );
+            var infoType = _rock.GetType( "Rock.Model.GroupSyncInfo", true );
+            var service = Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) );
+            var syncs = ( ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( service, null ) ).ToList();
+
+            var infos = ( System.Collections.IList ) Activator.CreateInstance( typeof( List<> ).MakeGenericType( infoType ) );
+            foreach ( var sync in syncs )
+            {
+                var id = syncType.GetProperty( "Id" ).GetValue( sync );
+                var info = Activator.CreateInstance( infoType );
+                infoType.GetProperty( "SyncId" ).SetValue( info, id );
+                infoType.GetProperty( "GroupName" ).SetValue( info, $"sync {id}" );
+                infos.Add( info );
+            }
+
+            var syncGroups = serviceType.GetMethod( "SyncGroups", BindingFlags.Public | BindingFlags.Static )
+                ?? throw new InvalidOperationException( "This Rock has no GroupSyncService.SyncGroups. The runner needs updating for this Rock." );
+            var result = syncGroups.Invoke( null, new object[] { infos, 180, false, null } );
+            var resultType = result.GetType();
+            var lines = new List<string>
+            {
+                $"syncs {syncs.Count}",
+                $"added {resultType.GetProperty( "AddedMemberCount" ).GetValue( result )}",
+                $"removed {resultType.GetProperty( "DeletedMemberCount" ).GetValue( result )}",
+                $"not added {resultType.GetProperty( "NotAddedMemberCount" ).GetValue( result )}"
+            };
+            lines.AddRange( ( ( IEnumerable<string> ) resultType.GetProperty( "WarningMessages" ).GetValue( result ) ).Select( w => $"warning {w}" ) );
+            lines.AddRange( ( ( IEnumerable<Exception> ) resultType.GetProperty( "WarningExceptions" ).GetValue( result ) ).Select( e => $"warning {e.GetBaseException().Message}" ) );
+            return string.Join( "\n", lines );
         }
 
         /// <summary>
