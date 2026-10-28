@@ -146,6 +146,10 @@ namespace RockSampleData.Loader.Loading
                 _db.Log.Write( $"  Text preferences moved to email after STOPs: {moved:N0}" );
             }
 
+            // Syncs read the lists' members and every email preference the sends changed, so they come last.
+            var churchLists = listIds.Where( l => l.Key.CampusKey == null ).ToDictionary( l => l.Key.ListKey, l => l.Value );
+            new GroupSyncLoader( _db, _source, _dates, _foreignKey, _seed ).Load( churchLists );
+
             var sizes = plan.GroupBy( m => (m.ListKey, m.CampusKey) ).OrderBy( g => configuration.Lists.Lists.FindIndex( l => l.Key == g.Key.ListKey ) ).ThenBy( g => g.Key.CampusKey, StringComparer.Ordinal )
                 .Select( g => $"{ListName( configuration.Lists.Lists.First( l => l.Key == g.Key.ListKey ), g.Key.CampusKey )} {g.Count():N0}" );
             _db.Log.Write( $"  Communication lists: {listIds.Count} with {plan.Count:N0} members ({string.Join( ", ", sizes )})" );
@@ -464,10 +468,11 @@ VALUES ( 0, @GroupTypeId, @CampusId, @Name, @Description, 0, 1, @IsPublic, @Orde
                         P( "@Description", list.Description ), P( "@IsPublic", list.IsPublic ), P( "@Order", order++ ), P( "@Guid", guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
                     ids[(list.Key, campusKey)] = id;
 
-                    // A public list shows on Rock's email preference page under the Public category.
-                    if ( list.IsPublic )
+                    // A public list shows on Rock's email preference page under the Public category. A private list may sit in one of the church's own list categories.
+                    var listCategory = list.IsPublic ? ( Guid? ) configuration.PublicCategoryGuid : list.CategoryGuid;
+                    if ( listCategory.HasValue )
                     {
-                        values.Rows.Add( false, categoryAttributeId, id, configuration.PublicCategoryGuid.ToString().ToUpperInvariant(), true, Guid.NewGuid(), _foreignKey, now, now );
+                        values.Rows.Add( false, categoryAttributeId, id, listCategory.Value.ToString().ToUpperInvariant(), true, Guid.NewGuid(), _foreignKey, now, now );
                     }
 
                     values.Rows.Add( false, publicNameAttributeId, id, CampusText( list.PublicName, campusKey ), true, Guid.NewGuid(), _foreignKey, now, now );

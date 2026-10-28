@@ -29,6 +29,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Invariants](#invariants) | Verify tool | Rules Rock relies on hold in the loaded data. |
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
+| [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
 | [Install-time checks](#when-a-church-installs) | Every install | The package is intact, meant for this Rock, and going into a database with no people yet. |
@@ -153,6 +154,10 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
 | `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an email that is active, or that bounced after they joined. |
 | `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |
+| `group-sync-targets-a-sync-group` | Every sync targets a group whose type Rock lets sync, with one of that type's roles and a person data view, so it opens and edits in Rock (decision 186). |
+| `group-sync-refreshed-at-install` | Every sync shows a last refresh from the load, as the job leaves it after a run (decision 187). |
+| `church-data-view-is-filed` | Every data view the church adds sits in a child of the Rock Solid Church category (decision 185). |
+| `data-view-filter-tree-is-whole` | Every church data view has a root filter, every filter belongs to its view, and each single filter names its component and selection, so Rock can read the view. |
 | `communication-is-sent-and-never-sends-again`, `no-recipient-waits-to-send` | Decision 95: every communication is Approved with its send time and date key, and no recipient is Pending or Sending, so Rock's send job finds nothing to send. |
 | `email-recipient-states-agree` | Each email recipient's status agrees with its send, delivery, and open times and its status note. Only a bounce fails after Rock sent it. |
 | `opens-and-clicks-follow-an-open` | Every open and click is on the communication's component, points at an opened recipient, comes after their first open, and a click goes to the church's site. |
@@ -199,6 +204,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** After the referee, `verify/rock-runner` signs in through Rock's own Database login, the check Rock's login block makes: the login exists, is confirmed, and Rock accepts the password. It signs in as Ted Decker (`tdecker`) and as the load's newest confirmed login with the test password, and as Ted with a wrong password, which Rock must refuse (decision 180). It runs after the referee, because a sign-in can rewrite a hash at the site's cost setting.
 
 **Why it's there.** The loader writes the hash with SQL, so only Rock itself can prove the hash is one it accepts, and that a person installing could sign in as the Cast.
+
+### Group sync
+
+**What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
+
+**Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision 187). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
 
 ### Unchanged during run
 

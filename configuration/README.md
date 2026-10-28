@@ -25,6 +25,25 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `calendar.json` | The church's calendar: its events on Rock's Public and Internal calendars, with audiences, campuses, places, contacts, and the rule for each event's dates. See [Calendar](../docs/calendar.md). |
 | `staff.json` | The church staff, every one a Cast person, with their title, department, and campus, and the named campus pastor of every campus (decision D-staff-1). Notes, the calendar, first-visit welcomes, and campus texting numbers read the campus pastors from it. |
 | `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
+| `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
+| `group-syncs.json` | The church's data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
+
+## Categories
+
+Every category the church adds is in `categories.json` (decision 185), so its rows never mix with what Rock ships and later work knows where to file new rows. Categories always load, with the church setup.
+
+| Holds | Tree | Used by |
+|---|---|---|
+| Data views | Rock Solid Church, then Group Sync | The five group sync data views |
+| Communication lists | Care | The New Here and We Miss You lists |
+
+To add rows of a new kind or for a new purpose:
+
+1. **Data views.** Add a child of Rock Solid Church for the purpose, such as Communications, Care, or Reporting, then file the views under it. Never put a church view at the top level or in a category Rock ships.
+2. **Communication lists.** Keep list categories flat, as Rock's own Public category is. A public list uses Rock's Public category. A private list may use a church category such as Care, through its `categoryGuid` in `communications.json`.
+3. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
+
+Each category names the Rock entity it holds, its parent's key, and, for a group category, the group type it is for.
 
 ## Service times
 

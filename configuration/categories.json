@@ -1,0 +1,31 @@
+{
+  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup.",
+  "categories": [
+    {
+      "key": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Rock Solid Church",
+      "description": "The church's own data views. Each child category holds the views for one purpose.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "D4925960-FD65-4781-8068-F1F65784452C"
+    },
+    {
+      "key": "group-sync-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Group Sync",
+      "description": "Data views that keep a communication list or security role in sync through Rock's Group Sync job.",
+      "iconCssClass": "ti ti-refresh",
+      "guid": "2CB420DA-1939-4BD6-A032-0C68FADD80E3"
+    },
+    {
+      "key": "care-lists",
+      "entityType": "Rock.Model.Group",
+      "qualifierGroupType": "D1D95777-FFA3-CBB3-4A6D-658706DAED33",
+      "name": "Care",
+      "description": "Private lists staff use to follow up with people, such as first-time guests and people who have not been back in a while.",
+      "iconCssClass": "ti ti-heart-handshake",
+      "guid": "2833CBF0-95C9-453A-9CC2-38AD9E87B76E"
+    }
+  ]
+}

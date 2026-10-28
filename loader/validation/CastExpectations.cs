@@ -152,6 +152,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, guids, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckGroupSyncs( db, source, guids, failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
@@ -388,6 +390,34 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
                 else if ( level == 2 && Convert.ToInt32( row["EmailPreference"] ) != 1 )
                 {
                     failures.Add( $"Unsubscribe {name}: expected No mass emails, Rock shows email preference {row["EmailPreference"]}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Checks that each Cast person configuration/group-syncs.json names is an active member of their sync's group, in
+        /// the sync's role, such as the Ellis family on New Here and the Ortiz family on We Miss You.
+        /// </summary>
+        private static int CheckGroupSyncs( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var checks = 0;
+            var syncs = source.GroupSyncs?.Syncs.ToDictionary( s => s.Key ) ?? new Dictionary<string, GroupSyncDefinition>();
+            foreach ( var member in source.GroupSyncs?.Cast ?? new List<CastSyncMember>() )
+            {
+                checks++;
+                var sync = syncs.TryGetValue( member.Sync, out var found ) ? found : null;
+                var isMember = sync != null && Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [GroupSync] AS [s]
+INNER JOIN [GroupMember] AS [gm] ON [gm].[GroupId] = [s].[GroupId] AND [gm].[GroupRoleId] = [s].[GroupTypeRoleId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [s].[Guid] = @Sync AND [p].[Guid] = @Person AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0",
+                    P( "@Sync", sync.Guid ), P( "@Person", guids.Value( member.Person ) ) ) ) > 0;
+                if ( !isMember )
+                {
+                    failures.Add( $"{member.Name}: expected in the {member.Sync} sync's group ({member.Reason}), Rock shows them not there" );
                 }
             }
 

@@ -700,6 +700,44 @@ WITH [Leading] AS (
 SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [x].[PersonId] ) )
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
 
+-- check: group-sync-targets-a-sync-group
+-- why: Decision 186. Rock's group detail shows the sync panel only on group types that allow group sync, and a sync's role must be one of its group's roles, so every sync opens and edits in Rock. Its data view is a person view, as Rock's sync requires.
+SELECT COUNT(*)
+FROM [GroupSync] AS [s]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [s].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [s].[GroupTypeRoleId]
+INNER JOIN [DataView] AS [dv] ON [dv].[Id] = [s].[SyncDataViewId]
+WHERE [s].[ForeignKey] = @ForeignKey
+    AND ( [gt].[AllowGroupSync] = 0 OR [r].[GroupTypeId] <> [g].[GroupTypeId]
+        OR [dv].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) );
+
+-- check: group-sync-refreshed-at-install
+-- why: Decision 187. Each sync is written as the job leaves it after a run on install day, so Rock's group detail shows when it last ran and a sync with an interval waits for it.
+SELECT COUNT(*)
+FROM [GroupSync]
+WHERE [ForeignKey] = @ForeignKey AND ( [LastRefreshDateTime] IS NULL OR [LastRefreshDateTime] < [CreatedDateTime] );
+
+-- check: church-data-view-is-filed
+-- why: Decision 185. Every data view the church adds sits in a child of the church's own Rock Solid Church category, so it never mixes with the views Rock ships, and later views have a place to go.
+SELECT COUNT(*)
+FROM [DataView] AS [dv]
+LEFT JOIN [Category] AS [c] ON [c].[Id] = [dv].[CategoryId]
+LEFT JOIN [Category] AS [parent] ON [parent].[Id] = [c].[ParentCategoryId]
+WHERE [dv].[ForeignKey] = @ForeignKey
+    AND ( [c].[Id] IS NULL OR ISNULL( [c].[ForeignKey], '' ) <> @ForeignKey OR ISNULL( [parent].[ForeignKey], '' ) <> @ForeignKey );
+
+-- check: data-view-filter-tree-is-whole
+-- why: Rock reads a view's filters from its root down. Every church view has a root filter, every filter belongs to its view, a group of filters names no component, and each single filter names its component and selection.
+SELECT ( SELECT COUNT(*) FROM [DataView] WHERE [ForeignKey] = @ForeignKey AND [DataViewFilterId] IS NULL )
+    + ( SELECT COUNT(*)
+        FROM [DataViewFilter] AS [f]
+        WHERE [f].[ForeignKey] = @ForeignKey
+            AND ( [f].[DataViewId] IS NULL
+                OR ( [f].[ExpressionType] = 0 AND ( [f].[EntityTypeId] IS NULL OR ISNULL( [f].[Selection], '' ) = '' ) )
+                OR ( [f].[ExpressionType] <> 0 AND [f].[EntityTypeId] IS NOT NULL )
+                OR ( [f].[ParentId] IS NULL AND NOT EXISTS ( SELECT 1 FROM [DataView] AS [dv] WHERE [dv].[DataViewFilterId] = [f].[Id] ) ) ) );
+
 -- check: system-phone-numbers-are-reserved-and-unused
 -- why: Content standard 2 and decision 93. The church's texting numbers are active, can text, use the reserved range, and are never a loaded person's number, so SMS Conversations never seems to text a member from their own phone.
 SELECT COUNT(*)
