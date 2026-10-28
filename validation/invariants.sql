@@ -7,7 +7,7 @@
     break the rule. @ForeignKey is the dataset's key, for example SampleData:core-1. @CardPeople and @CardHouseholds
     are the dataset card's numbers from datasets/{key}.json, or null when the load used another seed than the
     default, which the card was not measured at. @AdminPersonId is Rock's admin person (Person Id 1), which the load
-    turns into a Cast person but leaves without the dataset's ForeignKey (decision D-admin-1), so rules about this
+    turns into a Cast person but leaves without the dataset's ForeignKey (decision 177), so rules about this
     dataset's people name it alongside @ForeignKey.
 
     Rules that a foreign key or unique index already enforces are left out: the bulk copy checks those.
@@ -20,7 +20,7 @@
 SELECT CASE WHEN EXISTS ( SELECT 1 FROM [Person] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
 
 -- check: admin-is-a-cast-person
--- why: Decision D-admin-1. Rock's admin person becomes the Cast person who replaces it, so signing in as admin shows real data. It keeps Rock's admin login, Rock Administrators, and an empty ForeignKey, so nothing that removes sample data by ForeignKey can remove the site's admin. Its primary family is this dataset's, and it is in no other family, so Rock's empty Admin family is gone.
+-- why: Decision 177. Rock's admin person becomes the Cast person who replaces it, so signing in as admin shows real data. It keeps Rock's admin login, Rock Administrators, and an empty ForeignKey, so nothing that removes sample data by ForeignKey can remove the site's admin. Its primary family is this dataset's, and it is in no other family, so Rock's empty Admin family is gone.
 SELECT CASE WHEN EXISTS (
         SELECT 1
         FROM [Person] AS [p]

@@ -49,7 +49,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 - **Due dates.** Involvement uses Rock's Duration Per Status mode, so a request's due date runs from its last status change. No Contact gives 7 days, In Progress 21, and Background Check and Shadowing 28. On install day, Full 7 has about 62% of its active requests due later, 26% due this week, and 12% past due (decision 173). Before, 98% were past due.
 - **Connected requests.** Every volunteer who joined in the last two years has the request that put them on their team, ending the day they joined.
 - **Open requests.** People who are not serving ask to serve in the profile's mix of active and inactive requests, with one future follow-up and one transferred request per campus. Each request has the activity a connector would leave.
-- **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured. At the main campus, Alisha Marble connects the active requests still at No Contact or In Progress, as the staff person who reaches out first, and at least eight in every dataset (decision D-admin-2). She is Rock's admin person, so signing in as admin shows her requests on the connection board.
+- **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured. At the main campus, Alisha Marble connects the active requests still at No Contact or In Progress, as the staff person who reaches out first, and at least eight in every dataset (decision 178). She is Rock's admin person, so signing in as admin shows her requests on the connection board.
 - **Person history.** Each request shows on the person's History tab, the way Rock records it: added, status changed, connected, and set aside or saved for a future follow-up.
 
 ## The Cast's stories
@@ -67,7 +67,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 | Lauren Shaw, Derek Ward, Mark Fischer, Sheryl Tennant | Greeters, Ushers, Production Team, and Prayer Team, In Progress | Requests Alisha Marble is working, from 5 to 26 days old |
 | Tiffany Coleman, Susan Kim, Melissa Wood | Kids Ministry, Prayer Team, and Greeters, No Contact | New requests assigned to Alisha Marble that she has not reached yet |
 
-With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so signing in as admin shows at least eight on her connection board in every dataset. A Cast expectation checks that floor on every load (decision D-admin-2).
+With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so signing in as admin shows at least eight on her connection board in every dataset. A Cast expectation checks that floor on every load (decision 178).
 
 ## How the numbers compare
 

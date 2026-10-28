@@ -159,7 +159,7 @@ for ( const { file, data: h } of households ) {
         }
         if ( p.replacesAdmin ) {
             adminPeople.push( owner );
-            // Rock's admin person is an adult in Rock Administrators, and keeps Rock's own login (decision D-admin-1).
+            // Rock's admin person is an adult in Rock Administrators, and keeps Rock's own login (decision 177).
             if ( p.familyRole !== "adult" || p.recordType === "business" || p.recordStatus === "inactive" || p.isDeceased ) {
                 errors.push( `${owner}: replaces Rock's admin person, so must be an active adult person.` );
             }
@@ -178,7 +178,7 @@ for ( const { file, data: h } of households ) {
     }
 }
 
-// A staff connector's minimum must come from the Cast's own requests at their campus, so it holds in every dataset (decision D-admin-2).
+// A staff connector's minimum must come from the Cast's own requests at their campus, so it holds in every dataset (decision 178).
 for ( const h of households.map( x => x.data ) ) {
     for ( const p of h.members || [] ) {
         if ( !p.connects || !p.connects.minimum ) {

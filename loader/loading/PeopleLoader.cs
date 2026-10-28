@@ -80,7 +80,7 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// A SQL condition for this dataset's people, for the Person table under this alias: every person the load added
-        /// (marked by @ForeignKey), and Rock's admin person, which the load turned into a Cast person (decision D-admin-1).
+        /// (marked by @ForeignKey), and Rock's admin person, which the load turned into a Cast person (decision 177).
         /// </summary>
         internal static string DatasetPersonFilter( string alias )
         {
@@ -635,7 +635,7 @@ DROP TABLE #LocationGeo;" );
             rows) carry the ForeignKey as usual. Queries and invariants that mean "this dataset's people" use
             DatasetPersonFilter, which counts Person 1 in. A database with no Person 1 loads her as a new person.
 
-            Reason: Signing in as admin signs in as a Cast person with real data (decision D-admin-1).
+            Reason: Signing in as admin signs in as a Cast person with real data (decision 177).
         */
 
         /// <summary>

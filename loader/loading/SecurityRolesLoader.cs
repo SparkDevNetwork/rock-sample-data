@@ -63,7 +63,7 @@ namespace RockSampleData.Loader.Loading
             var notRoles = configuration.NotRoles.Select( r => r.Name ).ToHashSet();
             var count = 0;
 
-            // Rock's admin person is already in Rock Administrators from the install (decision D-admin-1).
+            // Rock's admin person is already in Rock Administrators from the install (decision 177).
             foreach ( var row in _db.Query( @"
 SELECT [gm].[GroupId], [gm].[PersonId]
 FROM [GroupMember] AS [gm]
