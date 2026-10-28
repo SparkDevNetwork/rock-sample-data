@@ -1,0 +1,20 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "turner",
+  "notes": [
+    {
+      "key": "nancy-usher-signup",
+      "guid": "F593DCF7-AE2C-4C85-9915-2EB9B9DF3BA6",
+      "about": "nancy",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 19
+      },
+      "time": "10:20",
+      "text": "Nancy signed up online to usher. She ushered at her last church. Her request still has no connector, so flagging it here until someone on the usher team picks it up.",
+      "testPurpose": "A Follow-up note that matches her open connection request with no contact yet."
+    }
+  ]
+}

@@ -78,19 +78,6 @@
       "logins": [
         "shanks"
       ],
-      "notes": [
-        {
-          "type": "Personal Note",
-          "text": "Called Sam to see if he would be interested in volunteering on some development projects we're thinking about.",
-          "date": {
-            "yearsAgo": 5,
-            "month": 8,
-            "day": 3,
-            "time": "13:22"
-          },
-          "by": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4"
-        }
-      ],
       "connectionRequests": [
         {
           "opportunity": "production-team",

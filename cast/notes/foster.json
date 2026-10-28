@@ -1,0 +1,33 @@
+{
+  "$schema": "../note.schema.json",
+  "schemaVersion": 1,
+  "household": "foster",
+  "notes": [
+    {
+      "key": "pete-thank-you-call",
+      "guid": "08D8178D-790D-4AF3-BF61-419310CC04D6",
+      "about": "pete",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 6
+      },
+      "time": "15:30",
+      "text": "A couple from the Tuesday morning group called to thank Pete for his hospital visit last week. They asked that he call them when he has a minute.",
+      "testPurpose": "A recent Phone Note on the senior pastor."
+    },
+    {
+      "key": "pamela-prayer-hour",
+      "guid": "2BE690BB-0016-4812-BD14-60FC175F8B43",
+      "about": "pamela",
+      "type": "personal",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 90
+      },
+      "time": "10:05",
+      "text": "Pamela agreed to lead the prayer team's Wednesday morning hour while its regular leader is out this fall.",
+      "testPurpose": "A Personal Note on a record whose nickname differs from her legal first name."
+    }
+  ]
+}

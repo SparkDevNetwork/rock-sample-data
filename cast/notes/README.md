@@ -4,6 +4,8 @@ Hand-written notes on Cast people, one file per household, named for the househo
 
 Each note ties to the household's story in [cast/households](../households/). Together the files cover every state Rock's notes show: each of the six note types, alerts, private notes, pinned notes, replies, mentions, and the restricted Counseling type (see decision 78).
 
+The 11 notes from Rock's legacy sample data are here too, as Personal Notes. They keep their authors and wording, with small changes where the old text no longer fit the story. Their `testPurpose` says "legacy." Notes go only in these files: a household file has no notes field. Every load checks that each note here shows on its person's profile (see [Cast note expectations](../../validation/README.md#cast-note-expectations)).
+
 ## Format
 
 ```json
