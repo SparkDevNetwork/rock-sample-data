@@ -46,7 +46,7 @@ using RockSampleData.Loader.Packages;
     one the shipped loader trusts.
     The registration dates check plans the repository's calendar and registrations for install day
     2026-10-28 and compares each instance's dates with the example dates the approved registrations
-    proposal lists for that day (decision D-registrations-2), so a rule change that moves a date fails here.
+    proposal lists for that day (decision 190), so a rule change that moves a date fails here.
 */
 
 // Rock's Encryption salt and HKDF label, as in loader/database/RockKeys.cs and Rock/Security/Encryption.cs.

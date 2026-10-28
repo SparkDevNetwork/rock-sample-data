@@ -33,7 +33,7 @@ namespace RockSampleData.Loader.Generation
         open. That is how camp, the mission trip, Parents' Night Out, Money Matters, Date Night, and the Women's
         Retreat stay open on any install day.
 
-        Reason: The registrations are open, closed, or not yet open the same way on every install day (decision D-registrations-2).
+        Reason: The registrations are open, closed, or not yet open the same way on every install day (decision 190).
     */
 
     /// <summary>

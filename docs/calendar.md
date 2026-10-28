@@ -47,7 +47,7 @@ Their old occurrences, schedules, calendars, and audiences are replaced. Rock's 
 
 ## Dates
 
-Every date is a rule counted from the install day, never a fixed date (decision 175). Occurrences reach from the start of the history window to 13 months after the install day (`monthsAhead`), so next year's camp, VBS, and Women's Retreat are always on the calendar for their registrations (decision D-registrations-2).
+Every date is a rule counted from the install day, never a fixed date (decision 175). Occurrences reach from the start of the history window to 13 months after the install day (`monthsAhead`), so next year's camp, VBS, and Women's Retreat are always on the calendar for their registrations (decision 190).
 
 Dates that other features use come from the same rules they use, so the calendar, the steps, and the messages always name the same day:
 

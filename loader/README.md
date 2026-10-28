@@ -27,7 +27,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--seed` | The text every random choice is seeded from. The same seed and anchor give the same data. |
 | `--crowd` | Adds this many spike crowd households across the dataset's campuses, in place of the dataset manifest's generated households. Used for speed tests. Full 7's manifest already lists its Crowd. |
 | `--calibrate <file>` | Loads nothing and needs no package. Runs calibration parts 1 to 3, part 5 for prayer, part 6 for notes, and part 7 for communications against the database and writes their raw output to the file. The scripts are built into the CLI from `../calibration/sql`. |
-| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is one of the slowest steps (about 10 of Full 7's 228 seconds). Release builds turn it on. |
+| `--check-images` | Draws scanned check images for check gifts (the `CheckImages` part). Off by default, because it is one of the slowest steps (about 12 of Full 7's 173 seconds). Release builds turn it on. |
 | `--check-image-months` | Months of check gifts that get scanned check images, overriding the dataset manifest (`../datasets/{dataset}.json`). 0 means every check. Without either, 12. Implies `--check-images`. |
 | `--rock <folder>` | A built Rock checkout (for example `C:\Development\Rock`). Its `RockWeb/web.config` PasswordKey and DataEncryptionKey key the check scanner fields, and its `RockWeb/bin/Rock.Version.dll` gives the Rock version. The `ROCK_PATH` environment variable does the same. Without either, those fields stay empty and everything else loads, but the Rock version is unknown, so a load needs `--rock-version` or `--any-rock`. |
 | `--web-config <file>` | A specific Rock web.config to read the keys from, instead of `--rock`. |
@@ -94,7 +94,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 3. **Steps need small groups, serving teams, and giving** (decision 125). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes. Student Path steps follow student check-ins, but they read them from the attendance plan, not the rows, so steps do not need attendance.
 
 4. **Communications need small groups, serving teams, prayer requests, and steps.** The Volunteers and Small Group Leaders lists copy the team and group memberships read back from the rows those parts wrote, and the Prayer Team list holds the prayer part's team. Class messages, baptism follow-ups, and the After Starting Point flow read the steps part's rows. Who is involved enough for a newsletter comes from the attendance and giving plans, so communications do not need those parts.
-5. **Registrations need the calendar** (decision D-registrations-1). Every linkage points at a calendar occurrence, which the registrations step finds through the calendar's plan, so the calendar must have written it. See [Event registrations](../docs/registrations.md).
+5. **Registrations need the calendar** (decision 189). Every linkage points at a calendar occurrence, which the registrations step finds through the calendar's plan, so the calendar must have written it. See [Event registrations](../docs/registrations.md).
 
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
@@ -271,15 +271,15 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. All three were measured again on 2026-10-26, after communications joined the load, against Rock 21.0.2. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. All three were measured again on 2026-10-26, after communications joined the load, against Rock 21.0.2, and Full 7 again on 2026-10-28, after the speed pass (loader 0.1.0-alpha.15; see [Performance](../docs/performance.md)). Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
 | Core 1 | 185 | 87 | 1 | 13 seconds (14.0, 12.8, 13.3) |
 | Core 3 | 405 | 241 | 3 | 17 seconds (17.5, 15.5, 16.6) |
-| Full 7 | 25,248 | 16,967 | 7 | 228 seconds (219.2, 231.9, 228.0) |
+| Full 7 | 25,248 | 16,967 | 7 | 173 seconds (175.4, 173.2, 172.4) |
 
-Communications are most of Full 7's load, about 185 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 10 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
+Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
 The same loads show how much database space each needs. The trusted base starts at 392 MB of data and a 520 MB log. A load runs in one transaction, so the log holds the whole load until it commits.
 
@@ -490,9 +490,9 @@ Speed: Full 7 with the crowd has about 11,100 requests, 67,000 prayers, and 2,50
 | Core 1 (83 Cast households) | 181 | 12,331 plus 6,308 | 2,836 | about 7 seconds (3.5 of them check images) |
 | Core 1 plus a 2,000-household crowd | 3,155 | 61,424 plus 39,961 | 12,230 | about 11 seconds |
 | Full 7 plus a 17,000-household crowd | 25,316 | 377,612 plus 324,153 | 91,634 | about 29 seconds (about 44 with check images) |
-| Full 7 with its Crowd (16,800 households), every part | 25,248 | 385,076 plus 322,543 | 91,250 | about 228 seconds with check images |
+| Full 7 with its Crowd (16,800 households), every part | 25,248 | 385,076 plus 322,543 | 91,250 | about 173 seconds with check images |
 
-The last row was measured on 2026-10-26, after communications joined the load, the median of three runs. Its time goes to communications about 180 seconds, check images 10, serving 6, people 5, giving 4.5, attendance 4, giving analytics 4, and every other step under 3. Before communications, the same load took about 55 seconds. The spike crowd rows were measured on 2026-10-16, before serving, prayer, notes, and steps were built, best of three, on a 16-core development machine with other work running. Then, a Full 7 load with check images spent its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
+The last row was measured on 2026-10-28, after the speed pass, the median of three runs. Its time goes to communications about 106 seconds (37 of them one rebuild of its tables' indexes), check images 12.6, serving 7.6, the History index rebuild 6.6, people 5.8, giving 5.2, giving analytics 4.9, attendance 4.7, and every other step under 3. On 2026-10-26, before the speed pass, the same load took about 228 seconds. Before communications, the same load took about 55 seconds. The spike crowd rows were measured on 2026-10-16, before serving, prayer, notes, and steps were built, best of three, on a 16-core development machine with other work running. Then, a Full 7 load with check images spent its time like this: check images about 11 seconds (drawing on every core, then storing), small groups 5, giving 4, giving analytics 4, people 3.5, attendance 3.5, and giving alerts 2. Drawing checks is the floor: it is image rendering in the ImageSharp version Rock ships, already spread across every core.
 
 What keeps large loads fast:
 
@@ -588,7 +588,7 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 5. **Contacts.** Named Cast staff, or each campus's campus pastor (`CampusPastors`), with Ted Decker standing in on the main campus. Ted approves every event.
 6. **Photos.** `PhotoLoader.LoadEventPhotos` sets each photo listed in `photos/events/manifest.json`.
 
-Speed: with a six-month window, Core 1 had 323 occurrences, Core 3 675, and Full 7 1,349. The 13-month window (decision D-registrations-2) adds about 28, 55, and 99. The step takes well under a second.
+Speed: with a six-month window, Core 1 had 323 occurrences, Core 3 675, and Full 7 1,349. The 13-month window (decision 190) adds about 28, 55, and 99. The step takes well under a second.
 
 ## Registrations
 

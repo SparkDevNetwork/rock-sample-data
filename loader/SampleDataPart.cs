@@ -150,7 +150,7 @@ namespace RockSampleData.Loader
             completed class, all read back from the steps part's rows. Who is involved enough for a newsletter reads the attendance and giving
             plans only, so communications do not need those parts.
 
-            Registrations need the calendar only (decision D-registrations-1). Every linkage points at a calendar
+            Registrations need the calendar only (decision 189). Every linkage points at a calendar
             occurrence, found through the calendar's plan, so the calendar must have written it. Payments will be
             their own rows, so registrations do not need giving. Today they write only setup and read no other
             part's plan or rows.
