@@ -211,6 +211,7 @@ function load() {
         initiativeGraphics,
         campaign: readJson( "configuration/campaign.json" ),
         communicationLists: exists( "configuration/communications.json" ) ? readJson( "configuration/communications.json" ).lists.lists : [],
+        syncedListKeys: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).syncs.map( s => s.target.list ).filter( Boolean ) : [],
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,

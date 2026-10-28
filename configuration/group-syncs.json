@@ -1,0 +1,94 @@
+{
+  "$comment": "The church's group syncs (decisions 186 to 188): each one keeps a communication list or security role in step with a person data view, through Rock's Group Sync job. The loader writes each data view, its filters, and the sync, then fills the group the way the job's first run would, and stamps the sync as just refreshed, so the job finds nothing to add or remove on install day. Filters use Rock's own data filter components and selection strings, exactly as Rock's data view editor saves them, so a view opens and edits in Rock like one a person made. 'category' is a key in categories.json. 'target' is a list key from communications.json, or a Rock group by Guid. The member role is the target group type's default role, as Rock's sync panel suggests. 'intervalMinutes' is the sync interval; null syncs on every run of the job (every 20 minutes). Welcome and exit emails use the system communications Rock ships, and 'createLogin' makes a login for a new member who has none, sent in the welcome email. They act only when the job later adds or removes someone, never at install.",
+  "welcomeCommunicationGuid": "F66D7DAE-89C1-E8BC-48F8-A0D6B849615F",
+  "exitCommunicationGuid": "9AC62F1B-16E0-3886-4CE6-2B9290D6B135",
+  "dataViews": [
+    {
+      "key": "volunteers",
+      "name": "Active Volunteers",
+      "description": "Everyone on an active serving team who accepts mass email. It feeds the Volunteers list.",
+      "category": "group-sync-data-views",
+      "guid": "0D5FE4CE-C1BB-46B5-9918-3046515AEA2D",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter", "selection": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4||1|True" },
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" }
+        ]
+      }
+    },
+    {
+      "key": "small-group-leaders",
+      "name": "Active Small Group Leaders",
+      "description": "Everyone who leads an active small group and accepts mass email. It feeds the Small Group Leaders list.",
+      "category": "group-sync-data-views",
+      "guid": "865F2FA3-290B-4B0E-AB60-670AAF0BD305",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter", "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B|6D798EFA-0110-41D5-BCE4-30ACEFE4317E|1|True" },
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" }
+        ]
+      }
+    },
+    {
+      "key": "prayer-team",
+      "name": "Prayer Team",
+      "description": "Everyone on the Prayer Team list who has an email, so a new member can get a login in the welcome email. It gives them the RSR - Prayer Access security role.",
+      "category": "group-sync-data-views",
+      "guid": "C72107B5-B342-4971-9CE9-74229BAC215E",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.Person.InGroupFilter", "selection": "02AFC428-AE41-48B3-A30F-B5CB606F5E59||False|" },
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"Email\",\"64\",\"\"]" }
+        ]
+      }
+    },
+    {
+      "key": "new-here",
+      "name": "New Here",
+      "description": "Adults who accept mass email and came to a worship service for the first time in the last 6 months. It feeds the New Here list.",
+      "category": "group-sync-data-views",
+      "guid": "E8341AA3-6EA3-442D-99FD-1394E06C1694",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"AgeClassification\",\"Adult\"]" },
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" },
+          { "component": "Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,6,Month,,|False" }
+        ]
+      }
+    },
+    {
+      "key": "we-miss-you",
+      "name": "We Miss You",
+      "description": "Adults who accept mass email, came to worship 10 or more times in the last 18 months, and have not come in the last 90 days. It feeds the We Miss You list.",
+      "category": "group-sync-data-views",
+      "guid": "51F70593-4FF5-473A-B248-07CB72B41F43",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"AgeClassification\",\"Adult\"]" },
+          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" },
+          { "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|10|Last,18,Month,,|False" },
+          {
+            "none": [
+              { "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,90,Day,,|False" }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "syncs": [
+    { "key": "volunteers", "dataView": "volunteers", "target": { "list": "volunteers" }, "intervalMinutes": null, "welcome": true, "exit": true, "createLogin": false, "guid": "2CC2E813-CE43-496B-8078-FE69DE3D73E3" },
+    { "key": "small-group-leaders", "dataView": "small-group-leaders", "target": { "list": "small-group-leaders" }, "intervalMinutes": null, "welcome": true, "exit": true, "createLogin": true, "guid": "F4654B9A-9965-429C-A61B-69662181D2CF" },
+    { "key": "prayer-access", "dataView": "prayer-team", "target": { "group": "9E17621E-F559-44E9-8C40-E8CF44CF8FCF", "name": "RSR - Prayer Access" }, "intervalMinutes": null, "welcome": true, "exit": true, "createLogin": true, "guid": "BFE7FB87-91B1-47C6-BDEF-3DD10C705270" },
+    { "key": "new-here", "dataView": "new-here", "target": { "list": "new-here" }, "intervalMinutes": 1440, "welcome": false, "exit": false, "createLogin": false, "guid": "A76DA909-B8FF-4C96-835A-5D84DA48379C" },
+    { "key": "we-miss-you", "dataView": "we-miss-you", "target": { "list": "we-miss-you" }, "intervalMinutes": 1440, "welcome": false, "exit": false, "createLogin": false, "guid": "F1DC6332-CCEF-445C-8648-14B0F1835D72" }
+  ],
+  "$castComment": "Cast people each sync's group must hold after install. Every load checks them.",
+  "cast": [
+    { "sync": "new-here", "person": "F82915AE-0E40-4827-9E35-17CC897A0320", "name": "Jordan Ellis", "reason": "First visited this summer." },
+    { "sync": "new-here", "person": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA", "name": "Hannah Ellis", "reason": "First visited this summer." },
+    { "sync": "we-miss-you", "person": "F24B151A-4679-4066-A52F-78DF11FFEA9A", "name": "Luis Ortiz", "reason": "A regular for seven years who stopped coming about six months ago." },
+    { "sync": "we-miss-you", "person": "5B54D997-EFD1-4824-B1E1-22F82ED8413A", "name": "Teresa Ortiz", "reason": "A regular for seven years who stopped coming about six months ago." },
+    { "sync": "prayer-access", "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "reason": "On the prayer team." }
+  ]
+}
