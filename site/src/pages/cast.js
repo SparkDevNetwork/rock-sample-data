@@ -76,6 +76,18 @@ function ageLine( m ) {
     return m.familyRole === "child" ? `Child, age ${m.birth.age}` : `Age ${m.birth.age}`;
 }
 
+// The username a Cast person signs in with. Logins load only when the installer gives a password.
+function loginLine( m ) {
+    if ( m.replacesAdmin ) {
+        return html`Signs in as <code>admin</code>, Rock's own administrator login.`;
+    }
+    if ( m.logins && m.logins.length ) {
+        return html`Signs in as ${m.logins.map( l => html`<code>${esc( l )}</code>` ).join( ", " )}.`;
+    }
+
+    return "";
+}
+
 function memberCard( m, r ) {
     const chips = [ ...( m.groups || [] ).map( g => `${g.name}${g.role && g.role !== "Member" ? ` (${g.role})` : ""}` ), ...( m.serving || [] ).map( s => `${s.name}${s.role && s.role !== "Member" ? ` (${s.role})` : ""}` ) ];
     return html`<article class="member reveal">
@@ -85,6 +97,7 @@ function memberCard( m, r ) {
     <p class="member-meta">${esc( ageLine( m ) )}${m.connectionStatus ? html` · ${esc( m.connectionStatus )}` : ""}${m.attributes && m.attributes.Position ? html` · ${esc( m.attributes.Position )}` : ""}</p>
     ${m.bio ? html`<p>${esc( m.bio )}</p>` : ""}
     ${!m.photo ? html`<p class="fine">No photo, on purpose.</p>` : ""}
+    ${loginLine( m ) ? html`<p class="fine">${loginLine( m )}</p>` : ""}
     ${chips.length ? html`<span class="tags">${chips.map( c => html`<span class="tag">${esc( c )}</span>` )}</span>` : ""}
   </div>
 </article>`;
@@ -146,6 +159,11 @@ function householdPage( h, i, all, r ) {
         ${( h.giving || [] ).map( g => html`<p>${esc( givingLine( g, h ) )}</p>` )}
         <p class="fine">History is generated at install, counting back from install day.</p>
       </div>` : ""}
+      ${h.noteCount ? html`<div class="panel reveal">
+        <h2 class="panel-title">Staff notes</h2>
+        <p>${h.noteCount} hand-written ${h.noteCount === 1 ? "note" : "notes"} on their profiles${h.replyCount ? `, with ${h.replyCount} ${h.replyCount === 1 ? "reply" : "replies"}` : ""}, each tied to their story.</p>
+        <p class="fine">Every load checks that each note shows on its person's profile.</p>
+      </div>` : ""}
       <div class="panel panel-quiet reveal">
         <p class="fine">Every name, photo, and story here is fictional. <a href="${repoUrl}/blob/main/cast/households/${esc( h.key )}.json">See this household's data file.</a></p>
       </div>
@@ -177,7 +195,7 @@ module.exports = function cast( { model, r, relativeTo } ) {
   <div class="wrap narrow">
     <p class="eyebrow">The Cast</p>
     <h1 class="display">${model.counts.households} households. <em>Every one has a reason.</em></h1>
-    <p class="lede">The Cast is ${model.counts.people} hand-designed people who are the same in every dataset and always live on the Phoenix campus. Tests, help articles, and training classes can name them and trust they're there. Each household has a story and a list of what it's used to test.</p>
+    <p class="lede">The Cast is ${model.counts.people} hand-designed people who are the same in every dataset and always live on the Phoenix campus. Tests, help articles, and training classes can name them and trust they're there. Each household has a story and a list of what it's used to test. Each household page shows who can sign in, and with which username, and how many staff notes are on their profiles.</p>
   </div>
 </section>
 

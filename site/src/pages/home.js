@@ -26,12 +26,14 @@ const features = [
     [ "Check-in", "Kids from the nursery through 6th grade, security codes, allergies, and achievements." ],
     [ "Small groups", "Groups with leaders, hosts, topics, child care, history, and Group Finder test cases." ],
     [ "Serving", "Eight teams at every campus, with rotations, schedules, blackout dates, and volunteer check-in." ],
-    [ "Connections", "Requests to serve that follow each family's story, from first contact to placement." ],
+    [ "Connections", "Requests to serve that follow each family's story, from first contact to placement, with due dates that run by status." ],
     [ "Prayer", "Requests in every state, an active prayer team, comments, and answers." ],
-    [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions." ],
+    [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions, on the profiles demos open first." ],
     [ "Steps", "A seven-step Discipleship Path and a four-step Student Path made from each person's records: classes, groups, baptism, serving, giving, leading, camps, and mission trips." ],
-    [ "Calendar", "Easter to the car show: a full year of events at every campus, with dates that match the steps and newsletters." ],
+    [ "Calendar", "Easter to the car show: a full year of events at every campus, each serving a Ministry by Design stage, with dates that match the steps and newsletters." ],
     [ "Communications", "Weekly newsletters, church-wide and ministry emails, mass texts, live SMS conversations, serving reminders, and app pushes." ],
+    [ "Logins", "Sign in as admin, the Outreach Pastor, or the Senior Pastor, with a password you choose at install. Many church members can sign in too." ],
+    [ "Group sync", "Data views in the church's own categories keep staff lists, a prayer role, and two care lists current." ],
     [ "Businesses", "Businesses that give, each with one or two contacts tied to people in the church." ]
 ];
 
@@ -71,7 +73,7 @@ module.exports = function home( { model, r } ) {
     <div class="stat reveal"><span class="stat-value">7</span><span class="stat-label">campuses across the Phoenix Valley</span></div>
     <div class="stat reveal"><span class="stat-value">${c.households}</span><span class="stat-label">hand-designed Cast households</span></div>
     <div class="stat reveal"><span class="stat-value">25,000</span><span class="stat-label">people in the largest dataset</span></div>
-    <div class="stat reveal"><span class="stat-value">4<small>s</small></span><span class="stat-label">to load the Cast into Rock</span></div>
+    <div class="stat reveal"><span class="stat-value">${model.datasets["core-1"].typicalInstallSeconds}<small>s</small></span><span class="stat-label">to load the Cast into Rock</span></div>
   </div>
 </section>
 
