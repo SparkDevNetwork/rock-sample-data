@@ -27,8 +27,8 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Rock's default grade transition date (the GradeTransitionDate global attribute): June 1.
         /// </summary>
-        private const int GradeTransitionMonth = 6;
-        private const int GradeTransitionDay = 1;
+        internal const int GradeTransitionMonth = 6;
+        internal const int GradeTransitionDay = 1;
 
         /// <summary>
         /// The day every relative date counts back from.

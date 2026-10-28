@@ -151,9 +151,10 @@ namespace RockSampleData.Loader
             plans only, so communications do not need those parts.
 
             Registrations need the calendar only (decision 189). Every linkage points at a calendar
-            occurrence, found through the calendar's plan, so the calendar must have written it. Payments will be
-            their own rows, so registrations do not need giving. Today they write only setup and read no other
-            part's plan or rows.
+            occurrence, found through the calendar's plan, so the calendar must have written it. Payments are
+            their own rows, so registrations do not need giving. Students register from the Student Path plan, which
+            every load makes, not from the steps part's rows, so last summer's campers match the camp steps without
+            registrations needing steps (decision D-registrations-8).
 
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
@@ -173,7 +174,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
-            new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups.", SampleDataPart.Calendar ),
+            new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

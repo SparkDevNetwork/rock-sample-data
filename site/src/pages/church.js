@@ -18,6 +18,24 @@
 const { esc, html } = require( "../layout" );
 const { sectionHead, zoomable } = require( "../components" );
 
+// The students who registered, in words, with each rate read from the file that owns it: an instance's share from
+// configuration/registrations.json, or its Student Path step's share from configuration/steps.json.
+function studentRegistrations( model ) {
+    const rule = key => model.registrations.instances.find( i => i.key === key )?.registrants;
+    const rate = key => {
+        const students = rule( key )?.students;
+        return students?.stepType ? model.stepTypes.find( t => t.key === students.stepType )?.source.percentOfStudents : students?.percent;
+    };
+    const camp = rate( "student-camp-girls" );
+    const trip = rate( "mission-trip" );
+    const retreat = rate( "student-retreat" );
+    if ( camp === undefined || trip === undefined || retreat === undefined ) {
+        return "";
+    }
+
+    return html`<p class="fine">Students have registered. Last summer's campers are exactly the students with that camp's Student Camp step, each on a bus, in a cabin, and in two activities. For next summer, ${camp}% of the students who could go register over the year, and so do ${trip}% of high school students for the mission trip and ${retreat}% of the students who attend for the fall retreat. They pay in full, pay a deposit, or set up a payment plan, through the Test Gateway. Kids and adults register in a later release.</p>`;
+}
+
 // The church's initiatives, in the order they started. Starting Point is the first.
 // Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
 const initiatives = [
@@ -258,7 +276,8 @@ ${model.registrations.templates.length ? html`<section class="section" id="regis
       </div>` : "";
       } )}
     </div>
-    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts. The people who register come in a later release.</p>
+    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts.</p>
+    ${studentRegistrations( model )}
   </div>
 </section>` : ""}
 

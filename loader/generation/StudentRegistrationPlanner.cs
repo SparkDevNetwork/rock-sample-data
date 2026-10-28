@@ -63,9 +63,6 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private const int ScheduledPaymentHour = 5;
 
-        private const int GradeTransitionMonth = 6;
-        private const int GradeTransitionDay = 1;
-
         private readonly RegistrationsConfiguration _config;
         private readonly StepsConfiguration _steps;
         private readonly StudentPath _path;
@@ -257,7 +254,7 @@ namespace RockSampleData.Loader.Generation
             var starts = new List<DateTime> { from };
             for ( var year = from.Year; year <= until.Year; year++ )
             {
-                var transition = new DateTime( year, GradeTransitionMonth, GradeTransitionDay );
+                var transition = new DateTime( year, AnchorDates.GradeTransitionMonth, AnchorDates.GradeTransitionDay );
                 if ( transition > from && transition <= until )
                 {
                     starts.Add( transition );
@@ -301,7 +298,7 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// Dates a registration by a seeded draw across the whole window, moved to a day Rock lets every registrant
         /// register. Returns false when the day is not before the install day, so the registration is not written. A
-        /// Cast registration always has a day before the install day, early in the window.
+        /// Cast registration is always early in the window, so it is made before the install day and a payment plan fits.
         /// </summary>
         private bool Date( Draft draft, PlannedRegistrationInstance instance, RegistrantRule rule, IntRange grades, DateTime lastDay )
         {
@@ -323,7 +320,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             day = Min( day, until );
-            if ( draft.Pin != null && day > lastDay )
+            if ( draft.Pin != null )
             {
                 day = Max( from, Min( lastDay, instance.Opens.AddDays( random.Between( 0, 13 ) ) ) );
                 if ( day > lastDay || day > until )
