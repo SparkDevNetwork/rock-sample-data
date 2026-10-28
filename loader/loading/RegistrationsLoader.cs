@@ -651,9 +651,6 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         private sealed record GroupTypeInfo( int Id, Dictionary<string, int> RoleIds, int DefaultRoleId );
 
         /// <summary>
-        /// A template's Id and its placement Ids by key.
-
-        /// <summary>
         /// A template's Id, definition, audit date, and placement Ids by key.
         /// </summary>
         private sealed class TemplateInfo
