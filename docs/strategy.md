@@ -68,7 +68,7 @@ Every Cast person has an AI-generated photo that looks like a casual social medi
 
 ## Idea 8: speed by bulk loading
 
-The builder computes every row in memory, assigns Ids up front, and bulk-copies each table in one transaction. It fills in the fields Rock's save hooks would normally set. Large tables rebuild their indexes once at the end. Full 7 (25,000 people, about 380,000 attendance rows, and 110,000 gifts) loads in 20 to 40 seconds.
+The builder computes every row in memory, assigns Ids up front, and bulk-copies each table in one transaction. It fills in the fields Rock's save hooks would normally set. Large tables rebuild their indexes once, after their last copy. Full 7 (25,000 people, about 700,000 attendance rows, 90,000 gifts, and two years of communications with about 7 million rows) loads in about 3 minutes (see [Performance](performance.md)).
 
 ## Out of scope
 
