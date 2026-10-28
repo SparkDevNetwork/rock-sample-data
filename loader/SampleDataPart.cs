@@ -76,7 +76,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Events on the Public and Internal calendars, with their occurrences and photos.
         /// </summary>
-        Calendar
+        Calendar,
+
+        /// <summary>
+        /// Event registrations linked to calendar events, with their templates, fees, discounts, and groups.
+        /// </summary>
+        Registrations
     }
 
     /// <summary>
@@ -145,6 +150,11 @@ namespace RockSampleData.Loader
             completed class, all read back from the steps part's rows. Who is involved enough for a newsletter reads the attendance and giving
             plans only, so communications do not need those parts.
 
+            Registrations need the calendar only (decision 189). Every linkage points at a calendar
+            occurrence, found through the calendar's plan, so the calendar must have written it. Payments will be
+            their own rows, so registrations do not need giving. Today they write only setup and read no other
+            part's plan or rows.
+
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
 
@@ -163,6 +173,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
+            new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups.", SampleDataPart.Calendar ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

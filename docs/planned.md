@@ -20,7 +20,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## Other Rock features
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
-- **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
+- **Event registrations,** with people: registrants, payments, payment plans, wait lists, and people placed in groups. The setup is built: templates, instances, and links to calendar events. See [Event registrations](registrations.md).
 - **Event images:** a titled design or a photo for each of the calendar's 51 events. The calendar itself is built (see [Calendar](calendar.md)), and each image loads as it arrives.
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
