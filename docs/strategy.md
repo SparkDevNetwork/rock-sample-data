@@ -15,7 +15,7 @@ Rock's legacy sample data has four problems:
 
 Sample data that:
 
-- **installs fast**: seconds for tests, under a minute for the largest dataset;
+- **installs fast**: seconds for tests, a few minutes for the largest dataset;
 - **looks like a real church**: measured patterns, not random numbers;
 - **covers every feature**: people, giving, attendance, check-in, groups, serving, registrations, prayer, communications, connections, and more;
 - **stays fresh**: every date counts back from install day.
