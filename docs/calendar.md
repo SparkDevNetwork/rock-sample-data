@@ -18,7 +18,7 @@ Each event has a summary and a description, one or more audiences, and occurrenc
 
 ## Stages
 
-The calendar follows Ministry by Design, the same framework the step programs use (see [Steps](steps.md)): Belong, then Equip, then Contribute, then Lead, with growth before serving, and the path is "the norm, not a gate." Each event's `stage` in `calendar.json` names the stage it serves (decision D-stages-1), so the calendar shows a clear path from a first visit to leading others:
+The calendar follows Ministry by Design, the same framework the step programs use (see [Steps](steps.md)): Belong, then Equip, then Contribute, then Lead, with growth before serving, and the path is "the norm, not a gate." Each event's `stage` in `calendar.json` names the stage it serves (decision 183), so the calendar shows a clear path from a first visit to leading others:
 
 | Stage | What its events do | Where the steps meet it |
 |---|---|---|
@@ -30,7 +30,7 @@ The calendar follows Ministry by Design, the same framework the step programs us
 
 Belong has the most events, because a church's front door is wide. Lead has the fewest, because it serves the few who lead. The stage is not stored in Rock; it lives in `calendar.json` and here.
 
-What changed on 2026-10-28 (decision D-stages-1): Graduate Sunday was removed, and the Leader Huddle took its place, because Lead had only one event. Group Leader Training was added before each group launch, and the Tuesday Morning Men's Study, which Ted Decker's text to Kevin Dawson already describes, gives men a weekly Equip rhythm. The seniors lunch is now the Young at Heart Lunch.
+What changed on 2026-10-28 (decision 183): Graduate Sunday was removed, and the Leader Huddle took its place, because Lead had only one event. Group Leader Training was added before each group launch, and the Tuesday Morning Men's Study, which Ted Decker's text to Kevin Dawson already describes, gives men a weekly Equip rhythm. The seniors lunch is now the Young at Heart Lunch.
 
 ## Rock's own sample events
 
@@ -124,7 +124,7 @@ Phones are the church office line (623) 555-0108, or the student line (623) 555-
 
 ## Photos
 
-Each event's image is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every image is 2:1, 1536 by 768 pixels (decision 176). The [event image brief](../photos/event-brief.md) asks the image agent for all 51. 28 events get a design, a marketing graphic whose only text is the event's title, and 23 get a photo of the event with no text (decision D-designs-1).
+Each event's image is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every image is 2:1, 1536 by 768 pixels (decision 176). The [event image brief](../photos/event-brief.md) asks the image agent for all 51. 28 events get a design, a marketing graphic whose only text is the event's title, and 23 get a photo of the event with no text (decision 184).
 
 The loader sets a photo for each event listed in `photos/events/manifest.json`, stored the way Rock stores an uploaded one. The builder packs every listed photo into every dataset and refuses an entry for an event that does not exist or a file that is missing. Adding photos needs no code change: deliver the files, list them, and rebuild the packages. Until then, events load with no photo.
 
