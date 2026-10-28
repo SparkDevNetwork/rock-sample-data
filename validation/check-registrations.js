@@ -17,7 +17,7 @@
 
 // Checks configuration/registrations.json against the files it names (docs/registrations.md): every instance's event,
 // template, contact, groups, and placements exist; slug patterns make valid, unique slugs; templates ask for what their
-// eligibility needs; and every registration feature has an always-open home, as decision D-registrations-2 promises.
+// eligibility needs; and every registration feature has an always-open home, as decision 190 promises.
 // The dates themselves are checked by loader-compat-check, which runs the real planner for install day 2026-10-28.
 // Run: node validation/check-registrations.js
 
@@ -226,7 +226,7 @@ for ( const rule of registrations.instances ) {
     }
 }
 
-// Decision D-registrations-2: every feature has a home that is open on any install day. A rolling "next" instance is
+// Decision 190: every feature has a home that is open on any install day. A rolling "next" instance is
 // always open. So is one whose event is pinned a few days ahead with a window that always covers the install day.
 const isAlwaysOpen = rule => {
     const event = events.get( rule.event );

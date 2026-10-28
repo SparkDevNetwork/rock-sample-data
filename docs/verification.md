@@ -62,7 +62,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Registrations check
 
-**What it does.** `node validation/check-registrations.js` reads `configuration/registrations.json` with the calendar, accounts, campuses, and datasets. Every instance names a real event, template, contact, placement, and group type; its slug and group keys carry the year, month, and campus they need, so no two instances share one, and its slug matches Rock's pattern; every template asks for the fields its grade, age, or gender rule needs; and every registration feature sits on an instance that is open on any install day (decision D-registrations-2).
+**What it does.** `node validation/check-registrations.js` reads `configuration/registrations.json` with the calendar, accounts, campuses, and datasets. Every instance names a real event, template, contact, placement, and group type; its slug and group keys carry the year, month, and campus they need, so no two instances share one, and its slug matches Rock's pattern; every template asks for the fields its grade, age, or gender rule needs; and every registration feature sits on an instance that is open on any install day (decision 190).
 
 **Why it's there.** Rock checks slugs only in its screens and refuses a registrant it cannot check for eligibility. A broken reference or a feature with no open home would only show up after someone installed the data.
 
@@ -192,12 +192,12 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `app-user-can-sign-in` | A church app device tied to a person means they signed in to the app. |
 | `login-has-its-history` | Every login has the "User Login" line Rock's save hook writes on the person's History tab (decision 181). |
 | `account-protection-matches-rock` | Every loaded person's account protection profile is what Rock's Process Elevated Security job would set (decision 182). Rock Cleanup does not set it, so the referee cannot catch it. |
-| `registration-linkage-points-at-a-listed-occurrence`, `registration-linkage-campus-matches-occurrence`, `registration-linkage-instance-and-template-are-active` | A registration shows on its event page only through a linkage to an occurrence of an active, approved event on a calendar, with an active instance and template, at the occurrence's campus (decision D-registrations-1). |
+| `registration-linkage-points-at-a-listed-occurrence`, `registration-linkage-campus-matches-occurrence`, `registration-linkage-instance-and-template-are-active` | A registration shows on its event page only through a linkage to an occurrence of an active, approved event on a calendar, with an active instance and template, at the occurrence's campus (decision 189). |
 | `registration-slug-matches-rocks-pattern`, `registration-slug-is-unique` | The event page finds a registration by its slug. Rock checks the pattern and uniqueness only in its screens. |
 | `registration-dates-are-in-order` | An instance opens before it closes, and its event comes after it closes and on or after its payment deadline. |
 | `placement-group-matches-its-placement`, `linked-group-is-an-event-attendees-group` | Rock places people only in groups of the placement's type and adds registrants to a linked group of the template's type. |
 | `registration-category-has-the-admin-role` | Rock's registration admin role can manage templates in the new categories, as Rock's v19 rollup set for older ones. |
-| `seven-registrations-are-open-today` | Seven registrations are open on every install day, each linked to its occurrence, so every feature can be tried (decision D-registrations-2). |
+| `seven-registrations-are-open-today` | Seven registrations are open on every install day, each linked to its occurrence, so every feature can be tried (decision 190). |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
@@ -258,7 +258,7 @@ Checks 3 to 5 run inside the load's transaction, so two loads started at once ca
 
 ### Loader compatibility check
 
-**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also opens the configuration of every published release, saved in `loader-compat-check/published/`, and checks that a file the loader cannot read gives a plain message (decision 168). Last, it plans the repository's calendar and registrations for install day October 28, 2026, and checks every registration's event, opening, closing, and payment days and both early birds against the example dates in [Event registrations](registrations.md#dates) (decision D-registrations-2). Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
+**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also opens the configuration of every published release, saved in `loader-compat-check/published/`, and checks that a file the loader cannot read gives a plain message (decision 168). Last, it plans the repository's calendar and registrations for install day October 28, 2026, and checks every registration's event, opening, closing, and payment days and both early birds against the example dates in [Event registrations](registrations.md#dates) (decision 190). Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
 
 **Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision 120). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
 

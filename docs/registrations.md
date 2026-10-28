@@ -1,6 +1,6 @@
 # Event registrations
 
-Rock Solid Church's event registrations: the templates, each year's instances, and how they link to the calendar. They live in [configuration/registrations.json](../configuration/registrations.json). The loader's registrations step writes them (decision D-registrations-1).
+Rock Solid Church's event registrations: the templates, each year's instances, and how they link to the calendar. They live in [configuration/registrations.json](../configuration/registrations.json). The loader's registrations step writes them (decision 189).
 
 Registrations come in four slices. Slice 1, the setup, is built. It writes everything a church sets up before anyone registers, so every upcoming event page shows its Register button. Nobody has registered yet. The [later slices](#later) add the people.
 
@@ -20,7 +20,7 @@ Ten registrations from nine templates, in every dataset. A registration for a ca
 | Marriage Date Night, next one, per campus | Adults | $40 per person | Date Night | Yes |
 | Women's Retreat | Adults | $159, $50 deposit | Women's Retreat | Yes |
 
-Seven registrations are open on every install day: camp, the mission trip, the fall retreat, Parents' Night Out, Money Matters, Date Night, and the Women's Retreat (decision D-registrations-2). Each registration feature has at least one of them as its home, so anyone can try any feature on a fresh install.
+Seven registrations are open on every install day: camp, the mission trip, the fall retreat, Parents' Night Out, Money Matters, Date Night, and the Women's Retreat (decision 190). Each registration feature has at least one of them as its home, so anyone can try any feature on a fresh install.
 
 | Feature | Always-open home |
 |---|---|
@@ -51,17 +51,17 @@ Seven registrations are open on every install day: camp, the mission trip, the f
 
 ## Templates
 
-Each template has a category (Students, Kids, Adults, or Outreach), forms, and the terms Rock shows. Its emails and success text are copied from Rock's own Baptism template, so they read the way Rock writes them. Paid templates use Rock's Test Gateway with the batch prefix "Event Registration", and every instance posts to Rock's Event Registration account (decision D-registrations-5).
+Each template has a category (Students, Kids, Adults, or Outreach), forms, and the terms Rock shows. Its emails and success text are copied from Rock's own Baptism template, so they read the way Rock writes them. Paid templates use Rock's Test Gateway with the batch prefix "Event Registration", and every instance posts to Rock's Event Registration account (decision 193).
 
 Rock's v19 upgrade gave its "RSR - Event Registration Administration" role Edit and Administrate on every template category that existed then. The four new categories get the same.
 
 Who may register is stored the way Rock's template screen stores it, in `AdditionalSettingsJson` under `RegistrantEligibilitySettings`. Rock refuses a registrant it cannot check, so a template that limits grade asks for grade, one that limits age asks for a birthdate, and one that limits gender asks for gender. VBS takes ages 4 to 11, not "age 4 to grade 5", because a 4-year-old has no grade and Rock would refuse them.
 
-One camp template serves both the girls' and the boys' instances, so each has its own limit (decision D-registrations-3). Rock's gender rule belongs to the template, so camp does not use one; the instance names say who each is for.
+One camp template serves both the girls' and the boys' instances, so each has its own limit (decision 191). Rock's gender rule belongs to the template, so camp does not use one; the instance names say who each is for.
 
 ## Dates
 
-Every date is a rule counted from the install day, through the calendar's own occurrences (decision D-registrations-2). An event's dates at one campus form a list. A yearly event has one date per occurrence. A monthly event such as Parents' Night Out is one occurrence with a start each month.
+Every date is a rule counted from the install day, through the calendar's own occurrences (decision 190). An event's dates at one campus form a list. A yearly event has one date per occurrence. A monthly event such as Parents' Night Out is one occurrence with a start each month.
 
 Each instance rule picks an occurrence:
 
@@ -99,11 +99,11 @@ Each instance links to its calendar occurrence through Rock's linkage, with a pu
 
 The loader finds each occurrence by the key the calendar writes it with: the event, the campus or "church-wide", and the first start. Both steps take that key from one place.
 
-Linked groups use the Event Attendees group type, under the Guid Rock reserves for it. A new Rock database does not have that type, so the loader adds it (decision D-registrations-7). Placement groups use five new group types: Camp Bus, Camp Cabin, Camp Activity, VBS Crew, and Serve Day Team, each with a leader role and a default member role.
+Linked groups use the Event Attendees group type, under the Guid Rock reserves for it. A new Rock database does not have that type, so the loader adds it (decision 195). Placement groups use five new group types: Camp Bus, Camp Cabin, Camp Activity, VBS Crew, and Serve Day Team, each with a leader role and a default member role.
 
 Groups with the same key are one group. So the girls' and boys' camp instances for one year share their linked group, their buses, and their activities, and each has its own cabins. Each placement group is linked to its instance the way Rock's placement screen links it: a `RelatedEntity` row with the purpose key `PLACEMENT`, qualified by the template placement's Id. A group that two instances share has a row for each.
 
-No placement groups sit on the template (decision D-registrations-4). Rock would share a template's groups with every instance in every year, so last year's campers would ride this year's buses.
+No placement groups sit on the template (decision 192). Rock would share a template's groups with every instance in every year, so last year's campers would ride this year's buses.
 
 | Placement groups | Core 1 | Core 3 | Full 7 |
 |---|---|---|---|
@@ -122,11 +122,11 @@ No placement groups sit on the template (decision D-registrations-4). Rock would
 
 ## The registrations part
 
-Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision D-registrations-1). The step takes the calendar's plan instead of planning the calendar again. A package built before registrations existed has no `configuration/registrations.json`, and the step skips.
+Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. A package built before registrations existed has no `configuration/registrations.json`, and the step skips.
 
 ## Later
 
 1. **Student registrations (slice 2).** Camp for both years, the mission trip, and the fall retreat: registrants, payments through the Test Gateway, payment plans, balances, the linked group's members, and people placed on buses, in cabins, and in activities. Last summer's campers are exactly the students with last summer's Student Camp step.
 2. **Kids and adult registrations (slice 3).** VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, with their wait lists and placements.
-3. **Signatures and finish (slice 4).** The camp and mission trip release forms with typed signatures and a PDF drawn at install, a few ready-made data views, and the notes and history Rock writes on each registration (decision D-registrations-6).
+3. **Signatures and finish (slice 4).** The camp and mission trip release forms with typed signatures and a PDF drawn at install, a few ready-made data views, and the notes and history Rock writes on each registration (decision 194).
 4. **Refunds.** One cancelled mission trip spot with a refunded deposit.

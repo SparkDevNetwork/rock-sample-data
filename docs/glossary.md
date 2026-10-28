@@ -55,7 +55,7 @@ The words this project uses, in alphabetical order.
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
-| **Rolling registration** | A registration that opens the day after the previous one closed, so its event always has one open (decision D-registrations-2). |
+| **Rolling registration** | A registration that opens the day after the previous one closed, so its event always has one open (decision 190). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
 | **Saturation** | How many messages each adult got in a period. Rock's Communication Saturation report sorts adults into buckets by count. See [Communications](communications.md#message-load-per-person). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |

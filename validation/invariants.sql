@@ -1105,7 +1105,7 @@ WHERE [p].[ForeignKey] = @ForeignKey
         ELSE 0 END;
 
 -- check: registration-linkage-points-at-a-listed-occurrence
--- why: Decision D-registrations-1. Rock's event page shows a registration through its linkage to an occurrence. An occurrence of an inactive, unapproved, or uncalendared event never shows, so neither does its Register button.
+-- why: Decision 189. Rock's event page shows a registration through its linkage to an occurrence. An occurrence of an inactive, unapproved, or uncalendared event never shows, so neither does its Register button.
 SELECT COUNT(*)
 FROM [EventItemOccurrenceGroupMap] AS [m]
 LEFT JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
@@ -1200,7 +1200,7 @@ WHERE [c].[ForeignKey] = @ForeignKey AND [et].[Name] = 'Rock.Model.RegistrationT
             AND [r].[Guid] = '2A92086B-DFF0-4B9C-46CB-4DAD805615AF' ) <> 2;
 
 -- check: seven-registrations-are-open-today
--- why: Decision D-registrations-2. Camp, the mission trip, the fall retreat, Parents' Night Out, Money Matters, Date Night, and the Women's Retreat are open on every install day, so every registration feature can be tried. Rock's calendar item page shows Register for an active instance of an active template, inside its dates, linked to the occurrence (EventItemOccurrenceLava).
+-- why: Decision 190. Camp, the mission trip, the fall retreat, Parents' Night Out, Money Matters, Date Night, and the Women's Retreat are open on every install day, so every registration feature can be tried. Rock's calendar item page shows Register for an active instance of an active template, inside its dates, linked to the occurrence (EventItemOccurrenceLava).
 SELECT CASE WHEN (
         SELECT COUNT( DISTINCT [o].[EventItemId] )
         FROM [EventItemOccurrenceGroupMap] AS [m]
