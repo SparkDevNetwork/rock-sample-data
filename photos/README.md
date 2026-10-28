@@ -74,7 +74,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Core 3 companions | About half, from a pool of 120 photos. |
 | Cast small groups (in every dataset) | All 12, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
-| Calendar events (in every dataset) | Each event listed in `events/manifest.json` gets its photo. None are made yet; the [event photo brief](event-brief.md) asks for all 49. |
+| Calendar events (in every dataset) | Each event listed in `events/manifest.json` gets its photo. None are made yet; the [event photo brief](event-brief.md) asks for all 51. |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos

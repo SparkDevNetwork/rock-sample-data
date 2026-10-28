@@ -4,22 +4,33 @@ Rock Solid Church's calendar: the events on Rock's Public and Internal calendars
 
 ## What a church gets
 
-49 events, in every dataset. A dataset gets each event's occurrences at the campuses it has, so Core 1 shows Phoenix only, and Full 7 shows all seven campuses.
+51 events, in every dataset. A dataset gets each event's occurrences at the campuses it has, so Core 1 shows Phoenix only, and Full 7 shows all seven campuses. The events are grouped below by the stage each one serves (see [Stages](#stages)).
 
-| Group | Events |
+| Stage | Events |
 |---|---|
-| Holidays and big Sundays | Easter Sunday, Good Friday Service, Easter Egg Hunt, Christmas Eve Services, Lessons and Carols (Scottsdale), Baptism Sunday, Baby Dedication, Serve Sunday, Small Group Connect, Built on the Rock Commitment Sunday, Night of Worship, Graduate Sunday |
-| Classes | Starting Point, Foundations, Money Matters, Marriage Date Night, Ready for Marriage, Hope for the Holidays |
-| Students | Student Night, Student Camp, High School Mission Trip, Student Fall Retreat, Student Leader Interest Meeting |
-| Kids and families | Vacation Bible School, Parents' Night Out, Fall Festival, Summer Movie Nights |
-| Men | Men's Breakfast, Men's Retreat, Men's Serve Day |
-| Women | Women's Bible Study, Women's Night Out, Women's Retreat, Women's Christmas Brunch |
-| Adults and seniors | Golden Years Luncheon, Young Adults Night (Tempe) |
-| Outreach | Community Serve Day, Community Diaper Drive, Thanksgiving Food Drive, Rock Solid Car Show, Blood Drive |
-| Volunteers | Volunteer Safety Training (on both calendars) |
-| Staff (Internal calendar) | All Staff Meeting, Weekend Service Planning, Elder Meeting, Rock Office Hours, Staff Retreat, Staff Christmas Party, Goodyear Setup and Load-In |
+| Belong (20) | Easter Sunday, Good Friday Service, Easter Egg Hunt, Christmas Eve Services, Lessons and Carols (Scottsdale), Fall Festival, Summer Movie Nights, Rock Solid Car Show, Starting Point, Small Group Connect, Vacation Bible School, Parents' Night Out, Student Night, Student Camp, Young Adults Night (Tempe), Men's Breakfast, Women's Night Out, Women's Christmas Brunch, Hope for the Holidays, Young at Heart Lunch |
+| Equip (12) | Baptism Sunday, Foundations, Women's Bible Study, Tuesday Morning Men's Study, Money Matters, Ready for Marriage, Marriage Date Night, Baby Dedication, Night of Worship, Men's Retreat, Women's Retreat, Student Fall Retreat |
+| Contribute (10) | Serve Sunday, Volunteer Safety Training (on both calendars), Community Serve Day, Men's Serve Day, Community Diaper Drive, Thanksgiving Food Drive, Blood Drive, High School Mission Trip, Built on the Rock Commitment Sunday, Goodyear Setup and Load-In (Internal calendar) |
+| Lead (3) | Student Leader Interest Meeting, Leader Huddle (on both calendars), Group Leader Training |
+| Staff (6, Internal calendar) | All Staff Meeting, Weekend Service Planning, Elder Meeting, Rock Office Hours, Staff Retreat, Staff Christmas Party |
 
 Each event has a summary and a description, one or more audiences, and occurrences with a campus, a place, a schedule, and a contact. Every event is active and approved by Ted Decker, who holds the Calendar Administration role, because Rock's calendar pages and the church app list only approved events.
+
+## Stages
+
+The calendar follows Ministry by Design, the same framework the step programs use (see [Steps](steps.md)): Belong, then Equip, then Contribute, then Lead, with growth before serving, and the path is "the norm, not a gate." Each event's `stage` in `calendar.json` names the stage it serves (decision D-stages-1), so the calendar shows a clear path from a first visit to leading others:
+
+| Stage | What its events do | Where the steps meet it |
+|---|---|---|
+| Belong | Front-door, family, community, and care events, where people are known and connected before they are asked to do anything | Starting Point is the Starting Point Class step, Small Group Connect leads to the Small Group step, and Student Camp is the Student Path's first step |
+| Equip | Classes, studies, retreats, and Sundays where people grow as followers of Jesus | Baptism Sunday is the Baptism step, and Foundations is the Foundations step |
+| Contribute | Serving, outreach, and generosity, where people take part in the church's mission | Serve Sunday and Volunteer Safety Training lead to the Serve step, Commitment Sunday to the Give step, and the mission trip is the Student Path's Mission Trip step |
+| Lead | Training and huddles for the people who lead groups, teams, and students | The Lead step counts small group and serving team leaders, who meet at the Leader Huddle and Group Leader Training; juniors and seniors learn about the Student Leader step at the interest meeting |
+| Staff | Staff events on the Internal calendar, which run the church rather than serve a stage | |
+
+Belong has the most events, because a church's front door is wide. Lead has the fewest, because it serves the few who lead. The stage is not stored in Rock; it lives in `calendar.json` and here.
+
+What changed on 2026-10-28 (decision D-stages-1): Graduate Sunday was removed, and the Leader Huddle took its place, because Lead had only one event. Group Leader Training was added before each group launch, and the Tuesday Morning Men's Study, which Ted Decker's text to Kevin Dawson already describes, gives men a weekly Equip rhythm. The seniors lunch is now the Young at Heart Lunch.
 
 ## Rock's own sample events
 
@@ -60,7 +71,7 @@ A few dates are pinned to Cast stories with `daysAgo`, so the story holds on any
 | Community Serve Day | Bri Hall helped at the serve day 35 days before install day. | The Saturday on or before 35 days ago, each year |
 | Student Fall Retreat | Isaac's email to Kevin Dawson 30 days before install day says the retreat is next month. | The Friday on or after 10 days from now, each year |
 
-Every other event follows a plain rule: a weekday each week (Student Night), a weekday of each month (the Golden Years Luncheon and Parents' Night Out), a weekday of a month each year (Fall Festival, the last Saturday of October), a date (Christmas Eve), or a weekly season (Women's Bible Study, from September to December and January to May).
+Every other event follows a plain rule: a weekday each week (Student Night), a weekday of each month (the Young at Heart Lunch and Parents' Night Out), a weekday of a month each year (Fall Festival, the last Saturday of October), a date (Christmas Eve), or a weekly season (Women's Bible Study, from September to December and January to May).
 
 ### Kinds of rules
 
@@ -101,8 +112,8 @@ Each event names a contact:
 
 | Contact | Person | Events |
 |---|---|---|
-| `pete` | Pete Foster, senior pastor | Big Sundays, marriage and grief events, staff meetings, the luncheon |
-| `ted` | Ted Decker, outreach pastor | Outreach, men's events, Serve Sunday, the blood drive |
+| `pete` | Pete Foster, senior pastor | Big Sundays, marriage and grief events, staff meetings, the Young at Heart Lunch |
+| `ted` | Ted Decker, outreach pastor | Outreach, men's events, Serve Sunday, the blood drive, the Leader Huddle |
 | `isaac` | Isaac Silva, student pastor | Student events, with the student line and inbox |
 | `alisha` | Alisha Marble, Rock administrator | Women's events, Money Matters, safety training, Rock Office Hours |
 | `jenny` | Jenny Michaels, who coordinates the car show and camp | The car show and Student Camp |

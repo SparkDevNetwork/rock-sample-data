@@ -46,11 +46,13 @@
   },
   "$rockEventsComment": "Rock ships four sample events with 2015 and 2018 dates. Each becomes one of the church's events, updated in place with Rock's Guid (rockEvent true): Staff Meeting is the All Staff Meeting, Customs & Classics Car Show is the Rock Solid Car Show, Rock Solid Finances Class is Money Matters, and Warrior Youth Event is Student Night. Their old occurrences and schedules are replaced.",
   "$expectComment": "An event's 'expect' entries are Cast stories the load checks: a start at the campus (none for church-wide) between min and max days before the install day (negative is after).",
+  "$stagesComment": "Each event's stage is the Ministry by Design stage it serves (docs/calendar.md#stages): Belong (front-door, family, community, and care events), Equip (classes, studies, and growth), Contribute (serving, outreach, and generosity), Lead (leader training and huddles), or Staff (the Internal calendar's staff events, which run the church rather than serve a stage). The stage is not stored in Rock.",
   "$eventsComment": "Each event: a key, name, Guid, the calendars and audiences it is on, a summary, a description (one paragraph per entry), its campuses ('all', a list, or 'church-wide' for one occurrence with no campus), where (a room, or offsite text), who to contact, and 'when'. 'times' is a list of start times, or 'services' for the campus's Sunday service times; 'minutes' is how long each lasts. A 'span' event runs from its first day's start to its last day's end. See docs/calendar.md for every 'when' kind.",
   "events": [
     {
       "key": "easter",
       "name": "Easter Sunday",
+      "stage": "Belong",
       "guid": "F67D9C95-12FB-4BCC-ABB9-1A233FB27B01",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -69,6 +71,7 @@
     {
       "key": "good-friday",
       "name": "Good Friday Service",
+      "stage": "Belong",
       "guid": "C1759823-D519-4586-99DA-1DA5C6A5E7FF",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -87,6 +90,7 @@
     {
       "key": "egg-hunt",
       "name": "Easter Egg Hunt",
+      "stage": "Belong",
       "guid": "F970715A-4075-454F-9C87-F77065700E31",
       "calendars": [ "public" ],
       "audiences": [ "children" ],
@@ -105,6 +109,7 @@
     {
       "key": "christmas-eve",
       "name": "Christmas Eve Services",
+      "stage": "Belong",
       "guid": "E8163B63-D544-4A44-90CF-D35568F56683",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -127,6 +132,7 @@
     {
       "key": "lessons-and-carols",
       "name": "Lessons and Carols",
+      "stage": "Belong",
       "guid": "A6E42B25-2A59-443B-ADD2-BE673E6B59CC",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -145,6 +151,7 @@
     {
       "key": "baptism-sunday",
       "name": "Baptism Sunday",
+      "stage": "Equip",
       "guid": "03CD0F8D-DC0D-4FA7-9526-179FCBF9DAAF",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -163,6 +170,7 @@
     {
       "key": "baby-dedication",
       "name": "Baby Dedication",
+      "stage": "Equip",
       "guid": "6BD7D93F-2CE1-471B-8952-DC7604AAC6B1",
       "calendars": [ "public" ],
       "audiences": [ "children", "adults" ],
@@ -181,6 +189,7 @@
     {
       "key": "serve-sunday",
       "name": "Serve Sunday",
+      "stage": "Contribute",
       "guid": "2A540E8A-B2CE-4916-B8A7-B08753091215",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -199,6 +208,7 @@
     {
       "key": "group-connect",
       "name": "Small Group Connect",
+      "stage": "Belong",
       "guid": "FF2E90BD-4D7E-4E16-9DE9-4B5A8D2F2EF7",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -217,6 +227,7 @@
     {
       "key": "commitment-sunday",
       "name": "Built on the Rock Commitment Sunday",
+      "stage": "Contribute",
       "guid": "399FE77C-CCCA-4AD1-ACD6-D6FCD1B8F67D",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -235,6 +246,7 @@
     {
       "key": "night-of-worship",
       "name": "Night of Worship",
+      "stage": "Equip",
       "guid": "AD27B7D1-FC8A-40CB-88A0-6A1BE8F868A7",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -251,26 +263,9 @@
       "minutes": 90
     },
     {
-      "key": "graduate-sunday",
-      "name": "Graduate Sunday",
-      "guid": "B63E085C-9232-40E1-AE32-90CCED924F15",
-      "calendars": [ "public" ],
-      "audiences": [ "youth" ],
-      "summary": "We celebrate our high school seniors and pray over them as they take their next step.",
-      "description": [
-        "Seniors, wear your cap and gown to the service of your choice. We will pray over you and give you a small gift.",
-        "Parents, send a baby photo and a senior photo to the student ministry by the Wednesday before for the slideshow."
-      ],
-      "campuses": "all",
-      "location": "Worship Center",
-      "contact": "isaac",
-      "when": { "kind": "yearly", "month": 5, "weekday": "Sunday", "week": 3 },
-      "times": "services",
-      "minutes": 60
-    },
-    {
       "key": "starting-point",
       "name": "Starting Point",
+      "stage": "Belong",
       "guid": "3D4271CD-4F0F-4A4E-BE0F-ED3FD25C41A8",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -291,6 +286,7 @@
     {
       "key": "foundations",
       "name": "Foundations",
+      "stage": "Equip",
       "guid": "0F5E9D7D-4707-4938-B51A-9A19F83B1241",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -309,6 +305,7 @@
     {
       "key": "money-matters",
       "name": "Money Matters",
+      "stage": "Equip",
       "guid": "6EFC00B0-F5D3-4352-BC3B-F09852FB5788",
       "rockEvent": true,
       "calendars": [ "public" ],
@@ -328,6 +325,7 @@
     {
       "key": "date-night",
       "name": "Marriage Date Night",
+      "stage": "Equip",
       "guid": "643C8CA3-EFB7-4E9C-A357-EBCF3EBF4C85",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -346,6 +344,7 @@
     {
       "key": "ready-for-marriage",
       "name": "Ready for Marriage",
+      "stage": "Equip",
       "guid": "4CFD20DE-1C93-447C-B30C-A4F849205027",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -364,6 +363,7 @@
     {
       "key": "hope-for-the-holidays",
       "name": "Hope for the Holidays",
+      "stage": "Belong",
       "guid": "E32B4284-A9A2-4E9A-AC24-DE6E19D7CEA4",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -382,6 +382,7 @@
     {
       "key": "student-night",
       "name": "Student Night",
+      "stage": "Belong",
       "guid": "64966C21-648E-4B31-8D97-DE1B62FA0820",
       "rockEvent": true,
       "calendars": [ "public" ],
@@ -401,6 +402,7 @@
     {
       "key": "student-camp",
       "name": "Student Camp",
+      "stage": "Belong",
       "guid": "D6F88FB4-F7B8-42B1-9586-292F387EBD96",
       "calendars": [ "public" ],
       "audiences": [ "youth" ],
@@ -420,6 +422,7 @@
     {
       "key": "mission-trip",
       "name": "High School Mission Trip",
+      "stage": "Contribute",
       "guid": "FBF477D1-7ECC-4CBA-A7BD-E20760DB9C82",
       "calendars": [ "public" ],
       "audiences": [ "youth" ],
@@ -444,6 +447,7 @@
       "key": "student-retreat",
       "expect": [ { "daysAgo": { "min": -16, "max": -10 }, "story": "Isaac's email to Kevin Dawson a month ago says the student retreat is next month." } ],
       "name": "Student Fall Retreat",
+      "stage": "Equip",
       "guid": "514817E5-03F7-4363-B14B-CF97BB217D46",
       "calendars": [ "public" ],
       "audiences": [ "youth" ],
@@ -465,6 +469,7 @@
     {
       "key": "student-leader-meeting",
       "name": "Student Leader Interest Meeting",
+      "stage": "Lead",
       "guid": "3AAF3ABF-F6F5-451F-A23D-0C772D7DBA19",
       "calendars": [ "public" ],
       "audiences": [ "youth" ],
@@ -481,8 +486,48 @@
       "minutes": 45
     },
     {
+      "key": "leader-huddle",
+      "name": "Leader Huddle",
+      "stage": "Lead",
+      "guid": "ED35C11E-C9D5-4052-98E5-718A63AA55B7",
+      "calendars": [ "public", "internal" ],
+      "audiences": [ "adults" ],
+      "summary": "Every small group leader, host, and serving team leader: dinner, vision, and training, four times a year.",
+      "description": [
+        "Leaders from every campus gather in Phoenix for dinner, stories of what God is doing in groups and on teams, and practical training for the season ahead.",
+        "Bring your co-leader or someone you are raising up to lead. Childcare is available if you sign up by the Monday before."
+      ],
+      "campuses": "church-wide",
+      "location": "Lobby, Phoenix campus",
+      "contact": "ted",
+      "when": { "kind": "yearly", "dates": [ { "month": 2, "weekday": "Thursday", "week": 1 }, { "month": 5, "weekday": "Thursday", "week": 1 }, { "month": 8, "weekday": "Thursday", "week": 1 }, { "month": 11, "weekday": "Thursday", "week": 1 } ] },
+      "times": [ "18:30" ],
+      "minutes": 120
+    },
+    {
+      "key": "group-leader-training",
+      "name": "Group Leader Training",
+      "stage": "Lead",
+      "guid": "A2E1F017-114D-4D78-9CD0-F9984103A62E",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "New and returning small group leaders and hosts get ready for the next group launch.",
+      "description": [
+        "Before each fall and January launch, leaders and hosts walk through the new study, how to welcome new people, and how to care for their group.",
+        "New leaders, bring the person who will lead with you. Returning leaders, come share what you have learned."
+      ],
+      "campuses": "all",
+      "location": "Classroom",
+      "contact": "campus-pastor",
+      "when": { "kind": "occasion", "occasion": "group-launch", "offsetDays": -10 },
+      "$whenComment": "The Thursday ten days before each group launch, three days before Small Group Connect.",
+      "times": [ "18:30" ],
+      "minutes": 90
+    },
+    {
       "key": "vbs",
       "name": "Vacation Bible School",
+      "stage": "Belong",
       "guid": "96C5C20C-A00E-4AD7-BB3F-354EF534096E",
       "calendars": [ "public" ],
       "audiences": [ "children" ],
@@ -502,6 +547,7 @@
     {
       "key": "parents-night-out",
       "name": "Parents' Night Out",
+      "stage": "Belong",
       "guid": "6B4E1432-03A5-4567-A01F-8449C2849E37",
       "calendars": [ "public" ],
       "audiences": [ "children", "adults" ],
@@ -520,6 +566,7 @@
     {
       "key": "fall-festival",
       "name": "Fall Festival",
+      "stage": "Belong",
       "guid": "A7F0F569-FA91-43B5-B5F4-326DB55ACD20",
       "calendars": [ "public" ],
       "audiences": [ "all-church", "children" ],
@@ -538,6 +585,7 @@
     {
       "key": "movie-nights",
       "name": "Summer Movie Nights",
+      "stage": "Belong",
       "guid": "5169AD0D-19A5-4A55-95FF-BA4213A550DA",
       "calendars": [ "public" ],
       "audiences": [ "all-church", "children" ],
@@ -557,6 +605,7 @@
       "key": "mens-breakfast",
       "expect": [ { "campus": "phoenix", "daysAgo": { "min": 47, "max": 53 }, "story": "Ted texts Kevin Dawson that he missed the men's breakfast." } ],
       "name": "Men's Breakfast",
+      "stage": "Belong",
       "guid": "92A82E8D-3123-4AD6-855C-B71A25F25A90",
       "calendars": [ "public" ],
       "audiences": [ "men" ],
@@ -574,8 +623,29 @@
       "minutes": 90
     },
     {
+      "key": "mens-tuesday-study",
+      "name": "Tuesday Morning Men's Study",
+      "stage": "Equip",
+      "guid": "A61C3009-4D03-4328-BC13-1E7D63601159",
+      "calendars": [ "public" ],
+      "audiences": [ "men" ],
+      "summary": "Coffee, a chapter of the Bible, and honest conversation before work, every Tuesday at 6:30.",
+      "description": [
+        "A few men meet at Javelina Wash Coffee before work to read a chapter of the Bible together, talk about it, and pray for each other.",
+        "Come once or every week. You will be out the door by 7:30."
+      ],
+      "campuses": [ "phoenix" ],
+      "location": "Javelina Wash Coffee",
+      "contact": "ted",
+      "when": { "kind": "weekly", "weekday": "Tuesday" },
+      "$whenComment": "Ted invites Kevin Dawson to Tuesday 6:30 coffee at Javelina Wash Coffee, the Silvas' shop, 47 days before install day (cast/sms-threads.json).",
+      "times": [ "06:30" ],
+      "minutes": 60
+    },
+    {
       "key": "mens-retreat",
       "name": "Men's Retreat",
+      "stage": "Equip",
       "guid": "7D5F5918-970E-491D-B787-9044A0D13A43",
       "calendars": [ "public" ],
       "audiences": [ "men" ],
@@ -596,6 +666,7 @@
     {
       "key": "mens-serve-day",
       "name": "Men's Serve Day",
+      "stage": "Contribute",
       "guid": "15E5A73D-5C3A-4189-86F4-DFBF223A4649",
       "calendars": [ "public" ],
       "audiences": [ "men" ],
@@ -614,6 +685,7 @@
     {
       "key": "womens-bible-study",
       "name": "Women's Bible Study",
+      "stage": "Equip",
       "guid": "2A5D645B-D0BD-4ECA-9F46-FA16D93B3E2B",
       "calendars": [ "public" ],
       "audiences": [ "women" ],
@@ -632,6 +704,7 @@
     {
       "key": "womens-night-out",
       "name": "Women's Night Out",
+      "stage": "Belong",
       "guid": "82575AD4-E95A-4105-B201-758C32113CE5",
       "calendars": [ "public" ],
       "audiences": [ "women" ],
@@ -650,6 +723,7 @@
     {
       "key": "womens-retreat",
       "name": "Women's Retreat",
+      "stage": "Equip",
       "guid": "2104D965-572B-4B38-8B43-66D14BD88588",
       "calendars": [ "public" ],
       "audiences": [ "women" ],
@@ -670,6 +744,7 @@
     {
       "key": "womens-christmas-brunch",
       "name": "Women's Christmas Brunch",
+      "stage": "Belong",
       "guid": "3CA39AF1-E30B-41F1-82BD-26F1FE74B93E",
       "calendars": [ "public" ],
       "audiences": [ "women" ],
@@ -686,8 +761,9 @@
       "minutes": 120
     },
     {
-      "key": "golden-years-luncheon",
-      "name": "Golden Years Luncheon",
+      "key": "young-at-heart-lunch",
+      "name": "Young at Heart Lunch",
+      "stage": "Belong",
       "guid": "67AD3E94-326F-4660-93AB-80D475934EF0",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -707,6 +783,7 @@
       "key": "community-serve-day",
       "expect": [ { "campus": "phoenix", "daysAgo": { "min": 35, "max": 41 }, "story": "Bri Hall helped at the community serve day." } ],
       "name": "Community Serve Day",
+      "stage": "Contribute",
       "guid": "F56FA84D-0DEB-4C17-9C1E-E1200AE3D1E2",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -727,6 +804,7 @@
       "key": "diaper-drive",
       "expect": [ { "campus": "phoenix", "daysAgo": { "min": 45, "max": 51 }, "story": "Destiny Young met the church at the diaper drive." }, { "campus": "phoenix", "daysAgo": { "min": -91, "max": -1 }, "story": "Destiny asked about the next diaper drive, and it is coming up." } ],
       "name": "Community Diaper Drive",
+      "stage": "Contribute",
       "guid": "CB14ECED-E31F-41CF-93B2-6904D9C0CDB5",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -746,6 +824,7 @@
     {
       "key": "food-drive",
       "name": "Thanksgiving Food Drive",
+      "stage": "Contribute",
       "guid": "9002898F-B3E5-4AC8-B058-29A1509D47F9",
       "calendars": [ "public" ],
       "audiences": [ "all-church" ],
@@ -765,6 +844,7 @@
       "key": "car-show",
       "expect": [ { "campus": "phoenix", "daysAgo": { "min": 2, "max": 8 }, "story": "Helen Evans texts about the big event on campus she just came to." } ],
       "name": "Rock Solid Car Show",
+      "stage": "Belong",
       "guid": "6BB29D45-D5A0-4381-A0D9-E5490A58E20B",
       "rockEvent": true,
       "calendars": [ "public" ],
@@ -785,6 +865,7 @@
     {
       "key": "blood-drive",
       "name": "Blood Drive",
+      "stage": "Contribute",
       "guid": "AF46262D-4EF1-481B-8313-0A1A8A4DE5B1",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -803,6 +884,7 @@
     {
       "key": "young-adults",
       "name": "Young Adults Night",
+      "stage": "Belong",
       "guid": "19BAFB0D-B5E7-4C24-B5E7-A6DD688400BA",
       "calendars": [ "public" ],
       "audiences": [ "adults" ],
@@ -821,6 +903,7 @@
     {
       "key": "safety-training",
       "name": "Volunteer Safety Training",
+      "stage": "Contribute",
       "guid": "3FC04FAD-F161-4249-ACFC-4F86BC6FCA27",
       "calendars": [ "public", "internal" ],
       "audiences": [ "adults" ],
@@ -839,6 +922,7 @@
     {
       "key": "all-staff",
       "name": "All Staff Meeting",
+      "stage": "Staff",
       "guid": "93104654-DAFA-489B-A175-5F2AB3A846F1",
       "rockEvent": true,
       "calendars": [ "internal" ],
@@ -858,6 +942,7 @@
     {
       "key": "service-planning",
       "name": "Weekend Service Planning",
+      "stage": "Staff",
       "guid": "96A023DE-CE7B-4DE2-994A-5F485E7A243D",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
@@ -876,6 +961,7 @@
     {
       "key": "elder-meeting",
       "name": "Elder Meeting",
+      "stage": "Staff",
       "guid": "E77D160B-133E-4E7E-9E18-38D5B857AAAE",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
@@ -894,6 +980,7 @@
     {
       "key": "rock-office-hours",
       "name": "Rock Office Hours",
+      "stage": "Staff",
       "guid": "D1169D77-1A2E-459F-AAA4-5BD222F3B860",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
@@ -912,6 +999,7 @@
     {
       "key": "staff-retreat",
       "name": "Staff Retreat",
+      "stage": "Staff",
       "guid": "1EFC57D6-79E0-4FAC-B99E-20F1CE2C42A5",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
@@ -932,6 +1020,7 @@
     {
       "key": "staff-christmas-party",
       "name": "Staff Christmas Party",
+      "stage": "Staff",
       "guid": "B021CD9F-DFD1-47B7-8A3E-910D186D9EE5",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
@@ -950,6 +1039,7 @@
     {
       "key": "goodyear-load-in",
       "name": "Goodyear Setup and Load-In",
+      "stage": "Contribute",
       "guid": "A9500492-9971-4802-9A6F-1BD41A9C9533",
       "calendars": [ "internal" ],
       "audiences": [ "staff" ],
