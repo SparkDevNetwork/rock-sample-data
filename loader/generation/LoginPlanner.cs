@@ -167,6 +167,12 @@ namespace RockSampleData.Loader.Generation
                 return 0;
             }
 
+            // A reason the file makes certain, such as the prayer team's security role (decision D-group-sync-4), is never scaled down.
+            if ( keys.Any( k => _config.Reasons.Any( r => r.Key == k && r.Percent >= 100 ) ) )
+            {
+                return 100;
+            }
+
             var chance = person.Cast.RecordStatus == "inactive"
                 ? _config.InactivePercent
                 : keys.Select( _config.Percent ).DefaultIfEmpty( 0 ).Max();

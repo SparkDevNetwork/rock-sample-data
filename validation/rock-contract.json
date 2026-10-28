@@ -561,6 +561,44 @@
         "ScheduleTypeValueId": "int not null"
       }
     },
+    "Category": {
+      "written": [
+        "CreatedDateTime",
+        "Description",
+        "EntityTypeId",
+        "EntityTypeQualifierColumn",
+        "EntityTypeQualifierValue",
+        "ForeignKey",
+        "Guid",
+        "IconCssClass",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "ParentCategoryId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "EntityTypeId": "int not null",
+        "EntityTypeQualifierColumn": "nvarchar(50) null",
+        "EntityTypeQualifierValue": "nvarchar(200) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HighlightColor": "nvarchar(50) null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsSystem": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "ParentCategoryId": "int null"
+      }
+    },
     "Communication": {
       "written": [
         "CommunicationTemplateId",
@@ -1352,6 +1390,82 @@
         "SnippetCategoryId": "int null"
       }
     },
+    "DataView": {
+      "written": [
+        "CategoryId",
+        "CreatedDateTime",
+        "DataViewFilterId",
+        "Description",
+        "DisableUseOfReadOnlyContext",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IncludeDeceased",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name"
+      ],
+      "rockColumns": {
+        "CategoryId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataViewFilterId": "int null",
+        "Description": "nvarchar(max) null",
+        "DisableUseOfReadOnlyContext": "bit not null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HighlightColor": "nvarchar(50) null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IncludeDeceased": "bit not null",
+        "IsSystem": "bit not null",
+        "LastRunDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "PersistedLastRefreshDateTime": "datetime null",
+        "PersistedLastRunDurationMilliseconds": "int null",
+        "PersistedScheduleId": "int null",
+        "PersistedScheduleIntervalMinutes": "int null",
+        "RunCount": "int null",
+        "RunCountLastRefreshDateTime": "datetime null",
+        "TimeToRunDurationMilliseconds": "float null",
+        "TransformEntityTypeId": "int null"
+      }
+    },
+    "DataViewFilter": {
+      "written": [
+        "CreatedDateTime",
+        "DataViewId",
+        "EntityTypeId",
+        "ExpressionType",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "ParentId",
+        "Selection"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataViewId": "int null",
+        "EntityTypeId": "int null",
+        "ExpressionType": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ParentId": "int null",
+        "RelatedDataViewId": "int null",
+        "Selection": "nvarchar(max) null"
+      }
+    },
     "DefinedValue": {
       "written": [
         "CreatedDateTime",
@@ -1382,6 +1496,42 @@
         "ModifiedDateTime": "datetime null",
         "Order": "int not null",
         "Value": "nvarchar(250) not null"
+      }
+    },
+    "EntityType": {
+      "written": [
+        "AssemblyName",
+        "ForeignKey",
+        "FriendlyName",
+        "Guid",
+        "IsCommon",
+        "IsEntity",
+        "IsSecured",
+        "Name"
+      ],
+      "rockColumns": {
+        "AssemblyName": "nvarchar(260) null",
+        "AttributesSupportPrePostHtml": "bit not null",
+        "AttributesSupportShowOnBulk": "bit not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "FriendlyName": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IndexDocumentUrl": "nvarchar(max) null",
+        "IndexResultTemplate": "nvarchar(max) null",
+        "IsAchievementsEnabled": "bit not null",
+        "IsCommon": "bit not null",
+        "IsEntity": "bit not null",
+        "IsIndexingEnabled": "bit not null",
+        "IsMessageBusEventPublishEnabled": "bit not null",
+        "IsRelatedToInteractionTrackedOnCreate": "bit not null",
+        "IsSecured": "bit not null",
+        "LinkUrlLavaTemplate": "nvarchar(max) null",
+        "MultiValueFieldTypeId": "int null",
+        "Name": "nvarchar(100) null",
+        "SingleValueFieldTypeId": "int null"
       }
     },
     "EventCalendarItem": {
@@ -2490,6 +2640,41 @@
         "ModifiedByPersonAliasId": "int null",
         "ModifiedDateTime": "datetime null",
         "MustMeetRequirementToAddMember": "bit not null"
+      }
+    },
+    "GroupSync": {
+      "written": [
+        "AddUserAccountsDuringSync",
+        "CreatedDateTime",
+        "ExitSystemCommunicationId",
+        "ForeignKey",
+        "GroupId",
+        "GroupTypeRoleId",
+        "Guid",
+        "LastRefreshDateTime",
+        "ModifiedDateTime",
+        "ScheduleIntervalMinutes",
+        "SyncDataViewId",
+        "WelcomeSystemCommunicationId"
+      ],
+      "rockColumns": {
+        "AddUserAccountsDuringSync": "bit not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ExitSystemCommunicationId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GroupId": "int not null",
+        "GroupTypeRoleId": "int not null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "LastRefreshDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ScheduleIntervalMinutes": "int null",
+        "SyncDataViewId": "int not null",
+        "WelcomeSystemCommunicationId": "int null"
       }
     },
     "GroupType": {
@@ -4306,6 +4491,7 @@
       "628C51A8-4613-43ED-A18D-4A6FB999273E",
       "6FAF2721-3E26-40D0-936E-29157328A37B",
       "7A2AFC10-BCFA-4CCF-9B6C-C2367D6BE7BE",
+      "9E17621E-F559-44E9-8C40-E8CF44CF8FCF",
       "A6BCC49E-103F-46B0-8BAC-84EA03FF04D5",
       "B1906B7D-1A1E-41B9-BBA4-F4482CECAF7B",
       "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
@@ -4317,6 +4503,7 @@
       "1C21C346-A861-4A9A-BD6D-BAA7D92419D5"
     ],
     "GroupType": [
+      "235BAE2B-5760-4763-AADF-3938F34BA100",
       "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4",
       "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
       "77713830-AE5E-4B1A-94FA-E145DFF85035",
@@ -4382,10 +4569,14 @@
     ],
     "SystemCommunication": [
       "8A20FE79-B73C-447A-82B1-416F9B50C038",
-      "BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC"
+      "9AC62F1B-16E0-3886-4CE6-2B9290D6B135",
+      "BA1716E0-6B31-4E93-ABA1-42B3C81FDBDC",
+      "F66D7DAE-89C1-E8BC-48F8-A0D6B849615F"
     ],
     "SystemEmail": [
-      "8A20FE79-B73C-447A-82B1-416F9B50C038"
+      "8A20FE79-B73C-447A-82B1-416F9B50C038",
+      "9AC62F1B-16E0-3886-4CE6-2B9290D6B135",
+      "F66D7DAE-89C1-E8BC-48F8-A0D6B849615F"
     ]
   },
   "procedures": [
