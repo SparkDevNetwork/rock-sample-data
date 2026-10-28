@@ -53,6 +53,7 @@ namespace RockSampleData.Loader
             ("Steps", SampleDataPart.Steps),
             ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
+            ("Registrations", SampleDataPart.Registrations),
             ("Logins", null),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
@@ -473,9 +474,17 @@ namespace RockSampleData.Loader
 
             // The church's calendar. Its contacts are Cast staff and campus pastors, and its dates come from the same rules
             // steps and messages use, so it reads only configuration and people.
+            List<PlannedEvent> calendarPlan = null;
             if ( steps.Begin( "Calendar" ) )
             {
-                new CalendarLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusPlans );
+                calendarPlan = new CalendarLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusPlans );
+            }
+
+            // Registrations link to the occurrences the calendar just wrote, so they take its plan instead of planning the
+            // calendar again. Registrations need the calendar (SampleDataParts.All), so it has run whenever they load.
+            if ( steps.Begin( "Registrations" ) )
+            {
+                new RegistrationsLoader( db, source, dates, dataset, foreignKey ).Load( calendarPlan, people, configuration.CampusPlans );
             }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and

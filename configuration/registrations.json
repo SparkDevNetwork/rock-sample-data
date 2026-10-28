@@ -1,0 +1,1219 @@
+{
+  "$comment": "Event registrations, slice 1: everything a church sets up before anyone registers (docs/registrations.md). Template categories, placement group types, templates with their forms, fees, discounts, and placements, and instance rules that link each registration to its calendar occurrence and group. Every date is a rule counted from the install day. Registrants, payments, and placed people come in later slices.",
+  "adminRole": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF",
+  "$adminRoleComment": "Rock's RSR - Event Registration Administration role. Rock's v19 rollup gave it Edit and Administrate on every top-level template category that existed then, so the loader does the same for these new ones.",
+  "gateway": "6432D2D2-32FF-443D-B5B3-FB6C8414C3AD",
+  "$gatewayComment": "Rock's Test Gateway, the one the giving part uses. Paid templates use it; free ones have none.",
+  "account": "event-registration",
+  "batchPrefix": "Event Registration",
+  "emailsFrom": "5E0ADD57-B220-4ED0-975D-EEE2D0B14743",
+  "$emailsFromComment": "Rock's own Baptism template. Every template copies its confirmation, reminder, payment reminder, and wait list emails, and its success text, so they read the way Rock writes them.",
+  "categories": [
+    {
+      "key": "students",
+      "name": "Students",
+      "iconCssClass": "ti ti-school"
+    },
+    {
+      "key": "kids",
+      "name": "Kids",
+      "iconCssClass": "ti ti-mood-kid"
+    },
+    {
+      "key": "adults",
+      "name": "Adults",
+      "iconCssClass": "ti ti-users"
+    },
+    {
+      "key": "outreach",
+      "name": "Outreach",
+      "iconCssClass": "ti ti-heart-handshake"
+    }
+  ],
+  "$groupTypesComment": "Group types for linked groups and placement groups. A type is found by its Guid first, so a Rock that ships one keeps its own. Event Attendees uses the Guid Rock reserves for it (Rock's GROUPTYPE_EVENTATTENDEES), which a new Rock database does not create.",
+  "groupTypes": [
+    {
+      "key": "event-attendees",
+      "guid": "3311132B-268D-44E9-811A-A56A0835E50A",
+      "name": "Event Attendees",
+      "description": "People going to an event, added when they register.",
+      "groupTerm": "Group",
+      "memberTerm": "Attendee",
+      "iconCssClass": "ti ti-calendar-event",
+      "roles": [
+        {
+          "key": "leader",
+          "name": "Leader",
+          "isLeader": true
+        },
+        {
+          "key": "attendee",
+          "name": "Attendee",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "key": "camp-bus",
+      "name": "Camp Bus",
+      "description": "A bus to and from Student Camp.",
+      "groupTerm": "Bus",
+      "memberTerm": "Rider",
+      "iconCssClass": "ti ti-bus",
+      "roles": [
+        {
+          "key": "leader",
+          "name": "Bus Leader",
+          "isLeader": true
+        },
+        {
+          "key": "rider",
+          "name": "Rider",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "key": "camp-cabin",
+      "name": "Camp Cabin",
+      "description": "A cabin at Student Camp, with its counselors.",
+      "groupTerm": "Cabin",
+      "memberTerm": "Camper",
+      "iconCssClass": "ti ti-home",
+      "roles": [
+        {
+          "key": "counselor",
+          "name": "Counselor",
+          "isLeader": true
+        },
+        {
+          "key": "camper",
+          "name": "Camper",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "key": "camp-activity",
+      "name": "Camp Activity",
+      "description": "An afternoon activity at Student Camp. Each camper picks two.",
+      "groupTerm": "Activity",
+      "memberTerm": "Participant",
+      "iconCssClass": "ti ti-ball-basketball",
+      "roles": [
+        {
+          "key": "leader",
+          "name": "Activity Leader",
+          "isLeader": true
+        },
+        {
+          "key": "participant",
+          "name": "Participant",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "key": "vbs-crew",
+      "name": "VBS Crew",
+      "description": "A Vacation Bible School crew of kids in the same grade, with their crew leaders.",
+      "groupTerm": "Crew",
+      "memberTerm": "Kid",
+      "iconCssClass": "ti ti-flag",
+      "roles": [
+        {
+          "key": "leader",
+          "name": "Crew Leader",
+          "isLeader": true
+        },
+        {
+          "key": "kid",
+          "name": "Kid",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "key": "serve-day-team",
+      "name": "Serve Day Team",
+      "description": "A Community Serve Day project team.",
+      "groupTerm": "Team",
+      "memberTerm": "Volunteer",
+      "iconCssClass": "ti ti-tool",
+      "roles": [
+        {
+          "key": "leader",
+          "name": "Team Leader",
+          "isLeader": true
+        },
+        {
+          "key": "volunteer",
+          "name": "Volunteer",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "registrationAttributes": [
+    {
+      "key": "HowDidYouHear",
+      "name": "How did you hear about this event?",
+      "fieldType": "single-select",
+      "values": [
+        "Sunday announcement",
+        "Church website",
+        "Email newsletter",
+        "Church app",
+        "A friend",
+        "Other"
+      ]
+    }
+  ],
+  "$registrationAttributesComment": "Asked once per registration on every template.",
+  "$templatesComment": "One template per kind of registration. A template is reused every year; each year's instances come from the instance rules below. eligibility: grades (7 to 12), ages, and gender, stored the way Rock's template screen stores them. Rock refuses a registrant it cannot check, so a template that limits grade asks for grade, one that limits age asks for birthdate, and one that limits gender asks for gender. paymentPlan lists the frequencies a plan may use.",
+  "templates": [
+    {
+      "key": "student-camp",
+      "name": "Student Camp",
+      "category": "students",
+      "description": "A week at Juniper Hollow Camp near Prescott each summer for students in grades 7 to 12. Girls and boys register separately, so each has its own limit.",
+      "registrantTerm": "Camper",
+      "cost": 349,
+      "minimumInitialPayment": 100,
+      "maxRegistrants": 4,
+      "registrantsSameFamily": "Yes",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "PromptForRegistrar",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "paymentPlan": [
+        "monthly",
+        "twice-monthly"
+      ],
+      "eligibility": {
+        "grades": [
+          7,
+          12
+        ]
+      },
+      "instructions": "A parent or guardian should register each student. You can pay the $100 deposit now and set up payments for the rest. Payments are due two weeks before camp.",
+      "forms": [
+        {
+          "name": "Camper",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Gender",
+              "required": true
+            },
+            {
+              "person": "Birthdate",
+              "required": true
+            },
+            {
+              "person": "Grade",
+              "required": true
+            },
+            {
+              "person": "MobilePhone"
+            },
+            {
+              "person": "Email"
+            },
+            {
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
+              "$comment": "Rock's Allergy person attribute."
+            },
+            {
+              "attribute": "RoommateRequest"
+            },
+            {
+              "attribute": "EmergencyContactName",
+              "required": true
+            },
+            {
+              "attribute": "EmergencyContactPhone",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "RoommateRequest",
+          "name": "Cabin Mate Request",
+          "fieldType": "text",
+          "description": "One friend this camper would like to share a cabin with."
+        },
+        {
+          "key": "EmergencyContactName",
+          "name": "Emergency Contact Name",
+          "fieldType": "text",
+          "isGridColumn": true
+        },
+        {
+          "key": "EmergencyContactPhone",
+          "name": "Emergency Contact Phone",
+          "fieldType": "text"
+        }
+      ],
+      "fees": [
+        {
+          "key": "t-shirt",
+          "name": "Camp T-Shirt",
+          "discountApplies": false,
+          "items": [
+            {
+              "name": "Youth Medium",
+              "cost": 15
+            },
+            {
+              "name": "Youth Large",
+              "cost": 15
+            },
+            {
+              "name": "Adult Small",
+              "cost": 15
+            },
+            {
+              "name": "Adult Medium",
+              "cost": 15
+            },
+            {
+              "name": "Adult Large",
+              "cost": 15
+            },
+            {
+              "name": "Adult XL",
+              "cost": 15
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "key": "early-bird",
+          "code": "EARLYBIRD",
+          "amount": 30,
+          "autoApply": true,
+          "endsBefore": {
+            "month": 4,
+            "day": 30
+          }
+        },
+        {
+          "key": "siblings",
+          "code": "SIBLINGS",
+          "amount": 25,
+          "autoApply": true,
+          "minRegistrants": 2
+        }
+      ],
+      "placements": [
+        {
+          "key": "bus",
+          "name": "Buses",
+          "groupType": "camp-bus",
+          "iconCssClass": "ti ti-bus"
+        },
+        {
+          "key": "cabin",
+          "name": "Cabins",
+          "groupType": "camp-cabin",
+          "iconCssClass": "ti ti-home"
+        },
+        {
+          "key": "activity",
+          "name": "Activities",
+          "groupType": "camp-activity",
+          "iconCssClass": "ti ti-ball-basketball",
+          "allowMultiple": true
+        }
+      ]
+    },
+    {
+      "key": "mission-trip",
+      "name": "High School Mission Trip",
+      "category": "students",
+      "description": "A week serving with a partner church, over spring break or in the summer, for high school students.",
+      "registrantTerm": "Student",
+      "cost": 1850,
+      "minimumInitialPayment": 300,
+      "maxRegistrants": 1,
+      "registrarOption": "PromptForRegistrar",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Pending",
+      "waitList": true,
+      "paymentPlan": [
+        "monthly"
+      ],
+      "fullPaymentOrPlanRequired": "Please pay the full cost now, or set up monthly payments so the trip is paid by the payment deadline.",
+      "eligibility": {
+        "grades": [
+          9,
+          12
+        ]
+      },
+      "instructions": "The $300 deposit holds a spot. Set up monthly payments for the rest, or pay it all now. Once the trip is full, you can join the wait list.",
+      "forms": [
+        {
+          "name": "Student",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Gender",
+              "required": true
+            },
+            {
+              "person": "Birthdate",
+              "required": true
+            },
+            {
+              "person": "Grade",
+              "required": true
+            },
+            {
+              "person": "MobilePhone",
+              "required": true
+            },
+            {
+              "person": "Email",
+              "required": true
+            },
+            {
+              "attribute": "PassportStatus",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "PassportStatus",
+          "name": "Passport",
+          "fieldType": "single-select",
+          "values": [
+            "I have a passport",
+            "I have applied",
+            "I do not have one yet"
+          ],
+          "description": "Spring trips cross the border, so every student needs a passport by the trip."
+        }
+      ]
+    },
+    {
+      "key": "student-retreat",
+      "name": "Student Fall Retreat",
+      "category": "students",
+      "description": "A weekend at Juniper Hollow Camp each November for students in grades 7 to 12.",
+      "registrantTerm": "Student",
+      "cost": 139,
+      "minimumInitialPayment": 50,
+      "maxRegistrants": 4,
+      "registrantsSameFamily": "Yes",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "PromptForRegistrar",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "eligibility": {
+        "grades": [
+          7,
+          12
+        ]
+      },
+      "instructions": "Pay the $50 deposit now and the rest before the retreat. Student leaders, use your code for $40 off.",
+      "forms": [
+        {
+          "name": "Student",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Gender",
+              "required": true
+            },
+            {
+              "person": "Grade",
+              "required": true
+            },
+            {
+              "person": "MobilePhone"
+            },
+            {
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31"
+            }
+          ]
+        }
+      ],
+      "fees": [
+        {
+          "key": "hoodie",
+          "name": "Retreat Hoodie",
+          "items": [
+            {
+              "name": "Small",
+              "cost": 30
+            },
+            {
+              "name": "Medium",
+              "cost": 30
+            },
+            {
+              "name": "Large",
+              "cost": 30
+            },
+            {
+              "name": "XL",
+              "cost": 30
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "key": "student-leader",
+          "code": "STUDENTLEADER",
+          "amount": 40,
+          "maxUsage": 12
+        }
+      ]
+    },
+    {
+      "key": "vbs",
+      "name": "Vacation Bible School",
+      "category": "kids",
+      "description": "Five summer mornings of games, music, and Bible stories for kids age 4 to 11, at each campus.",
+      "registrantTerm": "Child",
+      "cost": 25,
+      "maxRegistrants": 6,
+      "registrantsSameFamily": "Yes",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "PromptForRegistrar",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "waitList": true,
+      "eligibility": {
+        "ages": [
+          4,
+          11
+        ]
+      },
+      "instructions": "Register every child in your family at once. Kids are placed in a crew with others in their grade.",
+      "forms": [
+        {
+          "name": "Child",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Birthdate",
+              "required": true
+            },
+            {
+              "person": "Grade"
+            },
+            {
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31"
+            },
+            {
+              "attribute": "PickUpPerson",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "PickUpPerson",
+          "name": "Who will pick up this child?",
+          "fieldType": "text",
+          "isGridColumn": true
+        }
+      ],
+      "placements": [
+        {
+          "key": "crew",
+          "name": "Crews",
+          "groupType": "vbs-crew",
+          "iconCssClass": "ti ti-flag"
+        }
+      ]
+    },
+    {
+      "key": "parents-night-out",
+      "name": "Parents' Night Out",
+      "category": "kids",
+      "description": "A free Friday night of games, pizza, and a movie for kids, so parents get a night out.",
+      "registrantTerm": "Child",
+      "cost": 0,
+      "maxRegistrants": 6,
+      "registrantsSameFamily": "Yes",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "PromptForRegistrar",
+      "waitList": true,
+      "eligibility": {
+        "ages": [
+          2,
+          11
+        ]
+      },
+      "instructions": "Parents' Night Out is free. Spots are limited, so we keep a wait list once it is full.",
+      "forms": [
+        {
+          "name": "Child",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Birthdate",
+              "required": true
+            },
+            {
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
+              "required": true,
+              "$comment": "Saved to the child's record, so kids check-in shows it too."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "community-serve-day",
+      "name": "Community Serve Day",
+      "category": "outreach",
+      "description": "A Saturday each fall when the church serves its neighborhoods: schools, parks, and neighbors who need a hand.",
+      "registrantTerm": "Volunteer",
+      "cost": 0,
+      "maxRegistrants": 6,
+      "registrantsSameFamily": "Ask",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "PrefillFirstRegistrant",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "instructions": "Sign up yourself and anyone serving with you. We will place you on a project team before the day.",
+      "forms": [
+        {
+          "name": "Volunteer",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Email",
+              "required": true
+            },
+            {
+              "person": "MobilePhone"
+            },
+            {
+              "attribute": "ShirtSize"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "ShirtSize",
+          "name": "Serve Day Shirt Size",
+          "fieldType": "single-select",
+          "values": [
+            "Youth",
+            "Small",
+            "Medium",
+            "Large",
+            "XL",
+            "2XL"
+          ]
+        }
+      ],
+      "placements": [
+        {
+          "key": "team",
+          "name": "Project Teams",
+          "groupType": "serve-day-team",
+          "iconCssClass": "ti ti-tool"
+        }
+      ]
+    },
+    {
+      "key": "money-matters",
+      "name": "Money Matters",
+      "category": "adults",
+      "description": "A five-week class on budgeting, debt, saving, and generosity. Each campus sets its own price.",
+      "registrantTerm": "Participant",
+      "setCostOnInstance": true,
+      "cost": 0,
+      "maxRegistrants": 2,
+      "registrantsSameFamily": "Ask",
+      "registrarOption": "PrefillFirstRegistrant",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "instructions": "The class fee covers the workbook. You can pay later, at the first class. If cost is a barrier, ask for the scholarship code.",
+      "forms": [
+        {
+          "name": "Participant",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Email",
+              "required": true
+            },
+            {
+              "person": "MobilePhone"
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "key": "scholarship",
+          "code": "SCHOLARSHIP",
+          "percent": 100,
+          "maxUsage": 5
+        }
+      ]
+    },
+    {
+      "key": "date-night",
+      "name": "Marriage Date Night",
+      "category": "adults",
+      "description": "Dinner and a speaker for married couples, with childcare in the Kids Wing.",
+      "registrantTerm": "Guest",
+      "cost": 40,
+      "maxRegistrants": 2,
+      "registrantsSameFamily": "Yes",
+      "showCurrentFamilyMembers": true,
+      "registrarOption": "UseFirstRegistrant",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "instructions": "Register both of you on one registration. Childcare is $10 per child; add one for each child you will bring.",
+      "forms": [
+        {
+          "name": "Guest",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Email",
+              "required": true
+            },
+            {
+              "person": "AnniversaryDate"
+            }
+          ]
+        }
+      ],
+      "fees": [
+        {
+          "key": "childcare",
+          "name": "Childcare",
+          "allowMultiple": true,
+          "discountApplies": false,
+          "items": [
+            {
+              "name": "Childcare, per child",
+              "cost": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "womens-retreat",
+      "name": "Women's Retreat",
+      "category": "adults",
+      "description": "A spring weekend at Sycamore Bend Retreat Center near Sedona for the women of the church.",
+      "registrantTerm": "Guest",
+      "cost": 159,
+      "minimumInitialPayment": 50,
+      "maxRegistrants": 4,
+      "registrantsSameFamily": "No",
+      "registrarOption": "PrefillFirstRegistrant",
+      "groupType": "event-attendees",
+      "groupMemberRole": "attendee",
+      "groupMemberStatus": "Active",
+      "paymentPlan": [
+        "monthly"
+      ],
+      "eligibility": {
+        "gender": "Female"
+      },
+      "instructions": "Pick your room when you register. Single rooms are limited. Bringing a friend? Use the code FRIEND for 10% off.",
+      "forms": [
+        {
+          "name": "Guest",
+          "fields": [
+            {
+              "person": "FirstName",
+              "required": true
+            },
+            {
+              "person": "LastName",
+              "required": true
+            },
+            {
+              "person": "Gender",
+              "required": true
+            },
+            {
+              "person": "Email",
+              "required": true
+            },
+            {
+              "person": "MobilePhone"
+            },
+            {
+              "attribute": "RoommateRequest"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "key": "RoommateRequest",
+          "name": "Roommate Request",
+          "fieldType": "text"
+        }
+      ],
+      "fees": [
+        {
+          "key": "room",
+          "name": "Room",
+          "required": true,
+          "hideWhenNoneRemaining": true,
+          "items": [
+            {
+              "name": "Quad room (4 guests)",
+              "cost": 0
+            },
+            {
+              "name": "Double room (2 guests)",
+              "cost": 40
+            },
+            {
+              "name": "Single room",
+              "cost": 90,
+              "maximumUsageCount": 6
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "key": "early-bird",
+          "code": "EARLYBIRD",
+          "amount": 20,
+          "autoApply": true,
+          "endsBefore": {
+            "month": 10,
+            "day": 31
+          }
+        },
+        {
+          "key": "friend",
+          "code": "FRIEND",
+          "percent": 10
+        }
+      ]
+    }
+  ],
+  "$instancesComment": "Each rule makes one instance per campus where the calendar holds the event in this dataset, or one church-wide instance. occurrences: next is the first whose registration closes on or after the install day, and last is the one before it. opens: rolling opens the day after the previous occurrence's registration closed, so the next one is open every day; days-before opens that many days before the event. closesDaysBefore and paymentDaysBefore count back from the event's first day. Names and slugs may use {year}, {month}, and {campus}. Groups with the same key are one group, so the girls' and boys' camp instances share their linked group and buses. maxAttendees and placement group counts are per dataset.",
+  "instances": [
+    {
+      "key": "student-camp-girls",
+      "template": "student-camp",
+      "event": "student-camp",
+      "occurrences": [
+        "last",
+        "next"
+      ],
+      "name": "Student Camp {year}: Girls",
+      "slug": "student-camp-{year}-girls",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 1,
+      "paymentDaysBefore": 14,
+      "reminderDaysBefore": 7,
+      "maxAttendees": {
+        "core-1": 25,
+        "core-3": 60,
+        "full-7": 150
+      },
+      "contact": "jenny",
+      "details": "Girls in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
+      "linkedGroup": {
+        "key": "student-camp-{year}",
+        "name": "Student Camp {year}"
+      },
+      "placementGroups": [
+        {
+          "placement": "bus",
+          "key": "student-camp-{year}-bus",
+          "name": "Bus {n}",
+          "count": {
+            "core-1": 2,
+            "core-3": 3,
+            "full-7": 6
+          }
+        },
+        {
+          "placement": "cabin",
+          "key": "student-camp-{year}-girls-cabin",
+          "name": "Girls Cabin {n}",
+          "count": {
+            "core-1": 2,
+            "core-3": 5,
+            "full-7": 12
+          }
+        },
+        {
+          "placement": "activity",
+          "key": "student-camp-{year}-activity",
+          "names": [
+            "Climbing Wall",
+            "Archery",
+            "Zip Line",
+            "Lake Day",
+            "Crafts",
+            "Worship Band"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "student-camp-boys",
+      "template": "student-camp",
+      "event": "student-camp",
+      "occurrences": [
+        "last",
+        "next"
+      ],
+      "name": "Student Camp {year}: Boys",
+      "slug": "student-camp-{year}-boys",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 1,
+      "paymentDaysBefore": 14,
+      "reminderDaysBefore": 7,
+      "maxAttendees": {
+        "core-1": 25,
+        "core-3": 60,
+        "full-7": 150
+      },
+      "contact": "jenny",
+      "details": "Boys in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
+      "linkedGroup": {
+        "key": "student-camp-{year}",
+        "name": "Student Camp {year}"
+      },
+      "placementGroups": [
+        {
+          "placement": "bus",
+          "key": "student-camp-{year}-bus",
+          "name": "Bus {n}",
+          "count": {
+            "core-1": 2,
+            "core-3": 3,
+            "full-7": 6
+          }
+        },
+        {
+          "placement": "cabin",
+          "key": "student-camp-{year}-boys-cabin",
+          "name": "Boys Cabin {n}",
+          "count": {
+            "core-1": 2,
+            "core-3": 5,
+            "full-7": 12
+          }
+        },
+        {
+          "placement": "activity",
+          "key": "student-camp-{year}-activity",
+          "names": [
+            "Climbing Wall",
+            "Archery",
+            "Zip Line",
+            "Lake Day",
+            "Crafts",
+            "Worship Band"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mission-trip",
+      "template": "mission-trip",
+      "event": "mission-trip",
+      "occurrences": [
+        "next"
+      ],
+      "name": "High School Mission Trip, {month} {year}",
+      "slug": "mission-trip-{year}-{month}",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 60,
+      "paymentDaysBefore": 30,
+      "reminderDaysBefore": 14,
+      "maxAttendees": {
+        "core-1": 8,
+        "core-3": 12,
+        "full-7": 24
+      },
+      "contact": "isaac",
+      "details": "A week serving alongside a partner church. Students meet three times before the trip to prepare.",
+      "linkedGroup": {
+        "key": "mission-trip-{year}-{month}",
+        "name": "Mission Trip Team, {month} {year}"
+      }
+    },
+    {
+      "key": "student-retreat",
+      "template": "student-retreat",
+      "event": "student-retreat",
+      "occurrences": [
+        "next"
+      ],
+      "name": "Student Fall Retreat {year}",
+      "slug": "student-fall-retreat-{year}",
+      "opens": {
+        "kind": "days-before",
+        "days": 60
+      },
+      "closesDaysBefore": 3,
+      "reminderDaysBefore": 3,
+      "contact": "isaac",
+      "details": "Friday evening to Sunday morning at Juniper Hollow Camp. Bring a sleeping bag and a Bible.",
+      "linkedGroup": {
+        "key": "student-retreat-{year}",
+        "name": "Student Fall Retreat {year}"
+      }
+    },
+    {
+      "key": "vbs",
+      "template": "vbs",
+      "event": "vbs",
+      "occurrences": [
+        "last",
+        "next"
+      ],
+      "name": "Vacation Bible School {year}: {campus}",
+      "slug": "vbs-{year}-{campus}",
+      "opens": {
+        "kind": "days-before",
+        "days": 60
+      },
+      "closesDaysBefore": 7,
+      "reminderDaysBefore": 3,
+      "maxAttendees": {
+        "core-1": 40,
+        "core-3": 80,
+        "full-7": 150
+      },
+      "contact": "rachel",
+      "details": "Monday to Friday mornings, 9 to noon, in the Kids Wing.",
+      "linkedGroup": {
+        "key": "vbs-{year}-{campus}",
+        "name": "VBS {year} Kids: {campus}"
+      },
+      "placementGroups": [
+        {
+          "placement": "crew",
+          "key": "vbs-{year}-{campus}-crew",
+          "names": [
+            "Pre-K Crew",
+            "Kindergarten Crew",
+            "1st Grade Crew",
+            "2nd Grade Crew",
+            "3rd Grade Crew",
+            "4th Grade Crew",
+            "5th Grade Crew"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "parents-night-out",
+      "template": "parents-night-out",
+      "event": "parents-night-out",
+      "occurrences": [
+        "next"
+      ],
+      "name": "Parents' Night Out, {month} {year}: {campus}",
+      "slug": "parents-night-out-{year}-{month}-{campus}",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 2,
+      "reminderDaysBefore": 2,
+      "maxAttendees": {
+        "core-1": 15,
+        "core-3": 25,
+        "full-7": 40
+      },
+      "contact": "rachel",
+      "details": "6 to 9 pm in the Kids Wing. Kids age 2 to 11."
+    },
+    {
+      "key": "community-serve-day",
+      "template": "community-serve-day",
+      "event": "community-serve-day",
+      "occurrences": [
+        "last"
+      ],
+      "name": "Community Serve Day {year}: {campus}",
+      "slug": "community-serve-day-{year}-{campus}",
+      "opens": {
+        "kind": "days-before",
+        "days": 42
+      },
+      "closesDaysBefore": 3,
+      "reminderDaysBefore": 2,
+      "contact": "ted",
+      "details": "Meet in the lobby at 8 am. Wear closed-toe shoes.",
+      "linkedGroup": {
+        "key": "community-serve-day-{year}-{campus}",
+        "name": "Serve Day {year} Volunteers: {campus}"
+      },
+      "placementGroups": [
+        {
+          "placement": "team",
+          "key": "community-serve-day-{year}-{campus}-team",
+          "names": [
+            "School Supplies",
+            "Park Cleanup",
+            "Yard Help",
+            "Food Pantry",
+            "Kids Crafts"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "money-matters",
+      "template": "money-matters",
+      "event": "money-matters",
+      "occurrences": [
+        "next"
+      ],
+      "name": "Money Matters, {month} {year}: {campus}",
+      "slug": "money-matters-{year}-{month}-{campus}",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 1,
+      "reminderDaysBefore": 2,
+      "cost": 30,
+      "minimumInitialPayment": 0,
+      "contact": "alisha",
+      "details": "Five Monday evenings, 7 to 8:30 pm, in the Classroom.",
+      "linkedGroup": {
+        "key": "money-matters-{year}-{month}-{campus}",
+        "name": "Money Matters, {month} {year}: {campus}"
+      }
+    },
+    {
+      "key": "date-night",
+      "template": "date-night",
+      "event": "date-night",
+      "occurrences": [
+        "next"
+      ],
+      "name": "Marriage Date Night, {month} {year}: {campus}",
+      "slug": "date-night-{year}-{month}-{campus}",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 3,
+      "reminderDaysBefore": 2,
+      "contact": "pete",
+      "details": "Dinner at 6:30 pm in the Lobby. Childcare opens at 6:15 in the Kids Wing.",
+      "linkedGroup": {
+        "key": "date-night-{year}-{month}-{campus}",
+        "name": "Date Night, {month} {year}: {campus}"
+      }
+    },
+    {
+      "key": "womens-retreat",
+      "template": "womens-retreat",
+      "event": "womens-retreat",
+      "occurrences": [
+        "next"
+      ],
+      "name": "Women's Retreat {year}",
+      "slug": "womens-retreat-{year}",
+      "opens": {
+        "kind": "rolling"
+      },
+      "closesDaysBefore": 14,
+      "paymentDaysBefore": 14,
+      "reminderDaysBefore": 7,
+      "contact": "alisha",
+      "details": "Friday afternoon to Saturday afternoon at Sycamore Bend Retreat Center, near Sedona.",
+      "linkedGroup": {
+        "key": "womens-retreat-{year}",
+        "name": "Women's Retreat {year}"
+      }
+    }
+  ]
+}
