@@ -457,6 +457,9 @@ namespace RockSampleData.Loader
             // The church's texting numbers, its branded template, and its communication lists. The lists copy the
             // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
             // who is involved enough for a newsletter comes from the attendance and giving plans.
+            // History takes over a million rows from communications, then thousands more from logins. Its indexes stay
+            // off until logins are written, and nothing in between reads it.
+            db.DeferIndexRebuild( "History" );
             if ( steps.Begin( "Communications" ) )
             {
                 new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )
@@ -503,6 +506,7 @@ namespace RockSampleData.Loader
             }
 
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
+            db.RebuildDeferredIndexes( "History" );
 
             // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
             steps.Begin( "Cast expectations" );
