@@ -255,7 +255,7 @@
           }
         },
         "attributes": { "type": "object", "description": "Person attribute values by key. Date values use relativeDate objects." },
-        "logins": { "type": "array", "description": "The person's Rock Database logins: the first initial of the first name plus the last name, lowercase, letters and digits only (decision D-logins-1). Every login uses the password chosen at install.", "items": { "type": "string", "pattern": "^[a-z0-9]+$" } },
+        "logins": { "type": "array", "description": "The person's Rock Database logins: the first initial of the first name plus the last name, lowercase, letters and digits only (decision 179). Every login uses the password chosen at install.", "items": { "type": "string", "pattern": "^[a-z0-9]+$" } },
         "securityRoles": { "type": "array", "items": { "type": "string" } },
         "replacesAdmin": { "type": "boolean", "description": "True for the one Cast person who loads into the admin person a new Rock creates (Person Id 1) instead of a new person. That person keeps Rock's Id, Guid, admin login, and roles, so signing in as admin signs in as them (decision 177)." },
         "connects": {

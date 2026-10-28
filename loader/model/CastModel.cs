@@ -298,7 +298,7 @@ namespace RockSampleData.Loader.Model
         public List<CastRelationship> Relationships { get; set; } = new List<CastRelationship>();
 
         /// <summary>
-        /// This person's Rock Database usernames (decision D-logins-1). They load only when the person installing
+        /// This person's Rock Database usernames (decision 179). They load only when the person installing
         /// gives a password, and every login uses it.
         /// </summary>
         public List<string> Logins { get; set; } = new List<string>();

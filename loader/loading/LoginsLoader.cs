@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// Writes the planned Rock Database logins with the password hash the person installing chose, the person
     /// history Rock's login save hook writes, and every loaded person's account protection profile
-    /// (decisions D-logins-1 to D-logins-4).
+    /// (decisions 179 to 182).
     /// </summary>
     internal sealed class LoginsLoader
     {

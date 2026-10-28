@@ -362,7 +362,7 @@ A February 29 birthday uses the nearest leap year, so that person's age can be o
 
 ## How logins load
 
-Logins load last, in the always-on Logins step, and only when the load has a password hash (decisions D-logins-1 to D-logins-4). Every login is a Rock Database login with that one hash.
+Logins load last, in the always-on Logins step, and only when the load has a password hash (decisions 179 to 182). Every login is a Rock Database login with that one hash.
 
 1. **The password.** Rock's Database login stores a BCrypt hash. PasswordKey only checks very old SHA-1 hashes, so it plays no part. Inside Rock, the installer block hashes the typed password with Rock's own Database authentication component and passes `LoginPasswordHash`; the loader never sees the password. The CLI's `--login-password` hashes at Rock's default cost of 11 in the `$2a$` form. A site with another cost setting rehashes the password the first time someone signs in. No password or hash is ever in a package.
 2. **The Cast.** Their usernames are in their files (`logins` in `../cast/households`), so docs can name them, such as `tdecker`. They are reserved before any generated one. A Cast adult with the church app and no login in their file gets one by the username rule below. Anyone who already has a login in Rock, such as Alisha Marble with Rock's own `admin`, keeps only that one.

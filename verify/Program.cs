@@ -127,7 +127,7 @@ try
     var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks)>();
 
     // Every load makes its logins with a test password that Rock's own Database login hashed, the way the Sample Data
-    // Installer block hashes the one a person types (decision D-logins-2). It is not a secret: it signs in only to this
+    // Installer block hashes the one a person types (decision 180). It is not a secret: it signs in only to this
     // run's throwaway databases.
     const string TestLoginPassword = "sample-data-verify";
     string loginPasswordHash = null;
@@ -298,7 +298,7 @@ static CheckResult ClockCheck( SqlServer sql, DateTime anchor )
 }
 
 /// <summary>
-/// Signs in through Rock's own Database login, the check Rock's login block makes (decision D-logins-2): as Ted Decker,
+/// Signs in through Rock's own Database login, the check Rock's login block makes (decision 180): as Ted Decker,
 /// the Cast's best-known login, and as the load's newest confirmed login, with the test password, and as Ted with a
 /// wrong password, which Rock must refuse. This proves Rock accepts the hash the load wrote.
 /// </summary>

@@ -1,5 +1,5 @@
 {
-  "$comment": "Who has a Rock Database login (decisions D-logins-1 to D-logins-4). The Cast's logins are hand-written in cast/households. Generated adults get one with the chance of their strongest reason below. No measured source counts logins, so every share here is designed, with its reason; the verify tool reports the real counts. Logins load only when the person installing gives a password, and every login uses it. No password or hash is ever in a package.",
+  "$comment": "Who has a Rock Database login (decisions 179 to 182). The Cast's logins are hand-written in cast/households. Generated adults get one with the chance of their strongest reason below. No measured source counts logins, so every share here is designed, with its reason; the verify tool reports the real counts. Logins load only when the person installing gives a password, and every login uses it. No password or hash is ever in a package.",
   "minimumAge": 18,
   "reasons": [
     { "key": "app", "percent": 100, "why": "A church app device tied to a person means they signed in to the app. Counts only when communications load, since the app is part of them." },

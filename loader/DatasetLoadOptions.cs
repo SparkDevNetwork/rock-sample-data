@@ -89,7 +89,7 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// The BCrypt hash of the password every sample login uses, made the way Rock's Database login stores it
-        /// (decision D-logins-2). Rock passes its own Database authentication component's EncodePassword of the
+        /// (decision 180). Rock passes its own Database authentication component's EncodePassword of the
         /// password the person installing typed, so the loader never sees the password. Null loads no logins.
         /// No password or hash is ever in a package.
         /// </summary>

@@ -18,7 +18,7 @@
 namespace RockSampleData.Loader.Model
 {
     /// <summary>
-    /// configuration/logins.json: who among generated adults has a Rock Database login (decision D-logins-1).
+    /// configuration/logins.json: who among generated adults has a Rock Database login (decision 179).
     /// The Cast's logins are hand-written in cast/households.
     /// </summary>
     internal sealed class LoginsConfiguration

@@ -93,7 +93,7 @@ Rock Cleanup rebuilds `ScheduleDate` for a window of now plus or minus two years
 
 ### Logins and sign-in
 
-Every load makes its logins with the test password `sample-data-verify`, hashed by Rock's own Database login through `rock-runner --task hash-password`, the way Rock's installer block hashes the one a person types (decision D-logins-2). It is not a secret: it signs in only to the run's throwaway databases. After the referee, `rock-runner --task sign-in` signs in through Rock's Database login, the check Rock's login block makes, and the `sign-in` check fails unless Rock accepts the sample logins and refuses a wrong password. It runs after the referee because a sign-in can rewrite a hash at the site's cost setting.
+Every load makes its logins with the test password `sample-data-verify`, hashed by Rock's own Database login through `rock-runner --task hash-password`, the way Rock's installer block hashes the one a person types (decision 180). It is not a secret: it signs in only to the run's throwaway databases. After the referee, `rock-runner --task sign-in` signs in through Rock's Database login, the check Rock's login block makes, and the `sign-in` check fails unless Rock accepts the sample logins and refuses a wrong password. It runs after the referee because a sign-in can rewrite a hash at the site's cost setting.
 
 ### Content standards
 

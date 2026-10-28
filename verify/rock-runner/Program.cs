@@ -36,7 +36,7 @@ namespace RockSampleData.RockRunner
     ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
     ///   hash-password  Rock's Database login hash of the password on the input file's first line, the way the
-    ///            Sample Data Installer block makes the hash it passes the loader (decision D-logins-2).
+    ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
     ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
     ///            a tab, and prints "username signed in" or "username refused" for each.
     ///

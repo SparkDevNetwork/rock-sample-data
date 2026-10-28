@@ -24,7 +24,7 @@ namespace RockSampleData.Loader.Generation
 {
     /// <summary>
     /// Plans who has a Rock Database login, with what username, and when it was made and last used
-    /// (decisions D-logins-1 to D-logins-3). The Cast's logins come from their files. A generated adult gets one
+    /// (decisions 179 to 181). The Cast's logins come from their files. A generated adult gets one
     /// with the chance of their strongest reason in configuration/logins.json. Each person draws from their own
     /// seeded stream, so logins never change any other row.
     /// </summary>

@@ -138,7 +138,7 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${owner}: security role "${role}" is not in configuration/security-roles.json. Only roles Rock ships are used.` );
             }
         }
-        // Logins (decision D-logins-1): Rock's username rule, adults only, and every security role member can sign in.
+        // Logins (decision 179): Rock's username rule, adults only, and every security role member can sign in.
         for ( const login of p.logins || [] ) {
             if ( !LOGIN.test( login ) || login === "admin" ) {
                 errors.push( `${owner}: login "${login}" must be lowercase letters and digits, and never Rock's own "admin".` );

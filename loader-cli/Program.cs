@@ -157,7 +157,7 @@ static List<SampleDataPart> ParseParts( string names )
 }
 
 /// <summary>
-/// Hashes the password every sample login uses the way Rock's Database login does (decision D-logins-2): BCrypt at
+/// Hashes the password every sample login uses the way Rock's Database login does (decision 180): BCrypt at
 /// Rock's default cost of 11, in the $2a$ form Rock's BCrypt library reads. A site with another cost setting
 /// rehashes it the first time someone signs in.
 /// </summary>
