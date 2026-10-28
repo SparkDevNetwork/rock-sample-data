@@ -75,6 +75,25 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            // A Cast adult with the church app signed in to it, so one with no login in their file gets one by Rock's
+            // rule, after every listed Cast username. Someone who already has a login in Rock, such as Alisha Marble
+            // with Rock's own admin, keeps only that one.
+            foreach ( var (_, person) in people.Where( x => inputs.CastHouseholdKeys.Contains( x.Household.Cast.Key ) ) )
+            {
+                var personReasons = reasons.GetValueOrDefault( person.PersonId );
+                var hasApp = personReasons?.Any( r => r.Key == "app" ) == true;
+                if ( !hasApp || ( person.Cast.Logins?.Count ?? 0 ) > 0 || inputs.PeopleWithLogins.Contains( person.PersonId ) || !IsOldEnough( person ) )
+                {
+                    continue;
+                }
+
+                var userName = UniqueUserName( person.Cast.FirstName, person.Cast.LastName, taken );
+                if ( userName != null )
+                {
+                    logins.Add( Login( person, userName, personReasons, Tier.Frequent, canBeUnconfirmed: false ) );
+                }
+            }
+
             var pastors = inputs.CampusPastors.Values.Select( p => p.PersonId ).ToHashSet();
             var generated = people.Where( x => !inputs.CastHouseholdKeys.Contains( x.Household.Cast.Key ) )
                 .OrderBy( x => pastors.Contains( x.Person.PersonId ) ? 0 : 1 )
@@ -82,7 +101,7 @@ namespace RockSampleData.Loader.Generation
                 .Select( x => x.Person );
             foreach ( var person in generated )
             {
-                if ( !IsOldEnough( person ) || person.Cast.IsDeceased )
+                if ( !IsOldEnough( person ) || person.Cast.IsDeceased || inputs.PeopleWithLogins.Contains( person.PersonId ) )
                 {
                     continue;
                 }
@@ -363,6 +382,11 @@ namespace RockSampleData.Loader.Generation
         /// The usernames already in the database, such as Rock's own admin.
         /// </summary>
         public IReadOnlyCollection<string> TakenUserNames { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The people who already have a login in the database, such as Rock's admin person.
+        /// </summary>
+        public HashSet<int> PeopleWithLogins { get; set; } = new HashSet<int>();
 
         /// <summary>
         /// The Cast role names that are Rock security roles, from configuration/security-roles.json.

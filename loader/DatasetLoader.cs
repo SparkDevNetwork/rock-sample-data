@@ -453,10 +453,12 @@ namespace RockSampleData.Loader
                     PrayerTeam = prayer.TeamPersonIds,
                     AppFirstSeen = logins.AppFirstSeen(),
                     TakenUserNames = logins.TakenUserNames(),
+                    PeopleWithLogins = logins.PeopleWithLogins(),
                     RockRoleNames = source.SecurityRoles?.Roles.Select( r => r.Name ).ToHashSet() ?? new HashSet<string>()
                 } );
                 logins.Write( plannedLogins, options.LoginPasswordHash );
-                var castLogins = plannedLogins.Count( l => l.Person.Cast.Logins.Count > 0 );
+                var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.PersonId ).ToHashSet();
+                var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
                 log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
             }
 

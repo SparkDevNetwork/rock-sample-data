@@ -60,6 +60,14 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// The people who already have a login, such as Rock's admin person.
+        /// </summary>
+        public HashSet<int> PeopleWithLogins()
+        {
+            return _db.Query( "SELECT DISTINCT [PersonId] FROM [UserLogin] WHERE [PersonId] IS NOT NULL" ).Select( r => ( int ) r["PersonId"] ).ToHashSet();
+        }
+
+        /// <summary>
         /// When each person with the church app first opened it, from the devices this load wrote.
         /// </summary>
         public Dictionary<int, DateTime> AppFirstSeen()
