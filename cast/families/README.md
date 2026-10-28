@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 101 hand-designed households and 221 people. They are the same in every dataset and always live on the Phoenix campus, so tests and documentation can rely on them by Guid.
+The Cast is 101 hand-designed households and 221 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 

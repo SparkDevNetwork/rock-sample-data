@@ -269,13 +269,13 @@ Two checks keep the cards true:
 1. The builder refuses to write a package whose manifest is missing a card field, or whose `campuses` differs from `configuration/campuses.json`.
 2. The verify tool's invariants fail a load whose people or households differ from the card by more than 2%. Only a load at the default seed is held to the card, because the card was measured at that seed.
 
-The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. All three were measured again on 2026-10-26, after communications joined the load, against Rock 21.0.2. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
+The numbers were measured with the CLI: the default seed, 3 years of history, and every part with check images, each run on a fresh copy of the verify tool's trusted base (`RockSampleVerify-base`), which is the Rock the packages are for. All three were measured again on 2026-10-26, after communications joined the load, against Rock 21.0.2. On 2026-10-28 the people and households grew with the named staff (decision D-staff-3); the install times are still the 2026-10-26 measurements. Households are family groups, businesses included. The install time is the median of three runs of the CLI, start to finish, on a 16-core development machine.
 
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
-| Core 1 | 185 | 87 | 1 | 13 seconds (14.0, 12.8, 13.3) |
-| Core 3 | 405 | 241 | 3 | 17 seconds (17.5, 15.5, 16.6) |
-| Full 7 | 25,248 | 16,967 | 7 | 228 seconds (219.2, 231.9, 228.0) |
+| Core 1 | 204 | 95 | 1 | 13 seconds (14.0, 12.8, 13.3) |
+| Core 3 | 431 | 251 | 3 | 17 seconds (17.5, 15.5, 16.6) |
+| Full 7 | 25,284 | 16,981 | 7 | 228 seconds (219.2, 231.9, 228.0) |
 
 Communications are most of Full 7's load, about 185 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 10 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 

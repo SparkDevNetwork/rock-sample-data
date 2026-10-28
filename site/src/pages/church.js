@@ -16,7 +16,18 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead, zoomable } = require( "../components" );
+const { sectionHead, zoomable, portrait } = require( "../components" );
+
+// The staff departments, in the order the church page shows them (configuration/staff.json).
+const departments = [
+    [ "executive", "Leadership" ],
+    [ "administration", "Operations" ],
+    [ "worship", "Worship and production" ],
+    [ "kids", "Kids" ],
+    [ "students", "Students" ],
+    [ "connections", "Outreach, groups, and care" ],
+    [ "campuses", "Campus pastors" ]
+];
 
 // The church's initiatives, in the order they started. Starting Point is the first.
 // Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
@@ -144,6 +155,20 @@ module.exports = function church( { model, r } ) {
   </div>
 </section>
 
+${model.staff.length ? html`<section class="section section-sand" id="staff">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Staff", title: `${model.staff.length} people, every one in the Cast.`, lede: "Each staff member is a Cast person with a story, a family, and a login, and is the same in every load. Every campus has its own named campus pastor, who writes that campus's notes, welcomes its first-time guests, and is the contact for its events. A campus pastor outside Phoenix is in the datasets that have their campus." } )}
+    ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
+    <div class="staff-grid">
+      ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">
+        ${portrait( s.member, r, "lg" )}
+        <span class="staff-name">${esc( s.member.displayName )}</span>
+        <span class="staff-title">${esc( s.title )}</span>
+      </a>` )}
+    </div>` )}
+  </div>
+</section>` : ""}
+
 <section class="section" id="initiatives">
   <div class="wrap">
     ${sectionHead( { eyebrow: "Initiatives", title: "What the church invites people into.", lede: "Starting Point was the first. The sample data follows each initiative in Rock, and their artwork is on the brand page." } )}
@@ -165,6 +190,7 @@ module.exports = function church( { model, r } ) {
         <p>${esc( c.rockDefault ? "North Phoenix, where most of the Cast lives. The original and largest campus." : c.notes )}</p>
         <p>${esc( c.buildingType )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
+        ${c.pastor ? html`<p class="campus-meta">Campus pastor: <a href="${r( "cast/" + c.pastor.household.key + ".html" )}">${esc( c.pastor.displayName )}</a></p>` : ""}
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>
       </div>` )}
     </div>
