@@ -1065,3 +1065,109 @@ WHERE [p].[ForeignKey] = @ForeignKey
             OR EXISTS ( SELECT 1 FROM [FinancialPersonSavedAccount] AS [sa] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [sa].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id] ) THEN 2
         WHEN EXISTS ( SELECT 1 FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [p].[Id] ) THEN 1
         ELSE 0 END;
+
+-- check: registration-linkage-points-at-a-listed-occurrence
+-- why: Decision D-registrations-1. Rock's event page shows a registration through its linkage to an occurrence. An occurrence of an inactive, unapproved, or uncalendared event never shows, so neither does its Register button.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+LEFT JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+LEFT JOIN [EventItem] AS [e] ON [e].[Id] = [o].[EventItemId]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ( [e].[Id] IS NULL OR [e].[IsActive] = 0 OR [e].[IsApproved] = 0
+        OR NOT EXISTS ( SELECT 1 FROM [EventCalendarItem] AS [ci] WHERE [ci].[EventItemId] = [e].[Id] ) );
+
+-- check: registration-linkage-campus-matches-occurrence
+-- why: A linkage names the campus of the occurrence it links, as Rock's linkage screen sets it. A church-wide occurrence has no campus.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ISNULL( [m].[CampusId], 0 ) <> ISNULL( [o].[CampusId], 0 );
+
+-- check: registration-linkage-instance-and-template-are-active
+-- why: Rock offers registration only for an active instance of an active template. Every linkage names an instance.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+LEFT JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [m].[RegistrationInstanceId]
+LEFT JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ( [i].[Id] IS NULL OR [i].[IsActive] = 0 OR [t].[IsActive] = 0 );
+
+-- check: registration-slug-matches-rocks-pattern
+-- why: Rock's linkage screen accepts only lowercase letters and digits in words joined by single hyphens (^[a-z0-9]+(?:-[a-z0-9]+)*$). The event page finds a registration by its slug, and Rock checks the pattern only in its screens.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( [m].[UrlSlug], '' ) = ''
+        OR [m].[UrlSlug] COLLATE Latin1_General_BIN LIKE '%[^a-z0-9-]%'
+        OR [m].[UrlSlug] LIKE '-%' OR [m].[UrlSlug] LIKE '%-' OR [m].[UrlSlug] LIKE '%--%' );
+
+-- check: registration-slug-is-unique
+-- why: The event page opens the one linkage whose slug is in the address. Rock checks uniqueness only in its screens.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ( SELECT COUNT(*) FROM [EventItemOccurrenceGroupMap] AS [other] WHERE [other].[UrlSlug] = [m].[UrlSlug] ) > 1;
+
+-- check: registration-dates-are-in-order
+-- why: An instance opens before it closes, and its event starts after registration closes and on or after the payment deadline. A deadline after the event would leave balances due after everyone went home.
+SELECT COUNT(*)
+FROM [RegistrationInstance] AS [i]
+WHERE [i].[ForeignKey] = @ForeignKey
+    AND ( [i].[StartDateTime] IS NULL OR [i].[EndDateTime] IS NULL OR [i].[StartDateTime] >= [i].[EndDateTime]
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [EventItemOccurrenceGroupMap] AS [m]
+            INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+            INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
+            WHERE [m].[RegistrationInstanceId] = [i].[Id] AND [sd].[StartDateTime] > [i].[EndDateTime]
+                AND CAST( [sd].[StartDateTime] AS DATE ) >= ISNULL( [i].[PaymentDeadlineDate], CAST( [i].[EndDateTime] AS DATE ) ) ) );
+
+-- check: placement-group-matches-its-placement
+-- why: Rock's placement screen lists an instance's groups for a placement by the RelatedEntity's qualifier, the template placement's Id, and places people only in groups of that placement's group type. A group of another type, or a placement of another template, would show in the wrong column or not at all.
+SELECT COUNT(*)
+FROM [RelatedEntity] AS [r]
+INNER JOIN [EntityType] AS [se] ON [se].[Id] = [r].[SourceEntityTypeId]
+INNER JOIN [EntityType] AS [te] ON [te].[Id] = [r].[TargetEntityTypeId]
+LEFT JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[SourceEntityId]
+LEFT JOIN [Group] AS [g] ON [g].[Id] = [r].[TargetEntityId]
+LEFT JOIN [RegistrationTemplatePlacement] AS [p] ON CAST( [p].[Id] AS NVARCHAR( 200 ) ) = [r].[QualifierValue]
+WHERE [r].[ForeignKey] = @ForeignKey AND [r].[PurposeKey] = 'PLACEMENT'
+    AND ( [se].[Name] <> 'Rock.Model.RegistrationInstance' OR [te].[Name] <> 'Rock.Model.Group'
+        OR [i].[Id] IS NULL OR [g].[Id] IS NULL OR [p].[Id] IS NULL
+        OR [p].[RegistrationTemplateId] <> [i].[RegistrationTemplateId] OR [g].[GroupTypeId] <> [p].[GroupTypeId] );
+
+-- check: linked-group-is-an-event-attendees-group
+-- why: Rock adds registrants to the linked group with the template's group type and role, so the group must be of the template's type. Every sample linked group is an Event Attendees group, under the Guid Rock reserves for that type.
+SELECT COUNT(*)
+FROM [EventItemOccurrenceGroupMap] AS [m]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [m].[RegistrationInstanceId]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [m].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+WHERE [m].[ForeignKey] = @ForeignKey
+    AND ( [g].[GroupTypeId] <> ISNULL( [t].[GroupTypeId], 0 ) OR [gt].[Guid] <> '3311132B-268D-44E9-811A-A56A0835E50A' );
+
+-- check: registration-category-has-the-admin-role
+-- why: Rock's v19 rollup gave the RSR - Event Registration Administration role Edit and Administrate on every top-level template category that existed then. Categories added later need the same, or that role cannot manage their templates.
+SELECT COUNT(*)
+FROM [Category] AS [c]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [c].[EntityTypeId]
+WHERE [c].[ForeignKey] = @ForeignKey AND [et].[Name] = 'Rock.Model.RegistrationTemplate'
+    AND ( SELECT COUNT( DISTINCT [a].[Action] )
+        FROM [Auth] AS [a]
+        INNER JOIN [Group] AS [r] ON [r].[Id] = [a].[GroupId]
+        INNER JOIN [EntityType] AS [ae] ON [ae].[Id] = [a].[EntityTypeId]
+        WHERE [ae].[Name] = 'Rock.Model.Category' AND [a].[EntityId] = [c].[Id] AND [a].[AllowOrDeny] = 'A' AND [a].[Action] IN ( 'Edit', 'Administrate' )
+            AND [r].[Guid] = '2A92086B-DFF0-4B9C-46CB-4DAD805615AF' ) <> 2;
+
+-- check: seven-registrations-are-open-today
+-- why: Decision D-registrations-2. Camp, the mission trip, the fall retreat, Parents' Night Out, Money Matters, Date Night, and the Women's Retreat are open on every install day, so every registration feature can be tried. Rock's calendar item page shows Register for an active instance of an active template, inside its dates, linked to the occurrence (EventItemOccurrenceLava).
+SELECT CASE WHEN (
+        SELECT COUNT( DISTINCT [o].[EventItemId] )
+        FROM [EventItemOccurrenceGroupMap] AS [m]
+        INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+        INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [m].[RegistrationInstanceId]
+        INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+        WHERE [m].[ForeignKey] = @ForeignKey AND [i].[IsActive] = 1 AND [t].[IsActive] = 1
+            AND [i].[StartDateTime] <= GETDATE() AND [i].[EndDateTime] >= GETDATE() ) >= 7 THEN 0 ELSE 1 END;
