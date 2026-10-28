@@ -102,12 +102,17 @@ namespace RockSampleData.Loader.Loading
             _nextSessionId = NextId( "InteractionSession" );
 
             // Each chunk would otherwise disable and rebuild these tables' indexes, which grows with every chunk.
-            // Finish rebuilds them once, after the last chunk.
-            foreach ( var table in new[] { "CommunicationRecipient", "InteractionSession", "Interaction", "History" } )
+            // Finish rebuilds them once, after the last chunk, unless the Communications step still defers them.
+            foreach ( var table in LargeTables )
             {
                 db.DeferIndexRebuild( table );
             }
         }
+
+        /// <summary>
+        /// The tables that take millions of rows from communications. Their index rebuilds are deferred while they load.
+        /// </summary>
+        public static readonly string[] LargeTables = { "CommunicationRecipient", "InteractionSession", "Interaction", "History" };
 
         public int Communications { get; private set; }
 
@@ -191,12 +196,13 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
         }
 
         /// <summary>
-        /// Writes the last chunk and rebuilds the indexes the chunks left off. Nothing reads these tables before this.
+        /// Writes the last chunk and ends this writer's deferral of the index rebuilds. Nothing reads these tables before
+        /// the last deferral ends.
         /// </summary>
         public void Finish()
         {
             Flush();
-            _db.RebuildDeferredIndexes();
+            _db.RebuildDeferredIndexes( LargeTables );
         }
 
         /// <summary>
