@@ -928,3 +928,17 @@ LEFT JOIN [SystemPhoneNumber] AS [spn] ON [spn].[Id] = [r].[RelatedSmsFromSystem
 WHERE [r].[ForeignKey] = @ForeignKey
     AND ( [pa].[Id] IS NULL OR [spn].[Id] IS NULL OR [spn].[IsActive] = 0
         OR NOT EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] WHERE [pn].[PersonId] = [pa].[PersonId] AND '1' + [pn].[Number] = [r].[MessageKey] ) );
+
+-- check: open-requests-are-mostly-not-past-due
+-- why: A working team's board shows most open requests not due yet (decision 173). Dating due dates from the request again would put nearly every active request past due, so past due stays under a third of them. It is judged only with 50 or more active requests: Core 1 and Core 3 have few, mostly the Cast's, and three Cast stories are past due on purpose.
+SELECT CASE WHEN COUNT(*) >= 50 AND SUM( CASE WHEN CAST( [DueDate] AS DATE ) < CAST( GETDATE() AS DATE ) THEN 1 ELSE 0 END ) * 3 > COUNT(*) THEN 1 ELSE 0 END
+FROM [ConnectionRequest]
+WHERE [ForeignKey] = @ForeignKey AND [ConnectionState] = 0;
+
+-- check: open-request-is-due-within-its-status-time
+-- why: An open request's due date runs from its last status change, which is never after install day, so it is never due later than its status's days from today (decision 173).
+SELECT COUNT(*)
+FROM [ConnectionRequest] AS [cr]
+INNER JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0 AND [cs].[RequestStatusDueDateOffsetInDays] IS NOT NULL
+    AND CAST( [cr].[DueDate] AS DATE ) > DATEADD( DAY, [cs].[RequestStatusDueDateOffsetInDays], CAST( GETDATE() AS DATE ) );

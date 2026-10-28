@@ -1278,7 +1278,9 @@
         "IsDefault",
         "ModifiedDateTime",
         "Name",
-        "Order"
+        "Order",
+        "RequestStatusDueDateOffsetInDays",
+        "RequestStatusDueSoonOffsetInDays"
       ],
       "rockColumns": {
         "AutoFutureFollowUpPauseInDays": "int null",
@@ -1308,6 +1310,7 @@
     "ConnectionType": {
       "written": [
         "Description",
+        "DueDateCalculationMode",
         "IconCssClass",
         "IsActive",
         "Name",
