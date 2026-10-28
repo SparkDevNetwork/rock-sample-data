@@ -150,7 +150,7 @@ The release workflow, `.github/workflows/release.yml`, publishes everything (dec
 | Plan | Linux | Reads the version from the tag or the run's inputs, and the Rock releases from `release/rock-releases.json`, with each one's major release. Refuses two releases for one major, and, for a run that publishes, a version below the packages' minimum loader version (`release/check-minimum-loader.js`). |
 | Packages for Rock X | Windows, once per Rock major release | Checks out that major's Rock release, builds it with Visual Studio's MSBuild, starts SQL Server, writes every dataset's package, runs the verify tool, and runs the publishing gate. Saves the packages and receipts as an artifact. |
 | Loader NuGet package | Windows | Runs `loader-compat-check` for both builds, then packs the loader (`SparkDevNetwork.Rock.SampleData.Loader`) with the release version, Source Link, symbols, the license, and the README. |
-| Publish | Windows, in the `release` environment | Runs the gate again, pushes the loader to nuget.org, uploads the packages and receipts, then merges and uploads the index last. |
+| Publish | Windows, in the `release` environment | Runs the gate again, merges the index and signs it with Spark's key in Azure Key Vault, then pushes the loader to nuget.org, uploads the packages and receipts, and uploads the signed index last. Signing comes first, so a signing failure publishes nothing. |
 
 A run without "publish" stops after the first three jobs. That is a dry run.
 
@@ -206,6 +206,10 @@ Open the failed run in Actions, find the first failed step, and match it here.
 | Check the package: "symbols have no Source Link to this commit" | Before 2026-10-23, piping `tar` into `grep -q` failed at random. The check now extracts each `.pdb` to a file first. | If it comes back, check that the step still extracts to a file, then re-run. |
 | Sign in to nuget.org | The trusted publishing policy does not match: owner `SparkDevelopmentNetwork`, repository `SparkDevNetwork/rock-sample-data`, workflow `release.yml`, environment `release`, package `SparkDevNetwork.Rock.SampleData.Loader`, and `NUGET_USER` the user who made the policy. | Fix the policy or the variable, then "Re-run failed jobs". |
 | Sign in to Azure: `AADSTS700213: No matching federated identity record` | The app's trust record does not match GitHub's token subject. This repository uses the immutable subject with IDs. | Set the trust as in step 2 of the one-time setup, then "Re-run failed jobs". |
+| Sign the package index: "Key Vault did not sign the index" with `Forbidden` | The release identity does not have the Sample Data Index Signer role on the active key. Nothing was published. | Assign it as in step 5 of the one-time setup, then "Re-run failed jobs". |
+| Sign the package index: "is not a vaultKey in release/index-signing-keys.json" | `INDEX_SIGNING_KEY` names a key or version the loader does not trust. Nothing was published. | Set the variable to the active key's `vaultKey` from the keys file. A new key version needs a loader release first (see "Signing keys"). |
+| Sign the package index: "The package index's signature does not match its contents" | Key Vault signed with a key other than the one the keys file lists for `INDEX_SIGNING_KEY`. The script refuses to write a signature the loader would refuse. Nothing was published. | Check that the key version in the variable and in the keys file match the vault's key. |
+| Sign the package index: "can't be trusted, so nothing was merged" | The hosted `index.json` is not signed, or its signature does not check out. Someone or something changed it outside the workflow, or it was written before signing. | Stop and find out who changed it. Do not re-run until the hosted index is one this workflow wrote. |
 | Upload the packages and receipts: "already published with other bytes" | This version is already on storage with different files, so the run would change a published package. | Never overwrite it. Tag the next version. |
 | Read the version and the Rock releases: "is below SampleDataPackage.MinimumLoaderVersion" | The tag is older than the loader the packages need, so its loader would refuse its own packages (decision 158). Nothing was built. | Delete the tag, since nothing was published, and tag the minimum version or later. |
 | Read the version and the Rock releases: "two Rock releases for one major release" | `release/rock-releases.json` lists two dot releases of one major. Each major gets one package set (decision 52). | Keep only that major's newest dot release, on a branch, and run again. |
@@ -238,7 +242,26 @@ Everything goes in the `sampledata` container, which `storage.rockrms.com` serve
 | `packages/index.json` | The index Rock reads (format in the [loader README](../loader/README.md#the-package-index)). | 5 minutes |
 | `packages/index-prerelease.json` | The stable index plus the newest prerelease. | 5 minutes |
 
-`release/merge-index.js` builds the index from the receipts and `datasets/*.json`. You can run it yourself on a folder of packages to see what a release would publish.
+`release/merge-index.js` builds the index from the receipts and `datasets/*.json`. You can run it yourself on a folder of packages to see what a release would publish. `release/sign-index.js` signs it; to try that without the vault, see [The signature](../loader/README.md#the-signature).
+
+### Signing keys
+
+Every index the workflow uploads is signed, and loaders from 0.1.0-alpha.14 on read no other (decision 172). The public keys are in `release/index-signing-keys.json`, which the loader embeds. The private keys are in the Key Vault `kv-spark-core` and cannot be exported. Step 5 of the one-time setup has the details.
+
+| Key | Status | Who may sign |
+|---|---|---|
+| `sampledata-index-1` | Active. Signs every release. | The release identity, through the Sample Data Index Signer role on this key only. |
+| `sampledata-index-2` | Spare. Signs nothing. | No one, until it is needed. |
+
+**If the active key is lost, disabled, or might be misused,** switch to the spare. Loaders already in use trust it, so no loader release is needed first:
+
+1. In `kv-spark-core`, disable `sampledata-index-1`, and remove the release identity's role on it.
+2. Assign the Sample Data Index Signer role to the release identity on `sampledata-index-2`, as in step 5.
+3. Set the `release` environment variable `INDEX_SIGNING_KEY` to the spare's `vaultKey` from the keys file.
+4. On a branch, mark the spare `active` in `release/index-signing-keys.json`. If the old key might be misused, remove it. Then make a new spare in the vault and add its public key, so the next loader trusts it.
+5. Release. That release's index is signed with the spare, and its loader no longer trusts a removed key. Rock picks up that loader in its next update.
+
+**A new key** (one the loader does not list yet) cannot sign until a loader that trusts it is released and in use. Add it to the keys file as a spare first, and switch to it only after Rock ships that loader. Never give `sign` on a key to anyone but the release identity.
 
 ### One-time setup
 
@@ -378,9 +401,71 @@ gh variable set AZURE_TENANT_ID       -R "$REPOSITORY" --env release -b "<tenant
 gh variable set AZURE_SUBSCRIPTION_ID -R "$REPOSITORY" --env release -b "<subscription id>"
 gh variable set AZURE_STORAGE_ACCOUNT -R "$REPOSITORY" --env release -b "<storage account>"
 gh variable set NUGET_USER            -R "$REPOSITORY" --env release -b "jonedmiston"
+gh variable set AZURE_KEY_VAULT_NAME  -R "$REPOSITORY" --env release -b "kv-spark-core"
+gh variable set INDEX_SIGNING_KEY     -R "$REPOSITORY" --env release -b "sampledata-index-1/8fbd1bb1b3994a10bb0a02a5dc160155"
 ```
 
 Self-review is allowed, so the person who tags a release can approve it too. Set `prevent_self_review` to `true` (or tick "Prevent self-review" in the environment settings) to require a second person.
+
+#### 5. The index signing key
+
+The Publish job signs the package index with a key in Azure Key Vault (decision 172). This was set up on 2026-10-27:
+
+| What | Value |
+|---|---|
+| Vault | `kv-spark-core` in the resource group `rg-sparkcore` (West US), `https://kv-spark-core.vault.azure.net/`. Standard tier, the Azure RBAC permission model, purge protection on. |
+| Active key | `sampledata-index-1`, version `8fbd1bb1b3994a10bb0a02a5dc160155`. EC P-256, operations sign and verify, not exportable. |
+| Spare key | `sampledata-index-2`, version `09c86119ecbd4f1ba1af3f2d27d83f12`. The same kind. No one may sign with it. |
+| Role | The custom role "Sample Data Index Signer", with only the data actions `Microsoft.KeyVault/vaults/keys/sign/action` and `Microsoft.KeyVault/vaults/keys/read` (read shows only the public key). Assignable at the vault. |
+| Assignment | The role, given to the release identity (step 2) on the active key only, not the vault. |
+| Variables | `AZURE_KEY_VAULT_NAME` and `INDEX_SIGNING_KEY` in the `release` environment (step 4). |
+
+The release identity's trust is limited to the `release` environment (step 2), so only an approved Publish job can sign. The public keys from `az keyvault key show --query key` are in `release/index-signing-keys.json`.
+
+To rebuild it, fill in the first two values and run these in Bash:
+
+```bash
+SUBSCRIPTION=<subscription id>
+APP_ID=<AZURE_CLIENT_ID from step 2>
+VAULT=kv-spark-core
+GROUP=rg-sparkcore
+
+az account set --subscription "$SUBSCRIPTION"
+az keyvault create -n "$VAULT" -g "$GROUP" -l westus --sku standard --enable-rbac-authorization true --enable-purge-protection true
+
+# The active key and the spare. Key Vault keys cannot be exported unless made exportable, which needs Premium.
+az keyvault key create --vault-name "$VAULT" --name sampledata-index-1 --kty EC --curve P-256 --ops sign verify
+az keyvault key create --vault-name "$VAULT" --name sampledata-index-2 --kty EC --curve P-256 --ops sign verify
+
+# A role that can sign and read the public key, and nothing else.
+VAULT_ID=$(az keyvault show -n "$VAULT" --query id -o tsv)
+cat > signer-role.json <<EOF
+{
+  "Name": "Sample Data Index Signer",
+  "Description": "Signs the rock-sample-data package index with a Key Vault key.",
+  "Actions": [],
+  "DataActions": [ "Microsoft.KeyVault/vaults/keys/sign/action", "Microsoft.KeyVault/vaults/keys/read" ],
+  "AssignableScopes": [ "$VAULT_ID" ]
+}
+EOF
+az role definition create --role-definition signer-role.json
+
+# Only the release identity, and only on the active key.
+az role assignment create --assignee-object-id "$(az ad sp show --id "$APP_ID" --query id -o tsv)" \
+  --assignee-principal-type ServicePrincipal --role "Sample Data Index Signer" --scope "$VAULT_ID/keys/sampledata-index-1"
+
+# The public halves, for release/index-signing-keys.json, with each key's version.
+az keyvault key show --vault-name "$VAULT" --name sampledata-index-1 --query "{kid: key.kid, x: key.x, y: key.y}"
+az keyvault key show --vault-name "$VAULT" --name sampledata-index-2 --query "{kid: key.kid, x: key.x, y: key.y}"
+```
+
+A new key version from `az keyvault key create` or a rotation is a new key to the loader: put its public key and `vaultKey` in the keys file and release a loader before it signs (see [Signing keys](#signing-keys)).
+
+To check the assignment without changing anything, expect one row, on the active key:
+
+```bash
+az role assignment list --assignee "$(az ad sp show --id "$APP_ID" --query id -o tsv)" --all --query "[?roleDefinitionName=='Sample Data Index Signer'].scope" -o tsv
+```
 
 ### A self-hosted runner instead
 

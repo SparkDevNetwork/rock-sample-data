@@ -1,15 +1,16 @@
 # Publishes a release (decisions 127 to 130). For each Rock release in
 # release/rock-releases.json, it builds that Rock, writes every dataset's package, verifies them,
 # and runs the publishing gate. It packs the loader NuGet package. Then, behind the
-# "release" environment, it pushes the loader to nuget.org and uploads the packages, their receipts,
-# and the package index to Azure Blob Storage, the index last.
+# "release" environment, it signs the package index with Spark's key in Azure Key Vault, pushes the
+# loader to nuget.org, and uploads the packages, their receipts, and the signed index to Azure Blob
+# Storage, the index last.
 #
 # A version tag (v1.0.0, or v1.1.0-beta.1 for a prerelease) publishes. A manual run is a dry run
 # unless "publish" is ticked, and a run that publishes must be on main and name its version.
 # The setup it needs (the environment, the Azure identity, nuget.org trusted publishing, and these
 # variables) is in docs/maintaining.md, under "Publishing a release":
 #   vars.AZURE_CLIENT_ID, vars.AZURE_TENANT_ID, vars.AZURE_SUBSCRIPTION_ID,
-#   vars.AZURE_STORAGE_ACCOUNT, vars.NUGET_USER
+#   vars.AZURE_STORAGE_ACCOUNT, vars.NUGET_USER, vars.AZURE_KEY_VAULT_NAME, vars.INDEX_SIGNING_KEY
 name: Release
 
 on:
@@ -81,6 +82,10 @@ jobs:
           if [ "$publish" = "true" ]; then
             node release/check-minimum-loader.js --version "$version"
           fi
+
+          # The index signing code signs and checks a sample with a throwaway key, and the keys file
+          # has an active key and a spare (decision 172).
+          node release/sign-index.js --self-test
 
           prerelease=false
           [[ "$version" == *-* ]] && prerelease=true
@@ -374,6 +379,29 @@ jobs:
             dotnet run --project verify -c Release --no-build -- --check-receipts "$folder"
           done
 
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # The index is merged and signed before anything is published, so a signing failure publishes
+      # nothing. merge-index.js reads only a hosted index Spark signed, and sign-index.js checks its own
+      # signature with release/index-signing-keys.json before it writes the file (decision 172).
+      - name: Sign the package index
+        shell: bash
+        env:
+          VAULT: ${{ vars.AZURE_KEY_VAULT_NAME }}
+          SIGNING_KEY: ${{ vars.INDEX_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p index
+          az storage blob download --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n packages/index.json -f index/hosted.json --only-show-errors -o none 2>/dev/null \
+            || { echo "No index is hosted yet."; rm -f index/hosted.json; }
+          node release/merge-index.js --packages packages --version "$VERSION" --commit "$GITHUB_SHA" --index index/hosted.json --out index/unsigned.json
+          node release/sign-index.js --in index/unsigned.json --out index/index.json --vault-name "$VAULT" --key "$SIGNING_KEY"
+
       - name: Sign in to nuget.org
         id: nuget
         uses: NuGet/login@v1
@@ -387,13 +415,6 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
           PACKAGE_ID: ${{ needs.loader.outputs.package-id }}
         run: dotnet nuget push "artifacts/nuget/$PACKAGE_ID.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-
-      - name: Sign in to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       # Versioned paths never change. A file already uploaded with the same bytes is skipped, so a
       # re-run is safe; one with other bytes stops the run.
@@ -420,14 +441,11 @@ jobs:
 
       # A stable release updates index.json, and index-prerelease.json to match it. A prerelease
       # updates only index-prerelease.json: the stable index plus the prerelease (decision 129).
+      # Both are the signed index from "Sign the package index".
       - name: Upload the package index
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p index
-          az storage blob download --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n packages/index.json -f index/hosted.json --only-show-errors -o none 2>/dev/null \
-            || { echo "No index is hosted yet."; rm -f index/hosted.json; }
-          node release/merge-index.js --packages packages --version "$VERSION" --commit "$GITHUB_SHA" --index index/hosted.json --out index/index.json
           targets="packages/index-prerelease.json"
           [ "$PRERELEASE" = "true" ] || targets="$targets packages/index.json"
           for name in $targets; do

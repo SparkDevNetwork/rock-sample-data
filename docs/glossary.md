@@ -34,7 +34,7 @@ The words this project uses, in alphabetical order.
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Package** | A zip the builder writes for one dataset and one Rock major release, such as Rock 21: data files only, never SQL, with a checksum for every file in `package.json`. It serves every dot release of that major (decision 52). |
-| **Package index** | `index.json`, the hosted list of packages that Rock's installer block reads, at `storage.rockrms.com/sampledata/packages/`. Each entry carries its dataset's card (decision 144). The release workflow merges each release into it and uploads it last (decision 128). |
+| **Package index** | `index.json`, the hosted list of packages that Rock's installer block reads, at `storage.rockrms.com/sampledata/packages/`. Each entry carries its dataset's card (decision 144). The release workflow merges each release into it, signs it, and uploads it last (decisions 128 and 172). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
@@ -50,6 +50,7 @@ The words this project uses, in alphabetical order.
 | **Saturation** | How many messages each adult got in a period. Rock's Communication Saturation report sorts adults into buckets by count. See [Communications](communications.md#message-load-per-person). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
+| **Signature** | Proof that Spark made the package index. The release workflow signs it with a key in Azure Key Vault, and the loader reads only an index whose signature matches one of the public keys it carries (decision 172). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
