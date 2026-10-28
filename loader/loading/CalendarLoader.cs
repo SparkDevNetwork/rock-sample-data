@@ -96,11 +96,21 @@ namespace RockSampleData.Loader.Loading
             var calendarIds = calendar.Calendars.ToDictionary( c => c.Key, c => _db.RequireIdByGuid( "EventCalendar", c.Value ) );
             var audienceIds = calendar.Audiences.ToDictionary( a => a.Key, a => _db.RequireIdByGuid( "DefinedValue", a.Value ) );
 
-            // Rock's own clock for "now": the install day at this moment's time, the way RockDateTime.Now reads on install day.
-            var now = _dates.Anchor.Date.Add( DateTime.Now.TimeOfDay );
-            var eventIds = WriteEvents( planned, approverAliasId, now );
-            WriteCalendarsAndAudiences( planned, eventIds, calendarIds, audienceIds, now );
-            var occurrenceCount = WriteOccurrences( planned, eventIds, contacts, campusPlans, now );
+            /*
+                10/27/26 - CLAUDE
+
+                Every stamp and the ScheduleDate window count from the install day at midnight, so the same seed and
+                anchor give the same rows. Rock Cleanup rebuilds ScheduleDate from the moment it runs, and the verify
+                tool leaves out a day at each edge, so the window may start at midnight. Only the next start uses the
+                clock: Rock sets it from RockDateTime.Now, so an event earlier today already counts as past.
+
+                Reason: Repeatable loads that Rock Cleanup still finds nothing to fix in.
+            */
+            var today = _dates.Anchor.Date;
+            var now = today.Add( DateTime.Now.TimeOfDay );
+            var eventIds = WriteEvents( planned, approverAliasId, today );
+            WriteCalendarsAndAudiences( planned, eventIds, calendarIds, audienceIds, today );
+            var occurrenceCount = WriteOccurrences( planned, eventIds, contacts, campusPlans, today, now );
 
             var photoCount = new PhotoLoader( _db, _source, _foreignKey, _seed ).LoadEventPhotos( eventIds );
             _db.Log.Write( $"  Calendar: {planned.Count} events ({planned.Count( p => p.Event.Calendars.Contains( "internal" ) && !p.Event.Calendars.Contains( "public" ) )} internal), {occurrenceCount:N0} occurrences, {photoCount} photos" );
@@ -131,7 +141,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Updates Rock's own sample events in place and adds the rest. Returns event item Ids by key.
         /// </summary>
-        private Dictionary<string, int> WriteEvents( List<PlannedEvent> planned, int? approverAliasId, DateTime now )
+        private Dictionary<string, int> WriteEvents( List<PlannedEvent> planned, int? approverAliasId, DateTime today )
         {
             var ids = new Dictionary<string, int>( StringComparer.Ordinal );
             var nextId = NextId( "EventItem" );
@@ -141,8 +151,8 @@ namespace RockSampleData.Loader.Loading
             foreach ( var plan in planned )
             {
                 var item = plan.Event;
-                var created = Created( plan.Occurrences.Min( o => o.Schedule.FirstStart ), now );
-                var approved = Min( created.AddDays( 1 ), now );
+                var created = Created( plan.Occurrences.Min( o => o.Schedule.FirstStart ), today );
+                var approved = Min( created.AddDays( 1 ), today );
                 var description = string.Join( string.Empty, item.Description.Select( p => $"<p>{WebUtility.HtmlEncode( p )}</p>" ) );
                 var existingId = item.RockEvent ? _db.IdByGuid( "EventItem", item.Guid ) : null;
                 if ( existingId != null )
@@ -153,7 +163,7 @@ UPDATE [EventItem] SET [Name] = @Name, [Summary] = @Summary, [Description] = @De
     [IsApproved] = 1, [ApprovedByPersonAliasId] = @Approver, [ApprovedOnDateTime] = @Approved, [ModifiedDateTime] = @Now
 WHERE [Id] = @Id",
                         P( "@Name", item.Name ), P( "@Summary", item.Summary ), P( "@Description", description ), P( "@Approver", ( object ) approverAliasId ?? DBNull.Value ),
-                        P( "@Approved", approved ), P( "@Now", now ), P( "@Id", existingId.Value ) );
+                        P( "@Approved", approved ), P( "@Now", today ), P( "@Id", existingId.Value ) );
                     ids[item.Key] = existingId.Value;
                     continue;
                 }
@@ -195,7 +205,7 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
             }
         }
 
-        private void WriteCalendarsAndAudiences( List<PlannedEvent> planned, Dictionary<string, int> eventIds, Dictionary<string, int> calendarIds, Dictionary<string, int> audienceIds, DateTime now )
+        private void WriteCalendarsAndAudiences( List<PlannedEvent> planned, Dictionary<string, int> eventIds, Dictionary<string, int> calendarIds, Dictionary<string, int> audienceIds, DateTime today )
         {
             var calendarItems = TableFactory.Create( "EventCalendarId:int", "EventItemId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var audiences = TableFactory.Create( "EventItemId:int", "DefinedValueId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -205,13 +215,13 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
                 foreach ( var key in item.Calendars )
                 {
                     var calendarId = calendarIds.TryGetValue( key, out var id ) ? id : throw new InvalidDataException( $"configuration/calendar.json: event {item.Key} is on calendar \"{key}\", which 'calendars' does not hold." );
-                    calendarItems.Rows.Add( calendarId, eventIds[item.Key], SeededRandom.StableGuid( $"calendar-item:{item.Guid}:{key}" ), _foreignKey, now, now );
+                    calendarItems.Rows.Add( calendarId, eventIds[item.Key], SeededRandom.StableGuid( $"calendar-item:{item.Guid}:{key}" ), _foreignKey, today, today );
                 }
 
                 foreach ( var key in item.Audiences )
                 {
                     var audienceId = audienceIds.TryGetValue( key, out var id ) ? id : throw new InvalidDataException( $"configuration/calendar.json: event {item.Key} has audience \"{key}\", which 'audiences' does not hold." );
-                    audiences.Rows.Add( eventIds[item.Key], audienceId, SeededRandom.StableGuid( $"calendar-audience:{item.Guid}:{key}" ), _foreignKey, now, now );
+                    audiences.Rows.Add( eventIds[item.Key], audienceId, SeededRandom.StableGuid( $"calendar-audience:{item.Guid}:{key}" ), _foreignKey, today, today );
                 }
             }
 
@@ -223,7 +233,7 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
         /// Writes each occurrence with its unnamed schedule, the way Rock's occurrence screen saves one, and the
         /// schedule's dates and next start as Rock's save hooks would set them. Returns how many occurrences.
         /// </summary>
-        private int WriteOccurrences( List<PlannedEvent> planned, Dictionary<string, int> eventIds, Dictionary<string, (int AliasId, string Email, string Phone)> contacts, IReadOnlyDictionary<string, CampusPlan> campusPlans, DateTime now )
+        private int WriteOccurrences( List<PlannedEvent> planned, Dictionary<string, int> eventIds, Dictionary<string, (int AliasId, string Email, string Phone)> contacts, IReadOnlyDictionary<string, CampusPlan> campusPlans, DateTime today, DateTime now )
         {
             var nextScheduleId = NextId( "Schedule" );
             var schedules = TableFactory.Create( "Id:int", "iCalendarContent:string", "EffectiveStartDate:date", "EffectiveEndDate:date", "IsActive:bool", "Order:int", "AutoInactivateWhenComplete:bool", "IsPublic:bool",
@@ -241,12 +251,12 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
                 {
                     var schedule = occurrence.Schedule;
                     var key = $"{plan.Event.Key}:{occurrence.CampusKey ?? "church-wide"}:{schedule.FirstStart:s}";
-                    var created = Created( schedule.FirstStart, now );
+                    var created = Created( schedule.FirstStart, today );
                     var scheduleId = nextScheduleId++;
                     schedules.Rows.Add( scheduleId, schedule.ICalendar( SeededRandom.StableGuid( $"calendar-uid:{key}" ), created ), schedule.EffectiveStartDate, ( object ) schedule.EffectiveEndDate ?? DBNull.Value,
                         true, 0, false, true, SeededRandom.StableGuid( $"calendar-schedule:{key}" ), _foreignKey, created, created );
 
-                    foreach ( var start in schedule.StartsOverlapping( now.AddYears( -2 ), now.AddYears( 2 ) ) )
+                    foreach ( var start in schedule.StartsOverlapping( today.AddYears( -2 ), today.AddYears( 2 ) ) )
                     {
                         scheduleDates.Rows.Add( scheduleId, start, start.AddMinutes( schedule.Minutes ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
                     }
@@ -280,9 +290,9 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
         }
 
         /// <summary>
-        /// When an occurrence was added: six weeks before its first start, and never after now.
+        /// When an occurrence was added: six weeks before its first start, and never after the install day began.
         /// </summary>
-        private static DateTime Created( DateTime firstStart, DateTime now ) => Min( firstStart.Date.AddDays( -42 ).AddHours( 10 ), now );
+        private static DateTime Created( DateTime firstStart, DateTime today ) => Min( firstStart.Date.AddDays( -42 ).AddHours( 10 ), today );
 
         private static DateTime Min( DateTime a, DateTime b ) => a < b ? a : b;
 
