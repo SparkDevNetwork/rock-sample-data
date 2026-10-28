@@ -40,7 +40,7 @@ using RockSampleData.Loader.Packages;
     published/<tag>/, so a model change that would stop this loader from reading a package already on
     storage fails here first (decision 168). Add a folder for each release that publishes
     packages: git show <tag>:configuration/<file> for each JSON file.
-    The index signature checks (decision D-signing-1) read signing/signed-index.json, which
+    The index signature checks (decision 172) read signing/signed-index.json, which
     release/sign-index.js signed with a throwaway test key, so both builds read what the Node signer
     writes. The other index checks sign their index here with a key made for this run. Neither key is
     one the shipped loader trusts.

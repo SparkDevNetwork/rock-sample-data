@@ -16,7 +16,7 @@
 //
 
 /*
-    Signs the package index (decision D-signing-1). The release workflow runs it on the index that
+    Signs the package index (decision 172). The release workflow runs it on the index that
     release/merge-index.js wrote, before anything is published. The format is in release/index-signature.js
     and the loader README, under "The package index".
 

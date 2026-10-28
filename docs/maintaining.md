@@ -246,7 +246,7 @@ Everything goes in the `sampledata` container, which `storage.rockrms.com` serve
 
 ### Signing keys
 
-Every index the workflow uploads is signed, and loaders from 0.1.0-alpha.14 on read no other (decision D-signing-1). The public keys are in `release/index-signing-keys.json`, which the loader embeds. The private keys are in the Key Vault `kv-spark-core` and cannot be exported. Step 5 of the one-time setup has the details.
+Every index the workflow uploads is signed, and loaders from 0.1.0-alpha.14 on read no other (decision 172). The public keys are in `release/index-signing-keys.json`, which the loader embeds. The private keys are in the Key Vault `kv-spark-core` and cannot be exported. Step 5 of the one-time setup has the details.
 
 | Key | Status | Who may sign |
 |---|---|---|
@@ -409,7 +409,7 @@ Self-review is allowed, so the person who tags a release can approve it too. Set
 
 #### 5. The index signing key
 
-The Publish job signs the package index with a key in Azure Key Vault (decision D-signing-1). This was set up on 2026-10-27:
+The Publish job signs the package index with a key in Azure Key Vault (decision 172). This was set up on 2026-10-27:
 
 | What | Value |
 |---|---|

@@ -41,7 +41,7 @@
     only the index stops listing them.
 
     The hosted index must be signed by a key in release/index-signing-keys.json, and only its signed payload
-    is read, so a changed index in storage is never merged and signed again (decision D-signing-1). The
+    is read, so a changed index in storage is never merged and signed again (decision 172). The
     index written here is unsigned; release/sign-index.js signs it.
 
     Exits with 1, writing nothing, when a receipt did not pass, a field is missing, the hosted index is not

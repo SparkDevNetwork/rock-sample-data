@@ -213,7 +213,7 @@ The card fields, `rockMajor`, and `minimumLoaderVersion` are optional, and forma
 
 ### The signature
 
-The index's SHA-256 for each package proves a download is intact. The signature proves Spark made the index, so no one who could change the hosted file can swap in a package (decision D-signing-1). From 0.1.0-alpha.14 on, the loader reads only a signed index.
+The index's SHA-256 for each package proves a download is intact. The signature proves Spark made the index, so no one who could change the hosted file can swap in a package (decision 172). From 0.1.0-alpha.14 on, the loader reads only a signed index.
 
 The release workflow signs the index's exact bytes, and the file carries those bytes in its `signed` object:
 

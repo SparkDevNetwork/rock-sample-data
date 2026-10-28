@@ -57,7 +57,7 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// Reads index.json, after checking that Spark signed it. The index is read only from the bytes
-        /// the signature covers (decision D-signing-1).
+        /// the signature covers (decision 172).
         /// </summary>
         /// <exception cref="InvalidDataException">The index is not signed by one of Spark's keys, its signature does not match, the text is not JSON, it uses another format version, or an entry is missing a required field.</exception>
         public static SampleDataPackageIndex Parse( string json )
