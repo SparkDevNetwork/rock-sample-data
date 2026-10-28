@@ -1,0 +1,21 @@
+{
+  "$comment": "The public keys that may sign the package index (decision 172). The private keys stay in Spark's Azure Key Vault, kv-spark-core, and never leave it. The loader embeds this file and trusts only these keys; release/sign-index.js and release/merge-index.js read it too. x and y are the P-256 point in standard base64, as 'az keyvault key show --query key' gives them. 'active' signs every release. 'spare' signs nothing until the active key is lost or retired; see Maintaining, 'Signing keys'. A new key needs a loader release before it can sign.",
+  "keys": [
+    {
+      "keyId": "sampledata-index-1",
+      "status": "active",
+      "algorithm": "ES256",
+      "vaultKey": "sampledata-index-1/8fbd1bb1b3994a10bb0a02a5dc160155",
+      "x": "ETofMxi6tnVcBnTzWZfpEDABw5dUG2f/kAYEAfYJjO4=",
+      "y": "F1bsuQo9Yqc3ghuQ9f4P7Js1Y6E3SHbiGipfi1cXhFc="
+    },
+    {
+      "keyId": "sampledata-index-2",
+      "status": "spare",
+      "algorithm": "ES256",
+      "vaultKey": "sampledata-index-2/09c86119ecbd4f1ba1af3f2d27d83f12",
+      "x": "r7aVpUFFoh71YW3SI44Zf9IC7ZWNG0Js6h7gMc379s8=",
+      "y": "rUfXLBNeXbFlD/ietaL9oDpQ98AbCL/7AahePEhjwSw="
+    }
+  ]
+}

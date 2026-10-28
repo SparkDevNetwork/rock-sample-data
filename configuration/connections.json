@@ -5,14 +5,16 @@
     "name": "Involvement",
     "iconCssClass": "ti ti-heart-handshake",
     "description": "People who want to get involved by serving. A connector follows up, helps each person find a team that fits, and places them on that team at their campus.",
-    "requiresPlacementGroupToConnect": true
+    "requiresPlacementGroupToConnect": true,
+    "$dueDateComment": "Each request's due date runs from its last status change, using that status's dueInDays and dueSoonInDays: Rock's Duration Per Status mode (decision 173). A connector who moves a request on starts a new clock, the way a working team keeps its board current.",
+    "dueDateCalculationMode": "DurationPerStatus"
   },
   "$requestStatusesComment": "Rock ships No Contact and In Progress; the sample church adds the two onboarding steps between them and serving. Colors show on the connection board.",
   "requestStatuses": [
-    { "guid": "901E1A6A-0E91-4F42-880F-47C061C24E0C", "name": "No Contact", "description": "A new request. No one has reached out yet.", "isDefault": true, "isCritical": true, "highlightColor": "#f04438" },
-    { "guid": "828D8744-B412-4B09-A00F-FC51BBE220F6", "name": "In Progress", "description": "A connector has reached out and is helping the person find a team that fits.", "highlightColor": "#00a6f4" },
-    { "guid": "720EA71A-18F9-4D6B-B3B5-56D39EA403E3", "name": "Background Check", "description": "Waiting on a background check before the person can serve.", "highlightColor": "#f79009" },
-    { "guid": "6FC5BE2B-8FDE-45E0-AD43-722EEDB7C021", "name": "Shadowing", "description": "Serving alongside an experienced volunteer before joining the team.", "highlightColor": "#12b76a" }
+    { "guid": "901E1A6A-0E91-4F42-880F-47C061C24E0C", "name": "No Contact", "description": "A new request. No one has reached out yet.", "isDefault": true, "isCritical": true, "highlightColor": "#f04438", "dueInDays": 7, "dueSoonInDays": 5 },
+    { "guid": "828D8744-B412-4B09-A00F-FC51BBE220F6", "name": "In Progress", "description": "A connector has reached out and is helping the person find a team that fits.", "highlightColor": "#00a6f4", "dueInDays": 21, "dueSoonInDays": 14 },
+    { "guid": "720EA71A-18F9-4D6B-B3B5-56D39EA403E3", "name": "Background Check", "description": "Waiting on a background check before the person can serve.", "highlightColor": "#f79009", "dueInDays": 28, "dueSoonInDays": 21 },
+    { "guid": "6FC5BE2B-8FDE-45E0-AD43-722EEDB7C021", "name": "Shadowing", "description": "Serving alongside an experienced volunteer before joining the team.", "highlightColor": "#12b76a", "dueInDays": 28, "dueSoonInDays": 21 }
   ],
   "activityTypes": [
     { "guid": "98EA1590-5E18-4B93-A94C-13482A19FA63", "name": "Shadowed a Team" },
@@ -38,6 +40,14 @@
     "inactiveDaysAgo": { "min": 30, "max": 730 },
     "requesterStatuses": { "Connected": 35, "Engaged": 25, "Known": 20, "Participant": 10, "Prospect": 10 },
     "activeStatuses": { "No Contact": 35, "In Progress": 40, "Background Check": 10, "Shadowing": 15 },
+    "$dueMixComment": "Designed, not measured (decision 173). Percent of active requests in each status that are due later (more than a week out), due this week (today to 7 days out), or past due on install day. The loader dates each request's last status change to match. A No Contact request never changed status, so it can only be due this week or past due, and its request date moves to match. With the stand-ins for No Contact requests moved into this month, Full 7 has about 62% due later, 26% due this week, and 12% past due.",
+    "dueMix": {
+      "No Contact": { "thisWeek": 75, "pastDue": 25 },
+      "In Progress": { "later": 85, "thisWeek": 10, "pastDue": 5 },
+      "Background Check": { "later": 75, "thisWeek": 15, "pastDue": 10 },
+      "Shadowing": { "later": 85, "thisWeek": 10, "pastDue": 5 }
+    },
+    "pastDueDays": { "min": 1, "max": 60 },
     "backgroundCheckTeams": [ "kids-ministry", "student-ministry" ],
     "testCasesPerCampus": { "futureFollowUp": 1, "transferred": 1 },
     "comments": [

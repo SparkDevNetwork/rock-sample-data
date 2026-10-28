@@ -514,11 +514,6 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${owner}: follows unknown ${f.type} ${f.target}.` );
             }
         }
-        for ( const n of p.notes || [] ) {
-            if ( n.by && !people.has( n.by ) ) {
-                errors.push( `${owner}: a note is written by unknown person ${n.by}.` );
-            }
-        }
 
         // Status must agree with the data.
         if ( p.connectionStatus === "Leading" && !leaders.has( p.guid ) ) {

@@ -152,6 +152,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckStaffEmails( db, source, guids, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, failures ) : 0;
+
             return (checks, failures);
         }
 
@@ -235,6 +237,83 @@ WHERE [p].[Guid] = @Person AND [s].[Guid] = @Staff AND [c].[CommunicationType] =
             return checks;
 
             static string days( int count ) => count == 1 ? "1 day ago" : $"{count} days ago";
+        }
+
+        /*
+            10/27/26 - CLAUDE
+
+            Rock's legacy sample data put notes on Ted Decker and others, but they sat in a household
+            field the loader never read, so the best-known profiles showed no notes. The person profile's
+            Notes block (TimeLine) shows a note only when its type is a Person note type with no qualifier
+            and, when the block names note types, one of those. Checking each Cast note against
+            that rule catches both a note that never loaded and a type the profile would hide.
+
+            Reason: Every Cast note shows on its person's profile.
+        */
+
+        /// <summary>
+        /// Checks that each Cast note is on its person, with a type the person profile's Notes block shows.
+        /// </summary>
+        private static int CheckProfileNotes( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var shownTypes = db.Query( @"
+SELECT [nt].[Guid]
+FROM [NoteType] AS [nt]
+WHERE [nt].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    AND ISNULL( [nt].[EntityTypeQualifierColumn], '' ) = '' AND ISNULL( [nt].[EntityTypeQualifierValue], '' ) = ''" )
+                .Select( r => ( Guid ) r["Guid"] )
+                .ToHashSet();
+
+            // The block's Note Types setting: empty shows every type above, a list shows only those types.
+            var blockSetting = db.Query( @"
+SELECT COALESCE( [av].[Value], [a].[DefaultValue] ) AS [NoteTypes]
+FROM [Block] AS [b]
+INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'BlockTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [b].[BlockTypeId] AS nvarchar( 20 ) ) AND [a].[Key] = 'NoteTypes'
+    AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Block' )
+LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id] AND [av].[EntityId] = [b].[Id]
+WHERE [b].[Guid] = '0B2B550C-B0C9-420E-9CF3-BEC8979108F2'" ).FirstOrDefault();
+            if ( blockSetting == null )
+            {
+                failures.Add( "Person profile: the Notes block (TimeLine) or its Note Types setting is missing" );
+                return 1;
+            }
+
+            var listed = ( blockSetting["NoteTypes"] as string ?? string.Empty )
+                .Split( new[] { ',', '|' }, StringSplitOptions.RemoveEmptyEntries )
+                .Select( v => Guid.TryParse( v.Trim(), out var g ) ? g : Guid.Empty )
+                .ToHashSet();
+            if ( listed.Count > 0 )
+            {
+                shownTypes.IntersectWith( listed );
+            }
+
+            var people = source.ReadHouseholds().ToDictionary( h => h.Key, h => h.Members.ToDictionary( m => m.Key ) );
+            var checks = 0;
+            foreach ( var file in source.ReadCastNotes() )
+            {
+                foreach ( var note in file.Notes )
+                {
+                    checks++;
+                    var person = people[file.Household][note.About];
+                    var type = db.Query( @"
+SELECT [nt].[Guid], [nt].[Name]
+FROM [Note] AS [n]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [n].[EntityId]
+WHERE [n].[Guid] = @Note AND [p].[Guid] = @Person", P( "@Note", note.Guid ), P( "@Person", person.Guid ) ).FirstOrDefault();
+                    var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
+                    if ( type == null )
+                    {
+                        failures.Add( $"{name}: expected note {note.Key} on their profile, Rock has no such note on them" );
+                    }
+                    else if ( !shownTypes.Contains( ( Guid ) type["Guid"] ) )
+                    {
+                        failures.Add( $"{name}: note {note.Key} is a {type["Name"]}, which the profile's Notes block does not show" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

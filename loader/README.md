@@ -137,7 +137,7 @@ The .NET Framework build depends on the exact versions Rock ships: Microsoft.Dat
 
 `compat/` holds the few .NET 10 features .NET Framework lacks, as internal types under `#if NETFRAMEWORK`: the init-only marker, `GetValueOrDefault` and key-value pair deconstruction, and the two key derivations behind Rock's encryption (`KeyDerivation`: PBKDF2, and HKDF written out from RFC 5869). Everything else is written a way both understand, such as `list[list.Count - 1]` instead of `list[^1]`.
 
-The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also reads a package index written before the card fields and one with fields the loader does not know, puts loader versions in order, and checks which index entries the loader may install on Rock 21 and Rock 20. Run it for each build, and both must pass:
+The check scanner fields and note mentions are keyed by those derivations, so `../loader-compat-check/` proves both builds give the same values. It checks PBKDF2 and HKDF against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also reads a package index written before the card fields and one with fields the loader does not know, puts loader versions in order, checks which index entries the loader may install on Rock 21 and Rock 20, and checks the index signature (see [The signature](#the-signature)). Run it for each build, and both must pass:
 
 ```
 dotnet run --project loader-compat-check -f net10.0
@@ -151,11 +151,14 @@ The two builds are meant to load the same rows. One difference is expected: .NET
 
 ## The package index
 
-The hosted list of packages is `index.json` (decision 123). The [release workflow](../docs/maintaining.md#publishing-a-release) merges each release into it and uploads it last, at `https://storage.rockrms.com/sampledata/packages/index.json`, beside the versioned packages (decision 128). A prerelease changes only `index-prerelease.json` beside it (decision 129). `SampleDataPackageIndex.Parse` reads it, and it refuses text that is not JSON, another format version, or an entry without a required field.
+The hosted list of packages is `index.json` (decision 123). The [release workflow](../docs/maintaining.md#publishing-a-release) merges each release into it, signs it, and uploads it last, at `https://storage.rockrms.com/sampledata/packages/index.json`, beside the versioned packages (decision 128). A prerelease changes only `index-prerelease.json` beside it (decision 129). `SampleDataPackageIndex.Parse` reads it. It refuses an index Spark did not sign (see [The signature](#the-signature)), text that is not JSON, another format version, or an entry without a required field.
+
+This is the index that is signed. The file itself wraps it, as the next section shows.
 
 ```json
 {
   "formatVersion": 1,
+  "signedAt": "2026-10-28T15:04:05.000Z",
   "packages": [
     {
       "dataset": "core-1",
@@ -188,6 +191,7 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 | Field | Meaning |
 |---|---|
 | `formatVersion` | The index format. This loader reads format 1. Required. |
+| `signedAt` | When the release workflow signed the index. Not read yet. |
 | `packages` | Every package, in the order to show them. A dataset can appear once per Rock major release. |
 | `dataset`, `name` | The dataset key and its name. Required. |
 | `description` | A sentence or two about who is in the dataset: the card's `summary`. Optional. |
@@ -206,6 +210,47 @@ The hosted list of packages is `index.json` (decision 123). The [release workflo
 Each entry carries the whole dataset card from the dataset's manifest, the same fields `SampleDataDatasets` serves (decision 144). `release/merge-index.js` writes them when a release joins the index. So Rock's installer can show its cards from the index, and every release updates the cards without a new loader in Rock.
 
 The card fields, `rockMajor`, and `minimumLoaderVersion` are optional, and format 1 stays format 1. `SampleDataPackageIndexEntry` reads a missing string as empty, missing highlights as an empty list, and a missing number as 0, so it reads an index written before the card fields joined it, such as the entries of `v0.1.0-alpha.10`. An older loader skips fields it does not know, so it reads a newer index too. `../loader-compat-check/` checks both on both builds.
+
+### The signature
+
+The index's SHA-256 for each package proves a download is intact. The signature proves Spark made the index, so no one who could change the hosted file can swap in a package (decision 172). From 0.1.0-alpha.14 on, the loader reads only a signed index.
+
+The release workflow signs the index's exact bytes, and the file carries those bytes in its `signed` object:
+
+```json
+{
+  "formatVersion": 1,
+  "packages": [ "... the same entries ..." ],
+  "signed": {
+    "keyId": "sampledata-index-1",
+    "algorithm": "ES256",
+    "payload": "ewogICJmb3JtYXRWZXJzaW9uIjogMSwK...",
+    "signature": "q8ZtW1v0J3..."
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `signed.keyId` | Which of Spark's keys signed it, from `../release/index-signing-keys.json`. |
+| `signed.algorithm` | Always `ES256`: ECDSA on the P-256 curve with SHA-256. |
+| `signed.payload` | The signed index, base64: the exact UTF-8 bytes of the JSON shown above. |
+| `signed.signature` | The signature on SHA-256 of those bytes, base64: 64 bytes, r then s, as Azure Key Vault returns it. |
+| `formatVersion`, `packages` | The same index, for loaders before 0.1.0-alpha.14, which skip `signed`. A newer loader ignores them. |
+
+`SampleDataPackageIndex.Parse` checks the signature with the public keys the loader embeds from `../release/index-signing-keys.json`, then reads the index **only from the payload**. So no canonical form of the JSON is needed, and nothing outside the signature is trusted. It refuses an index that is not signed, one signed by a key it does not know, and one whose signature does not match, each with an `InvalidDataException`. Rock's installer block already logs that and shows that packages are not available, so a forged index fails closed. A package download is then checked against its entry's SHA-256, which the signature covers.
+
+The loader trusts two keys: the active key and a spare. Both private keys are in Spark's Azure Key Vault and never leave it. Only the release workflow's Publish job, behind its approvals, may sign with the active key. Adding a key the loader does not know needs a loader release. How the keys are set up and changed is in [Maintaining](../docs/maintaining.md#signing-keys). No setting, option, or environment variable adds a trusted key; only `../loader-compat-check/` passes test keys, through an internal overload.
+
+`../release/sign-index.js` signs and checks a signature, and `../release/merge-index.js` merges only a hosted index that checks out. To try signing without the vault, sign with a local test key, which the loader never trusts:
+
+```
+node release/sign-index.js --self-test
+node release/sign-index.js --new-test-key test-key.pem
+node release/sign-index.js --in index.json --out signed.json --test-key test-key.pem
+```
+
+`../loader-compat-check/` reads an index that `sign-index.js` signed with a test key, so both builds are proven to read what the Node signer writes. It also checks that a changed payload, a changed signature, an unknown key, an unsigned index, and Spark's keys on a test signature are refused, and that packages outside the signature are ignored.
 
 ## The dataset catalog
 
@@ -367,7 +412,7 @@ The connection requests step (`loading/ConnectionRequestLoader.cs`) follows serv
 - **Active and inactive.** People who are not serving ask to serve in the profile's state mix around the connected requests, more often in the busy months of its month pattern. Each campus also has one future follow-up and one request transferred from another team.
 - **The Cast.** Requests in the household files (`connectionRequests`) tell the Cast's stories and count toward their campus's mix.
 
-Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date (7 days), due soon date (5 days), connected date, and on-time flag the way the hook does. It also writes the person history the hook writes (added, status changed, connected, and state changed), so each request shows on the person's History tab. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
+Each request gets the activity history a connector would leave: assigned, calls and messages, meeting the team leader, shadowing, and connected. A Cast request can record a background check result on the person. Bulk copy skips Rock's save hook, so the loader sets the due date, due soon date, connected date, and on-time flag the way the hook does. Involvement uses Rock's Duration Per Status mode, so an open request's due dates run from its last status change, by that status's days in `connections.json`. Each active request draws whether it is due later, this week, or past due from `dueMix`, and its last status change is dated to match. A No Contact request never changed status, so its request date moves instead. Calibration leaves out the current month, so each No Contact request moved into it gets a stand-in: one more active request with another status, made on the day the moved request was first drawn, so the measured state mix and month pattern hold. Connected requests keep 7 and 5 days from the request. It also writes the person history the hook writes (added, status changed, connected, and state changed), so each request shows on the person's History tab. Each team leader becomes the default connector for their team's opportunity at their campus and a member of Rock's Global Connector Group.
 
 ## Streaks and achievements
 

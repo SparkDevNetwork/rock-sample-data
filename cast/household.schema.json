@@ -152,19 +152,6 @@
         "expect": { "enum": [ "complete", "ahead", "on-pace", "behind", "stopped", "not-started", "gifts-only" ], "description": "The pledge state every load must show. Left out, it follows followThrough (paid in full is complete), or is gifts-only when there is no pledge." }
       }
     },
-    "note": {
-      "type": "object",
-      "required": [ "type", "text" ],
-      "additionalProperties": false,
-      "properties": {
-        "type": { "type": "string" },
-        "text": { "type": "string" },
-        "date": { "$ref": "#/$defs/relativeDate" },
-        "by": { "$ref": "#/$defs/guid", "description": "Guid of the Cast person who wrote the note." },
-        "isAlert": { "type": "boolean" },
-        "isPrivate": { "type": "boolean" }
-      }
-    },
     "person": {
       "type": "object",
       "required": [ "key", "guid", "lastName", "gender", "familyRole", "recordStatus", "connectionStatus" ],
@@ -318,8 +305,7 @@
               "comment": { "type": "string" }
             }
           }
-        },
-        "notes": { "type": "array", "items": { "$ref": "#/$defs/note" } }
+        }
       }
     }
   }

@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "packages": [
+    {
+      "dataset": "core-1",
+      "name": "Core 1",
+      "people": 185,
+      "households": 87,
+      "campuses": 1,
+      "version": "0.1.0-alpha.14",
+      "url": "v0.1.0-alpha.14/rock-21/core-1.zip",
+      "sha256": "daec011e5abcd90075ff49f459105c269be737fad214aa268ea2de8089f40fe8",
+      "size": 1,
+      "rockMajor": 21,
+      "minimumLoaderVersion": "0.1.0-alpha.14",
+      "rockVersion": "21.0.2",
+      "rockMigration": "202610141827486_CodeGenerated_20261014"
+    }
+  ],
+  "signed": {
+    "keyId": "test",
+    "algorithm": "ES256",
+    "payload": "ewogICJmb3JtYXRWZXJzaW9uIjogMSwKICAic2lnbmVkQXQiOiAiMjAyNi0xMC0yOFQwMzo0ODoyOS43NThaIiwKICAicGFja2FnZXMiOiBbCiAgICB7CiAgICAgICJkYXRhc2V0IjogImNvcmUtMSIsCiAgICAgICJuYW1lIjogIkNvcmUgMSIsCiAgICAgICJwZW9wbGUiOiAxODUsCiAgICAgICJob3VzZWhvbGRzIjogODcsCiAgICAgICJjYW1wdXNlcyI6IDEsCiAgICAgICJ2ZXJzaW9uIjogIjAuMS4wLWFscGhhLjE0IiwKICAgICAgInVybCI6ICJ2MC4xLjAtYWxwaGEuMTQvcm9jay0yMS9jb3JlLTEuemlwIiwKICAgICAgInNoYTI1NiI6ICJkYWVjMDExZTVhYmNkOTAwNzVmZjQ5ZjQ1OTEwNWMyNjliZTczN2ZhZDIxNGFhMjY4ZWEyZGU4MDg5ZjQwZmU4IiwKICAgICAgInNpemUiOiAxLAogICAgICAicm9ja01ham9yIjogMjEsCiAgICAgICJtaW5pbXVtTG9hZGVyVmVyc2lvbiI6ICIwLjEuMC1hbHBoYS4xNCIsCiAgICAgICJyb2NrVmVyc2lvbiI6ICIyMS4wLjIiLAogICAgICAicm9ja01pZ3JhdGlvbiI6ICIyMDI2MTAxNDE4Mjc0ODZfQ29kZUdlbmVyYXRlZF8yMDI2MTAxNCIKICAgIH0KICBdCn0K",
+    "signature": "f9d1KuF2ZR4tCS5lA4slR/txH3ED6lzytxsbliClUaJP6SUfhcAi0dtI9l1tcR5DIJ5w/gCu29Ayipn2h6XWHw=="
+  }
+}
