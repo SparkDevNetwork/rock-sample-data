@@ -49,7 +49,7 @@ namespace RockSampleData.Loader.Loading
         changed status, so its request date moves instead. Connected requests keep 7 and 5 days from the
         request, as before.
 
-        Reason: most open requests on a working team's board are not due yet (decision D-due-1).
+        Reason: most open requests on a working team's board are not due yet (decision 173).
     */
 
     /// <summary>

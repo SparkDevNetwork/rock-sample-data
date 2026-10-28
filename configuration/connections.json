@@ -6,7 +6,7 @@
     "iconCssClass": "ti ti-heart-handshake",
     "description": "People who want to get involved by serving. A connector follows up, helps each person find a team that fits, and places them on that team at their campus.",
     "requiresPlacementGroupToConnect": true,
-    "$dueDateComment": "Each request's due date runs from its last status change, using that status's dueInDays and dueSoonInDays: Rock's Duration Per Status mode (decision D-due-1). A connector who moves a request on starts a new clock, the way a working team keeps its board current.",
+    "$dueDateComment": "Each request's due date runs from its last status change, using that status's dueInDays and dueSoonInDays: Rock's Duration Per Status mode (decision 173). A connector who moves a request on starts a new clock, the way a working team keeps its board current.",
     "dueDateCalculationMode": "DurationPerStatus"
   },
   "$requestStatusesComment": "Rock ships No Contact and In Progress; the sample church adds the two onboarding steps between them and serving. Colors show on the connection board.",
@@ -40,7 +40,7 @@
     "inactiveDaysAgo": { "min": 30, "max": 730 },
     "requesterStatuses": { "Connected": 35, "Engaged": 25, "Known": 20, "Participant": 10, "Prospect": 10 },
     "activeStatuses": { "No Contact": 35, "In Progress": 40, "Background Check": 10, "Shadowing": 15 },
-    "$dueMixComment": "Designed, not measured (decision D-due-1). Percent of active requests in each status that are due later (more than a week out), due this week (today to 7 days out), or past due on install day. The loader dates each request's last status change to match. A No Contact request never changed status, so it can only be due this week or past due, and its request date moves to match. With the stand-ins for No Contact requests moved into this month, Full 7 has about 62% due later, 26% due this week, and 12% past due.",
+    "$dueMixComment": "Designed, not measured (decision 173). Percent of active requests in each status that are due later (more than a week out), due this week (today to 7 days out), or past due on install day. The loader dates each request's last status change to match. A No Contact request never changed status, so it can only be due this week or past due, and its request date moves to match. With the stand-ins for No Contact requests moved into this month, Full 7 has about 62% due later, 26% due this week, and 12% past due.",
     "dueMix": {
       "No Contact": { "thisWeek": 75, "pastDue": 25 },
       "In Progress": { "later": 85, "thisWeek": 10, "pastDue": 5 },
