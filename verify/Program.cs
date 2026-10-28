@@ -122,7 +122,7 @@ try
     var referee = new CleanupReferee( sql, rock, Path.Combine( root, "validation", "cleanup-accepted.json" ), runPrefix );
     // The receipt binds the bytes and the commit read now, before the long run, and checks at the end that neither moved.
     var verifier = Git.Source( root );
-    var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks)>();
+    var perDataset = new Dictionary<string, (string Package, string Sha256, PackageManifest Manifest, List<CheckResult> Checks, Receipt.ReceiptLoad Load)>();
     foreach ( var dataset in datasets )
     {
         var packagePath = Path.Combine( packagesFolder, $"{dataset}.zip" );
@@ -143,20 +143,32 @@ try
         var connection = sql.ConnectionString( database );
         var foreignKey = $"SampleData:{dataset}";
         var checks = new List<CheckResult>();
+        Receipt.ReceiptLoad loadRecord = null;
         sql.Copy( baseDatabase, database );
         var stage = "load";
         try
         {
             var load = Stopwatch.StartNew();
-            DatasetLoader.Load( connection, package, new DatasetLoadOptions
+            var progress = new ConsoleProgress();
+            var space = new SpaceSampler( sql, database );
+            try
             {
-                Anchor = anchor,
-                Seed = seed,
-                Progress = new ConsoleProgress(),
-                RockWebConfigPath = rock.WebConfigPath,
-                RockVersion = builtRockVersion,
-                Recorder = recorder
-            } );
+                DatasetLoader.Load( connection, package, new DatasetLoadOptions
+                {
+                    Anchor = anchor,
+                    Seed = seed,
+                    Progress = progress,
+                    RockWebConfigPath = rock.WebConfigPath,
+                    RockVersion = builtRockVersion,
+                    Recorder = recorder
+                } );
+            }
+            finally
+            {
+                loadRecord = new Receipt.ReceiptLoad { Timings = progress.Timings.Select( Receipt.ReceiptTiming.From ).ToList(), Space = space.Stop() };
+            }
+
+            Console.WriteLine( $"  Space: {loadRecord.Space}" );
             checks.Add( CheckResult.From( "load", $"Loaded into a copy of the trusted base in {load.Elapsed.TotalSeconds:N0} seconds", new List<string>() ) );
 
             stage = "cast-expectations";
@@ -193,7 +205,7 @@ try
             check.Print();
         }
 
-        perDataset[dataset] = (packagePath, sha256, package.Manifest, checks);
+        perDataset[dataset] = (packagePath, sha256, package.Manifest, checks, loadRecord);
     }
 
     // 4. The contract: recorded from these loads, compared with validation/rock-contract.json and with this Rock.
@@ -218,7 +230,7 @@ try
     var verifierNow = Git.Source( root );
     var isEverythingPassed = true;
     Console.WriteLine();
-    foreach ( var (dataset, (packagePath, sha256, manifest, checks)) in perDataset )
+    foreach ( var (dataset, (packagePath, sha256, manifest, checks, loadRecord)) in perDataset )
     {
         var moved = new List<string>();
         if ( Receipt.Sha256( packagePath ) != sha256 )
@@ -243,7 +255,8 @@ try
             Seed = seed,
             Verifier = verifier,
             Base = certificate,
-            Checks = all
+            Checks = all,
+            Load = loadRecord
         };
         var receiptPath = Receipt.PathFor( packagePath );
         receipt.Save( receiptPath );
