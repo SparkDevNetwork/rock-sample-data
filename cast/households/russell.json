@@ -69,7 +69,10 @@
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "logins": [
+        "hrussell"
+      ]
     }
   ]
 }

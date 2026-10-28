@@ -72,7 +72,10 @@
       },
       "attributes": {
         "Employer": "Valley Water District"
-      }
+      },
+      "logins": [
+        "mnguyen"
+      ]
     }
   ]
 }

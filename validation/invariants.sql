@@ -996,3 +996,72 @@ LEFT JOIN [BinaryFile] AS [f] ON [f].[Id] = [e].[PhotoId]
 WHERE [e].[PhotoId] IS NOT NULL
     AND EXISTS ( SELECT 1 FROM [EventItemOccurrence] AS [o] WHERE [o].[EventItemId] = [e].[Id] AND [o].[ForeignKey] = @ForeignKey )
     AND ( [f].[Id] IS NULL OR NOT EXISTS ( SELECT 1 FROM [BinaryFileData] AS [d] WHERE [d].[Id] = [f].[Id] AND DATALENGTH( [d].[Content] ) > 0 ) );
+
+-- check: dataset-has-logins
+-- why: Decision 179. The verify tool always loads with a test password, so a load with no logins means logins broke, and every login rule below would pass on nothing.
+SELECT CASE WHEN EXISTS ( SELECT 1 FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
+
+-- check: login-is-a-database-login-rock-can-check
+-- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password.
+SELECT COUNT(*)
+FROM [UserLogin] AS [u]
+LEFT JOIN [EntityType] AS [et] ON [et].[Id] = [u].[EntityTypeId]
+WHERE [u].[ForeignKey] = @ForeignKey
+    AND ( [et].[Name] IS NULL OR [et].[Name] <> 'Rock.Security.Authentication.Database'
+        OR [u].[Password] IS NULL OR LEFT( [u].[Password], 4 ) NOT IN ( '$2a$', '$2b$', '$2y$' ) OR LEN( [u].[Password] ) <> 60
+        OR [u].[PersonId] IS NULL OR [u].[IsPasswordChangeRequired] = 1 OR [u].[IsLockedOut] = 1 OR [u].[IsConfirmed] IS NULL
+        OR ( [u].[LastLoginDateTime] IS NOT NULL AND ( [u].[LastLoginDateTime] < [u].[CreatedDateTime] OR [u].[IsConfirmed] = 0 ) ) );
+
+-- check: login-username-is-plain
+-- why: Decision 179. Usernames follow Rock's rule (first initial and last name) in lowercase letters and digits only, and the sample data never takes Rock's own admin.
+SELECT COUNT(*)
+FROM [UserLogin] AS [u]
+WHERE [u].[ForeignKey] = @ForeignKey
+    AND ( [u].[UserName] LIKE '%[^a-z0-9]%' COLLATE Latin1_General_BIN OR [u].[UserName] = 'admin' );
+
+-- check: login-belongs-to-an-adult
+-- why: Decision 179. Only adults 18 and older have logins, never a child or a business.
+SELECT COUNT(*)
+FROM [UserLogin] AS [u]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [u].[PersonId]
+WHERE [u].[ForeignKey] = @ForeignKey
+    AND ( [p].[AgeClassification] <> 1 OR [p].[Age] < 18 OR [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' ) );
+
+-- check: security-role-member-can-sign-in
+-- why: Decision 79 and 179. Staff can sign in and see what their roles allow, so everyone the load puts in a security role has a login.
+SELECT COUNT( DISTINCT [gm].[PersonId] )
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+WHERE [gm].[ForeignKey] = @ForeignKey AND [g].[IsSecurityRole] = 1 AND [gm].[IsArchived] = 0
+    AND NOT EXISTS ( SELECT 1 FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [gm].[PersonId] );
+
+-- check: app-user-can-sign-in
+-- why: Decision 179. A church app device tied to a person means they signed in to the app.
+SELECT COUNT( DISTINCT [pa].[PersonId] )
+FROM [PersonalDevice] AS [pd]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pd].[PersonAliasId]
+WHERE [pd].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [pa].[PersonId] );
+
+-- check: login-has-its-history
+-- why: Decision 181. Rock's login save hook records each new login on the person's History tab, so every sample login has its "User Login" row.
+SELECT COUNT(*)
+FROM [UserLogin] AS [u]
+WHERE [u].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [History] AS [h]
+        WHERE [h].[EntityId] = [u].[PersonId] AND [h].[RelatedEntityId] = [u].[Id] AND [h].[ValueName] = 'User Login' AND [h].[NewValue] = [u].[UserName] AND [h].[ForeignKey] = @ForeignKey );
+
+-- check: account-protection-matches-rock
+-- why: Decision 182. Rock's Process Elevated Security job sets each person's account protection profile: Extreme in a security role marked Extreme, High in one marked High or with an active scheduled gift or saved account, Medium with a login, and Low otherwise.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE [p].[ForeignKey] = @ForeignKey
+    AND [p].[AccountProtectionProfile] <> CASE
+        WHEN EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [gm].[PersonId] = [p].[Id] AND [gm].[IsArchived] = 0 AND [g].[IsActive] = 1 AND ( [g].[IsSecurityRole] = 1 OR [gt].[Guid] = 'AECE949F-704C-483E-A4FB-93D5E4720C4C' ) AND [g].[ElevatedSecurityLevel] = 2 ) THEN 3
+        WHEN EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+                WHERE [gm].[PersonId] = [p].[Id] AND [gm].[IsArchived] = 0 AND [g].[IsActive] = 1 AND ( [g].[IsSecurityRole] = 1 OR [gt].[Guid] = 'AECE949F-704C-483E-A4FB-93D5E4720C4C' ) AND [g].[ElevatedSecurityLevel] = 1 )
+            OR EXISTS ( SELECT 1 FROM [FinancialScheduledTransaction] AS [s] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[AuthorizedPersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [s].[IsActive] = 1 )
+            OR EXISTS ( SELECT 1 FROM [FinancialPersonSavedAccount] AS [sa] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [sa].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id] ) THEN 2
+        WHEN EXISTS ( SELECT 1 FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [p].[Id] ) THEN 1
+        ELSE 0 END;

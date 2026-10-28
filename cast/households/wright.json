@@ -75,7 +75,10 @@
       },
       "photo": {
         "ethnicity": "pacific-islander"
-      }
+      },
+      "logins": [
+        "gwright"
+      ]
     },
     {
       "key": "dorothy",

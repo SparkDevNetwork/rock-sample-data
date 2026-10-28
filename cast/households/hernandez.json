@@ -85,7 +85,10 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
-      }
+      },
+      "logins": [
+        "ghernandez"
+      ]
     }
   ]
 }

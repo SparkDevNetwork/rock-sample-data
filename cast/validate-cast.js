@@ -32,11 +32,13 @@ const path = require( "path" );
 const castDir = __dirname;
 const GUID = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
 const KEY = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const LOGIN = /^[a-z0-9]+$/;
 const STATUSES = [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ];
 
 // The sample church uses only the security roles Rock ships, so every role name must be mapped (decision 79).
 const securityRoleConfiguration = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "security-roles.json" ), "utf8" ) );
 const SECURITY_ROLE_NAMES = new Set( securityRoleConfiguration.roles.concat( securityRoleConfiguration.notRoles ).map( r => r.name ) );
+const ROCK_ROLE_NAMES = new Set( securityRoleConfiguration.roles.map( r => r.name ) );
 const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchdemo.com" ];
 
 const errors = [];
@@ -80,6 +82,7 @@ const groups = readFolder( "groups" );
 const people = new Map();
 const householdKeys = new Set();
 const guids = new Map();
+const logins = new Map();
 
 /**
  * Records a Guid and reports it if another record already uses it.
@@ -134,6 +137,22 @@ for ( const { file, data: h } of households ) {
             if ( !SECURITY_ROLE_NAMES.has( role ) ) {
                 errors.push( `${owner}: security role "${role}" is not in configuration/security-roles.json. Only roles Rock ships are used.` );
             }
+        }
+        // Logins (decision 179): Rock's username rule, adults only, and every security role member can sign in.
+        for ( const login of p.logins || [] ) {
+            if ( !LOGIN.test( login ) || login === "admin" ) {
+                errors.push( `${owner}: login "${login}" must be lowercase letters and digits, and never Rock's own "admin".` );
+            }
+            if ( logins.has( login ) ) {
+                errors.push( `${owner}: login "${login}" is already used by ${logins.get( login )}.` );
+            }
+            logins.set( login, owner );
+        }
+        if ( ( p.logins || [] ).length > 0 && ( p.familyRole !== "adult" || p.recordType === "business" || ( p.birth && p.birth.age < 18 ) ) ) {
+            errors.push( `${owner}: only adults 18 and older have logins.` );
+        }
+        if ( ( p.securityRoles || [] ).some( role => ROCK_ROLE_NAMES.has( role ) ) && ( p.logins || [] ).length === 0 && !p.replacesAdmin ) {
+            errors.push( `${owner}: has security roles but no login, so no one could sign in to see what the roles allow.` );
         }
         // Photo ethnicity lives only in photo.ethnicity, and nothing about race or ethnicity may reach Rock.
         if ( p.appearanceGroup !== undefined ) {

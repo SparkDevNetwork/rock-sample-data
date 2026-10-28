@@ -21,11 +21,14 @@ namespace RockSampleData.Verify
 {
     /// <summary>
     /// Runs a piece of Rock itself against one database, through rock-runner (see rock-runner/Program.cs):
-    /// Rock's start-up steps, or its Rock Cleanup job.
+    /// Rock's start-up steps, its Rock Cleanup job, or its Database login's hashing and sign-in.
     /// </summary>
     internal static class RockRunner
     {
-        public static string Run( RockRelease rock, SqlServer sql, string database, string task )
+        /// <summary>
+        /// Runs a task. The input, when given, goes to rock-runner in a file, one item per line.
+        /// </summary>
+        public static string Run( RockRelease rock, SqlServer sql, string database, string task, IEnumerable<string> input = null )
         {
             var work = Directory.CreateTempSubdirectory( "rock-sample-data-runner-" );
             try
@@ -42,6 +45,14 @@ namespace RockSampleData.Verify
                 foreach ( var argument in new[] { "--task", task, "--rock-bin", rock.BinPath, "--config", config } )
                 {
                     start.ArgumentList.Add( argument );
+                }
+
+                if ( input != null )
+                {
+                    var inputFile = Path.Combine( work.FullName, "input.txt" );
+                    File.WriteAllLines( inputFile, input );
+                    start.ArgumentList.Add( "--input" );
+                    start.ArgumentList.Add( inputFile );
                 }
 
                 using var process = Process.Start( start );

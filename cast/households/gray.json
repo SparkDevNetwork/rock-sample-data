@@ -79,7 +79,10 @@
       },
       "photo": {
         "ethnicity": "native-american"
-      }
+      },
+      "logins": [
+        "egray"
+      ]
     }
   ]
 }
