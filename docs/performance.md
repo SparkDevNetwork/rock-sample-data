@@ -52,7 +52,7 @@ Median seconds of the four loads, and each step's share of the median total. The
 | Commit | 0.1 | 0.0% |
 | **Total** | **237.6** | |
 
-Logins are not on `main` yet. When they land, they are timed as their own step with no extra code.
+Logins landed on `main` after these four loads, and they are timed as their own step. One verify load with them took 241 seconds, of which Logins took 6.8. Its peak space was 8,925 MB of data and 11,561 MB of log.
 
 ### By kind of work
 
