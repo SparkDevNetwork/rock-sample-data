@@ -100,6 +100,7 @@ namespace RockSampleData.Loader
                 log.Write( $"Loading dataset {dataset} (built from {ShortCommit( package.Manifest )} for Rock {package.Manifest.Rock?.MajorRelease}, verified on {package.Manifest.Rock?.Version}, anchor {dates.Anchor:yyyy-MM-dd}){( options.IsDryRun ? " (dry run)" : string.Empty )}" );
 
                 LoadSteps( db, source, dataset, foreignKey, dates, options, parts, keys );
+                db.RequireIndexesRebuilt();
                 foreach ( var timing in db.Timings )
                 {
                     log.WriteTiming( timing.Kind == LoadTimingKind.BulkCopy
@@ -369,7 +370,7 @@ namespace RockSampleData.Loader
                 new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, configuration.KioskDeviceId, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
             }
 
-            db.RebuildDeferredIndexes();
+            db.RebuildDeferredIndexes( "Attendance" );
 
             // Requests to serve end in the team memberships serving just loaded, so they follow it.
             if ( steps.Begin( "Connection requests" ) )

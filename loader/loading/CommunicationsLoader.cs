@@ -104,8 +104,15 @@ namespace RockSampleData.Loader.Loading
             var plan = CommunicationListPlanner.Plan( configuration.Lists.Lists, configuration.Lists.Membership, candidates, campusIds.Keys.ToList(), _dates.Anchor, _seed, forced, excluded );
             var listIds = AddLists( configuration.Lists, campusIds );
 
+            // Email, texts, one-to-one, and push all copy into the same large tables. Their indexes stay off until every
+            // part has written, and are rebuilt once below. Nothing in this step reads those tables.
+            foreach ( var table in EmailWriter.LargeTables )
+            {
+                _db.DeferIndexRebuild( table );
+            }
+
             // Bulk email runs before the members are written, because an unsubscribe makes a member Inactive.
-            var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
+            var castPeople =people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.Cast.Guid );
             var rosters = ClassRosters( campusIds );
             var emails = new BulkEmailLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople ).WithClassRosters( rosters );
             using ( _db.Log.TimePart( "Bulk email" ) )
@@ -137,6 +144,11 @@ namespace RockSampleData.Loader.Loading
             using ( _db.Log.TimePart( "Flows" ) )
             {
                 new FlowLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, configuration.Template.Guid, smallGroupTypeId );
+            }
+
+            using ( _db.Log.TimePart( "Rebuild indexes" ) )
+            {
+                _db.RebuildDeferredIndexes( EmailWriter.LargeTables );
             }
 
             WriteMembers( plan, listIds );
