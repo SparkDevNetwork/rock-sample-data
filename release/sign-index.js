@@ -80,19 +80,47 @@ function signInVault( vaultName, vaultKey, digest ) {
         throw new Error( `--key must be a key name and version, such as sampledata-index-1/<version>, not '${vaultKey}'.` );
     }
 
-    const result = spawnSync( "az", [
+    // On Windows, az is a .cmd that only a shell can run. Every value is checked to hold no character a shell reads,
+    // so the command line can be built as text, without Node's warning about unescaped shell arguments.
+    const args = [
         "keyvault", "key", "sign",
         "--vault-name", vaultName, "--name", name, "--version", version,
         "--algorithm", signature.ALGORITHM, "--digest", digest.toString( "base64" ),
         "--only-show-errors", "-o", "json"
-    ], { encoding: "utf8", shell: process.platform === "win32" } );
+    ];
+    const unsafe = args.find( arg => !/^[A-Za-z0-9+/=._-]+$/.test( arg ) );
+    if ( unsafe ) {
+        throw new Error( `'${unsafe}' is not a vault name, key name, or version.` );
+    }
+
+    const result = process.platform === "win32"
+        ? spawnSync( `az ${args.join( " " )}`, { encoding: "utf8", shell: true } )
+        : spawnSync( "az", args, { encoding: "utf8" } );
 
     if ( result.status !== 0 ) {
         throw new Error( `Key Vault did not sign the index: ${( result.stderr || result.error || "" ).toString().trim()}` );
     }
 
-    // Key Vault gives base64url; Node's base64 decoder reads both alphabets.
-    return Buffer.from( JSON.parse( result.stdout ).result, "base64" );
+    return vaultSignature( result.stdout );
+}
+
+/**
+ * Reads the signature from "az keyvault key sign" output. Azure CLI 2.89 names it "signature", in standard base64;
+ * other versions and the REST API name it "result" or "value", sometimes in base64url. Either alphabet reads.
+ */
+function vaultSignature( stdout ) {
+    const output = JSON.parse( stdout );
+    const field = [ "signature", "result", "value" ].find( name => typeof output[ name ] === "string" && output[ name ].length > 0 );
+    if ( !field ) {
+        throw new Error( `Key Vault's answer has no "signature", "result", or "value" field. It had: ${Object.keys( output ).join( ", " ) || "nothing"}.` );
+    }
+
+    const bytes = Buffer.from( output[ field ].replace( /-/g, "+" ).replace( /_/g, "/" ), "base64" );
+    if ( bytes.length !== 64 ) {
+        throw new Error( `Key Vault's "${field}" is ${bytes.length} bytes; an ES256 signature is 64 (r then s).` );
+    }
+
+    return bytes;
 }
 
 /**
@@ -185,6 +213,21 @@ function selfTest() {
     const isKeysFileGood = sparkKeys.filter( k => k.status === "active" ).length === 1 && sparkKeys.some( k => k.status === "spare" );
     failures += isKeysFileGood ? 0 : 1;
     console.log( isKeysFileGood ? "pass  the keys file has one active key and a spare" : "FAIL  the keys file needs one active key and a spare" );
+
+    // Each answer shape "az keyvault key sign" has given, in standard base64 and in base64url.
+    const raw = Buffer.from( file.signed.signature, "base64" );
+    for ( const [ name, answer ] of [
+        [ "signature (Azure CLI 2.89)", { algorithm: "ES256", keyId: "k", signature: raw.toString( "base64" ) } ],
+        [ "result in base64url", { kid: "k", result: raw.toString( "base64url" ) } ],
+        [ "value", { value: raw.toString( "base64" ) } ]
+    ] ) {
+        const isRead = vaultSignature( JSON.stringify( answer ) ).equals( raw );
+        failures += isRead ? 0 : 1;
+        console.log( isRead ? `pass  Key Vault's ${name} is read` : `FAIL  Key Vault's ${name} is not read` );
+    }
+
+    failures += expectRefused( "Key Vault's answer with no signature field", () => vaultSignature( JSON.stringify( { keyId: "k" } ) ) );
+    failures += expectRefused( "a Key Vault signature that is not 64 bytes", () => vaultSignature( JSON.stringify( { signature: raw.subarray( 0, 32 ).toString( "base64" ) } ) ) );
 
     console.log( failures === 0 ? "All signing checks pass." : `${failures} signing checks fail.` );
     return failures === 0 ? 0 : 1;
