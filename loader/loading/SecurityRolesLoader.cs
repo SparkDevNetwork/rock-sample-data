@@ -62,6 +62,17 @@ namespace RockSampleData.Loader.Loading
             var roles = configuration.Roles.ToDictionary( r => r.Name, r => r.Guid );
             var notRoles = configuration.NotRoles.Select( r => r.Name ).ToHashSet();
             var count = 0;
+
+            // Rock's admin person is already in Rock Administrators from the install (decision 177).
+            foreach ( var row in _db.Query( @"
+SELECT [gm].[GroupId], [gm].[PersonId]
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+WHERE [g].[IsSecurityRole] = 1" ) )
+            {
+                _members.Add( (Convert.ToInt32( row["GroupId"] ), Convert.ToInt32( row["PersonId"] )) );
+            }
+
             foreach ( var person in people )
             {
                 foreach ( var name in person.Cast.SecurityRoles ?? new List<string>() )

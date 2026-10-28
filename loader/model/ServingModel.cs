@@ -306,6 +306,18 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public List<string> BackgroundCheckTeams { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Percent of active requests in each status that are due later, due this week, or past due on install
+        /// day, by status name, then "later", "thisWeek", or "pastDue". Empty in packages made before it, which
+        /// date every request's due date from the day it was made.
+        /// </summary>
+        public Dictionary<string, Dictionary<string, double>> DueMix { get; set; } = new Dictionary<string, Dictionary<string, double>>();
+
+        /// <summary>
+        /// How many days past due a past-due request is.
+        /// </summary>
+        public NumberRange PastDueDays { get; set; }
+
         public RequestTestCases TestCasesPerCampus { get; set; }
 
         public List<string> Comments { get; set; } = new List<string>();
@@ -341,6 +353,12 @@ namespace RockSampleData.Loader.Model
         public string Description { get; set; }
 
         public bool RequiresPlacementGroupToConnect { get; set; }
+
+        /// <summary>
+        /// Rock's due date mode: "DurationPerStatus" dates a request's due date from its last status change.
+        /// Null leaves Rock's default, a fixed number of days from the day the request was made.
+        /// </summary>
+        public string DueDateCalculationMode { get; set; }
     }
 
     /// <summary>
@@ -359,6 +377,16 @@ namespace RockSampleData.Loader.Model
         public bool IsCritical { get; set; }
 
         public string HighlightColor { get; set; }
+
+        /// <summary>
+        /// Days a request has in this status before it is due, in Duration Per Status mode.
+        /// </summary>
+        public int? DueInDays { get; set; }
+
+        /// <summary>
+        /// Days in this status before the board shows the request as due soon.
+        /// </summary>
+        public int? DueSoonInDays { get; set; }
     }
 
     /// <summary>

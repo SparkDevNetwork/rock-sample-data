@@ -49,6 +49,8 @@ namespace RockSampleData.Verify
                     database,
                     body,
                     new SqlParameter( "@ForeignKey", foreignKey ),
+                    // The loader turns Rock's admin person into a Cast person and leaves it without the ForeignKey (decision 177).
+                    new SqlParameter( "@AdminPersonId", 1 ),
                     new SqlParameter( "@CardPeople", SqlDbType.Int ) { Value = ( object ) card?.People ?? DBNull.Value },
                     new SqlParameter( "@CardHouseholds", SqlDbType.Int ) { Value = ( object ) card?.Households ?? DBNull.Value } ) );
                 if ( violations > 0 )

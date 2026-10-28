@@ -299,7 +299,7 @@ namespace RockSampleData.Loader.Loading
                 "OldValue:string", "NewValue:string", "IsSensitive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int" );
             var categoryId = _db.RequireIdByGuid( "Category", DemographicHistoryCategoryGuid );
             var personTypeId = _db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid );
-            var names = _db.Query( "SELECT [Id], [NickName], [LastName] FROM [Person] WHERE [ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
+            var names = _db.Query( $"SELECT [p].[Id], [p].[NickName], [p].[LastName] FROM [Person] AS [p] WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey ) )
                 .ToDictionary( r => ( int ) r["Id"], r => $"{r["NickName"]} {r["LastName"]}" );
             var random = new SeededRandom( $"{_seed}:email:person-changes" );
 

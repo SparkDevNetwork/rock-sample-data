@@ -39,6 +39,19 @@ namespace RockSampleData.Loader.Loading
         Reason: the connection board's due and overdue labels, the analytics, and the History tab read these.
     */
 
+    /*
+        10/27/26 - CLAUDE
+
+        Involvement uses Rock's Duration Per Status mode, where a status change restarts the due date from that
+        status's offsets. With due dates fixed at 7 days from the request, almost every open request showed as
+        past due. Now each active request draws whether it is due later, this week, or past due from
+        connections.json's dueMix, and its last status change is dated to match. A No Contact request never
+        changed status, so its request date moves instead. Connected requests keep 7 and 5 days from the
+        request, as before.
+
+        Reason: most open requests on a working team's board are not due yet (decision 173).
+    */
+
     /// <summary>
     /// Loads requests to serve: a connected request behind every recent volunteer, people who just
     /// connected and wait on their team leader as Pending, and the active and inactive requests around
@@ -96,10 +109,15 @@ namespace RockSampleData.Loader.Loading
             var monthIndex = _profile.Map( rules.MonthIndexProfilePath ).ToDictionary( kv => int.Parse( kv.Key ), kv => kv.Value );
             var p50 = _profile.Number( $"{rules.DaysToConnectProfilePath}.p50", 16 );
             var p90 = _profile.Number( $"{rules.DaysToConnectProfilePath}.p90", 97 );
-            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90 );
+            var statusDue = _source.Connections.ConnectionType.DueDateCalculationMode == "DurationPerStatus"
+                ? _source.Connections.RequestStatuses.Where( s => s.DueInDays.HasValue ).ToDictionary( s => s.Name, s => (Due: s.DueInDays.Value, DueSoon: s.DueSoonInDays ?? s.DueInDays.Value) )
+                : new Dictionary<string, (int Due, int DueSoon)>();
+            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90, statusDue ) { StaffConnectors = StaffConnectors( people ) };
+            var monthStart = new DateTime( today.Year, today.Month, 1 );
+            var workedStatuses = rules.ActiveStatuses.Where( s => s.Key != "No Contact" ).ToDictionary( s => s.Key, s => s.Value );
 
             // Connector group members are inserted one by one, so the bulk-copy Ids start after them.
-            SetDefaultConnectors( leaders );
+            SetDefaultConnectors( leaders, context.StaffConnectors.Values.Select( s => s.AliasId ) );
             var tables = new Tables( _db );
 
             foreach ( var campusKey in plans.Select( p => p.Campus ).Distinct() )
@@ -128,6 +146,7 @@ namespace RockSampleData.Loader.Loading
                 var inactiveCount = ( int ) Math.Round( connectedCount * stateMix.GetValueOrDefault( "inactive" ) / stateMix["connected"] ) - cast.Count( r => r.State == StateInactive );
                 var futureCount = rules.TestCasesPerCampus.FutureFollowUp - cast.Count( r => r.State == StateFutureFollowUp );
                 var transferCount = rules.TestCasesPerCampus.Transferred;
+                var movedIntoThisMonth = new List<DateTime>();
 
                 for ( var i = 0; i < pendingCount && pool.Count > 0; i++ )
                 {
@@ -153,6 +172,33 @@ namespace RockSampleData.Loader.Loading
                         }
                     }
 
+                    var drawn = request.Created;
+                    if ( request.State == StateActive )
+                    {
+                        PlanDue( context, random, request );
+                    }
+
+                    if ( drawn < monthStart && request.Created >= monthStart )
+                    {
+                        movedIntoThisMonth.Add( drawn );
+                    }
+
+                    requests.Add( request );
+                }
+
+                // Calibration counts requests by the month they were made and leaves out the current month. A No Contact
+                // request moved into this month leaves the measured state mix and month pattern, so a worked request takes
+                // its place on the day it was drawn.
+                foreach ( var drawn in movedIntoThisMonth )
+                {
+                    if ( pool.Count == 0 )
+                    {
+                        break;
+                    }
+
+                    var request = Open( context, random, PickTeam( random ), Take( pool ), StateActive, rules.ActiveDaysAgo, workedStatuses );
+                    request.Created = drawn;
+                    PlanDue( context, random, request );
                     requests.Add( request );
                 }
 
@@ -236,9 +282,9 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// An active or inactive request from someone who has not joined a team.
         /// </summary>
-        private PlannedRequest Open( RequestContext context, SeededRandom random, string team, LoadedPerson person, int state, NumberRange daysAgo )
+        private PlannedRequest Open( RequestContext context, SeededRandom random, string team, LoadedPerson person, int state, NumberRange daysAgo, IReadOnlyDictionary<string, double> activeStatuses = null )
         {
-            var status = state == StateActive ? random.Pick( context.Rules.ActiveStatuses ) : random.Chance( 0.6 ) ? "In Progress" : "No Contact";
+            var status = state == StateActive ? random.Pick( activeStatuses ?? context.Rules.ActiveStatuses ) : random.Chance( 0.6 ) ? "In Progress" : "No Contact";
             if ( status == "Background Check" && !context.Rules.BackgroundCheckTeams.Contains( team ) )
             {
                 status = "In Progress";
@@ -255,6 +301,39 @@ namespace RockSampleData.Loader.Loading
                 WantsConnector = status is "Background Check" or "Shadowing" || random.Chance( context.Rules.ConnectorPercent.GetValueOrDefault( stateName ) / 100.0 ),
                 Comment = random.Pick( context.Rules.Comments )
             };
+        }
+
+        /// <summary>
+        /// Draws whether an active request is due later, this week, or past due on install day, from its status's
+        /// due mix, and dates its last status change so its due date lands there. A No Contact request never
+        /// changed status, so its request date moves instead.
+        /// </summary>
+        private static void PlanDue( RequestContext context, SeededRandom random, PlannedRequest request )
+        {
+            if ( !context.StatusDue.TryGetValue( request.Status, out var offsets ) || !context.Rules.DueMix.TryGetValue( request.Status, out var mix ) )
+            {
+                return;
+            }
+
+            var today = context.Today;
+            var pastDue = context.Rules.PastDueDays;
+            var due = random.Pick( mix ) switch
+            {
+                "later" => today.AddDays( random.Between( 8, Math.Max( 8, offsets.Due ) ) ),
+                "pastDue" => today.AddDays( -random.Between( ( int ) pastDue.Min, ( int ) pastDue.Max ) ),
+                _ => today.AddDays( random.Between( 0, 7 ) )
+            };
+
+            var clock = due.AddDays( -offsets.Due );
+            clock = clock > today ? today : clock;
+            if ( request.Status == "No Contact" )
+            {
+                request.Created = clock;
+                return;
+            }
+
+            // A status changes after the request is made, and the request date keeps the measured month pattern.
+            request.StatusChanged = clock <= request.Created ? request.Created.AddDays( 1 ) : clock;
         }
 
         /// <summary>
@@ -306,16 +385,23 @@ namespace RockSampleData.Loader.Loading
             var rules = context.Rules;
             var opportunityId = _connections.OpportunityIds[request.Team];
             var groupId = _serving.TeamGroupIds[(request.Campus, request.Team)];
-            var connector = request.WantsConnector ? context.Leaders.GetValueOrDefault( (request.Campus, request.Team) ) : ( int? ) null;
-            connector = connector == 0 ? null : connector;
+            var connector = Connector( context, request );
             var end = request.Connected ?? context.Today;
             var requestId = tables.NextRequestId++;
-            var due = request.Created.AddDays( 7 );
             var isConnected = request.State == StateConnected;
+
+            // A request leaves No Contact at the first contact, a few days after it was made, unless its due date planned the change.
+            var statusChanged = request.Status == "No Contact" ? ( DateTime? ) null
+                : request.StatusChanged ?? request.Created.AddDays( random.Between( 1, Math.Max( 1, Math.Min( 3, ( int ) ( end - request.Created ).TotalDays ) ) ) );
+
+            // Connected requests keep Rock's type-level 7 and 5 days from the request. Open ones run from the last status change.
+            var (dueDays, dueSoonDays) = !isConnected && context.StatusDue.TryGetValue( request.Status, out var offsets ) ? offsets : (7, 5);
+            var dueFrom = isConnected ? request.Created : statusChanged ?? request.Created;
+            var due = dueFrom.AddDays( dueDays );
 
             tables.Requests.Rows.Add( requestId, opportunityId, request.Person.AliasId, request.Comment, _connections.RequestStatusIds[request.Status], request.State, Value( request.FollowUp ), request.CampusId,
                 isConnected ? groupId : ( object ) DBNull.Value, isConnected ? _serving.MemberRoleId : ( object ) DBNull.Value, isConnected ? MemberPending : ( object ) DBNull.Value,
-                Value( connector ), _connections.ConnectionTypeId, due, request.Created.AddDays( 5 ), Value( request.Connected ), isConnected && request.Connected <= due,
+                Value( connector ), _connections.ConnectionTypeId, due, dueFrom.AddDays( dueSoonDays ), Value( request.Connected ), isConnected && request.Connected <= due,
                 int.Parse( request.Created.ToString( "yyyyMMdd" ) ), 0, Guid.NewGuid(), _foreignKey, request.Created, end );
 
             void Activity( string type, DateTime when, string note, int? activityOpportunityId = null )
@@ -360,7 +446,7 @@ namespace RockSampleData.Loader.Loading
                 Activity( "Connected", end, null );
             }
 
-            AddPersonHistory( tables, random, request, requestId, connector, end );
+            AddPersonHistory( tables, random, request, requestId, connector, statusChanged, end );
 
             if ( request.BackgroundCheck != null )
             {
@@ -381,7 +467,7 @@ namespace RockSampleData.Loader.Loading
         /// shows it: added when the person asked, a status change at first contact, connected, and a
         /// state change when it was set aside or saved for a future follow-up.
         /// </summary>
-        private void AddPersonHistory( Tables tables, SeededRandom random, PlannedRequest request, int requestId, int? connector, DateTime end )
+        private void AddPersonHistory( Tables tables, SeededRandom random, PlannedRequest request, int requestId, int? connector, DateTime? statusChanged, DateTime end )
         {
             var opportunityName = _source.Serving.Teams.Single( t => t.Key == request.Team ).Name;
 
@@ -392,9 +478,9 @@ namespace RockSampleData.Loader.Loading
             }
 
             History( "CONNECTIONREQUESTADDED", request.Created, null );
-            if ( request.Status != "No Contact" )
+            if ( statusChanged.HasValue )
             {
-                History( "CONNECTIONREQUESTSTATUSMODIFY", request.Created.AddDays( random.Between( 1, Math.Max( 1, Math.Min( 3, ( int ) ( end - request.Created ).TotalDays ) ) ) ), connector );
+                History( "CONNECTIONREQUESTSTATUSMODIFY", statusChanged.Value, connector );
             }
 
             if ( request.State == StateConnected )
@@ -418,11 +504,63 @@ namespace RockSampleData.Loader.Loading
             tables.PersonValues.Rows.Add( false, ids["BackgroundCheckResult"], person.PersonId, result, DBNull.Value, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
         }
 
+        /*
+            10/27/26 - CLAUDE
+
+            The team leader at the person's campus connects every request that has a connector, except where a
+            Cast staff person's connects rule takes it: Alisha Marble, who signs in as Rock's admin, reaches out
+            first to the main campus's active requests at No Contact or In Progress. Which requests have a
+            connector does not change, so the measured share holds. The Cast's requests that need a connector
+            keep none, and no one connects their own request.
+
+            Reason: Signing in as admin shows real connection work on the board (decision 178).
+        */
+
         /// <summary>
-        /// Makes each team leader the default connector for their team's opportunity at their campus,
-        /// and a member of Rock's Global Connector Group, which every opportunity uses.
+        /// The Cast staff who connect requests at each campus by their connects rule, with the statuses they take.
         /// </summary>
-        private void SetDefaultConnectors( Dictionary<(string Campus, string Team), int> leaders )
+        private static Dictionary<string, StaffConnector> StaffConnectors( PeopleLoader people )
+        {
+            var staff = new Dictionary<string, StaffConnector>();
+            foreach ( var household in people.Households )
+            {
+                foreach ( var person in household.Members.Where( m => m.FamilyId == household.FamilyId && m.Cast.Connects != null ) )
+                {
+                    staff[household.CampusKey] = new StaffConnector { AliasId = person.AliasId, PersonId = person.PersonId, Statuses = person.Cast.Connects.Statuses.ToHashSet() };
+                }
+            }
+
+            return staff;
+        }
+
+        /// <summary>
+        /// The connector's alias for a request, or null when it has none.
+        /// </summary>
+        private static int? Connector( RequestContext context, PlannedRequest request )
+        {
+            if ( !request.WantsConnector )
+            {
+                return null;
+            }
+
+            var isStaffRequest = request.State == StateActive
+                && context.StaffConnectors.TryGetValue( request.Campus, out var staff )
+                && staff.Statuses.Contains( request.Status )
+                && staff.PersonId != request.Person.PersonId;
+            if ( isStaffRequest )
+            {
+                return context.StaffConnectors[request.Campus].AliasId;
+            }
+
+            var leader = context.Leaders.GetValueOrDefault( (request.Campus, request.Team) );
+            return leader == 0 ? null : leader;
+        }
+
+        /// <summary>
+        /// Makes each team leader the default connector for their team's opportunity at their campus, and
+        /// each leader and staff connector a member of Rock's Global Connector Group, which every opportunity uses.
+        /// </summary>
+        private void SetDefaultConnectors( Dictionary<(string Campus, string Team), int> leaders, IEnumerable<int> staffAliasIds )
         {
             var campusIds = _db.Query( "SELECT [Id], [Name] FROM [Campus]" ).ToDictionary( r => ( string ) r["Name"], r => Convert.ToInt32( r["Id"] ) );
             var connectorGroup = _db.Query( @"
@@ -436,18 +574,38 @@ WHERE [g].[Guid] = @Guid", P( "@Guid", GlobalConnectorGroupGuid ) ).FirstOrDefau
                 var campusName = _source.Campuses.Campuses.Single( c => c.Key == campusKey ).Name;
                 _db.Execute( "UPDATE [ConnectionOpportunityCampus] SET [DefaultConnectorPersonAliasId] = @AliasId WHERE [ConnectionOpportunityId] = @OpportunityId AND [CampusId] = @CampusId",
                     P( "@AliasId", aliasId ), P( "@OpportunityId", _connections.OpportunityIds[team] ), P( "@CampusId", campusIds[campusName] ) );
+            }
 
-                if ( connectorGroup != null )
-                {
-                    _db.Execute( @"
+            if ( connectorGroup == null )
+            {
+                return;
+            }
+
+            foreach ( var aliasId in leaders.Values.Concat( staffAliasIds ) )
+            {
+                _db.Execute( @"
 INSERT INTO [GroupMember] ( [IsSystem], [GroupId], [GroupTypeId], [PersonId], [GroupRoleId], [GroupMemberStatus], [DateTimeAdded], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 SELECT 0, @GroupId, @GroupTypeId, [pa].[PersonId], @RoleId, 1, GETDATE(), NEWID(), @ForeignKey, GETDATE(), GETDATE()
 FROM [PersonAlias] AS [pa]
 WHERE [pa].[Id] = @AliasId
     AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [m] WHERE [m].[GroupId] = @GroupId AND [m].[PersonId] = [pa].[PersonId] )",
-                        P( "@GroupId", connectorGroup["Id"] ), P( "@GroupTypeId", connectorGroup["GroupTypeId"] ), P( "@RoleId", connectorGroup["DefaultGroupRoleId"] ), P( "@AliasId", aliasId ), P( "@ForeignKey", _foreignKey ) );
-                }
+                    P( "@GroupId", connectorGroup["Id"] ), P( "@GroupTypeId", connectorGroup["GroupTypeId"] ), P( "@RoleId", connectorGroup["DefaultGroupRoleId"] ), P( "@AliasId", aliasId ), P( "@ForeignKey", _foreignKey ) );
             }
+        }
+
+        /// <summary>
+        /// A Cast staff person who connects some requests at their campus instead of the team leader.
+        /// </summary>
+        private sealed class StaffConnector
+        {
+            public int AliasId { get; set; }
+
+            public int PersonId { get; set; }
+
+            /// <summary>
+            /// The active request statuses this person connects.
+            /// </summary>
+            public HashSet<string> Statuses { get; set; }
         }
 
         private static object Value<T>( T? value ) where T : struct => value.HasValue ? value.Value : DBNull.Value;
@@ -476,6 +634,11 @@ WHERE [pa].[Id] = @AliasId
             public DateTime? FollowUp { get; set; }
 
             /// <summary>
+            /// The day the request last changed status, when its due date planned it. Null draws the first contact.
+            /// </summary>
+            public DateTime? StatusChanged { get; set; }
+
+            /// <summary>
             /// True when the person just connected and waits on the team leader as a Pending member.
             /// </summary>
             public bool IsPending { get; set; }
@@ -499,9 +662,11 @@ WHERE [pa].[Id] = @AliasId
             private readonly double _p50;
             private readonly double _spread;
 
-            public RequestContext( ConnectionRequestRules rules, DateTime today, Dictionary<string, int> activityTypeIds, Dictionary<(string, string), int> leaders, Dictionary<int, double> monthIndex, double p50, double p90 )
+            public RequestContext( ConnectionRequestRules rules, DateTime today, Dictionary<string, int> activityTypeIds, Dictionary<(string, string), int> leaders, Dictionary<int, double> monthIndex, double p50, double p90,
+                Dictionary<string, (int Due, int DueSoon)> statusDue )
             {
                 Rules = rules;
+                StatusDue = statusDue;
                 Today = today;
                 ActivityTypeIds = activityTypeIds;
                 Leaders = leaders;
@@ -519,6 +684,16 @@ WHERE [pa].[Id] = @AliasId
             public Dictionary<string, int> ActivityTypeIds { get; }
 
             public Dictionary<(string, string), int> Leaders { get; }
+
+            /// <summary>
+            /// The Cast staff connector at each campus that has one, by campus key.
+            /// </summary>
+            public Dictionary<string, StaffConnector> StaffConnectors { get; set; } = new Dictionary<string, StaffConnector>();
+
+            /// <summary>
+            /// Each status's due and due-soon days, when due dates run from the last status change. Empty otherwise.
+            /// </summary>
+            public Dictionary<string, (int Due, int DueSoon)> StatusDue { get; }
 
             /// <summary>
             /// Days from request to connection. SeededRandom.LogNormal has a mean of 1, so its median is

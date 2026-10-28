@@ -32,6 +32,16 @@ namespace RockSampleData.Loader.Loading
     {
         private static readonly Guid GlobalConnectorGroupGuid = new Guid( "7A2AFC10-BCFA-4CCF-9B6C-C2367D6BE7BE" );
 
+        /// <summary>
+        /// Rock's DueDateCalculationMode values (Rock.Enums.Connection), by name.
+        /// </summary>
+        private static readonly Dictionary<string, int> DueDateCalculationModes = new Dictionary<string, int>
+        {
+            ["FixedDaysFromStartTypeLevel"] = 0,
+            ["FixedDaysFromStartOpportunityLevel"] = 1,
+            ["DurationPerStatus"] = 2
+        };
+
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
         private readonly string _foreignKey;
@@ -109,6 +119,12 @@ ELSE
         {
             _db.Execute( "UPDATE [ConnectionType] SET [Name] = @Name, [Description] = @Description, [IconCssClass] = @Icon, [RequiresPlacementGroupToConnect] = @RequiresPlacement, [IsActive] = 1 WHERE [Id] = @Id",
                 P( "@Name", type.Name ), P( "@Description", type.Description ), P( "@Icon", type.IconCssClass ), P( "@RequiresPlacement", type.RequiresPlacementGroupToConnect ), P( "@Id", id ) );
+
+            if ( type.DueDateCalculationMode != null )
+            {
+                _db.Execute( "UPDATE [ConnectionType] SET [DueDateCalculationMode] = @Mode WHERE [Id] = @Id", P( "@Mode", DueDateCalculationModes[type.DueDateCalculationMode] ), P( "@Id", id ) );
+            }
+
             _db.Log.Write( $"  Connection type: {type.Name}" );
         }
 
@@ -123,22 +139,25 @@ ELSE
                 var parameters = new[]
                 {
                     P( "@Name", status.Name ), P( "@Description", status.Description ), P( "@TypeId", setup.ConnectionTypeId ), P( "@IsDefault", status.IsDefault ),
-                    P( "@IsCritical", status.IsCritical ), P( "@Color", status.HighlightColor ), P( "@Order", order++ ), P( "@Guid", status.Guid ), P( "@ForeignKey", _foreignKey )
+                    P( "@IsCritical", status.IsCritical ), P( "@Color", status.HighlightColor ), P( "@Order", order++ ), P( "@Guid", status.Guid ), P( "@ForeignKey", _foreignKey ),
+                    P( "@DueInDays", ( object ) status.DueInDays ?? DBNull.Value ), P( "@DueSoonInDays", ( object ) status.DueSoonInDays ?? DBNull.Value )
                 };
                 var id = _db.IdByGuid( "ConnectionStatus", status.Guid );
                 if ( id != null )
                 {
                     _db.Execute( @"
 UPDATE [ConnectionStatus]
-SET [Name] = @Name, [Description] = @Description, [IsDefault] = @IsDefault, [IsCritical] = @IsCritical, [HighlightColor] = @Color, [Order] = @Order, [IsActive] = 1
+SET [Name] = @Name, [Description] = @Description, [IsDefault] = @IsDefault, [IsCritical] = @IsCritical, [HighlightColor] = @Color, [Order] = @Order, [IsActive] = 1,
+    [RequestStatusDueDateOffsetInDays] = ISNULL( @DueInDays, [RequestStatusDueDateOffsetInDays] ), [RequestStatusDueSoonOffsetInDays] = ISNULL( @DueSoonInDays, [RequestStatusDueSoonOffsetInDays] )
 WHERE [Guid] = @Guid", parameters );
                 }
                 else
                 {
                     id = Convert.ToInt32( _db.Scalar( @"
-INSERT INTO [ConnectionStatus] ( [Name], [Description], [ConnectionTypeId], [IsCritical], [IsDefault], [IsActive], [AutoInactivateState], [Order], [HighlightColor], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [ConnectionStatus] ( [Name], [Description], [ConnectionTypeId], [IsCritical], [IsDefault], [IsActive], [AutoInactivateState], [Order], [HighlightColor],
+    [RequestStatusDueDateOffsetInDays], [RequestStatusDueSoonOffsetInDays], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( @Name, @Description, @TypeId, @IsCritical, @IsDefault, 1, 0, @Order, @Color, @Guid, @ForeignKey, GETDATE(), GETDATE() )", parameters ) );
+VALUES ( @Name, @Description, @TypeId, @IsCritical, @IsDefault, 1, 0, @Order, @Color, @DueInDays, @DueSoonInDays, @Guid, @ForeignKey, GETDATE(), GETDATE() )", parameters ) );
                 }
 
                 setup.RequestStatusIds[status.Name] = id.Value;

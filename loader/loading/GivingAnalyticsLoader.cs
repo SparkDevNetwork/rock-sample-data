@@ -137,11 +137,11 @@ namespace RockSampleData.Loader.Loading
             var lastRunValue = DateValue( lastRun );
             var gifts = QualifyingGifts();
             var definedValueGuids = _db.Query( "SELECT [Id], [Guid] FROM [DefinedValue]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
-            var stored = _db.Query( @"
+            var stored = _db.Query( $@"
 SELECT [av].[EntityId], [av].[AttributeId], [av].[Value]
 FROM [AttributeValue] AS [av]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
-WHERE [p].[ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey ) )
                 .ToDictionary( r => (( int ) r["EntityId"], ( int ) r["AttributeId"]), r => ( string ) r["Value"] ?? string.Empty );
             string Stored( int personId, Guid attribute ) => stored.GetValueOrDefault( (personId, _attributeIds[attribute]) ) ?? string.Empty;
 
@@ -250,7 +250,7 @@ WHERE [p].[ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
         /// </summary>
         private Dictionary<string, List<RockGift>> QualifyingGifts()
         {
-            var rows = _db.Query( @"
+            var rows = _db.Query( $@"
 WITH [RefundTotals] AS (
     SELECT [ftr].[OriginalTransactionId], SUM( [ftd].[Amount] ) AS [Refunded]
     FROM [FinancialTransactionRefund] AS [ftr]
@@ -272,7 +272,7 @@ WITH [RefundTotals] AS (
     INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
     LEFT JOIN [FinancialPaymentDetail] AS [fpd] ON [fpd].[Id] = [ft].[FinancialPaymentDetailId]
     LEFT JOIN [RefundTotals] AS [rt] ON [rt].[OriginalTransactionId] = [ft].[Id]
-    WHERE [p].[ForeignKey] = @ForeignKey
+    WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
         AND [p].[GivingId] IS NOT NULL AND [p].[GivingId] <> ''
         AND [p].[Guid] <> @GiverAnonymous
         AND [ft].[TransactionDateTime] IS NOT NULL
@@ -317,10 +317,10 @@ ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]",
         /// </summary>
         private Dictionary<string, List<int>> PeopleByGivingId()
         {
-            return _db.Query( @"
+            return _db.Query( $@"
 SELECT [p].[Id], [p].[GivingId]
 FROM [Person] AS [p]
-WHERE [p].[ForeignKey] = @ForeignKey
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
     AND [p].[GivingId] IS NOT NULL AND [p].[GivingId] <> ''
     AND [p].[Guid] NOT IN ( @GiverAnonymous, @AnonymousVisitor )
     AND [p].[RecordTypeValueId] IS NOT NULL
@@ -497,11 +497,11 @@ WHERE [p].[ForeignKey] = @ForeignKey
                 command.ExecuteScalar();
             }
 
-            var actual = _db.Query( @"
+            var actual = _db.Query( $@"
 SELECT [av].[EntityId], [av].[Value]
 FROM [AttributeValue] AS [av]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
-WHERE [av].[AttributeId] = @AttributeId AND [av].[ModifiedDateTime] = @FinalRun AND [p].[ForeignKey] = @ForeignKey",
+WHERE [av].[AttributeId] = @AttributeId AND [av].[ModifiedDateTime] = @FinalRun AND {PeopleLoader.DatasetPersonFilter( "p" )}",
                 P( "@AttributeId", _attributeIds[CurrentStageGuid] ), P( "@FinalRun", finalRun ), P( "@ForeignKey", _foreignKey ) )
                 .ToDictionary( r => ( int ) r["EntityId"], r => int.Parse( ( string ) r["Value"] ) );
 
@@ -539,7 +539,7 @@ WHERE [av].[AttributeId] = @AttributeId AND [av].[ModifiedDateTime] = @FinalRun 
 UPDATE [av] SET [av].[ForeignKey] = @ForeignKey
 FROM [AttributeValue] AS [av]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
-WHERE [p].[ForeignKey] = @ForeignKey AND [av].[ForeignKey] IS NULL
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [av].[ForeignKey] IS NULL
     AND [av].[AttributeId] IN ( SELECT [Id] FROM [Attribute] WHERE [Guid] IN ( '7FBB63CC-F4FC-4F7E-A8C5-44DC3D0F0720', 'D03ACAB8-EB0C-4835-A04C-4C357014D935', '{CurrentStageGuid}', '{PreviousStageGuid}', '{StageChangeDateGuid}' ) )",
                 P( "@ForeignKey", _foreignKey ) );
         }

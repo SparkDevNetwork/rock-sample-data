@@ -276,6 +276,29 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// Stores each calendar event's photo the way Rock stores one uploaded on the event's page (a Default file, not
+        /// temporary) and sets it as the event item's photo. Events with no photo in photos/events/manifest.json get
+        /// none. Returns how many events got a photo.
+        /// </summary>
+        /// <param name="eventItemIds">Event item Ids by event key.</param>
+        public int LoadEventPhotos( IReadOnlyDictionary<string, int> eventItemIds )
+        {
+            var photos = _source.ReadEventPhotoManifest().Images
+                .Where( p => eventItemIds.ContainsKey( p.Event ) )
+                .OrderBy( p => p.Event, StringComparer.Ordinal )
+                .ToList();
+            if ( photos.Count == 0 )
+            {
+                return 0;
+            }
+
+            var fileIds = WriteFiles( DefaultFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.EventPhotoManifestPath );
+            var values = string.Join( ", ", photos.Select( ( p, i ) => $"( {eventItemIds[p.Event]}, {fileIds[i]} )" ) );
+            _db.Execute( $"UPDATE [e] SET [e].[PhotoId] = [v].[FileId] FROM [EventItem] AS [e] INNER JOIN ( VALUES {values} ) AS [v] ( [Id], [FileId] ) ON [v].[Id] = [e].[Id]" );
+            return photos.Count;
+        }
+
+        /// <summary>
         /// Writes one JPEG file per item, in order, stored in the database, and returns their Ids in the same
         /// order. Files are not temporary, the same as Rock leaves an image once it is saved to a record.
         /// </summary>

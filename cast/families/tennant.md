@@ -25,6 +25,7 @@ Rob and Sheryl Tennant are a married couple who attend and are in a small group.
 
 - Married couple with different employers.
 - Spouses give separately, each from their own employer paycheck.
+- Open request to serve that Alisha Marble connects (In Progress).
 
 ## Activity
 

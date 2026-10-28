@@ -37,6 +37,7 @@ Andrew and Lauren Shaw moved from Denver eight months ago and joined after tryin
 
 - Transfer family from another church.
 - New bi-weekly giver.
+- Open request to serve that Alisha Marble connects (In Progress).
 
 ## Activity
 

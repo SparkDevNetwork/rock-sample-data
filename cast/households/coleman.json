@@ -10,7 +10,8 @@
   "story": "Anthony and Tiffany Coleman both work full time. Elijah is in the 2-3 room and Zoe is in preschool.",
   "testPurposes": [
     "Two working parents, two check-in rooms.",
-    "Bi-weekly giver."
+    "Bi-weekly giver.",
+    "Open request to serve that Alisha Marble connects (No Contact)."
   ],
   "address": {
     "type": "home",
@@ -98,6 +99,18 @@
       },
       "logins": [
         "tcoleman"
+      ],
+      "connectionRequests": [
+        {
+          "opportunity": "kids-ministry",
+          "state": "Active",
+          "status": "No Contact",
+          "created": {
+            "daysAgo": 3
+          },
+          "connector": true,
+          "comment": "Our kids love their rooms on Sunday. I'd like to help in the preschool area."
+        }
       ]
     },
     {

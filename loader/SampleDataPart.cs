@@ -71,7 +71,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Two years of email, texts, and pushes, with the lists, numbers, template, app, and flow they use.
         /// </summary>
-        Communications
+        Communications,
+
+        /// <summary>
+        /// Events on the Public and Internal calendars, with their occurrences and photos.
+        /// </summary>
+        Calendar
     }
 
     /// <summary>
@@ -157,6 +162,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
+            new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

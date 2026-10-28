@@ -52,6 +52,7 @@ namespace RockSampleData.Loader
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
             ("Communications", SampleDataPart.Communications),
+            ("Calendar", SampleDataPart.Calendar),
             ("Logins", null),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
@@ -428,6 +429,13 @@ namespace RockSampleData.Loader
             {
                 new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )
                     .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
+            }
+
+            // The church's calendar. Its contacts are Cast staff and campus pastors, and its dates come from the same rules
+            // steps and messages use, so it reads only configuration and people.
+            if ( steps.Begin( "Calendar" ) )
+            {
+                new CalendarLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusPlans );
             }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and

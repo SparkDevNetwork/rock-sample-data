@@ -21,10 +21,12 @@ The words this project uses, in alphabetical order.
 | **Companion** | A generated household on one of Core 3's two extra campuses. Companions are more involved than the Crowd, so each campus looks like a healthy congregation (decision 142). |
 | **Connection request** | A person's request to serve on a team, in Rock's Involvement connection type. It moves through statuses until it is connected, set aside as inactive, or saved for a future follow-up. |
 | **Connection status** | A person's place in the journey: Prospect, Participant, Known, Connected, Engaged, or Leading. |
-| **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus. |
+| **Connector** | The person who follows up on a connection request. In the sample church, it is the team's leader at the requester's campus, except that Alisha Marble connects the main campus's new requests (decision 178). |
 | **Core 1, Core 3, Full 7** | The three datasets. The number is how many campuses each has. |
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Dataset** | One installable set of sample data. |
+| **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
+| **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Featured family** | A Cast household with a bio for each person. These are the families most used in testing. |
 | **Giving alert** | A note Rock raises about a gift: a large gift, a smaller gift than usual, or a gift that is late. |
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |

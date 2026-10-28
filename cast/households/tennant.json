@@ -10,7 +10,8 @@
   "story": "Rob and Sheryl Tennant are a married couple who attend and are in a small group. Sheryl is a little older than Rob.",
   "testPurposes": [
     "Married couple with different employers.",
-    "Spouses give separately, each from their own employer paycheck."
+    "Spouses give separately, each from their own employer paycheck.",
+    "Open request to serve that Alisha Marble connects (In Progress)."
   ],
   "address": {
     "type": "home",
@@ -122,7 +123,19 @@
       "attributes": {
         "Employer": "ACME Art",
         "Position": "Art Director"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "prayer-team",
+          "state": "Active",
+          "status": "In Progress",
+          "created": {
+            "daysAgo": 26
+          },
+          "connector": true,
+          "comment": "Rob and I are in a small group, and I'd like to serve on Sundays too."
+        }
+      ]
     }
   ]
 }

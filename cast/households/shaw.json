@@ -10,7 +10,8 @@
   "story": "Andrew and Lauren Shaw moved from Denver eight months ago and joined after trying a few churches.",
   "testPurposes": [
     "Transfer family from another church.",
-    "New bi-weekly giver."
+    "New bi-weekly giver.",
+    "Open request to serve that Alisha Marble connects (In Progress)."
   ],
   "address": {
     "type": "home",
@@ -100,7 +101,19 @@
       },
       "photo": {
         "ethnicity": "native-american"
-      }
+      },
+      "connectionRequests": [
+        {
+          "opportunity": "greeters",
+          "state": "Active",
+          "status": "In Progress",
+          "created": {
+            "daysAgo": 9
+          },
+          "connector": true,
+          "comment": "We're new here and want to get involved. Greeting seems like a good way to meet people."
+        }
+      ]
     },
     {
       "key": "owen",

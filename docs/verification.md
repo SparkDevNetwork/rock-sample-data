@@ -104,19 +104,20 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 ### Cast expectations
 
-**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member, and each scripted Cast unsubscribe there must show at its level, with the person Inactive in the list or on "No mass emails". Each Cast text thread in `cast/sms-threads.json` must show its texts and its state: unread, read, or stopped. Each Cast staff email in `cast/staff-emails.json` must show once, delivered, from the staff member, with its subject, on its day. Each Cast note in `cast/notes/` must be on its person, with a type the person profile's Notes block shows. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
+**What it does.** Some Cast giving patterns say what Rock should show for that giver: a frequency, a journey stage, or alerts (`expect` in the household file). Some Cast people say what their achievements or steps should show, and Cast households with a part in the building campaign say how their pledge is going (`campaign` in the household file). Each staff texting number in `configuration/communications.json` must be active and assigned to its staff member, and each scripted Cast unsubscribe there must show at its level, with the person Inactive in the list or on "No mass emails". Each Cast text thread in `cast/sms-threads.json` must show its texts and its state: unread, read, or stopped. Each Cast staff email in `cast/staff-emails.json` must show once, delivered, from the staff member, with its subject, on its day. Each Cast note in `cast/notes/` must be on its person, with a type the person profile's Notes block shows. Each calendar event's `expect` entries in `configuration/calendar.json` must show a start at their campus on the days their Cast story needs. This check reads Rock's values in the loaded database and compares them. The loader also checks them on every load. See [Validation](../validation/README.md#cast-expectations).
 
 **Why it's there.** Docs, demos, and tests say things like "the Deckers give monthly." A change to generation or to Rock can quietly break that story.
 
 ### Invariants
 
-**What it does.** Runs every rule in `validation/invariants.sql` against the loaded dataset. Each rule returns how many rows break it, and must return zero. Rules that a foreign key or unique index already enforces are left out, because the bulk copy checks those.
+**What it does.** Runs every rule in `validation/invariants.sql` against the loaded dataset. Each rule returns how many rows break it, and must return zero. Rules that a foreign key or unique index already enforces are left out, because the bulk copy checks those. A rule about this dataset's people covers the rows marked with the dataset's ForeignKey and Rock's admin person (Person Id 1), which the load turns into Alisha Marble without that ForeignKey (decision 177).
 
 **Why it's there.** These are the rules Rock's save hooks and screens rely on, which the loader must now keep by itself.
 
 | Rule | Why |
 |---|---|
 | `dataset-has-people` | Every other rule looks only at this dataset's rows, so a load that wrote nothing would pass them all. |
+| `admin-is-a-cast-person` | Signing in as admin signs in as Alisha Marble, who keeps Rock's admin login and Rock Administrators, lives in her Cast family, and has no ForeignKey, so removing sample data can never remove the site's admin (decision 177). |
 | `person-has-one-primary-alias` | Rock finds a person through their primary alias, and every audit column and gift points at it. |
 | `person-is-in-a-family` | Profile pages and check-in break for a person with no family. |
 | `primary-family-is-a-family-the-person-is-in` | Rock's save hook sets the primary family; the loader sets it instead. |
