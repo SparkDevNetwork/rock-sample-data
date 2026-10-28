@@ -20,7 +20,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## Other Rock features
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
-- **Event registrations,** such as camps and classes, with fees, discounts, and placement groups.
+- **Event registrations,** with people: registrants, payments, payment plans, wait lists, and people placed in groups. The setup is built: templates, instances, and links to calendar events. See [Event registrations](registrations.md).
 - **Calendar:** 49 events on the Public and Internal calendars, at every campus a dataset has, with photos as they arrive. See [Calendar](calendar.md).
 - **Communications:** email, text, and push history, with very large mass emails, opens and clicks, SMS conversations with real back-and-forth threads, and messages tied to steps. See [Communications](communications.md).
 - **Benevolence requests.**
