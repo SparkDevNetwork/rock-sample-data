@@ -513,7 +513,7 @@ namespace RockSampleData.Loader.Loading
             connector does not change, so the measured share holds. The Cast's requests that need a connector
             keep none, and no one connects their own request.
 
-            Reason: Signing in as admin shows real connection work on the board (decision D-admin-2).
+            Reason: Signing in as admin shows real connection work on the board (decision 175).
         */
 
         /// <summary>

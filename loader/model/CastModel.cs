@@ -306,12 +306,12 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// True for the one Cast person who loads into the admin person a new Rock creates (Person Id 1)
-        /// instead of a new person (decision D-admin-1).
+        /// instead of a new person (decision 174).
         /// </summary>
         public bool ReplacesAdmin { get; set; }
 
         /// <summary>
-        /// The requests to serve this staff person connects instead of the team leader, or null (decision D-admin-2).
+        /// The requests to serve this staff person connects instead of the team leader, or null (decision 175).
         /// </summary>
         public CastConnects Connects { get; set; }
 
