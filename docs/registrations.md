@@ -99,7 +99,7 @@ Each instance links to its calendar occurrence through Rock's linkage, with a pu
 
 The loader finds each occurrence by the key the calendar writes it with: the event, the campus or "church-wide", and the first start. Both steps take that key from one place.
 
-Linked groups use the Event Attendees group type, under the Guid Rock reserves for it. A new Rock database does not have that type, so the loader adds it. Placement groups use five new group types: Camp Bus, Camp Cabin, Camp Activity, VBS Crew, and Serve Day Team, each with a leader role and a default member role.
+Linked groups use the Event Attendees group type, under the Guid Rock reserves for it. A new Rock database does not have that type, so the loader adds it (decision D-registrations-7). Placement groups use five new group types: Camp Bus, Camp Cabin, Camp Activity, VBS Crew, and Serve Day Team, each with a leader role and a default member role.
 
 Groups with the same key are one group. So the girls' and boys' camp instances for one year share their linked group, their buses, and their activities, and each has its own cabins. Each placement group is linked to its instance the way Rock's placement screen links it: a `RelatedEntity` row with the purpose key `PLACEMENT`, qualified by the template placement's Id. A group that two instances share has a row for each.
 
