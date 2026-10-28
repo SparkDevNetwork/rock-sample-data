@@ -31,7 +31,7 @@ namespace RockSampleData.Loader.Generation
         a weekly or monthly rule with no end, one date, or a list of dates. A yearly event gets an occurrence
         each year, so the calendar keeps its history the way a church's calendar does.
 
-        Reason: The calendar tells the same story as steps and messages on any install day (decision D-calendar-2).
+        Reason: The calendar tells the same story as steps and messages on any install day (decision 175).
     */
 
     /// <summary>

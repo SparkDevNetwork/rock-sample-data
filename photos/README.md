@@ -13,7 +13,7 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
 | Cast small groups | `Group.PhotoId` | AI-generated group photos of each group's real members, made from their profile photos, from the [group photo brief](group-brief.md) (decision 56) |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
-| Calendar events | `EventItem.PhotoId` | AI-generated 2:1 scenes of each event on the church calendar, with anonymous people, from the [event photo brief](event-brief.md) (decision D-calendar-3) |
+| Calendar events | `EventItem.PhotoId` | AI-generated 2:1 scenes of each event on the church calendar, with anonymous people, from the [event photo brief](event-brief.md) (decision 176) |
 | Scenes | Other groups' `Group.PhotoId`, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
 | Scanned checks | `FinancialTransactionImage` | Drawn at install from fictional check templates, for the months each [dataset](../datasets/README.md) sets |
 

@@ -1,6 +1,6 @@
 # Calendar
 
-Rock Solid Church's calendar: the events on Rock's Public and Internal calendars, when they happen, and how they agree with the rest of the data. The events live in [configuration/calendar.json](../configuration/calendar.json). The loader's calendar step writes them (decision D-calendar-1).
+Rock Solid Church's calendar: the events on Rock's Public and Internal calendars, when they happen, and how they agree with the rest of the data. The events live in [configuration/calendar.json](../configuration/calendar.json). The loader's calendar step writes them (decision 174).
 
 ## What a church gets
 
@@ -36,7 +36,7 @@ Their old occurrences, schedules, calendars, and audiences are replaced. Rock's 
 
 ## Dates
 
-Every date is a rule counted from the install day, never a fixed date (decision D-calendar-2). Occurrences reach from the start of the history window to six months after the install day (`monthsAhead`).
+Every date is a rule counted from the install day, never a fixed date (decision 175). Occurrences reach from the start of the history window to six months after the install day (`monthsAhead`).
 
 Dates that other features use come from the same rules they use, so the calendar, the steps, and the messages always name the same day:
 
@@ -113,7 +113,7 @@ Phones are the church office line (623) 555-0108, or the student line (623) 555-
 
 ## Photos
 
-Each event's photo is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every photo is a 2:1 image, 1536 by 768 pixels (decision D-calendar-3). The [event photo brief](../photos/event-brief.md) asks the image agent for all 49.
+Each event's photo is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every photo is a 2:1 image, 1536 by 768 pixels (decision 176). The [event photo brief](../photos/event-brief.md) asks the image agent for all 49.
 
 The loader sets a photo for each event listed in `photos/events/manifest.json`, stored the way Rock stores an uploaded one. The builder packs every listed photo into every dataset and refuses an entry for an event that does not exist or a file that is missing. Adding photos needs no code change: deliver the files, list them, and rebuild the packages. Until then, events load with no photo.
 

@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Loading
         Every event is approved by Ted Decker, who holds the Calendar Administration role: Rock's public calendar
         blocks and the app show only active, approved events.
 
-        Reason: The calendar has no placeholder events, and every event shows where Rock lists events (decision D-calendar-1).
+        Reason: The calendar has no placeholder events, and every event shows where Rock lists events (decision 174).
     */
 
     /// <summary>

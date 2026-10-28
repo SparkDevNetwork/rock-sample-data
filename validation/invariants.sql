@@ -944,7 +944,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0 AND [cs].[R
     AND CAST( [cr].[DueDate] AS DATE ) > DATEADD( DAY, [cs].[RequestStatusDueDateOffsetInDays], CAST( GETDATE() AS DATE ) );
 
 -- check: event-occurrence-is-listed
--- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision D-calendar-1).
+-- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
 SELECT COUNT(*)
 FROM [EventItemOccurrence] AS [o]
 INNER JOIN [EventItem] AS [e] ON [e].[Id] = [o].[EventItemId]
