@@ -45,6 +45,7 @@
     }
   },
   "$rockEventsComment": "Rock ships four sample events with 2015 and 2018 dates. Each becomes one of the church's events, updated in place with Rock's Guid (rockEvent true): Staff Meeting is the All Staff Meeting, Customs & Classics Car Show is the Rock Solid Car Show, Rock Solid Finances Class is Money Matters, and Warrior Youth Event is Student Night. Their old occurrences and schedules are replaced.",
+  "$expectComment": "An event's 'expect' entries are Cast stories the load checks: a start at the campus (none for church-wide) between min and max days before the install day (negative is after).",
   "$eventsComment": "Each event: a key, name, Guid, the calendars and audiences it is on, a summary, a description (one paragraph per entry), its campuses ('all', a list, or 'church-wide' for one occurrence with no campus), where (a room, or offsite text), who to contact, and 'when'. 'times' is a list of start times, or 'services' for the campus's Sunday service times; 'minutes' is how long each lasts. A 'span' event runs from its first day's start to its last day's end. See docs/calendar.md for every 'when' kind.",
   "events": [
     {
@@ -441,6 +442,7 @@
     },
     {
       "key": "student-retreat",
+      "expect": [ { "daysAgo": { "min": -16, "max": -10 }, "story": "Isaac's email to Kevin Dawson a month ago says the student retreat is next month." } ],
       "name": "Student Fall Retreat",
       "guid": "514817E5-03F7-4363-B14B-CF97BB217D46",
       "calendars": [ "public" ],
@@ -553,6 +555,7 @@
     },
     {
       "key": "mens-breakfast",
+      "expect": [ { "campus": "phoenix", "daysAgo": { "min": 47, "max": 53 }, "story": "Ted texts Kevin Dawson that he missed the men's breakfast." } ],
       "name": "Men's Breakfast",
       "guid": "92A82E8D-3123-4AD6-855C-B71A25F25A90",
       "calendars": [ "public" ],
@@ -702,6 +705,7 @@
     },
     {
       "key": "community-serve-day",
+      "expect": [ { "campus": "phoenix", "daysAgo": { "min": 35, "max": 41 }, "story": "Bri Hall helped at the community serve day." } ],
       "name": "Community Serve Day",
       "guid": "F56FA84D-0DEB-4C17-9C1E-E1200AE3D1E2",
       "calendars": [ "public" ],
@@ -721,6 +725,7 @@
     },
     {
       "key": "diaper-drive",
+      "expect": [ { "campus": "phoenix", "daysAgo": { "min": 45, "max": 51 }, "story": "Destiny Young met the church at the diaper drive." }, { "campus": "phoenix", "daysAgo": { "min": -91, "max": -1 }, "story": "Destiny asked about the next diaper drive, and it is coming up." } ],
       "name": "Community Diaper Drive",
       "guid": "CB14ECED-E31F-41CF-93B2-6904D9C0CDB5",
       "calendars": [ "public" ],
@@ -758,6 +763,7 @@
     },
     {
       "key": "car-show",
+      "expect": [ { "campus": "phoenix", "daysAgo": { "min": 2, "max": 8 }, "story": "Helen Evans texts about the big event on campus she just came to." } ],
       "name": "Rock Solid Car Show",
       "guid": "6BB29D45-D5A0-4381-A0D9-E5490A58E20B",
       "rockEvent": true,

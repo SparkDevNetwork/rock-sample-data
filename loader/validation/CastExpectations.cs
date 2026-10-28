@@ -149,7 +149,43 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks each calendar event's Cast stories: the event has a start at the story's campus on the days the story
+        /// needs, counted from today (the install day). Reads Rock's ScheduleDate rows, the dates Rock lists.
+        /// </summary>
+        private static int CheckCalendar( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var checks = 0;
+            var campusGuids = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Guid );
+            foreach ( var item in source.Calendar?.Events ?? new List<CalendarEvent>() )
+            {
+                foreach ( var expect in item.Expect )
+                {
+                    checks++;
+                    var starts = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [ScheduleDate] AS [sd]
+INNER JOIN [EventItemOccurrence] AS [o] ON [o].[ScheduleId] = [sd].[ScheduleId]
+INNER JOIN [EventItem] AS [e] ON [e].[Id] = [o].[EventItemId]
+LEFT JOIN [Campus] AS [c] ON [c].[Id] = [o].[CampusId]
+WHERE [e].[Guid] = @Event
+    AND ( ( @Campus IS NULL AND [o].[CampusId] IS NULL ) OR [c].[Guid] = @Campus )
+    AND DATEDIFF( DAY, [sd].[StartDateTime], GETDATE() ) BETWEEN @Min AND @Max",
+                        P( "@Event", item.Guid ), P( "@Campus", expect.Campus == null ? DBNull.Value : ( object ) campusGuids[expect.Campus] ),
+                        P( "@Min", expect.DaysAgo.Min ), P( "@Max", expect.DaysAgo.Max ) ) );
+                    if ( starts == 0 )
+                    {
+                        failures.Add( $"{item.Name}{( expect.Campus == null ? string.Empty : $" at {expect.Campus}" )}: expected a start {expect.DaysAgo.Min} to {expect.DaysAgo.Max} days before today ({expect.Story}), Rock shows none" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

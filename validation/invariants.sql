@@ -942,3 +942,38 @@ FROM [ConnectionRequest] AS [cr]
 INNER JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
 WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0 AND [cs].[RequestStatusDueDateOffsetInDays] IS NOT NULL
     AND CAST( [cr].[DueDate] AS DATE ) > DATEADD( DAY, [cs].[RequestStatusDueDateOffsetInDays], CAST( GETDATE() AS DATE ) );
+
+-- check: event-occurrence-is-listed
+-- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision D-calendar-1).
+SELECT COUNT(*)
+FROM [EventItemOccurrence] AS [o]
+INNER JOIN [EventItem] AS [e] ON [e].[Id] = [o].[EventItemId]
+WHERE [o].[ForeignKey] = @ForeignKey
+    AND ( [e].[IsActive] = 0 OR [e].[IsApproved] = 0
+        OR NOT EXISTS ( SELECT 1 FROM [EventCalendarItem] AS [ci] WHERE [ci].[EventItemId] = [e].[Id] )
+        OR NOT EXISTS ( SELECT 1 FROM [EventItemAudience] AS [a] WHERE [a].[EventItemId] = [e].[Id] ) );
+
+-- check: event-occurrence-has-a-schedule
+-- why: Rock builds an occurrence's dates from its schedule's iCalendar text, and its save hook sets the effective start. Without them the event has no dates.
+SELECT COUNT(*)
+FROM [EventItemOccurrence] AS [o]
+LEFT JOIN [Schedule] AS [s] ON [s].[Id] = [o].[ScheduleId]
+WHERE [o].[ForeignKey] = @ForeignKey
+    AND ( [s].[Id] IS NULL OR [s].[IsActive] = 0 OR ISNULL( [s].[iCalendarContent], '' ) = '' OR [s].[EffectiveStartDate] IS NULL );
+
+-- check: event-occurrence-contact-is-a-person-with-church-email
+-- why: The event page shows its contact's name, phone, and email. Content standard 3: the email is the sample church's own domain.
+SELECT COUNT(*)
+FROM [EventItemOccurrence] AS [o]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [o].[ContactPersonAliasId]
+WHERE [o].[ForeignKey] = @ForeignKey
+    AND ( [pa].[Id] IS NULL OR [o].[ContactEmail] NOT LIKE '%@rocksolidchurchdemo.com' OR [o].[ContactPhone] NOT LIKE '(%) 555-01__' );
+
+-- check: event-photo-is-a-stored-file
+-- why: An event's photo shows on its web and app pages. The id must point at a file whose bytes are in the database.
+SELECT COUNT(*)
+FROM [EventItem] AS [e]
+LEFT JOIN [BinaryFile] AS [f] ON [f].[Id] = [e].[PhotoId]
+WHERE [e].[PhotoId] IS NOT NULL
+    AND EXISTS ( SELECT 1 FROM [EventItemOccurrence] AS [o] WHERE [o].[EventItemId] = [e].[Id] AND [o].[ForeignKey] = @ForeignKey )
+    AND ( [f].[Id] IS NULL OR NOT EXISTS ( SELECT 1 FROM [BinaryFileData] AS [d] WHERE [d].[Id] = [f].[Id] AND DATALENGTH( [d].[Content] ) > 0 ) );

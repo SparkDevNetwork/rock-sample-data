@@ -91,6 +91,11 @@ namespace RockSampleData.Loader
         public ChurchAppConfiguration ChurchApp { get; }
 
         /// <summary>
+        /// The church's calendar, or null for a package built before calendar events existed.
+        /// </summary>
+        public CalendarConfiguration Calendar { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -112,6 +117,7 @@ namespace RockSampleData.Loader
             Campaign = Files.Exists( CampaignConfigurationPath ) ? Read<CampaignConfiguration>( CampaignConfigurationPath ) : null;
             Communications = Files.Exists( CommunicationsConfigurationPath ) ? Read<CommunicationsConfiguration>( CommunicationsConfigurationPath ) : null;
             ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
+            Calendar = Files.Exists( CalendarConfigurationPath ) ? Read<CalendarConfiguration>( CalendarConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -177,6 +183,18 @@ namespace RockSampleData.Loader
         public const string CommunicationsConfigurationPath = "configuration/communications.json";
 
         public const string ChurchAppConfigurationPath = "configuration/church-app.json";
+
+        public const string CalendarConfigurationPath = "configuration/calendar.json";
+
+        /// <summary>
+        /// Reads photos/events/manifest.json, the calendar event photos. A package built before event photos existed has none.
+        /// </summary>
+        public EventPhotoManifest ReadEventPhotoManifest()
+        {
+            return Files.Exists( EventPhotoManifestPath ) ? Read<EventPhotoManifest>( EventPhotoManifestPath ) : new EventPhotoManifest();
+        }
+
+        public const string EventPhotoManifestPath = "photos/events/manifest.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.
