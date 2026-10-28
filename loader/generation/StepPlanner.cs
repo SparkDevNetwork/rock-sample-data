@@ -29,7 +29,8 @@ namespace RockSampleData.Loader.Generation
         configuration/steps.json names its source, and this planner has one method per source kind:
         memberships (Small Group, Serve, Lead), the giving journey (Give), the Baptism Date (Baptism),
         classes (Starting Point Class, Foundations), and, from student check-ins, events (Student Camp,
-        Mission Trip), a decision (Follow Jesus), and school years (Student Leader). The planner is pure:
+        Mission Trip), a decision (Follow Jesus), and school years (Student Leader). The student kinds are
+        planned once per load by StudentPathPlanner and copied here (decision D-registrations-8). The planner is pure:
         it turns facts that earlier load steps wrote into step records, so the same facts, seed, and
         anchor give the same steps.
 
@@ -48,29 +49,30 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private static readonly string[] SourceOrder = { "membership", "giving-journey", "event", "decision", "school-years", "baptism", "class" };
 
-        private static readonly SortedSet<DateTime> NoCheckIns = new SortedSet<DateTime>();
-
         private readonly StepsConfiguration _config;
         private readonly StepFacts _facts;
+        private readonly StudentPath _studentPath;
         private readonly string _seed;
         private readonly Dictionary<int, StepPerson> _people;
         private readonly Dictionary<string, StepProgramDefinition> _programByType;
         private readonly StepPlan _plan = new StepPlan();
         private readonly Dictionary<int, List<PlannedStep>> _stepsByPerson = new Dictionary<int, List<PlannedStep>>();
 
-        private StepPlanner( StepsConfiguration config, StepFacts facts, string seed )
+        private StepPlanner( StepsConfiguration config, StepFacts facts, StudentPath studentPath, string seed )
         {
             _config = config;
             _facts = facts;
+            _studentPath = studentPath;
             _seed = seed;
             _people = facts.People.ToDictionary( p => p.PersonId );
             _programByType = config.Programs.SelectMany( p => p.StepTypes.Select( t => (Program: p, t.Key) ) ).ToDictionary( x => x.Key, x => x.Program );
         }
 
         /// <summary>
-        /// Plans every step type in the configuration from the facts.
+        /// Plans every step type in the configuration from the facts. Event, decision, and school-years steps come
+        /// from the Student Path, planned once for every load.
         /// </summary>
-        public static StepPlan Plan( StepsConfiguration config, StepFacts facts, string seed )
+        public static StepPlan Plan( StepsConfiguration config, StepFacts facts, StudentPath studentPath, string seed )
         {
             var duplicates = config.StepTypes.GroupBy( t => t.Key ).Where( g => g.Count() > 1 ).Select( g => g.Key ).ToList();
             var unknown = config.StepTypes.Select( t => t.Source.Kind ).Except( SourceOrder ).ToList();
@@ -79,7 +81,7 @@ namespace RockSampleData.Loader.Generation
                 throw new InvalidOperationException( $"configuration/steps.json has repeated step type keys ({string.Join( ", ", duplicates )}) or unknown step sources ({string.Join( ", ", unknown )})" );
             }
 
-            var planner = new StepPlanner( config, facts, seed );
+            var planner = new StepPlanner( config, facts, studentPath, seed );
             foreach ( var kind in SourceOrder )
             {
                 foreach ( var type in config.StepTypes.Where( t => t.Source.Kind == kind ) )
@@ -103,13 +105,9 @@ namespace RockSampleData.Loader.Generation
                     PlanGiving( type );
                     break;
                 case "event":
-                    PlanEvents( type );
-                    break;
                 case "decision":
-                    PlanDecision( type );
-                    break;
                 case "school-years":
-                    PlanSchoolYears( type );
+                    AddStudentSteps( type );
                     break;
                 case "baptism":
                     PlanBaptisms( type );
@@ -211,251 +209,29 @@ namespace RockSampleData.Loader.Generation
 
         #region Students
 
-        /*
-            10/22/26 - CLAUDE
-
-            The Student Path reads the student check-ins the attendance step wrote. A student's grade on a day
-            comes from their graduation year, moving up each June 1 as check-in does, and they have been attending
-            when they checked in to the student service enough times in the weeks before. Camps and trips are
-            church-wide events on fixed days of the year, so everyone at one camp shares its dates.
-
-            Who takes each step is a share of the students who could, counted separately for the Cast and for the
-            generated households, as baptisms are. A Cast story counts toward its share, a story that names events
-            gets exactly those, and the load fails when a story cannot hold. A dataset has only a few dozen
-            students, so a share drawn person by person would wander far from the designed rate. The Cast's share
-            depends only on the Cast, so the Cast's steps are the same in every dataset.
-
-            Reason: Student steps agree with the check-ins and grades Rock shows, without waiting for attendance
-            per person, and every dataset shows the designed rates (decisions 115 and 116).
-        */
-
-        private sealed record EventOccurrence( string Season, int Year, DateTime Start, DateTime End );
-
         /// <summary>
-        /// Events (camps and trips): a share of the students who could go go once, in a year they could, and then
-        /// sometimes again in later years. Each is a Complete step from the event's first day to its last.
+        /// Copies one step type's planned Student Path steps (an event, the decision, or school years) and its share,
+        /// in the order the Student Path planned them (decision D-registrations-8).
         /// </summary>
-        private void PlanEvents( StepTypeDefinition type )
+        private void AddStudentSteps( StepTypeDefinition type )
         {
-            var source = type.Source;
-            var attending = StudentsOf( type ).Attending;
-            var occurrences = Occurrences( source );
-            var could = _facts.People.Where( p => p.GraduationYear.HasValue )
-                .ToDictionary( p => p.PersonId, p => occurrences.Where( o => InGrades( p, o.Start, source.Grades ) && HasBeenAttending( p, o.Start, attending ) ).ToList() );
-            var goers = ChooseShare( type.Key, _facts.People.Where( p => could.TryGetValue( p.PersonId, out var list ) && list.Count > 0 ), source.PercentOfStudents, p => Story( p, type ) != null );
-
-            foreach ( var person in _facts.People.Where( p => goers.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
+            foreach ( var step in _studentPath.Steps.Where( s => s.StepType == type.Key ) )
             {
-                var story = Story( person, type );
-                var eligible = could.TryGetValue( person.PersonId, out var list ) ? list : new List<EventOccurrence>();
-                List<EventOccurrence> went;
-                if ( story?.Events != null )
-                {
-                    went = story.Events.Select( e => StoryEvent( type, e ) ).ToList();
-                    var impossible = went.FirstOrDefault( o => !eligible.Contains( o ) );
-                    if ( impossible != null )
-                    {
-                        throw new InvalidOperationException( $"The Cast story for {person.Name} puts them at {type.Name} in the {impossible.Season} of {impossible.Year}, when they were not a student in grades {source.Grades.Min} to {source.Grades.Max} who had been attending." );
-                    }
-                }
-                else
-                {
-                    went = eligible.Count > 0 ? PickEvents( source, eligible, PersonRandom( type, person ) )
-                        : throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never a student who could go." );
-                }
-
-                foreach ( var occurrence in went )
-                {
-                    Add( person, type.Key, StepStatus.Complete, occurrence.Start, occurrence.End, occurrence.Start, null );
-                }
+                Add( step );
             }
+
+            _plan.Shares[type.Key] = _studentPath.Shares[type.Key];
         }
 
         /// <summary>
-        /// The events one student who goes goes to: one in a random year they could go, and then, in each later
-        /// such year, another one some of the time. A year's events are the ones held in that calendar year.
-        /// </summary>
-        private static List<EventOccurrence> PickEvents( StepSource source, List<EventOccurrence> could, SeededRandom random )
-        {
-            var years = could.GroupBy( o => o.Year ).Select( g => g.ToList() ).ToList();
-            var first = random.Between( 0, years.Count - 1 );
-            var went = new List<EventOccurrence> { random.Pick( years[first] ) };
-            foreach ( var year in years.Skip( first + 1 ) )
-            {
-                if ( random.Chance( source.AgainPercent / 100 ) )
-                {
-                    went.Add( random.Pick( year ) );
-                }
-            }
-
-            return went;
-        }
-
-        /// <summary>
-        /// A decision, made once by a share of the students: often at one of their events, otherwise on a Sunday
-        /// they checked in to the student service, sometimes Easter.
-        /// </summary>
-        private void PlanDecision( StepTypeDefinition type )
-        {
-            var source = type.Source;
-            var eventType = _config.StepTypes.Single( t => t.Key == source.AtEvent.StepType );
-            var deciders = ChooseShare( type.Key, _facts.People.Where( IsStudent ), source.PercentOfStudents, p => Story( p, type ) != null );
-
-            foreach ( var person in _facts.People.Where( p => deciders.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
-            {
-                var story = Story( person, type );
-                var random = PersonRandom( type, person );
-                DateTime date;
-                if ( story?.Events != null )
-                {
-                    var occurrence = story.Events.Count == 1 ? StoryEvent( eventType, story.Events[0] ) : throw new InvalidOperationException( $"The Cast story for {person.Name} names {story.Events.Count} events for their {type.Name}; a decision is made at one." );
-                    if ( !StepsOf( person.PersonId ).Any( s => s.StepType == eventType.Key && s.Start == occurrence.Start ) )
-                    {
-                        throw new InvalidOperationException( $"The Cast story for {person.Name} makes their {type.Name} at {eventType.Name} in the {occurrence.Season} of {occurrence.Year}, which they did not go to." );
-                    }
-
-                    date = DayOf( occurrence.Start, occurrence.End, random );
-                }
-                else
-                {
-                    date = IsStudent( person ) ? DecisionDate( source, eventType.Key, person, random )
-                        : throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they never checked in to the student service." );
-                }
-
-                Add( person, type.Key, StepStatus.Complete, date, null, date, null );
-            }
-        }
-
-        private DateTime DecisionDate( StepSource source, string eventTypeKey, StepPerson person, SeededRandom random )
-        {
-            var events = StepsOf( person.PersonId ).Where( s => s.StepType == eventTypeKey ).ToList();
-            if ( events.Count > 0 && random.Chance( source.AtEvent.Percent / 100 ) )
-            {
-                var at = random.Pick( events );
-                return DayOf( at.Start, at.End.Value, random );
-            }
-
-            var sundays = CheckIns( person ).ToList();
-            var easters = sundays.Where( d => d == SundayCalendar.Easter( d.Year ) ).ToList();
-            return easters.Count > 0 && random.Chance( source.EasterPercent / 100 ) ? random.Pick( easters ) : random.Pick( sundays );
-        }
-
-        /// <summary>
-        /// School years: a share of the students who could take the step at the first school year start in its
-        /// grades when they had been attending, and keep it until graduation.
-        /// </summary>
-        private void PlanSchoolYears( StepTypeDefinition type )
-        {
-            var source = type.Source;
-            var attending = StudentsOf( type ).Attending;
-            var starts = new Dictionary<int, DateTime>();
-            foreach ( var person in _facts.People.Where( p => p.GraduationYear.HasValue ) )
-            {
-                var start = Enumerable.Range( _facts.HistoryStart.Year, _facts.Anchor.Year - _facts.HistoryStart.Year + 1 )
-                    .Select( year => source.StartsOn.In( year ) )
-                    .Where( day => day >= _facts.HistoryStart && day <= _facts.Anchor && InGrades( person, day, source.Grades ) && HasBeenAttending( person, day, attending ) )
-                    .Cast<DateTime?>()
-                    .FirstOrDefault();
-                if ( start.HasValue )
-                {
-                    starts[person.PersonId] = start.Value;
-                }
-            }
-
-            var leaders = ChooseShare( type.Key, _facts.People.Where( p => starts.ContainsKey( p.PersonId ) ), source.PercentOfStudents, p => Story( p, type ) != null );
-            foreach ( var person in _facts.People.Where( p => leaders.Contains( p.PersonId ) || Story( p, type ) != null ).OrderBy( p => p.Guid ) )
-            {
-                if ( !starts.TryGetValue( person.PersonId, out var start ) )
-                {
-                    throw new InvalidOperationException( $"The Cast story for {person.Name} needs a {type.Name}, but they were never in grades {source.Grades.Min} to {source.Grades.Max} and attending at a school year's start." );
-                }
-
-                var graduation = source.EndsOn.In( person.GraduationYear.Value );
-                Add( person, type.Key, StepStatus.Complete, start, graduation <= _facts.Anchor ? graduation : null, start, null );
-            }
-        }
-
-        /// <summary>
-        /// Who takes a step: the given share of the candidates, rounded, counted separately for the Cast and for the
-        /// generated households. Forced people (the Cast's stories) count toward their share. The rest are drawn
-        /// by a seeded number per person.
+        /// Who takes a step chosen by share, recorded for the load summary.
         /// </summary>
         private HashSet<int> ChooseShare( string key, IEnumerable<StepPerson> candidates, double percent, Func<StepPerson, bool> isForced )
         {
-            var chosen = new HashSet<int>();
-            var count = 0;
-            foreach ( var group in candidates.GroupBy( p => p.IsCast ) )
-            {
-                var people = group.ToList();
-                var forced = people.Where( isForced ).ToList();
-                var target = ( int ) Math.Round( people.Count * percent / 100, MidpointRounding.AwayFromZero );
-                count += people.Count;
-                chosen.UnionWith( forced.Select( p => p.PersonId ) );
-                chosen.UnionWith( people.Except( forced )
-                    .OrderBy( p => new SeededRandom( $"{_seed}:steps:{key}:share:{p.Guid}" ).Between( 0.0, 1.0 ) ).ThenBy( p => p.Guid )
-                    .Take( Math.Max( 0, target - forced.Count ) )
-                    .Select( p => p.PersonId ) );
-            }
-
+            var (chosen, count) = StepShares.Choose( _seed, key, candidates, percent, isForced );
             _plan.Shares[key] = (chosen.Count, count);
             return chosen;
         }
-
-        private static CastStepChoice Story( StepPerson person, StepTypeDefinition type ) => person.StepChoices.TryGetValue( type.Key, out var story ) ? story : null;
-
-        /// <summary>
-        /// Every event held inside the history window that ended before the install day, oldest first.
-        /// </summary>
-        private List<EventOccurrence> Occurrences( StepSource source )
-        {
-            return Enumerable.Range( _facts.HistoryStart.Year, _facts.Anchor.Year - _facts.HistoryStart.Year + 1 )
-                .SelectMany( year => source.Seasons.Select( s => Occurrence( s, year ) ) )
-                .Where( o => o.Start >= _facts.HistoryStart && o.End < _facts.Anchor )
-                .OrderBy( o => o.Start )
-                .ToList();
-        }
-
-        private static EventOccurrence Occurrence( EventSeason season, int year )
-        {
-            var start = season.In( year );
-            return new EventOccurrence( season.Key, year, start, start.AddDays( season.Days - 1 ) );
-        }
-
-        /// <summary>
-        /// The event a Cast story names: 0 is the latest one that ended before the install day, 1 the one a year
-        /// before it, and so on. So "last summer" holds on any install day.
-        /// </summary>
-        private EventOccurrence StoryEvent( StepTypeDefinition type, CastStepEvent named )
-        {
-            var season = type.Source.Seasons.SingleOrDefault( s => s.Key == named.Season )
-                ?? throw new InvalidOperationException( $"A Cast story names a {type.Name} in season \"{named.Season}\", which configuration/steps.json does not hold." );
-            var latest = Occurrence( season, _facts.Anchor.Year );
-            var latestYear = latest.End < _facts.Anchor ? latest.Year : latest.Year - 1;
-            return Occurrence( season, latestYear - named.YearsAgo );
-        }
-
-        private StudentRule StudentsOf( StepTypeDefinition type ) => _programByType[type.Key].Students
-            ?? throw new InvalidOperationException( $"configuration/steps.json: {type.Name} reads student check-ins, but its program has no students rule." );
-
-        /// <summary>
-        /// The days the person checked in to the student service.
-        /// </summary>
-        private SortedSet<DateTime> CheckIns( StepPerson person ) => _facts.StudentCheckIns.TryGetValue( person.PersonId, out var days ) ? days : NoCheckIns;
-
-        /// <summary>
-        /// A person who checked in to the student service in the history window.
-        /// </summary>
-        private bool IsStudent( StepPerson person ) => person.GraduationYear.HasValue && CheckIns( person ).Count > 0;
-
-        private static bool InGrades( StepPerson person, DateTime day, IntRange grades )
-        {
-            var grade = AnchorDates.GradeOn( person.GraduationYear.Value, day );
-            return grade >= grades.Min && grade <= grades.Max;
-        }
-
-        private bool HasBeenAttending( StepPerson person, DateTime day, AttendingRule rule ) => CheckIns( person ).GetViewBetween( day.AddDays( -rule.WithinDays ), day.AddDays( -1 ) ).Count >= rule.CheckIns;
-
-        private static DateTime DayOf( DateTime first, DateTime last, SeededRandom random ) => first.AddDays( random.Between( 0, ( last - first ).Days ) );
 
         #endregion
 
@@ -553,11 +329,11 @@ namespace RockSampleData.Loader.Generation
             var lastSunday = _facts.Anchor.AddDays( -1 );
             var sundays = new Dictionary<int, List<DateTime>>();
             var decided = new HashSet<int>();
-            foreach ( var person in _facts.People.Where( p => !p.IsAdult && !p.CastBaptismDate.HasValue && IsStudent( p ) ) )
+            foreach ( var person in _facts.People.Where( p => !p.IsAdult && !p.CastBaptismDate.HasValue && _studentPath.IsStudent( p ) ) )
             {
                 var oldEnough = person.BirthDate?.AddYears( source.HereMinimumAge ) ?? DateTime.MinValue;
                 var decision = CompletedOn( person.PersonId, rule.AfterStepType );
-                var from = decision?.AddDays( rule.MinimumDaysAfter ) ?? CheckIns( person ).Min;
+                var from = decision?.AddDays( rule.MinimumDaysAfter ) ?? _studentPath.CheckIns( person.PersonId ).Min;
                 var options = BaptismSundays( source, Max( from, oldEnough ), lastSunday );
                 if ( options.Count > 0 )
                 {
@@ -917,12 +693,16 @@ namespace RockSampleData.Loader.Generation
 
         private void Add( StepPerson person, string stepType, StepStatus status, DateTime start, DateTime? end, DateTime? completed, int? relatedGroupId )
         {
-            var step = new PlannedStep( person.PersonId, person.AliasId, stepType, status, start, end, completed, person.CampusId, relatedGroupId );
+            Add( new PlannedStep( person.PersonId, person.AliasId, stepType, status, start, end, completed, person.CampusId, relatedGroupId ) );
+        }
+
+        private void Add( PlannedStep step )
+        {
             _plan.Steps.Add( step );
-            if ( !_stepsByPerson.TryGetValue( person.PersonId, out var steps ) )
+            if ( !_stepsByPerson.TryGetValue( step.PersonId, out var steps ) )
             {
                 steps = new List<PlannedStep>();
-                _stepsByPerson[person.PersonId] = steps;
+                _stepsByPerson[step.PersonId] = steps;
             }
 
             steps.Add( step );
@@ -1048,10 +828,6 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         public HashSet<int> OpenServeRequests { get; set; } = new HashSet<int>();
 
-        /// <summary>
-        /// The days each person checked in to the student service, by person Id.
-        /// </summary>
-        public Dictionary<int, SortedSet<DateTime>> StudentCheckIns { get; set; } = new Dictionary<int, SortedSet<DateTime>>();
     }
 
     /// <summary>
@@ -1059,6 +835,37 @@ namespace RockSampleData.Loader.Generation
     /// </summary>
     internal sealed class StepPerson
     {
+        /// <summary>
+        /// Everyone who can have steps, with their household, in the order steps are planned: households by Guid,
+        /// then each household's own members. A shared child belongs to their primary family's household.
+        /// </summary>
+        public static IEnumerable<(LoadedHousehold Household, LoadedPerson Person)> Of( IEnumerable<LoadedHousehold> households )
+        {
+            return households.Where( h => h.Cast.Kind != "business" ).OrderBy( h => h.Cast.Guid )
+                .SelectMany( h => h.Members.Where( m => m.FamilyId == h.FamilyId && m.Cast.RecordType != "business" ).Select( m => (h, m) ) );
+        }
+
+        /// <summary>
+        /// A person with what the Student Path reads: who they are, their campus, graduation year, and Cast steps.
+        /// </summary>
+        public static StepPerson From( LoadedHousehold household, LoadedPerson person, bool isCast )
+        {
+            return new StepPerson
+            {
+                PersonId = person.PersonId,
+                AliasId = person.AliasId,
+                Guid = person.Cast.Guid,
+                Name = $"{person.Cast.NickName ?? person.Cast.FirstName} {person.Cast.LastName}",
+                CampusId = person.CampusId,
+                CampusKey = household.CampusKey,
+                BirthDate = person.BirthDate,
+                IsAdult = person.IsAdult,
+                IsCast = isCast,
+                GraduationYear = person.GraduationYear,
+                StepChoices = person.Cast.Steps ?? new Dictionary<string, CastStepChoice>()
+            };
+        }
+
         public int PersonId { get; set; }
 
         public int AliasId { get; set; }
