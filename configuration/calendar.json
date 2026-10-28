@@ -1,0 +1,963 @@
+{
+  "$comment": "The sample church's calendar (decision D-calendar-1 and docs/calendar.md): event items on Rock's Public and Internal calendars, each with occurrences at its campuses over the history window and the coming months. Every date is a rule counted from the install day, never a fixed date. Rules that other features use (Easter, the baptism Sundays, Student Camp, the mission trips, the Starting Point and Foundations classes, VBS, the group launches, Serve Sunday, and Commitment Sunday) come from configuration/steps.json, configuration/communications.json, and configuration/campaign.json, so the calendar always agrees with steps and messages. A few dates are pinned to Cast stories with daysAgo. Photos come from photos/events/manifest.json; an event with no photo there has none.",
+  "$calendarsComment": "Rock's two calendars, by Guid. Rock ships both.",
+  "calendars": {
+    "public": "8A444668-19AF-4417-9C74-09F842572974",
+    "internal": "8C7F7F4E-1C51-41D3-9AC3-02B3F4054798"
+  },
+  "$audiencesComment": "Rock's Audience Type defined values, by the key each event names. Rock ships every one; the sample church adds none, so young adult and senior events use Adults.",
+  "audiences": {
+    "all-church": "6107EA37-5DD3-4E4F-A2D0-1D4010811D4D",
+    "men": "A4BEBC2F-09F0-488A-B2F3-C416F4D02E35",
+    "women": "4CE2E860-2F03-40F9-8B60-68EBDB21E026",
+    "adults": "95E49778-AE72-454F-91CC-2FC864557DEC",
+    "children": "F2BFF319-A109-4B42-BEC2-76590E11627B",
+    "youth": "59CD7FD8-6A62-4C3B-8966-1520E74EED58",
+    "staff": "833EE2C7-F83A-4744-AD14-6907554DF8AE"
+  },
+  "$windowComment": "Occurrences fall from the start of the history window to monthsAhead months after the install day. A weekly or monthly occurrence starts at the history window's start and has no end.",
+  "monthsAhead": 6,
+  "$contactsComment": "Who to contact, by key: a Cast person and the email and phone shown on the event. 'campus-pastor' is each campus's campus pastor (configuration/notes.json picks them), with the campus's own address at the church's domain, and mainCampusPastor stands in on the main campus.",
+  "contacts": {
+    "pete": { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "email": "peter@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
+    "ted": { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "email": "ted@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
+    "isaac": { "person": "581C940E-A788-4F32-BCF3-33F4D1948390", "email": "students@rocksolidchurchdemo.com", "phone": "(623) 555-0160" },
+    "alisha": { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "email": "alisha.marble@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
+    "jenny": { "person": "82309081-A110-496F-8295-CE6A4720D7A8", "email": "jenny@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },
+    "rachel": { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "email": "kids@rocksolidchurchdemo.com", "phone": "(623) 555-0108" }
+  },
+  "mainCampusPastor": "ted",
+  "campusPastorPhone": "(623) 555-0108",
+  "$locationsComment": "Room names are the same at every campus. A campus can rename a room: Goodyear meets in a high school auditorium on Sundays and in a small leased ministry center during the week.",
+  "locationNames": {
+    "goodyear": {
+      "Worship Center": "High School Auditorium",
+      "Lobby": "Auditorium Lobby",
+      "Kids Wing": "Kids Classrooms",
+      "the Garage": "Ministry Center",
+      "Classroom": "Ministry Center"
+    },
+    "scottsdale": {
+      "Worship Center": "Sanctuary"
+    },
+    "tempe": {
+      "Lobby": "Cafe"
+    }
+  },
+  "$rockEventsComment": "Rock ships four sample events with 2015 and 2018 dates. Each becomes one of the church's events, updated in place with Rock's Guid (rockEvent true): Staff Meeting is the All Staff Meeting, Customs & Classics Car Show is the Rock Solid Car Show, Rock Solid Finances Class is Money Matters, and Warrior Youth Event is Student Night. Their old occurrences and schedules are replaced.",
+  "$eventsComment": "Each event: a key, name, Guid, the calendars and audiences it is on, a summary, a description (one paragraph per entry), its campuses ('all', a list, or 'church-wide' for one occurrence with no campus), where (a room, or offsite text), who to contact, and 'when'. 'times' is a list of start times, or 'services' for the campus's Sunday service times; 'minutes' is how long each lasts. A 'span' event runs from its first day's start to its last day's end. See docs/calendar.md for every 'when' kind.",
+  "events": [
+    {
+      "key": "easter",
+      "name": "Easter Sunday",
+      "guid": "F67D9C95-12FB-4BCC-ABB9-1A233FB27B01",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Celebrate the resurrection with us. Kids programs at every service, and plenty of coffee.",
+      "description": [
+        "Easter is the best Sunday of the year to bring a friend. Every service has worship, a message from the empty tomb, and baptisms.",
+        "Rock Solid Kids meets at every service for kids from birth through grade 6. Come early to find a seat and check in your kids."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "easter", "offsetDays": 0 },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "good-friday",
+      "name": "Good Friday Service",
+      "guid": "C1759823-D519-4586-99DA-1DA5C6A5E7FF",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "A quiet evening of music, Scripture, and communion as we remember the cross.",
+      "description": [
+        "Join us for a reflective hour of worship, readings from the Gospels, and communion.",
+        "Kids are welcome in the room. Childcare is open for kids through age 5."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "easter", "offsetDays": -2 },
+      "times": [ "18:30" ],
+      "minutes": 60
+    },
+    {
+      "key": "egg-hunt",
+      "name": "Easter Egg Hunt",
+      "guid": "F970715A-4075-454F-9C87-F77065700E31",
+      "calendars": [ "public" ],
+      "audiences": [ "children" ],
+      "summary": "Thousands of eggs, a bounce house, and snow cones the morning before Easter. Free for the whole neighborhood.",
+      "description": [
+        "Bring your kids and their friends for an egg hunt by age group, games, face painting, and snow cones.",
+        "Hunts start every half hour, from toddlers to grade 5. Bring a basket, and we will bring the eggs."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "chandler" ],
+      "location": "Kids Wing and Courtyard",
+      "contact": "rachel",
+      "when": { "kind": "easter", "offsetDays": -1 },
+      "times": [ "09:30" ],
+      "minutes": 150
+    },
+    {
+      "key": "christmas-eve",
+      "name": "Christmas Eve Services",
+      "guid": "E8163B63-D544-4A44-90CF-D35568F56683",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Candles, carols, and the story of Jesus' birth. Each service is about an hour.",
+      "description": [
+        "Join us for carols, a short message, and candlelight as we celebrate the birth of Jesus.",
+        "Kids are welcome in the room, and childcare is open for kids through age 3. Services fill up, so come early."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "date", "month": 12, "day": 24 },
+      "times": [ "15:00", "16:30", "18:00" ],
+      "timesByCampus": {
+        "goodyear": [ "15:00", "16:30" ],
+        "tempe": [ "16:30", "18:00", "22:00" ]
+      },
+      "minutes": 60
+    },
+    {
+      "key": "lessons-and-carols",
+      "name": "Lessons and Carols",
+      "guid": "A6E42B25-2A59-443B-ADD2-BE673E6B59CC",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Scottsdale's beloved evening of Scripture readings and carols by candlelight in the sanctuary.",
+      "description": [
+        "Scottsdale has held Lessons and Carols since its years as an independent church. Nine short readings tell the Christmas story, with a carol after each.",
+        "Stay after for cocoa and cookies in the fellowship hall."
+      ],
+      "campuses": [ "scottsdale" ],
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "yearly", "month": 12, "weekday": "Sunday", "week": 2 },
+      "times": [ "17:00" ],
+      "minutes": 75
+    },
+    {
+      "key": "baptism-sunday",
+      "name": "Baptism Sunday",
+      "guid": "03CD0F8D-DC0D-4FA7-9526-179FCBF9DAAF",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Ready to go public with your faith? Sign up to be baptized, or come cheer on those who are.",
+      "description": [
+        "Baptism is a way to tell the world you follow Jesus. We baptize at every service on Easter and on a Sunday each July.",
+        "Sign up at the Welcome Center or online. We will save you a shirt and a towel, and a pastor will call you before the day."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "occasion", "occasion": "baptism-sunday" },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "baby-dedication",
+      "name": "Baby Dedication",
+      "guid": "6BD7D93F-2CE1-471B-8952-DC7604AAC6B1",
+      "calendars": [ "public" ],
+      "audiences": [ "children", "adults" ],
+      "summary": "Parents promise to raise their kids to know Jesus, and the church promises to help.",
+      "description": [
+        "Baby dedication is for parents of kids from birth to age 4. During the service, a pastor prays over your family, and you get a keepsake certificate.",
+        "Sign up by the Wednesday before. Each family brings their child up front during the service they choose."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "yearly", "dates": [ { "month": 5, "weekday": "Sunday", "week": 2 }, { "month": 11, "weekday": "Sunday", "week": 2 } ] },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "serve-sunday",
+      "name": "Serve Sunday",
+      "guid": "2A540E8A-B2CE-4916-B8A7-B08753091215",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Every serving team has a table in the lobby. Find a spot that fits your gifts and your schedule.",
+      "description": [
+        "From parking to kids to coffee, there is a team for you. Talk with team leaders after any service, and sign up on the spot.",
+        "Most teams serve once or twice a month. New volunteers take Starting Point before their first Sunday."
+      ],
+      "campuses": "all",
+      "location": "Lobby",
+      "contact": "campus-pastor",
+      "when": { "kind": "occasion", "occasion": "serve-sunday" },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "group-connect",
+      "name": "Small Group Connect",
+      "guid": "FF2E90BD-4D7E-4E16-9DE9-4B5A8D2F2EF7",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Meet group leaders after any service and find a group before new groups start next week.",
+      "description": [
+        "Small groups are where Sunday turns into friendship. Group leaders set up tables in the lobby, from young adults to empty nesters.",
+        "Can't make it? Browse groups near you online and ask to join."
+      ],
+      "campuses": "all",
+      "location": "Lobby",
+      "contact": "campus-pastor",
+      "when": { "kind": "occasion", "occasion": "group-launch", "offsetDays": -7 },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "commitment-sunday",
+      "name": "Built on the Rock Commitment Sunday",
+      "guid": "399FE77C-CCCA-4AD1-ACD6-D6FCD1B8F67D",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Every family is invited to bring a commitment card for the Built on the Rock campaign.",
+      "description": [
+        "For four weeks we have prayed and dreamed about a Student Center in Phoenix and new kids rooms at every campus.",
+        "This Sunday, bring your commitment card to any service. Whatever you give, we are building something that lasts, together."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "pete",
+      "when": { "kind": "occasion", "occasion": "commitment-sunday" },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "night-of-worship",
+      "name": "Night of Worship",
+      "guid": "AD27B7D1-FC8A-40CB-88A0-6A1BE8F868A7",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "All seven campuses gather in Phoenix for an evening of worship and prayer.",
+      "description": [
+        "Four times a year, every campus comes together for an evening of songs, Scripture, and prayer, led by worship teams from across the church.",
+        "There is no message and no rush. Come for all of it, or stay as long as you can."
+      ],
+      "campuses": "church-wide",
+      "location": "Worship Center, Phoenix campus",
+      "contact": "pete",
+      "when": { "kind": "yearly", "dates": [ { "month": 2, "weekday": "Sunday", "week": 3 }, { "month": 5, "weekday": "Sunday", "week": 3 }, { "month": 9, "weekday": "Sunday", "week": 3 }, { "month": 11, "weekday": "Sunday", "week": 3 } ] },
+      "times": [ "18:30" ],
+      "minutes": 90
+    },
+    {
+      "key": "graduate-sunday",
+      "name": "Graduate Sunday",
+      "guid": "B63E085C-9232-40E1-AE32-90CCED924F15",
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "We celebrate our high school seniors and pray over them as they take their next step.",
+      "description": [
+        "Seniors, wear your cap and gown to the service of your choice. We will pray over you and give you a small gift.",
+        "Parents, send a baby photo and a senior photo to the student ministry by the Wednesday before for the slideshow."
+      ],
+      "campuses": "all",
+      "location": "Worship Center",
+      "contact": "isaac",
+      "when": { "kind": "yearly", "month": 5, "weekday": "Sunday", "week": 3 },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "starting-point",
+      "name": "Starting Point",
+      "guid": "3D4271CD-4F0F-4A4E-BE0F-ED3FD25C41A8",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "New here? Start here. A four-week class on who we are and how to get connected. Dinner is on us.",
+      "description": [
+        "Starting Point is four Wednesday nights about the story of Rock Solid Church, what we believe, and how to find your people.",
+        "A new class begins every four weeks, and you can start on any of them. Dinner is at 6:00 and class runs from 6:30 to 8:00. Childcare is provided.",
+        "Starting Point is the first step for anyone who wants to serve on a team or call Rock Solid home."
+      ],
+      "campuses": "all",
+      "location": "Classroom",
+      "contact": "campus-pastor",
+      "when": { "kind": "weekly", "weekday": "Wednesday" },
+      "$whenComment": "Starting Point meets four Wednesdays every four weeks (configuration/steps.json), so it meets every Wednesday.",
+      "times": [ "18:00" ],
+      "minutes": 120
+    },
+    {
+      "key": "foundations",
+      "name": "Foundations",
+      "guid": "0F5E9D7D-4707-4938-B51A-9A19F83B1241",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "A six-week course on what Christians believe, how to read the Bible, and how to pray.",
+      "description": [
+        "Foundations gives a firm footing for a life of following Jesus. Each Tuesday night has teaching, a short reading for the week, and time to talk in small circles.",
+        "Take Starting Point first. Sign up at the Welcome Center or online. Each course starts eight weeks after the last."
+      ],
+      "campuses": "all",
+      "location": "Classroom",
+      "contact": "campus-pastor",
+      "when": { "kind": "class", "stepType": "foundations" },
+      "times": [ "19:00" ],
+      "minutes": 90
+    },
+    {
+      "key": "money-matters",
+      "name": "Money Matters",
+      "guid": "6EFC00B0-F5D3-4352-BC3B-F09852FB5788",
+      "rockEvent": true,
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Five Monday nights on budgeting, getting out of debt, and giving, with a coach for every table.",
+      "description": [
+        "Money Matters is a practical class for anyone who wants a plan for their money. Each week covers one topic, from a first budget to saving and generous giving.",
+        "Come alone or as a couple. Every table has a volunteer coach, and everything you share stays at the table."
+      ],
+      "campuses": [ "phoenix", "gilbert", "chandler" ],
+      "location": "Classroom",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "dates": [ { "month": 1, "weekday": "Monday", "week": 2 }, { "month": 9, "weekday": "Monday", "week": 3 } ], "weeks": 5 },
+      "times": [ "19:00" ],
+      "minutes": 90
+    },
+    {
+      "key": "date-night",
+      "name": "Marriage Date Night",
+      "guid": "643C8CA3-EFB7-4E9C-A357-EBCF3EBF4C85",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Dinner, a short talk, and time just for the two of you. Childcare included.",
+      "description": [
+        "Married couples of every age are invited to a candlelit dinner, a short talk on a strong marriage, and a few good questions to talk through together.",
+        "Childcare for kids through grade 5 is included with your ticket. Sign up as a couple at the Welcome Center."
+      ],
+      "campuses": [ "phoenix", "scottsdale", "chandler" ],
+      "location": "Lobby",
+      "contact": "pete",
+      "when": { "kind": "yearly", "dates": [ { "month": 2, "weekday": "Friday", "week": 2 }, { "month": 10, "weekday": "Friday", "week": 2 } ] },
+      "times": [ "18:30" ],
+      "minutes": 150
+    },
+    {
+      "key": "ready-for-marriage",
+      "name": "Ready for Marriage",
+      "guid": "4CFD20DE-1C93-447C-B30C-A4F849205027",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "A one-day workshop for engaged and newly married couples. Lunch is provided.",
+      "description": [
+        "Ready for Marriage covers talking well, handling conflict, money, and faith at home. Couples who have been married for years share what they learned.",
+        "Every couple married by a Rock Solid pastor takes this workshop first. Sign up together online."
+      ],
+      "campuses": [ "phoenix" ],
+      "location": "Classroom",
+      "contact": "pete",
+      "when": { "kind": "yearly", "dates": [ { "month": 3, "weekday": "Saturday", "week": 3 }, { "month": 6, "weekday": "Saturday", "week": 3 }, { "month": 9, "weekday": "Saturday", "week": 3 } ] },
+      "times": [ "09:00" ],
+      "minutes": 360
+    },
+    {
+      "key": "hope-for-the-holidays",
+      "name": "Hope for the Holidays",
+      "guid": "E32B4284-A9A2-4E9A-AC24-DE6E19D7CEA4",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "A gentle evening for anyone facing the holidays after a loss.",
+      "description": [
+        "The holidays can be hard after losing someone you love. This evening offers a short talk, quiet music, and practical ideas for the weeks ahead.",
+        "Come alone or bring a friend. You will not be asked to share, and our care team will be there to listen and pray with you."
+      ],
+      "campuses": [ "phoenix" ],
+      "location": "Prayer Room",
+      "contact": "pete",
+      "when": { "kind": "yearly", "month": 12, "weekday": "Thursday", "week": 1 },
+      "times": [ "19:00" ],
+      "minutes": 90
+    },
+    {
+      "key": "student-night",
+      "name": "Student Night",
+      "guid": "64966C21-648E-4B31-8D97-DE1B62FA0820",
+      "rockEvent": true,
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "Students in grades 7 to 12: worship, games, and small groups every Wednesday night.",
+      "description": [
+        "Student Night is the midweek home for Rock Solid Students. Doors open at 6:15 for games and snacks, then worship, a short message, and small groups by grade.",
+        "Pickup is at 8:30 in the student lobby. Bring a friend."
+      ],
+      "campuses": "all",
+      "location": "the Garage",
+      "contact": "isaac",
+      "when": { "kind": "weekly", "weekday": "Wednesday" },
+      "times": [ "18:30" ],
+      "minutes": 120
+    },
+    {
+      "key": "student-camp",
+      "name": "Student Camp",
+      "guid": "D6F88FB4-F7B8-42B1-9586-292F387EBD96",
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "A week in the pines for students in grades 7 to 12: fun, friends, and Jesus.",
+      "description": [
+        "Student Camp is a week away from the heat at Juniper Hollow Camp near Prescott. Every day has worship, small groups, the lake, the zip line, and late-night games.",
+        "Buses leave the Phoenix campus Monday morning and return Friday afternoon. Register early to hold a spot; scholarships are available."
+      ],
+      "campuses": "church-wide",
+      "location": "Juniper Hollow Camp, near Prescott",
+      "contact": "jenny",
+      "when": { "kind": "step-season", "stepType": "student-camp", "season": "summer" },
+      "span": true,
+      "times": [ "08:00" ],
+      "endTime": "16:00"
+    },
+    {
+      "key": "mission-trip",
+      "name": "High School Mission Trip",
+      "guid": "FBF477D1-7ECC-4CBA-A7BD-E20760DB9C82",
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "High school students serve for eight days alongside a partner church.",
+      "description": [
+        "On a mission trip, students help with kids programs, building projects, and neighborhood outreach with a partner church, and see God at work in another place.",
+        "Trips go over spring break and in early July. Applications are due eight weeks before each trip."
+      ],
+      "campuses": "church-wide",
+      "location": "With a partner church",
+      "locationBySeason": {
+        "spring": "With a partner church in Hermosillo, Sonora",
+        "summer": "With a partner church in Albuquerque, New Mexico"
+      },
+      "contact": "isaac",
+      "when": { "kind": "step-season", "stepType": "mission-trip" },
+      "span": true,
+      "times": [ "07:00" ],
+      "endTime": "18:00"
+    },
+    {
+      "key": "student-retreat",
+      "name": "Student Fall Retreat",
+      "guid": "514817E5-03F7-4363-B14B-CF97BB217D46",
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "A weekend away for students in grades 7 to 12, back in time for Sunday.",
+      "description": [
+        "Two nights in the cabins at Juniper Hollow Camp, with worship by the fire, a hike, and plenty of time with friends and leaders.",
+        "Buses leave the Phoenix campus Friday at 5:00 and return Sunday by 11:00. Rides home can be arranged for students whose weekend plans change."
+      ],
+      "campuses": "church-wide",
+      "location": "Juniper Hollow Camp, near Prescott",
+      "contact": "isaac",
+      "when": { "kind": "pinned", "daysAgo": -10, "weekday": "Friday", "direction": "after", "repeat": "yearly" },
+      "$whenComment": "Isaac's email to Kevin Dawson 30 days before install day calls the retreat 'next month' (cast/staff-emails.json).",
+      "span": true,
+      "days": 3,
+      "times": [ "17:00" ],
+      "endTime": "11:00"
+    },
+    {
+      "key": "student-leader-meeting",
+      "name": "Student Leader Interest Meeting",
+      "guid": "3AAF3ABF-F6F5-451F-A23D-0C772D7DBA19",
+      "calendars": [ "public" ],
+      "audiences": [ "youth" ],
+      "summary": "Sophomores and juniors: learn what it means to lead younger students next school year.",
+      "description": [
+        "Student leaders help lead worship, small groups, and welcome. Come hear what the role looks like and how to apply.",
+        "Parents are welcome. Applications are due two weeks after the meeting."
+      ],
+      "campuses": "all",
+      "location": "the Garage",
+      "contact": "isaac",
+      "when": { "kind": "yearly", "month": 4, "weekday": "Wednesday", "week": 4 },
+      "times": [ "20:30" ],
+      "minutes": 45
+    },
+    {
+      "key": "vbs",
+      "name": "Vacation Bible School",
+      "guid": "96C5C20C-A00E-4AD7-BB3F-354EF534096E",
+      "calendars": [ "public" ],
+      "audiences": [ "children" ],
+      "summary": "Five mornings of songs, games, and Bible stories for kids from age 4 through grade 5.",
+      "description": [
+        "VBS is the best week of summer. Each morning has high-energy worship, a Bible story, crafts, snacks, and games, mostly inside where it is cool.",
+        "Kids from age 4 through grade 5 are welcome, and spots fill fast. Teens in grade 7 and up and adults can serve as crew leaders for one morning or the whole week."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "scottsdale", "chandler" ],
+      "location": "Kids Wing",
+      "contact": "rachel",
+      "when": { "kind": "occasion", "occasion": "vbs" },
+      "days": 5,
+      "times": [ "09:00" ],
+      "minutes": 180
+    },
+    {
+      "key": "parents-night-out",
+      "name": "Parents' Night Out",
+      "guid": "6B4E1432-03A5-4567-A01F-8449C2849E37",
+      "calendars": [ "public" ],
+      "audiences": [ "children", "adults" ],
+      "summary": "Drop off the kids for pizza, games, and a movie. Go have a night to yourselves.",
+      "description": [
+        "Our kids team plans a fun night for kids from age 1 through grade 5: pizza, games, crafts, and a movie in pajamas.",
+        "Spots are limited and sign-up opens two weeks ahead. Every volunteer has a background check and safety training."
+      ],
+      "campuses": [ "phoenix", "gilbert", "chandler" ],
+      "location": "Kids Wing",
+      "contact": "rachel",
+      "when": { "kind": "monthly", "weekday": "Friday", "week": 1 },
+      "times": [ "18:00" ],
+      "minutes": 180
+    },
+    {
+      "key": "fall-festival",
+      "name": "Fall Festival",
+      "guid": "A7F0F569-FA91-43B5-B5F4-326DB55ACD20",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church", "children" ],
+      "summary": "Games, food trucks, a petting zoo, and candy for the whole neighborhood. Costumes welcome.",
+      "description": [
+        "Our biggest neighborhood night of the year. Kids play carnival games for candy, families grab dinner from the food trucks, and everyone gets a turn at the petting zoo.",
+        "Costumes are welcome; please keep them friendly for little kids. Invite your neighbors."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "chandler" ],
+      "location": "Parking Lot and Courtyard",
+      "contact": "campus-pastor",
+      "when": { "kind": "yearly", "month": 10, "weekday": "Saturday", "week": -1 },
+      "times": [ "16:00" ],
+      "minutes": 180
+    },
+    {
+      "key": "movie-nights",
+      "name": "Summer Movie Nights",
+      "guid": "5169AD0D-19A5-4A55-95FF-BA4213A550DA",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church", "children" ],
+      "summary": "A family movie on the big screen every Friday in July, with free popcorn and air conditioning.",
+      "description": [
+        "Bring blankets and pillows and spread out in the worship center for a family movie on the big screen.",
+        "Popcorn and water are free, and snow cones are a dollar. Every movie is rated G or PG."
+      ],
+      "campuses": [ "phoenix", "chandler" ],
+      "location": "Worship Center",
+      "contact": "rachel",
+      "when": { "kind": "yearly", "month": 7, "weekday": "Friday", "week": 1, "weeks": 4 },
+      "times": [ "19:00" ],
+      "minutes": 120
+    },
+    {
+      "key": "mens-breakfast",
+      "name": "Men's Breakfast",
+      "guid": "92A82E8D-3123-4AD6-855C-B71A25F25A90",
+      "calendars": [ "public" ],
+      "audiences": [ "men" ],
+      "summary": "Breakfast burritos, strong coffee, and a few good questions every fourth Saturday.",
+      "description": [
+        "Men of every age gather for a hot breakfast, a short talk, and conversation around the table.",
+        "Bring a friend, a neighbor, or your teenage son. Breakfast is on us."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "scottsdale", "chandler", "tempe" ],
+      "location": "Lobby",
+      "contact": "campus-pastor",
+      "when": { "kind": "pinned", "daysAgo": 47, "weekday": "Saturday", "direction": "before", "repeat": "weeks", "everyWeeks": 4 },
+      "$whenComment": "Ted texts Kevin Dawson 47 days before install day that he missed the breakfast on a weekend he had his kids (cast/sms-threads.json). Every fourth Saturday always lands on the same every-other-weekend, as Kevin says.",
+      "times": [ "07:30" ],
+      "minutes": 90
+    },
+    {
+      "key": "mens-retreat",
+      "name": "Men's Retreat",
+      "guid": "7D5F5918-970E-491D-B787-9044A0D13A43",
+      "calendars": [ "public" ],
+      "audiences": [ "men" ],
+      "summary": "A weekend in the pines with the men of Rock Solid: good food, a campfire, and real talk.",
+      "description": [
+        "Two nights at Juniper Hollow Camp with teaching, free time to fish or hike, and long talks around the fire.",
+        "The cost covers your bunk, meals, and a retreat shirt. Scholarships are available; just ask."
+      ],
+      "campuses": "church-wide",
+      "location": "Juniper Hollow Camp, near Prescott",
+      "contact": "ted",
+      "when": { "kind": "yearly", "month": 2, "weekday": "Friday", "week": 4 },
+      "span": true,
+      "days": 3,
+      "times": [ "17:00" ],
+      "endTime": "12:00"
+    },
+    {
+      "key": "mens-serve-day",
+      "name": "Men's Serve Day",
+      "guid": "15E5A73D-5C3A-4189-86F4-DFBF223A4649",
+      "calendars": [ "public" ],
+      "audiences": [ "men" ],
+      "summary": "Yard work and small repairs for widows, seniors, and single parents in our neighborhoods.",
+      "description": [
+        "Crews head out after coffee and donuts to trim trees, fix sprinklers, patch screens, and haul away junk for neighbors who need a hand.",
+        "Bring work gloves and a water bottle. Tools are provided, and no skills are needed."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert" ],
+      "location": "Meet in the Parking Lot",
+      "contact": "ted",
+      "when": { "kind": "yearly", "dates": [ { "month": 3, "weekday": "Saturday", "week": 1 }, { "month": 11, "weekday": "Saturday", "week": 1 } ] },
+      "times": [ "07:30" ],
+      "minutes": 240
+    },
+    {
+      "key": "womens-bible-study",
+      "name": "Women's Bible Study",
+      "guid": "2A5D645B-D0BD-4ECA-9F46-FA16D93B3E2B",
+      "calendars": [ "public" ],
+      "audiences": [ "women" ],
+      "summary": "Tuesday mornings during the school year, with childcare for kids through age 5.",
+      "description": [
+        "Women of every age and season study a book of the Bible together, with teaching and small table groups.",
+        "Childcare is provided for kids through age 5. Join any week; a new study starts each fall and each January."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "scottsdale", "chandler" ],
+      "location": "Classroom",
+      "contact": "alisha",
+      "when": { "kind": "seasons", "weekday": "Tuesday", "seasons": [ { "from": { "month": 9, "weekday": "Tuesday", "week": 2 }, "until": { "month": 12, "weekday": "Tuesday", "week": 2 } }, { "from": { "month": 1, "weekday": "Tuesday", "week": 3 }, "until": { "month": 5, "weekday": "Tuesday", "week": 2 } } ] },
+      "times": [ "09:30" ],
+      "minutes": 90
+    },
+    {
+      "key": "womens-night-out",
+      "name": "Women's Night Out",
+      "guid": "82575AD4-E95A-4105-B201-758C32113CE5",
+      "calendars": [ "public" ],
+      "audiences": [ "women" ],
+      "summary": "Dessert, a short talk, and a night of laughing with friends old and new.",
+      "description": [
+        "Grab a friend and come for dessert bars, a short talk, and a fun activity, from painting to a cookie swap.",
+        "Every Women's Night Out is free. Bring a friend who has never been to Rock Solid."
+      ],
+      "campuses": [ "phoenix", "peoria", "gilbert", "scottsdale", "chandler" ],
+      "location": "Lobby",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "dates": [ { "month": 2, "weekday": "Thursday", "week": 3 }, { "month": 5, "weekday": "Thursday", "week": 3 }, { "month": 9, "weekday": "Thursday", "week": 3 } ] },
+      "times": [ "18:30" ],
+      "minutes": 120
+    },
+    {
+      "key": "womens-retreat",
+      "name": "Women's Retreat",
+      "guid": "2104D965-572B-4B38-8B43-66D14BD88588",
+      "calendars": [ "public" ],
+      "audiences": [ "women" ],
+      "summary": "An overnight getaway near Sedona to rest, worship, and laugh with the women of Rock Solid.",
+      "description": [
+        "Women from every campus spend a night at Sycamore Bend Retreat Center, with worship, teaching, a free afternoon, and a late-night dessert bar.",
+        "Rooms hold four. Sign up with friends, or we will help you find roommates."
+      ],
+      "campuses": "church-wide",
+      "location": "Sycamore Bend Retreat Center, near Sedona",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "month": 4, "weekday": "Friday", "week": 4 },
+      "span": true,
+      "days": 2,
+      "times": [ "16:00" ],
+      "endTime": "15:00"
+    },
+    {
+      "key": "womens-christmas-brunch",
+      "name": "Women's Christmas Brunch",
+      "guid": "3CA39AF1-E30B-41F1-82BD-26F1FE74B93E",
+      "calendars": [ "public" ],
+      "audiences": [ "women" ],
+      "summary": "Brunch, carols, and a short Christmas message. Bring a friend.",
+      "description": [
+        "Start the season with a festive brunch, a few carols, and a short message about the hope of Christmas.",
+        "Tickets cover brunch. Each table is hosted by a woman from our church who decorates it her own way."
+      ],
+      "campuses": [ "phoenix", "scottsdale", "chandler" ],
+      "location": "Lobby",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "month": 12, "weekday": "Saturday", "week": 1 },
+      "times": [ "10:00" ],
+      "minutes": 120
+    },
+    {
+      "key": "golden-years-luncheon",
+      "name": "Golden Years Luncheon",
+      "guid": "67AD3E94-326F-4660-93AB-80D475934EF0",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Lunch, music, and friends for adults 60 and up, every second Thursday.",
+      "description": [
+        "A warm lunch, a short devotional, and a guest each month, from a gospel quartet to a local historian.",
+        "Need a ride? Call the church office by Tuesday, and a volunteer driver will pick you up."
+      ],
+      "campuses": [ "phoenix", "scottsdale" ],
+      "location": "Lobby",
+      "contact": "pete",
+      "when": { "kind": "monthly", "weekday": "Thursday", "week": 2 },
+      "times": [ "11:30" ],
+      "minutes": 90
+    },
+    {
+      "key": "community-serve-day",
+      "name": "Community Serve Day",
+      "guid": "F56FA84D-0DEB-4C17-9C1E-E1200AE3D1E2",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "One Saturday, every campus, serving our neighbors: schools, shelters, parks, and food banks.",
+      "description": [
+        "Pick a project near your campus: sorting school supplies for neighborhood schools, packing meals, cleaning up a park, or painting a classroom.",
+        "Families with kids are welcome on most projects. Wear closed-toe shoes, and bring a friend from work or school."
+      ],
+      "campuses": "all",
+      "location": "Meet in the Lobby",
+      "contact": "campus-pastor",
+      "when": { "kind": "pinned", "daysAgo": 35, "weekday": "Saturday", "direction": "before", "repeat": "yearly" },
+      "$whenComment": "Bri Hall's note from 35 days before install day says she helped at the serve day that day, sorting school supplies (cast/notes/hall.json).",
+      "times": [ "08:00" ],
+      "minutes": 300
+    },
+    {
+      "key": "diaper-drive",
+      "name": "Community Diaper Drive",
+      "guid": "CB14ECED-E31F-41CF-93B2-6904D9C0CDB5",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Free diapers and wipes for families with babies and toddlers. No sign-up needed.",
+      "description": [
+        "Families with babies and toddlers can pick up a pack of diapers and wipes in their child's size, along with a free cup of coffee.",
+        "Want to help? Drop off unopened diapers and wipes at the Welcome Center in the weeks before."
+      ],
+      "campuses": [ "phoenix" ],
+      "location": "Kids Entrance",
+      "contact": "ted",
+      "when": { "kind": "pinned", "daysAgo": 45, "weekday": "Saturday", "direction": "before", "repeat": "weeks", "everyWeeks": 13 },
+      "$whenComment": "Destiny Young met the church at the diaper drive 45 days before install day and asked 20 days before about the next one (cast/notes/young.json). The drive comes every 13 weeks.",
+      "times": [ "10:00" ],
+      "minutes": 120
+    },
+    {
+      "key": "food-drive",
+      "name": "Thanksgiving Food Drive",
+      "guid": "9002898F-B3E5-4AC8-B058-29A1509D47F9",
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Bring canned goods and boxed stuffing to the Welcome Center on the Sundays before Thanksgiving.",
+      "description": [
+        "Our outreach team packs every donation into Thanksgiving boxes and delivers them to families across the Valley.",
+        "Most needed: canned vegetables, boxed stuffing, gravy mix, and cranberry sauce."
+      ],
+      "campuses": "all",
+      "location": "Lobby",
+      "contact": "ted",
+      "when": { "kind": "yearly", "month": 11, "weekday": "Sunday", "week": 1, "weeks": 3 },
+      "times": "services",
+      "minutes": 60
+    },
+    {
+      "key": "car-show",
+      "name": "Rock Solid Car Show",
+      "guid": "6BB29D45-D5A0-4381-A0D9-E5490A58E20B",
+      "rockEvent": true,
+      "calendars": [ "public" ],
+      "audiences": [ "all-church" ],
+      "summary": "Classic cars, hot rods, and food trucks fill the Phoenix parking lot. Free for everyone.",
+      "description": [
+        "Hundreds of classic cars, trucks, and hot rods line up in the Phoenix parking lot, with food trucks, live music, and a kids zone.",
+        "Show your car for a small fee that goes to the Mission Fund, or just come and walk the rows. Awards are at noon."
+      ],
+      "campuses": [ "phoenix" ],
+      "location": "Parking Lot",
+      "contact": "jenny",
+      "when": { "kind": "pinned", "daysAgo": 2, "weekday": "Saturday", "direction": "before", "repeat": "yearly" },
+      "$whenComment": "Helen Evans texts 2 days before install day about the big event on campus she just came to (cast/sms-threads.json). Jenny Michaels coordinates the car show (cast/households/michaels.json).",
+      "times": [ "08:00" ],
+      "minutes": 300
+    },
+    {
+      "key": "blood-drive",
+      "name": "Blood Drive",
+      "guid": "AF46262D-4EF1-481B-8313-0A1A8A4DE5B1",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Give blood between services. One donation can help up to three people.",
+      "description": [
+        "A community blood bank sets up in the lobby between services. Sign up for a time online, or walk in.",
+        "Eat a good breakfast, drink plenty of water, and bring a photo ID. Juice and cookies are on us."
+      ],
+      "campuses": [ "phoenix", "chandler" ],
+      "location": "Lobby",
+      "contact": "ted",
+      "when": { "kind": "yearly", "dates": [ { "month": 2, "weekday": "Sunday", "week": 1 }, { "month": 5, "weekday": "Sunday", "week": 1 }, { "month": 8, "weekday": "Sunday", "week": 1 }, { "month": 11, "weekday": "Sunday", "week": 1 } ] },
+      "times": [ "08:30" ],
+      "minutes": 300
+    },
+    {
+      "key": "young-adults",
+      "name": "Young Adults Night",
+      "guid": "19BAFB0D-B5E7-4C24-B5E7-A6DD688400BA",
+      "calendars": [ "public" ],
+      "audiences": [ "adults" ],
+      "summary": "Worship, a message, and late-night tacos for anyone 18 to 30, every Thursday in Tempe.",
+      "description": [
+        "Young Adults Night is for college students and young professionals. Worship and a short message, then tacos and conversation that usually run late.",
+        "Come from class or work. Parking is free in the lot behind the building."
+      ],
+      "campuses": [ "tempe" ],
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "weekly", "weekday": "Thursday" },
+      "times": [ "19:30" ],
+      "minutes": 120
+    },
+    {
+      "key": "safety-training",
+      "name": "Volunteer Safety Training",
+      "guid": "3FC04FAD-F161-4249-ACFC-4F86BC6FCA27",
+      "calendars": [ "public", "internal" ],
+      "audiences": [ "adults" ],
+      "summary": "Required training for new volunteers who serve with kids and students.",
+      "description": [
+        "Everyone who serves with kids or students takes this training before their first Sunday, and every two years after. It covers check-in, safe practices, and how to report a concern.",
+        "Please finish your background check before you come. Coffee and breakfast are provided."
+      ],
+      "campuses": "all",
+      "location": "Kids Wing",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "dates": [ { "month": 1, "weekday": "Saturday", "week": 2 }, { "month": 4, "weekday": "Saturday", "week": 2 }, { "month": 7, "weekday": "Saturday", "week": 2 }, { "month": 10, "weekday": "Saturday", "week": 2 } ] },
+      "times": [ "09:00" ],
+      "minutes": 120
+    },
+    {
+      "key": "all-staff",
+      "name": "All Staff Meeting",
+      "guid": "93104654-DAFA-489B-A175-5F2AB3A846F1",
+      "rockEvent": true,
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "Weekly gathering for all staff: wins from Sunday, prayer, and the week ahead.",
+      "description": [
+        "Every staff member from every campus meets in Phoenix or online. We celebrate stories from Sunday, pray together, and walk through the week's calendar.",
+        "Campus staff who cannot drive in join online."
+      ],
+      "campuses": "church-wide",
+      "location": "Conference Room, Phoenix campus",
+      "contact": "pete",
+      "when": { "kind": "weekly", "weekday": "Tuesday" },
+      "times": [ "09:00" ],
+      "minutes": 90
+    },
+    {
+      "key": "service-planning",
+      "name": "Weekend Service Planning",
+      "guid": "96A023DE-CE7B-4DE2-994A-5F485E7A243D",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "Worship, production, and teaching staff plan the coming Sunday's services.",
+      "description": [
+        "The teaching pastor, worship leaders, and production team review last Sunday and plan the next: songs, message, announcements, and run sheet.",
+        "Announcement requests are due to the communications team before this meeting."
+      ],
+      "campuses": "church-wide",
+      "location": "Conference Room, Phoenix campus",
+      "contact": "pete",
+      "when": { "kind": "weekly", "weekday": "Wednesday" },
+      "times": [ "10:00" ],
+      "minutes": 60
+    },
+    {
+      "key": "elder-meeting",
+      "name": "Elder Meeting",
+      "guid": "E77D160B-133E-4E7E-9E18-38D5B857AAAE",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "The elders meet monthly for prayer, care, and church decisions.",
+      "description": [
+        "The elders pray for the church, review care needs, and make decisions on budget, staffing, and direction.",
+        "Staff who need a decision send it to the senior pastor a week ahead."
+      ],
+      "campuses": "church-wide",
+      "location": "Conference Room, Phoenix campus",
+      "contact": "pete",
+      "when": { "kind": "monthly", "weekday": "Monday", "week": 1 },
+      "times": [ "18:30" ],
+      "minutes": 120
+    },
+    {
+      "key": "rock-office-hours",
+      "name": "Rock Office Hours",
+      "guid": "D1169D77-1A2E-459F-AAA4-5BD222F3B860",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "Bring your Rock questions. Alisha walks through reports, lists, check-in, and anything else.",
+      "description": [
+        "An open hour with our Rock administrator. Bring a question, a report you are stuck on, or a process you want to automate.",
+        "Join in person or online. New staff are encouraged to come in their first month."
+      ],
+      "campuses": "church-wide",
+      "location": "Conference Room, Phoenix campus",
+      "contact": "alisha",
+      "when": { "kind": "monthly", "weekday": "Thursday", "week": 3 },
+      "times": [ "14:00" ],
+      "minutes": 60
+    },
+    {
+      "key": "staff-retreat",
+      "name": "Staff Retreat",
+      "guid": "1EFC57D6-79E0-4FAC-B99E-20F1CE2C42A5",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "Two days away for every staff member to rest, pray, and plan the year.",
+      "description": [
+        "Staff from every campus spend two days at Sycamore Bend Retreat Center to look back on the year, set goals, and spend time together.",
+        "Travel is by carpool from the Phoenix campus. The church office covers rooms and meals."
+      ],
+      "campuses": "church-wide",
+      "location": "Sycamore Bend Retreat Center, near Sedona",
+      "contact": "pete",
+      "when": { "kind": "yearly", "month": 1, "weekday": "Wednesday", "week": 2 },
+      "span": true,
+      "days": 2,
+      "times": [ "09:00" ],
+      "endTime": "15:00"
+    },
+    {
+      "key": "staff-christmas-party",
+      "name": "Staff Christmas Party",
+      "guid": "B021CD9F-DFD1-47B7-8A3E-910D186D9EE5",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "Dinner, a white elephant gift swap, and a night to say thank you. Spouses welcome.",
+      "description": [
+        "Staff and their spouses gather for dinner, games, and a white elephant gift swap. Bring a wrapped gift under $20.",
+        "Childcare is provided in the kids wing."
+      ],
+      "campuses": "church-wide",
+      "location": "Lobby, Phoenix campus",
+      "contact": "alisha",
+      "when": { "kind": "yearly", "month": 12, "weekday": "Friday", "week": 2 },
+      "times": [ "18:30" ],
+      "minutes": 180
+    },
+    {
+      "key": "goodyear-load-in",
+      "name": "Goodyear Setup and Load-In",
+      "guid": "A9500492-9971-4802-9A6F-1BD41A9C9533",
+      "calendars": [ "internal" ],
+      "audiences": [ "staff" ],
+      "summary": "The setup crew unloads the trailer and turns the auditorium into church before the 9:00 service.",
+      "description": [
+        "Goodyear meets in a high school auditorium, so every Sunday starts with the trailer. The crew sets up the stage, sound, kids rooms, and welcome tables.",
+        "Teardown starts after the last service and takes about an hour."
+      ],
+      "campuses": [ "goodyear" ],
+      "location": "Worship Center",
+      "contact": "campus-pastor",
+      "when": { "kind": "weekly", "weekday": "Sunday" },
+      "times": [ "06:30" ],
+      "minutes": 120
+    }
+  ]
+}
