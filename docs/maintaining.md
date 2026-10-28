@@ -68,9 +68,9 @@ Scratch databases for your own loads follow the same idea: name them after your 
 
 ### The integrator
 
-One session or person, the integrator, lands work on `main`. Feature work ends with a message to the integrator: the branch, what changed, and the checks that ran. The integrator lands one branch at a time:
+One session or person, the integrator, lands work on `main`. Feature work ends with a message to the integrator: the branch, what changed, the checks that ran, and a **Docs and site** line that names each doc and site page the branch changed, or says "none needed" and why (rule 15 in [AGENTS.md](../AGENTS.md#docs-and-the-public-site)). The integrator lands one branch at a time:
 
-1. Merge `main` into the branch, and resolve conflicts. Take either side of a generated file.
+1. Check the **Docs and site** line. If the branch adds or changes a feature and the line is missing, or says "none needed" with no reason, send the branch back. Then merge `main` into the branch, and resolve conflicts. Take either side of a generated file.
 2. Run `node docs/number-decisions.js` on the branch.
 3. Rebuild the packages, run the verify tool with `--record-contract`, then run it again without it for a clean pass.
 4. Commit on the branch, and merge it into `main`. Push once the person running the integrator agrees.
@@ -494,3 +494,4 @@ Write commit messages that start with a past-tense verb and say what changed, fo
 - [ ] The Core 1 package builds and loads with `--dry-run`.
 - [ ] New decisions added to [decisions.md](decisions.md), with placeholder numbers on a branch.
 - [ ] [Roadmap](roadmap.md) and [cast/INVENTORY.md](../cast/INVENTORY.md) updated if a gap opened or closed.
+- [ ] The docs, [Planned work](planned.md), the README, and the public site describe the change (rule 15 in [AGENTS.md](../AGENTS.md#docs-and-the-public-site)), and `node site/build.js` runs.

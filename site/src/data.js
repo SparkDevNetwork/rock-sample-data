@@ -113,6 +113,14 @@ function load() {
         }
     }
 
+    // Each household's hand-written staff notes, counted for its page. The note text stays in the files.
+    for ( const household of households ) {
+        const file = `cast/notes/${household.key}.json`;
+        const notes = exists( file ) ? readJson( file ).notes : [];
+        household.noteCount = notes.length;
+        household.replyCount = notes.reduce( ( sum, n ) => sum + ( n.replies || [] ).length, 0 );
+    }
+
     // Shared members (a child in two homes) appear in each household they belong to.
     for ( const household of households ) {
         household.shared = ( household.sharedMembers || [] )
@@ -215,6 +223,8 @@ function load() {
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,
+        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events : [],
+        datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {
             households: households.length,
             people: households.reduce( ( sum, h ) => sum + h.members.length, 0 ),
@@ -223,7 +233,9 @@ function load() {
             photos: castPhotos.size,
             featured: households.filter( h => h.isFeatured ).length,
             smallGroups: smallGroups.length,
-            volunteers: opportunities.reduce( ( sum, o ) => sum + o.volunteers, 0 )
+            volunteers: opportunities.reduce( ( sum, o ) => sum + o.volunteers, 0 ),
+            logins: households.reduce( ( sum, h ) => sum + h.members.filter( m => ( m.logins || [] ).length ).length, 0 ),
+            notes: households.reduce( ( sum, h ) => sum + h.noteCount, 0 )
         }
     };
 }

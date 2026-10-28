@@ -16,10 +16,10 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead } = require( "../components" );
+const { sectionHead, loadTime } = require( "../components" );
 
-const problems = [
-    [ "It was slow.", "The old loader saved one record at a time through the full Rock model.", "The new loader loads the Cast into Rock in about 15 seconds, and 25,000 people with two years of email and texts in about 4 minutes." ],
+const problems = model => [
+    [ "It was slow.", "The old loader saved one record at a time through the full Rock model.", `The new loader loads the Cast into Rock in ${loadTime( model.datasets["core-1"] )}, and 25,000 people with two years of email and texts in ${loadTime( model.datasets["full-7"] )}.` ],
     [ "It was thin.", "Connections, prayer, serving, and communications had little or no data.", "Every feature has history, from check-in streaks to giving alerts." ],
     [ "It wasn't realistic.", "Random numbers hid bugs and made demos look fake.", "Patterns come from summary-only queries on real churches, run with permission, and are graded every build." ],
     [ "It went stale.", "Fixed dates fell out of \"last 12 months\" reports.", "Every date counts back from install day, so reports are always full." ]
@@ -53,7 +53,7 @@ module.exports = function why( { model, r } ) {
   <div class="wrap">
     ${sectionHead( { eyebrow: "The problem", title: "The old sample data had four problems." } )}
     <div class="problem-grid">
-      ${problems.map( ( [ title, before, after ] ) => html`<div class="problem reveal">
+      ${problems( model ).map(( [ title, before, after ] ) => html`<div class="problem reveal">
         <h3>${esc( title )}</h3>
         <p class="before">${esc( before )}</p>
         <p class="after"><span class="after-label">Now</span>${esc( after )}</p>

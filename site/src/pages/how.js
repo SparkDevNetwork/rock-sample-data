@@ -107,13 +107,16 @@ module.exports = function how( { model } ) {
 
 <section class="section section-sand" id="trust">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Trust", title: "Rock checks our work.", lede: "The loader is fast because it copies data in bulk around Rock's business logic. So the proof has to come from Rock itself. Before any package is published, the verify tool does four things." } )}
+    ${sectionHead( { eyebrow: "Trust", title: "Rock checks our work.", lede: "The loader is fast because it copies data in bulk around Rock's business logic. So the proof has to come from Rock itself. Before any package is published, the verify tool does these six things." } )}
     <div class="card-grid">
-      <div class="card reveal"><h3>A clean Rock</h3><p>It builds a database made only by Rock's own migrations and start-up steps, then loads the package into a copy.</p></div>
+      <div class="card reveal"><h3>A clean Rock</h3><p>It builds a database made only by Rock's own migrations, start-up steps, and first night of jobs, then loads the package into a copy.</p></div>
       <div class="card reveal"><h3>Rock's own columns</h3><p>It checks every table, column, and Guid the loader writes against the Rock release the package is built on.</p></div>
       <div class="card reveal"><h3>Rule checks</h3><p>It runs rules such as "every person is in a family" and "nothing is dated in the future," and confirms every Cast story shows what it should.</p></div>
       <div class="card reveal"><h3>Rock Cleanup</h3><p>It runs Rock's own Rock Cleanup job. If Rock finds anything in the sample data to fix, the package fails.</p></div>
+      <div class="card reveal"><h3>Rock's own sign-in</h3><p>It signs in as Ted Decker through Rock's own login, and makes sure Rock refuses a wrong password.</p></div>
+      <div class="card reveal"><h3>Rock's own group sync</h3><p>It runs Rock's group sync on every synced list and role. Rock must find no one to add or remove, so nothing sends at install.</p></div>
     </div>
+    <p class="fine reveal">Then the release signs the list of packages with a key that never leaves its vault, and the loader refuses a list that Spark did not sign.</p>
   </div>
 </section>
 
