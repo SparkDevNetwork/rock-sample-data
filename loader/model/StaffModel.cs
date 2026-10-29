@@ -35,7 +35,7 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// The key of the Person attribute category in configuration/categories.json that holds the staff attributes,
-        /// or null in a package from before staff attributes (decision D-staff-4).
+        /// or null in a package from before staff attributes (decision 201).
         /// </summary>
         public string Category { get; set; }
 
@@ -55,7 +55,7 @@ namespace RockSampleData.Loader.Model
         public StaffBlock Block { get; set; }
 
         /// <summary>
-        /// The org chart in Rock's Organization Unit groups, or null in a package from before it (decision D-staff-5).
+        /// The org chart in Rock's Organization Unit groups, or null in a package from before it (decision 202).
         /// </summary>
         public StaffOrgChart OrgChart { get; set; }
     }

@@ -250,14 +250,14 @@ namespace RockSampleData.Loader
                 log.Write( $"  Church categories: {categoryCount}" );
             }
 
-            // The Staff person attributes, in their category, with the block that shows them (decision D-staff-4).
+            // The Staff person attributes, in their category, with the block that shows them (decision 201).
             var staffLoader = new StaffLoader( db, source, dates, foreignKey );
             if ( staffLoader.HasAttributes )
             {
                 log.Write( $"  Staff attributes: {staffLoader.LoadSetup()}" );
             }
 
-            // The org chart's units in Rock's Organization Unit groups (decision D-staff-5).
+            // The org chart's units in Rock's Organization Unit groups (decision 202).
             if ( staffLoader.HasOrgChart )
             {
                 log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
@@ -370,7 +370,7 @@ namespace RockSampleData.Loader
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
 
-                // Each staff member's staff photo, as their Staff Photo attribute (decision D-staff-4).
+                // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
                 var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
                 if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
                 {

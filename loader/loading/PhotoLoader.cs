@@ -301,7 +301,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Writes each loaded staff member's staff photo (photos/staff/manifest.json) as a file of Rock's Unsecured
         /// type, stored in the database and not temporary, and sets their Staff Photo attribute to the file's Guid, as
-        /// Rock's Image field stores it (decision D-staff-4). Unsecured lets a visitor who is not signed in see it on
+        /// Rock's Image field stores it (decision 201). Unsecured lets a visitor who is not signed in see it on
         /// a staff page. A staff member whose campus is not in the dataset is not loaded and gets none. Returns how
         /// many staff got a photo.
         /// </summary>

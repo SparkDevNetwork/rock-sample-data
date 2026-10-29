@@ -243,7 +243,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// The staff (configuration/staff.json, decisions 198 and D-staff-4): every staff member is a Cast person on
+// The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {
     const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
@@ -292,7 +292,7 @@ for ( const h of households.map( x => x.data ) ) {
             }
         }
 
-        // The org chart (decision D-staff-5): every unit's people are staff, every staff member is on it, and a
+        // The org chart (decision 202): every unit's people are staff, every staff member is on it, and a
         // unit's staff report to its leader, so the Org Chart page and the Supervisor attribute agree.
         if ( staff.orgChart ) {
             const onChart = new Set();
@@ -921,7 +921,7 @@ for ( const { file, data: h } of households ) {
     }
 }
 
-// Pass 4b: staff photos (decision D-staff-4). Each is a 1536-pixel square JPEG of a staff member, named for them.
+// Pass 4b: staff photos (decision 201). Each is a 1536-pixel square JPEG of a staff member, named for them.
 // The image agent delivers the final square, so it is its own original. A staff member with no staff photo yet
 // is a warning, not an error. Campus versions (photos/staff/campus/) are a staff member's photo at their own
 // campus: the site shows them, and Rock does not load them.

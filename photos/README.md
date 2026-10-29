@@ -11,7 +11,7 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | Kind | Rock field | Source |
 |---|---|---|
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
-| Staff photos | The Staff Photo person attribute, a file of Rock's Unsecured type | AI-generated outdoor photos of each of the 23 staff at the Phoenix campus entrance, made from their profile photos, from the [staff photo brief](staff-brief.md) (decision D-staff-4). All 20 share one look, so they line up on a staff page. |
+| Staff photos | The Staff Photo person attribute, a file of Rock's Unsecured type | AI-generated outdoor photos of each of the 23 staff at the Phoenix campus entrance, made from their profile photos, from the [staff photo brief](staff-brief.md) (decision 201). All 20 share one look, so they line up on a staff page. |
 | Cast small groups | `Group.PhotoId` | AI-generated photos of each group's leader and spouse (Hal Russell alone), made from their profile photos, from the [group photo brief](group-brief.md) (decisions 56 and 196). The original full-group photos are [download-only assets](groups-full-members/README.md). |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
 | Calendar events | `EventItem.PhotoId` | AI-generated 2:1 images of each event on the church calendar from the [event image brief](event-brief.md): titled designs for most events, and photos with anonymous people for the rest (decisions 176 and 184) |

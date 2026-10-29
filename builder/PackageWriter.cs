@@ -152,7 +152,7 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // The staff photos delivered so far, for the staff in this dataset (decision D-staff-4).
+            // The staff photos delivered so far, for the staff in this dataset (decision 201).
             if ( repository.Exists( SampleDataSource.StaffPhotoManifestPath ) )
             {
                 var staffManifest = JsonNode.Parse( repository.ReadText( SampleDataSource.StaffPhotoManifestPath ) ).AsObject();

@@ -289,7 +289,7 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 21. Joel Park
 
-Photos 21 to 23 were asked for separately, on 2026-10-29, when the church's pastors became all men (decision D-staff-6). They use the same look as the other 20.
+Photos 21 to 23 were asked for separately, on 2026-10-29, when the church's pastors became all men (decision 203). They use the same look as the other 20.
 
 - **Title:** Gilbert Campus Pastor. **Age:** 46. **Photo ethnicity:** east-asian.
 - **Reference:** `photos/cast/park-joel.jpg` (new). **File:** `park-joel.jpg`.

@@ -152,7 +152,7 @@ The Cast is now 101 households and 221 people. The 36 new people's profile photo
 
 ## Campus pastors at Gilbert, Chandler, and Tempe (2026-10-29)
 
-Every pastor on staff is a man (decision D-staff-6). Three households were added for the new campus pastors, and Dana, Tina, and Leah moved to director and leader roles at their campuses. Naomi Castillo and Dee Navarro became the Worship Director and the Care Director. The church has 23 staff.
+Every pastor on staff is a man (decision 203). Three households were added for the new campus pastors, and Dana, Tina, and Leah moved to director and leader roles at their campuses. Naomi Castillo and Dee Navarro became the Worship Director and the Care Director. The church has 23 staff.
 
 | Household | Campus | Members (child age) | Main test purpose |
 |---|---|---|---|

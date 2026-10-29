@@ -25,7 +25,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Loading
 {
     /// <summary>
-    /// The Staff person attributes (decision D-staff-4): the attributes in the Staff category, their security, the
+    /// The Staff person attributes (decision 201): the attributes in the Staff category, their security, the
     /// Attribute Values block that shows them on the person profile, and each staff member's values.
     /// </summary>
     internal sealed class StaffLoader
@@ -257,7 +257,7 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @Now, @Now
         #region Org chart
 
         /// <summary>
-        /// True when the package has the org chart (decision D-staff-5).
+        /// True when the package has the org chart (decision 202).
         /// </summary>
         public bool HasOrgChart => _source.Staff?.OrgChart != null && _source.Staff.OrgChart.Units.Count > 0;
 
