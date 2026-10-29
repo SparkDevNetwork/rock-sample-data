@@ -51,6 +51,23 @@ function familyRegistrations( model ) {
     return html`<p class="fine">Kids and adults have registered too. In Core 1 and Core 3, ${vbs}% of Connected families sign their kids up for VBS, each kid placed in the crew for their grade, and Phoenix fills with a wait list. Parents' Night Out is free, holds ${nightOut} kids at a Full 7 campus, and Phoenix keeps a wait list. ${serve}% of the people who serve there signed up for the last Community Serve Day and were placed on project teams. Couples register together for Date Night, and ${childcare}% of those with young kids add childcare per child. Most Money Matters registrants pay at the first class. Friends from one small group go to the Women's Retreat together, and its ${singles} single rooms run out.</p>`;
 }
 
+// The signed releases and the data views about registrations, with their names read from configuration/registrations.json.
+function releasesAndViews( model ) {
+    const releases = ( model.registrations.signatureDocuments ?? [] ).map( release => ( { release, templates: model.registrations.templates.filter( t => t.signatureDocument === release.key ) } ) )
+        .filter( r => r.templates.length > 0 );
+    const views = model.registrations.dataViews ?? [];
+    const eligibility = model.registrations.templates.filter( t => t.eligibility?.dataView ).map( t => ( { template: t, view: views.find( v => v.key === t.eligibility.dataView ) } ) ).filter( e => e.view );
+    if ( releases.length === 0 && views.length === 0 ) {
+        return "";
+    }
+
+    const list = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
+    const signed = releases.length ? `The ${list( releases.map( r => r.release.name ) )} ${releases.length > 1 ? "are" : "is"} signed for everyone registered for ${list( releases.flatMap( r => r.templates.map( t => t.name ) ) )}. The registrar types their name while registering, and each signed release has Rock's verification hash and a PDF drawn at install. ` : "";
+    const filed = views.length ? `${views.length} data views about registrations sit in the church's Registrations category: ${list( views.map( v => v.name ) )}.` : "";
+    const rule = eligibility.map( e => ` Only the people in ${e.view.name} may register for the ${e.template.name}.` ).join( "" );
+    return html`<p class="fine">${signed}Every registration has the notes and history Rock writes as it saves. ${filed}${rule}</p>`;
+}
+
 // The church's initiatives, in the order they started. Starting Point is the first.
 // Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
 const initiatives = [
@@ -294,6 +311,7 @@ ${model.registrations.templates.length ? html`<section class="section" id="regis
     <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts.</p>
     ${studentRegistrations( model )}
     ${familyRegistrations( model )}
+    ${releasesAndViews( model )}
   </div>
 </section>` : ""}
 

@@ -26,6 +26,7 @@ The words this project uses, in alphabetical order.
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
+| **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Fee item** | One choice of a registration fee, such as a single room or one child of childcare, with its cost. An item can have a usage limit, and Rock hides it once every use is taken. |
@@ -68,6 +69,7 @@ The words this project uses, in alphabetical order.
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
 | **Signature** | Proof that Spark made the package index. The release workflow signs it with a key in Azure Key Vault, and the loader reads only an index whose signature matches one of the public keys it carries (decision 172). |
+| **Signed release** | A release form, such as the Student Camp Release, that a registrar signs for each registrant with Rock's own electronic signature, typed, while registering. Rock keeps its text, the typed name, a verification hash, and a PDF. Not the package index's signature. See [Event registrations](registrations.md#release-forms). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
@@ -79,4 +81,5 @@ The words this project uses, in alphabetical order.
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |
+| **Verification hash** | The code Rock computes over a signed release's text, signer, time, and typed name, and prints on its PDF as the reference code. If any of them changed, the hash would no longer match. |
 | **Version guard** | The checks that catch Rock changing code the builder ports: the lock check against GitHub and the parity test before a release. |

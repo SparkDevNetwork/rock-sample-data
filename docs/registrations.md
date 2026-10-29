@@ -2,7 +2,7 @@
 
 Rock Solid Church's event registrations: the templates, each year's instances, and how they link to the calendar. They live in [configuration/registrations.json](../configuration/registrations.json). The loader's registrations step writes them (decision 189).
 
-Registrations come in four slices. Slice 1, the setup, is built. It writes everything a church sets up before anyone registers, so every upcoming event page shows its Register button. Slice 2 is built too: the [students who registered](#who-registered-students) for camp, the mission trip, and the fall retreat, with their payments and placements. Slice 3 adds the [kids and adults who registered](#who-registered-kids-and-adults) for VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat. The [last slice](#later) adds release forms and data views.
+Registrations came in four slices, and all four are built. Slice 1, the setup, writes everything a church sets up before anyone registers, so every upcoming event page shows its Register button. Slice 2 adds the [students who registered](#who-registered-students) for camp, the mission trip, and the fall retreat, with their payments and placements. Slice 3 adds the [kids and adults who registered](#who-registered-kids-and-adults) for VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat. Slice 4 adds the [signed release forms](#release-forms) for camp and the mission trip, the [notes and history](#notes-and-history) Rock writes on each registration, [reminders](#reminders), and [data views](#data-views) about registrations.
 
 ## What a church gets
 
@@ -48,6 +48,8 @@ Seven registrations are open on every install day: camp, the mission trip, the f
 | Placement groups, one shared by two instances, several placements per person | Camp cabins, buses shared by girls and boys, and two activities each |
 | Registrant attributes and a person attribute | Camp (cabin mate, emergency contact), Parents' Night Out (allergies, saved to the child), the Women's Retreat (roommate) |
 | "How did you hear about this event?" | Every registration |
+| A required release with a typed signature | Camp and the mission trip |
+| An eligibility data view | The mission trip: high school students who attend the student service |
 
 ## Templates
 
@@ -129,7 +131,7 @@ Students register from the Student Path plan (decision D-registrations-8). The l
 |---|---|
 | Camp, last summer | Exactly the students with that camp's Student Camp step, girls on the girls' instance and boys on the boys'. Everyone paid in full and is on one bus, in one cabin, and in two activities. |
 | Camp, next summer | 45% of the students who could go (the Student Camp step's own rate): in grades 7 to 12 at camp, and attending the student service on install day. Early registrants already have their two activities. Nobody has a bus or cabin yet. |
-| Mission trip, next | 20% of the high school students who could go (the Mission Trip step's own rate), until the limit fills. After that, 1 in 5 of the rest join the wait list. Members join the team group as Pending, as the template says. |
+| Mission trip, next | 20% of the high school students who could go (the Mission Trip step's own rate), until the limit fills. After that, 1 in 5 of the rest join the wait list. Members join the team group as Pending, as the template says. Each registers on a day they are in the trip's [eligibility data view](#data-views). |
 | Fall retreat | 30% of the students who attend the student service, plus every current Student Leader. |
 
 A student registers on a day Rock lets them: Rock checks a registrant's grade on the day they register, so a rising 7th grader registers for camp only after June 1. Every registrant is in the template's grades on that day and on the event day (decision D-registrations-9).
@@ -257,20 +259,99 @@ On install day October 28, 2026, at the default seed. Each cell is people regist
 
 The early bird runs through October 31, so every Women's Retreat registration on that day has it, and none uses the friend code yet. Full 7 was not loaded for this slice. Its shares are scaled so that, by estimate, VBS fills at Phoenix but not the smaller campuses, each campus has about 25 in Money Matters and 30 couples at Date Night, and about 40 women have registered for the retreat by late October. The lead's Full 7 verify gives its real numbers.
 
+<a id="release-forms"></a>
+
+## Release forms
+
+Camp and the mission trip each require a release, signed with Rock's own electronic signature (decision D-registrations-14). The signature is typed, because Rock encrypts a drawn one with each install's own key (decision 194).
+
+| Release | Template | What it says |
+|---|---|---|
+| Student Camp Release | Student Camp | Permission to attend and ride the bus, medical care when no one can reach the parent, the risks of camp, and camp photos |
+| Mission Trip Release | High School Mission Trip | Permission to travel and serve, a valid passport, medical care, and the risks of the trip |
+
+Rock's template screen always saves a template with the Embed action. So a person signs each registrant's release while registering, and Rock will not finish the registration without it. Every registrant has signed, on past and open registrations alike. The proposal wanted a few open ones still waiting, but Rock cannot leave one of its own releases waiting, so nothing is pending. The two templates also turn off external registration updates, as Rock's screen does, so a signed release cannot be changed later.
+
+Each signed release is the one Rock's registration entry saves:
+
+- **Who.** The registrar signs, and the release is assigned to them. It applies to the registrant. So a parent signs for a child, and a student who registers themselves signs their own.
+- **What.** The release's Lava, rendered for the registrant, with their first name, the instance's name, and the church's name. The typed name is the registrar's full name. The email is the registrar's, or one they type when Rock has none for them.
+- **When.** A minute or two before the registration was saved, on the same day. Rock's Electronic Signature Receipt emails the PDF to the signer right after.
+- **Where from.** An IP address from the ranges set aside for documentation (the same one the person's email opens use), and one browser per registrar.
+- **The hash.** Rock's verification hash over the signed fields, computed the way Rock's SignatureDocumentService computes it.
+- **The PDF.** A small PDF drawn at install, in Rock's Digitally Signed Documents file type: the release's title and text, then Rock's signature box with the typed name, the signer, the date, the IP address, the agreement, and the reference code, which is the hash.
+
+On install day October 29, 2026, at the default seed:
+
+| Signed releases | Core 1 | Core 3 |
+|---|---|---|
+| Camp, last summer | 3 | 8 |
+| Camp, next summer | 3 | 6 |
+| Mission trip | 1 | 2 |
+| Pending | 0 | 0 |
+
+<a id="notes-and-history"></a>
+
+## Notes and history
+
+Every registration has the notes and history Rock's registration entry writes as it saves (decision D-registrations-15), dated that moment and written by the registrar:
+
+- **The registration's history.** "Added Registration", then the registrar's first name, last name, and email, the discount code, percent, and amount, the linked group, and the campus. A registration's campus is the linkage's, or else the registrar's family's, as Rock sets it.
+- **Each registrant's history,** captioned "Registrant:" and their name: a person attribute the form saved to them, such as an allergy, each fee with its quantity and cost, and each answer.
+- **Payments.** "Added Payment" for each payment made on the website. A payment plan's payments come through Rock's job, which writes none.
+- **Notes.** Every template turns on Add Person Note, so each registrant gets a note of Rock's Event Registration type, "Registered for" the instance, and "by" the registrar when someone else registered them, plus a "Registered" line on their History tab. The registrar gets a note and a line naming the people they registered. Rock names the registrar by first and last name when their first name and nick name differ, even on a note for themselves, so the notes do too.
+
+Registration notes use Rock's own Event Registration note type, which the Notes part never touches, so their types and security stay apart.
+
+On the same day, from 58 registrations in Core 1 and 115 in Core 3:
+
+| Notes and history | Core 1 | Core 3 |
+|---|---|---|
+| Person notes | 114 | 198 |
+| History rows | 590 | 1,181 |
+
+<a id="reminders"></a>
+
+## Reminders
+
+Reminders look as if Rock's jobs ran on schedule (decision D-registrations-16):
+
+- **Registration Reminder** runs every hour. When an instance's reminder time has passed, it emails each registration and marks the instance's reminder sent at that time.
+- **Event Payment Reminders** runs at 9 AM on weekdays. Each registration's last reminder is when that job last emailed it ([Payments](#payments)).
+
+Both jobs' emails would also leave a communication record in Rock. They are not written, the same as the confirmation and signature receipt emails, because their Lava renders the church's email header and a sign-in link only the install can make.
+
+<a id="data-views"></a>
+
+## Data views
+
+Three person data views sit in a Registrations child of the church's own data view category (decision D-registrations-17). Their filters are Rock's own, saved the way Rock's data view editor saves them, so each opens and edits like one a person made.
+
+| Data view | Filters | Core 1 | Core 3 |
+|---|---|---|---|
+| Next Summer's Campers | Registrants of next summer's camp, girls or boys, not on a wait list | 3 | 6 |
+| Students Not Registered for Camp | Grade 7 or above, at least two student service check-ins in the last 120 days, and not registered for next summer's camp | 7 | 18 |
+| High School Students Attending the Student Service | Grade 9 or above, and at least two student service check-ins in the last 120 days | 6 | 14 |
+
+The counts are for install day October 29, 2026. The last view is the mission trip's eligibility data view, so Rock lets only those students register. The loader replays it from the Student Path's check-ins, so each trip registration falls on a day the student was in it, and an invariant checks that in SQL.
+
+The proposal also listed "Campers with a balance due." Rock has no data filter for a registration's balance, so it is left out. Rock's registrations list filters by balance due, and its Send Payment Reminder page lists who owes.
+
 ## Checks
 
-- **Invariants** (`validation/invariants.sql`): every linkage points at an occurrence of an active, approved event on a calendar, at the occurrence's campus, with an active instance and template. Slugs match Rock's pattern and are unique. Each instance opens before it closes, and its event comes after it closes and on or after its payment deadline. Placement groups are of their placement's group type and template. Linked groups are Event Attendees groups. The admin role can edit each category. At least seven events have a registration open today. For the people: each registrant's template matches; each registrant is in the template's grades on the day they registered and on the event day; registrations fall inside their window and before today; registrants off the wait list fit the limit and are in the linked group; a wait list exists only on a full instance; placed people are registrants of a linked instance; payments are Event Registration transactions from the registrar on the instance's account, never more than what is owed, and paid up once the deadline has passed; plans use a frequency the template allows and end by the deadline; codes stay within their uses; and when the steps part loaded, the campers at every camp that has ended are exactly the people with a Student Camp step there. For kids and adults: a free registration takes no payment; a fee carries its item's cost, and a quantity only where the fee allows it; a quantity fee on a template with no minimum payment is paid in full; no fee item passes its limit, and every required fee is picked; registrants of a same-family template share a family, and each Date Night registration is one married couple; every registrant meets the template's ages and gender on both days; everyone on a closed instance is placed, VBS kids in their grade's crew, and a Serve Day registration on one team; and the Allergy attribute is written only for a registrant whose form asks it.
-- **check-registrations.js**: every instance's event, template, contact, groups, and placements exist; slug patterns make valid slugs that cannot collide; templates ask for what their eligibility needs; and every feature in the table above sits on an always-open instance. For the people: each registrants rule names one audience, students name a Student Path event step or a share, a paid template's payments add up to 100 and are ones the template allows (pay later only with no minimum), a free template has none, fees, codes, and placements are the template's, and attribute fills fit their attributes. A discount that needs several registrants comes before an early bird. Run it with `node validation/check-registrations.js`.
+- **Invariants** (`validation/invariants.sql`): every linkage points at an occurrence of an active, approved event on a calendar, at the occurrence's campus, with an active instance and template. Slugs match Rock's pattern and are unique. Each instance opens before it closes, and its event comes after it closes and on or after its payment deadline. Placement groups are of their placement's group type and template. Linked groups are Event Attendees groups. The admin role can edit each category. At least seven events have a registration open today. For the people: each registrant's template matches; each registrant is in the template's grades on the day they registered and on the event day; registrations fall inside their window and before today; registrants off the wait list fit the limit and are in the linked group; a wait list exists only on a full instance; placed people are registrants of a linked instance; payments are Event Registration transactions from the registrar on the instance's account, never more than what is owed, and paid up once the deadline has passed; plans use a frequency the template allows and end by the deadline; codes stay within their uses; and when the steps part loaded, the campers at every camp that has ended are exactly the people with a Student Camp step there. For release forms, notes, history, and data views: every registrant on camp and the mission trip has a signed release for them from that template, with a PDF, the registrar as signer, a signed time just before the registration on the same day, reserved values, and a verification hash the check recomputes; every registration has its "Added Registration" history, and each registrant their note and "Registered" line; data views about registrations sit under Registrations; and every mission trip registrant was in its eligibility data view on the day they registered. For kids and adults: a free registration takes no payment; a fee carries its item's cost, and a quantity only where the fee allows it; a quantity fee on a template with no minimum payment is paid in full; no fee item passes its limit, and every required fee is picked; registrants of a same-family template share a family, and each Date Night registration is one married couple; every registrant meets the template's ages and gender on both days; everyone on a closed instance is placed, VBS kids in their grade's crew, and a Serve Day registration on one team; and the Allergy attribute is written only for a registrant whose form asks it.
+- **check-registrations.js**: every instance's event, template, contact, groups, and placements exist; slug patterns make valid slugs that cannot collide; templates ask for what their eligibility needs; and every feature in the table above sits on an always-open instance. For the people: each registrants rule names one audience, students name a Student Path event step or a share, a paid template's payments add up to 100 and are ones the template allows (pay later only with no minimum), a free template has none, fees, codes, and placements are the template's, and attribute fills fit their attributes. A discount that needs several registrants comes before an early bird. Each release's Lava uses only what the loader renders and starts with a title, each data view is filed under a church category and names an instance rule the loader can fill, and the mission trip's eligibility view counts exactly the student check-in areas, over a "Last N days" window, from the template's lowest grade, which is what the loader replays. Run it with `node validation/check-registrations.js`.
 - **validate-cast.js**: each Cast registration names an instance rule with registrants, one of its occurrences, members of the household, and a payment, plan, placements, placement groups, fees, and discount its template and instance have.
 - **Cast expectations**: the Cast registrations above, on every load.
-- **loader-compat-check**: plans the registrations for install day October 28, 2026 and compares every date with the table above.
+- **loader-compat-check**: plans the registrations for install day October 28, 2026 and compares every date with the table above. It also checks the port of Rock's signature verification hash against three values computed by calling Rock 21's own Rock.dll (Rock 20's gives the same).
+- **Rock lock**: `validation/rock-lock.json` watches the Rock code the release forms, notes, history, reminders, and data view filters follow, so a change in Rock flags the port.
 - **Rock Cleanup referee**: Rock Cleanup must find nothing to fix.
 
 ## The registrations part
 
-Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision D-registrations-8). Kids and adults register from the people and the small group and serving plans, which every load makes too, so it needs neither the small groups nor the serving part (decision D-registrations-11). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, so only the student registrations are skipped.
+Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision D-registrations-8). Kids and adults register from the people and the small group and serving plans, which every load makes too, so it needs neither the small groups nor the serving part (decision D-registrations-11). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, so only the student registrations are skipped. The release forms, notes, history, and data views are part of the same step. The data views are filed in `configuration/categories.json`, which every package has, and the check that each mission trip registrant was in its eligibility view runs only when the load has attendance.
 
 ## Later
 
-1. **Signatures and finish (slice 4).** The camp and mission trip release forms with typed signatures and a PDF drawn at install, a few ready-made data views, and the notes and history Rock writes on each registration (decision 194).
-2. **Refunds.** One cancelled mission trip spot with a refunded deposit.
+1. **Refunds.** One cancelled mission trip spot with a refunded deposit.
+2. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision D-registrations-16).
