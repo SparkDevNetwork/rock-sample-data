@@ -209,6 +209,20 @@ function load() {
 
     // Each calendar event's delivered image, by event key (decision D-event-images-1).
     const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
+    // The original full-group photos: download-only assets, never in a package (decision 196).
+    const fullGroupManifest = "photos/groups-full-members/manifest.json";
+    const fullGroupPhotos = exists( fullGroupManifest )
+        ? readJson( fullGroupManifest ).images.map( p => {
+            const group = groups.find( g => g.key === p.group );
+            return {
+                key: p.group,
+                name: group ? group.name : p.group,
+                photo: path.basename( p.file ),
+                original: path.basename( p.original ),
+                photoPeople: p.people
+            };
+        } )
+        : [];
 
     return {
         root,
@@ -216,6 +230,7 @@ function load() {
         people,
         groups,
         smallGroups,
+        fullGroupPhotos,
         opportunities,
         campuses,
         campusPhotos,

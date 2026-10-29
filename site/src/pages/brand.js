@@ -164,7 +164,8 @@ module.exports = function brand( { model, r, downloads } ) {
             [ "building", "Building views", "12 empty rooms and exterior views, JPEG" ],
             [ "campuses", "Campus exteriors", "7 distinct campuses ready for Sunday, without people, JPEG" ],
             [ "serving", "Serving teams", "8 photos of Cast volunteers at work, JPEG" ],
-            [ "groups", "Small groups", "12 Cast small group photos, JPEG" ],
+            [ "groups", "Small groups", "12 photos of each Cast group's leaders, JPEG" ],
+            [ "groupsFull", "Small groups, full members", "The 12 original photos of every group member, JPEG" ],
             [ "events", "Calendar events", `${model.calendarEvents.filter( e => e.photo ).length} event graphics and photos, 2:1, JPEG` ],
             [ "portraits", "Cast portraits", `${model.counts.photos} profile photos, JPEG` ]
         ].map( ( [ key, title, detail ] ) => html`<a class="pack reveal" href="${r( "downloads/" + downloads.zips[key].name )}" download>
@@ -230,6 +231,20 @@ module.exports = function brand( { model, r, downloads } ) {
         </figcaption>
       </figure>`;
         } )}
+    </div>
+    <h3 class="view-heading">Original full-group photos</h3>
+    <p class="fine reveal">The first small group photos showed every member. Rock's sample data now shows each group's leaders, so these are kept here as downloads only. No dataset installs them.</p>
+    <div class="view-grid">
+      ${model.fullGroupPhotos.map( g => html`<figure class="view reveal">
+        <img src="${r( "images/groups-full-members/" + g.photo )}" alt="${esc( `${g.name}, full group: ${g.photoPeople.join( ", " )}` )}" loading="lazy" width="1536" height="1024">
+        <figcaption>
+          <span>${esc( g.name )} <span class="view-topic">Full group</span></span>
+          <span class="view-links">
+            <a href="${r( "downloads/groups-full-members/" + g.photo )}" download>JPEG ${formatSize( d( "groups-full-members/" + g.photo ).size )}</a>
+            <a href="${r( "downloads/groups-full-members/" + g.original )}" download>PNG ${formatSize( d( "groups-full-members/" + g.original ).size )}</a>
+          </span>
+        </figcaption>
+      </figure>` )}
     </div>
     <p class="fine">All images are 1536 by 1024 pixels. The PNG files are the full-quality masters.</p>
     <h3 class="view-heading">Calendar events</h3>
