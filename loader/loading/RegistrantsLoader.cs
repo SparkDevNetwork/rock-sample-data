@@ -95,6 +95,7 @@ namespace RockSampleData.Loader.Loading
             var planIds = WritePayments( registrations, registrationIds, ids );
             WriteRegistrations( registrations, registrationIds, planIds, ids );
             WriteRegistrants( registrations, registrationIds, memberIds, ids );
+            WritePersonAnswers( registrations );
 
             var registrants = registrations.SelectMany( r => r.Registrants ).ToList();
             var dollars = registrations.Sum( r => r.Paid );
@@ -204,6 +205,32 @@ namespace RockSampleData.Loader.Loading
 
             _db.BulkInsert( "RegistrationRegistrant", rows, keepIdentity: true );
             _db.BulkInsert( "RegistrationRegistrantFee", fees, keepIdentity: false );
+            _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
+        }
+
+        /// <summary>
+        /// Saves each person attribute a registration form answered to the person, once, from their first registration
+        /// that answered it, as Rock's registration entry saves it.
+        /// </summary>
+        private void WritePersonAnswers( List<PlannedRegistration> registrations )
+        {
+            var values = AttributeValueTable();
+            var attributeIds = new Dictionary<Guid, int>();
+            var answers = registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid )
+                .SelectMany( r => r.Registrants.SelectMany( p => p.PersonAnswers.Select( a => (r.When, p.Person, Attribute: a.Key, a.Value) ) ) )
+                .GroupBy( a => (a.Attribute, a.Person.PersonId) )
+                .Select( g => g.First() );
+            foreach ( var answer in answers )
+            {
+                if ( !attributeIds.TryGetValue( answer.Attribute, out var attributeId ) )
+                {
+                    attributeId = _db.RequireIdByGuid( "Attribute", answer.Attribute );
+                    attributeIds[answer.Attribute] = attributeId;
+                }
+
+                values.Rows.Add( false, attributeId, answer.Person.PersonId, answer.Value, true, SeededRandom.StableGuid( $"{answer.Person.Cast.Guid}:person-attribute:{answer.Attribute}" ), _foreignKey, answer.When, answer.When );
+            }
+
             _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
         }
 

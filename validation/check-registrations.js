@@ -303,8 +303,8 @@ if ( registrations.registrationAttributes.length === 0 ) {
     problems.push( "every template should ask \"How did you hear?\" as a registration attribute" );
 }
 
-// Attribute fills (slice 2): a choice weighs each of its values, and the kinds the loader knows.
-const fillKinds = [ "choice", "friend", "contact-name", "contact-phone" ];
+// Attribute fills (slices 2 and 3): a choice weighs each of its values, and the kinds the loader knows.
+const fillKinds = [ "choice", "friend", "contact-name", "contact-phone", "same-registration" ];
 for ( const [ owner, attribute ] of [
     ...registrations.registrationAttributes.map( a => [ "registration attribute", a ] ),
     ...registrations.templates.flatMap( t => ( t.attributes ?? [] ).map( a => [ `template ${t.key} attribute`, a ] ) ) ] ) {
@@ -321,28 +321,99 @@ for ( const [ owner, attribute ] of [
     }
 }
 
-// Registrant rules (slice 2): students come from a Student Path event step or a share, payments are ones the
-// template allows and add up to 100, and fees and placements are the template's.
+// A person attribute field's fill (slice 3) is a choice among its own values, answered for a share of people.
+for ( const template of registrations.templates ) {
+    for ( const field of template.forms.flatMap( f => f.fields ).filter( f => f.fill ) ) {
+        const fill = field.fill;
+        if ( !field.personAttribute || fill.kind !== "choice" || !( fill.values ?? [] ).length || ( fill.weights ?? [] ).length !== fill.values.length || !( fill.percent >= 0 && fill.percent <= 100 ) ) {
+            problems.push( `template ${template.key}: a form field's fill must be on a person attribute, a choice with one weight per value, and a percent from 0 to 100` );
+        }
+    }
+}
+
+// Registrant rules (slices 2 and 3): one audience says who registers. Students come from a Student Path event step or
+// a share; kids, couples, adults, and volunteers from connection status shares. Payments are ones the template allows
+// and add up to 100 on a paid template, and fees, codes, and placements are the template's.
 const steps = read( "configuration/steps.json" );
 const stepTypes = new Map( steps.programs.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+const statusNames = new Set( read( "configuration/connection-statuses.json" ).statuses.map( s => s.name ) );
+const audiences = [ "students", "kids", "couples", "adults", "volunteers" ];
 const burstDays = [ "opens", "closes", "early-bird", "payment-deadline" ];
 const sum = values => Object.values( values ?? {} ).reduce( ( total, value ) => total + value, 0 );
+const isShare = value => value >= 0 && value <= 100;
+const isRange = range => Array.isArray( range ) && range.length === 2 && range[0] <= range[1];
+const checkStatuses = ( name, statuses ) => {
+    for ( const [ status, percent ] of Object.entries( statuses ?? {} ) ) {
+        if ( !statusNames.has( status ) || !isShare( percent ) ) {
+            problems.push( `${name}: status ${status} must be a connection status with a share from 0 to 100` );
+        }
+    }
+};
 for ( const rule of registrations.instances.filter( r => r.registrants ) ) {
     const name = `instance ${rule.key} registrants`;
     const template = templates.get( rule.template );
     const registrants = rule.registrants;
-    const students = registrants.students ?? {};
-    if ( students.stepType !== undefined ) {
-        if ( stepTypes.get( students.stepType )?.source.kind !== "event" ) {
-            problems.push( `${name}: students.stepType ${students.stepType} is not an event step in configuration/steps.json` );
-        }
-    }
-    else if ( !( students.percent > 0 && students.percent <= 100 ) ) {
-        problems.push( `${name}: students needs a stepType or a percent from 1 to 100` );
+    const set = audiences.filter( a => registrants[a] );
+    if ( set.length !== 1 ) {
+        problems.push( `${name}: needs exactly one of ${audiences.join( ", " )}` );
+        continue;
     }
 
-    if ( !template?.eligibility?.grades ) {
-        problems.push( `${name}: students register by grade, so template ${rule.template} needs eligibility.grades` );
+    if ( registrants.students ) {
+        const students = registrants.students;
+        if ( students.stepType !== undefined ) {
+            if ( stepTypes.get( students.stepType )?.source.kind !== "event" ) {
+                problems.push( `${name}: students.stepType ${students.stepType} is not an event step in configuration/steps.json` );
+            }
+        }
+        else if ( !( students.percent > 0 && students.percent <= 100 ) ) {
+            problems.push( `${name}: students needs a stepType or a percent from 1 to 100` );
+        }
+
+        if ( !template?.eligibility?.grades ) {
+            problems.push( `${name}: students register by grade, so template ${rule.template} needs eligibility.grades` );
+        }
+    }
+
+    if ( registrants.kids ) {
+        checkStatuses( name, registrants.kids.statuses );
+        if ( !template?.eligibility?.ages ) {
+            problems.push( `${name}: kids register by age, so template ${rule.template} needs eligibility.ages` );
+        }
+    }
+
+    if ( registrants.couples ) {
+        checkStatuses( name, registrants.couples.statuses );
+        if ( !( template.maxRegistrants >= 2 ) || template.registrantsSameFamily !== "Yes" ) {
+            problems.push( `${name}: couples register together, so template ${rule.template} needs two registrants from the same family` );
+        }
+    }
+
+    if ( registrants.adults ) {
+        const adults = registrants.adults;
+        checkStatuses( name, adults.statuses );
+        const friends = adults.smallGroupFriends;
+        if ( !isRange( adults.ages ) || !isShare( adults.couplePercent ?? 0 ) ) {
+            problems.push( `${name}: adults need ages as [youngest, oldest] and a couplePercent from 0 to 100` );
+        }
+
+        if ( friends && ( !isShare( friends.groupPercent ) || !isRange( friends.size ) || friends.size[0] < 2 || friends.size[1] > template.maxRegistrants ) ) {
+            problems.push( `${name}: smallGroupFriends needs a groupPercent and a size from 2 to template ${template.key}'s registrants per registration` );
+        }
+    }
+
+    if ( registrants.volunteers ) {
+        const volunteers = registrants.volunteers;
+        checkStatuses( name, volunteers.statuses );
+        if ( ![ volunteers.servers, volunteers.groupMembers, volunteers.teenPercent ].every( v => isShare( v ?? 0 ) ) || !isRange( volunteers.teenAges ) ) {
+            problems.push( `${name}: volunteers need servers, groupMembers, and teenPercent from 0 to 100, and teenAges as [youngest, oldest]` );
+        }
+    }
+
+    for ( const [ dataset, scale ] of Object.entries( registrants.scale ?? {} ) ) {
+        if ( !datasets.has( dataset ) || !( scale > 0 ) || registrants.students ) {
+            problems.push( `${name}: scale ${dataset} must be a dataset with a factor above 0, on an audience other than students` );
+        }
     }
 
     if ( registrants.studentLeaders ) {
@@ -367,8 +438,9 @@ for ( const rule of registrations.instances.filter( r => r.registrants ) ) {
         problems.push( `${name}: timing percents add up to more than 100` );
     }
 
-    if ( sum( registrants.payments ) !== 100 ) {
-        problems.push( `${name}: payments must add up to 100` );
+    const isPaid = template.cost > 0 || template.setCostOnInstance || fees( template ).length > 0;
+    if ( isPaid ? sum( registrants.payments ) !== 100 : registrants.payments !== undefined ) {
+        problems.push( `${name}: ${isPaid ? "payments must add up to 100" : "a free template has no payments"}` );
     }
 
     if ( registrants.payments?.plan && !( template.paymentPlan ?? [] ).length ) {
@@ -379,26 +451,54 @@ for ( const rule of registrations.instances.filter( r => r.registrants ) ) {
         problems.push( `${name}: pays deposits, but template ${template.key} needs full payment or a plan` );
     }
 
+    if ( registrants.payments?.["pay-later"] && ( template.setCostOnInstance ? rule.minimumInitialPayment : template.minimumInitialPayment ) !== 0 ) {
+        problems.push( `${name}: pays later, but its minimum payment is not 0` );
+    }
+
     for ( const frequency of Object.keys( registrants.planFrequencies ?? {} ) ) {
         if ( !( template.paymentPlan ?? [] ).includes( frequency ) ) {
             problems.push( `${name}: plan frequency ${frequency} is not one template ${template.key} allows` );
         }
     }
 
-    for ( const fee of Object.keys( registrants.fees ?? {} ) ) {
-        if ( !fees( template ).some( f => f.key === fee && !f.required ) ) {
-            problems.push( `${name}: fee ${fee} is not an optional fee of template ${template.key}` );
+    for ( const key of Object.keys( registrants.fees ?? {} ) ) {
+        const fee = fees( template ).find( f => f.key === key );
+        const weights = registrants.feeWeights?.[key];
+        if ( !fee || ( fee.required && !weights ) ) {
+            problems.push( `${name}: fee ${key} is not a fee of template ${template.key}, or is required with no feeWeights to choose its item` );
+        }
+        else if ( weights && weights.length !== fee.items.length ) {
+            problems.push( `${name}: feeWeights ${key} needs one weight per item` );
+        }
+        else if ( registrants.feePerChild?.[key] !== undefined && !fee.allowMultiple ) {
+            problems.push( `${name}: fee ${key} is charged per child, so it must allow a quantity` );
+        }
+    }
+
+    for ( const key of [ ...Object.keys( registrants.feeWeights ?? {} ), ...Object.keys( registrants.feePerChild ?? {} ) ] ) {
+        if ( registrants.fees?.[key] === undefined ) {
+            problems.push( `${name}: fee ${key} has a rule but no share in fees` );
+        }
+    }
+
+    for ( const code of registrants.codes ?? [] ) {
+        const discount = discounts( template ).find( d => d.key === code.discount );
+        if ( !discount || discount.autoApply || !isShare( code.percent ) || ( discount.maxUsage !== undefined && !( discount.maxUsage > ( code.keepUnused ?? 0 ) ) ) ) {
+            problems.push( `${name}: code ${code.discount} must be a code (not automatic) of template ${template.key}, with a percent, and more uses than keepUnused` );
         }
     }
 
     const placements = registrants.placements;
-    for ( const key of [ ...Object.keys( placements?.each ?? {} ), ...( placements?.early?.placements ?? [] ) ] ) {
+    for ( const key of [ ...Object.keys( placements?.each ?? {} ), ...( placements?.early?.placements ?? [] ), ...Object.keys( placements?.byGrade ?? {} ), ...( placements?.together ?? [] ) ] ) {
         const placement = ( template.placements ?? [] ).find( p => p.key === key );
         if ( !placement || !( rule.placementGroups ?? [] ).some( g => g.placement === key ) ) {
             problems.push( `${name}: placement ${key} is not a placement of template ${template.key} with groups on this instance` );
         }
         else if ( ( placements.each?.[key] ?? 1 ) > 1 && !placement.allowMultiple ) {
             problems.push( `${name}: placement ${key} gives several groups each, but the template does not allow multiple placements` );
+        }
+        else if ( ( placements.byGrade?.[key] !== undefined || ( placements.together ?? [] ).includes( key ) ) && placements.each?.[key] !== 1 ) {
+            problems.push( `${name}: placement ${key} by grade or together gives each registrant one group` );
         }
     }
 

@@ -106,6 +106,17 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public PaymentPlanFrequency? Frequency { get; set; }
 
+        /// <summary>
+        /// The placement group the registrants join, by name, by placement key, such as a Serve Day project team, or
+        /// null for the loader's usual choice.
+        /// </summary>
+        public Dictionary<string, string> Placements { get; set; }
+
+        /// <summary>
+        /// Fee keys the registration always adds, such as childcare, or null for the loader's usual choice.
+        /// </summary>
+        public List<string> Fees { get; set; }
+
         public CastRegistrationExpect Expect { get; set; }
     }
 
@@ -123,6 +134,16 @@ namespace RockSampleData.Loader.Model
         /// How many placement groups of each placement key each registrant is in.
         /// </summary>
         public Dictionary<string, int> Placements { get; set; }
+
+        /// <summary>
+        /// The placement group each registrant is in, by name, by placement key.
+        /// </summary>
+        public Dictionary<string, string> PlacedIn { get; set; }
+
+        /// <summary>
+        /// The quantity of each fee on the registration, by fee key, such as childcare for two.
+        /// </summary>
+        public Dictionary<string, int> Fees { get; set; }
 
         /// <summary>
         /// paid-in-full, balance-due, plan-on-pace, or plan-complete.
@@ -490,13 +511,19 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// The person attribute values the loader reads. The file holds more; the JSON reader ignores the rest.
+    /// The person attribute values the loader reads. The rest of the file's values are kept by key.
     /// </summary>
     internal sealed class CastPersonAttributes
     {
         public RelativeDate BaptismDate { get; set; }
 
         public RelativeDate FirstVisit { get; set; }
+
+        /// <summary>
+        /// Every other value in the file, by attribute key, such as the Allergy a registration form shows.
+        /// </summary>
+        [JsonExtensionData]
+        public Dictionary<string, System.Text.Json.JsonElement> Others { get; set; }
     }
 
     /// <summary>

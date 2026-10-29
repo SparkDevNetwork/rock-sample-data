@@ -415,7 +415,8 @@ for ( const { file, data: h } of households ) {
     }
 
     // Event registrations (docs/registrations.md): an instance rule with registrants, one of its occurrences, members of
-    // this household, and a payment the template allows. Expectations name the template's placements and discounts.
+    // this household, and a payment the template allows. Placement groups, fees, and expectations name the template's
+    // placements, groups, fees, and discounts.
     for ( const [ index, reg ] of ( h.registrations || [] ).entries() ) {
         const owner = `${file}: registrations[${index}]`;
         const rule = REGISTRATIONS.instances.find( i => i.key === reg.instance );
@@ -459,6 +460,20 @@ for ( const { file, data: h } of households ) {
         }
         if ( reg.expect?.discount !== undefined && !( template.discounts || [] ).some( d => d.code === reg.expect.discount ) ) {
             errors.push( `${owner} expects discount ${reg.expect.discount}, which template ${template.key} does not hold.` );
+        }
+        if ( reg.payment === "pay-later" && ( rule.minimumInitialPayment ?? template.minimumInitialPayment ) !== 0 ) {
+            errors.push( `${owner} pays later, but instance ${reg.instance} asks for a minimum payment.` );
+        }
+        for ( const [ key, name ] of [ ...Object.entries( reg.placements || {} ), ...Object.entries( reg.expect?.placedIn || {} ) ] ) {
+            const groups = ( rule.placementGroups || [] ).filter( g => g.placement === key );
+            if ( !groups.some( g => ( g.names || [] ).includes( name ) ) ) {
+                errors.push( `${owner} places them in "${name}", which instance ${reg.instance} has no ${key} group named.` );
+            }
+        }
+        for ( const key of [ ...( reg.fees || [] ), ...Object.keys( reg.expect?.fees || {} ) ] ) {
+            if ( !( template.fees || [] ).some( f => f.key === key ) ) {
+                errors.push( `${owner} names fee "${key}", which template ${template.key} does not hold.` );
+            }
         }
     }
 

@@ -108,8 +108,11 @@ namespace RockSampleData.Loader.Loading
         /// <param name="people">The loaded people: each instance's contact is a Cast person.</param>
         /// <param name="campusPlans">The dataset's campuses.</param>
         /// <param name="studentPath">The Student Path planned for this load, which students register from, or null when the package has no steps.</param>
+        /// <param name="smallGroups">The small group plans, which adults and volunteers register from.</param>
+        /// <param name="serving">The serving team plans, which volunteers register from.</param>
+        /// <param name="mainCampusKey">The campus a small group plan means by "main".</param>
         /// <param name="castHouseholdKeys">The Cast's household keys, whose registrations lists pin stories.</param>
-        public RegistrationPlan Load( List<PlannedEvent> calendar, PeopleLoader people, IReadOnlyDictionary<string, CampusPlan> campusPlans, StudentPath studentPath, HashSet<string> castHouseholdKeys )
+        public RegistrationPlan Load( List<PlannedEvent> calendar, PeopleLoader people, IReadOnlyDictionary<string, CampusPlan> campusPlans, StudentPath studentPath, IReadOnlyList<SmallGroupPlan> smallGroups, IReadOnlyList<ServingTeamPlan> serving, string mainCampusKey, HashSet<string> castHouseholdKeys )
         {
             var config = _source.Registrations;
             if ( config == null || calendar == null )
@@ -139,10 +142,12 @@ namespace RockSampleData.Loader.Loading
             if ( studentPath == null || _source.Steps == null )
             {
                 _db.Log.Write( "  Student registrations skipped (this package has no configuration/steps.json to plan the Student Path from)" );
-                return plan;
+                studentPath = null;
             }
 
-            var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
+            var statusOrder = _source.ConnectionStatuses.Statuses.OrderBy( s => s.Order ).Select( s => s.Name ).ToList();
+            var plans = new RegistrantPlans( _dataset, smallGroups, serving, statusOrder, castHouseholdKeys, mainCampusKey, _dates );
+            var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, plans, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
             new RegistrantsLoader( _db, _foreignKey, _seed, _dates ).Write( registrations, new RegistrationIds( templates, groupTypes, groupIds, instanceIds, campusPlans, accountId, _db.RequireIdByGuid( "FinancialGateway", config.Gateway ), config.BatchPrefix ) );
             return plan;
         }

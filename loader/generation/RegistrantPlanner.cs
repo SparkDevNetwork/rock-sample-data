@@ -71,15 +71,20 @@ namespace RockSampleData.Loader.Generation
         private readonly Dictionary<int, LoadedHousehold> _families = new Dictionary<int, LoadedHousehold>();
         private readonly List<(LoadedHousehold Household, CastRegistration Pin)> _pins;
         private readonly Dictionary<string, int> _placed = new Dictionary<string, int>();
+        private readonly Dictionary<(Guid Instance, string Fee, int Item), int> _feeItemsUsed = new Dictionary<(Guid, string, int), int>();
+        private readonly Dictionary<(Guid Instance, string Discount), int> _codesUsed = new Dictionary<(Guid, string), int>();
+        private readonly ISet<string> _castHouseholdKeys;
 
         /// <param name="steps">The steps configuration, or null when the package has none.</param>
         /// <param name="path">The Student Path planned for this load, or null when the package has no steps.</param>
+        /// <param name="plans">The small group and serving plans and the connection statuses kids, couples, adults, and volunteers register from.</param>
         /// <param name="households">Every loaded household. A person's family is the household whose family is their primary one.</param>
         /// <param name="castHouseholdKeys">The Cast's household keys, whose registrations lists pin stories.</param>
         /// <param name="reminderDays">The days between payment reminders on a paid template.</param>
-        public RegistrantPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays )
+        public RegistrantPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, RegistrantPlans plans, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays )
         {
             _config = config;
+            _castHouseholdKeys = castHouseholdKeys;
             _anchor = anchor.Date;
             _seed = seed;
             _reminderDays = reminderDays;
@@ -92,7 +97,7 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
-            _chooser = new RegistrantChooser( steps, path, _people, _families, anchor, seed );
+            _chooser = new RegistrantChooser( steps, path, plans, _people, _families, anchor, seed );
             _pins = households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) )
                 .SelectMany( h => h.Cast.Registrations.Select( r => (h, r) ) )
                 .ToList();
@@ -104,12 +109,12 @@ namespace RockSampleData.Loader.Generation
         public List<PlannedRegistration> Plan( RegistrationPlan plan )
         {
             var registrations = new List<PlannedRegistration>();
-            foreach ( var instance in plan.Instances.Where( i => i.Rule.Registrants?.Students != null ) )
+            foreach ( var instance in plan.Instances.Where( i => i.Rule.Registrants != null ) )
             {
                 registrations.AddRange( PlanInstance( instance, plan ) );
             }
 
-            var unknown = _pins.FirstOrDefault( p => !plan.Instances.Any( i => i.Rule.Key == p.Pin.Instance && i.Pick == p.Pin.Occurrence && i.Rule.Registrants?.Students != null ) );
+            var unknown = _pins.FirstOrDefault( p => !plan.Instances.Any( i => i.Rule.Key == p.Pin.Instance && i.Pick == p.Pin.Occurrence && i.Rule.Registrants != null ) );
             if ( unknown.Pin != null )
             {
                 throw new InvalidOperationException( $"cast/households/{unknown.Household.Cast.Key}.json registers people for the {unknown.Pin.Occurrence.ToString().ToLowerInvariant()} {unknown.Pin.Instance}, which configuration/registrations.json does not plan with a registrants rule." );
@@ -161,7 +166,7 @@ namespace RockSampleData.Loader.Generation
         private bool Date( RegistrationDraft draft, PlannedRegistrationInstance instance, RegistrantRule rule, RegistrantEligibility eligibility, DateTime lastDay )
         {
             var first = draft.People[0];
-            var stream = draft.IsLeader ? first.Cast.Guid : _families[first.FamilyId].Cast.Guid;
+            var stream = draft.Stream ?? ( draft.IsLeader ? first.Cast.Guid : _families[first.FamilyId].Cast.Guid );
             var random = new SeededRandom( $"{_seed}:registrations:{instance.Template.Key}:{instance.EventDay:yyyy-MM-dd}:{stream}" );
             var day = Draw( rule.Timing, instance, random );
             var eligible = draft.People.Select( p => eligibility.Days( p, instance.Opens, instance.Closes ) ).ToList();
@@ -276,14 +281,20 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// Who registered: the Cast story's registrar, or a parent or guardian in the family (one with an email when
-        /// there is one), or the student when no adult lives with them.
+        /// Who registered: the Cast story's registrar, the one the chooser named (an adult registering themselves), or
+        /// a parent or guardian in the family (one with an email when there is one), or the student when no adult lives
+        /// with them.
         /// </summary>
         private LoadedPerson Registrar( RegistrationDraft draft, SeededRandom random )
         {
             if ( draft.Pin?.Registrar is { } key )
             {
                 return PinPerson( draft.PinHousehold, draft.Pin, key );
+            }
+
+            if ( draft.Registrar != null )
+            {
+                return draft.Registrar;
             }
 
             var first = _people[draft.People[0].PersonId];
@@ -363,6 +374,22 @@ namespace RockSampleData.Loader.Generation
                     var fee = template.Fees.FirstOrDefault( f => f.Key == feeKey )
                         ?? throw new InvalidDataException( $"configuration/registrations.json: instance {instance.Rule.Key} has a share for fee {feeKey}, which template {template.Key} does not hold." );
                     var random = new SeededRandom( $"{_seed}:registrations:{instance.Guid}:fee:{fee.Key}:{registrant.Person.Cast.Guid}" );
+                    if ( rule.FeePerChild.TryGetValue( fee.Key, out var underAge ) )
+                    {
+                        PerChildFee( registration, registrant, instance, fee, underAge, percent, random );
+                        continue;
+                    }
+
+                    if ( rule.FeeWeights.TryGetValue( fee.Key, out var weights ) )
+                    {
+                        if ( random.Chance( percent / 100 ) )
+                        {
+                            WeightedFee( registrant, instance, fee, weights, random );
+                        }
+
+                        continue;
+                    }
+
                     if ( random.Chance( percent / 100 ) )
                     {
                         // Sizes run small to large, and older students take larger ones.
@@ -376,6 +403,51 @@ namespace RockSampleData.Loader.Generation
             }
 
             registration.Discount = Discount( registration, instance );
+        }
+
+        /// <summary>
+        /// A fee charged per child, such as childcare: on the registration's first registrant, with a quantity of the
+        /// family's children younger than the age on the event day. A Cast story that names the fee always adds it.
+        /// </summary>
+        private void PerChildFee( PlannedRegistration registration, PlannedRegistrant registrant, PlannedRegistrationInstance instance, RegistrationFeeDefinition fee, int underAge, double percent, SeededRandom random )
+        {
+            if ( registration.Registrants.First( r => !r.OnWaitList ) != registrant )
+            {
+                return;
+            }
+
+            var children = _families[registrant.Person.FamilyId].Members
+                .Count( m => m.FamilyId == registrant.Person.FamilyId && !m.IsAdult && m.CanAttend && m.BirthDate.HasValue && RegistrantEligibility.AgeOn( m.BirthDate.Value, instance.EventDay ) < underAge );
+            var isPinned = registration.Pin?.Fees?.Contains( fee.Key ) == true;
+            if ( children > 0 && ( isPinned || random.Chance( percent / 100 ) ) )
+            {
+                registrant.Fees.Add( new PlannedRegistrantFee( fee, 0, children, fee.Items[0].Cost ) );
+                Use( instance, fee, 0, children );
+            }
+        }
+
+        /// <summary>
+        /// A fee item picked by the rule's weights from the items that still have uses left, such as a room. An item
+        /// with a usage limit runs out, as Rock's registration entry hides it once every use is taken.
+        /// </summary>
+        private void WeightedFee( PlannedRegistrant registrant, PlannedRegistrationInstance instance, RegistrationFeeDefinition fee, List<double> weights, SeededRandom random )
+        {
+            var available = Enumerable.Range( 0, fee.Items.Count )
+                .Where( i => i < weights.Count && weights[i] > 0 && ( fee.Items[i].MaximumUsageCount == null || _feeItemsUsed.GetValueOrDefault( (instance.Guid, fee.Key, i) ) < fee.Items[i].MaximumUsageCount ) )
+                .ToDictionary( i => i.ToString( CultureInfo.InvariantCulture ), i => weights[i] );
+            if ( available.Count == 0 )
+            {
+                return;
+            }
+
+            var index = int.Parse( random.Pick( available ), CultureInfo.InvariantCulture );
+            registrant.Fees.Add( new PlannedRegistrantFee( fee, index, 1, fee.Items[index].Cost ) );
+            Use( instance, fee, index, 1 );
+        }
+
+        private void Use( PlannedRegistrationInstance instance, RegistrationFeeDefinition fee, int item, int quantity )
+        {
+            _feeItemsUsed[(instance.Guid, fee.Key, item)] = _feeItemsUsed.GetValueOrDefault( (instance.Guid, fee.Key, item) ) + quantity;
         }
 
         private RegistrationDiscountDefinition Discount( PlannedRegistration registration, PlannedRegistrationInstance instance )
@@ -404,6 +476,29 @@ namespace RockSampleData.Loader.Generation
                 if ( isInDates && hasRegistrants )
                 {
                     return discount;
+                }
+            }
+
+            return Code( registration, instance );
+        }
+
+        /// <summary>
+        /// A discount code the registration used, when no automatic discount was valid: each code rule's share of
+        /// registrations with enough registrants, while the code has uses left beyond those kept unused.
+        /// </summary>
+        private RegistrationDiscountDefinition Code( PlannedRegistration registration, PlannedRegistrationInstance instance )
+        {
+            var template = instance.Template;
+            foreach ( var rule in instance.Rule.Registrants.Codes )
+            {
+                var code = template.Discounts.FirstOrDefault( d => d.Key == rule.Discount )
+                    ?? throw new InvalidDataException( $"configuration/registrations.json: instance {instance.Rule.Key} uses discount {rule.Discount}, which template {template.Key} does not hold." );
+                var used = _codesUsed.GetValueOrDefault( (instance.Guid, code.Key) );
+                var isAllowed = registration.Registrants.Count( r => !r.OnWaitList ) >= rule.MinRegistrants && used < ( code.MaxUsage ?? int.MaxValue ) - rule.KeepUnused;
+                if ( isAllowed && new SeededRandom( $"{_seed}:registrations:{instance.Guid}:code:{code.Key}:{registration.Guid}" ).Chance( rule.Percent / 100 ) )
+                {
+                    _codesUsed[(instance.Guid, code.Key)] = used + 1;
+                    return code;
                 }
             }
 
@@ -438,6 +533,11 @@ namespace RockSampleData.Loader.Generation
             var day = registration.When.Date;
 
             var choice = registration.Pin?.Payment ?? Pick( rule.Payments, random );
+            if ( choice == RegistrationPayment.PayLater && minimum > 0 )
+            {
+                choice = RegistrationPayment.Deposit;
+            }
+
             var isFullRequired = template.FullPaymentOrPlanRequired != null;
             if ( minimum >= total || ( deadline.HasValue && day >= deadline.Value ) )
             {
@@ -451,7 +551,7 @@ namespace RockSampleData.Loader.Generation
                 choice = paymentPlan != null ? RegistrationPayment.Plan : isFullRequired ? RegistrationPayment.PaidInFull : RegistrationPayment.Deposit;
             }
 
-            if ( choice == RegistrationPayment.Deposit && isFullRequired )
+            if ( ( choice == RegistrationPayment.Deposit || choice == RegistrationPayment.PayLater ) && isFullRequired )
             {
                 choice = RegistrationPayment.PaidInFull;
             }
@@ -465,7 +565,17 @@ namespace RockSampleData.Loader.Generation
                     break;
 
                 case RegistrationPayment.Deposit:
-                    registration.Payments.Add( new PlannedPayment( paidAt, minimum, false ) );
+                case RegistrationPayment.PayLater:
+                    // Paying later pays nothing now, so the whole balance is still due.
+                    if ( choice == RegistrationPayment.PayLater )
+                    {
+                        minimum = 0;
+                    }
+                    else
+                    {
+                        registration.Payments.Add( new PlannedPayment( paidAt, minimum, false ) );
+                    }
+
                     if ( deadline.HasValue && deadline.Value <= _anchor )
                     {
                         // Once the deadline has passed, every balance has been paid, most in the last weeks before it.
@@ -611,8 +721,14 @@ namespace RockSampleData.Loader.Generation
             }
 
             var isClosed = instance.Closes < _anchor;
-            var keys = isClosed ? rule.Placements.Each.Keys.ToList() : rule.Placements.Early?.Placements ?? new List<string>();
+            if ( !isClosed && rule.Placements.Early == null )
+            {
+                return;
+            }
+
+            var keys = isClosed ? rule.Placements.Each.Keys.ToList() : rule.Placements.Early.Placements;
             var placedRegistrants = new List<(PlannedRegistrant Registrant, DateTime On)>();
+            var registrationOf = new Dictionary<PlannedRegistrant, PlannedRegistration>();
             foreach ( var registration in registrations )
             {
                 var random = new SeededRandom( $"{_seed}:registrations:{instance.Guid}:placed:{registration.Guid}" );
@@ -637,6 +753,10 @@ namespace RockSampleData.Loader.Generation
                 }
 
                 placedRegistrants.AddRange( registration.Registrants.Where( r => !r.OnWaitList ).Select( r => (r, on) ) );
+                foreach ( var registrant in registration.Registrants )
+                {
+                    registrationOf[registrant] = registration;
+                }
             }
 
             foreach ( var key in keys )
@@ -649,7 +769,48 @@ namespace RockSampleData.Loader.Generation
                 }
 
                 var isShared = groups.Any( g => plan.Instances.Count( i => i.PlacementGroups.Any( p => p.Group == g.Group ) ) > 1 );
-                var people = placedRegistrants.OrderBy( p => p.Registrant.Person.Cast.Guid ).ToList();
+                var people = new List<(PlannedRegistrant Registrant, DateTime On)>();
+                foreach ( var person in placedRegistrants.OrderBy( p => p.Registrant.Person.Cast.Guid ) )
+                {
+                    // A Cast story that names its group joins it.
+                    if ( registrationOf[person.Registrant].Pin?.Placements?.GetValueOrDefault( key ) is { } name )
+                    {
+                        Join( person.Registrant, groups.FirstOrDefault( g => g.Group.Name == name )
+                            ?? throw new InvalidDataException( $"A Cast registration places {NameOf( person.Registrant.Person )} in {name}, but {instance.Name} has no {key} group by that name." ), person.On );
+                        continue;
+                    }
+
+                    people.Add( person );
+                }
+
+                if ( rule.Placements.ByGrade.TryGetValue( key, out var firstGrade ) )
+                {
+                    // One group per grade: a kid with no grade yet joins the first.
+                    foreach ( var (registrant, on) in people )
+                    {
+                        var grade = registrant.Person.GraduationYear is int year ? AnchorDates.GradeOn( year, instance.EventDay ) : firstGrade;
+                        Join( registrant, groups[Math.Min( Math.Max( grade - firstGrade, 0 ), groups.Count - 1 )], on );
+                    }
+
+                    continue;
+                }
+
+                if ( rule.Placements.Together.Contains( key ) )
+                {
+                    // Everyone on a registration joins one group, and the groups fill evenly.
+                    foreach ( var registration in people.GroupBy( p => registrationOf[p.Registrant] ).OrderBy( r => r.Key.When ).ThenBy( r => r.Key.Guid ) )
+                    {
+                        var random = new SeededRandom( $"{_seed}:registrations:{instance.Guid}:placement:{key}:{registration.Key.Guid}" );
+                        var group = groups.OrderBy( g => _placed.GetValueOrDefault( g.Group.Key ) ).ThenBy( _ => random.Between( 0.0, 1.0 ) ).First();
+                        foreach ( var (registrant, on) in registration )
+                        {
+                            Join( registrant, group, on );
+                        }
+                    }
+
+                    continue;
+                }
+
                 if ( count == 1 && !isShared )
                 {
                     // Grade bands: the youngest fill the first groups.
@@ -711,8 +872,49 @@ namespace RockSampleData.Loader.Generation
                             registrant.Answers[attribute.Key] = value;
                         }
                     }
+
+                    foreach ( var field in instance.Template.Forms.SelectMany( f => f.Fields ).Where( f => f.PersonAttribute != null && f.Fill != null && !registrant.OnWaitList ) )
+                    {
+                        var value = PersonAnswer( field, registrant.Person );
+                        if ( value != null )
+                        {
+                            registrant.PersonAnswers[field.PersonAttribute.Value] = value;
+                        }
+                    }
                 }
             }
+        }
+
+        /*
+            10/28/26 - CLAUDE
+
+            A person attribute on a registration form, such as Rock's Allergy, is saved to the person, and Rock's form
+            shows the value they already have. So each person's answer is decided once, by a draw seeded by the person,
+            and every registration that asks shows the same value. A Cast person answers only with the value their file
+            holds, so no Cast story gains an allergy it does not tell.
+
+            Reason: A child's allergy agrees across every registration and check-in (decision D-registrations-11).
+        */
+
+        /// <summary>
+        /// The person's answer to a person attribute field: the Cast file's value, or, for anyone generated, the fill's
+        /// share of a weighted choice. Null leaves the field blank.
+        /// </summary>
+        private string PersonAnswer( RegistrationFieldDefinition field, LoadedPerson person )
+        {
+            var fill = field.Fill;
+            if ( _castHouseholdKeys.Contains( _families[person.FamilyId].Cast.Key ) )
+            {
+                return fill.CastKey != null && person.Cast.Attributes?.Others?.TryGetValue( fill.CastKey, out var value ) == true && value.ValueKind == System.Text.Json.JsonValueKind.String ? value.GetString() : null;
+            }
+
+            var random = new SeededRandom( $"{_seed}:person-attribute:{field.PersonAttribute}:{person.Cast.Guid}" );
+            if ( !random.Chance( fill.Percent / 100 ) )
+            {
+                return null;
+            }
+
+            return random.Pick( fill.Values.Select( ( v, i ) => (v, i) ).ToDictionary( x => x.v, x => x.i < fill.Weights.Count ? fill.Weights[x.i] : 1 ) );
         }
 
         private string Fill( RegistrationAttributeDefinition attribute, PlannedRegistration registration, PlannedRegistrant registrant, List<PlannedRegistrant> everyone, PlannedRegistrationInstance instance, SeededRandom random )
@@ -723,6 +925,15 @@ namespace RockSampleData.Loader.Generation
                 case RegistrationAttributeFillKind.Choice:
                     var weights = attribute.Values.Select( ( v, i ) => (v, i) ).ToDictionary( x => x.v, x => x.i < fill.Weights.Count ? fill.Weights[x.i] : 0 );
                     return random.Pick( weights );
+
+                case RegistrationAttributeFillKind.SameRegistration:
+                    var mates = registration.Registrants.Where( p => p != registrant && !p.OnWaitList ).ToList();
+                    if ( registrant == null || registrant.OnWaitList || mates.Count == 0 || !random.Chance( fill.Percent / 100 ) )
+                    {
+                        return null;
+                    }
+
+                    return NameOf( random.Pick( mates ).Person );
 
                 case RegistrationAttributeFillKind.Friend:
                     if ( registrant == null || registrant.OnWaitList || !random.Chance( fill.Percent / 100 ) )
@@ -902,6 +1113,11 @@ namespace RockSampleData.Loader.Generation
         /// Registrant attribute values by key.
         /// </summary>
         public Dictionary<string, string> Answers { get; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Person attribute values a form field saved to the person, by attribute Guid.
+        /// </summary>
+        public Dictionary<Guid, string> PersonAnswers { get; } = new Dictionary<Guid, string>();
 
         /// <summary>
         /// Rock's RegistrationRegistrant.DiscountedCost: nothing on the wait list; otherwise the cost and fees less the

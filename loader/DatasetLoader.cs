@@ -496,10 +496,11 @@ namespace RockSampleData.Loader
 
             // Registrations link to the occurrences the calendar just wrote, so they take its plan instead of planning the
             // calendar again. Registrations need the calendar (SampleDataParts.All), so it has run whenever they load. Students
-            // register from the Student Path plan, which every load makes, so they do not need the steps part.
+            // register from the Student Path plan, and adults and volunteers from the small group and serving plans, which
+            // every load makes, so they need neither the steps, small groups, nor serving part.
             if ( steps.Begin( "Registrations" ) )
             {
-                new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, castHouseholdKeys );
+                new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
             }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and

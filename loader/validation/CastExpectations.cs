@@ -177,6 +177,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                 return 0;
             }
 
+            // The Cast lives on the main campus, so a Cast registration for a campus event is the main campus's instance.
+            var mainCampus = source.Campuses.Campuses.Single( c => c.RockDefault ).Name;
             var checks = 0;
             foreach ( var household in source.ReadHouseholds() )
             {
@@ -186,7 +188,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
                     var template = config.Templates.First( t => t.Key == rule.Template );
                     var people = pin.Registrants.Select( key => household.Members.First( m => m.Key == key ) ).ToList();
                     var names = string.Join( " and ", people.Select( p => $"{p.NickName ?? p.FirstName} {p.LastName}" ) );
-                    var pattern = rule.Name.Replace( "{year}", "%" ).Replace( "{month}", "%" ).Replace( "{campus}", "%" );
+                    var pattern = rule.Name.Replace( "{year}", "%" ).Replace( "{month}", "%" ).Replace( "{campus}", mainCampus );
                     var instances = db.Query( @"
 SELECT [i].[Id], [i].[Name], [i].[StartDateTime]
 FROM [RegistrationInstance] AS [i]
@@ -267,6 +269,42 @@ WHERE [p].[Guid] = @Person AND [tp].[Guid] = @Placement", P( "@Instance", instan
                             {
                                 failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected {count} {placementKey} placement(s) at {name}, Rock shows {placed}" );
                             }
+                        }
+                    }
+
+                    foreach ( var (placementKey, groupName) in expect.PlacedIn ?? new Dictionary<string, string>() )
+                    {
+                        foreach ( var person in people )
+                        {
+                            checks++;
+                            var groups = db.Query( @"
+SELECT [g].[Name]
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [RelatedEntity] AS [re] ON [re].[TargetEntityId] = [gm].[GroupId] AND [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = @Instance
+INNER JOIN [RegistrationTemplatePlacement] AS [tp] ON CAST( [tp].[Id] AS NVARCHAR( 200 ) ) = [re].[QualifierValue]
+WHERE [p].[Guid] = @Person AND [tp].[Guid] = @Placement", P( "@Instance", instance["Id"] ), P( "@Person", guids.Value( person.Guid ) ),
+                                P( "@Placement", SeededRandom.StableGuid( $"registration-placement:{template.Key}:{placementKey}" ) ) ).Select( r => ( string ) r["Name"] ).ToList();
+                            if ( !groups.Contains( groupName ) )
+                            {
+                                failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected to be in {groupName} at {name}, Rock shows {( groups.Count == 0 ? "no " + placementKey : string.Join( ", ", groups ) )}" );
+                            }
+                        }
+                    }
+
+                    foreach ( var (feeKey, quantity) in expect.Fees ?? new Dictionary<string, int>() )
+                    {
+                        checks++;
+                        var actual = Convert.ToInt32( db.Scalar( @"
+SELECT ISNULL( SUM( [f].[Quantity] ), 0 )
+FROM [RegistrationRegistrantFee] AS [f]
+INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[Id] = [f].[RegistrationRegistrantId]
+INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+WHERE [rr].[RegistrationId] = @Id AND [tf].[Guid] = @Fee", P( "@Id", registration["Id"] ), P( "@Fee", SeededRandom.StableGuid( $"registration-fee:{template.Key}:{feeKey}" ) ) ) );
+                        if ( actual != quantity )
+                        {
+                            failures.Add( $"{names}: expected {feeKey} for {quantity} on {name}, Rock shows {actual}" );
                         }
                     }
 
