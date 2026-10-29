@@ -49,6 +49,11 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid AdultRoleGuid = new Guid( "2639F9A5-2AAE-4E48-A8C3-4FFE86681E42" );
         private static readonly Guid ChildRoleGuid = new Guid( "C8B1814F-6AA7-4055-B2D7-48FE20429CB9" );
         private static readonly Guid PersonRecordTypeGuid = new Guid( "36CF10D6-C695-413D-8E7C-4546EFEF385E" );
+
+        /// <summary>
+        /// Rock's Allergy person attribute.
+        /// </summary>
+        internal static readonly Guid AllergyAttributeGuid = new Guid( "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31" );
         private static readonly Guid BusinessRecordTypeGuid = new Guid( "BF64ADD3-E70A-44CE-9C4B-E76BBED37550" );
         private static readonly Guid ActiveStatusGuid = new Guid( "618F906C-C33D-4FA3-8AEF-E58CB7B63F1E" );
         private static readonly Guid InactiveStatusGuid = new Guid( "1DAD99D5-41A9-4865-8366-F269902B80A4" );
@@ -353,10 +358,46 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "PersonSearchKey", searchKeys, keepIdentity: false );
             var newMetaphoneNames = AddNewMetaphones( metaphones );
             SetGeoPoints( geo );
+            var allergies = WriteAllergies();
 
             var adminText = adminValues == null ? "" : $" (and {adminValues["NickName"]} {adminValues["LastName"]} in Rock's admin person)";
             _db.Log.Write( $"  Families: {households.Count}, people: {persons.Rows.Count}{adminText}, family members: {members.Rows.Count - relationshipGroupCount}, addresses: {locations.Rows.Count}, phones: {phones.Rows.Count}, "
-                + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {newMetaphoneNames}" );
+                + $"known relationship groups: {relationshipGroupCount}, new metaphone names: {newMetaphoneNames}, allergies: {allergies}" );
+        }
+
+        /*
+            10/28/26 - CLAUDE
+
+            A Cast person's `attributes.Allergy` is Rock's Allergy person attribute, which check-in labels print. The
+            people step writes it, so every load has it, before any later step could. Registrations also write Allergy
+            when a registration form asks for it, and they skip a person who already has a value, so the two never
+            write the same person twice. Both use the same value Guid, so the row is the same whichever writes it.
+
+            Reason: Check-in demos and the Deckers' story need Alex Decker's peanut allergy on her label.
+        */
+
+        /// <summary>
+        /// Writes each loaded person's allergy from their Cast file to Rock's Allergy person attribute, the way Rock saves
+        /// a text attribute value: its persisted values left for Rock to fill. Returns how many were written.
+        /// </summary>
+        private int WriteAllergies()
+        {
+            var withAllergy = People.Values.Where( p => !string.IsNullOrWhiteSpace( p.Cast.Attributes?.Allergy ) ).OrderBy( p => p.PersonId ).ToList();
+            if ( withAllergy.Count == 0 )
+            {
+                return 0;
+            }
+
+            var attributeId = _db.RequireIdByGuid( "Attribute", AllergyAttributeGuid );
+            var values = NewTable( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "IsPersistedValueDirty:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            foreach ( var person in withAllergy )
+            {
+                values.Rows.Add( false, attributeId, person.PersonId, person.Cast.Attributes.Allergy.Trim(), true,
+                    SeededRandom.StableGuid( $"{person.Cast.Guid}:person-attribute:{AllergyAttributeGuid}" ), _foreignKey, _now, _now );
+            }
+
+            _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
+            return values.Rows.Count;
         }
 
         /// <summary>
