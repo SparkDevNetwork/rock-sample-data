@@ -22,13 +22,13 @@ Full 7's manifest (`datasets/full-7.json`) sets how many households each campus 
 | Campus | Generated households | People, with the Cast and businesses |
 |---|---|---|
 | Phoenix | 3,450 | 5,338 |
-| Chandler | 2,350 | 3,497 |
-| Gilbert | 2,300 | 3,411 |
+| Chandler | 2,350 | 3,501 |
+| Gilbert | 2,300 | 3,415 |
 | Peoria | 2,250 | 3,367 |
 | Scottsdale | 2,200 | 3,295 |
 | Goodyear | 2,150 | 3,202 |
-| Tempe | 2,100 | 3,174 |
-| **All seven** | **16,800** | **25,284** |
+| Tempe | 2,100 | 3,175 |
+| **All seven** | **16,800** | **25,293** |
 
 Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed.
 

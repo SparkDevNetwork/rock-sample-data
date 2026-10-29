@@ -60,11 +60,24 @@ namespace RockSampleData.Loader.Loading
                 {
                     var entityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", category.EntityType ) )
                         ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' holds {category.EntityType}, which this Rock has no entity type for." ) );
-                    var qualifierValue = category.QualifierGroupType.HasValue ? _db.RequireIdByGuid( "GroupType", category.QualifierGroupType.Value ).ToString() : null;
+                    var qualifierColumn = category.QualifierGroupType.HasValue ? "GroupTypeId" : category.QualifierEntityType != null ? "EntityTypeId" : null;
+                    var qualifierValue = category.QualifierGroupType.HasValue ? _db.RequireIdByGuid( "GroupType", category.QualifierGroupType.Value ).ToString()
+                        : category.QualifierEntityType != null ? Convert.ToString( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", category.QualifierEntityType ) )
+                            ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' is for {category.QualifierEntityType}, which this Rock has no entity type for." ) )
+                        : null;
                     int? parentId = category.Parent == null ? null : ids[category.Parent];
 
-                    // Rock's category editor puts a new category after its siblings.
-                    var order = Convert.ToInt32( _db.Scalar( @"
+                    /*
+                        10/28/26 - CLAUDE
+
+                        Rock's category editor gives a new top-level category order 0, and a child the next order
+                        after its siblings (CategoryDetail). The person attribute categories Rock ships are all
+                        order 0, so an attribute category is too. Other categories keep the sibling count they
+                        have always had, so their rows do not change.
+
+                        Reason: An attribute category matches the ones Rock ships and its own editor.
+                    */
+                    var order = category.QualifierEntityType != null && parentId == null ? 0 : Convert.ToInt32( _db.Scalar( @"
 SELECT COUNT(*)
 FROM [Category]
 WHERE [EntityTypeId] = @EntityTypeId AND ISNULL( [ParentCategoryId], 0 ) = ISNULL( @ParentId, 0 )",
@@ -75,7 +88,7 @@ INSERT INTO [Category] ( [IsSystem], [ParentCategoryId], [EntityTypeId], [Entity
     [Order], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
 VALUES ( 0, @ParentId, @EntityTypeId, @QualifierColumn, @QualifierValue, @Name, @Icon, @Description, @Order, @Guid, @ForeignKey, @Now, @Now )",
-                        P( "@ParentId", parentId ), P( "@EntityTypeId", entityTypeId ), P( "@QualifierColumn", qualifierValue == null ? null : "GroupTypeId" ),
+                        P( "@ParentId", parentId ), P( "@EntityTypeId", entityTypeId ), P( "@QualifierColumn", qualifierColumn ),
                         P( "@QualifierValue", qualifierValue ), P( "@Name", category.Name ), P( "@Icon", category.IconCssClass ), P( "@Description", category.Description ),
                         P( "@Order", order ), P( "@Guid", category.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
                     written++;

@@ -2,7 +2,7 @@
 
 **Featured** · New household · 2 people · Phoenix campus · [source](../households/navarro.json)
 
-Dee Navarro is the Care Pastor. She makes hospital visits, leads grief care, oversees benevolence, and counsels. She and Hector have been at the church longer than almost anyone on staff, and their grown children have families of their own.
+Dee Navarro is the Care Director. She makes hospital visits, leads grief care, oversees benevolence, and counsels. She and Hector have been at the church longer than almost anyone on staff, and their grown children have families of their own.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -13,9 +13,9 @@ Dee Navarro is the Care Pastor. She makes hospital visits, leads grief care, ove
 
 ### Dee (Dolores) Navarro
 
-Dee is the Care Pastor. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.
+Dee is the Care Director. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.
 
-- Age 61 · married · Care Pastor, Rock Solid Church · email dee@rocksolidchurchdemo.com · 5 security roles
+- Age 61 · married · Care Director, Rock Solid Church · email dee@rocksolidchurchdemo.com · 5 security roles
 - Person Guid `BFD61E71-D242-40AA-8D69-46CF6305C90B`
 
 ### Hector Navarro
@@ -25,7 +25,7 @@ Dee is the Care Pastor. She volunteered on the prayer team for years before join
 
 ## What this family tests
 
-- Care Pastor with the prayer administration and benevolence roles.
+- Care Director with the pastoral notes, prayer administration, and benevolence roles.
 - Nickname that is not an obvious short form (Dolores goes by Dee).
 - Prayer team member on staff.
 

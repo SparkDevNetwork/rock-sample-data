@@ -724,3 +724,14 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 .rules-light .rule li strong { color: var(--ink); }
 .view-heading { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 40px 0 16px; }
 .view-topic { display: block; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
+
+/* A staff member's staff page bio and favorite quote on their household page (decision 201). */
+.staff-bio { font-size: 0.95rem; }
+.staff-quote { font-family: var(--serif); font-style: italic; color: var(--ink-2); border-left: 3px solid var(--paper-2); padding-left: 12px; }
+
+/* Staff photos crop with object-fit: cover at the position each photo records (photos/staff/manifest.json). */
+.staff-photo { object-fit: cover; }
+.campus-staff { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.campus-staff-person { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-size: 0.88rem; }
+.campus-staff-person img { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; }
+.campus-staff-person strong { display: block; }

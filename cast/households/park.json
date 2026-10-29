@@ -1,0 +1,160 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "park",
+  "guid": "27BCE200-3DBA-40FB-A87B-A35D11D793C5",
+  "name": "Park Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "gilbert",
+  "story": "Joel Park is the Gilbert Campus Pastor. He and Esther moved to the East Valley when he took the job, and Silas and Ruby check in to the Gilbert student and elementary rooms.",
+  "testPurposes": [
+    "Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus.",
+    "Cast family that lives at a campus other than the main one.",
+    "Staff family with a student and an elementary child."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1400 E San Angelo Ave",
+    "city": "Gilbert",
+    "state": "AZ",
+    "postalCode": "85234",
+    "latitude": 33.370661,
+    "longitude": -111.76066
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 93,
+    "started": {
+      "yearsAgo": 3,
+      "month": 8,
+      "day": 21
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "joel",
+      "funds": {
+        "General Fund": 150
+      },
+      "percentOfPeriodsGiven": 94,
+      "started": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 1
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "joel",
+      "guid": "2FD26F42-1EB7-4187-B1EE-04703144128D",
+      "firstName": "Joel",
+      "lastName": "Park",
+      "bio": "Joel is the Gilbert Campus Pastor. He joined staff three years ago and leads the East Valley campus.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 2,
+        "day": 17
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 6,
+        "day": 11
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "joel@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550185"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Gilbert Campus Pastor"
+      },
+      "logins": [
+        "jpark"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "esther",
+      "guid": "8AF57FCF-3FF4-40EC-B045-98D695A58A48",
+      "firstName": "Esther",
+      "lastName": "Park",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 44,
+        "month": 9,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 20,
+        "month": 6,
+        "day": 11
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "esther.park@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550184"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "Employer": "Sonoran Valley University",
+        "Position": "Librarian"
+      }
+    },
+    {
+      "key": "silas",
+      "guid": "E9F62075-6487-4541-BF31-5FA0CCD93FE9",
+      "firstName": "Silas",
+      "lastName": "Park",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 14,
+        "month": 5,
+        "day": 26
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "silas.park@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550183"
+      }
+    },
+    {
+      "key": "ruby",
+      "guid": "E1E9E9B0-FE92-4F1E-99EC-7AA32DD9BE42",
+      "firstName": "Ruby",
+      "lastName": "Park",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 11,
+        "month": 12,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

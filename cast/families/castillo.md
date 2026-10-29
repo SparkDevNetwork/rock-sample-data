@@ -2,7 +2,7 @@
 
 **Featured** · New household · 1 person · Phoenix campus · [source](../households/castillo.json)
 
-Naomi Castillo is the Worship Pastor. She leads worship at Phoenix most Sundays and trains each campus's worship leaders. She is single and lives near the Phoenix campus.
+Naomi Castillo is the Worship Director. She leads worship at Phoenix most Sundays and trains each campus's worship leaders. She is single and lives near the Phoenix campus.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,14 +12,14 @@ Naomi Castillo is the Worship Pastor. She leads worship at Phoenix most Sundays 
 
 ### Naomi Castillo
 
-Naomi is the Worship Pastor. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.
+Naomi is the Worship Director. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.
 
-- Age 34 · single · Worship Pastor, Rock Solid Church · email naomi@rocksolidchurchdemo.com · 1 security roles
+- Age 34 · single · Worship Director, Rock Solid Church · email naomi@rocksolidchurchdemo.com · 1 security roles
 - Person Guid `9CC4ECFF-28A4-4DD5-955E-16F3C31B291D`
 
 ## What this family tests
 
-- Worship Pastor who oversees worship at every campus.
+- Worship Director who oversees worship at every campus.
 - Single adult on staff, living alone.
 
 ## Activity

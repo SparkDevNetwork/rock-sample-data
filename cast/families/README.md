@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 101 hand-designed households and 221 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
+The Cast is 104 hand-designed households and 230 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -13,11 +13,12 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/alvarez-marco.jpg" width="56" alt="Marco Alvarez"> | [Alvarez Family](alvarez.md) | Marco, Elena, Sofia, Mateo | Newborn in the nursery and a preschooler, so two check-in areas for one family. |
 | <img src="../../photos/cast/brooks-nathan.jpg" width="56" alt="Nathan Brooks"> | [Brooks Family](brooks.md) | Nathan, Rachel, Ava, Caleb, Lily | Three kids across the student and elementary check-in areas. |
 | <img src="../../photos/cast/carter-margaret.jpg" width="56" alt="Peggy Carter"> | [Carter Family](carter.md) | Peggy | Widow living alone, age 78. |
-| <img src="../../photos/cast/castillo-naomi.jpg" width="56" alt="Naomi Castillo"> | [Castillo Family](castillo.md) | Naomi | Worship Pastor who oversees worship at every campus. |
+| <img src="../../photos/cast/castillo-naomi.jpg" width="56" alt="Naomi Castillo"> | [Castillo Family](castillo.md) | Naomi | Worship Director who oversees worship at every campus. |
 | <img src="../../photos/cast/coffee-phil.jpg" width="56" alt="Phil Coffee"> | [Coffee](coffee.md) | Phil | Invited-by-a-friend journey from first visit to baptism. |
 | <img src="../../photos/cast/decker-ted.jpg" width="56" alt="Ted Decker"> | [Decker Family](decker.md) | Ted, Cindy, Noah, Alex | Primary demo family used in documentation and screenshots. |
 | <img src="../../photos/cast/delgado-ray.jpg" width="56" alt="Ray Delgado"> | [Delgado Family](delgado.md) | Ray, Carmen | Facilities Director with Rock's safety and security role. |
 | <img src="../../photos/cast/dexter-frank.jpg" width="56" alt="Frank Dexter"> | [Dexter Family](dexter.md) | Frank | Failed background check that needs review. |
+| <img src="../../photos/cast/faleolo-josiah.jpg" width="56" alt="Josiah Faleolo"> | [Faleolo Family](faleolo.md) | Josiah, Leilani, Malia, Kai | Named campus pastor at Chandler, loaded only in Full 7. |
 | <img src="../../photos/cast/foster-pete.jpg" width="56" alt="Pete Foster"> | [Foster Family](foster.md) | Pete, Pamela | Senior pastor with pastoral and staff security roles. |
 | <img src="../../photos/cast/garcia-daniel.jpg" width="56" alt="Daniel Garcia"> | [Garcia Family](garcia.md) | Daniel, Maria, Olivia, Bella, Leo | Twins with the same birthday. |
 | <img src="../../photos/cast/gilbert-brian.jpg" width="56" alt="Brian Gilbert"> | [Gilbert](gilbert.md) | Brian, Wendy | Couple with matching connection requests to serve together. |
@@ -39,7 +40,9 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/miller-tom-tom.jpg" width="56" alt="Tom Miller"> | [Miller Family](miller-tom.md) | Tom | Original half of a duplicate pair for merge testing. |
 | <img src="../../photos/cast/mitchell-aaron.jpg" width="56" alt="Aaron Mitchell"> | [Mitchell Family](mitchell.md) | Aaron, Beth, Jonah, Clara | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
 | <img src="../../photos/cast/morrow-kelsey.jpg" width="56" alt="Kelsey Morrow"> | [Morrow Family](morrow.md) | Kelsey, Evan | Production Director who oversees every campus's production team. |
-| <img src="../../photos/cast/navarro-dee.jpg" width="56" alt="Dee Navarro"> | [Navarro Family](navarro.md) | Dee, Hector | Care Pastor with the prayer administration and benevolence roles. |
+| <img src="../../photos/cast/navarro-dee.jpg" width="56" alt="Dee Navarro"> | [Navarro Family](navarro.md) | Dee, Hector | Care Director with the pastoral notes, prayer administration, and benevolence roles. |
+| <img src="../../photos/cast/okafor-miles.jpg" width="56" alt="Miles Okafor"> | [Okafor Family](okafor.md) | Miles | Named campus pastor at Tempe, loaded only in Full 7. |
+| <img src="../../photos/cast/park-joel.jpg" width="56" alt="Joel Park"> | [Park Family](park.md) | Joel, Esther, Silas, Ruby | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
 | <img src="../../photos/cast/peak-daniel.jpg" width="56" alt="Daniel Peak"> | [Peak Family](peak.md) | Daniel | Staff member with website and communication administrator roles. |
 | <img src="../../photos/cast/peterson-brian.jpg" width="56" alt="Brian Peterson"> | [Peterson Family](peterson.md) | Brian, Becky | Married couple where one spouse has no email. |
 | <img src="../../photos/cast/pierce-jamal.jpg" width="56" alt="Jamal Pierce"> | [Pierce Family](pierce.md) | Jamal, Renee, Micah | Groups Pastor with Rock's connection administration role. |
@@ -51,11 +54,11 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/smith-john-other-john.jpg" width="56" alt="John Smith"> | [Smith Family](smith-john-other.md) | John | Duplicate detection: common name that must NOT be merged. |
 | <img src="../../photos/cast/smith-jon-jon.jpg" width="56" alt="Jon Smith"> | [Smith Family](smith-jon.md) | Jon | Duplicate detection: original record of a three-way duplicate. |
 | <img src="../../photos/cast/song-allie.jpg" width="56" alt="Allie Song"> | [Song](song.md) | Allie | The inviting friend in an invitation story. |
-| <img src="../../photos/cast/tsosie-leah.jpg" width="56" alt="Leah Tsosie"> | [Tsosie Family](tsosie.md) | Leah | Named campus pastor at Tempe, loaded only in Full 7. |
-| <img src="../../photos/cast/vu-tina.jpg" width="56" alt="Tina Vu"> | [Vu Family](vu.md) | Tina, Minh, Ellie, Theo | Named campus pastor at Chandler, loaded only in Full 7. |
+| <img src="../../photos/cast/tsosie-leah.jpg" width="56" alt="Leah Tsosie"> | [Tsosie Family](tsosie.md) | Leah | Campus worship leader at Tempe, loaded only in Full 7. |
+| <img src="../../photos/cast/vu-tina.jpg" width="56" alt="Tina Vu"> | [Vu Family](vu.md) | Tina, Minh, Ellie, Theo | Campus kids director at Chandler, loaded only in Full 7. |
 | <img src="../../photos/cast/washington-marcus.jpg" width="56" alt="Marcus Washington"> | [Washington Family](washington.md) | Marcus, Denise, Jasmine | An 18-year-old who is still a child in the family. |
 | <img src="../../photos/cast/webb-marty.jpg" width="56" alt="Marty Webb"> | [Webb](webb.md) | Marty, Deb | Married couple who are still Prospects but already in a small group. |
-| <img src="../../photos/cast/whitlock-dana.jpg" width="56" alt="Dana Whitlock"> | [Whitlock Family](whitlock.md) | Dana, Scott, Harper, Wes | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
+| <img src="../../photos/cast/whitlock-dana.jpg" width="56" alt="Dana Whitlock"> | [Whitlock Family](whitlock.md) | Dana, Scott, Harper, Wes | Campus staff at Gilbert, loaded only in datasets with the Gilbert campus. |
 
 ## All families
 
@@ -66,7 +69,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Bennett Family](bennett.md) | new | 3 | Connected | Middle school student whose attendance drops in spring. |
 | [Brooks Family](brooks.md) | new | 5 | Engaged, Leading | Three kids across the student and elementary check-in areas. |
 | [Carter Family](carter.md) | new | 1 | Engaged | Widow living alone, age 78. |
-| [Castillo Family](castillo.md) | new | 1 | Engaged | Worship Pastor who oversees worship at every campus. |
+| [Castillo Family](castillo.md) | new | 1 | Engaged | Worship Director who oversees worship at every campus. |
 | [Cholla Creek Hardware](cholla-creek-hardware.md) | legacy | 1 | Prospect | Business record. |
 | [Coffee](coffee.md) | legacy | 1 | Engaged | Invited-by-a-friend journey from first visit to baptism. |
 | [Coleman Family](coleman.md) | new | 4 | Connected | Two working parents, two check-in rooms. |
@@ -80,6 +83,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Diaz Family](diaz.md) | new | 2 | Known | Holiday-only attenders. |
 | [Ellis Family](ellis.md) | new | 2 | Known | New couple: first visit about four months ago. |
 | [Evans](evans.md) | legacy | 1 | Prospect | Event guest who needs follow-up. |
+| [Faleolo Family](faleolo.md) | new | 4 | Engaged | Named campus pastor at Chandler, loaded only in Full 7. |
 | [Fischer Family](fischer.md) | new | 4 | Connected | High school students, including a senior about to graduate. |
 | [Flores Family](flores.md) | new | 3 | Connected | Never-married single parent. |
 | [Foster Family](foster.md) | legacy | 2 | Leading, Engaged | Senior pastor with pastoral and staff security roles. |
@@ -118,9 +122,11 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
 | [Morrow Family](morrow.md) | new | 2 | Engaged | Production Director who oversees every campus's production team. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
-| [Navarro Family](navarro.md) | new | 2 | Engaged | Care Pastor with the prayer administration and benevolence roles. |
+| [Navarro Family](navarro.md) | new | 2 | Engaged | Care Director with the pastoral notes, prayer administration, and benevolence roles. |
 | [Nguyen Family](nguyen.md) | new | 1 | Leading | Single adult who gives weekly online by card. |
+| [Okafor Family](okafor.md) | new | 1 | Engaged | Named campus pastor at Tempe, loaded only in Full 7. |
 | [Ortiz Family](ortiz.md) | new | 3 | Connected | Lapsed family: attendance and giving stopped about six months ago. |
+| [Park Family](park.md) | new | 4 | Engaged | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
 | [Patel Family](patel.md) | new | 2 | Engaged | Gives every week but seldom attends in person. |
 | [Peak Family](peak.md) | legacy | 1 | Engaged | Staff member with website and communication administrator roles. |
 | [Perry Family](perry.md) | new | 1 | Known | Married man attending without his spouse (spouse not in the database). |
@@ -150,15 +156,15 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Sweeney Family](sweeney.md) | legacy | 2 | Connected | Married couple in the same small group. |
 | [Tennant Family](tennant.md) | legacy | 2 | Connected | Married couple with different employers. |
 | [Torres Family](torres.md) | new | 3 | Participant, Connected | Teen who is more engaged than her parents. |
-| [Tsosie Family](tsosie.md) | new | 1 | Engaged | Named campus pastor at Tempe, loaded only in Full 7. |
+| [Tsosie Family](tsosie.md) | new | 1 | Engaged | Campus worship leader at Tempe, loaded only in Full 7. |
 | [Tucker Family](tucker.md) | legacy | 1 | Connected | Pending record that needs review. |
 | [Turner](turner.md) | legacy | 1 | Prospect | Open connection request that needs a connector. |
-| [Vu Family](vu.md) | new | 4 | Engaged | Named campus pastor at Chandler, loaded only in Full 7. |
+| [Vu Family](vu.md) | new | 4 | Engaged | Campus kids director at Chandler, loaded only in Full 7. |
 | [Ward Family](ward.md) | new | 4 | Connected | One-time giver. |
 | [Washington Family](washington.md) | new | 3 | Engaged | An 18-year-old who is still a child in the family. |
 | [Watson Family](watson.md) | new | 2 | Known | Year-end-only giver. |
 | [Webb](webb.md) | legacy | 2 | Prospect | Married couple who are still Prospects but already in a small group. |
-| [Whitlock Family](whitlock.md) | new | 4 | Engaged | Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus. |
+| [Whitlock Family](whitlock.md) | new | 4 | Engaged | Campus staff at Gilbert, loaded only in datasets with the Gilbert campus. |
 | [Wood Family](wood.md) | new | 4 | Connected | Middle school student in the student check-in area. |
 | [Wright Family](wright.md) | new | 2 | Leading, Engaged | Weekly cash giver. |
 | [Young Family](young.md) | new | 2 | Participant | Participant through a community event. |

@@ -250,6 +250,19 @@ namespace RockSampleData.Loader
                 log.Write( $"  Church categories: {categoryCount}" );
             }
 
+            // The Staff person attributes, in their category, with the block that shows them (decision 201).
+            var staffLoader = new StaffLoader( db, source, dates, foreignKey );
+            if ( staffLoader.HasAttributes )
+            {
+                log.Write( $"  Staff attributes: {staffLoader.LoadSetup()}" );
+            }
+
+            // The org chart's units in Rock's Organization Unit groups (decision 202).
+            if ( staffLoader.HasOrgChart )
+            {
+                log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
+            }
+
             var profile = source.ReadProfile();
             var years = options.HistoryYears;
             var calendar = new SundayCalendar( dates.Anchor, years, profile );
@@ -334,6 +347,19 @@ namespace RockSampleData.Loader
                 // Cast staff join the security roles their stories give them, all roles Rock ships.
                 securityRoles = new SecurityRolesLoader( db, foreignKey );
                 log.Write( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
+
+                // Each loaded staff member's title, department, campus, bio, quote, supervisor, and start date.
+                if ( staffLoader.HasAttributes )
+                {
+                    var campusGuids = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Guid );
+                    log.Write( $"  Staff attribute values: {staffLoader.LoadValues( people, campusGuids ):N0}" );
+                }
+
+                // Each org chart unit's leader and staff.
+                if ( staffLoader.HasOrgChart )
+                {
+                    log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
+                }
             }
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
@@ -343,6 +369,13 @@ namespace RockSampleData.Loader
                 var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
+
+                // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
+                var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
+                if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
+                {
+                    log.Write( $"  Staff photos: {photoLoader.LoadStaffPhotos( people.Households, staffPhotoAttribute.Guid )}" );
+                }
             }
 
             // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its

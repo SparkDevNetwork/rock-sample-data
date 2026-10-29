@@ -1,5 +1,5 @@
 {
-  "$comment": "The church staff (decision 198). Each staff member is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
+  "$comment": "The church staff (decision 198). Each of the 23 staff members is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
   "staff": [
     {
       "key": "pete",
@@ -7,7 +7,15 @@
       "name": "Pete Foster",
       "title": "Senior Pastor",
       "department": "executive",
-      "campus": null
+      "campus": null,
+      "supervisor": null,
+      "startDate": {
+        "yearsAgo": 14,
+        "month": 8,
+        "day": 1
+      },
+      "bio": "Pete has been our senior pastor for 14 years. He preaches most Sundays at Phoenix, where the sermon is broadcast to every campus. He and Pamela love long walks and longer conversations.",
+      "quote": "\"Whosoever heareth these sayings of mine, and doeth them, I will liken him unto a wise man, which built his house upon a rock.\" (Matthew 7:24)"
     },
     {
       "key": "greg",
@@ -15,7 +23,15 @@
       "name": "Greg Holloway",
       "title": "Executive Pastor",
       "department": "executive",
-      "campus": null
+      "campus": null,
+      "supervisor": "pete",
+      "startDate": {
+        "yearsAgo": 6,
+        "month": 3,
+        "day": 1
+      },
+      "bio": "Greg leads our staff, our budget, and our campus pastors, so Pete can preach and lead. He came to us six years ago from a career in business. He and Lisa have two grown sons.",
+      "quote": "\"Let all things be done decently and in order.\" (1 Corinthians 14:40)"
     },
     {
       "key": "ted",
@@ -23,7 +39,15 @@
       "name": "Ted Decker",
       "title": "Outreach Pastor",
       "department": "connections",
-      "campus": null
+      "campus": null,
+      "supervisor": "pete",
+      "startDate": {
+        "yearsAgo": 9,
+        "month": 6,
+        "day": 15
+      },
+      "bio": "Ted leads outreach, from Serve Sunday to the blood drive, and he also oversees groups and care. He and Cindy have two kids, Noah and Alex.",
+      "quote": "\"For the Son of man is come to seek and to save that which was lost.\" (Luke 19:10)"
     },
     {
       "key": "alisha",
@@ -31,7 +55,15 @@
       "name": "Alisha Marble",
       "title": "Executive Assistant",
       "department": "executive",
-      "campus": null
+      "campus": null,
+      "supervisor": "pete",
+      "startDate": {
+        "yearsAgo": 16,
+        "month": 1,
+        "day": 10
+      },
+      "bio": "Alisha keeps the church office running and is our Rock administrator. She is usually the first person to answer when someone asks to serve. She and Bill lead small groups.",
+      "quote": "\"If it isn't in Rock, it didn't happen.\""
     },
     {
       "key": "daniel",
@@ -39,7 +71,15 @@
       "name": "Daniel Peak",
       "title": "Director of Communications",
       "department": "administration",
-      "campus": null
+      "campus": null,
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 8,
+        "month": 9,
+        "day": 1
+      },
+      "bio": "Daniel leads communications: our emails, texts, website, and app. He has built websites for years and loves a clear sentence.",
+      "quote": "\"Say it once, say it clearly, and say it where people already are.\""
     },
     {
       "key": "priya",
@@ -47,7 +87,15 @@
       "name": "Priya Raman",
       "title": "Finance Director",
       "department": "administration",
-      "campus": null
+      "campus": null,
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 7,
+        "month": 5,
+        "day": 1
+      },
+      "bio": "Priya runs our finances, from payroll and deposits to giving statements and the building campaign. She and Sunil have a daughter, Anika, in our student ministry.",
+      "quote": "\"He that is faithful in that which is least is faithful also in much.\" (Luke 16:10)"
     },
     {
       "key": "ray",
@@ -55,15 +103,31 @@
       "name": "Ray Delgado",
       "title": "Facilities Director",
       "department": "administration",
-      "campus": null
+      "campus": null,
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 10,
+        "month": 6,
+        "day": 9
+      },
+      "bio": "Ray cares for our buildings at every campus, from rooms and repairs to our safety team. He and Carmen raised their three children at the church.",
+      "quote": "\"A clean building tells every guest we were expecting them.\""
     },
     {
       "key": "naomi",
       "person": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
       "name": "Naomi Castillo",
-      "title": "Worship Pastor",
+      "title": "Worship Director",
       "department": "worship",
-      "campus": null
+      "campus": null,
+      "supervisor": "pete",
+      "startDate": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 6
+      },
+      "bio": "Naomi is our Worship Director. She leads worship at Phoenix most Sundays and trains the worship leaders at every campus. She writes songs and has never met a harmony she didn't like.",
+      "quote": "\"Let every thing that hath breath praise the LORD.\" (Psalm 150:6)"
     },
     {
       "key": "kelsey",
@@ -71,7 +135,31 @@
       "name": "Kelsey Morrow",
       "title": "Production Director",
       "department": "worship",
-      "campus": null
+      "campus": null,
+      "supervisor": "naomi",
+      "startDate": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 3
+      },
+      "bio": "Kelsey runs sound, lights, and streaming at every campus and trains our production volunteers. She and Evan love hiking the trails near Phoenix.",
+      "quote": "\"The best Sunday is the one where nobody notices the tech.\""
+    },
+    {
+      "key": "leah",
+      "person": "2C1EC260-13B8-489E-9B38-61F732ED7022",
+      "name": "Leah Tsosie",
+      "title": "Tempe Worship Leader",
+      "department": "worship",
+      "campus": "tempe",
+      "supervisor": "naomi",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 2
+      },
+      "bio": "Leah leads worship at our Tempe campus, where most people are singles and young adults. She lives near the campus and loves a good coffee shop.",
+      "quote": "\"O sing unto the LORD a new song.\" (Psalm 96:1)"
     },
     {
       "key": "rachel",
@@ -79,7 +167,29 @@
       "name": "Rachel Brooks",
       "title": "Kids Director",
       "department": "kids",
-      "campus": null
+      "campus": null,
+      "supervisor": "greg",
+      "startDate": {
+        "daysAgo": 120
+      },
+      "bio": "Rachel leads our kids ministry. She led the Phoenix kids volunteers for years before joining staff this year. She and Nathan have three kids of their own.",
+      "quote": "\"Suffer the little children to come unto me, and forbid them not.\" (Mark 10:14)"
+    },
+    {
+      "key": "tina",
+      "person": "87A06537-76C2-4100-8408-1CFF4EE55248",
+      "name": "Tina Vu",
+      "title": "Chandler Kids Director",
+      "department": "kids",
+      "campus": "chandler",
+      "supervisor": "rachel",
+      "startDate": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 19
+      },
+      "bio": "Tina leads kids ministry at Chandler, the church's largest. She and Minh have two little ones, Ellie and Theo.",
+      "quote": "\"Spilled juice in the lobby means we're doing something right.\""
     },
     {
       "key": "isaac",
@@ -87,7 +197,13 @@
       "name": "Isaac Silva",
       "title": "Student Pastor",
       "department": "students",
-      "campus": null
+      "campus": null,
+      "supervisor": "greg",
+      "startDate": {
+        "daysAgo": 210
+      },
+      "bio": "Isaac leads our student ministry. He served as a volunteer for three years before joining staff this year. He and Natalie own Javelina Wash Coffee.",
+      "quote": "\"Let no man despise thy youth; but be thou an example of the believers.\" (1 Timothy 4:12)"
     },
     {
       "key": "jamal",
@@ -95,15 +211,31 @@
       "name": "Jamal Pierce",
       "title": "Groups Pastor",
       "department": "connections",
-      "campus": null
+      "campus": null,
+      "supervisor": "ted",
+      "startDate": {
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 15
+      },
+      "bio": "Jamal helps every campus start, fill, and lead small groups. He and Renee have a son, Micah.",
+      "quote": "\"And let us consider one another to provoke unto love and to good works.\" (Hebrews 10:24)"
     },
     {
       "key": "dee",
       "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
       "name": "Dee Navarro",
-      "title": "Care Pastor",
+      "title": "Care Director",
       "department": "connections",
-      "campus": null
+      "campus": null,
+      "supervisor": "ted",
+      "startDate": {
+        "yearsAgo": 11,
+        "month": 2,
+        "day": 1
+      },
+      "bio": "Dee is our Care Director: hospital visits, grief care, benevolence, and counseling. She prayed with people as a volunteer for years before joining staff. She and Hector have been married 38 years.",
+      "quote": "\"The LORD is nigh unto them that are of a broken heart.\" (Psalm 34:18)"
     },
     {
       "key": "aaron",
@@ -111,7 +243,15 @@
       "name": "Aaron Mitchell",
       "title": "Phoenix Campus Pastor",
       "department": "campuses",
-      "campus": "phoenix"
+      "campus": "phoenix",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 5,
+        "month": 7,
+        "day": 12
+      },
+      "bio": "Aaron leads our Phoenix campus, the church's first and largest. He and Beth moved to Phoenix for the job and have two kids, Jonah and Clara.",
+      "quote": "\"Every name on a connection card is a person God already knows.\""
     },
     {
       "key": "andre",
@@ -119,15 +259,31 @@
       "name": "Andre Haywood",
       "title": "Peoria Campus Pastor",
       "department": "campuses",
-      "campus": "peoria"
+      "campus": "peoria",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 4,
+        "month": 1,
+        "day": 8
+      },
+      "bio": "Andre leads our Peoria campus in the West Valley. He and Keisha have a son, Isaiah, in the Peoria student ministry.",
+      "quote": "\"Show up early, stay late, and learn the names.\""
     },
     {
-      "key": "dana",
-      "person": "9781F0D0-DF05-4C96-A599-F3971238981D",
-      "name": "Dana Whitlock",
+      "key": "joel",
+      "person": "2FD26F42-1EB7-4187-B1EE-04703144128D",
+      "name": "Joel Park",
       "title": "Gilbert Campus Pastor",
       "department": "campuses",
-      "campus": "gilbert"
+      "campus": "gilbert",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 8,
+        "day": 21
+      },
+      "bio": "Joel leads our Gilbert campus in the East Valley. He and Esther have two kids, Silas and Ruby.",
+      "quote": "\"Except the LORD build the house, they labour in vain that build it.\" (Psalm 127:1)"
     },
     {
       "key": "walt",
@@ -135,15 +291,31 @@
       "name": "Walt Hargrove",
       "title": "Scottsdale Campus Pastor",
       "department": "campuses",
-      "campus": "scottsdale"
+      "campus": "scottsdale",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 6,
+        "month": 2,
+        "day": 4
+      },
+      "bio": "Walt leads our Scottsdale campus. He pastored the Scottsdale church for 18 years before it joined Rock Solid Church, and he has led it as a campus since. He and June have three grown children.",
+      "quote": "\"Behold, how good and how pleasant it is for brethren to dwell together in unity!\" (Psalm 133:1)"
     },
     {
-      "key": "tina",
-      "person": "87A06537-76C2-4100-8408-1CFF4EE55248",
-      "name": "Tina Vu",
+      "key": "josiah",
+      "person": "5DD2FCE8-0F2D-4A99-8C9C-0191AF2A541C",
+      "name": "Josiah Faleolo",
       "title": "Chandler Campus Pastor",
       "department": "campuses",
-      "campus": "chandler"
+      "campus": "chandler",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 19
+      },
+      "bio": "Josiah leads our Chandler campus, home to the church's largest kids ministry. He and Leilani have two little ones, Malia and Kai.",
+      "quote": "\"Train up a child in the way he should go: and when he is old, he will not depart from it.\" (Proverbs 22:6)"
     },
     {
       "key": "rafael",
@@ -151,24 +323,306 @@
       "name": "Rafael Ibarra",
       "title": "Goodyear Campus Pastor",
       "department": "campuses",
-      "campus": "goodyear"
+      "campus": "goodyear",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 7
+      },
+      "bio": "Rafael leads our Goodyear campus, our newest, which meets in a high school auditorium. He is there before six every Sunday to help set up. He and Elisa have a baby, Nico.",
+      "quote": "\"Behold, I will do a new thing; now it shall spring forth.\" (Isaiah 43:19)"
     },
     {
-      "key": "leah",
-      "person": "2C1EC260-13B8-489E-9B38-61F732ED7022",
-      "name": "Leah Tsosie",
+      "key": "miles",
+      "person": "A102460D-6362-4202-8F8E-19CA2679312B",
+      "name": "Miles Okafor",
       "title": "Tempe Campus Pastor",
       "department": "campuses",
-      "campus": "tempe"
+      "campus": "tempe",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 2
+      },
+      "bio": "Miles leads our Tempe campus, where most people are singles and young adults. He lives near the campus and knows every coffee shop around it.",
+      "quote": "\"Nobody should have to find their people alone.\""
+    },
+    {
+      "key": "dana",
+      "person": "9781F0D0-DF05-4C96-A599-F3971238981D",
+      "name": "Dana Whitlock",
+      "title": "Gilbert Campus Director",
+      "department": "campuses",
+      "campus": "gilbert",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 8,
+        "day": 21
+      },
+      "bio": "Dana is our Gilbert Campus Director. She runs the campus's Sundays, volunteers, and weekday ministries beside Joel. She and Scott have two kids, Harper and Wes.",
+      "quote": "\"Church is the people who notice when you're gone.\""
     }
   ],
   "campusPastors": {
     "phoenix": "aaron",
     "peoria": "andre",
-    "gilbert": "dana",
+    "gilbert": "joel",
     "scottsdale": "walt",
-    "chandler": "tina",
+    "chandler": "josiah",
     "goodyear": "rafael",
-    "tempe": "leah"
+    "tempe": "miles"
+  },
+  "category": "staff-person-attributes",
+  "roles": {
+    "rockAdministration": "628C51A8-4613-43ED-A18D-4A6FB999273E",
+    "communicationAdministration": "B1906B7D-1A1E-41B9-BBA4-F4482CECAF7B",
+    "staffWorkers": "2C112948-FF4C-46E7-981A-0257681EADF4"
+  },
+  "attributes": [
+    {
+      "key": "StaffPhoto",
+      "guid": "48E5678D-4FD7-4BE4-8ECA-918323D6EA00",
+      "name": "Staff Photo",
+      "description": "The staff member's photo for a staff page, outdoors at the Phoenix campus. It is stored as an Unsecured file, so a visitor who is not signed in can see it.",
+      "fieldType": "image",
+      "order": 0,
+      "qualifiers": {
+        "binaryFileType": "C1142570-8CD6-4A20-83B1-ACB47C1CD377"
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffTitle",
+      "guid": "314D99E8-0688-42AD-B812-0706E6E5079F",
+      "name": "Staff Title",
+      "description": "The church's title for the role, such as Peoria Campus Pastor.",
+      "fieldType": "text",
+      "order": 1,
+      "qualifiers": {
+        "ispassword": "False",
+        "maxcharacters": "100",
+        "showcountdown": "False"
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffDepartment",
+      "guid": "0DC678C2-1ABC-424E-9B4E-A69C1F35D715",
+      "name": "Department",
+      "description": "The staff department, the same as the church's org chart.",
+      "fieldType": "single-select",
+      "order": 2,
+      "qualifiers": {
+        "values": "executive^Leadership,administration^Operations,worship^Worship and Production,kids^Kids,students^Students,connections^Outreach Groups and Care,campuses^Campuses",
+        "fieldtype": "ddl",
+        "repeatColumns": ""
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffCampus",
+      "guid": "BBDEBA2D-74E0-461D-BF4B-A7138179259F",
+      "name": "Staff Campus",
+      "description": "The campus the staff member serves. Blank means every campus.",
+      "fieldType": "campus",
+      "order": 3,
+      "qualifiers": {
+        "includeInactive": "False"
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffBio",
+      "guid": "34883CA7-84B0-4AF3-95C4-1286745BF31E",
+      "name": "Staff Bio",
+      "description": "A few sentences about the staff member for a staff page.",
+      "fieldType": "memo",
+      "order": 4,
+      "qualifiers": {
+        "numberofrows": "3",
+        "allowhtml": "False",
+        "maxcharacters": "",
+        "showcountdown": "False"
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffFavoriteQuote",
+      "guid": "A43F5404-CAAC-449D-B686-7AA0E9DBB07D",
+      "name": "Favorite Quote",
+      "description": "A favorite quote or Bible verse, with its reference, for a staff page.",
+      "fieldType": "text",
+      "order": 5,
+      "qualifiers": {
+        "ispassword": "False",
+        "maxcharacters": "250",
+        "showcountdown": "False"
+      },
+      "viewers": null,
+      "editors": [
+        "rockAdministration",
+        "communicationAdministration"
+      ]
+    },
+    {
+      "key": "StaffSupervisor",
+      "guid": "0A83872A-B23C-4CFB-8C69-BE464DCDF10A",
+      "name": "Supervisor",
+      "description": "Who the staff member reports to. Staff only.",
+      "fieldType": "person",
+      "order": 6,
+      "qualifiers": {
+        "EnableSelfSelection": "False",
+        "includeBusinesses": "False"
+      },
+      "viewers": [
+        "staffWorkers",
+        "rockAdministration"
+      ],
+      "editors": [
+        "rockAdministration"
+      ]
+    },
+    {
+      "key": "StaffStartDate",
+      "guid": "FAEE8965-FCD9-4F86-970E-89B13C8700E7",
+      "name": "Staff Start Date",
+      "description": "The day the staff member joined staff. Staff only.",
+      "fieldType": "date",
+      "order": 7,
+      "qualifiers": {
+        "format": "",
+        "displayDiff": "False"
+      },
+      "viewers": [
+        "staffWorkers",
+        "rockAdministration"
+      ],
+      "editors": [
+        "rockAdministration"
+      ]
+    }
+  ],
+  "block": {
+    "guid": "5B8AECAD-9248-4E51-972C-907A4ACD053E",
+    "name": "Staff",
+    "page": "1C737278-4CBA-404B-B6B3-E3F0E05AB5FE",
+    "blockType": "D70A59DC-16BE-43BE-9880-59598FA7A94C",
+    "zone": "SectionB3",
+    "order": 3
+  },
+  "$orgChartComment": "The org chart (decision 202): Rock's Organization Unit groups, which its Office Information > Org Chart page shows. Rock ships Organization and four departments under it; the church adds Campuses and Worship. Each unit has its leader in Rock's Leader role and its staff in the Staff role, by staff key. A unit's leader is the supervisor of its staff. Staff whose campus is not in the dataset are left out.",
+  "orgChart": {
+    "groupType": "AAB2E9F4-E828-4FEE-8467-73DC9DAB784C",
+    "leaderRole": "8438D6C5-DB92-4C99-947B-60E9100F223D",
+    "staffRole": "17E516FC-76A4-4BF4-9B6F-0F859B13F563",
+    "units": [
+      {
+        "key": "organization",
+        "guid": "EF41CD00-1266-4BE6-9130-453982014B79",
+        "rockShips": true,
+        "leader": "pete",
+        "staff": [
+          "alisha",
+          "greg",
+          "ted",
+          "naomi"
+        ]
+      },
+      {
+        "key": "childrens",
+        "guid": "56AD5243-DED9-42F1-A922-5069A4EF7A7B",
+        "rockShips": true,
+        "leader": "rachel",
+        "staff": [
+          "tina"
+        ]
+      },
+      {
+        "key": "students",
+        "guid": "44C85087-A452-4D13-B95B-EC92FF0F9A7F",
+        "rockShips": true,
+        "leader": "isaac",
+        "staff": []
+      },
+      {
+        "key": "connections",
+        "guid": "4737CD5D-DEA1-4F78-A581-D246B08CED6A",
+        "rockShips": true,
+        "leader": "ted",
+        "staff": [
+          "jamal",
+          "dee"
+        ]
+      },
+      {
+        "key": "administration",
+        "guid": "5B6BE24F-349B-4630-B99C-20BB62BC8BD2",
+        "rockShips": true,
+        "leader": "greg",
+        "staff": [
+          "daniel",
+          "priya",
+          "ray"
+        ]
+      },
+      {
+        "key": "campuses",
+        "guid": "3A392C39-05D5-4D9F-BAE3-A3D530E58CEE",
+        "rockShips": false,
+        "name": "Campuses",
+        "description": "Department for campus pastors.",
+        "parent": "organization",
+        "order": 5,
+        "leader": "greg",
+        "staff": [
+          "aaron",
+          "andre",
+          "joel",
+          "walt",
+          "josiah",
+          "rafael",
+          "miles",
+          "dana"
+        ]
+      },
+      {
+        "key": "worship",
+        "guid": "FF8A8A01-416E-4090-9D55-8FACE7FFF21D",
+        "rockShips": false,
+        "name": "Worship",
+        "description": "Department for worship and production staff.",
+        "parent": "organization",
+        "order": 6,
+        "leader": "naomi",
+        "staff": [
+          "kelsey",
+          "leah"
+        ]
+      }
+    ]
   }
 }

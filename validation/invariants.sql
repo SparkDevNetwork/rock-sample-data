@@ -1209,3 +1209,87 @@ SELECT CASE WHEN (
         INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
         WHERE [m].[ForeignKey] = @ForeignKey AND [i].[IsActive] = 1 AND [t].[IsActive] = 1
             AND [i].[StartDateTime] <= GETDATE() AND [i].[EndDateTime] >= GETDATE() ) >= 7 THEN 0 ELSE 1 END;
+
+-- check: staff-attributes-belong-to-staff
+-- why: Decision 201. The Staff person attributes describe staff, so every value belongs to an active person in RSR - Staff Workers. A value on anyone else would show a stranger as staff on a staff page.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [AttributeCategory] AS [ac] ON [ac].[AttributeId] = [av].[AttributeId]
+INNER JOIN [Category] AS [c] ON [c].[Id] = [ac].[CategoryId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+LEFT JOIN [DefinedValue] AS [rs] ON [rs].[Id] = [p].[RecordStatusValueId]
+WHERE [c].[Guid] = '6A3F015A-6CE1-401F-9C5F-8F29D33C99E9' AND [av].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( [rs].[Guid], '00000000-0000-0000-0000-000000000000' ) <> '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E'
+        OR NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] WHERE [gm].[PersonId] = [p].[Id] AND [g].[Guid] = '2C112948-FF4C-46E7-981A-0257681EADF4' ) );
+
+-- check: every-staff-member-has-title-department-and-start
+-- why: Decision 201. A staff page lists people by title and department, and staff screens sort by start date. A staff member with one value but not the others would show half a card.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [av].[EntityId]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [AttributeCategory] AS [ac] ON [ac].[AttributeId] = [av].[AttributeId]
+    INNER JOIN [Category] AS [c] ON [c].[Id] = [ac].[CategoryId]
+    WHERE [c].[Guid] = '6A3F015A-6CE1-401F-9C5F-8F29D33C99E9' AND [av].[ForeignKey] = @ForeignKey ) AS [s]
+WHERE ( SELECT COUNT( DISTINCT [a].[Key] )
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [av].[EntityId] = [s].[EntityId] AND [a].[Key] IN ( 'StaffTitle', 'StaffDepartment', 'StaffStartDate' ) AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        AND ISNULL( [av].[Value], '' ) <> '' ) <> 3;
+
+-- check: staff-supervisor-is-staff
+-- why: Decision 201. A supervisor is a staff member's alias, and ValueAsPersonId is that person, as Rock's save hook sets it. A supervisor who is not staff, or a person Id that does not match the alias, would put the wrong boss on the profile.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+LEFT JOIN [PersonAlias] AS [pa] ON CONVERT( nvarchar(50), [pa].[Guid] ) = [av].[Value]
+WHERE [a].[Key] = 'StaffSupervisor' AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [av].[ForeignKey] = @ForeignKey
+    AND ( [pa].[Id] IS NULL OR ISNULL( [av].[ValueAsPersonId], 0 ) <> [pa].[PersonId]
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] WHERE [ta].[Key] = 'StaffTitle' AND [ta].[EntityTypeId] = [a].[EntityTypeId] AND [t].[EntityId] = [pa].[PersonId] ) );
+
+-- check: every-campus-has-one-campus-pastor
+-- why: Decisions 198 and 201. Each campus in the dataset has exactly one named campus pastor, in the Campus Pastors department with that campus, who is in RSR - Pastoral Workers to read the notes they write. A load with staff attributes and a campus with none, or two, breaks the calendar, welcomes, and notes that name them.
+SELECT COUNT(*)
+FROM [Campus] AS [cm]
+WHERE EXISTS ( SELECT 1 FROM [Category] WHERE [Guid] = '6A3F015A-6CE1-401F-9C5F-8F29D33C99E9' )
+    AND EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[PrimaryCampusId] = [cm].[Id] AND [p].[ForeignKey] = @ForeignKey )
+    AND ( SELECT COUNT(*)
+        FROM [AttributeValue] AS [d]
+        INNER JOIN [Attribute] AS [da] ON [da].[Id] = [d].[AttributeId] AND [da].[Key] = 'StaffDepartment'
+        INNER JOIN [AttributeValue] AS [k] ON [k].[EntityId] = [d].[EntityId]
+        INNER JOIN [Attribute] AS [ka] ON [ka].[Id] = [k].[AttributeId] AND [ka].[Key] = 'StaffCampus' AND [ka].[EntityTypeId] = [da].[EntityTypeId]
+        WHERE [da].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [d].[Value] = 'campuses' AND [k].[Value] = LOWER( CONVERT( nvarchar(50), [cm].[Guid] ) )
+            AND EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] WHERE [gm].[PersonId] = [d].[EntityId] AND [g].[Guid] = '26E7148C-2059-4F45-BCFE-32230A12F0DC' ) ) <> 1;
+
+-- check: org-chart-members-are-staff
+-- why: Decision 202. Rock's Org Chart page shows the Organization Unit groups, so everyone on them is a staff member with a Staff Title. A volunteer there would read as staff.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [gm].[GroupTypeId]
+WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [gm].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+        WHERE [a].[Key] = 'StaffTitle' AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [av].[EntityId] = [gm].[PersonId] );
+
+-- check: every-staff-member-is-on-the-org-chart
+-- why: Decision 202. Every staff member in the dataset belongs to at least one Organization Unit group, so the Org Chart page shows the whole staff.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [a].[Key] = 'StaffTitle' AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [av].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [Group] AS [g] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId] WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [g].[ForeignKey] = @ForeignKey )
+    AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [gm].[GroupTypeId]
+        WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [gm].[PersonId] = [av].[EntityId] );
+
+-- check: org-unit-leader-supervises-its-staff
+-- why: Decisions 201 and 202. A unit's staff report to its leader, so each Staff-role member's Supervisor is a Leader of that unit. Otherwise the Org Chart and the profile would disagree about who someone reports to.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [gm].[GroupTypeId]
+INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [gm].[ForeignKey] = @ForeignKey AND [r].[IsLeader] = 0
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [AttributeValue] AS [sv]
+        INNER JOIN [Attribute] AS [sa] ON [sa].[Id] = [sv].[AttributeId] AND [sa].[Key] = 'StaffSupervisor'
+        INNER JOIN [GroupMember] AS [lead] ON [lead].[GroupId] = [gm].[GroupId] AND [lead].[PersonId] = [sv].[ValueAsPersonId]
+        INNER JOIN [GroupTypeRole] AS [lr] ON [lr].[Id] = [lead].[GroupRoleId] AND [lr].[IsLeader] = 1
+        WHERE [sa].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [sv].[EntityId] = [gm].[PersonId] );

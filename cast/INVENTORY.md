@@ -126,13 +126,13 @@ Seven households were added so every campus has a named campus pastor who is alw
 |---|---|---|---|
 | [mitchell](households/mitchell.json) | Phoenix | Aaron (campus pastor), Beth, Jonah 12, Clara 9 | Phoenix's campus pastor: notes, welcomes, and Phoenix campus events. |
 | [haywood](households/haywood.json) | Peoria | Andre (campus pastor), Keisha, Isaiah 16 | Cast family on a campus other than the main one. |
-| [whitlock](households/whitlock.json) | Gilbert | Dana (campus pastor), Scott, Harper 10, Wes 7 | Campus pastor whose spouse is not on staff. |
+| [whitlock](households/whitlock.json) | Gilbert | Dana (Campus Director since 2026-10-29), Scott, Harper 10, Wes 7 | Campus staff whose spouse is not on staff. |
 | [hargrove](households/hargrove.json) | Scottsdale | Walt (campus pastor), June | Pastor who came over in the Scottsdale merger. |
-| [vu](households/vu.json) | Chandler | Tina (campus pastor), Minh, Ellie 5, Theo 2 | Staff family with a toddler and a preschooler. |
+| [vu](households/vu.json) | Chandler | Tina (Kids Director since 2026-10-29), Minh, Ellie 5, Theo 2 | Staff family with a toddler and a preschooler. |
 | [ibarra](households/ibarra.json) | Goodyear | Rafael (campus pastor), Elisa, Nico 1 | Staff family with a baby in the nursery. |
-| [tsosie](households/tsosie.json) | Tempe | Leah (campus pastor) | Single adult on staff, living alone. |
+| [tsosie](households/tsosie.json) | Tempe | Leah (Worship Leader since 2026-10-29) | Single adult on staff, living alone. |
 
-The Cast is now 94 households and 206 people. Their profile photos are still to be made.
+The Cast is now 94 households and 206 people. Their profile photos were delivered on 2026-10-29.
 
 ## Central staff (2026-10-28)
 
@@ -141,14 +141,26 @@ Seven households were added so the church has 20 named staff (decision 200). All
 | Household | Members (child age) | Main test purpose |
 |---|---|---|
 | [holloway](households/holloway.json) | Greg (Executive Pastor), Lisa | Executive Pastor: the campus pastors and most directors report to him. |
-| [castillo](households/castillo.json) | Naomi (Worship Pastor) | Worship Pastor, single and living alone. |
+| [castillo](households/castillo.json) | Naomi (Worship Director) | Worship Director, single and living alone. |
 | [pierce](households/pierce.json) | Jamal (Groups Pastor), Renee, Micah 9 | Groups Pastor with Rock's connection administration role. |
-| [navarro](households/navarro.json) | Dee (Care Pastor), Hector | Care Pastor with prayer administration and benevolence. Dolores goes by Dee. |
+| [navarro](households/navarro.json) | Dee (Care Director), Hector | Care Director with pastoral notes, prayer administration, and benevolence. Dolores goes by Dee. |
 | [raman](households/raman.json) | Priya (Finance Director), Sunil, Anika 15 | Finance Director with Rock's finance administration role. |
 | [delgado](households/delgado.json) | Ray (Facilities Director), Carmen | Facilities Director with Rock's safety and security role. |
 | [morrow](households/morrow.json) | Kelsey (Production Director), Evan | Production Director who oversees every campus's production team. |
 
-The Cast is now 101 households and 221 people. The 36 new people's profile photos were delivered on 2026-10-28 and are in `photos/manifest.json`.
+The Cast is now 101 households and 221 people. The 36 new people's profile photos were delivered on 2026-10-29.
+
+## Campus pastors at Gilbert, Chandler, and Tempe (2026-10-29)
+
+Every pastor on staff is a man (decision 203). Three households were added for the new campus pastors, and Dana, Tina, and Leah moved to director and leader roles at their campuses. Naomi Castillo and Dee Navarro became the Worship Director and the Care Director. The church has 23 staff.
+
+| Household | Campus | Members (child age) | Main test purpose |
+|---|---|---|---|
+| [park](households/park.json) | Gilbert | Joel (campus pastor), Esther, Silas 14, Ruby 11 | Gilbert's campus pastor, with a student and an elementary child. |
+| [faleolo](households/faleolo.json) | Chandler | Josiah (campus pastor), Leilani, Malia 4, Kai 1 | Chandler's campus pastor, with a preschooler and a baby. |
+| [okafor](households/okafor.json) | Tempe | Miles (campus pastor) | Tempe's campus pastor, single and living alone. |
+
+The Cast is now 104 households and 230 people. The 9 new people's profile photos were delivered on 2026-10-29, with all 23 staff photos.
 
 ## Issues to fix during Cast review
 

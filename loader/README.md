@@ -98,7 +98,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
-Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, step stories need `Steps`, staff texting numbers need `Communications`, and calendar stories need `Calendar`. A business's contacts are always checked, and its recent gifts only with `Giving`.
+Cast expectations check only the parts that loaded: giving stories and campaign stories need `Giving`, achievement stories need `Attendance`, prayer requests need `Prayer`, step stories need `Steps`, staff texting numbers need `Communications`, and calendar stories need `Calendar`. A business's contacts are always checked, and its recent gifts only with `Giving`. Each Cast allergy is always checked: the person shows it in Rock's Allergy attribute (Alex Decker's peanut allergy).
 
 On 2026-10-21, Core 1 with `--parts Giving,Notes,Prayer` (which adds small groups) was compared table by table with a full load. Every table the loaded parts write had the same rows. The only tables that changed belong to the parts left out: photos, attendance and achievements, and serving with its connection requests. Shared tables such as `Attendance` and `GroupMember` lost exactly the rows of those parts, and their small group rows were the same. After steps joined, a full Core 1 load matched main's load table by table, and so did Core 3 and Full 7. Core 1 without `Steps` differed from the full load only in the step tables (`Step`, `StepProgramCompletion`, `StepType`, and `StepProgram`) and in the 192 Baptism Date and Baptized Here values. Core 1 with `--parts Steps`, which adds small groups, serving teams, and giving, had the same steps, step values, memberships, gifts, and small group and serving attendance as the full load. On 2026-10-22, after the Cast's pledges joined giving, a load of every part matched main's load in every table for all three datasets. Core 1 without `Giving` (and so without steps and check images) had no pledges, and differed from the full load only in the giving tables, the giving attributes and giving automation setting, the campus tithe metric, and the step tables and Baptism values. Core 1 with `--parts Giving` had the same pledges, gifts, giving attributes, and tithe metric as the full load. After the Crowd and business pledges joined, a load of every part again matched main's load in every table for all three datasets. Core 3 has Crowd households and 27 pledges. Without `Giving` it had no pledges and the same fund and goal, and it differed from the full load in the same tables as Core 1 did. Core 3 with `--parts Giving` had the same 27 pledges and the same rows in every financial table as the full load.
 
@@ -276,8 +276,8 @@ The numbers were measured with the CLI: the default seed, 3 years of history, an
 | Dataset | People | Households | Campuses | Install time (three runs) |
 |---|---|---|---|---|
 | Core 1 | 204 | 95 | 1 | 13 seconds (14.0, 12.8, 13.3) |
-| Core 3 | 431 | 251 | 3 | 17 seconds (17.5, 15.5, 16.6) |
-| Full 7 | 25,284 | 16,981 | 7 | 173 seconds (175.4, 173.2, 172.4) |
+| Core 3 | 435 | 252 | 3 | 17 seconds (17.5, 15.5, 16.6) |
+| Full 7 | 25,293 | 16,984 | 7 | 173 seconds (175.4, 173.2, 172.4) |
 
 Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
@@ -361,6 +361,8 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 | A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
+
+A Cast person's `attributes.Allergy` becomes Rock's Allergy person attribute, which check-in labels print, as Rock saves a text attribute value, with its persisted values left for Rock to fill (decision 204). The people step writes it, before registrations, which skip anyone who already has an allergy, so no person gets two values. Both steps give the value the same Guid, from the person's Guid and the attribute's.
 
 ## How logins load
 
@@ -562,6 +564,12 @@ A Cast story can set steps in its household file (`steps`): a class by how many 
 The load prints each program's steps by type and completions, the share of students who took each student step of those who could, and how many baptisms are students'.
 
 Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
+
+## How staff attributes load
+
+When `configuration/staff.json` has attributes (decision 201), the church setup adds them after the categories: each Person attribute in the Staff category, with its qualifiers, its security (each role allowed in order, then all users denied, as Rock's security editor writes them), and an Attribute Values block named Staff on the Extended Attributes page, set to the category. The people step then writes each loaded staff member's title, department, campus, bio, quote, supervisor, and start date, with the ValueAs columns Rock's save hook would set. A campus pastor whose campus is not in the dataset is not loaded and gets no values. Staff Photo is set by the photos step.
+
+The org chart (decision 202) loads the same way. The church setup adds the units Rock does not ship (Campuses and Worship) under Organization, in Rock's Organization Unit group type. The people step adds each unit's leader in the Leader role and its staff in the Staff role, as active members added on their start date. A staff member whose campus is not in the dataset is left out.
 
 ## Communications
 

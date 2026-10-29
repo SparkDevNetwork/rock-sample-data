@@ -3282,6 +3282,105 @@
       "prompt": "Casual social media profile photo of a 39-year-old woman, White person, with European ancestry.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nIndoors at a cafe counter, with soft ambient light. Looks like a real photo a friend took on a phone, not a studio portrait.\nHead and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nCreate one fictional person with no resemblance to any real or famous person. No other people visible. Square framing, face roughly centered with room above the head for a circular crop."
     },
     {
+      "file": "cast/park-joel.jpg",
+      "set": "cast",
+      "household": "park",
+      "member": "joel",
+      "ethnicity": "east-asian",
+      "gender": "male",
+      "age": 46,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 46-year-old man, East Asian person. Short black hair neatly parted, clean-shaven, no glasses, calm warm smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nOn a Phoenix hiking trail in soft morning light with real Sonoran desert mountains, muted scrub and saguaro cacti behind him. Casual slate blue hiking tee, no gear branding. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress."
+    },
+    {
+      "file": "cast/park-esther.jpg",
+      "set": "cast",
+      "household": "park",
+      "member": "esther",
+      "ethnicity": "east-asian",
+      "gender": "female",
+      "age": 44,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 44-year-old woman, East Asian person. Shoulder-length dark hair, warm smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nIn her home kitchen with warm window light, simple pale wood cabinetry and softly blurred countertop behind her. Casual muted terracotta cotton top. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress."
+    },
+    {
+      "file": "cast/park-silas.jpg",
+      "set": "cast",
+      "household": "park",
+      "member": "silas",
+      "ethnicity": "east-asian",
+      "gender": "male",
+      "age": 14,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 14-year-old teenage boy, East Asian person. He resembles both parents in the supplied references, age-appropriate teenage facial structure, short dark hair and easy smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nAt an outdoor Phoenix ballfield, empty spectator area behind him, sunlight softened by a shade canopy, a small glimpse of desert trees and a distant baseball field. Plain dark green T-shirt. No players, spectators or signs. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress. Attached references are fictional family members for family resemblance only; create this new child at the specified age, alone in their own distinct setting."
+    },
+    {
+      "file": "cast/park-ruby.jpg",
+      "set": "cast",
+      "household": "park",
+      "member": "ruby",
+      "ethnicity": "east-asian",
+      "gender": "female",
+      "age": 11,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 11-year-old girl, East Asian person. She resembles both parents and her brother in the supplied references, age-appropriate child proportions, dark straight shoulder-length hair and a friendly smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nIn a cozy neighborhood bookstore, soft shelves of books behind her with spines turned away or blurred completely without visible lettering. Plain soft blue casual shirt, warm indoor light. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress. Attached references are fictional family members for family resemblance only; create this new child at the specified age, alone in their own distinct setting."
+    },
+    {
+      "file": "cast/faleolo-josiah.jpg",
+      "set": "cast",
+      "household": "faleolo",
+      "member": "josiah",
+      "ethnicity": "pacific-islander",
+      "gender": "male",
+      "age": 34,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 34-year-old man, Pacific Islander person. Short dark curly hair, short beard, broad bright smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nAt a sunny Phoenix park in afternoon tree shade with palo verde branches, agave, gravel paths and warm desert hills faintly behind. Casual muted burgundy crewneck tee. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress."
+    },
+    {
+      "file": "cast/faleolo-leilani.jpg",
+      "set": "cast",
+      "household": "faleolo",
+      "member": "leilani",
+      "ethnicity": "pacific-islander",
+      "gender": "female",
+      "age": 32,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 32-year-old woman, Pacific Islander person. Long dark wavy hair, bright smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nAt a local coffee shop by a window, soft natural side light, warm simple wood interior and a glimpse of sunlit Arizona stucco outside. Casual olive-green blouse. No cups or hands in foreground, no menus or signs. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress."
+    },
+    {
+      "file": "cast/faleolo-malia.jpg",
+      "set": "cast",
+      "household": "faleolo",
+      "member": "malia",
+      "ethnicity": "pacific-islander",
+      "gender": "female",
+      "age": 4,
+      "seed": null,
+      "prompt": "Edit the attached fictional profile photo of Malia Faleolo. She must clearly look FOUR YEARS OLD, a preschool girl, rather than an elementary school child. Keep the same recognizable family features, dark wavy hair, lavender everyday shirt and dusk Phoenix backyard with string lights and stucco wall. Adjust only age proportions: a small preschool child's rounder face, fuller baby cheeks, small soft jaw, shorter neck and narrow little shoulders, innocent relaxed smile and naturally childlike expression. Natural real phone snapshot from her eye level. Head and shoulders, hands out of frame, square. Leave generous space above her hair for circular cropping. No makeup, no text, no logos, no other people."
+    },
+    {
+      "file": "cast/faleolo-kai.jpg",
+      "set": "cast",
+      "household": "faleolo",
+      "member": "kai",
+      "ethnicity": "pacific-islander",
+      "gender": "male",
+      "age": 1,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 1-year-old boy, Pacific Islander person. A one-year-old baby sitting securely upright, baby cheeks, short soft dark curls, happy curious expression. Resembles his parents and sister in the supplied references.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nOn a living room couch at home, daylight from a nearby window and a warm neutral cushion behind his head. Simple soft teal baby T-shirt. Close head-and-shoulders crop; hands and any adult supporting him entirely out of frame. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress. Attached references are fictional family members for family resemblance only; create this new child at the specified age, alone in their own distinct setting."
+    },
+    {
+      "file": "cast/okafor-miles.jpg",
+      "set": "cast",
+      "household": "okafor",
+      "member": "miles",
+      "ethnicity": "black",
+      "gender": "male",
+      "age": 31,
+      "seed": null,
+      "prompt": "Casual social media profile photo of a 31-year-old man, Black person, with African, African American, or Caribbean ancestry. Close-cropped hair, neat short beard, bright easy smile.\nEveryday, modern clothing that fits the person's age. Natural, friendly expression.\nOn a quiet downtown Phoenix sidewalk, softly blurred brick and stucco storefronts, a street tree and warm city light. Casual light denim shirt open over a plain dark tee. Empty background, no traffic or passersby. Looks like a real photo a friend took on a phone, not a studio portrait. Head and shoulders, face clearly visible. No text, logos, or watermarks. Hands out of frame.\nOne new fictional person only, no intentional resemblance to any real or famous person, no other people or human reflections anywhere. Natural skin texture, believable phone-camera depth of field, relaxed candid framing. Square full-resolution image at least 1024 by 1024, enough space above the entire head and on both sides for a circle crop. No borders or inset images. No traditional, religious or costume dress."
+    },
+    {
       "file": "cast/mitchell-aaron.jpg",
       "set": "cast",
       "household": "mitchell",

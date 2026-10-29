@@ -151,6 +151,16 @@ namespace RockSampleData.Loader
         /// </summary>
         public StaffConfiguration Staff { get; }
 
+        /// <summary>
+        /// Reads photos/staff/manifest.json, the staff photos. A package built before staff photos existed has none.
+        /// </summary>
+        public StaffPhotoManifest ReadStaffPhotoManifest()
+        {
+            return Files.Exists( StaffPhotoManifestPath ) ? Read<StaffPhotoManifest>( StaffPhotoManifestPath ) : new StaffPhotoManifest();
+        }
+
+        public const string StaffPhotoManifestPath = "photos/staff/manifest.json";
+
         public const string StaffConfigurationPath = "configuration/staff.json";
 
         /// <summary>

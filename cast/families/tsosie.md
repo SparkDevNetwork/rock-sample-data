@@ -2,7 +2,7 @@
 
 **Featured** · New household · 1 person · Phoenix campus · [source](../households/tsosie.json)
 
-Leah Tsosie is the Tempe Campus Pastor, at the urban campus full of singles and young adults. She is single and lives near the campus.
+Leah Tsosie is the Tempe Worship Leader, at the urban campus full of singles and young adults. She is single and lives near the campus.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,14 +12,14 @@ Leah Tsosie is the Tempe Campus Pastor, at the urban campus full of singles and 
 
 ### Leah Tsosie
 
-Leah is the Tempe Campus Pastor. She joined staff three years ago and leads the campus where most people are singles and young adults.
+Leah is the Tempe Worship Leader. She joined staff three years ago and leads worship at the campus where most people are singles and young adults.
 
-- Age 32 · single · Tempe Campus Pastor, Rock Solid Church · email leah@rocksolidchurchdemo.com · 2 security roles
+- Age 32 · single · Tempe Worship Leader, Rock Solid Church · email leah@rocksolidchurchdemo.com · 1 security roles
 - Person Guid `2C1EC260-13B8-489E-9B38-61F732ED7022`
 
 ## What this family tests
 
-- Named campus pastor at Tempe, loaded only in Full 7.
+- Campus worship leader at Tempe, loaded only in Full 7.
 - Single adult on staff, living alone.
 
 ## Activity

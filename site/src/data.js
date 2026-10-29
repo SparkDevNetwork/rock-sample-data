@@ -207,16 +207,33 @@ function load() {
     }
 
     // The church's staff, every one a Cast person, and each campus's campus pastor (configuration/staff.json).
+    // A delivered staff photo (photos/staff/manifest.json) shows on the staff card in place of the profile photo,
+    // cropped at its recorded position. A campus version (photos/staff/campus/) shows on that campus's card.
     const staffFile = exists( "configuration/staff.json" ) ? readJson( "configuration/staff.json" ) : { staff: [], campusPastors: {} };
+    const staffPhotos = exists( "photos/staff/manifest.json" ) ? readJson( "photos/staff/manifest.json" ).images : [];
+    const campusVersions = exists( "photos/staff/campus/manifest.json" ) ? readJson( "photos/staff/campus/manifest.json" ).images : [];
     const staff = staffFile.staff
         .map( s => {
             const member = people.get( s.person.toUpperCase() );
             const campus = s.campus ? campuses.find( c => c.key === s.campus ) : null;
-            return member ? { ...s, member, campusName: campus ? campus.name : null } : null;
+            const isTheirs = p => member && p.household === member.household.key && p.member === member.key;
+            const photo = staffPhotos.find( isTheirs );
+            const campusPhoto = campusVersions.find( p => isTheirs( p ) && p.campus === s.campus );
+            return member ? {
+                ...s,
+                member,
+                campusName: campus ? campus.name : null,
+                staffPhoto: photo ? path.basename( photo.file ) : null,
+                staffPhotoPosition: photo && photo.objectPosition ? photo.objectPosition : "50% 50%",
+                campusPhoto: campusPhoto ? path.basename( campusPhoto.file ) : null,
+                campusPhotoPosition: campusPhoto && campusPhoto.objectPosition ? campusPhoto.objectPosition : "50% 50%"
+            } : null;
         } )
         .filter( Boolean );
     for ( const s of staff ) {
         s.member.staffTitle = s.title;
+        s.member.staffBio = s.bio || null;
+        s.member.staffQuote = s.quote || null;
         if ( !s.member.household.stages.includes( "staff" ) ) {
             s.member.household.stages.push( "staff" );
         }
@@ -224,6 +241,7 @@ function load() {
     for ( const campus of campuses ) {
         const pastor = staff.find( s => s.key === staffFile.campusPastors[campus.key] );
         campus.pastor = pastor ? pastor.member : null;
+        campus.staff = staff.filter( s => s.campus === campus.key );
     }
 
     // Each folder in graphics/initiatives/ is one initiative and its artwork (graphics/README.md).

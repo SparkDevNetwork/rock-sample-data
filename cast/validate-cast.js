@@ -243,6 +243,83 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
+// their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
+{
+    const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
+    const staff = fs.existsSync( staffFile ) ? JSON.parse( fs.readFileSync( staffFile, "utf8" ) ) : null;
+    if ( staff ) {
+        const keys = new Set( staff.staff.map( s => s.key ) );
+        const departmentValues = new Set( ( ( staff.attributes || [] ).find( a => a.key === "StaffDepartment" )?.qualifiers.values || "" ).split( "," ).map( v => v.split( "^" )[ 0 ] ).filter( Boolean ) );
+        const quoteLimit = Number( ( staff.attributes || [] ).find( a => a.key === "StaffFavoriteQuote" )?.qualifiers.maxcharacters || 0 );
+        const allCampusKeys = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.map( c => c.key ) );
+        for ( const s of staff.staff ) {
+            const who = `configuration/staff.json (${s.key})`;
+            const found = people.get( s.person );
+            if ( !found ) {
+                errors.push( `${who}: person ${s.person} is not in the Cast.` );
+                continue;
+            }
+            if ( s.campus && !allCampusKeys.has( s.campus ) ) {
+                errors.push( `${who}: campus "${s.campus}" is not in configuration/campuses.json.` );
+            }
+            if ( found.household.campusSlot !== "main" && found.household.campusSlot !== s.campus ) {
+                errors.push( `${who}: lives on ${found.household.campusSlot}, so they can serve only that campus.` );
+            }
+            if ( s.supervisor && !keys.has( s.supervisor ) ) {
+                errors.push( `${who}: supervisor "${s.supervisor}" is not a staff key.` );
+            }
+            if ( staff.attributes ) {
+                if ( !departmentValues.has( s.department ) ) {
+                    errors.push( `${who}: department "${s.department}" is not a Department value.` );
+                }
+                if ( !s.bio || !s.quote || !s.startDate ) {
+                    errors.push( `${who}: needs a bio, a quote, and a start date for the staff attributes.` );
+                }
+                if ( quoteLimit && s.quote && s.quote.length > quoteLimit ) {
+                    errors.push( `${who}: the quote is ${s.quote.length} characters, over the attribute's ${quoteLimit}.` );
+                }
+            }
+        }
+        for ( const campus of allCampusKeys ) {
+            const pastorKey = staff.campusPastors[ campus ];
+            const pastor = staff.staff.find( s => s.key === pastorKey );
+            if ( !pastor ) {
+                errors.push( `configuration/staff.json: campus ${campus} has no campus pastor.` );
+            }
+            else if ( pastor.campus !== campus || pastor.department !== "campuses" ) {
+                errors.push( `configuration/staff.json: ${pastorKey}, the ${campus} campus pastor, must serve ${campus} in the campuses department.` );
+            }
+        }
+
+        // The org chart (decision 202): every unit's people are staff, every staff member is on it, and a
+        // unit's staff report to its leader, so the Org Chart page and the Supervisor attribute agree.
+        if ( staff.orgChart ) {
+            const onChart = new Set();
+            for ( const unit of staff.orgChart.units ) {
+                for ( const key of [ unit.leader, ...unit.staff ].filter( Boolean ) ) {
+                    if ( !keys.has( key ) ) {
+                        errors.push( `configuration/staff.json: org chart unit ${unit.key} names "${key}", who is not staff.` );
+                    }
+                    onChart.add( key );
+                }
+                for ( const key of unit.staff ) {
+                    const member = staff.staff.find( s => s.key === key );
+                    if ( member && member.supervisor !== unit.leader ) {
+                        errors.push( `configuration/staff.json: ${key} is staff in org chart unit ${unit.key}, so their supervisor should be its leader, ${unit.leader}, not ${member.supervisor}.` );
+                    }
+                }
+                if ( !unit.rockShips && !staff.orgChart.units.some( u => u.key === unit.parent ) ) {
+                    errors.push( `configuration/staff.json: org chart unit ${unit.key} has parent "${unit.parent}", which is not a unit.` );
+                }
+            }
+            for ( const s of staff.staff.filter( x => !onChart.has( x.key ) ) ) {
+                errors.push( `configuration/staff.json: ${s.key} is not on the org chart.` );
+            }
+        }
+    }
+}
+
 if ( adminPeople.length !== 1 ) {
     errors.push( `Exactly one Cast person replaces Rock's admin person (replacesAdmin); found ${adminPeople.length}: ${adminPeople.join( ", " ) || "none"}.` );
 }
@@ -840,6 +917,86 @@ for ( const { file, data: h } of households ) {
         const needsPhoto = !( p.photo && p.photo.isOmitted ) && p.recordType !== "business";
         if ( needsPhoto && !castPhotos.has( `${h.key}/${p.key}` ) ) {
             warnings.push( `${file} (${p.key}): has no photo yet. See photos/brief.md.` );
+        }
+    }
+}
+
+// Pass 4b: staff photos (decision 201). Each is a 1536-pixel square JPEG of a staff member, named for them.
+// The image agent delivers the final square, so it is its own original. A staff member with no staff photo yet
+// is a warning, not an error. Campus versions (photos/staff/campus/) are a staff member's photo at their own
+// campus: the site shows them, and Rock does not load them.
+{
+    const staffManifestFile = path.join( photosDir, "staff", "manifest.json" );
+    const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
+    const sha256 = file => require( "crypto" ).createHash( "sha256" ).update( fs.readFileSync( file ) ).digest( "hex" );
+    const checkFile = ( owner, image ) => {
+        const file = path.join( photosDir, image.file );
+        const size = fs.existsSync( file ) ? jpegSize( file ) : null;
+        if ( !size ) {
+            errors.push( `${owner}: the file is missing or is not a JPEG.` );
+            return;
+        }
+        if ( size.width !== 1536 || size.height !== 1536 ) {
+            errors.push( `${owner}: is ${size.width} by ${size.height}; staff photos are 1536 by 1536.` );
+        }
+        if ( image.sha256 && sha256( file ) !== image.sha256 ) {
+            errors.push( `${owner}: the file's SHA-256 is not the one the image agent handed back.` );
+        }
+    };
+    if ( fs.existsSync( staffManifestFile ) && fs.existsSync( staffFile ) ) {
+        const staffConfig = JSON.parse( fs.readFileSync( staffFile, "utf8" ) );
+        const staffPeople = new Set( staffConfig.staff.map( s => s.person ) );
+        const delivered = new Set();
+        for ( const image of JSON.parse( fs.readFileSync( staffManifestFile, "utf8" ) ).images ) {
+            const owner = `photos/staff/manifest.json (${image.file})`;
+            const key = `${image.household}-${image.member}`;
+            if ( image.file !== `staff/${key}.jpg` ) {
+                errors.push( `${owner}: the file is named staff/{household}-{member}.jpg, so it should be staff/${key}.jpg.` );
+            }
+            if ( delivered.has( key ) ) {
+                errors.push( `${owner}: listed twice.` );
+            }
+            delivered.add( key );
+
+            const match = households.find( x => x.data.key === image.household );
+            const person = match && ( match.data.members || [] ).find( m => m.key === image.member );
+            if ( !person || !staffPeople.has( person.guid ) ) {
+                errors.push( `${owner}: ${image.household}/${image.member} is not staff in configuration/staff.json.` );
+            }
+
+            checkFile( owner, image );
+        }
+
+        const missing = [ ...people.values() ].filter( x => staffPeople.has( x.person.guid ) && !delivered.has( `${x.household.key}-${x.person.key}` ) );
+        if ( missing.length ) {
+            warnings.push( `${missing.length} staff ${missing.length === 1 ? "member has" : "members have"} no staff photo yet. See photos/staff-brief.md.` );
+        }
+
+        // A campus version is of a staff member who serves that campus, named {household}-{member}-{campus}.jpg.
+        const campusManifestFile = path.join( photosDir, "staff", "campus", "manifest.json" );
+        if ( fs.existsSync( campusManifestFile ) ) {
+            const seen = new Set();
+            for ( const image of JSON.parse( fs.readFileSync( campusManifestFile, "utf8" ) ).images ) {
+                const owner = `photos/staff/campus/manifest.json (${image.file})`;
+                const key = `${image.household}-${image.member}-${image.campus}`;
+                if ( image.file !== `staff/campus/${key}.jpg` ) {
+                    errors.push( `${owner}: should be staff/campus/${key}.jpg.` );
+                }
+                if ( seen.has( key ) ) {
+                    errors.push( `${owner}: listed twice.` );
+                }
+                seen.add( key );
+                const match = households.find( x => x.data.key === image.household );
+                const person = match && ( match.data.members || [] ).find( m => m.key === image.member );
+                const member = person && staffConfig.staff.find( s => s.person === person.guid );
+                if ( !member ) {
+                    errors.push( `${owner}: ${image.household}/${image.member} is not staff in configuration/staff.json.` );
+                }
+                else if ( member.campus !== image.campus ) {
+                    errors.push( `${owner}: ${member.name} serves ${member.campus || "every campus"}, not ${image.campus}.` );
+                }
+                checkFile( owner, image );
+            }
         }
     }
 }

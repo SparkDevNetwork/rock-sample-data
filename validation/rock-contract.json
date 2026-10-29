@@ -324,6 +324,16 @@
         "ShowOnBulk": "bit not null"
       }
     },
+    "AttributeCategory": {
+      "written": [
+        "AttributeId",
+        "CategoryId"
+      ],
+      "rockColumns": {
+        "AttributeId": "int not null",
+        "CategoryId": "int not null"
+      }
+    },
     "AttributeQualifier": {
       "written": [
         "AttributeId",
@@ -357,7 +367,9 @@
         "ModifiedDateTime",
         "Value",
         "ValueAsBoolean",
-        "ValueAsDateTime"
+        "ValueAsDateTime",
+        "ValueAsNumeric",
+        "ValueAsPersonId"
       ],
       "rockColumns": {
         "AttributeId": "int not null",
@@ -485,6 +497,46 @@
         "Id": "int not null",
         "ModifiedByPersonAliasId": "int null",
         "ModifiedDateTime": "datetime null"
+      }
+    },
+    "Block": {
+      "written": [
+        "BlockTypeId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "OutputCacheDuration",
+        "PageId",
+        "Zone"
+      ],
+      "rockColumns": {
+        "AdditionalSettings": "nvarchar(max) null",
+        "BlockTypeId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "CssClass": "nvarchar(100) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsSystem": "bit not null",
+        "LayoutId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "OutputCacheDuration": "int not null",
+        "PageId": "int null",
+        "PostHtml": "nvarchar(max) null",
+        "PreHtml": "nvarchar(max) null",
+        "Role": "int null",
+        "SiteId": "int null",
+        "Zone": "nvarchar(100) not null"
       }
     },
     "Campus": {
@@ -4847,7 +4899,8 @@
       "63733A54-060F-4C8A-8166-87F9E1E4E835"
     ],
     "BlockType": [
-      "0455ECBD-D54D-4485-BF4D-F469048AE10F"
+      "0455ECBD-D54D-4485-BF4D-F469048AE10F",
+      "D70A59DC-16BE-43BE-9880-59598FA7A94C"
     ],
     "Campus": [
       "76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8"
@@ -4992,10 +5045,15 @@
       "93104654-DAFA-489B-A175-5F2AB3A846F1"
     ],
     "FieldType": [
+      "1B71FEF4-201F-4D53-8C60-2DF21F1985ED",
       "1EDAFDED-DFE6-4334-B019-6EECBA89E05A",
+      "6B6AA175-4758-453F-8D83-FCD8044B5F36",
       "7525C4CB-EE6B-41D4-9B64-A08048D5A5C0",
+      "97F8157D-A8C8-4AB3-96A2-9CB2A9049E6D",
       "9C204CD0-1233-41C5-818A-C5DA439445AA",
-      "C0D0D7E2-C3B0-4004-ABEA-4BBFAD10D5D2"
+      "C0D0D7E2-C3B0-4004-ABEA-4BBFAD10D5D2",
+      "C28C7BF3-A552-4D77-9408-DEDCF760CED0",
+      "E4EAB7B2-0B76-429B-AFE4-AD86D7428C70"
     ],
     "FinancialAccount": [
       "2A6F9E5F-6859-44F1-AB0E-CE9CF6B08EE5",
@@ -5022,7 +5080,11 @@
       "32E80B6C-A1EB-40FD-BEC3-E11DE8FF75AB",
       "39FA00EE-25DD-47A3-942B-BFCF1975D661",
       "3CBC1A3F-DD26-430A-9B53-B476CB385ABC",
+      "44C85087-A452-4D13-B95B-EC92FF0F9A7F",
+      "4737CD5D-DEA1-4F78-A581-D246B08CED6A",
+      "56AD5243-DED9-42F1-A922-5069A4EF7A7B",
       "59DA53FC-AE18-4052-BC90-CE75B3979943",
+      "5B6BE24F-349B-4630-B99C-20BB62BC8BD2",
       "6246A7EF-B7A3-4C8C-B1E4-3FF114B84559",
       "628C51A8-4613-43ED-A18D-4A6FB999273E",
       "6FAF2721-3E26-40D0-936E-29157328A37B",
@@ -5033,6 +5095,7 @@
       "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
       "CDF68207-2795-42DE-B060-FE01C33BEAEA",
       "E82BD99E-7DC1-483C-A4F2-09017088C55E",
+      "EF41CD00-1266-4BE6-9130-453982014B79",
       "FDA9D63F-B0B1-43E8-8B82-0255E5D99F26"
     ],
     "GroupRequirementType": [
@@ -5046,6 +5109,7 @@
       "790E3215-3B10-442B-AF69-616C0DCB998E",
       "7A17235B-69AD-439B-BAB0-1A0A472DB96F",
       "9A88743B-F336-4404-B877-2A623689195D",
+      "AAB2E9F4-E828-4FEE-8467-73DC9DAB784C",
       "AECE949F-704C-483E-A4FB-93D5E4720C4C",
       "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8",
       "D1D95777-FFA3-CBB3-4A6D-658706DAED33",
@@ -5056,10 +5120,12 @@
     ],
     "GroupTypeRole": [
       "102E6AF5-62C2-4767-B473-C9C228D75FB6",
+      "17E516FC-76A4-4BF4-9B6F-0F859B13F563",
       "2639F9A5-2AAE-4E48-A8C3-4FFE86681E42",
       "6D798EFA-0110-41D5-BCE4-30ACEFE4317E",
       "7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42",
       "7FC58BB2-7C1E-4C5C-B2B3-4738258A0BE0",
+      "8438D6C5-DB92-4C99-947B-60E9100F223D",
       "8F63AB81-A2F7-4D69-82E9-158FDD92DB3D",
       "9D85AB4E-59BC-B48A-494A-5684BA41578E",
       "C8B1814F-6AA7-4055-B2D7-48FE20429CB9",
@@ -5077,6 +5143,7 @@
       "B54F9D90-9AF3-4E8A-8F33-9338C7C1287F"
     ],
     "Page": [
+      "1C737278-4CBA-404B-B6B3-E3F0E05AB5FE",
       "60051DAF-2986-406D-A78B-1609CBF2256D",
       "A974A965-414B-47A6-9CC1-D3A175DA965B"
     ],
