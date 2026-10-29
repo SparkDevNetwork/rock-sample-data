@@ -23,7 +23,7 @@ One photo per person in [The staff](#the-staff) below: 20 images. Make them in t
 
 **Deliver a square, exactly 1536 by 1536 pixels, framed so a 3:1 crop through the middle still works.**
 
-**Delivered 2026-10-29.** For the first 20 photos and the 6 campus versions, Jon dropped the 3:1 crop: they were reviewed for 3:2 and 16:9 landscape crops instead, with centered crops except Walt Hargrove's Phoenix photo, which the site crops at `50% 20%`. The 3 photos added later, Joel Park, Josiah Faleolo, and Miles Okafor, pass the centered 3:1 crop, so they show more background and a smaller subject in the full square. The crop positions are in `photos/staff/manifest.json`.
+**Delivered 2026-10-29.** For the first 20 photos and the 6 campus versions, Jon dropped the 3:1 crop: they were reviewed for 3:2 and 16:9 landscape crops instead, with centered crops except Walt Hargrove's Phoenix photo, which the site crops at `50% 20%`. The 3 photos added later, Joel Park, Josiah Faleolo, and Miles Okafor, were first framed for the 3:1 crop. They were reframed the same day to match the first 20, so all 23 have the same face size and headroom. The 3:1 crop no longer applies to any staff photo; every one is checked at 3:2 and 16:9. The crop positions are in `photos/staff/manifest.json`.
 
 1. **Why square.** Rock shows a Staff Photo on the person's profile, and themes show people in square cards or circles. A square fits both with no crop.
 2. **Why 3:1 too.** A website may show staff in a wide banner or a wide card. A 3:1 crop through the middle of the square is 1536 by 512 pixels. That is wide enough to stay sharp across a page column, so the delivered square must already hold the face and shoulders inside that middle band.
