@@ -26,7 +26,7 @@ const departments = [
     [ "kids", "Kids" ],
     [ "students", "Students" ],
     [ "connections", "Outreach, groups, and care" ],
-    [ "campuses", "Campus pastors" ]
+    [ "campuses", "Campuses" ]
 ];
 
 // The church's initiatives, in the order they started. Starting Point is the first.

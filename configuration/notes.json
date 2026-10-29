@@ -14,7 +14,7 @@
     { "key": "daniel", "name": "Daniel Peak", "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "role": "Director of Communications" },
     { "key": "isaac", "name": "Isaac Silva", "guid": "581C940E-A788-4F32-BCF3-33F4D1948390", "role": "Student Pastor" },
     { "key": "aaron", "name": "Aaron Mitchell", "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B", "role": "Phoenix Campus Pastor" },
-    { "key": "dee", "name": "Dee Navarro", "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "role": "Care Pastor" },
+    { "key": "dee", "name": "Dee Navarro", "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "role": "Care Director" },
     { "key": "jamal", "name": "Jamal Pierce", "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2", "role": "Groups Pastor" }
   ],
   "campusPastor": {

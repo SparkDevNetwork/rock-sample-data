@@ -1,0 +1,86 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "okafor",
+  "guid": "7B22887B-BCA2-4F9C-8C66-72B42AF01915",
+  "name": "Okafor Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "tempe",
+  "story": "Miles Okafor is the Tempe Campus Pastor, at the urban campus full of singles and young adults. He is single and lives near the campus.",
+  "testPurposes": [
+    "Named campus pastor at Tempe, loaded only in Full 7.",
+    "Single adult on staff, living alone."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "175 W Fairmont Dr",
+    "city": "Tempe",
+    "state": "AZ",
+    "postalCode": "85282",
+    "latitude": 33.396758,
+    "longitude": -111.942276
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 94,
+    "started": {
+      "yearsAgo": 3,
+      "month": 6,
+      "day": 2
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "miles",
+      "funds": {
+        "General Fund": 100
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 9
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "miles",
+      "guid": "A102460D-6362-4202-8F8E-19CA2679312B",
+      "firstName": "Miles",
+      "lastName": "Okafor",
+      "bio": "Miles is the Tempe Campus Pastor. He joined staff three years ago and leads the campus where most people are singles and young adults.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 31,
+        "month": 7,
+        "day": 30
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "miles@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550180"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Tempe Campus Pastor"
+      },
+      "logins": [
+        "mokafor"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    }
+  ]
+}

@@ -7,9 +7,9 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "tempe",
-  "story": "Leah Tsosie is the Tempe Campus Pastor, at the urban campus full of singles and young adults. She is single and lives near the campus.",
+  "story": "Leah Tsosie is the Tempe Worship Leader, at the urban campus full of singles and young adults. She is single and lives near the campus.",
   "testPurposes": [
-    "Named campus pastor at Tempe, loaded only in Full 7.",
+    "Campus worship leader at Tempe, loaded only in Full 7.",
     "Single adult on staff, living alone."
   ],
   "address": {
@@ -51,7 +51,7 @@
       "guid": "2C1EC260-13B8-489E-9B38-61F732ED7022",
       "firstName": "Leah",
       "lastName": "Tsosie",
-      "bio": "Leah is the Tempe Campus Pastor. She joined staff three years ago and leads the campus where most people are singles and young adults.",
+      "bio": "Leah is the Tempe Worship Leader. She joined staff three years ago and leads worship at the campus where most people are singles and young adults.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -72,13 +72,12 @@
       },
       "attributes": {
         "Employer": "Rock Solid Church",
-        "Position": "Tempe Campus Pastor"
+        "Position": "Tempe Worship Leader"
       },
       "logins": [
         "ltsosie"
       ],
       "securityRoles": [
-        "Pastoral Staff",
         "Staff Users"
       ]
     }

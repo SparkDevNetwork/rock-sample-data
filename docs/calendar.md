@@ -118,7 +118,7 @@ Each event names a contact:
 | `alisha` | Alisha Marble, executive assistant and Rock administrator | Women's events, Rock Office Hours, and the staff Christmas party |
 | `jenny` | Jenny Michaels, who coordinates the car show and camp | The car show and Student Camp |
 | `rachel` | Rachel Brooks, Kids Director | Kids events, with the kids inbox |
-| `dee` | Dee Navarro, Care Pastor | Hope for the Holidays and the Young at Heart Lunch, with the care inbox |
+| `dee` | Dee Navarro, Care Director | Hope for the Holidays and the Young at Heart Lunch, with the care inbox |
 | `priya` | Priya Raman, Finance Director | Money Matters, with the finance inbox |
 | `ray` | Ray Delgado, Facilities Director | Volunteer safety training, with the facilities inbox |
 | `aaron` | Aaron Mitchell, Phoenix campus pastor | Phoenix's campus events, and church-wide campus events |

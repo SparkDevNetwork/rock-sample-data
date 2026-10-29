@@ -2,7 +2,7 @@
 
 Names, titles, campuses, and ages follow `configuration/staff.json` and the Cast files. A Rock sample data session installs the delivered images (see [Installing staff photos](README.md#installing-staff-photos)).
 
-You create one staff photo for each of Rock Solid Church's 20 staff members in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
+You create one staff photo for each of Rock Solid Church's 23 staff members in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
 
 You work outside the repository and change nothing in it. Read the files named here from the `staff` branch of `rock-sample-data` (`refs/heads/staff`), or from `main` once `staff` lands there. Paths are from the root of the repository. Save your images in a folder of your own.
 
@@ -28,7 +28,7 @@ One photo per person in [The staff](#the-staff) below: 20 images. Make them in t
 3. **Why 1536.** It is the largest square most tools make, and it keeps the 3:1 crop at full width. Rock stores the file as delivered. Its image handler can shrink it for a small card, but it cannot add detail.
 4. **Make it square.** If your tool can make 1024 by 1024 only, make that and upscale it cleanly to 1536 by 1536. Never stretch or squash.
 
-## One look for all 20
+## One look for all 23
 
 Every photo uses exactly this setup. Only the person and their clothing change.
 
@@ -83,7 +83,7 @@ No resemblance to any real or famous person. Facial likeness is the overriding c
 
 ## Saving the images
 
-1. **One folder.** Save all 20 final images in one folder of your own, outside the repository, apart from the profile photos.
+1. **One folder.** Save all the final images in one folder of your own, outside the repository, apart from the profile photos.
 2. **Exact names.** Name each image as its **File** says, such as `foster-pete.jpg`. Save a JPEG, exactly 1536 by 1536 pixels, quality 90, sRGB, with image metadata removed. Keep it under 600 KB.
 3. **A manifest.** In the same folder, write `manifest.json` with one entry per image, in the order of this page:
 
@@ -135,7 +135,7 @@ Look at every image before you save it. Remake any that fail.
 Write a short handback, `handback.md`, in the same folder. Say:
 
 1. The folder's full path.
-2. How many images you made, and confirm all 20 are there under their exact names.
+2. How many images you made, and confirm every image you were asked for is there under its exact name.
 3. How many you remade and why.
 4. Anything you could not do, such as a seed your tool did not give.
 
@@ -189,7 +189,7 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 7. Naomi Castillo
 
-- **Title:** Worship Pastor. **Age:** 34. **Photo ethnicity:** hispanic-latino.
+- **Title:** Worship Director. **Age:** 34. **Photo ethnicity:** hispanic-latino.
 - **Reference:** `photos/cast/castillo-naomi.jpg` (new). **File:** `castillo-naomi.jpg`.
 - **Look:** Long dark wavy hair worn down, bright and expressive smile.
 - **Clothing:** Deep teal blouse with simple small earrings.
@@ -210,7 +210,7 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 10. Dee Navarro
 
-- **Title:** Care Pastor. **Age:** 61. **Photo ethnicity:** hispanic-latino.
+- **Title:** Care Director. **Age:** 61. **Photo ethnicity:** hispanic-latino.
 - **Reference:** `photos/cast/navarro-dee.jpg` (new). **File:** `navarro-dee.jpg`.
 - **Look:** Chin-length silver hair, gentle and kind expression.
 - **Clothing:** Heather blue cardigan over a soft gray top, with a simple plain necklace.
@@ -252,7 +252,7 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 16. Dana Whitlock
 
-- **Title:** Gilbert Campus Pastor. **Age:** 40. **Photo ethnicity:** white.
+- **Title:** Gilbert Campus Director. **Age:** 40. **Photo ethnicity:** white.
 - **Reference:** `photos/cast/whitlock-dana.jpg` (new). **File:** `whitlock-dana.jpg`.
 - **Look:** Shoulder-length light brown hair, friendly open expression.
 - **Clothing:** Deep teal button-front shirt.
@@ -266,7 +266,7 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 18. Tina Vu
 
-- **Title:** Chandler Campus Pastor. **Age:** 37. **Photo ethnicity:** southeast-asian.
+- **Title:** Chandler Kids Director. **Age:** 37. **Photo ethnicity:** southeast-asian.
 - **Reference:** `photos/cast/vu-tina.jpg` (new). **File:** `vu-tina.jpg`.
 - **Look:** Dark hair in a shoulder-length bob, bright cheerful smile.
 - **Clothing:** Deep teal cardigan over a charcoal top.
@@ -280,7 +280,30 @@ Each section lists the person's title, age, photo ethnicity, reference profile p
 
 ### 20. Leah Tsosie
 
-- **Title:** Tempe Campus Pastor. **Age:** 32. **Photo ethnicity:** native-american.
+- **Title:** Tempe Worship Leader. **Age:** 32. **Photo ethnicity:** native-american.
 - **Reference:** `photos/cast/tsosie-leah.jpg` (new). **File:** `tsosie-leah.jpg`.
 - **Look:** Long straight dark hair worn down, warm relaxed smile.
 - **Clothing:** Rust-brown corduroy jacket over a charcoal tee.
+
+### 21. Joel Park
+
+Photos 21 to 23 were asked for separately, on 2026-10-29, when the church's pastors became all men (decision D-staff-6). They use the same look as the other 20.
+
+- **Title:** Gilbert Campus Pastor. **Age:** 46. **Photo ethnicity:** east-asian.
+- **Reference:** `photos/cast/park-joel.jpg` (new). **File:** `park-joel.jpg`.
+- **Look:** Short black hair neatly parted, clean-shaven, no glasses, calm warm smile.
+- **Clothing:** Charcoal quarter-zip sweater over a light blue collared shirt.
+
+### 22. Josiah Faleolo
+
+- **Title:** Chandler Campus Pastor. **Age:** 34. **Photo ethnicity:** pacific-islander.
+- **Reference:** `photos/cast/faleolo-josiah.jpg` (new). **File:** `faleolo-josiah.jpg`.
+- **Look:** Short dark curly hair, short beard, broad bright smile.
+- **Clothing:** Deep teal button-front shirt, sleeves rolled out of frame.
+
+### 23. Miles Okafor
+
+- **Title:** Tempe Campus Pastor. **Age:** 31. **Photo ethnicity:** black.
+- **Reference:** `photos/cast/okafor-miles.jpg` (new). **File:** `okafor-miles.jpg`.
+- **Look:** Close-cropped hair, neat short beard, bright easy smile.
+- **Clothing:** Olive overshirt over a charcoal crewneck tee.

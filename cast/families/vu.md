@@ -2,7 +2,7 @@
 
 **Featured** · New household · 4 people · Phoenix campus · [source](../households/vu.json)
 
-Tina Vu is the Chandler Campus Pastor, at the campus full of young families. She and Minh have two little ones, Ellie and Theo, in the Chandler nursery and preschool rooms.
+Tina Vu is the Chandler Kids Director, at the campus full of young families and the church's largest kids ministry. She and Minh have two little ones, Ellie and Theo, in the Chandler nursery and preschool rooms.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -15,9 +15,9 @@ Tina Vu is the Chandler Campus Pastor, at the campus full of young families. She
 
 ### Tina Vu
 
-Tina is the Chandler Campus Pastor. She joined staff four years ago and leads the campus with the church's largest kids ministry.
+Tina is the Chandler Kids Director. She joined staff four years ago and leads the church's largest kids ministry, at Chandler.
 
-- Age 37 · married · Chandler Campus Pastor, Rock Solid Church · email tina@rocksolidchurchdemo.com · 2 security roles
+- Age 37 · married · Chandler Kids Director, Rock Solid Church · email tina@rocksolidchurchdemo.com · 2 security roles
 - Person Guid `87A06537-76C2-4100-8408-1CFF4EE55248`
 
 ### Minh Vu
@@ -37,7 +37,7 @@ Tina is the Chandler Campus Pastor. She joined staff four years ago and leads th
 
 ## What this family tests
 
-- Named campus pastor at Chandler, loaded only in Full 7.
+- Campus kids director at Chandler, loaded only in Full 7.
 - Staff family with a toddler and a preschooler.
 
 ## Activity

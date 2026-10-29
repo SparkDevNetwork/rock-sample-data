@@ -7,9 +7,9 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Naomi Castillo is the Worship Pastor. She leads worship at Phoenix most Sundays and trains each campus's worship leaders. She is single and lives near the Phoenix campus.",
+  "story": "Naomi Castillo is the Worship Director. She leads worship at Phoenix most Sundays and trains each campus's worship leaders. She is single and lives near the Phoenix campus.",
   "testPurposes": [
-    "Worship Pastor who oversees worship at every campus.",
+    "Worship Director who oversees worship at every campus.",
     "Single adult on staff, living alone."
   ],
   "address": {
@@ -51,7 +51,7 @@
       "guid": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
       "firstName": "Naomi",
       "lastName": "Castillo",
-      "bio": "Naomi is the Worship Pastor. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.",
+      "bio": "Naomi is the Worship Director. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -72,7 +72,7 @@
       },
       "attributes": {
         "Employer": "Rock Solid Church",
-        "Position": "Worship Pastor"
+        "Position": "Worship Director"
       },
       "logins": [
         "ncastillo"

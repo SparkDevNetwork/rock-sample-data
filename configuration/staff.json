@@ -1,5 +1,5 @@
 {
-  "$comment": "The church staff (decision D-staff-1). Each staff member is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
+  "$comment": "The church staff (decision D-staff-1). Each of the 23 staff members is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
   "staff": [
     {
       "key": "pete",
@@ -117,7 +117,7 @@
       "key": "naomi",
       "person": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
       "name": "Naomi Castillo",
-      "title": "Worship Pastor",
+      "title": "Worship Director",
       "department": "worship",
       "campus": null,
       "supervisor": "pete",
@@ -126,7 +126,7 @@
         "month": 8,
         "day": 6
       },
-      "bio": "Naomi leads worship at Phoenix most Sundays and trains the worship leaders at every campus. She writes songs and has never met a harmony she didn't like.",
+      "bio": "Naomi is our Worship Director. She leads worship at Phoenix most Sundays and trains the worship leaders at every campus. She writes songs and has never met a harmony she didn't like.",
       "quote": "\"Let every thing that hath breath praise the LORD.\" (Psalm 150:6)"
     },
     {
@@ -146,6 +146,22 @@
       "quote": "\"The best Sunday is the one where nobody notices the tech.\""
     },
     {
+      "key": "leah",
+      "person": "2C1EC260-13B8-489E-9B38-61F732ED7022",
+      "name": "Leah Tsosie",
+      "title": "Tempe Worship Leader",
+      "department": "worship",
+      "campus": "tempe",
+      "supervisor": "naomi",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 2
+      },
+      "bio": "Leah leads worship at our Tempe campus, where most people are singles and young adults. She lives near the campus and loves a good coffee shop.",
+      "quote": "\"O sing unto the LORD a new song.\" (Psalm 96:1)"
+    },
+    {
       "key": "rachel",
       "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
       "name": "Rachel Brooks",
@@ -158,6 +174,22 @@
       },
       "bio": "Rachel leads our kids ministry. She led the Phoenix kids volunteers for years before joining staff this year. She and Nathan have three kids of their own.",
       "quote": "\"Suffer the little children to come unto me, and forbid them not.\" (Mark 10:14)"
+    },
+    {
+      "key": "tina",
+      "person": "87A06537-76C2-4100-8408-1CFF4EE55248",
+      "name": "Tina Vu",
+      "title": "Chandler Kids Director",
+      "department": "kids",
+      "campus": "chandler",
+      "supervisor": "rachel",
+      "startDate": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 19
+      },
+      "bio": "Tina leads kids ministry at Chandler, the church's largest. She and Minh have two little ones, Ellie and Theo.",
+      "quote": "\"Spilled juice in the lobby means we're doing something right.\""
     },
     {
       "key": "isaac",
@@ -193,7 +225,7 @@
       "key": "dee",
       "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
       "name": "Dee Navarro",
-      "title": "Care Pastor",
+      "title": "Care Director",
       "department": "connections",
       "campus": null,
       "supervisor": "ted",
@@ -202,7 +234,7 @@
         "month": 2,
         "day": 1
       },
-      "bio": "Dee leads care: hospital visits, grief care, benevolence, and counseling. She prayed with people as a volunteer for years before joining staff. She and Hector have been married 38 years.",
+      "bio": "Dee is our Care Director: hospital visits, grief care, benevolence, and counseling. She prayed with people as a volunteer for years before joining staff. She and Hector have been married 38 years.",
       "quote": "\"The LORD is nigh unto them that are of a broken heart.\" (Psalm 34:18)"
     },
     {
@@ -238,9 +270,9 @@
       "quote": "\"Show up early, stay late, and learn the names.\""
     },
     {
-      "key": "dana",
-      "person": "9781F0D0-DF05-4C96-A599-F3971238981D",
-      "name": "Dana Whitlock",
+      "key": "joel",
+      "person": "2FD26F42-1EB7-4187-B1EE-04703144128D",
+      "name": "Joel Park",
       "title": "Gilbert Campus Pastor",
       "department": "campuses",
       "campus": "gilbert",
@@ -250,8 +282,8 @@
         "month": 8,
         "day": 21
       },
-      "bio": "Dana leads our Gilbert campus in the East Valley. She and Scott have two kids, Harper and Wes.",
-      "quote": "\"Church is the people who notice when you're gone.\""
+      "bio": "Joel leads our Gilbert campus in the East Valley. He and Esther have two kids, Silas and Ruby.",
+      "quote": "\"Except the LORD build the house, they labour in vain that build it.\" (Psalm 127:1)"
     },
     {
       "key": "walt",
@@ -270,9 +302,9 @@
       "quote": "\"Behold, how good and how pleasant it is for brethren to dwell together in unity!\" (Psalm 133:1)"
     },
     {
-      "key": "tina",
-      "person": "87A06537-76C2-4100-8408-1CFF4EE55248",
-      "name": "Tina Vu",
+      "key": "josiah",
+      "person": "5DD2FCE8-0F2D-4A99-8C9C-0191AF2A541C",
+      "name": "Josiah Faleolo",
       "title": "Chandler Campus Pastor",
       "department": "campuses",
       "campus": "chandler",
@@ -282,8 +314,8 @@
         "month": 5,
         "day": 19
       },
-      "bio": "Tina leads our Chandler campus, home to the church's largest kids ministry. She and Minh have two little ones, Ellie and Theo.",
-      "quote": "\"Spilled juice in the lobby means we're doing something right.\""
+      "bio": "Josiah leads our Chandler campus, home to the church's largest kids ministry. He and Leilani have two little ones, Malia and Kai.",
+      "quote": "\"Train up a child in the way he should go: and when he is old, he will not depart from it.\" (Proverbs 22:6)"
     },
     {
       "key": "rafael",
@@ -302,9 +334,9 @@
       "quote": "\"Behold, I will do a new thing; now it shall spring forth.\" (Isaiah 43:19)"
     },
     {
-      "key": "leah",
-      "person": "2C1EC260-13B8-489E-9B38-61F732ED7022",
-      "name": "Leah Tsosie",
+      "key": "miles",
+      "person": "A102460D-6362-4202-8F8E-19CA2679312B",
+      "name": "Miles Okafor",
       "title": "Tempe Campus Pastor",
       "department": "campuses",
       "campus": "tempe",
@@ -314,18 +346,34 @@
         "month": 6,
         "day": 2
       },
-      "bio": "Leah leads our Tempe campus, where most people are singles and young adults. She lives near the campus and loves a good coffee shop.",
+      "bio": "Miles leads our Tempe campus, where most people are singles and young adults. He lives near the campus and knows every coffee shop around it.",
       "quote": "\"Nobody should have to find their people alone.\""
+    },
+    {
+      "key": "dana",
+      "person": "9781F0D0-DF05-4C96-A599-F3971238981D",
+      "name": "Dana Whitlock",
+      "title": "Gilbert Campus Director",
+      "department": "campuses",
+      "campus": "gilbert",
+      "supervisor": "greg",
+      "startDate": {
+        "yearsAgo": 3,
+        "month": 8,
+        "day": 21
+      },
+      "bio": "Dana is our Gilbert Campus Director. She runs the campus's Sundays, volunteers, and weekday ministries beside Joel. She and Scott have two kids, Harper and Wes.",
+      "quote": "\"Church is the people who notice when you're gone.\""
     }
   ],
   "campusPastors": {
     "phoenix": "aaron",
     "peoria": "andre",
-    "gilbert": "dana",
+    "gilbert": "joel",
     "scottsdale": "walt",
-    "chandler": "tina",
+    "chandler": "josiah",
     "goodyear": "rafael",
-    "tempe": "leah"
+    "tempe": "miles"
   },
   "category": "staff-person-attributes",
   "roles": {
@@ -376,7 +424,7 @@
       "fieldType": "single-select",
       "order": 2,
       "qualifiers": {
-        "values": "executive^Leadership,administration^Operations,worship^Worship and Production,kids^Kids,students^Students,connections^Outreach Groups and Care,campuses^Campus Pastors",
+        "values": "executive^Leadership,administration^Operations,worship^Worship and Production,kids^Kids,students^Students,connections^Outreach Groups and Care,campuses^Campuses",
         "fieldtype": "ddl",
         "repeatColumns": ""
       },
@@ -509,7 +557,9 @@
         "guid": "56AD5243-DED9-42F1-A922-5069A4EF7A7B",
         "rockShips": true,
         "leader": "rachel",
-        "staff": []
+        "staff": [
+          "tina"
+        ]
       },
       {
         "key": "students",
@@ -551,11 +601,12 @@
         "staff": [
           "aaron",
           "andre",
-          "dana",
+          "joel",
           "walt",
-          "tina",
+          "josiah",
           "rafael",
-          "leah"
+          "miles",
+          "dana"
         ]
       },
       {
@@ -568,7 +619,8 @@
         "order": 6,
         "leader": "naomi",
         "staff": [
-          "kelsey"
+          "kelsey",
+          "leah"
         ]
       }
     ]

@@ -7,9 +7,9 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Dee Navarro is the Care Pastor. She makes hospital visits, leads grief care, oversees benevolence, and counsels. She and Hector have been at the church longer than almost anyone on staff, and their grown children have families of their own.",
+  "story": "Dee Navarro is the Care Director. She makes hospital visits, leads grief care, oversees benevolence, and counsels. She and Hector have been at the church longer than almost anyone on staff, and their grown children have families of their own.",
   "testPurposes": [
-    "Care Pastor with the prayer administration and benevolence roles.",
+    "Care Director with the pastoral notes, prayer administration, and benevolence roles.",
     "Nickname that is not an obvious short form (Dolores goes by Dee).",
     "Prayer team member on staff."
   ],
@@ -54,7 +54,7 @@
       "firstName": "Dolores",
       "nickName": "Dee",
       "lastName": "Navarro",
-      "bio": "Dee is the Care Pastor. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.",
+      "bio": "Dee is the Care Director. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -80,7 +80,7 @@
       },
       "attributes": {
         "Employer": "Rock Solid Church",
-        "Position": "Care Pastor"
+        "Position": "Care Director"
       },
       "logins": [
         "dnavarro"

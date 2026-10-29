@@ -7,9 +7,9 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "chandler",
-  "story": "Tina Vu is the Chandler Campus Pastor, at the campus full of young families. She and Minh have two little ones, Ellie and Theo, in the Chandler nursery and preschool rooms.",
+  "story": "Tina Vu is the Chandler Kids Director, at the campus full of young families and the church's largest kids ministry. She and Minh have two little ones, Ellie and Theo, in the Chandler nursery and preschool rooms.",
   "testPurposes": [
-    "Named campus pastor at Chandler, loaded only in Full 7.",
+    "Campus kids director at Chandler, loaded only in Full 7.",
     "Staff family with a toddler and a preschooler."
   ],
   "address": {
@@ -51,7 +51,7 @@
       "guid": "87A06537-76C2-4100-8408-1CFF4EE55248",
       "firstName": "Tina",
       "lastName": "Vu",
-      "bio": "Tina is the Chandler Campus Pastor. She joined staff four years ago and leads the campus with the church's largest kids ministry.",
+      "bio": "Tina is the Chandler Kids Director. She joined staff four years ago and leads the church's largest kids ministry, at Chandler.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -77,13 +77,13 @@
       },
       "attributes": {
         "Employer": "Rock Solid Church",
-        "Position": "Chandler Campus Pastor"
+        "Position": "Chandler Kids Director"
       },
       "logins": [
         "tvu"
       ],
       "securityRoles": [
-        "Pastoral Staff",
+        "Safety & Security Workers",
         "Staff Users"
       ]
     },

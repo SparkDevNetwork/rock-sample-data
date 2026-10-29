@@ -2,7 +2,7 @@
 
 **Featured** · New household · 4 people · Phoenix campus · [source](../households/whitlock.json)
 
-Dana Whitlock is the Gilbert Campus Pastor. Scott works in software, and Harper and Wes are in the Gilbert elementary rooms.
+Dana Whitlock is the Gilbert Campus Director. She runs the campus's Sundays, volunteers, and weekday ministries beside Joel Park, the campus pastor. Scott works in software, and Harper and Wes are in the Gilbert elementary rooms.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -15,9 +15,9 @@ Dana Whitlock is the Gilbert Campus Pastor. Scott works in software, and Harper 
 
 ### Dana Whitlock
 
-Dana is the Gilbert Campus Pastor. She joined staff three years ago and leads the East Valley campus.
+Dana is the Gilbert Campus Director. She joined staff three years ago and runs the campus's Sundays, volunteers, and weekday ministries.
 
-- Age 40 · married · Gilbert Campus Pastor, Rock Solid Church · email dana@rocksolidchurchdemo.com · 2 security roles
+- Age 40 · married · Gilbert Campus Director, Rock Solid Church · email dana@rocksolidchurchdemo.com · 1 security roles
 - Person Guid `9781F0D0-DF05-4C96-A599-F3971238981D`
 
 ### Scott Whitlock
@@ -37,8 +37,9 @@ Dana is the Gilbert Campus Pastor. She joined staff three years ago and leads th
 
 ## What this family tests
 
-- Named campus pastor at Gilbert, loaded only in datasets with the Gilbert campus.
-- Campus pastor whose spouse is not on staff.
+- Campus staff at Gilbert, loaded only in datasets with the Gilbert campus.
+- Campus Director who works beside the campus pastor.
+- Staff member whose spouse is not on staff.
 
 ## Activity
 
