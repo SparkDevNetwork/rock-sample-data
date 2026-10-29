@@ -20,7 +20,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## Other Rock features
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
-- **Event registrations** for kids and adults: VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, with their wait lists and placements, then the camp and mission trip release forms and a few data views. The setup and the student registrations are built: templates, instances, links to calendar events, and the students who registered for camp, the mission trip, and the fall retreat, with payments, payment plans, and placements. See [Event registrations](registrations.md).
+- **Event registrations**: the camp and mission trip release forms, a few data views, and the notes and history Rock writes on each registration. The setup and the people who registered are built: templates, instances, links to calendar events, the students for camp, the mission trip, and the fall retreat, and the kids and adults for VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, with payments, payment plans, wait lists, and placements. See [Event registrations](registrations.md).
 - **Event images:** a titled design or a photo for each of the calendar's 51 events. The calendar itself is built (see [Calendar](calendar.md)), and each image loads as it arrives.
 - **Benevolence requests.**
 - **Reminders** that staff would really set.

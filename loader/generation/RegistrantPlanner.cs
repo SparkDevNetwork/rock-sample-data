@@ -893,7 +893,7 @@ namespace RockSampleData.Loader.Generation
             and every registration that asks shows the same value. A Cast person answers only with the value their file
             holds, so no Cast story gains an allergy it does not tell.
 
-            Reason: A child's allergy agrees across every registration and check-in (decision D-registrations-11).
+            Reason: A child's allergy agrees across every registration and check-in (decision D-registrations-13).
         */
 
         /// <summary>

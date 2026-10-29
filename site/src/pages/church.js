@@ -33,7 +33,22 @@ function studentRegistrations( model ) {
         return "";
     }
 
-    return html`<p class="fine">Students have registered. Last summer's campers are exactly the students with that camp's Student Camp step, each on a bus, in a cabin, and in two activities. For next summer, ${camp}% of the students who could go register over the year, and so do ${trip}% of high school students for the mission trip and ${retreat}% of the students who attend for the fall retreat. They pay in full, pay a deposit, or set up a payment plan, through the Test Gateway. Kids and adults register in a later release.</p>`;
+    return html`<p class="fine">Students have registered. Last summer's campers are exactly the students with that camp's Student Camp step, each on a bus, in a cabin, and in two activities. For next summer, ${camp}% of the students who could go register over the year, and so do ${trip}% of high school students for the mission trip and ${retreat}% of the students who attend for the fall retreat. They pay in full, pay a deposit, or set up a payment plan, through the Test Gateway.</p>`;
+}
+
+// The kids and adults who registered, in words, with each share and limit read from configuration/registrations.json.
+function familyRegistrations( model ) {
+    const instance = key => model.registrations.instances.find( i => i.key === key );
+    const vbs = instance( "vbs" )?.registrants?.kids?.statuses?.Connected;
+    const serve = instance( "community-serve-day" )?.registrants?.volunteers?.servers;
+    const childcare = instance( "date-night" )?.registrants?.fees?.childcare;
+    const singles = model.registrations.templates.find( t => t.key === "womens-retreat" )?.fees?.find( f => f.key === "room" )?.items.find( i => i.maximumUsageCount )?.maximumUsageCount;
+    const nightOut = instance( "parents-night-out" )?.maxAttendees?.[ "full-7" ];
+    if ( [ vbs, serve, childcare, singles, nightOut ].some( v => v === undefined ) ) {
+        return "";
+    }
+
+    return html`<p class="fine">Kids and adults have registered too. In Core 1 and Core 3, ${vbs}% of Connected families sign their kids up for VBS, each kid placed in the crew for their grade, and Phoenix fills with a wait list. Parents' Night Out is free, holds ${nightOut} kids at a Full 7 campus, and Phoenix keeps a wait list. ${serve}% of the people who serve there signed up for the last Community Serve Day and were placed on project teams. Couples register together for Date Night, and ${childcare}% of those with young kids add childcare per child. Most Money Matters registrants pay at the first class. Friends from one small group go to the Women's Retreat together, and its ${singles} single rooms run out.</p>`;
 }
 
 // The church's initiatives, in the order they started. Starting Point is the first.
@@ -278,6 +293,7 @@ ${model.registrations.templates.length ? html`<section class="section" id="regis
     </div>
     <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts.</p>
     ${studentRegistrations( model )}
+    ${familyRegistrations( model )}
   </div>
 </section>` : ""}
 

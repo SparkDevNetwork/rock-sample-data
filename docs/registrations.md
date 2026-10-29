@@ -2,7 +2,7 @@
 
 Rock Solid Church's event registrations: the templates, each year's instances, and how they link to the calendar. They live in [configuration/registrations.json](../configuration/registrations.json). The loader's registrations step writes them (decision 189).
 
-Registrations come in four slices. Slice 1, the setup, is built. It writes everything a church sets up before anyone registers, so every upcoming event page shows its Register button. Slice 2 is built too: the [students who registered](#who-registered-students) for camp, the mission trip, and the fall retreat, with their payments and placements. The [later slices](#later) add kids and adults.
+Registrations come in four slices. Slice 1, the setup, is built. It writes everything a church sets up before anyone registers, so every upcoming event page shows its Register button. Slice 2 is built too: the [students who registered](#who-registered-students) for camp, the mission trip, and the fall retreat, with their payments and placements. Slice 3 adds the [kids and adults who registered](#who-registered-kids-and-adults) for VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat. The [last slice](#later) adds release forms and data views.
 
 ## What a church gets
 
@@ -46,7 +46,7 @@ Seven registrations are open on every install day: camp, the mission trip, the f
 | Grade, age, and gender rules | Camp and the trip (grade), Parents' Night Out (age), the Women's Retreat (women) |
 | A registrar who is not a registrant | Camp: a parent registers the student |
 | Placement groups, one shared by two instances, several placements per person | Camp cabins, buses shared by girls and boys, and two activities each |
-| Registrant attributes and a person attribute | Camp (cabin mate, emergency contact), Parents' Night Out (allergies, saved to the child) |
+| Registrant attributes and a person attribute | Camp (cabin mate, emergency contact), Parents' Night Out (allergies, saved to the child), the Women's Retreat (roommate) |
 | "How did you hear about this event?" | Every registration |
 
 ## Templates
@@ -192,21 +192,85 @@ On install day October 28, 2026, at the default seed:
 
 The small datasets have few students, so neither fills the mission trip or has two brothers or two sisters registering for next summer's camp. Full 7 was not loaded for this slice. Its Student Path has about 2,300 students and 848 camp steps over three summers (see [Steps](steps.md)), so its camp limit was raised to 300 per instance to hold last summer's campers, and its 24-spot trip should fill with a wait list. The lead's Full 7 verify gives its real numbers.
 
+<a id="who-registered-kids-and-adults"></a>
+
+## Who registered: kids and adults
+
+Kids and adults go through the same steps as students: dated, registered, priced, paid, placed, and answered. Only the choosing differs (decision D-registrations-11). Each instance's `registrants` rule names one audience. The audiences read the people and the small group and serving plans that every load makes, never another part's rows, so registrations still need only the calendar.
+
+### Who
+
+| Registration | Audience | Who registers |
+|---|---|---|
+| VBS | Kids | Families at the campus with kids age 4 to 11 who are in grade 5 or below on the first day: 60% of Participant families, 65% of Connected, and 70% of Engaged and Leading. A parent registers the siblings together. Phoenix fills its limit, and 60% of the families who come after it join the wait list. |
+| Parents' Night Out | Kids | Kids age 2 to 11 of married parents: 20% of Known families, 60% of Connected, and 70% of Engaged and Leading. It is free. Phoenix fills its limit, and half of the rest join the wait list. |
+| Serve Day | Volunteers | 30% of the people serving on a team and 15% of the small group members on the day, plus 4% of Participant and Known adults and 3% of Connected ones. 40% of their teens, age 13 to 17, come along. A family signs up together, with an adult first. |
+| Money Matters | Adults | Adults 25 to 55: 5% of Known, 10% of Connected, 12% of Engaged, and 8% of Leading. 60% of the married ones bring their spouse on the same registration. |
+| Date Night | Couples | Married couples, both on one registration: 8% of Known couples, 20% of Connected, 30% of Engaged, and 35% of Leading, by the more involved spouse. |
+| Women's Retreat | Adults | Women 25 to 75. First, 30% of the active small groups with two or more who could go send two to four of them on one registration. Then 10% of Known women, 20% of Connected, 25% of Engaged, and 30% of Leading. |
+
+- **Exact shares.** Each share is an exact count, rounded, figured apart for the Cast and for the generated households, so the Cast's numbers never depend on the Crowd.
+- **The Cast.** A Cast person less involved than Connected registers only through a Cast story. Many of those stories are about one touch, such as Destiny Young's diaper drive, and a registration the story does not name would break it.
+- **Full 7.** Its Crowd would fill a class many times over, so `scale` lowers its shares: VBS to 60%, Serve Day to 20%, Money Matters and Date Night to 15%, Parents' Night Out to 10%, and the Women's Retreat to 3%.
+- **The registrar.** A parent or guardian registers kids. Adults, couples, and volunteers register themselves: the first person on the registration.
+- **When.** Each registration is dated by a seeded draw across its window, with bursts after opening and before closing, and the Women's Retreat also before its early bird ends. Only the days before the install day are written. Next summer's VBS opens in spring, so it has no registrants on most install days.
+
+### Fees, discounts, and payments
+
+- **Childcare.** 70% of Date Night couples with children under 12 add childcare: one fee on the first registrant, with a quantity of their children, at $10 each. The childcare fee is not discounted.
+- **Rooms.** Every Women's Retreat guest picks a room: quad (55%), double (30%), or single (15%). Single rooms run out after six, as Rock hides the choice once every use is taken.
+- **Discounts.** Rock gives one discount: the first automatic one valid that day, or a code the person typed. The Women's Retreat early bird runs through October 31. After it ends, half of the friends who register together use FRIEND, 10% off. 8% of Money Matters registrations use SCHOLARSHIP, 100% off, leaving two of its five uses.
+- **Payments.** VBS and Date Night are paid in full when registering, since neither has a minimum payment. Money Matters has no minimum, so 65% pay later and 35% pay in full. Women's Retreat guests pay in full (40%), pay the $50 deposit (35%), or start a monthly payment plan (25%). Parents' Night Out and Serve Day are free and take no payment.
+
+### Placements and answers
+
+- **VBS crews.** Once registration closes, each kid is in the crew for their grade on the first day of VBS, from the Pre-K crew to the 5th grade crew. A kid with no grade yet is in the Pre-K crew.
+- **Serve Day teams.** Everyone on one registration is on one project team, and the teams fill evenly.
+- **Answers.** VBS asks who will pick up each child, answered with a parent or guardian. Serve Day asks for a shirt size. 70% of Women's Retreat guests who came with friends ask for one of them as a roommate.
+- **Allergies.** VBS and Parents' Night Out ask Rock's Allergy person attribute, which Rock saves to the child, so kids check-in prints it. About 6% of generated kids answer it, from a short list such as "Allergic to peanuts." Each child's answer is drawn once, so every form shows the same value, and it is saved once, from the first registration that asked. A Cast child answers only with the allergy their household file holds, such as Alex Decker's peanut allergy. The Parents' Night Out question is not required, so most families leave it blank (decision D-registrations-13).
+
+### Cast stories
+
+| Who | Registration | Expected |
+|---|---|---|
+| Noah and Alex Decker | Last summer's VBS at Phoenix | Registered together by Cindy, paid in full, each in one crew, the crew for their grade |
+| Ted and Cindy Decker | The next Date Night at Phoenix | Registered together by Ted, with childcare for two, paid in full |
+| Adrian and Camila Cruz | Last summer's VBS at Phoenix | Registered together by Gabriela, paid in full, each in one crew. Their household's story says the Cruzes registered them for VBS. |
+| Bri Hall | The last Serve Day at Phoenix | Registered herself, on the School Supplies team, as her note says she sorted school supplies |
+
+A Cast registration can name the placement group it joins (`placements`) and the fees it always adds (`fees`). Its `expect` entries can check the group by name (`placedIn`) and each fee's quantity (`fees`). Bri is a Participant whose only touch is that Serve Day, and the registration is part of that touch, so her story still holds.
+
+## How many: kids and adults
+
+On install day October 28, 2026, at the default seed. Each cell is people registered, off the wait list, with the wait list in parentheses where there is one. Core 3 has the same Cast at Phoenix as Core 1, and generated households at Peoria and Gilbert.
+
+| Registration | Core 1 | Core 3 |
+|---|---|---|
+| VBS, last summer | Phoenix 15 (1), full | Phoenix 15 (1), full; Peoria 11; Gilbert 9 |
+| VBS, next summer | Not open yet | Not open yet |
+| Parents' Night Out | Phoenix 10 (3), full | Phoenix 10 (3), full; Gilbert 1 |
+| Serve Day | Phoenix 27 on 25 registrations | Phoenix 27; Peoria 10; Gilbert 12 |
+| Money Matters | Phoenix 3 | Phoenix 3; Gilbert 1, with the scholarship code |
+| Date Night | Phoenix 5 couples, 2 with childcare | Phoenix 5 couples, 2 with childcare |
+| Women's Retreat | 6 women on 3 registrations | 16 women on 12 registrations |
+| All registrations, students included | 58 registrations, 82 registrants, 42 payments ($4,133) | 115 registrations, 147 registrants, 91 payments ($10,014) |
+
+The early bird runs through October 31, so every Women's Retreat registration on that day has it, and none uses the friend code yet. Full 7 was not loaded for this slice. Its shares are scaled so that, by estimate, VBS fills at Phoenix but not the smaller campuses, each campus has about 25 in Money Matters and 30 couples at Date Night, and about 40 women have registered for the retreat by late October. The lead's Full 7 verify gives its real numbers.
+
 ## Checks
 
-- **Invariants** (`validation/invariants.sql`): every linkage points at an occurrence of an active, approved event on a calendar, at the occurrence's campus, with an active instance and template. Slugs match Rock's pattern and are unique. Each instance opens before it closes, and its event comes after it closes and on or after its payment deadline. Placement groups are of their placement's group type and template. Linked groups are Event Attendees groups. The admin role can edit each category. At least seven events have a registration open today. For the people: each registrant's template matches; each registrant is in the template's grades on the day they registered and on the event day; registrations fall inside their window and before today; registrants off the wait list fit the limit and are in the linked group; a wait list exists only on a full instance; placed people are registrants of a linked instance; payments are Event Registration transactions from the registrar on the instance's account, never more than what is owed, and paid up once the deadline has passed; plans use a frequency the template allows and end by the deadline; codes stay within their uses; and when the steps part loaded, the campers at every camp that has ended are exactly the people with a Student Camp step there.
-- **check-registrations.js**: every instance's event, template, contact, groups, and placements exist; slug patterns make valid slugs that cannot collide; templates ask for what their eligibility needs; and every feature in the table above sits on an always-open instance. For the people: each registrants rule names a Student Path event step or a share, payments add up to 100 and are ones the template allows, fees and placements are the template's, and attribute fills fit their attributes. A discount that needs several registrants comes before an early bird. Run it with `node validation/check-registrations.js`.
-- **validate-cast.js**: each Cast registration names an instance rule with registrants, one of its occurrences, members of the household, and a payment, plan, placements, and discount its template has.
+- **Invariants** (`validation/invariants.sql`): every linkage points at an occurrence of an active, approved event on a calendar, at the occurrence's campus, with an active instance and template. Slugs match Rock's pattern and are unique. Each instance opens before it closes, and its event comes after it closes and on or after its payment deadline. Placement groups are of their placement's group type and template. Linked groups are Event Attendees groups. The admin role can edit each category. At least seven events have a registration open today. For the people: each registrant's template matches; each registrant is in the template's grades on the day they registered and on the event day; registrations fall inside their window and before today; registrants off the wait list fit the limit and are in the linked group; a wait list exists only on a full instance; placed people are registrants of a linked instance; payments are Event Registration transactions from the registrar on the instance's account, never more than what is owed, and paid up once the deadline has passed; plans use a frequency the template allows and end by the deadline; codes stay within their uses; and when the steps part loaded, the campers at every camp that has ended are exactly the people with a Student Camp step there. For kids and adults: a free registration takes no payment; a fee carries its item's cost, and a quantity only where the fee allows it; a quantity fee on a template with no minimum payment is paid in full; no fee item passes its limit, and every required fee is picked; registrants of a same-family template share a family, and each Date Night registration is one married couple; every registrant meets the template's ages and gender on both days; everyone on a closed instance is placed, VBS kids in their grade's crew, and a Serve Day registration on one team; and the Allergy attribute is written only for a registrant whose form asks it.
+- **check-registrations.js**: every instance's event, template, contact, groups, and placements exist; slug patterns make valid slugs that cannot collide; templates ask for what their eligibility needs; and every feature in the table above sits on an always-open instance. For the people: each registrants rule names one audience, students name a Student Path event step or a share, a paid template's payments add up to 100 and are ones the template allows (pay later only with no minimum), a free template has none, fees, codes, and placements are the template's, and attribute fills fit their attributes. A discount that needs several registrants comes before an early bird. Run it with `node validation/check-registrations.js`.
+- **validate-cast.js**: each Cast registration names an instance rule with registrants, one of its occurrences, members of the household, and a payment, plan, placements, placement groups, fees, and discount its template and instance have.
 - **Cast expectations**: the Cast registrations above, on every load.
 - **loader-compat-check**: plans the registrations for install day October 28, 2026 and compares every date with the table above.
 - **Rock Cleanup referee**: Rock Cleanup must find nothing to fix.
 
 ## The registrations part
 
-Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision D-registrations-8). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, and those registrations are skipped.
+Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision D-registrations-8). Kids and adults register from the people and the small group and serving plans, which every load makes too, so it needs neither the small groups nor the serving part (decision D-registrations-11). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, so only the student registrations are skipped.
 
 ## Later
 
-1. **Kids and adult registrations (slice 3).** VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, with their wait lists and placements.
-2. **Signatures and finish (slice 4).** The camp and mission trip release forms with typed signatures and a PDF drawn at install, a few ready-made data views, and the notes and history Rock writes on each registration (decision 194).
-3. **Refunds.** One cancelled mission trip spot with a refunded deposit.
+1. **Signatures and finish (slice 4).** The camp and mission trip release forms with typed signatures and a PDF drawn at install, a few ready-made data views, and the notes and history Rock writes on each registration (decision 194).
+2. **Refunds.** One cancelled mission trip spot with a refunded deposit.

@@ -30,6 +30,7 @@ Every campus has the same eight teams. Each one is a Rock Serving Team group, so
 - **Rotation.** Each volunteer has one of Rock's four schedule templates: Every Week (15%), Every Other Week (40%), 1st and 3rd Week (25%), or 2nd and 4th Week (20%). Leaders serve every week. On a fifth Sunday, about half of the 1st and 3rd and the 2nd and 4th volunteers fill in.
 - **Preferences.** Most volunteers prefer one service (85%), and most on a team with several rooms prefer one room (70%). These are Rock's scheduling preferences, which Auto Schedule uses.
 - **Pending.** People who connected in the last few weeks wait on their team as Pending, as Rock ships it. The team leader makes them Active as part of onboarding.
+- **Serve Day.** The registrations part reads the serving plan, not its rows: a share of the people serving on the day of the Community Serve Day signed up for it (decision D-registrations-11). See [Event registrations](registrations.md#who-registered-kids-and-adults).
 
 ## Serving history and the weeks ahead
 
