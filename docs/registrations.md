@@ -244,18 +244,18 @@ A Cast registration can name the placement group it joins (`placements`) and the
 
 ## How many: kids and adults
 
-On install day October 28, 2026, at the default seed. Each cell is people registered, off the wait list, with the wait list in parentheses where there is one. Core 3 has the same Cast at Phoenix as Core 1, and generated households at Peoria and Gilbert.
+On install day October 29, 2026, at the default seed. Each cell is people registered, off the wait list, with the wait list in parentheses where there is one. Core 3 has the same Cast at Phoenix as Core 1, and generated households at Peoria and Gilbert.
 
 | Registration | Core 1 | Core 3 |
 |---|---|---|
-| VBS, last summer | Phoenix 15 (1), full | Phoenix 15 (1), full; Peoria 11; Gilbert 9 |
+| VBS, last summer | Phoenix 15 (1), full | Phoenix 15 (1), full; Peoria 7; Gilbert 5 |
 | VBS, next summer | Not open yet | Not open yet |
 | Parents' Night Out | Phoenix 10 (3), full | Phoenix 10 (3), full; Gilbert 1 |
-| Serve Day | Phoenix 27 on 25 registrations | Phoenix 27; Peoria 10; Gilbert 12 |
+| Serve Day | Phoenix 27 on 25 registrations | Phoenix 27; Peoria 9; Gilbert 11 |
 | Money Matters | Phoenix 3 | Phoenix 3; Gilbert 1, with the scholarship code |
 | Date Night | Phoenix 5 couples, 2 with childcare | Phoenix 5 couples, 2 with childcare |
 | Women's Retreat | 6 women on 3 registrations | 16 women on 12 registrations |
-| All registrations, students included | 58 registrations, 82 registrants, 42 payments ($4,133) | 115 registrations, 147 registrants, 91 payments ($10,014) |
+| All registrations, students included | 58 registrations, 82 registrants, 42 payments ($4,133) | 109 registrations, 137 registrants, 87 payments ($9,814) |
 
 The early bird runs through October 31, so every Women's Retreat registration on that day has it, and none uses the friend code yet. Full 7 was not loaded for this slice. Its shares are scaled so that, by estimate, VBS fills at Phoenix but not the smaller campuses, each campus has about 25 in Money Matters and 30 couples at Date Night, and about 40 women have registered for the retreat by late October. The lead's Full 7 verify gives its real numbers.
 
@@ -278,7 +278,7 @@ Each signed release is the one Rock's registration entry saves:
 - **What.** The release's Lava, rendered for the registrant, with their first name, the instance's name, and the church's name. The typed name is the registrar's full name. The email is the registrar's, or one they type when Rock has none for them.
 - **When.** A minute or two before the registration was saved, on the same day. Rock's Electronic Signature Receipt emails the PDF to the signer right after.
 - **Where from.** An IP address from the ranges set aside for documentation (the same one the person's email opens use), and one browser per registrar.
-- **The hash.** Rock's verification hash over the signed fields, computed the way Rock's SignatureDocumentService computes it.
+- **The hash.** Rock's verification hash over the signed fields, computed the way Rock's SignatureDocumentService computes it. Rock's code uses SHA-1, so the loader does too. Its port is checked against Rock's own value.
 - **The PDF.** A small PDF drawn at install, in Rock's Digitally Signed Documents file type: the release's title and text, then Rock's signature box with the typed name, the signer, the date, the IP address, the agreement, and the reference code, which is the hash.
 
 On install day October 29, 2026, at the default seed:
@@ -303,12 +303,12 @@ Every registration has the notes and history Rock's registration entry writes as
 
 Registration notes use Rock's own Event Registration note type, which the Notes part never touches, so their types and security stay apart.
 
-On the same day, from 58 registrations in Core 1 and 115 in Core 3:
+On the same day, from 58 registrations in Core 1 and 109 in Core 3:
 
 | Notes and history | Core 1 | Core 3 |
 |---|---|---|
-| Person notes | 114 | 198 |
-| History rows | 590 | 1,181 |
+| Person notes | 114 | 184 |
+| History rows | 590 | 1,117 |
 
 <a id="reminders"></a>
 
@@ -354,4 +354,5 @@ Registrations are their own loader part, `Registrations` ("Event registrations")
 ## Later
 
 1. **Refunds.** One cancelled mission trip spot with a refunded deposit.
-2. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision D-registrations-16).
+2. **Batch history.** Rock writes financial batch history when a registration payment lands in a batch. The loader does not write it yet.
+3. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision D-registrations-16).
