@@ -210,6 +210,8 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **The moving window.** Rock Cleanup rebuilds `ScheduleDate` from now minus two years to now plus two years, to the minute. The plain copy and each loaded copy are cleaned minutes apart, so the tool leaves out the rows within a day of either edge, in both runs, and compares the rest exactly. Before, an occurrence at an edge sometimes fell inside one run and outside the other, and rock-cleanup failed on base rows the load never touched (11,080 against 11,079 changed rows).
 
+**The clock.** The loader sets each event occurrence's next start from the clock at load time, the way Rock's save hook does, and Rock Cleanup sets it again from the clock when it runs, minutes later. An occurrence whose next start passes in between moves to its following start, which once failed rock-cleanup (3 rows on a Core 3 run). So a change to `EventItemOccurrence.NextStartDateTime` is not judged when the old value had already passed when Rock Cleanup started, and Rock only moved it later or cleared it. The tool reports those rows as "Not judged". Any other change to the column, such as a next start the loader set wrong, still fails.
+
 **When it is not judged.** Rock Cleanup recomputes ages and daily counts for today, from SQL Server's `GETDATE`. So the tool judges it only while the database server and the machine running Rock are both on the loads' anchor, checked before and after the job (decision 152). Otherwise the check fails with both dates and says to run again. A run that crosses midnight, or an `--anchor` that is not today, lands here instead of reporting false age changes.
 
 ### Sign-in
