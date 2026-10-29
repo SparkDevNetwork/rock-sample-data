@@ -1,6 +1,6 @@
 # Performance
 
-Where a load's time and disk space go, and what could make Full 7 install faster. Full 7 SHOULD install in 2 to 3 minutes and MUST install in under 5 ([design spec](design-spec.md)). The [strategy](strategy.md) promises under a minute for the largest dataset.
+Where a load's time and disk space go, and what could make Full 7 install faster. Full 7 SHOULD install in 2 to 3 minutes and MUST install in under 5 ([design spec](design-spec.md)). The [strategy](strategy.md) promises a few minutes for the largest dataset (it said under a minute until 2026-10-28).
 
 ## How it is measured
 
@@ -169,7 +169,7 @@ Full 7 now meets the 2 to 3 minute target. Rough sizes: small is under a day, me
 
 Check images are not on this list. They take about 12 seconds, and drawing them already uses every core (see the [loader README](../loader/README.md)).
 
-The strategy's "under a minute" would need the row cut above and much more. Full 7 loaded in about 55 seconds before the communications slices, and communications writes about 7 million of its 9.4 million rows.
+The strategy once promised "under a minute". That would need the row cut above and much more. Full 7 loaded in about 55 seconds before the communications slices, and communications writes about 7 million of its 9.4 million rows.
 
 **Measured on a fast server.** These loads ran on SQL Server 2025 Developer Edition, which has every Enterprise feature. SQL Server rebuilds an index on several cores only in Enterprise and Developer editions. On Standard and Express, which many churches run, each rebuild uses one core, so the index rebuilds (about 50 seconds here) may take longer there.
 
