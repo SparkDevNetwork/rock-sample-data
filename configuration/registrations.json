@@ -573,7 +573,28 @@
               "person": "Grade"
             },
             {
-              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31"
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
+              "fill": {
+                "kind": "choice",
+                "percent": 6,
+                "values": [
+                  "Allergic to peanuts",
+                  "Allergic to tree nuts",
+                  "Allergic to eggs",
+                  "Allergic to milk",
+                  "Allergic to bee stings",
+                  "Gluten free"
+                ],
+                "weights": [
+                  35,
+                  20,
+                  10,
+                  15,
+                  10,
+                  10
+                ],
+                "castKey": "Allergy"
+              }
             },
             {
               "attribute": "PickUpPerson",
@@ -587,7 +608,10 @@
           "key": "PickUpPerson",
           "name": "Who will pick up this child?",
           "fieldType": "text",
-          "isGridColumn": true
+          "isGridColumn": true,
+          "fill": {
+            "kind": "contact-name"
+          }
         }
       ],
       "placements": [
@@ -636,8 +660,28 @@
             },
             {
               "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
-              "required": true,
-              "$comment": "Saved to the child's record, so kids check-in shows it too."
+              "$comment": "Saved to the child's record, so kids check-in shows it too. Not required, so most families leave it blank.",
+              "fill": {
+                "kind": "choice",
+                "percent": 6,
+                "values": [
+                  "Allergic to peanuts",
+                  "Allergic to tree nuts",
+                  "Allergic to eggs",
+                  "Allergic to milk",
+                  "Allergic to bee stings",
+                  "Gluten free"
+                ],
+                "weights": [
+                  35,
+                  20,
+                  10,
+                  15,
+                  10,
+                  10
+                ],
+                "castKey": "Allergy"
+              }
             }
           ]
         }
@@ -695,7 +739,18 @@
             "Large",
             "XL",
             "2XL"
-          ]
+          ],
+          "fill": {
+            "kind": "choice",
+            "weights": [
+              5,
+              15,
+              30,
+              30,
+              15,
+              5
+            ]
+          }
         }
       ],
       "placements": [
@@ -859,7 +914,11 @@
         {
           "key": "RoommateRequest",
           "name": "Roommate Request",
-          "fieldType": "text"
+          "fieldType": "text",
+          "fill": {
+            "kind": "same-registration",
+            "percent": 70
+          }
         }
       ],
       "fees": [
@@ -1241,8 +1300,8 @@
       "closesDaysBefore": 7,
       "reminderDaysBefore": 3,
       "maxAttendees": {
-        "core-1": 40,
-        "core-3": 80,
+        "core-1": 15,
+        "core-3": 15,
         "full-7": 150
       },
       "contact": "rachel",
@@ -1265,7 +1324,45 @@
             "5th Grade Crew"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "kids": {
+          "statuses": {
+            "Participant": 60,
+            "Connected": 65,
+            "Engaged": 70,
+            "Leading": 70
+          },
+          "maxGrade": 5
+        },
+        "scale": {
+          "full-7": 0.6
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 40
+          },
+          {
+            "before": "closes",
+            "days": 10,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 100
+        },
+        "waitListPercent": 60,
+        "placements": {
+          "each": {
+            "crew": 1
+          },
+          "byGrade": {
+            "crew": -1
+          }
+        }
+      }
     },
     {
       "key": "parents-night-out",
@@ -1282,12 +1379,39 @@
       "closesDaysBefore": 2,
       "reminderDaysBefore": 2,
       "maxAttendees": {
-        "core-1": 15,
-        "core-3": 25,
+        "core-1": 10,
+        "core-3": 10,
         "full-7": 40
       },
       "contact": "rachel",
-      "details": "6 to 9 pm in the Kids Wing. Kids age 2 to 11."
+      "details": "6 to 9 pm in the Kids Wing. Kids age 2 to 11.",
+      "registrants": {
+        "kids": {
+          "statuses": {
+            "Known": 20,
+            "Connected": 60,
+            "Engaged": 70,
+            "Leading": 70
+          },
+          "marriedParents": true
+        },
+        "scale": {
+          "full-7": 0.1
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 7,
+            "percent": 35
+          },
+          {
+            "before": "closes",
+            "days": 7,
+            "percent": 30
+          }
+        ],
+        "waitListPercent": 50
+      }
     },
     {
       "key": "community-serve-day",
@@ -1322,7 +1446,46 @@
             "Kids Crafts"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "volunteers": {
+          "servers": 30,
+          "groupMembers": 15,
+          "statuses": {
+            "Participant": 4,
+            "Known": 4,
+            "Connected": 3
+          },
+          "teenPercent": 40,
+          "teenAges": [
+            13,
+            17
+          ]
+        },
+        "scale": {
+          "full-7": 0.2
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 10,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 10,
+            "percent": 35
+          }
+        ],
+        "placements": {
+          "each": {
+            "team": 1
+          },
+          "together": [
+            "team"
+          ]
+        }
+      }
     },
     {
       "key": "money-matters",
@@ -1345,6 +1508,47 @@
       "linkedGroup": {
         "key": "money-matters-{year}-{month}-{campus}",
         "name": "Money Matters, {month} {year}: {campus}"
+      },
+      "registrants": {
+        "adults": {
+          "statuses": {
+            "Known": 5,
+            "Connected": 10,
+            "Engaged": 12,
+            "Leading": 8
+          },
+          "ages": [
+            25,
+            55
+          ],
+          "couplePercent": 60
+        },
+        "scale": {
+          "full-7": 0.15
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 25
+          },
+          {
+            "before": "closes",
+            "days": 21,
+            "percent": 40
+          }
+        ],
+        "payments": {
+          "paid-in-full": 35,
+          "pay-later": 65
+        },
+        "codes": [
+          {
+            "discount": "scholarship",
+            "percent": 8,
+            "keepUnused": 2
+          }
+        ]
       }
     },
     {
@@ -1366,6 +1570,40 @@
       "linkedGroup": {
         "key": "date-night-{year}-{month}-{campus}",
         "name": "Date Night, {month} {year}: {campus}"
+      },
+      "registrants": {
+        "couples": {
+          "statuses": {
+            "Known": 8,
+            "Connected": 20,
+            "Engaged": 30,
+            "Leading": 35
+          }
+        },
+        "scale": {
+          "full-7": 0.15
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 25
+          },
+          {
+            "before": "closes",
+            "days": 21,
+            "percent": 35
+          }
+        ],
+        "payments": {
+          "paid-in-full": 100
+        },
+        "fees": {
+          "childcare": 70
+        },
+        "feePerChild": {
+          "childcare": 12
+        }
       }
     },
     {
@@ -1388,6 +1626,72 @@
       "linkedGroup": {
         "key": "womens-retreat-{year}",
         "name": "Women's Retreat {year}"
+      },
+      "registrants": {
+        "adults": {
+          "statuses": {
+            "Known": 10,
+            "Connected": 20,
+            "Engaged": 25,
+            "Leading": 30
+          },
+          "ages": [
+            25,
+            75
+          ],
+          "smallGroupFriends": {
+            "groupPercent": 30,
+            "size": [
+              2,
+              4
+            ]
+          }
+        },
+        "scale": {
+          "full-7": 0.03
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 20
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 30,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 40,
+          "deposit": 35,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 100
+        },
+        "fees": {
+          "room": 100
+        },
+        "feeWeights": {
+          "room": [
+            55,
+            30,
+            15
+          ]
+        },
+        "codes": [
+          {
+            "discount": "friend",
+            "percent": 50,
+            "minRegistrants": 2
+          }
+        ]
       }
     }
   ],
