@@ -142,7 +142,7 @@ namespace RockSampleData.Loader.Loading
                 return plan;
             }
 
-            var registrations = new StudentRegistrationPlanner( config, _source.Steps, studentPath, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
+            var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
             new RegistrantsLoader( _db, _foreignKey, _seed, _dates ).Write( registrations, new RegistrationIds( templates, groupTypes, groupIds, instanceIds, campusPlans, accountId, _db.RequireIdByGuid( "FinancialGateway", config.Gateway ), config.BatchPrefix ) );
             return plan;
         }

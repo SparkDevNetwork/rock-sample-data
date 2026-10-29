@@ -25,24 +25,23 @@ namespace RockSampleData.Loader.Generation
     /*
         10/28/26 - CLAUDE
 
-        Students register from the Student Path plan, so registrations agree with grades, check-ins, and steps.
-        An instance whose event the Student Path planned (last summer's camp) has exactly the students with that
-        step at that event. Any other instance takes a share of the students who could go, with the step's own
-        rate, or a share of the students who attend. Each registration is dated by a seeded draw across the whole
-        window, with bursts the configuration names, and only those dated before the install day are written, so
-        how many have registered follows how far into the window the install day is.
+        Every registration goes through one pipeline: choose who registers, date it, register, price, pay, place, and
+        answer. Only the choosing differs between students, kids, and adults, so it lives in RegistrantChooser. Each
+        registration is dated by a seeded draw across the whole window, with bursts the configuration names, and only
+        those dated before the install day are written, so how many have registered follows how far into the window
+        the install day is.
 
         Rock checks a registrant's grade on the day they register, so a registration falls on a day when every
-        registrant is in the template's grades, and every registrant is also in them on the event day.
+        registrant meets the template's rules, and every registrant also meets them on the event day.
 
-        Reason: Registrations follow Rock's rules and the Student Path's, on any install day (decisions D-registrations-8 and D-registrations-9).
+        Reason: Registrations follow Rock's rules on any install day (decisions D-registrations-8 and D-registrations-9).
     */
 
     /// <summary>
-    /// Plans the student registrations: who registered for each instance with a students rule, when, who
-    /// registered them, what they chose, what they paid, and where they were placed. Reads no database.
+    /// Plans the registrations: who registered for each instance with a registrants rule, when, who registered them,
+    /// what they chose, what they paid, and where they were placed. Reads no database.
     /// </summary>
-    internal sealed class StudentRegistrationPlanner
+    internal sealed class RegistrantPlanner
     {
         private static readonly string[] Currencies = { "Credit Card", "ACH" };
 
@@ -64,29 +63,26 @@ namespace RockSampleData.Loader.Generation
         private const int ScheduledPaymentHour = 5;
 
         private readonly RegistrationsConfiguration _config;
-        private readonly StepsConfiguration _steps;
-        private readonly StudentPath _path;
+        private readonly RegistrantChooser _chooser;
         private readonly DateTime _anchor;
         private readonly string _seed;
         private readonly int _reminderDays;
         private readonly Dictionary<int, LoadedPerson> _people = new Dictionary<int, LoadedPerson>();
         private readonly Dictionary<int, LoadedHousehold> _families = new Dictionary<int, LoadedHousehold>();
-        private readonly Dictionary<int, StepPerson> _students;
         private readonly List<(LoadedHousehold Household, CastRegistration Pin)> _pins;
         private readonly Dictionary<string, int> _placed = new Dictionary<string, int>();
 
+        /// <param name="steps">The steps configuration, or null when the package has none.</param>
+        /// <param name="path">The Student Path planned for this load, or null when the package has no steps.</param>
         /// <param name="households">Every loaded household. A person's family is the household whose family is their primary one.</param>
         /// <param name="castHouseholdKeys">The Cast's household keys, whose registrations lists pin stories.</param>
         /// <param name="reminderDays">The days between payment reminders on a paid template.</param>
-        public StudentRegistrationPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays )
+        public RegistrantPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays )
         {
             _config = config;
-            _steps = steps;
-            _path = path;
             _anchor = anchor.Date;
             _seed = seed;
             _reminderDays = reminderDays;
-            _students = path.People.ToDictionary( p => p.PersonId );
             foreach ( var household in households )
             {
                 _families[household.FamilyId] = household;
@@ -96,13 +92,14 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            _chooser = new RegistrantChooser( steps, path, _people, _families, anchor, seed );
             _pins = households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) )
                 .SelectMany( h => h.Cast.Registrations.Select( r => (h, r) ) )
                 .ToList();
         }
 
         /// <summary>
-        /// Plans every instance whose rule has a students rule, in plan order. Returns the registrations by date.
+        /// Plans every instance whose rule has a registrants rule, in plan order. Returns the registrations by date.
         /// </summary>
         public List<PlannedRegistration> Plan( RegistrationPlan plan )
         {
@@ -115,7 +112,7 @@ namespace RockSampleData.Loader.Generation
             var unknown = _pins.FirstOrDefault( p => !plan.Instances.Any( i => i.Rule.Key == p.Pin.Instance && i.Pick == p.Pin.Occurrence && i.Rule.Registrants?.Students != null ) );
             if ( unknown.Pin != null )
             {
-                throw new InvalidOperationException( $"cast/households/{unknown.Household.Cast.Key}.json registers people for the {unknown.Pin.Occurrence.ToString().ToLowerInvariant()} {unknown.Pin.Instance}, which configuration/registrations.json does not plan with a students rule." );
+                throw new InvalidOperationException( $"cast/households/{unknown.Household.Cast.Key}.json registers people for the {unknown.Pin.Occurrence.ToString().ToLowerInvariant()} {unknown.Pin.Instance}, which configuration/registrations.json does not plan with a registrants rule." );
             }
 
             return registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid ).ToList();
@@ -124,174 +121,35 @@ namespace RockSampleData.Loader.Generation
         private List<PlannedRegistration> PlanInstance( PlannedRegistrationInstance instance, RegistrationPlan plan )
         {
             var rule = instance.Rule.Registrants;
-            var template = instance.Template;
-            var grades = template.Eligibility?.Grades is { Count: 2 } g ? new IntRange { Min = g[0], Max = g[1] }
-                : throw new InvalidDataException( $"configuration/registrations.json: instance {instance.Rule.Key} registers students, but template {template.Key} has no grades." );
             var lastDay = Min( instance.Closes, _anchor.AddDays( -1 ) );
             if ( lastDay < instance.Opens )
             {
                 return new List<PlannedRegistration>();
             }
 
+            var eligibility = RegistrantEligibility.Of( instance.Template, rule.Students?.Gender );
             var pins = _pins.Where( p => p.Pin.Instance == instance.Rule.Key && p.Pin.Occurrence == instance.Pick ).ToList();
             var pinned = pins.SelectMany( p => p.Pin.Registrants.Select( key => PinPerson( p.Household, p.Pin, key ) ) ).Select( p => p.PersonId ).ToHashSet();
-            var drafts = new List<Draft>();
-            foreach ( var (household, pin) in pins )
-            {
-                var people = pin.Registrants.Select( key => StepPersonOf( PinPerson( household, pin, key ) ) ).ToList();
-                drafts.Add( new Draft( people, pin, household, false ) );
-            }
+            var drafts = pins.Select( p => new RegistrationDraft( p.Pin.Registrants.Select( key => PinPerson( p.Household, p.Pin, key ) ).ToList(), p.Pin, p.Household, false ) ).ToList();
+            var choice = _chooser.Choose( instance, pinned );
+            drafts.AddRange( choice.Drafts );
 
-            // Current Student Leaders go on their own with the leader code.
-            var leaders = new HashSet<int>();
-            if ( rule.StudentLeaders is { } leaderRule )
-            {
-                var attendingOn = Min( _anchor, instance.Closes.AddDays( 1 ) );
-                foreach ( var step in _path.Steps.Where( s => s.StepType == leaderRule.StepType && s.Start <= instance.EventDay && ( s.End == null || s.End >= instance.EventDay ) ).OrderBy( s => StepPersonOf( s.PersonId ).Guid ) )
-                {
-                    var person = StepPersonOf( step.PersonId );
-                    if ( !pinned.Contains( person.PersonId ) && Fits( person, instance, grades, rule.Students.Gender ) && _path.HasBeenAttending( person.PersonId, attendingOn, _path.Attending ) && leaders.Add( person.PersonId ) )
-                    {
-                        drafts.Add( new Draft( new List<StepPerson> { person }, null, null, true ) );
-                    }
-                }
-            }
-
-            var stepType = rule.Students.StepType == null ? null : _steps.StepTypes.SingleOrDefault( t => t.Key == rule.Students.StepType )
-                ?? throw new InvalidDataException( $"configuration/registrations.json: instance {instance.Rule.Key} names step type {rule.Students.StepType}, which configuration/steps.json does not hold." );
-            var isStepHeld = stepType != null && IsPlannedEvent( stepType, instance.EventDay );
-            var chosen = Choose( instance, rule, stepType, grades, pinned, leaders );
-            foreach ( var family in chosen.GroupBy( p => _people[p.PersonId].FamilyId ).OrderBy( f => _families[f.Key].Cast.Guid ) )
-            {
-                var siblings = family.OrderBy( p => p.Guid ).ToList();
-                for ( var i = 0; i < siblings.Count; i += template.MaxRegistrants )
-                {
-                    drafts.Add( new Draft( siblings.Skip( i ).Take( template.MaxRegistrants ).ToList(), null, null, false ) );
-                }
-            }
-
-            var dated = drafts.Where( d => Date( d, instance, rule, grades, lastDay ) ).ToList();
-            var registrations = FillSpots( dated.Select( d => Registration( d, instance ) ).ToList(), instance, rule, isStepHeld );
+            var dated = drafts.Where( d => Date( d, instance, rule, eligibility, lastDay ) ).ToList();
+            var registrations = FillSpots( dated.Select( d => Registration( d, instance ) ).ToList(), instance, rule, choice.IsStepHeld );
             foreach ( var registration in registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid ) )
             {
-                Price( registration, instance, rule, grades );
+                Price( registration, instance, rule, eligibility );
                 Pay( registration, instance, rule );
             }
 
-            Place( registrations, instance, rule, grades, plan );
-            Answer( registrations, instance, grades );
+            Place( registrations, instance, rule, eligibility, plan );
+            Answer( registrations, instance );
             return registrations;
         }
-
-        #region Who
-
-        /// <summary>
-        /// The students who register, other than the Cast's pinned ones and the leaders: exactly the people with the
-        /// event step when the Student Path planned this event, otherwise a share of those who could go.
-        /// </summary>
-        private List<StepPerson> Choose( PlannedRegistrationInstance instance, RegistrantRule rule, StepTypeDefinition stepType, IntRange grades, HashSet<int> pinned, HashSet<int> leaders )
-        {
-            var gender = rule.Students.Gender;
-            if ( stepType != null && IsPlannedEvent( stepType, instance.EventDay ) )
-            {
-                // The event has happened, so its campers are the Student Path's: all of them, whatever the share.
-                var holders = _path.Steps.Where( s => s.StepType == stepType.Key && s.Start == instance.EventDay ).Select( s => StepPersonOf( s.PersonId ) ).Distinct()
-                    .Where( p => gender == null || GenderOf( p ) == gender ).ToList();
-                var unfit = holders.FirstOrDefault( p => !Fits( p, instance, grades, gender ) );
-                if ( unfit != null )
-                {
-                    throw new InvalidOperationException( $"{unfit.Name} has a {stepType.Name} step at the {instance.EventDay:yyyy-MM-dd} event, but Rock would not let them register for {instance.Name}." );
-                }
-
-                var unheld = pinned.FirstOrDefault( id => !holders.Any( h => h.PersonId == id ) );
-                if ( unheld != 0 )
-                {
-                    throw new InvalidOperationException( $"A Cast registration puts {StepPersonOf( unheld ).Name} at {instance.Name}, but they have no {stepType.Name} step at that event." );
-                }
-
-                return holders.Where( p => !pinned.Contains( p.PersonId ) && !leaders.Contains( p.PersonId ) ).ToList();
-            }
-
-            var attendingOn = Min( _anchor, instance.Closes.AddDays( 1 ) );
-            var candidates = _path.People
-                .Where( p => !leaders.Contains( p.PersonId ) && Fits( p, instance, grades, gender ) && _path.HasBeenAttending( p.PersonId, attendingOn, _path.Attending ) )
-                .ToList();
-            var percent = stepType?.Source.PercentOfStudents ?? rule.Students.Percent
-                ?? throw new InvalidDataException( $"configuration/registrations.json: instance {instance.Rule.Key} needs students.stepType or students.percent." );
-            var (picked, _) = StepShares.Choose( $"{_seed}:registrations:{instance.Rule.Key}:{instance.EventDay:yyyy-MM-dd}", candidates, percent, p => pinned.Contains( p.PersonId ) );
-            return candidates.Where( p => picked.Contains( p.PersonId ) && !pinned.Contains( p.PersonId ) ).ToList();
-        }
-
-        /// <summary>
-        /// True when the Student Path planned this event: it started in the history window and ended before the install day.
-        /// </summary>
-        private bool IsPlannedEvent( StepTypeDefinition stepType, DateTime eventDay )
-        {
-            var season = stepType.Source.Seasons.FirstOrDefault( s => s.In( eventDay.Year ) == eventDay );
-            return season != null && eventDay >= _path.HistoryStart && eventDay.AddDays( season.Days - 1 ) < _anchor;
-        }
-
-        /// <summary>
-        /// True when Rock would let the person register: in the template's grades on some day of the window, and on the event day.
-        /// </summary>
-        private bool Fits( StepPerson person, PlannedRegistrationInstance instance, IntRange grades, RegistrationGender? gender )
-        {
-            return person.GraduationYear.HasValue && ( gender == null || GenderOf( person ) == gender )
-                && StudentPath.InGrades( person, instance.EventDay, grades )
-                && EligibleDays( person, instance.Opens, instance.Closes, grades ) != null;
-        }
-
-        /// <summary>
-        /// The first and last day in a window when the person is in the grades, or null. Grades change only on June 1.
-        /// </summary>
-        private static (DateTime First, DateTime Last)? EligibleDays( StepPerson person, DateTime from, DateTime until, IntRange grades )
-        {
-            if ( !person.GraduationYear.HasValue || until < from )
-            {
-                return null;
-            }
-
-            var starts = new List<DateTime> { from };
-            for ( var year = from.Year; year <= until.Year; year++ )
-            {
-                var transition = new DateTime( year, AnchorDates.GradeTransitionMonth, AnchorDates.GradeTransitionDay );
-                if ( transition > from && transition <= until )
-                {
-                    starts.Add( transition );
-                }
-            }
-
-            DateTime? first = null;
-            DateTime? last = null;
-            for ( var i = 0; i < starts.Count; i++ )
-            {
-                var end = i + 1 < starts.Count ? starts[i + 1].AddDays( -1 ) : until;
-                if ( StudentPath.InGrades( person, starts[i], grades ) )
-                {
-                    first ??= starts[i];
-                    last = end;
-                }
-            }
-
-            return first.HasValue ? (first.Value, last.Value) : null;
-        }
-
-        private RegistrationGender? GenderOf( StepPerson person ) => _people[person.PersonId].Cast.Gender switch
-        {
-            "female" => RegistrationGender.Female,
-            "male" => RegistrationGender.Male,
-            _ => null
-        };
-
-        private StepPerson StepPersonOf( LoadedPerson person ) => StepPersonOf( person.PersonId );
-
-        private StepPerson StepPersonOf( int personId ) => _students.TryGetValue( personId, out var person ) ? person
-            : throw new InvalidOperationException( $"Person {personId} is not in the Student Path's people." );
 
         private static LoadedPerson PinPerson( LoadedHousehold household, CastRegistration pin, string key ) => household.Members.FirstOrDefault( m => m.Cast.Key == key )
             ?? throw new InvalidDataException( $"cast/households/{household.Cast.Key}.json registers \"{key}\" for {pin.Instance}, who is not a member." );
 
-        #endregion
 
         #region When
 
@@ -300,16 +158,16 @@ namespace RockSampleData.Loader.Generation
         /// register. Returns false when the day is not before the install day, so the registration is not written. A
         /// Cast registration is always early in the window, so it is made before the install day and a payment plan fits.
         /// </summary>
-        private bool Date( Draft draft, PlannedRegistrationInstance instance, RegistrantRule rule, IntRange grades, DateTime lastDay )
+        private bool Date( RegistrationDraft draft, PlannedRegistrationInstance instance, RegistrantRule rule, RegistrantEligibility eligibility, DateTime lastDay )
         {
             var first = draft.People[0];
-            var stream = draft.IsLeader ? first.Guid : _families[_people[first.PersonId].FamilyId].Cast.Guid;
+            var stream = draft.IsLeader ? first.Cast.Guid : _families[first.FamilyId].Cast.Guid;
             var random = new SeededRandom( $"{_seed}:registrations:{instance.Template.Key}:{instance.EventDay:yyyy-MM-dd}:{stream}" );
             var day = Draw( rule.Timing, instance, random );
-            var eligible = draft.People.Select( p => EligibleDays( p, instance.Opens, instance.Closes, grades ) ).ToList();
+            var eligible = draft.People.Select( p => eligibility.Days( p, instance.Opens, instance.Closes ) ).ToList();
             if ( eligible.Any( e => e == null ) )
             {
-                throw new InvalidOperationException( $"{draft.People.First( p => EligibleDays( p, instance.Opens, instance.Closes, grades ) == null ).Name} cannot register for {instance.Name}: they are never in grades {grades.Min} to {grades.Max} while it is open." );
+                throw new InvalidOperationException( $"{NameOf( draft.People.First( p => eligibility.Days( p, instance.Opens, instance.Closes ) == null ) )} cannot register for {instance.Name}: they never meet its template's rules while it is open." );
             }
 
             var from = eligible.Max( e => e.Value.First );
@@ -325,7 +183,7 @@ namespace RockSampleData.Loader.Generation
                 day = Max( from, Min( lastDay, instance.Opens.AddDays( random.Between( 0, 13 ) ) ) );
                 if ( day > lastDay || day > until )
                 {
-                    throw new InvalidOperationException( $"The Cast registration in cast/households/{draft.PinHousehold.Cast.Key}.json for {instance.Name} cannot be dated before the install day: its registrants are not all in grades {grades.Min} to {grades.Max} yet." );
+                    throw new InvalidOperationException( $"The Cast registration in cast/households/{draft.PinHousehold.Cast.Key}.json for {instance.Name} cannot be dated before the install day: its registrants do not all meet the template's rules yet." );
                 }
             }
 
@@ -392,9 +250,9 @@ namespace RockSampleData.Loader.Generation
 
         #region Registration
 
-        private PlannedRegistration Registration( Draft draft, PlannedRegistrationInstance instance )
+        private PlannedRegistration Registration( RegistrationDraft draft, PlannedRegistrationInstance instance )
         {
-            var first = _people[draft.People[0].PersonId];
+            var first = draft.People[0];
             var registration = new PlannedRegistration
             {
                 Instance = instance,
@@ -407,12 +265,10 @@ namespace RockSampleData.Loader.Generation
             registration.Registrar = Registrar( draft, registration.Random );
             foreach ( var person in draft.People )
             {
-                var loaded = _people[person.PersonId];
                 registration.Registrants.Add( new PlannedRegistrant
                 {
-                    Person = loaded,
-                    Student = person,
-                    Guid = SeededRandom.StableGuid( $"registration-registrant:{instance.Guid}:{loaded.Cast.Guid}" )
+                    Person = person,
+                    Guid = SeededRandom.StableGuid( $"registration-registrant:{instance.Guid}:{person.Cast.Guid}" )
                 } );
             }
 
@@ -423,7 +279,7 @@ namespace RockSampleData.Loader.Generation
         /// Who registered: the Cast story's registrar, or a parent or guardian in the family (one with an email when
         /// there is one), or the student when no adult lives with them.
         /// </summary>
-        private LoadedPerson Registrar( Draft draft, SeededRandom random )
+        private LoadedPerson Registrar( RegistrationDraft draft, SeededRandom random )
         {
             if ( draft.Pin?.Registrar is { } key )
             {
@@ -489,7 +345,7 @@ namespace RockSampleData.Loader.Generation
         /// Sets each registrant's cost and fees and the discount Rock gives the registration: a code the person used,
         /// or the first automatic discount, in the template's order, valid on the day.
         /// </summary>
-        private void Price( PlannedRegistration registration, PlannedRegistrationInstance instance, RegistrantRule rule, IntRange grades )
+        private void Price( PlannedRegistration registration, PlannedRegistrationInstance instance, RegistrantRule rule, RegistrantEligibility eligibility )
         {
             var template = instance.Template;
             var cost = template.SetCostOnInstance ? instance.Rule.Cost ?? 0 : template.Cost;
@@ -510,7 +366,8 @@ namespace RockSampleData.Loader.Generation
                     if ( random.Chance( percent / 100 ) )
                     {
                         // Sizes run small to large, and older students take larger ones.
-                        var grade = AnchorDates.GradeOn( registrant.Student.GraduationYear.Value, instance.EventDay );
+                        var grades = eligibility.Grades;
+                        var grade = AnchorDates.GradeOn( registrant.Person.GraduationYear.Value, instance.EventDay );
                         var scale = grades.Max == grades.Min ? 0.5 : ( grade - grades.Min ) / ( double ) ( grades.Max - grades.Min );
                         var index = Math.Min( Math.Max( ( int ) Math.Round( scale * ( fee.Items.Count - 1 ) ) + random.Between( -1, 1 ), 0 ), fee.Items.Count - 1 );
                         registrant.Fees.Add( new PlannedRegistrantFee( fee, index, 1, fee.Items[index].Cost ) );
@@ -746,7 +603,7 @@ namespace RockSampleData.Loader.Generation
         /// by grade bands; groups shared with another instance, such as buses, and groups a person joins more than one
         /// of, such as activities, fill evenly.
         /// </summary>
-        private void Place( List<PlannedRegistration> registrations, PlannedRegistrationInstance instance, RegistrantRule rule, IntRange grades, RegistrationPlan plan )
+        private void Place( List<PlannedRegistration> registrations, PlannedRegistrationInstance instance, RegistrantRule rule, RegistrantEligibility eligibility, RegistrationPlan plan )
         {
             if ( rule.Placements == null )
             {
@@ -796,7 +653,7 @@ namespace RockSampleData.Loader.Generation
                 if ( count == 1 && !isShared )
                 {
                     // Grade bands: the youngest fill the first groups.
-                    var byGrade = people.OrderBy( p => AnchorDates.GradeOn( p.Registrant.Student.GraduationYear.Value, instance.EventDay ) ).ThenBy( p => p.Registrant.Person.Cast.Guid ).ToList();
+                    var byGrade = people.OrderBy( p => AnchorDates.GradeOn( p.Registrant.Person.GraduationYear.Value, instance.EventDay ) ).ThenBy( p => p.Registrant.Person.Cast.Guid ).ToList();
                     for ( var i = 0; i < byGrade.Count; i++ )
                     {
                         Join( byGrade[i].Registrant, groups[i * groups.Count / byGrade.Count], byGrade[i].On );
@@ -829,7 +686,7 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// Answers the registration attributes and each registrant's attributes that have a fill rule.
         /// </summary>
-        private void Answer( List<PlannedRegistration> registrations, PlannedRegistrationInstance instance, IntRange grades )
+        private void Answer( List<PlannedRegistration> registrations, PlannedRegistrationInstance instance )
         {
             var everyone = registrations.SelectMany( r => r.Registrants.Where( p => !p.OnWaitList ) ).OrderBy( p => p.Person.Cast.Guid ).ToList();
             foreach ( var registration in registrations )
@@ -873,9 +730,9 @@ namespace RockSampleData.Loader.Generation
                         return null;
                     }
 
-                    var grade = AnchorDates.GradeOn( registrant.Student.GraduationYear.Value, instance.EventDay );
+                    var grade = AnchorDates.GradeOn( registrant.Person.GraduationYear.Value, instance.EventDay );
                     var friends = everyone.Where( p => p.Person.FamilyId != registrant.Person.FamilyId
-                        && Math.Abs( AnchorDates.GradeOn( p.Student.GraduationYear.Value, instance.EventDay ) - grade ) <= 1 ).ToList();
+                        && Math.Abs( AnchorDates.GradeOn( p.Person.GraduationYear.Value, instance.EventDay ) - grade ) <= 1 ).ToList();
                     return friends.Count == 0 ? null : NameOf( random.Pick( friends ).Person );
 
                 default:
@@ -956,30 +813,6 @@ namespace RockSampleData.Loader.Generation
         private static DateTime Min( DateTime a, DateTime b ) => a < b ? a : b;
 
         private static DateTime Max( DateTime a, DateTime b ) => a > b ? a : b;
-
-        /// <summary>
-        /// A registration before it is dated: who is on it, and the Cast story that pins it.
-        /// </summary>
-        private sealed class Draft
-        {
-            public Draft( List<StepPerson> people, CastRegistration pin, LoadedHousehold pinHousehold, bool isLeader )
-            {
-                People = people;
-                Pin = pin;
-                PinHousehold = pinHousehold;
-                IsLeader = isLeader;
-            }
-
-            public List<StepPerson> People { get; }
-
-            public CastRegistration Pin { get; }
-
-            public LoadedHousehold PinHousehold { get; }
-
-            public bool IsLeader { get; }
-
-            public DateTime When { get; set; }
-        }
     }
 
     /// <summary>
@@ -1052,8 +885,6 @@ namespace RockSampleData.Loader.Generation
     internal sealed class PlannedRegistrant
     {
         public LoadedPerson Person { get; set; }
-
-        public StepPerson Student { get; set; }
 
         public Guid Guid { get; set; }
 

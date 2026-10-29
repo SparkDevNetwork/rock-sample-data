@@ -98,7 +98,7 @@ namespace RockSampleData.Loader.Loading
 
             var registrants = registrations.SelectMany( r => r.Registrants ).ToList();
             var dollars = registrations.Sum( r => r.Paid );
-            _db.Log.Write( $"  Student registrations: {registrations.Count:N0} registrations, {registrants.Count:N0} registrants ({registrants.Count( r => r.OnWaitList ):N0} on wait lists, {registrants.Count( r => r.Placements.Count > 0 ):N0} placed); "
+            _db.Log.Write( $"  Registrants: {registrations.Count:N0} registrations, {registrants.Count:N0} registrants ({registrants.Count( r => r.OnWaitList ):N0} on wait lists, {registrants.Count( r => r.Placements.Count > 0 ):N0} placed); "
                 + $"{registrations.Sum( r => r.Payments.Count ):N0} payments (${dollars:N0}), {registrations.Count( r => r.Plan != null ):N0} payment plans, {registrations.Count( r => r.DiscountedCost > r.Paid ):N0} with a balance due" );
         }
 

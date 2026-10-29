@@ -332,7 +332,7 @@ INNER JOIN [DefinedValue] AS [f] ON [f].[Id] = [s].[TransactionFrequencyValueId]
 WHERE [s].[Id] = @Id", P( "@Id", planId ) ).Single();
             var frequency = ( Guid ) plan["Frequency"] == MonthlyFrequencyGuid ? PaymentPlanFrequency.Monthly : PaymentPlanFrequency.TwiceMonthly;
             var start = ( DateTime ) plan["StartDate"];
-            var dates = StudentRegistrationPlanner.PaymentDates( frequency, start, start.AddYears( 10 ) ).Take( ( int ) plan["NumberOfPayments"] ).ToList();
+            var dates = RegistrantPlanner.PaymentDates( frequency, start, start.AddYears( 10 ) ).Take( ( int ) plan["NumberOfPayments"] ).ToList();
             var processed = ( int ) plan["Processed"];
             if ( processed == dates.Count && paid >= cost )
             {
