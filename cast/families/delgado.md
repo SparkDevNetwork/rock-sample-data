@@ -6,8 +6,8 @@ Ray Delgado is the Facilities Director. He keeps seven sites running, from rooms
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Ray (Raymond) Delgado | 58 | adult | Engaged |
-| (photo coming) | Carmen Delgado | 56 | adult | Engaged |
+| <img src="../../photos/cast/delgado-ray.jpg" width="96" alt="Ray Delgado"> | Ray (Raymond) Delgado | 58 | adult | Engaged |
+| <img src="../../photos/cast/delgado-carmen.jpg" width="96" alt="Carmen Delgado"> | Carmen Delgado | 56 | adult | Engaged |
 
 ## People
 

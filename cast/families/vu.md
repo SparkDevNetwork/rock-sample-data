@@ -6,10 +6,10 @@ Tina Vu is the Chandler Campus Pastor, at the campus full of young families. She
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Tina Vu | 37 | adult | Engaged |
-| (photo coming) | Minh Vu | 38 | adult | Engaged |
-| (photo coming) | Ellie Vu | 5 | child | Engaged |
-| (photo coming) | Theo Vu | 2 | child | Engaged |
+| <img src="../../photos/cast/vu-tina.jpg" width="96" alt="Tina Vu"> | Tina Vu | 37 | adult | Engaged |
+| <img src="../../photos/cast/vu-minh.jpg" width="96" alt="Minh Vu"> | Minh Vu | 38 | adult | Engaged |
+| <img src="../../photos/cast/vu-ellie.jpg" width="96" alt="Ellie Vu"> | Ellie Vu | 5 | child | Engaged |
+| <img src="../../photos/cast/vu-theo.jpg" width="96" alt="Theo Vu"> | Theo Vu | 2 | child | Engaged |
 
 ## People
 

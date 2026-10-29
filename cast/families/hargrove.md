@@ -6,8 +6,8 @@ Walt Hargrove is the Scottsdale Campus Pastor. He was the pastor of the church t
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Walt (Walter) Hargrove | 63 | adult | Engaged |
-| (photo coming) | June Hargrove | 62 | adult | Engaged |
+| <img src="../../photos/cast/hargrove-walt.jpg" width="96" alt="Walt Hargrove"> | Walt (Walter) Hargrove | 63 | adult | Engaged |
+| <img src="../../photos/cast/hargrove-june.jpg" width="96" alt="June Hargrove"> | June Hargrove | 62 | adult | Engaged |
 
 ## People
 

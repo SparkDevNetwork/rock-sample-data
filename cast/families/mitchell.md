@@ -6,10 +6,10 @@ Aaron Mitchell is the Phoenix Campus Pastor. He and Beth moved to Phoenix five y
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Aaron Mitchell | 45 | adult | Engaged |
-| (photo coming) | Beth (Bethany) Mitchell | 43 | adult | Engaged |
-| (photo coming) | Jonah Mitchell | 12 | child | Engaged |
-| (photo coming) | Clara Mitchell | 9 | child | Engaged |
+| <img src="../../photos/cast/mitchell-aaron.jpg" width="96" alt="Aaron Mitchell"> | Aaron Mitchell | 45 | adult | Engaged |
+| <img src="../../photos/cast/mitchell-beth.jpg" width="96" alt="Beth Mitchell"> | Beth (Bethany) Mitchell | 43 | adult | Engaged |
+| <img src="../../photos/cast/mitchell-jonah.jpg" width="96" alt="Jonah Mitchell"> | Jonah Mitchell | 12 | child | Engaged |
+| <img src="../../photos/cast/mitchell-clara.jpg" width="96" alt="Clara Mitchell"> | Clara Mitchell | 9 | child | Engaged |
 
 ## People
 

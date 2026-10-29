@@ -6,8 +6,8 @@ Greg Holloway is the Executive Pastor. He runs the staff, the budget, and the se
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Greg (Gregory) Holloway | 55 | adult | Engaged |
-| (photo coming) | Lisa Holloway | 53 | adult | Engaged |
+| <img src="../../photos/cast/holloway-greg.jpg" width="96" alt="Greg Holloway"> | Greg (Gregory) Holloway | 55 | adult | Engaged |
+| <img src="../../photos/cast/holloway-lisa.jpg" width="96" alt="Lisa Holloway"> | Lisa Holloway | 53 | adult | Engaged |
 
 ## People
 

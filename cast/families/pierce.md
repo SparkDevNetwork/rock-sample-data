@@ -6,9 +6,9 @@ Jamal Pierce is the Groups Pastor, who helps every campus start and lead small g
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Jamal Pierce | 42 | adult | Engaged |
-| (photo coming) | Renee Pierce | 40 | adult | Engaged |
-| (photo coming) | Micah Pierce | 9 | child | Engaged |
+| <img src="../../photos/cast/pierce-jamal.jpg" width="96" alt="Jamal Pierce"> | Jamal Pierce | 42 | adult | Engaged |
+| <img src="../../photos/cast/pierce-renee.jpg" width="96" alt="Renee Pierce"> | Renee Pierce | 40 | adult | Engaged |
+| <img src="../../photos/cast/pierce-micah.jpg" width="96" alt="Micah Pierce"> | Micah Pierce | 9 | child | Engaged |
 
 ## People
 

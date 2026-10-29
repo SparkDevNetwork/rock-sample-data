@@ -6,9 +6,9 @@ Rafael Ibarra is the Goodyear Campus Pastor. The campus meets in a high school a
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Rafael Ibarra | 35 | adult | Engaged |
-| (photo coming) | Elisa Ibarra | 33 | adult | Engaged |
-| (photo coming) | Nico (Nicolas) Ibarra | 1 | child | Engaged |
+| <img src="../../photos/cast/ibarra-rafael.jpg" width="96" alt="Rafael Ibarra"> | Rafael Ibarra | 35 | adult | Engaged |
+| <img src="../../photos/cast/ibarra-elisa.jpg" width="96" alt="Elisa Ibarra"> | Elisa Ibarra | 33 | adult | Engaged |
+| <img src="../../photos/cast/ibarra-nico.jpg" width="96" alt="Nico Ibarra"> | Nico (Nicolas) Ibarra | 1 | child | Engaged |
 
 ## People
 

@@ -6,7 +6,7 @@ Naomi Castillo is the Worship Pastor. She leads worship at Phoenix most Sundays 
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Naomi Castillo | 34 | adult | Engaged |
+| <img src="../../photos/cast/castillo-naomi.jpg" width="96" alt="Naomi Castillo"> | Naomi Castillo | 34 | adult | Engaged |
 
 ## People
 

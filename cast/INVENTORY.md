@@ -148,7 +148,7 @@ Seven households were added so the church has 20 named staff (decision D-staff-3
 | [delgado](households/delgado.json) | Ray (Facilities Director), Carmen | Facilities Director with Rock's safety and security role. |
 | [morrow](households/morrow.json) | Kelsey (Production Director), Evan | Production Director who oversees every campus's production team. |
 
-The Cast is now 101 households and 221 people. The 36 new people's profile photos are still to be made.
+The Cast is now 101 households and 221 people. The 36 new people's profile photos were delivered on 2026-10-28 and are in `photos/manifest.json`.
 
 ## Issues to fix during Cast review
 
