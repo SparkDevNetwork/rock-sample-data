@@ -16,7 +16,18 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead, zoomable } = require( "../components" );
+const { sectionHead, zoomable, portrait, formatSize } = require( "../components" );
+
+// The staff departments, in the order the church page shows them (configuration/staff.json).
+const departments = [
+    [ "executive", "Leadership" ],
+    [ "administration", "Operations" ],
+    [ "worship", "Worship and production" ],
+    [ "kids", "Kids" ],
+    [ "students", "Students" ],
+    [ "connections", "Outreach, groups, and care" ],
+    [ "campuses", "Campuses" ]
+];
 
 // The students who registered, in words, with each rate read from the file that owns it: an instance's share from
 // configuration/registrations.json, or its Student Path step's share from configuration/steps.json.
@@ -151,7 +162,7 @@ function initiativeBlock( initiative, image, index, r ) {
   </div>`;
 }
 
-module.exports = function church( { model, r } ) {
+module.exports = function church( { model, r, downloads } ) {
     // Every initiative folder shows up, even one this page has no words for yet.
     const known = new Set( initiatives.map( i => i.key ) );
     const shown = [
@@ -181,7 +192,7 @@ module.exports = function church( { model, r } ) {
     <div class="split-text reveal">
       <p class="eyebrow">Who we are</p>
       <h2>Rock Solid Church</h2>
-      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where the Cast lives, and has grown to seven campuses across the Valley.</p>
+      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where most of the Cast lives, and has grown to seven campuses across the Valley.</p>
       <p>The original Phoenix building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. The other campuses have their own buildings, including a high school auditorium in Goodyear, where volunteers set up and tear down every Sunday. Scottsdale meets in a traditional church building. It was an independent church until it merged with Rock Solid Church. The sample data uses the same room setup at every campus, so check-in and serving work the same everywhere.</p>
       <p>The church is in the middle of Built on the Rock, a two-year building campaign for a Student Center at Phoenix and more kids rooms at every campus. People and businesses at every campus have pledged.</p>
     </div>
@@ -193,6 +204,20 @@ module.exports = function church( { model, r } ) {
     </div>
   </div>
 </section>
+
+${model.staff.length ? html`<section class="section section-sand" id="staff">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Staff", title: `${model.staff.length} people, every one in the Cast.`, lede: "Each staff member is a Cast person with a story, a family, and a login, and is the same in every load. Every campus has its own named campus pastor, who writes that campus's notes, welcomes its first-time guests, and is the contact for its events. A campus pastor outside Phoenix is in the datasets that have their campus. Rock's Org Chart page shows the same staff in seven units, each with its leader." } )}
+    ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
+    <div class="staff-grid">
+      ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">
+        ${s.staffPhoto ? html`<img class="portrait portrait-lg staff-photo" src="${r( "images/staff/" + s.staffPhoto )}" alt="${esc( s.member.displayName )}" loading="lazy" width="200" height="200" style="object-position: ${esc( s.staffPhotoPosition )}">` : portrait( s.member, r, "lg" )}
+        <span class="staff-name">${esc( s.member.displayName )}</span>
+        <span class="staff-title">${esc( s.title )}</span>
+      </a>` )}
+    </div>` )}
+  </div>
+</section>` : ""}
 
 <section class="section" id="initiatives">
   <div class="wrap">
@@ -212,10 +237,21 @@ module.exports = function church( { model, r } ) {
         ${c.photo ? zoomable( { src: r( "images/campuses/" + c.photo ), alt: c.photoDescription, className: "campus-photo" } ) : ""}
         <span class="campus-number">${String( i + 1 ).padStart( 2, "0" )}</span>
         <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Broadcast campus</span>` : ""}</h3>
-        <p>${esc( c.rockDefault ? "North Phoenix, where the Cast lives. The original and largest campus." : c.notes )}</p>
+        <p>${esc( c.rockDefault ? "North Phoenix, where most of the Cast lives. The original and largest campus." : c.notes )}</p>
         <p>${esc( c.buildingType )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
+        ${c.pastor ? html`<p class="campus-meta">Campus pastor: <a href="${r( "cast/" + c.pastor.household.key + ".html" )}">${esc( c.pastor.displayName )}</a></p>` : ""}
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>
+        ${c.staff.length ? html`<div class="campus-staff">
+          ${c.staff.map( s => {
+                const src = s.campusPhoto ? "images/staff/campus/" + s.campusPhoto : s.staffPhoto ? "images/staff/" + s.staffPhoto : null;
+                const position = s.campusPhoto ? s.campusPhotoPosition : s.staffPhotoPosition;
+                return html`<a class="campus-staff-person" href="${r( "cast/" + s.member.household.key + ".html" )}">
+            ${src ? html`<img class="staff-photo" src="${r( src )}" alt="${esc( s.member.displayName )}" loading="lazy" width="64" height="64" style="object-position: ${esc( position )}">` : portrait( s.member, r, "md" )}
+            <span><strong>${esc( s.member.displayName )}</strong> ${esc( s.title )}</span>
+          </a>`;
+            } )}
+        </div>` : ""}
       </div>` )}
     </div>
   </div>
@@ -252,16 +288,30 @@ module.exports = function church( { model, r } ) {
 
 <section class="section" id="groups">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its actual members, made from their profile photos." } )}
-    <div class="group-grid">
-      ${model.smallGroups.filter( g => g.photo ).map( g => html`<article class="group reveal">
-        ${zoomable( { src: r( "images/groups/" + g.photo ), alt: `${g.name}: ${g.photoPeople.join( ", " )}` } )}
+    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its leaders, made from their profile photos. The original photos of every member are beside them." } )}
+    <div class="group-grid group-grid-pairs">
+      ${model.smallGroups.filter( g => g.photo ).map( g => {
+            const full = model.fullGroupPhotos.find( p => p.key === g.key );
+            const photo = ( label, folder, file, people ) => {
+                const size = downloads.files[`${folder}/${file}`];
+                const link = size ? html` <a href="${r( `downloads/${folder}/${file}` )}" download>JPEG ${formatSize( size.size )}</a>` : "";
+                return html`<div class="group-photo">
+            ${zoomable( { src: r( `images/${folder}/${file}` ), alt: `${g.name}, ${label.toLowerCase()}: ${people.join( ", " )}` } )}
+            <p class="group-photo-caption"><span class="group-photo-label">${esc( label )}</span>${link}</p>
+          </div>`;
+            };
+            return html`<article class="group reveal">
+        <div class="group-photos">
+          ${photo( "Leaders", "groups", g.photo, g.photoPeople )}
+          ${full ? photo( "Full group", "groups-full-members", full.photo, full.photoPeople ) : ""}
+        </div>
         <div class="group-body">
           <p class="group-topic">${esc( g.topic || "Small group" )}${g.day ? html` · ${esc( g.day )}s` : ""}</p>
           <h3>${esc( g.name )}</h3>
           <p>${esc( g.description )}</p>
         </div>
-      </article>` )}
+      </article>`;
+        } )}
     </div>
   </div>
 </section>
@@ -282,16 +332,19 @@ ${model.communicationLists.length ? html`<section class="section" id="lists">
 ${model.calendarEvents.length ? html`<section class="section section-sand" id="calendar">
   <div class="wrap">
     ${sectionHead( { eyebrow: "The calendar", title: "A year of events, on purpose.", lede: `The church has ${model.calendarEvents.length} events on Rock's Public and Internal calendars, at every campus a dataset has. Each event serves one Ministry by Design stage, the same path the step programs follow: Belong, then Equip, then Contribute, then Lead.` } )}
-    <div class="card-grid">
-      ${calendarStages.map( ( [ stage, text ] ) => {
+    ${calendarStages.map( ( [ stage, text ] ) => {
           const events = model.calendarEvents.filter( e => e.stage === stage );
-          return events.length ? html`<div class="card reveal">
-        <h3>${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
-        <p>${esc( text )}</p>
-        <span class="tags">${events.map( e => html`<span class="tag">${esc( e.name )}</span>` )}</span>
-      </div>` : "";
+          return events.length ? html`<div class="calendar-stage">
+      <h3 class="view-heading">${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
+      <p class="calendar-stage-text">${esc( text )}</p>
+      <div class="event-grid">
+        ${events.map( e => html`<div class="event-tile reveal">
+          ${e.photo ? zoomable( { src: r( "images/events/" + e.photo ), alt: e.name, className: "event-art", width: 1536, height: 768 } ) : ""}
+          <p class="event-name">${esc( e.name )}${e.calendars.includes( "public" ) ? "" : html` <span class="tag">Internal</span>`}</p>
+        </div>` )}
+      </div>
+    </div>` : "";
       } )}
-    </div>
     <p class="fine">Dates count from install day and match the steps, the newsletters, and the Cast's stories. The car show was two days ago, and the student retreat is coming up.</p>
   </div>
 </section>` : ""}

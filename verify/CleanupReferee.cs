@@ -60,6 +60,23 @@ namespace RockSampleData.Verify
             ["ScheduleDate"] = WindowEdgeFilter( "StartDateTime", years: 2 )
         };
 
+        /*
+            10/28/26 - CLAUDE
+
+            The loader sets each event occurrence's next start from the clock at load time, as Rock's save hook does,
+            and Rock Cleanup sets it again from the clock when it runs, minutes later. An occurrence whose next start
+            passes in between moves to its following start (or to none), so rock-cleanup failed now and then on
+            EventItemOccurrence.NextStartDateTime (3 rows on one Core 3 run, and 1 base row on the plain copy).
+
+            Reason: A change to these columns is the clock's, not a finding, when the old value had already passed
+            when Rock Cleanup started and Rock only moved it later or cleared it. Every other change is still judged.
+        */
+        private static readonly Dictionary<string, (string Column, Func<string, string> PassedBy)> ClockColumns = new Dictionary<string, (string, Func<string, string>)>( StringComparer.Ordinal )
+        {
+            ["EventItemOccurrence"] = ("NextStartDateTime", runStarted =>
+                $"[s].[NextStartDateTime] < '{runStarted}' AND ( [l].[NextStartDateTime] IS NULL OR [l].[NextStartDateTime] > [s].[NextStartDateTime] )")
+        };
+
         private readonly SqlServer _sql;
         private readonly RockRelease _rock;
         private readonly string _acceptedPath;
@@ -100,6 +117,11 @@ namespace RockSampleData.Verify
             public List<string> TaskErrors { get; } = new List<string>();
 
             public List<string> TaskCounts { get; } = new List<string>();
+
+            /// <summary>
+            /// Rows of a clock column ("Table.Column") that Rock moved only because their time passed during the run.
+            /// </summary>
+            public Dictionary<string, long> ClockMoves { get; } = new Dictionary<string, long>( StringComparer.Ordinal );
         }
 
         /// <summary>
@@ -171,6 +193,7 @@ namespace RockSampleData.Verify
                 }
             }
 
+            notes.AddRange( measured.ClockMoves.Select( m => $"Not judged (the time passed between the load and Rock Cleanup, so Rock moved it to the next one): {m.Key}: {m.Value:N0} rows" ) );
             notes.AddRange( measured.TaskCounts.Select( c => $"Rock Cleanup reported: {c}" ) );
             var summary = problems.Count == 0
                 ? "Rock's own Rock Cleanup job found nothing to fix in the sample data"
@@ -203,8 +226,9 @@ namespace RockSampleData.Verify
             try
             {
                 var measurement = new Measurement();
+                var runStarted = Convert.ToDateTime( _sql.Scalar( "master", "SELECT GETDATE()" ) ).ToString( "yyyy-MM-ddTHH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture );
                 RunCleanup( database, measurement );
-                Compare( database, snapshot, measurement );
+                Compare( database, snapshot, measurement, runStarted );
                 return measurement;
             }
             finally
@@ -233,7 +257,8 @@ namespace RockSampleData.Verify
         /// Compares every dbo table that has rows with its snapshot. Tables with an Id are compared row by row and column
         /// by column; others as whole rows. Every value is compared as bytes, so a change in letter case counts.
         /// </summary>
-        private void Compare( string database, string snapshot, Measurement measurement )
+        /// <param name="runStarted">When Rock Cleanup started, by the database server's clock, for <see cref="ClockColumns"/>.</param>
+        private void Compare( string database, string snapshot, Measurement measurement, string runStarted )
         {
             var tables = _sql.Query( database, @"
 SELECT [t].[name] AS [Table], [c].[name] AS [Column], TYPE_NAME( [c].[user_type_id] ) AS [Type], [c].[is_computed] AS [IsComputed]
@@ -256,7 +281,7 @@ ORDER BY [t].[name], [c].[column_id]" )
 
                 if ( columns.Any( c => c.Name == "Id" ) )
                 {
-                    CompareRows( table.Key, live, before, columns, measurement );
+                    CompareRows( table.Key, live, before, columns, measurement, runStarted );
                 }
                 else
                 {
@@ -287,8 +312,9 @@ SELECT ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {live} AS [t] {where} EXC
             return $"NOT ( {Near( -years )} OR {Near( years )} )";
         }
 
-        private void CompareRows( string table, string live, string before, List<(string Name, string Type)> columns, Measurement measurement )
+        private void CompareRows( string table, string live, string before, List<(string Name, string Type)> columns, Measurement measurement, string runStarted )
         {
+            var clock = ClockColumns.TryGetValue( table, out var clockColumn ) ? clockColumn : default;
             var compared = columns.Where( c => c.Name != "Id" && !Followers.Contains( c.Name ) ).ToList();
             var baseMax = $"( SELECT ISNULL( MAX( [Id] ), 0 ) FROM [{_baseDatabase}].[dbo].[{table}] )";
 
@@ -318,6 +344,11 @@ SELECT ( SELECT COUNT_BIG(*) FROM ( SELECT {list} FROM {live} AS [t] {where} EXC
                 any.Add( $"[d{i}] = 1" );
             }
 
+            if ( clock.Column != null )
+            {
+                perRow.Append( $",\n    CASE WHEN {clock.PassedBy( runStarted )} THEN 1 ELSE 0 END AS [__clock]" );
+            }
+
             if ( any.Count == 0 )
             {
                 return;
@@ -339,6 +370,12 @@ WHERE {string.Join( " OR ", any )}" );
                     }
 
                     var key = $"{table}.{column.Name}";
+                    if ( column.Name == clock.Column && Convert.ToInt32( row["__clock"] ) == 1 )
+                    {
+                        measurement.ClockMoves[key] = measurement.ClockMoves.GetValueOrDefault( key ) + 1;
+                        continue;
+                    }
+
                     if ( !measurement.Changes.TryGetValue( key, out var change ) )
                     {
                         change = new Change();

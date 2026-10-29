@@ -58,11 +58,15 @@ const castFiles = fs.readdirSync( path.join( repo, "photos/cast" ) ).filter( f =
 const servingFiles = model.opportunities.filter( o => o.photo ).map( o => o.photo );
 const groupFiles = model.smallGroups.filter( g => g.photo ).map( g => g.photo );
 const campusFiles = model.campuses.filter( c => c.photo ).map( c => c.photo );
+const staffFiles = model.staff.filter( s => s.staffPhoto ).map( s => s.staffPhoto );
+const staffCampusFiles = model.staff.filter( s => s.campusPhoto ).map( s => s.campusPhoto );
 copyInto( churchDir, path.join( dist, "images/church" ), model.churchViews.map( v => v.jpeg ) );
 copyInto( path.join( repo, "photos/cast" ), path.join( dist, "images/cast" ), castFiles );
 copyInto( path.join( repo, "photos/opportunities" ), path.join( dist, "images/serving" ), servingFiles );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "images/groups" ), groupFiles );
 copyInto( path.join( repo, "photos/campuses" ), path.join( dist, "images/campuses" ), campusFiles );
+copyInto( path.join( repo, "photos/staff" ), path.join( dist, "images/staff" ), staffFiles );
+copyInto( path.join( repo, "photos/staff/campus" ), path.join( dist, "images/staff/campus" ), staffCampusFiles );
 
 // Single-file downloads: every logo file, and each building view and small group photo as JPEG and PNG master.
 const brandFiles = fs.readdirSync( brandDir ).filter( f => /\.(svg|png)$/.test( f ) );
@@ -70,6 +74,19 @@ copyInto( brandDir, path.join( dist, "downloads/brand" ), brandFiles );
 copyInto( churchDir, path.join( dist, "downloads/church" ), model.churchViews.flatMap( v => [ v.jpeg, v.file ] ) );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "downloads/groups" ), groupFiles );
 copyInto( path.join( repo, "photos/originals/groups" ), path.join( dist, "downloads/groups" ), groupFiles.map( f => f.replace( /\.jpg$/, ".png" ) ) );
+
+// Calendar event images: shown on the church page, and each as a JPEG and its PNG master on the brand page.
+const eventFiles = model.calendarEvents.filter( e => e.photo ).map( e => e.photo );
+copyInto( path.join( repo, "photos/events" ), path.join( dist, "images/events" ), eventFiles );
+copyInto( path.join( repo, "photos/events" ), path.join( dist, "downloads/events" ), eventFiles );
+copyInto( path.join( repo, "photos/originals/events" ), path.join( dist, "downloads/events" ), model.calendarEvents.filter( e => e.original ).map( e => e.original ) );
+
+// The original full-group photos are downloads only: no package carries them (decision 196).
+const fullGroupDir = path.join( repo, "photos/groups-full-members" );
+const fullGroupFiles = model.fullGroupPhotos.map( p => p.photo );
+copyInto( fullGroupDir, path.join( dist, "images/groups-full-members" ), fullGroupFiles );
+copyInto( fullGroupDir, path.join( dist, "downloads/groups-full-members" ), fullGroupFiles );
+copyInto( path.join( fullGroupDir, "originals" ), path.join( dist, "downloads/groups-full-members" ), model.fullGroupPhotos.map( p => p.original ) );
 for ( const initiative of model.initiativeGraphics ) {
     for ( const image of initiative.images ) {
         copy( path.join( repo, "graphics/initiatives", initiative.key, image.file ), path.join( dist, "images/initiatives", image.file ) );
@@ -82,7 +99,7 @@ for ( const image of model.campusPhotos ) {
 }
 
 const downloads = { files: {}, zips: {} };
-for ( const sub of [ "brand", "church", "groups", "campuses", "initiatives" ] ) {
+for ( const sub of [ "brand", "church", "groups", "groups-full-members", "events", "campuses", "initiatives" ].filter( s => fs.existsSync( path.join( dist, "downloads", s ) ) ) ) {
     for ( const f of fs.readdirSync( path.join( dist, "downloads", sub ) ) ) {
         downloads.files[`${sub}/${f}`] = { size: fs.statSync( path.join( dist, "downloads", sub, f ) ).size };
     }
@@ -138,7 +155,13 @@ zip( "building", "rock-solid-church-building-photos.zip", fileEntries( churchDir
 zip( "campuses", "rock-solid-church-campus-photos.zip", fileEntries( path.join( repo, "photos/campuses" ), campusFiles, "rock-solid-church-campus-photos" ) );
 zip( "serving", "rock-solid-church-serving-photos.zip", fileEntries( path.join( repo, "photos/opportunities" ), servingFiles, "rock-solid-church-serving-photos" ) );
 zip( "groups", "rock-solid-church-small-group-photos.zip", fileEntries( path.join( repo, "photos/groups" ), groupFiles, "rock-solid-church-small-group-photos" ) );
+zip( "events", "rock-solid-church-event-graphics.zip", fileEntries( path.join( repo, "photos/events" ), eventFiles, "rock-solid-church-event-graphics" ) );
+zip( "groupsFull", "rock-solid-church-small-group-photos-full-members.zip", fileEntries( fullGroupDir, fullGroupFiles, "rock-solid-church-small-group-photos-full-members" ) );
 zip( "portraits", "rock-solid-church-cast-portraits.zip", fileEntries( path.join( repo, "photos/cast" ), castFiles, "rock-solid-church-cast-portraits" ) );
+zip( "staff", "rock-solid-church-staff-photos.zip", [
+    ...fileEntries( path.join( repo, "photos/staff" ), staffFiles, "rock-solid-church-staff-photos" ),
+    ...fileEntries( path.join( repo, "photos/staff/campus" ), staffCampusFiles, "rock-solid-church-staff-photos/campus" )
+] );
 
 // The favicon is the church symbol.
 copy( path.join( brandDir, "rock-solid-church-symbol.svg" ), path.join( dist, "assets/favicon.svg" ) );

@@ -57,6 +57,12 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public Guid? QualifierGroupType { get; set; }
 
+        /// <summary>
+        /// For an Attribute category, the entity its attributes belong to, such as Rock.Model.Person, as Rock
+        /// qualifies it by EntityTypeId.
+        /// </summary>
+        public string QualifierEntityType { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }

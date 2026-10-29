@@ -1,0 +1,77 @@
+{
+  "model": "OpenAI built-in image_gen (exact model identifier not exposed)",
+  "images": [
+    {
+      "file": "staff/campus/haywood-andre-peoria.jpg",
+      "household": "haywood",
+      "member": "andre",
+      "campus": "peoria",
+      "objectPosition": "50% 50%",
+      "sha256": "32f026301de738577edc9465c3184fbbfd1af202a051039341490064d4bfcd21",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/haywood-andre.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/peoria.jpg",
+      "seed": null,
+      "prompt": "Use case: identity-preserve. Create ONE square photographic staff portrait variation. Image 1 is the edit target, the existing fictional portrait of Andre Haywood; it controls exact face, hair, age, skin, glasses/facial hair, clothing and expression. Image 2 is the actual visual reference for the fictional peoria campus building; it controls the new background architecture. Change the location to that campus. Preserve this exact person's recognizable identity and clothing. Natural relaxed pose and warm smile, face looking at lens. The person is centered horizontally, waist-up. Crop-safe framing is essential: highest hair at 28% of image height, eyes at 40%, chin around 53%, shoulders around 61%; leave the upper quarter as background. Full head must fit inside a centered 16:9 crop (vertical band 21.875% to 78.125%) and centered 3:2 crop. This is a single edge-to-edge square photo, no borders, no inset.\nBackground: Warm tan masonry courtyard, rust-brown steel pergola overhead, shaded courtyard tree and black-framed doors. Photograph from the edge of the courtyard with pergola and stone walls visibly behind him.\nUse the building reference faithfully, matching its specific materials, facade and entrance arrangement from a plausible portrait camera location. Soft optical background blur but building type remains recognizable. Do not copy the Phoenix background from image 1. Same polished natural photo-session look: late-morning Arizona open shade on face, gentle sun rim, warm sunlit building and authentic desert planting, realistic skin and masonry texture. Glass has subtle low-contrast reflections with dim interiors visible, never mirror-like. Subject and background share coherent lighting and perspective, no pasted cutout appearance. Choose an angle that keeps all church signs, logos, banners and lettering outside the frame. No text, logos, watermarks, badges, cars or other people. Preserve the person; change the campus setting and adjust framing only as needed for the specified crop-safe position."
+    },
+    {
+      "file": "staff/campus/whitlock-dana-gilbert.jpg",
+      "household": "whitlock",
+      "member": "dana",
+      "campus": "gilbert",
+      "objectPosition": "50% 50%",
+      "sha256": "aa1fa70d16b41e8376fdcd4c7df3b809751c28e4ff7212cbb2bdf6c32f8b1969",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/whitlock-dana.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/gilbert.jpg",
+      "seed": null,
+      "prompt": "Use case: identity-preserve. Create ONE square photographic staff portrait variation. Image 1 is the edit target, the existing fictional portrait of Dana Whitlock; it controls exact face, hair, age, skin, glasses/facial hair, clothing and expression. Image 2 is the actual visual reference for the fictional gilbert campus building; it controls the new background architecture. Change the location to that campus. Preserve this exact person's recognizable identity and clothing. Natural relaxed pose and warm smile, face looking at lens. The person is centered horizontally, waist-up. Crop-safe framing is essential: highest hair at 28% of image height, eyes at 40%, chin around 53%, shoulders around 61%; leave the upper quarter as background. Full head must fit inside a centered 16:9 crop (vertical band 21.875% to 78.125%) and centered 3:2 crop. This is a single edge-to-edge square photo, no borders, no inset.\nBackground: Converted retail anchor with long low tan split-face masonry facade, broad charcoal entrance portal and black-framed storefront windows. Stand on the entrance sidewalk looking diagonally toward the doorway; keep recognizable tan masonry and charcoal portal.\nUse the building reference faithfully, matching its specific materials, facade and entrance arrangement from a plausible portrait camera location. Soft optical background blur but building type remains recognizable. Do not copy the Phoenix background from image 1. Same polished natural photo-session look: late-morning Arizona open shade on face, gentle sun rim, warm sunlit building and authentic desert planting, realistic skin and masonry texture. Glass has subtle low-contrast reflections with dim interiors visible, never mirror-like. Subject and background share coherent lighting and perspective, no pasted cutout appearance. Choose an angle that keeps all church signs, logos, banners and lettering outside the frame. No text, logos, watermarks, badges, cars or other people. Preserve the person; change the campus setting and adjust framing only as needed for the specified crop-safe position."
+    },
+    {
+      "file": "staff/campus/hargrove-walt-scottsdale.jpg",
+      "household": "hargrove",
+      "member": "walt",
+      "campus": "scottsdale",
+      "objectPosition": "50% 50%",
+      "sha256": "64580bc3aed8a3999fe9b5d36278c3156771c58b8050a37bab74705a7d286448",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/hargrove-walt.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/scottsdale.jpg",
+      "seed": null,
+      "prompt": "Edit this exact fictional staff portrait of Walt Hargrove outside his Scottsdale campus. Preserve his exact face, hair, glasses, expression, tweed jacket, shirt, pose, natural photographic light, and this same traditional tan masonry building with steep tiled gable, dark beams and stained glass. Only reframe the square image: shift the entire existing scene DOWN by about 15 percent of the image height, adding a seamless natural continuation of the building roof, tree and sky at the top; trim lower torso at the bottom. Highest hair must sit at 29 percent of final image height, not 14 percent. Eyes around 43 percent, chin 58 percent. Entire upper quarter should be background only. Keep person horizontally centered and approximately same size. This should look like the same real photograph with the camera aimed slightly higher. No border, inset, blank padding, text, logos or other people. Important: a centered 16:9 crop removes the top 21.875 percent, so all hair must be below that boundary with clear margin."
+    },
+    {
+      "file": "staff/campus/vu-tina-chandler.jpg",
+      "household": "vu",
+      "member": "tina",
+      "campus": "chandler",
+      "objectPosition": "50% 50%",
+      "sha256": "aee71379c2edc8206e3662c1fed80fbf2c19d734f199e9dc5631b3871af5b3fc",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/vu-tina.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/chandler.jpg",
+      "seed": null,
+      "prompt": "Use case: identity-preserve. Create ONE square photographic staff portrait variation. Image 1 is the edit target, the existing fictional portrait of Tina Vu; it controls exact face, hair, age, skin, glasses/facial hair, clothing and expression. Image 2 is the actual visual reference for the fictional chandler campus building; it controls the new background architecture. Change the location to that campus. Preserve this exact person's recognizable identity and clothing. Natural relaxed pose and warm smile, face looking at lens. The person is centered horizontally, waist-up. Crop-safe framing is essential: highest hair at 28% of image height, eyes at 40%, chin around 53%, shoulders around 61%; leave the upper quarter as background. Full head must fit inside a centered 16:9 crop (vertical band 21.875% to 78.125%) and centered 3:2 crop. This is a single edge-to-edge square photo, no borders, no inset.\nBackground: Contemporary family campus with a tall two-story glass entrance, warm reddish brick, pale stone column and broad metal canopy, a little of the colorful kids-wing shade sails further back. Stand just outside the entry with the taller glass lobby recognizable.\nUse the building reference faithfully, matching its specific materials, facade and entrance arrangement from a plausible portrait camera location. Soft optical background blur but building type remains recognizable. Do not copy the Phoenix background from image 1. Same polished natural photo-session look: late-morning Arizona open shade on face, gentle sun rim, warm sunlit building and authentic desert planting, realistic skin and masonry texture. Glass has subtle low-contrast reflections with dim interiors visible, never mirror-like. Subject and background share coherent lighting and perspective, no pasted cutout appearance. Choose an angle that keeps all church signs, logos, banners and lettering outside the frame. No text, logos, watermarks, badges, cars or other people. Preserve the person; change the campus setting and adjust framing only as needed for the specified crop-safe position."
+    },
+    {
+      "file": "staff/campus/ibarra-rafael-goodyear.jpg",
+      "household": "ibarra",
+      "member": "rafael",
+      "campus": "goodyear",
+      "objectPosition": "50% 50%",
+      "sha256": "3a13b26636eb5b619941b56882c477995ec8797784478d3f19f8633898c595a1",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/ibarra-rafael.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/goodyear.jpg",
+      "seed": null,
+      "prompt": "Use case: identity-preserve. Create ONE square photographic staff portrait variation. Image 1 is the edit target, the existing fictional portrait of Rafael Ibarra; it controls exact face, hair, age, skin, glasses/facial hair, clothing and expression. Image 2 is the actual visual reference for the fictional goodyear campus building; it controls the new background architecture. Change the location to that campus. Preserve this exact person's recognizable identity and clothing. Natural relaxed pose and warm smile, face looking at lens. The person is centered horizontally, waist-up. Crop-safe framing is essential: highest hair at 28% of image height, eyes at 40%, chin around 53%, shoulders around 61%; leave the upper quarter as background. Full head must fit inside a centered 16:9 crop (vertical band 21.875% to 78.125%) and centered 3:2 crop. This is a single edge-to-edge square photo, no borders, no inset.\nBackground: Public high school auditorium serving as a portable church campus: tan concrete block, reddish-brown lower masonry, bold cobalt-blue metal fascia, practical school canopy and aluminum-framed entrance doors. Photograph beside the entrance so blue fascia and school facade read clearly. Avoid all text and banner areas by camera composition. No permanent church signage.\nUse the building reference faithfully, matching its specific materials, facade and entrance arrangement from a plausible portrait camera location. Soft optical background blur but building type remains recognizable. Do not copy the Phoenix background from image 1. Same polished natural photo-session look: late-morning Arizona open shade on face, gentle sun rim, warm sunlit building and authentic desert planting, realistic skin and masonry texture. Glass has subtle low-contrast reflections with dim interiors visible, never mirror-like. Subject and background share coherent lighting and perspective, no pasted cutout appearance. Choose an angle that keeps all church signs, logos, banners and lettering outside the frame. No text, logos, watermarks, badges, cars or other people. Preserve the person; change the campus setting and adjust framing only as needed for the specified crop-safe position."
+    },
+    {
+      "file": "staff/campus/tsosie-leah-tempe.jpg",
+      "household": "tsosie",
+      "member": "leah",
+      "campus": "tempe",
+      "objectPosition": "50% 50%",
+      "sha256": "22b92639552929a8a0eac2d6e1b2e0349af7465c232c3c211a0ec251474b689a",
+      "reference": "C:/Users/JonEdmiston/Pictures/rock-staff-photos-2026-10-28/tsosie-leah.jpg",
+      "place": "C:/Users/JonEdmiston/repos/rock-sample-data/photos/campuses/tempe.jpg",
+      "seed": null,
+      "prompt": "Use case: identity-preserve. Create ONE square photographic staff portrait variation. Image 1 is the edit target, the existing fictional portrait of Leah Tsosie; it controls exact face, hair, age, skin, glasses/facial hair, clothing and expression. Image 2 is the actual visual reference for the fictional tempe campus building; it controls the new background architecture. Change the location to that campus. Preserve this exact person's recognizable identity and clothing. Natural relaxed pose and warm smile, face looking at lens. The person is centered horizontally, waist-up. Crop-safe framing is essential: highest hair at 28% of image height, eyes at 40%, chin around 53%, shoulders around 61%; leave the upper quarter as background. Full head must fit inside a centered 16:9 crop (vertical band 21.875% to 78.125%) and centered 3:2 crop. This is a single edge-to-edge square photo, no borders, no inset.\nBackground: Urban warehouse conversion with warm red-brown brick, black steel factory windows, glazed former loading entrance, dark steel beams and sawtooth roof. Sidewalk portrait looking diagonally along the brick entry and factory windows, with potted agave and a little street tree. Keep the distinct industrial architecture.\nUse the building reference faithfully, matching its specific materials, facade and entrance arrangement from a plausible portrait camera location. Soft optical background blur but building type remains recognizable. Do not copy the Phoenix background from image 1. Same polished natural photo-session look: late-morning Arizona open shade on face, gentle sun rim, warm sunlit building and authentic desert planting, realistic skin and masonry texture. Glass has subtle low-contrast reflections with dim interiors visible, never mirror-like. Subject and background share coherent lighting and perspective, no pasted cutout appearance. Choose an angle that keeps all church signs, logos, banners and lettering outside the frame. No text, logos, watermarks, badges, cars or other people. Preserve the person; change the campus setting and adjust framing only as needed for the specified crop-safe position."
+    }
+  ]
+}

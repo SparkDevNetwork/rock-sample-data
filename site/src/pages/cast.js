@@ -95,8 +95,11 @@ function memberCard( m, r ) {
   <div class="member-body">
     <h3>${esc( m.displayName )}</h3>
     <p class="member-meta">${esc( ageLine( m ) )}${m.connectionStatus ? html` · ${esc( m.connectionStatus )}` : ""}${m.attributes && m.attributes.Position ? html` · ${esc( m.attributes.Position )}` : ""}</p>
+    ${m.staffTitle ? html`<span class="tags"><span class="tag tag-accent">Staff: ${esc( m.staffTitle )}</span></span>` : ""}
     ${m.bio ? html`<p>${esc( m.bio )}</p>` : ""}
-    ${!m.photo ? html`<p class="fine">No photo, on purpose.</p>` : ""}
+    ${m.staffBio ? html`<p class="staff-bio"><strong>On the staff page:</strong> ${esc( m.staffBio )}</p>` : ""}
+    ${m.staffQuote ? html`<p class="staff-quote">${esc( m.staffQuote )}</p>` : ""}
+    ${!m.photo ? html`<p class="fine">${m.isPhotoOmitted ? "No photo, on purpose." : "Photo coming soon."}</p>` : ""}
     ${loginLine( m ) ? html`<p class="fine">${loginLine( m )}</p>` : ""}
     ${chips.length ? html`<span class="tags">${chips.map( c => html`<span class="tag">${esc( c )}</span>` )}</span>` : ""}
   </div>
@@ -130,7 +133,8 @@ function householdPage( h, i, all, r ) {
           ${h.isFeatured ? html`<span class="tag tag-accent">Featured</span>` : ""}
           <span class="tag">${h.origin === "new" ? "New household" : "Legacy household"}</span>
           <span class="tag">${h.kind === "business" ? "Business" : `${h.members.length} ${h.members.length === 1 ? "person" : "people"}`}</span>
-          <span class="tag">Phoenix campus</span>
+          <span class="tag">${esc( h.campus.name )} campus</span>
+          ${h.campus.rockDefault ? "" : html`<span class="tag">In ${esc( h.campus.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( " and " ) )} only</span>`}
           ${h.stages.filter( s => s !== "business" ).map( s => html`<span class="tag">${esc( stageLabels[s] )}</span>` )}
         </span>
       </div>
@@ -195,7 +199,7 @@ module.exports = function cast( { model, r, relativeTo } ) {
   <div class="wrap narrow">
     <p class="eyebrow">The Cast</p>
     <h1 class="display">${model.counts.households} households. <em>Every one has a reason.</em></h1>
-    <p class="lede">The Cast is ${model.counts.people} hand-designed people who are the same in every dataset and always live on the Phoenix campus. Tests, help articles, and training classes can name them and trust they're there. Each household has a story and a list of what it's used to test. Each household page shows who can sign in, and with which username, and how many staff notes are on their profiles.</p>
+    <p class="lede">The Cast is ${model.counts.people} hand-designed people who are the same in every dataset. Most live on the Phoenix campus. Each other campus's pastor lives on their own campus, so their family is in the datasets that have it. Tests, help articles, and training classes can name them and trust they're there. Each household has a story and a list of what it's used to test. Each household page shows who can sign in, and with which username, and how many staff notes are on their profiles.</p>
   </div>
 </section>
 

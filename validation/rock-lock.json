@@ -1,8 +1,8 @@
 {
   "$comment": "Rock files whose logic the builder ports or depends on, with a fingerprint (SHA-256 of the text, line endings normalized) as of the last review. check-rock-lock.js compares them with Rock on GitHub. A section is the text from 'from' up to 'to', for files that are large and change for unrelated reasons.",
   "checkedRef": "develop",
-  "checkedCommit": "abb173621b36b0af65429cd48859549a63339f0a",
-  "checkedDate": "2026-10-21",
+  "checkedCommit": "04b42f21d9ce80f8cfa57f617c6f992a11b00841",
+  "checkedDate": "2026-10-29",
   "files": [
     {
       "path": "Rock/Model/Group/GroupSync/GroupSyncService.cs",
@@ -71,7 +71,7 @@
       "mirroredBy": [
         "loader/loading/RockGivingAutomation.cs"
       ],
-      "sha256": "de43c62cdb9b596e3efcd2bc4deb8ba2da4dfafd3db85701c1e160c3eafd6b21"
+      "sha256": "89a73196a3263f286ccef51fcdabf21bc583dc771b1af5ce0b60462cb5b18b95"
     },
     {
       "path": "Rock/Financial/FinancialGivingAnalyticsFrequencyLabel.cs",

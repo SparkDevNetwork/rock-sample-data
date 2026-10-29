@@ -1,0 +1,123 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "hargrove",
+  "guid": "0E2593F0-52F3-41EA-9998-150044C34178",
+  "name": "Hargrove Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "scottsdale",
+  "story": "Walt Hargrove is the Scottsdale Campus Pastor. He was the pastor of the church that merged with Rock Solid Church six years ago, and he stayed on to lead it as a campus. He and June have three grown children who live out of state.",
+  "testPurposes": [
+    "Named campus pastor at Scottsdale, loaded only in Full 7.",
+    "Pastor who came over in a church merger.",
+    "Empty-nest couple married more than 40 years."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "6564 E Bronco Dr",
+    "city": "Paradise Valley",
+    "state": "AZ",
+    "postalCode": "85253",
+    "latitude": 33.550614,
+    "longitude": -111.940226
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 95,
+    "started": {
+      "yearsAgo": 6,
+      "month": 2,
+      "day": 4
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "walt",
+      "funds": {
+        "General Fund": 600,
+        "Mission Fund": 100
+      },
+      "percentOfPeriodsGiven": 98,
+      "started": {
+        "yearsAgo": 6,
+        "month": 2,
+        "day": 1
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "walt",
+      "guid": "E47EAABF-E7E2-4C6A-AD9B-A2353D4A5613",
+      "firstName": "Walter",
+      "nickName": "Walt",
+      "lastName": "Hargrove",
+      "bio": "Walt is the Scottsdale Campus Pastor. He led the Scottsdale church for 18 years before it merged with Rock Solid Church, and he has led it as a campus since.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 63,
+        "month": 8,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 41,
+        "month": 5,
+        "day": 22
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "walt@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550197"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Scottsdale Campus Pastor"
+      },
+      "logins": [
+        "whargrove"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "june",
+      "guid": "A1A819DE-7AD4-4189-A116-63047D7E11F7",
+      "firstName": "June",
+      "lastName": "Hargrove",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 62,
+        "month": 1,
+        "day": 17
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 41,
+        "month": 5,
+        "day": 22
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "june.hargrove@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550196"
+      },
+      "photo": {
+        "ethnicity": "white"
+      }
+    }
+  ]
+}

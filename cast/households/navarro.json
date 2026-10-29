@@ -1,0 +1,130 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "navarro",
+  "guid": "DFAE7290-185A-4847-AF34-26A27F317BD2",
+  "name": "Navarro Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Dee Navarro is the Care Director. She makes hospital visits, leads grief care, oversees benevolence, and counsels. She and Hector have been at the church longer than almost anyone on staff, and their grown children have families of their own.",
+  "testPurposes": [
+    "Care Director with the pastoral notes, prayer administration, and benevolence roles.",
+    "Nickname that is not an obvious short form (Dolores goes by Dee).",
+    "Prayer team member on staff."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "3998 W Willow Ave",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85029",
+    "latitude": 33.60688,
+    "longitude": -112.146446
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 94,
+    "started": {
+      "yearsAgo": 19,
+      "month": 1,
+      "day": 13
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "dee",
+      "funds": {
+        "General Fund": 400,
+        "Mission Fund": 50
+      },
+      "percentOfPeriodsGiven": 98,
+      "started": {
+        "yearsAgo": 19,
+        "month": 1,
+        "day": 6
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "dee",
+      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "firstName": "Dolores",
+      "nickName": "Dee",
+      "lastName": "Navarro",
+      "bio": "Dee is the Care Director. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 61,
+        "month": 7,
+        "day": 19
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 38,
+        "month": 9,
+        "day": 10
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "dee@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550190"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Care Director"
+      },
+      "logins": [
+        "dnavarro"
+      ],
+      "securityRoles": [
+        "Benevolence Workers",
+        "Pastoral Staff",
+        "Prayer Administrators",
+        "Prayer Team",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "hector",
+      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
+      "firstName": "Hector",
+      "lastName": "Navarro",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 64,
+        "month": 10,
+        "day": 30
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 38,
+        "month": 9,
+        "day": 10
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "hector.navarro@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550189"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Valley Water District",
+        "Position": "Field Supervisor"
+      }
+    }
+  ]
+}

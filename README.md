@@ -145,7 +145,7 @@ and push. Ask me before anything that removes or rewrites history.
 
 | Dataset | People | Campuses | Load time |
 |---|---|---|---|
-| **Core 1** | The Cast (87 households, 185 people) | 1 | About 13 seconds |
+| **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds |
 | **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds |
 | **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 4 minutes |
 

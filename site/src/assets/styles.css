@@ -394,8 +394,19 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .campus.campus-main p { color: var(--on-night-2); }
 .campus.campus-main .campus-meta { color: #A8A096; }
 .campus.campus-main h3 { color: var(--on-night); }
+.campus.campus-main a { color: var(--on-night); }
 @media (max-width: 1000px) { .campus-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .campus-grid { grid-template-columns: 1fr; } .campus-main { grid-column: auto; } }
+
+/* The church's staff, grouped by department, each card linking to the person's household page. */
+.staff-department { font-size: 1.1rem; margin: 32px 0 14px; color: var(--ink-2); }
+.staff-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.staff-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 20px 14px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); color: inherit; text-decoration: none; }
+.staff-card .portrait { margin-bottom: 8px; }
+.staff-name { font-weight: 600; }
+.staff-title { font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 1000px) { .staff-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .staff-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .tour {
     display: grid; grid-auto-flow: column; grid-auto-columns: min(78vw, 640px); gap: 20px;
@@ -423,11 +434,15 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 @media (max-width: 800px) { .serve-grid { grid-template-columns: 1fr; } }
 
 .group-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.group-grid-pairs { grid-template-columns: repeat(2, 1fr); }
+.group-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.group-photo-caption { display: flex; justify-content: space-between; gap: 8px; margin: 0; padding: 8px 2px 0; font-size: 0.85rem; flex-wrap: wrap; }
+.group-photo-label { font-weight: 700; color: var(--ink); }
 .group-body { padding-top: 16px; }
 .group-body h3 { font-size: 1.25rem; margin-bottom: 6px; }
 .group-body p { color: var(--ink-2); font-size: 0.98rem; margin: 0; }
 .group-topic { font-size: 0.8rem !important; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal-ink) !important; margin-bottom: 6px !important; }
-@media (max-width: 1000px) { .group-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1000px) { .group-grid { grid-template-columns: repeat(2, 1fr); } .group-grid-pairs { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .group-grid { grid-template-columns: 1fr; } }
 
 .timeline { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 0; }
@@ -649,6 +664,15 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 @media (max-width: 520px) { .pack-grid { grid-template-columns: 1fr; } }
 
 .view-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.view.view-wide img { aspect-ratio: 2 / 1; }
+.calendar-stage ~ .fine { margin-top: 28px; }
+.calendar-stage { margin-top: 36px; }
+.calendar-stage-text { color: var(--ink-2); margin: 4px 0 16px; }
+.event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.event-art .zoom-button img { aspect-ratio: 2 / 1; }
+.event-name { margin: 8px 2px 0; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+@media (max-width: 900px) { .event-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .event-grid { grid-template-columns: 1fr; } }
 .view { margin: 0; }
 .view img { border-radius: 14px; aspect-ratio: 3 / 2; object-fit: cover; box-shadow: var(--shadow); }
 .view figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 10px 2px 0; font-size: 0.92rem; font-weight: 600; flex-wrap: wrap; }
@@ -700,3 +724,14 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 .rules-light .rule li strong { color: var(--ink); }
 .view-heading { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 40px 0 16px; }
 .view-topic { display: block; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
+
+/* A staff member's staff page bio and favorite quote on their household page (decision 201). */
+.staff-bio { font-size: 0.95rem; }
+.staff-quote { font-family: var(--serif); font-style: italic; color: var(--ink-2); border-left: 3px solid var(--paper-2); padding-left: 12px; }
+
+/* Staff photos crop with object-fit: cover at the position each photo records (photos/staff/manifest.json). */
+.staff-photo { object-fit: cover; }
+.campus-staff { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.campus-staff-person { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-size: 0.88rem; }
+.campus-staff-person img { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; }
+.campus-staff-person strong { display: block; }

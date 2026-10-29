@@ -1,0 +1,155 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "whitlock",
+  "guid": "507BEF85-3407-4F58-B387-E4BB8B9DD54C",
+  "name": "Whitlock Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "gilbert",
+  "story": "Dana Whitlock is the Gilbert Campus Director. She runs the campus's Sundays, volunteers, and weekday ministries beside Joel Park, the campus pastor. Scott works in software, and Harper and Wes are in the Gilbert elementary rooms.",
+  "testPurposes": [
+    "Campus staff at Gilbert, loaded only in datasets with the Gilbert campus.",
+    "Campus Director who works beside the campus pastor.",
+    "Staff member whose spouse is not on staff."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1813 E Ironwood Dr",
+    "city": "Chandler",
+    "state": "AZ",
+    "postalCode": "85225",
+    "latitude": 33.326536,
+    "longitude": -111.809104
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 92,
+    "started": {
+      "yearsAgo": 3,
+      "month": 8,
+      "day": 21
+    }
+  },
+  "giving": [
+    {
+      "persona": "monthly",
+      "person": "dana",
+      "funds": {
+        "General Fund": 350
+      },
+      "percentOfPeriodsGiven": 96,
+      "started": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 1
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "dana",
+      "guid": "9781F0D0-DF05-4C96-A599-F3971238981D",
+      "firstName": "Dana",
+      "lastName": "Whitlock",
+      "bio": "Dana is the Gilbert Campus Director. She joined staff three years ago and runs the campus's Sundays, volunteers, and weekday ministries.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 40,
+        "month": 4,
+        "day": 6
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 14,
+        "month": 10,
+        "day": 4
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "dana@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550199"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Gilbert Campus Director"
+      },
+      "logins": [
+        "dwhitlock"
+      ],
+      "securityRoles": [
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "scott",
+      "guid": "37E18BFF-C777-42F6-9A40-7599967CA9B7",
+      "firstName": "Scott",
+      "lastName": "Whitlock",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 42,
+        "month": 9,
+        "day": 27
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 14,
+        "month": 10,
+        "day": 4
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "scott.whitlock@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550198"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Sonoran Systems",
+        "Position": "Software Engineer"
+      }
+    },
+    {
+      "key": "harper",
+      "guid": "BC3A41CC-DBFC-4CC8-9830-E96B3BF5C7B2",
+      "firstName": "Harper",
+      "lastName": "Whitlock",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 10,
+        "month": 6,
+        "day": 13
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "wes",
+      "guid": "521AE792-143A-4EE7-BAAF-2C1CE16F1E2D",
+      "firstName": "Wesley",
+      "nickName": "Wes",
+      "lastName": "Whitlock",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 7,
+        "month": 11,
+        "day": 29
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

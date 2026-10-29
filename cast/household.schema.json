@@ -14,7 +14,7 @@
     "name": { "type": "string" },
     "kind": { "enum": [ "family", "business" ] },
     "origin": { "type": "string", "description": "Where the household came from, for example legacy-1.14.1 or new." },
-    "campusSlot": { "enum": [ "main" ], "description": "The Cast always lives on the main campus." },
+    "campusSlot": { "enum": [ "main", "peoria", "gilbert", "scottsdale", "chandler", "goodyear", "tempe" ], "description": "Where the household lives: \"main\" for the main campus, or another campus's key from configuration/campuses.json. A household on another campus loads only in datasets that have that campus." },
     "duplicateOf": { "type": "string", "description": "The key of the household this is a duplicate record of. Duplicate records never join groups." },
     "story": { "type": "string" },
     "testPurposes": { "type": "array", "items": { "type": "string" }, "minItems": 1 },

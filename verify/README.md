@@ -92,6 +92,8 @@ Rock's job also tidies things in any fresh database. So it runs once on a plain 
 
 Rock Cleanup rebuilds `ScheduleDate` for a window of now plus or minus two years, to the minute, and the plain copy and each loaded copy are cleaned minutes apart. So the comparison leaves out the `ScheduleDate` rows within a day of either edge of that window, in both runs, and compares the rest exactly. Before, an occurrence at an edge now and then fell inside one run and outside the other, and the check failed on base rows the load never touched.
 
+An event occurrence's next start can pass between the load and Rock Cleanup, and Rock then moves it to the following start. So a change to `EventItemOccurrence.NextStartDateTime` is left out when the old value had already passed when Rock Cleanup started and Rock only moved it later or cleared it. Those rows show as "Not judged". Any other change to the column still fails.
+
 ### Logins and sign-in
 
 Every load makes its logins with the test password `sample-data-verify`, hashed by Rock's own Database login through `rock-runner --task hash-password`, the way Rock's installer block hashes the one a person types (decision 180). It is not a secret: it signs in only to the run's throwaway databases. After the referee, `rock-runner --task sign-in` signs in through Rock's Database login, the check Rock's login block makes, and the `sign-in` check fails unless Rock accepts the sample logins and refuses a wrong password. It runs after the referee because a sign-in can rewrite a hash at the site's cost setting.

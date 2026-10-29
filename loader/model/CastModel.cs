@@ -524,6 +524,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         [JsonExtensionData]
         public Dictionary<string, System.Text.Json.JsonElement> Others { get; set; }
+
+        /// <summary>
+        /// Rock's Allergy person attribute, which check-in labels print. Null when the person has none.
+        /// </summary>
+        public string Allergy { get; set; }
     }
 
     /// <summary>

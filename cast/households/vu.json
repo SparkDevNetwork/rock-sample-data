@@ -1,0 +1,154 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "vu",
+  "guid": "69248B7A-EFD8-4699-B271-AEFFF2DA7C37",
+  "name": "Vu Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "chandler",
+  "story": "Tina Vu is the Chandler Kids Director, at the campus full of young families and the church's largest kids ministry. She and Minh have two little ones, Ellie and Theo, in the Chandler nursery and preschool rooms.",
+  "testPurposes": [
+    "Campus kids director at Chandler, loaded only in Full 7.",
+    "Staff family with a toddler and a preschooler."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "1412 W Glenmere Dr",
+    "city": "Chandler",
+    "state": "AZ",
+    "postalCode": "85224",
+    "latitude": 33.295891,
+    "longitude": -111.866195
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 91,
+    "started": {
+      "yearsAgo": 4,
+      "month": 5,
+      "day": 19
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "minh",
+      "funds": {
+        "General Fund": 75
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 26
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "tina",
+      "guid": "87A06537-76C2-4100-8408-1CFF4EE55248",
+      "firstName": "Tina",
+      "lastName": "Vu",
+      "bio": "Tina is the Chandler Kids Director. She joined staff four years ago and leads the church's largest kids ministry, at Chandler.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 37,
+        "month": 2,
+        "day": 26
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 9,
+        "month": 3,
+        "day": 12
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "tina@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550194"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Chandler Kids Director"
+      },
+      "logins": [
+        "tvu"
+      ],
+      "securityRoles": [
+        "Safety & Security Workers",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "minh",
+      "guid": "4339ADE4-0B52-4A2F-9CDE-727EF10AC325",
+      "firstName": "Minh",
+      "lastName": "Vu",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 38,
+        "month": 7,
+        "day": 8
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 9,
+        "month": 3,
+        "day": 12
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "minh.vu@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550193"
+      },
+      "photo": {
+        "ethnicity": "southeast-asian"
+      },
+      "attributes": {
+        "Employer": "Mesa Ridge Electronics",
+        "Position": "Test Engineer"
+      }
+    },
+    {
+      "key": "ellie",
+      "guid": "E972C3E5-FE71-451B-961C-111EDD5ECD46",
+      "firstName": "Ellie",
+      "lastName": "Vu",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 5,
+        "month": 9,
+        "day": 5
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "theo",
+      "guid": "9448D17F-1B0D-4982-AE4C-2E1F414FB7F9",
+      "firstName": "Theo",
+      "lastName": "Vu",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 2,
+        "month": 4,
+        "day": 21
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

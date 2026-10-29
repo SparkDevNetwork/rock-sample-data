@@ -2,7 +2,7 @@
 
 **Featured** · New household · 5 people · Phoenix campus · [source](../households/brooks.json)
 
-The Brooks family has been at the church for nine years. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.
+The Brooks family has been at the church for nine years. Rachel led the Phoenix kids volunteers for years and was hired this year as the Kids Director. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -23,9 +23,9 @@ Nathan has been at the church nine years and gives every week to the General Fun
 
 ### Rachel Brooks
 
-Rachel is Nathan's wife. Sunday mornings she gets three kids to three different check-in rooms.
+Rachel is the Kids Director. She led the Phoenix kids volunteers for years before the church hired her this year, and she still leads the Kids Ministry team. Sunday mornings she also gets her own three kids to three different check-in rooms.
 
-- Age 41 · married · no email · groups: Decker Group, Kids Ministry (leader), Lee Group (left, archived)
+- Age 41 · married · Kids Director, Rock Solid Church · email rachel@rocksolidchurchdemo.com · groups: Decker Group, Kids Ministry (leader), Lee Group (left, archived) · 2 security roles
 - Person Guid `9AA2688D-534C-4FC2-9C7D-DAA224041338`
 
 ### Ava Brooks
@@ -53,6 +53,7 @@ Lily is eight and in the Grades 2-3 room.
 
 - Three kids across the student and elementary check-in areas.
 - Weekly giver with year-end gifts, and a building campaign line on each gift.
+- Volunteer hired onto staff: the Kids Director still leads the Phoenix Kids Ministry team.
 
 ## Activity
 

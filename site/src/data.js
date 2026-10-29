@@ -106,6 +106,7 @@ function load() {
         household.stages = lifeStages( household );
         for ( const member of household.members ) {
             const photo = `${household.key}-${member.key}.jpg`;
+            member.isPhotoOmitted = !!( member.photo && member.photo.isOmitted ) || household.kind === "business";
             member.photo = castPhotos.has( photo ) ? photo : null;
             member.displayName = `${member.nickName || member.firstName} ${member.lastName}`;
             member.household = household;
@@ -198,6 +199,51 @@ function load() {
         };
     } );
 
+    // Each household's campus. Most of the Cast lives on the main campus; a campus pastor's household lives on
+    // its own campus and loads only in the datasets that have it (decision 199).
+    const mainCampus = campuses.find( c => c.rockDefault );
+    for ( const household of households ) {
+        household.campus = household.campusSlot === "main" ? mainCampus : campuses.find( c => c.key === household.campusSlot ) || mainCampus;
+    }
+
+    // The church's staff, every one a Cast person, and each campus's campus pastor (configuration/staff.json).
+    // A delivered staff photo (photos/staff/manifest.json) shows on the staff card in place of the profile photo,
+    // cropped at its recorded position. A campus version (photos/staff/campus/) shows on that campus's card.
+    const staffFile = exists( "configuration/staff.json" ) ? readJson( "configuration/staff.json" ) : { staff: [], campusPastors: {} };
+    const staffPhotos = exists( "photos/staff/manifest.json" ) ? readJson( "photos/staff/manifest.json" ).images : [];
+    const campusVersions = exists( "photos/staff/campus/manifest.json" ) ? readJson( "photos/staff/campus/manifest.json" ).images : [];
+    const staff = staffFile.staff
+        .map( s => {
+            const member = people.get( s.person.toUpperCase() );
+            const campus = s.campus ? campuses.find( c => c.key === s.campus ) : null;
+            const isTheirs = p => member && p.household === member.household.key && p.member === member.key;
+            const photo = staffPhotos.find( isTheirs );
+            const campusPhoto = campusVersions.find( p => isTheirs( p ) && p.campus === s.campus );
+            return member ? {
+                ...s,
+                member,
+                campusName: campus ? campus.name : null,
+                staffPhoto: photo ? path.basename( photo.file ) : null,
+                staffPhotoPosition: photo && photo.objectPosition ? photo.objectPosition : "50% 50%",
+                campusPhoto: campusPhoto ? path.basename( campusPhoto.file ) : null,
+                campusPhotoPosition: campusPhoto && campusPhoto.objectPosition ? campusPhoto.objectPosition : "50% 50%"
+            } : null;
+        } )
+        .filter( Boolean );
+    for ( const s of staff ) {
+        s.member.staffTitle = s.title;
+        s.member.staffBio = s.bio || null;
+        s.member.staffQuote = s.quote || null;
+        if ( !s.member.household.stages.includes( "staff" ) ) {
+            s.member.household.stages.push( "staff" );
+        }
+    }
+    for ( const campus of campuses ) {
+        const pastor = staff.find( s => s.key === staffFile.campusPastors[campus.key] );
+        campus.pastor = pastor ? pastor.member : null;
+        campus.staff = staff.filter( s => s.campus === campus.key );
+    }
+
     // Each folder in graphics/initiatives/ is one initiative and its artwork (graphics/README.md).
     const initiativeGraphics = fs.readdirSync( path.join( root, "graphics/initiatives" ) )
         .filter( folder => exists( `graphics/initiatives/${folder}/manifest.json` ) )
@@ -207,14 +253,33 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
+    // Each calendar event's delivered image, by event key (decision 197).
+    const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
+    // The original full-group photos: download-only assets, never in a package (decision 196).
+    const fullGroupManifest = "photos/groups-full-members/manifest.json";
+    const fullGroupPhotos = exists( fullGroupManifest )
+        ? readJson( fullGroupManifest ).images.map( p => {
+            const group = groups.find( g => g.key === p.group );
+            return {
+                key: p.group,
+                name: group ? group.name : p.group,
+                photo: path.basename( p.file ),
+                original: path.basename( p.original ),
+                photoPeople: p.people
+            };
+        } )
+        : [];
+
     return {
         root,
         households,
         people,
         groups,
         smallGroups,
+        fullGroupPhotos,
         opportunities,
         campuses,
+        staff,
         campusPhotos,
         initiativeGraphics,
         campaign: readJson( "configuration/campaign.json" ),
@@ -223,7 +288,10 @@ function load() {
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,
-        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events : [],
+        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events.map( e => {
+            const photo = eventPhotos.find( p => p.event === e.key );
+            return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
+        } ) : [],
         registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
         stepTypes: exists( "configuration/steps.json" ) ? readJson( "configuration/steps.json" ).programs.flatMap( p => p.stepTypes ) : [],
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),

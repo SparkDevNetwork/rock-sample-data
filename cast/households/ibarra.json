@@ -1,0 +1,136 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "ibarra",
+  "guid": "B769CC79-6E53-4728-99FC-D1E6052CE61E",
+  "name": "Ibarra Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "goodyear",
+  "story": "Rafael Ibarra is the Goodyear Campus Pastor. The campus meets in a high school auditorium, so Rafael is there before six every Sunday to help set up. He and Elisa have a baby, Nico.",
+  "testPurposes": [
+    "Named campus pastor at Goodyear, loaded only in Full 7.",
+    "Staff family with a baby in the nursery."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4383 N 150th Ave",
+    "city": "Goodyear",
+    "state": "AZ",
+    "postalCode": "85395",
+    "latitude": 33.49839,
+    "longitude": -112.380629
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 96,
+    "started": {
+      "yearsAgo": 2,
+      "month": 1,
+      "day": 7
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "rafael",
+      "funds": {
+        "General Fund": 60
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 14
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "rafael",
+      "guid": "E65DD626-9A6A-4353-837B-E6D48808E621",
+      "firstName": "Rafael",
+      "lastName": "Ibarra",
+      "bio": "Rafael is the Goodyear Campus Pastor. He joined staff two years ago to lead the church's newest campus, which sets up and tears down every Sunday.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 35,
+        "month": 10,
+        "day": 14
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 6,
+        "month": 11,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "rafael@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550195"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Goodyear Campus Pastor"
+      },
+      "logins": [
+        "ribarra"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "elisa",
+      "guid": "C7C763C1-6E91-4D81-8AC0-1DD5DBC970A5",
+      "firstName": "Elisa",
+      "lastName": "Ibarra",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 33,
+        "month": 3,
+        "day": 3
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 6,
+        "month": 11,
+        "day": 18
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "elisa.ibarra@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550193"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      }
+    },
+    {
+      "key": "nico",
+      "guid": "6C40FE0B-7665-4361-A6A7-1D3A268F99B5",
+      "firstName": "Nicolas",
+      "nickName": "Nico",
+      "lastName": "Ibarra",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 1,
+        "month": 5,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

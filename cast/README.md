@@ -1,6 +1,6 @@
 # The Cast
 
-The Cast is the set of hand-designed households: today **87 households and 185 people**. They appear in every dataset, always on the main campus, with the same Guids. Tests and documentation may rely on them.
+The Cast is the set of hand-designed households: today **104 households and 230 people**. Most live on the main campus and appear in every dataset, with the same Guids. A campus pastor's household on another campus appears only in datasets with that campus (decision 199). Tests and documentation may rely on them.
 
 **[Meet the Cast](families/README.md)** for a page about every family, with photos, backstories, and what each family tests.
 

@@ -137,6 +137,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
+            checks += CheckAllergies( db, source, failures );
+
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, guids, failures ) : 0;
@@ -928,6 +930,39 @@ WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
         /// <summary>
         /// Checks the businesses in the loaded database. Returns how many were checked and adds each failure.
         /// </summary>
+        /// <summary>
+        /// Checks that each Cast person with an allergy in their file shows it in Rock's Allergy person attribute, which
+        /// check-in labels print (Alex Decker is the example). People always load, so this runs on every load. A person
+        /// whose household is not in the dataset is skipped.
+        /// </summary>
+        private static int CheckAllergies( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( p => !string.IsNullOrWhiteSpace( p.Attributes?.Allergy ) ) )
+            {
+                var personId = db.Scalar( "SELECT [Id] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", person.Guid ) );
+                if ( personId == null )
+                {
+                    continue;
+                }
+
+                checks++;
+                var value = db.Scalar( @"
+SELECT [av].[Value]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [a].[Guid] = @Attribute AND [av].[EntityId] = @PersonId", P( "@Attribute", PeopleLoader.AllergyAttributeGuid ), P( "@PersonId", personId ) ) as string;
+                var expected = person.Attributes.Allergy.Trim();
+                if ( value != expected )
+                {
+                    var shown = value == null ? "none" : $"'{value}'";
+                    failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected the allergy '{expected}', Rock shows {shown}" );
+                }
+            }
+
+            return checks;
+        }
+
         private static int CheckBusinesses( RockDatabase db, SampleDataSource source, bool isGivingLoaded, List<string> failures )
         {
             var mainCampusGuid = source.Campuses.Campuses.Single( c => c.RockDefault ).Guid;

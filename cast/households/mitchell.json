@@ -1,0 +1,156 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "mitchell",
+  "guid": "2D387C99-DFAC-43EF-BDE1-9460A401228E",
+  "name": "Mitchell Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Aaron Mitchell is the Phoenix Campus Pastor. He and Beth moved to Phoenix five years ago for the job, and their kids Jonah and Clara are in the student and elementary rooms.",
+  "testPurposes": [
+    "Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events.",
+    "Staff family with kids in the student and elementary check-in areas.",
+    "Mixed couple."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "18698 N 47th Ave",
+    "city": "Glendale",
+    "state": "AZ",
+    "postalCode": "85308",
+    "latitude": 33.656361,
+    "longitude": -112.161124
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 94,
+    "started": {
+      "yearsAgo": 5,
+      "month": 7,
+      "day": 12
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "aaron",
+      "funds": {
+        "General Fund": 90
+      },
+      "percentOfPeriodsGiven": 94,
+      "started": {
+        "yearsAgo": 5,
+        "month": 7,
+        "day": 14
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "aaron",
+      "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+      "firstName": "Aaron",
+      "lastName": "Mitchell",
+      "bio": "Aaron is the Phoenix Campus Pastor. He came on staff five years ago and leads the main campus: its Sunday services, its first-time guests, and its campus events.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 45,
+        "month": 3,
+        "day": 18
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 19,
+        "month": 6,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "aaron@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550199"
+      },
+      "photo": {
+        "ethnicity": "middle-eastern-north-african"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Phoenix Campus Pastor"
+      },
+      "logins": [
+        "amitchell"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "beth",
+      "guid": "5C5008BB-6F4B-4A68-A222-DABD1AF8E41C",
+      "firstName": "Bethany",
+      "nickName": "Beth",
+      "lastName": "Mitchell",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 43,
+        "month": 10,
+        "day": 2
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 19,
+        "month": 6,
+        "day": 9
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "beth.mitchell@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550198"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Palo Verde Technical College",
+        "Position": "Instructor"
+      }
+    },
+    {
+      "key": "jonah",
+      "guid": "F3B8BB62-E78F-44A4-BD4D-D3441C94A19E",
+      "firstName": "Jonah",
+      "lastName": "Mitchell",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 12,
+        "month": 1,
+        "day": 24
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    },
+    {
+      "key": "clara",
+      "guid": "F675F6D6-267C-4AA3-81D6-802986E0A393",
+      "firstName": "Clara",
+      "lastName": "Mitchell",
+      "gender": "female",
+      "familyRole": "child",
+      "birth": {
+        "age": 9,
+        "month": 8,
+        "day": 15
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged"
+    }
+  ]
+}

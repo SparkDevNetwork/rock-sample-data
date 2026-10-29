@@ -1,0 +1,123 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "morrow",
+  "guid": "F4D2C72B-F1CC-45C7-ADEF-45E29ECCA422",
+  "name": "Morrow Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Kelsey Morrow is the Production Director. She runs sound, lights, and streaming at every campus and trains each campus's production volunteers. Evan teaches science at Palo Verde Technical College.",
+  "testPurposes": [
+    "Production Director who oversees every campus's production team.",
+    "Mixed couple with no children."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "12419 N 71st Dr",
+    "city": "Peoria",
+    "state": "AZ",
+    "postalCode": "85381",
+    "latitude": 33.598266,
+    "longitude": -112.211916
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 96,
+    "started": {
+      "yearsAgo": 2,
+      "month": 9,
+      "day": 3
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "kelsey",
+      "funds": {
+        "General Fund": 90
+      },
+      "percentOfPeriodsGiven": 90,
+      "started": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 10
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "kelsey",
+      "guid": "2D46542F-54ED-4511-AD8F-A4F7E887A11B",
+      "firstName": "Kelsey",
+      "lastName": "Morrow",
+      "bio": "Kelsey is the Production Director. She joined staff two years ago and runs sound, lights, and streaming at every campus.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 31,
+        "month": 10,
+        "day": 8
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 6
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "kelsey@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550187"
+      },
+      "photo": {
+        "ethnicity": "east-asian"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Production Director"
+      },
+      "logins": [
+        "kmorrow"
+      ],
+      "securityRoles": [
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "evan",
+      "guid": "9FCC03D5-8D77-4386-87EF-3E42CBAFE3C8",
+      "firstName": "Evan",
+      "lastName": "Morrow",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 32,
+        "month": 2,
+        "day": 4
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 4,
+        "month": 5,
+        "day": 6
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "evan.morrow@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550186"
+      },
+      "photo": {
+        "ethnicity": "white"
+      },
+      "attributes": {
+        "Employer": "Palo Verde Technical College",
+        "Position": "Science Instructor"
+      }
+    }
+  ]
+}

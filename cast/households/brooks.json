@@ -7,10 +7,11 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "The Brooks family has been at the church for nine years. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.",
+  "story": "The Brooks family has been at the church for nine years. Rachel led the Phoenix kids volunteers for years and was hired this year as the Kids Director. Ava is in high school and checks in to the student service; Caleb and Lily are in the elementary rooms.",
   "testPurposes": [
     "Three kids across the student and elementary check-in areas.",
-    "Weekly giver with year-end gifts, and a building campaign line on each gift."
+    "Weekly giver with year-end gifts, and a building campaign line on each gift.",
+    "Volunteer hired onto staff: the Kids Director still leads the Phoenix Kids Ministry team."
   ],
   "address": {
     "type": "home",
@@ -95,7 +96,7 @@
       "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
       "firstName": "Rachel",
       "lastName": "Brooks",
-      "bio": "Rachel is Nathan's wife. Sunday mornings she gets three kids to three different check-in rooms.",
+      "bio": "Rachel is the Kids Director. She led the Phoenix kids volunteers for years before the church hired her this year, and she still leads the Kids Ministry team. Sunday mornings she also gets her own three kids to three different check-in rooms.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -106,13 +107,26 @@
       "maritalStatus": "married",
       "recordStatus": "active",
       "connectionStatus": "Leading",
+      "email": "rachel@rocksolidchurchdemo.com",
+      "emailIsActive": true,
       "phones": {
         "home": "4805550175",
         "mobile": "6025550127"
       },
       "photo": {
         "ethnicity": "white"
-      }
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Kids Director"
+      },
+      "logins": [
+        "rbrooks"
+      ],
+      "securityRoles": [
+        "Safety & Security Workers",
+        "Staff Users"
+      ]
     },
     {
       "key": "ava",

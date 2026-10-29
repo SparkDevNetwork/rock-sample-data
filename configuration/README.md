@@ -23,6 +23,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
 | `logins.json` | Who among generated adults has a Rock Database login: each reason and its designed chance, the inactive and older-adult shares, and the unconfirmed share (decision 179). The Cast's logins are in their own files. Logins load only when the person installing gives a password. See [How logins load](../loader/README.md#how-logins-load). |
 | `calendar.json` | The church's calendar: its events on Rock's Public and Internal calendars, with audiences, campuses, places, contacts, and the rule for each event's dates. See [Calendar](../docs/calendar.md). |
+| `staff.json` | The church's 23 staff, every one a Cast person, with their title, department, campus, supervisor, start date, bio, and favorite quote, and the named campus pastor of every campus (decision 198). It also defines the eight Staff person attributes, their security, and the block that shows them (decision 201), and the org chart in Rock's Organization Unit groups (decision 202). Notes, the calendar, first-visit welcomes, and campus texting numbers read the campus pastors from it. |
 | `registrations.json` | The church's event registrations: template categories, group types for linked and placement groups, templates with forms, fees, discounts, placements, and eligibility, the rules that make each year's instances from calendar events and who registers, the camp and mission trip releases, and the data views about registrations. See [Event registrations](../docs/registrations.md). |
 | `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
 | `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
@@ -37,14 +38,16 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Group Sync | The five group sync data views |
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule |
 | Communication lists | Care | The New Here and We Miss You lists |
+| Person attributes | Staff | The eight staff attributes (decision 201) |
 
 To add rows of a new kind or for a new purpose:
 
 1. **Data views.** Add a child of Rock Solid Church for the purpose, such as Communications, Care, or Reporting, then file the views under it. Never put a church view at the top level or in a category Rock ships.
 2. **Communication lists.** Keep list categories flat, as Rock's own Public category is. A public list uses Rock's Public category. A private list may use a church category such as Care, through its `categoryGuid` in `communications.json`.
-3. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
+3. **Person attributes.** Keep attribute categories flat, as Rock's own Employment and Membership are. Give the category `qualifierEntityType` (such as `Rock.Model.Person`), which Rock stores as its EntityTypeId qualifier. The person profile shows a category only through an Attribute Values block, so add one, as `staff.json` does for Staff.
+4. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
 
-Each category names the Rock entity it holds, its parent's key, and, for a group category, the group type it is for.
+Each category names the Rock entity it holds, its parent's key, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
 
 ## Service times
 
@@ -87,7 +90,7 @@ People have six note types (decision 78). Three are Rock's own, updated in place
 
 "Staff" means Rock's Staff Workers and Staff Like Workers roles, plus Rock Administration. Everyone else is denied, so notes never show to someone who is not staff.
 
-Pete Foster, Ted Decker, Alisha Marble, and Daniel Peak write the main campus's notes. Every other campus has a campus pastor: its oldest Leading adult, or its oldest Engaged adult if it has none. Campus pastors join RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
+Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, Dee Navarro (the Care Director, who writes most Counseling notes), Jamal Pierce, and Aaron Mitchell, the Phoenix campus pastor, write the main campus's notes. Every other campus's notes come from its named campus pastor in `staff.json` (decision 198). Campus pastors are in RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
 
 ## Check-in
 
@@ -123,7 +126,7 @@ Campuses are named by city only, with no "Campus" suffix. All are in the Phoenix
 
 | Campus | Datasets | Notes |
 |---|---|---|
-| Phoenix | Core 1, Core 3, Full 7 | Rock's built-in main campus, renamed. North Phoenix, where the Cast lives. |
+| Phoenix | Core 1, Core 3, Full 7 | Rock's built-in main campus, renamed. North Phoenix, where most of the Cast lives. |
 | Peoria | Core 3, Full 7 | West Valley. |
 | Gilbert | Core 3, Full 7 | East Valley. |
 | Scottsdale | Full 7 | Older, higher-income households. It was an independent church until it merged with Rock Solid Church and became a campus. |

@@ -326,7 +326,7 @@ function indexPage() {
     const people = households.reduce( ( s, h ) => s + h.members.length, 0 );
     const lines = [];
     lines.push( "# Meet the Cast", "" );
-    lines.push( `The Cast is ${households.length} hand-designed households and ${people} people. They are the same in every dataset and always live on the ${mainCampus} campus, so tests and documentation can rely on them by Guid.`, "" );
+    lines.push( `The Cast is ${households.length} hand-designed households and ${people} people. Most live on the ${mainCampus} campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.`, "" );
     lines.push( "Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.", "" );
     lines.push( "Every photo is AI-generated to look like a casual profile picture. Legacy families have new photos based on their old ones, so the faces Rock users know stay recognizable (see [Photos](../../photos/README.md)).", "" );
 

@@ -1,0 +1,85 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "tsosie",
+  "guid": "60288CE4-52C9-4DF6-867E-291D2216C457",
+  "name": "Tsosie Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "tempe",
+  "story": "Leah Tsosie is the Tempe Worship Leader, at the urban campus full of singles and young adults. She is single and lives near the campus.",
+  "testPurposes": [
+    "Campus worship leader at Tempe, loaded only in Full 7.",
+    "Single adult on staff, living alone."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "4378 E Coronado Rd",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85008",
+    "latitude": 33.468041,
+    "longitude": -111.987378
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 93,
+    "started": {
+      "yearsAgo": 3,
+      "month": 6,
+      "day": 2
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "leah",
+      "funds": {
+        "General Fund": 110
+      },
+      "percentOfPeriodsGiven": 95,
+      "started": {
+        "yearsAgo": 3,
+        "month": 6,
+        "day": 9
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "leah",
+      "guid": "2C1EC260-13B8-489E-9B38-61F732ED7022",
+      "firstName": "Leah",
+      "lastName": "Tsosie",
+      "bio": "Leah is the Tempe Worship Leader. She joined staff three years ago and leads worship at the campus where most people are singles and young adults.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 32,
+        "month": 12,
+        "day": 1
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "leah@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "4805550191"
+      },
+      "photo": {
+        "ethnicity": "native-american"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Tempe Worship Leader"
+      },
+      "logins": [
+        "ltsosie"
+      ],
+      "securityRoles": [
+        "Staff Users"
+      ]
+    }
+  ]
+}

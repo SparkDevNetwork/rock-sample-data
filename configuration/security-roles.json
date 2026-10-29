@@ -13,7 +13,10 @@
     { "name": "Website Administrators", "rockRole": "WEB - Administration", "guid": "1918E74F-C00D-4DDD-94C4-2E7209CE12C3" },
     { "name": "Website Content Editors", "rockRole": "WEB - General Editor", "guid": "CDF68207-2795-42DE-B060-FE01C33BEAEA" },
     { "name": "RSR - Calendar Administration", "rockRole": "RSR - Calendar Administration", "guid": "FDA9D63F-B0B1-43E8-8B82-0255E5D99F26" },
-    { "name": "RSR - Event Registration Administration", "rockRole": "RSR - Event Registration Administration", "guid": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF" }
+    { "name": "RSR - Event Registration Administration", "rockRole": "RSR - Event Registration Administration", "guid": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF" },
+    { "name": "Connection Administrators", "rockRole": "RSR - Connection Administration", "guid": "060971D2-EAF9-4C0D-B6F6-F01725CAA5AC" },
+    { "name": "Benevolence Workers", "rockRole": "RSR - Benevolence", "guid": "02FA0881-3552-42B8-A519-D021139B800F" },
+    { "name": "Safety & Security Workers", "rockRole": "RSR - Safety & Security Workers", "guid": "32E80B6C-A1EB-40FD-BEC3-E11DE8FF75AB" }
   ],
   "notRoles": [
     { "name": "Prayer Team", "reason": "Rock ships no prayer team role. The prayer loader reads this name to pick the Cast's prayer team members (decision 67)." }

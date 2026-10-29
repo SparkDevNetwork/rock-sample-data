@@ -250,16 +250,37 @@ namespace RockSampleData.Loader
                 log.Write( $"  Church categories: {categoryCount}" );
             }
 
+            // The Staff person attributes, in their category, with the block that shows them (decision 201).
+            var staffLoader = new StaffLoader( db, source, dates, foreignKey );
+            if ( staffLoader.HasAttributes )
+            {
+                log.Write( $"  Staff attributes: {staffLoader.LoadSetup()}" );
+            }
+
+            // The org chart's units in Rock's Organization Unit groups (decision 202).
+            if ( staffLoader.HasOrgChart )
+            {
+                log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
+            }
+
             var profile = source.ReadProfile();
             var years = options.HistoryYears;
             var calendar = new SundayCalendar( dates.Anchor, years, profile );
             var seed = options.Seed;
 
-            // The Cast always lives on the main campus. Generated households come from the dataset manifest's
-            // count per campus, or from the spike crowd, which spreads across the dataset's campuses.
+            // Most of the Cast lives on the main campus. A Cast household on another campus, such as its campus
+            // pastor's, comes only in a package with that campus (decision 199). Generated households come
+            // from the dataset manifest's count per campus, or from the spike crowd, which spreads across the
+            // dataset's campuses.
             steps.Begin( "People" );
             var mainCampusKey = source.Campuses.Campuses.Single( c => c.RockDefault ).Key;
             var households = source.ReadHouseholds();
+            var offCampus = households.Where( h => h.CampusSlot != "main" && !string.IsNullOrEmpty( h.CampusSlot ) && !configuration.CampusIds.ContainsKey( h.CampusSlot ) ).Select( h => h.Key ).ToList();
+            if ( offCampus.Count > 0 )
+            {
+                throw new InvalidDataException( $"The package has Cast households on campuses not in {dataset}: {string.Join( ", ", offCampus )}. The builder leaves them out." );
+            }
+
             var castHouseholdKeys = households.Select( h => h.Key ).ToHashSet();
             var manifest = source.ReadDataset( dataset );
 
@@ -326,6 +347,19 @@ namespace RockSampleData.Loader
                 // Cast staff join the security roles their stories give them, all roles Rock ships.
                 securityRoles = new SecurityRolesLoader( db, foreignKey );
                 log.Write( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
+
+                // Each loaded staff member's title, department, campus, bio, quote, supervisor, and start date.
+                if ( staffLoader.HasAttributes )
+                {
+                    var campusGuids = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Guid );
+                    log.Write( $"  Staff attribute values: {staffLoader.LoadValues( people, campusGuids ):N0}" );
+                }
+
+                // Each org chart unit's leader and staff.
+                if ( staffLoader.HasOrgChart )
+                {
+                    log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
+                }
             }
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
@@ -335,6 +369,13 @@ namespace RockSampleData.Loader
                 var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
+
+                // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
+                var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
+                if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
+                {
+                    log.Write( $"  Staff photos: {photoLoader.LoadStaffPhotos( people.Households, staffPhotoAttribute.Guid )}" );
+                }
             }
 
             // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its
@@ -518,7 +559,7 @@ namespace RockSampleData.Loader
                 {
                     Households = people.Households,
                     CastHouseholdKeys = castHouseholdKeys,
-                    CampusPastors = CampusPastors.Pick( people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey ),
+                    CampusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff ),
                     GroupPlans = groupPlans,
                     ServingPlans = servingPlans,
                     Gifts = giving.QualifyingGifts,
