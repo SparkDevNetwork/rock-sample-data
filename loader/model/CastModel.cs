@@ -63,6 +63,103 @@ namespace RockSampleData.Loader.Model
         public List<CastPerson> Members { get; set; } = new List<CastPerson>();
 
         public List<CastSharedMember> SharedMembers { get; set; } = new List<CastSharedMember>();
+
+        /// <summary>
+        /// Event registrations the household's stories need, checked on every load (docs/registrations.md).
+        /// </summary>
+        public List<CastRegistration> Registrations { get; set; } = new List<CastRegistration>();
+    }
+
+    /// <summary>
+    /// One registration a Cast story needs: who registered whom for which instance, how they pay, and what Rock
+    /// should show for it.
+    /// </summary>
+    internal sealed class CastRegistration
+    {
+        /// <summary>
+        /// The instance rule's key in configuration/registrations.json, such as student-camp-girls.
+        /// </summary>
+        public string Instance { get; set; }
+
+        /// <summary>
+        /// Which of the rule's instances: the next one or the last one.
+        /// </summary>
+        public RegistrationOccurrencePick Occurrence { get; set; }
+
+        /// <summary>
+        /// Member keys of the people registered, all on one registration.
+        /// </summary>
+        public List<string> Registrants { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The member key of the person who registered them, or null for the loader's usual choice.
+        /// </summary>
+        public string Registrar { get; set; }
+
+        /// <summary>
+        /// How the registration pays, or null for the loader's usual choice.
+        /// </summary>
+        public RegistrationPayment? Payment { get; set; }
+
+        /// <summary>
+        /// A payment plan's frequency, or null for the loader's usual choice.
+        /// </summary>
+        public PaymentPlanFrequency? Frequency { get; set; }
+
+        /// <summary>
+        /// The placement group the registrants join, by name, by placement key, such as a Serve Day project team, or
+        /// null for the loader's usual choice.
+        /// </summary>
+        public Dictionary<string, string> Placements { get; set; }
+
+        /// <summary>
+        /// Fee keys the registration always adds, such as childcare, or null for the loader's usual choice.
+        /// </summary>
+        public List<string> Fees { get; set; }
+
+        public CastRegistrationExpect Expect { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock should show for a Cast registration after a load.
+    /// </summary>
+    internal sealed class CastRegistrationExpect
+    {
+        /// <summary>
+        /// The member key of the registrar.
+        /// </summary>
+        public string Registrar { get; set; }
+
+        /// <summary>
+        /// How many placement groups of each placement key each registrant is in.
+        /// </summary>
+        public Dictionary<string, int> Placements { get; set; }
+
+        /// <summary>
+        /// The placement group each registrant is in, by name, by placement key.
+        /// </summary>
+        public Dictionary<string, string> PlacedIn { get; set; }
+
+        /// <summary>
+        /// The quantity of each fee on the registration, by fee key, such as childcare for two.
+        /// </summary>
+        public Dictionary<string, int> Fees { get; set; }
+
+        /// <summary>
+        /// The value Rock holds for a person attribute the registration's form asks, by member key, then attribute key,
+        /// such as a child's Allergy.
+        /// </summary>
+        public Dictionary<string, Dictionary<string, string>> Answers { get; set; }
+
+        /// <summary>
+        /// paid-in-full, balance-due, plan-on-pace, or plan-complete.
+        /// </summary>
+        public string Payment { get; set; }
+
+        /// <summary>
+        /// The discount code on the registration.
+        /// </summary>
+        public string Discount { get; set; }
     }
 
     /// <summary>
@@ -420,13 +517,19 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// The person attribute values the loader reads. The file holds more; the JSON reader ignores the rest.
+    /// The person attribute values the loader reads. The rest of the file's values are kept by key.
     /// </summary>
     internal sealed class CastPersonAttributes
     {
         public RelativeDate BaptismDate { get; set; }
 
         public RelativeDate FirstVisit { get; set; }
+
+        /// <summary>
+        /// Every other value in the file, by attribute key, for registration form answers that have no property of their own.
+        /// </summary>
+        [JsonExtensionData]
+        public Dictionary<string, System.Text.Json.JsonElement> Others { get; set; }
 
         /// <summary>
         /// Rock's Allergy person attribute, which check-in labels print. Null when the person has none.

@@ -139,6 +139,12 @@ namespace RockSampleData.Loader.Model
         public string Selection { get; set; }
 
         /// <summary>
+        /// For Rock's InRegistrationInstanceFilter in registrations.json: the instance it names, in place of a selection,
+        /// since Rock's selection holds Ids only a load knows.
+        /// </summary>
+        public RegistrationFilterRule Registration { get; set; }
+
+        /// <summary>
         /// Rock's FilterExpressionType for this node: Filter (0), GroupAll (1), GroupAny (2), or GroupAllFalse (3), which is "none".
         /// </summary>
         public int ExpressionType => Component != null ? 0 : All != null ? 1 : Any != null ? 2 : None != null ? 3
@@ -148,6 +154,30 @@ namespace RockSampleData.Loader.Model
         /// A group's children, or none for a leaf.
         /// </summary>
         public List<DataViewFilterDefinition> Children => All ?? Any ?? None ?? new List<DataViewFilterDefinition>();
+    }
+
+    /// <summary>
+    /// The registration instance an InRegistrationInstanceFilter names: an instance rule and its next or last occurrence,
+    /// whether it matches registrants or registrars, and the wait list.
+    /// </summary>
+    internal sealed class RegistrationFilterRule
+    {
+        /// <summary>
+        /// The registrations.json instance rule key.
+        /// </summary>
+        public string Instance { get; set; }
+
+        public RegistrationOccurrencePick Occurrence { get; set; }
+
+        /// <summary>
+        /// "registrant" or "registrar".
+        /// </summary>
+        public string Person { get; set; } = "registrant";
+
+        /// <summary>
+        /// True for only the wait list, false for only those off it, null for both.
+        /// </summary>
+        public bool? OnWaitList { get; set; }
     }
 
     /// <summary>

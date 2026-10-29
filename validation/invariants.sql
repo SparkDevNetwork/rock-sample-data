@@ -209,17 +209,18 @@ WHERE [r].[ForeignKey] = @ForeignKey
     AND ( [r].[EntityId] <> [n].[EntityId] OR [r].[NoteTypeId] <> [n].[NoteTypeId] OR [r].[CreatedDateTime] < [n].[CreatedDateTime] );
 
 -- check: note-author-is-not-the-noted-person
--- why: Staff write notes about other people; a note about its own author looks like a load error.
+-- why: Staff write notes about other people; a note about its own author looks like a load error. Rock's own Event Registration notes are left out: Rock writes one on each registrant as the registrar, who is often the registrant (decision 213).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [n].[CreatedByPersonAliasId]
 WHERE [n].[ForeignKey] = @ForeignKey
+    AND [nt].[Guid] <> 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045'
     AND [pa].[PersonId] = [n].[EntityId];
 
 -- check: person-note-looks-saved-by-rock
--- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes.
+-- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes. Rock's Event Registration notes come from Rock's code, not its editor, so they have no EditedDateTime (decision 213).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
@@ -228,12 +229,12 @@ WHERE [n].[ForeignKey] = @ForeignKey
     AND ( [n].[ApprovalStatus] <> 1
         OR [n].[NotificationsSent] = 0
         OR [n].[ApprovalsSent] = 0
-        OR [n].[EditedDateTime] IS NULL
+        OR ( [n].[EditedDateTime] IS NULL AND [nt].[Guid] <> 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045' )
         OR [n].[CreatedByPersonAliasId] IS NULL
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
 -- check: no-high-schooler-in-adult-groups
--- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts on or after the June 1 grade change in the person's graduation year (decision 169).
+-- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts after June 1 of the person's graduation year, the day after Rock's last day of grade 12 (decisions 169 and 205).
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
@@ -242,7 +243,7 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gm].[ForeignKey] = @ForeignKey
     AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
     AND [p].[GraduationYear] IS NOT NULL
-    AND [gm].[DateTimeAdded] < DATEFROMPARTS( [p].[GraduationYear], 6, 1 );
+    AND [gm].[DateTimeAdded] < DATEFROMPARTS( [p].[GraduationYear], 6, 2 );
 
 -- check: step-matches-its-membership
 -- why: A Small Group, Serve, or Lead step records one membership (decision 86): same person, group, and dates, In Progress only while the member is Pending. And every membership that counts has its step.
@@ -448,10 +449,10 @@ FROM (
     WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];
 
 -- check: student-step-belongs-to-a-student
--- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.
+-- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up the day after each June 1, as Rock does (decision 205).
 WITH [StudentSteps] AS (
     SELECT [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [pa].[PersonId], [p].[GraduationYear],
-        12 - ( [p].[GraduationYear] - CASE WHEN [s].[StartDateTime] >= DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
+        12 - ( [p].[GraduationYear] - CASE WHEN CAST( [s].[StartDateTime] AS DATE ) > DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
     INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [st].[StepProgramId]
@@ -489,7 +490,7 @@ SELECT ( SELECT COUNT(*)
         INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
         WHERE [st].[Guid] = '724C69AF-20BC-4299-8FD5-A84ED2B4D42D' AND [s].[ForeignKey] = @ForeignKey
             AND ( ( [s].[EndDateTime] IS NOT NULL AND ( YEAR( [s].[EndDateTime] ) <> [p].[GraduationYear] OR MONTH( [s].[EndDateTime] ) <> 5 ) )
-                OR ( [s].[EndDateTime] IS NULL AND DATEFROMPARTS( [p].[GraduationYear], 6, 1 ) <= CAST( GETDATE() AS DATE ) ) ) );
+                OR ( [s].[EndDateTime] IS NULL AND DATEFROMPARTS( [p].[GraduationYear], 6, 1 ) < CAST( GETDATE() AS DATE ) ) ) );
 
 -- check: student-baptism-follows-the-student-service
 -- why: A student's baptism goes on the Discipleship Path's Baptism step (decision 87). A child is baptized here, on a Sunday, after they started coming to the student service. The Baptism Date and Baptized Here agree with the step (checked above).
@@ -572,11 +573,11 @@ WHERE [t].[ForeignKey] = @ForeignKey AND [b].[Name] LIKE 'Sunday Offering %'
             AND [o].[SundayDate] = CAST( [t].[TransactionDateTime] AS DATE ) );
 
 -- check: student-check-in-fits-the-grade
--- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up each June 1, as check-in's does.
+-- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up the day after each June 1, as Rock does (decision 205).
 SELECT COUNT(*)
 FROM (
     SELECT [g].[Name],
-        12 - ( [p].[GraduationYear] - CASE WHEN [o].[OccurrenceDate] >= DATEFROMPARTS( YEAR( [o].[OccurrenceDate] ), 6, 1 ) THEN YEAR( [o].[OccurrenceDate] ) + 1 ELSE YEAR( [o].[OccurrenceDate] ) END ) AS [Grade]
+        12 - ( [p].[GraduationYear] - CASE WHEN CAST( [o].[OccurrenceDate] AS DATE ) > DATEFROMPARTS( YEAR( [o].[OccurrenceDate] ), 6, 1 ) THEN YEAR( [o].[OccurrenceDate] ) + 1 ELSE YEAR( [o].[OccurrenceDate] ) END ) AS [Grade]
     FROM [Attendance] AS [a]
     INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
     INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
@@ -1209,6 +1210,552 @@ SELECT CASE WHEN (
         INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
         WHERE [m].[ForeignKey] = @ForeignKey AND [i].[IsActive] = 1 AND [t].[IsActive] = 1
             AND [i].[StartDateTime] <= GETDATE() AND [i].[EndDateTime] >= GETDATE() ) >= 7 THEN 0 ELSE 1 END;
+
+-- check: registrant-template-matches
+-- why: Rock reads a registrant's forms, fees, and attributes from its template. A registrant, its registration, and the registration's instance all name one template.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND ( [rr].[RegistrationTemplateId] <> [r].[RegistrationTemplateId] OR [r].[RegistrationTemplateId] <> [i].[RegistrationTemplateId] );
+
+-- check: registrant-is-in-one-instance-per-event
+-- why: A person goes to an event once. A family registers at its own campus, so nobody is a registrant in two instances of one template that open and close on the same days, such as VBS at two campuses the same week.
+SELECT COUNT(*)
+FROM (
+    SELECT [pa].[PersonId], [i].[RegistrationTemplateId], [i].[StartDateTime], [i].[EndDateTime]
+    FROM [RegistrationRegistrant] AS [rr]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    WHERE [rr].[ForeignKey] = @ForeignKey
+    GROUP BY [pa].[PersonId], [i].[RegistrationTemplateId], [i].[StartDateTime], [i].[EndDateTime]
+    HAVING COUNT( DISTINCT [i].[Id] ) > 1
+) AS [twice];
+
+-- check: registrant-required-answers-are-filled
+-- why: Rock's registration form does not save until every required question it shows is answered. A registrant has an answer to each required registrant question on its template, except one on the wait list that the wait list form does not show.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[RegistrationTemplateId] = [rr].[RegistrationTemplateId]
+INNER JOIN [RegistrationTemplateFormField] AS [ff] ON [ff].[RegistrationTemplateFormId] = [f].[Id] AND [ff].[FieldSource] = 4 AND [ff].[IsRequired] = 1
+LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [ff].[AttributeId] AND [av].[EntityId] = [rr].[Id]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND ( [rr].[OnWaitList] = 0 OR [ff].[ShowOnWaitlist] = 1 )
+    AND ISNULL( [av].[Value], '' ) = '';
+
+-- check: registrant-is-in-the-grades
+-- why: Rock checks a registrant's grade against the template's on the day they register (RegistrantEligibilityEvaluator), and the event is for those grades, so every registrant is in them on both days. A grade moves up each June 1, as check-in moves it.
+WITH [Registrants] AS (
+    SELECT [p].[GraduationYear], CAST( [r].[CreatedDateTime] AS DATE ) AS [Registered]
+        , ( SELECT CAST( MIN( [sd].[StartDateTime] ) AS DATE )
+            FROM [EventItemOccurrenceGroupMap] AS [m]
+            INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+            INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
+            WHERE [m].[RegistrationInstanceId] = [i].[Id] AND [sd].[StartDateTime] > [i].[EndDateTime] ) AS [EventDay]
+        , 12 - CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MaximumGradeOffset' ) AS INT ) AS [MinGrade]
+        , 12 - CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MinimumGradeOffset' ) AS INT ) AS [MaxGrade]
+    FROM [RegistrationRegistrant] AS [rr]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    WHERE [rr].[ForeignKey] = @ForeignKey AND JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MaximumGradeOffset' ) IS NOT NULL
+), [Grades] AS (
+    SELECT [MinGrade], [MaxGrade], [EventDay]
+        , 12 - ( [GraduationYear] - ( YEAR( [Registered] ) + CASE WHEN CAST( [Registered] AS DATE ) > DATEFROMPARTS( YEAR( [Registered] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeRegistered]
+        , 12 - ( [GraduationYear] - ( YEAR( [EventDay] ) + CASE WHEN CAST( [EventDay] AS DATE ) > DATEFROMPARTS( YEAR( [EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeAtEvent]
+    FROM [Registrants]
+)
+SELECT COUNT(*)
+FROM [Grades]
+WHERE [EventDay] IS NULL OR [GradeRegistered] IS NULL
+    OR [GradeRegistered] NOT BETWEEN [MinGrade] AND [MaxGrade] OR [GradeAtEvent] NOT BETWEEN [MinGrade] AND [MaxGrade];
+
+-- check: registration-is-inside-its-window
+-- why: A registration is made while its instance is open, and before the install day. One dated outside its window could never have been made in Rock.
+SELECT COUNT(*)
+FROM [Registration] AS [r]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [r].[CreatedDateTime] < [i].[StartDateTime] OR [r].[CreatedDateTime] > [i].[EndDateTime] OR [r].[CreatedDateTime] >= CAST( GETDATE() AS DATE )
+        OR [r].[CreatedDateKey] <> CAST( CONVERT( CHAR( 8 ), [r].[CreatedDateTime], 112 ) AS INT ) );
+
+-- check: registrants-fit-the-limit-and-join-the-group
+-- why: Rock lets no more registrants than MaxAttendees off the wait list, and adds each of them to the linkage's group with the template's role and status (AddRegistrantsToGroup), pointing the registrant at that member. Wait-listed registrants are in no group.
+SELECT ( SELECT COUNT(*)
+        FROM [RegistrationInstance] AS [i]
+        WHERE [i].[ForeignKey] = @ForeignKey AND [i].[MaxAttendees] IS NOT NULL
+            AND ( SELECT COUNT(*) FROM [RegistrationRegistrant] AS [rr] INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+                WHERE [r].[RegistrationInstanceId] = [i].[Id] AND [rr].[OnWaitList] = 0 ) > [i].[MaxAttendees] )
+    + ( SELECT COUNT(*)
+        FROM [RegistrationRegistrant] AS [rr]
+        INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+        INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+        LEFT JOIN [GroupMember] AS [gm] ON [gm].[Id] = [rr].[GroupMemberId]
+        WHERE [rr].[ForeignKey] = @ForeignKey
+            AND ( ( [rr].[OnWaitList] = 1 AND [rr].[GroupMemberId] IS NOT NULL )
+                OR ( [rr].[OnWaitList] = 0 AND [r].[GroupId] IS NOT NULL
+                    AND ( [gm].[Id] IS NULL OR [gm].[GroupId] <> [r].[GroupId] OR [gm].[PersonId] <> [pa].[PersonId]
+                        OR [gm].[GroupRoleId] <> [t].[GroupMemberRoleId] OR [gm].[GroupMemberStatus] <> [t].[GroupMemberStatus] ) ) ) );
+
+-- check: wait-list-only-when-full
+-- why: Rock puts a registrant on the wait list only when the instance has no spots left. A wait list beside an open spot would never be moved up.
+SELECT COUNT(*)
+FROM [RegistrationInstance] AS [i]
+WHERE [i].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [RegistrationRegistrant] AS [rr] INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId] WHERE [r].[RegistrationInstanceId] = [i].[Id] AND [rr].[OnWaitList] = 1 )
+    AND ( [i].[MaxAttendees] IS NULL
+        OR ( SELECT COUNT(*) FROM [RegistrationRegistrant] AS [rr] INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+            WHERE [r].[RegistrationInstanceId] = [i].[Id] AND [rr].[OnWaitList] = 0 ) < [i].[MaxAttendees]
+        OR NOT EXISTS ( SELECT 1 FROM [RegistrationTemplate] AS [t] WHERE [t].[Id] = [i].[RegistrationTemplateId] AND [t].[WaitListEnabled] = 1 ) );
+
+-- check: placed-person-is-a-registrant
+-- why: Rock's placement board lists an instance's registrants and the groups linked to it for each placement. A placed person who is not a registrant, or is on the wait list, of an instance linked to the group would show in a group with no registration behind them.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+WHERE [gm].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [RelatedEntity] AS [re] WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[TargetEntityId] = [gm].[GroupId] AND [re].[ForeignKey] = @ForeignKey )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [RelatedEntity] AS [re]
+        INNER JOIN [Registration] AS [r] ON [r].[RegistrationInstanceId] = [re].[SourceEntityId]
+        INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[RegistrationId] = [r].[Id] AND [rr].[OnWaitList] = 0
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+        WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[TargetEntityId] = [gm].[GroupId] AND [pa].[PersonId] = [gm].[PersonId] );
+
+-- check: registration-payment-is-rocks
+-- why: Rock's registration entry saves a payment as an Event Registration transaction whose detail points at the registration and posts to its instance's account. A payment of another type, account, or registration would be missing from the balance, or counted as a gift.
+SELECT COUNT(*)
+FROM [FinancialTransactionDetail] AS [d]
+INNER JOIN [FinancialTransaction] AS [ft] ON [ft].[Id] = [d].[TransactionId]
+LEFT JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+LEFT JOIN [Registration] AS [r] ON [r].[Id] = [d].[EntityId] AND [et].[Name] = 'Rock.Model.Registration'
+LEFT JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+WHERE [d].[ForeignKey] = @ForeignKey
+    AND ( [ft].[TransactionTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '33CB96DD-8752-4BEE-A142-88DB7DE538F0' ) OR [et].[Name] = 'Rock.Model.Registration' )
+    AND ( [r].[Id] IS NULL OR [i].[AccountId] <> [d].[AccountId]
+        OR [ft].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '33CB96DD-8752-4BEE-A142-88DB7DE538F0' )
+        OR [ft].[AuthorizedPersonAliasId] <> [r].[PersonAliasId] );
+
+-- check: registration-is-never-overpaid
+-- why: Rock's balance is the discounted cost (Registration.DiscountedCost) less the payments. More paid than owed is a refund nobody made. Once the payment deadline has passed, every balance is paid.
+WITH [Registrants] AS (
+    SELECT [r].[Id], [i].[PaymentDeadlineDate]
+        , CASE WHEN [rr].[OnWaitList] = 1 THEN 0 ELSE
+            [rr].[Cost] - CASE WHEN [rr].[DiscountApplies] = 1 THEN [rr].[Cost] * [r].[DiscountPercentage] ELSE 0 END
+            + ISNULL( [fees].[Other], 0 ) + ISNULL( [fees].[Discountable], 0 ) * CASE WHEN [rr].[DiscountApplies] = 1 THEN 1 - [r].[DiscountPercentage] ELSE 1 END
+            - CASE WHEN [rr].[DiscountApplies] = 1 THEN [r].[DiscountAmount] ELSE 0 END END AS [Cost]
+    FROM [Registration] AS [r]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[RegistrationId] = [r].[Id]
+    OUTER APPLY (
+        SELECT SUM( CASE WHEN [tf].[DiscountApplies] = 1 THEN [f].[Quantity] * [f].[Cost] ELSE 0 END ) AS [Discountable]
+            , SUM( CASE WHEN [tf].[DiscountApplies] = 0 THEN [f].[Quantity] * [f].[Cost] ELSE 0 END ) AS [Other]
+        FROM [RegistrationRegistrantFee] AS [f]
+        INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+        WHERE [f].[RegistrationRegistrantId] = [rr].[Id] ) AS [fees]
+    WHERE [r].[ForeignKey] = @ForeignKey
+), [Costs] AS (
+    SELECT [Id], [PaymentDeadlineDate], SUM( CASE WHEN [Cost] > 0 THEN [Cost] ELSE 0 END ) AS [Cost]
+    FROM [Registrants]
+    GROUP BY [Id], [PaymentDeadlineDate]
+), [Paid] AS (
+    SELECT [c].[Id], [c].[Cost], [c].[PaymentDeadlineDate]
+        , ISNULL( ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+            WHERE [et].[Name] = 'Rock.Model.Registration' AND [d].[EntityId] = [c].[Id] ), 0 ) AS [Paid]
+    FROM [Costs] AS [c]
+)
+SELECT COUNT(*)
+FROM [Paid]
+WHERE [Paid] > [Cost] OR ( [PaymentDeadlineDate] < CAST( GETDATE() AS DATE ) AND [Paid] < [Cost] );
+
+-- check: payment-plan-fits-its-template
+-- why: Rock offers a payment plan only at the template's frequencies, as an Event Registration scheduled transaction from the registrar, with one detail that points at the registration, and its last payment on or before the payment deadline. Each payment it made is one of its transactions.
+WITH [Plans] AS (
+    SELECT [s].*, [r].[Id] AS [RegistrationId], [r].[PersonAliasId] AS [RegistrarAliasId], [t].[PaymentPlanFrequencyValueIds], [i].[PaymentDeadlineDate], [f].[Guid] AS [FrequencyGuid]
+        , [s].[NumberOfPayments] - 1 AS [LastIndex]
+    FROM [Registration] AS [r]
+    INNER JOIN [FinancialScheduledTransaction] AS [s] ON [s].[Id] = [r].[PaymentPlanFinancialScheduledTransactionId]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+    INNER JOIN [DefinedValue] AS [f] ON [f].[Id] = [s].[TransactionFrequencyValueId]
+    WHERE [r].[ForeignKey] = @ForeignKey
+)
+SELECT COUNT(*)
+FROM [Plans] AS [p]
+WHERE [p].[NumberOfPayments] IS NULL OR [p].[NumberOfPayments] < 2 OR [p].[PaymentDeadlineDate] IS NULL
+    OR CONCAT( ',', [p].[PaymentPlanFrequencyValueIds], ',' ) NOT LIKE CONCAT( '%,', [p].[TransactionFrequencyValueId], ',%' )
+    OR [p].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '33CB96DD-8752-4BEE-A142-88DB7DE538F0' )
+    OR [p].[AuthorizedPersonAliasId] <> [p].[RegistrarAliasId]
+    OR ( SELECT COUNT(*) FROM [FinancialScheduledTransactionDetail] AS [d] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+        WHERE [d].[ScheduledTransactionId] = [p].[Id] AND [et].[Name] = 'Rock.Model.Registration' AND [d].[EntityId] = [p].[RegistrationId] ) <> 1
+    OR ( SELECT COUNT(*) FROM [FinancialTransaction] AS [ft] WHERE [ft].[ScheduledTransactionId] = [p].[Id] ) > [p].[NumberOfPayments]
+    OR CASE
+        WHEN [p].[FrequencyGuid] = '1400753C-A0F9-4A45-8A1D-81C98450BD1F' THEN DATEADD( MONTH, [p].[LastIndex], [p].[StartDate] )
+        WHEN DAY( [p].[StartDate] ) = 1 THEN DATEADD( DAY, CASE WHEN [p].[LastIndex] % 2 = 1 THEN 14 ELSE 0 END, DATEADD( MONTH, [p].[LastIndex] / 2, [p].[StartDate] ) )
+        ELSE DATEADD( DAY, CASE WHEN [p].[LastIndex] % 2 = 1 THEN -14 ELSE 0 END, DATEADD( MONTH, ( [p].[LastIndex] + 1 ) / 2, [p].[StartDate] ) )
+        END > [p].[PaymentDeadlineDate];
+
+-- check: discount-code-within-its-uses
+-- why: Rock stops taking a code once as many registrations of an instance have used it as its MaxUsage allows (GetDiscountByCodeIfValid).
+SELECT COUNT(*)
+FROM [RegistrationTemplateDiscount] AS [d]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[RegistrationTemplateId] = [d].[RegistrationTemplateId]
+WHERE [d].[ForeignKey] = @ForeignKey AND [d].[MaxUsage] IS NOT NULL
+    AND ( SELECT COUNT(*) FROM [Registration] AS [r] WHERE [r].[RegistrationInstanceId] = [i].[Id] AND [r].[DiscountCode] = [d].[Code] ) > [d].[MaxUsage];
+
+-- check: last-camp-matches-camp-steps
+-- why: Jon's decision. When the steps part loaded, the people registered for a Student Camp that has ended are exactly the people with a Student Camp step at that camp, both ways, so the registration and the step tell one story.
+WITH [CampDays] AS (
+    SELECT DISTINCT [i].[Id] AS [InstanceId], CAST( [sd].[StartDateTime] AS DATE ) AS [CampDay]
+    FROM [RegistrationInstance] AS [i]
+    INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+    INNER JOIN [EventItemOccurrenceGroupMap] AS [m] ON [m].[RegistrationInstanceId] = [i].[Id]
+    INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+    INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
+    WHERE [i].[ForeignKey] = @ForeignKey AND [t].[Guid] = 'ABF10164-8D9E-4FF0-B4FC-173F35015923'
+        AND [sd].[StartDateTime] > [i].[EndDateTime] AND [sd].[EndDateTime] < CAST( GETDATE() AS DATE )
+), [Campers] AS (
+    SELECT DISTINCT [pa].[PersonId], [c].[CampDay]
+    FROM [CampDays] AS [c]
+    INNER JOIN [Registration] AS [r] ON [r].[RegistrationInstanceId] = [c].[InstanceId]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[RegistrationId] = [r].[Id] AND [rr].[OnWaitList] = 0
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+), [CampSteps] AS (
+    SELECT DISTINCT [pa].[PersonId], CAST( [s].[StartDateTime] AS DATE ) AS [CampDay]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    WHERE [s].[ForeignKey] = @ForeignKey AND [st].[Guid] = 'EED45E21-7602-47A7-A204-6658F2E712A3'
+        AND CAST( [s].[StartDateTime] AS DATE ) IN ( SELECT [CampDay] FROM [CampDays] )
+)
+SELECT CASE WHEN NOT EXISTS ( SELECT 1 FROM [Step] WHERE [ForeignKey] = @ForeignKey ) THEN 0
+    ELSE ( SELECT COUNT(*) FROM ( SELECT * FROM [Campers] EXCEPT SELECT * FROM [CampSteps] ) AS [x] )
+        + ( SELECT COUNT(*) FROM ( SELECT * FROM [CampSteps] EXCEPT SELECT * FROM [Campers] ) AS [x] ) END;
+
+-- check: free-registration-has-no-payments
+-- why: A free template (no cost, no cost on the instance, and no fees) owes nothing, so Rock's registration entry takes no payment and makes no payment plan for it.
+SELECT COUNT(*)
+FROM [Registration] AS [r]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+WHERE [r].[ForeignKey] = @ForeignKey AND ISNULL( [t].[Cost], 0 ) = 0 AND ISNULL( [t].[SetCostOnInstance], 0 ) = 0
+    AND NOT EXISTS ( SELECT 1 FROM [RegistrationTemplateFee] AS [f] WHERE [f].[RegistrationTemplateId] = [t].[Id] )
+    AND ( [r].[PaymentPlanFinancialScheduledTransactionId] IS NOT NULL
+        OR EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+            WHERE [et].[Name] = 'Rock.Model.Registration' AND [d].[EntityId] = [r].[Id] ) );
+
+-- check: registrant-fee-matches-its-item
+-- why: Rock's registration entry saves a fee with its item's cost, and a quantity above one only on a fee that allows several, such as Date Night childcare per child. A fee whose item belongs to another fee would show a choice the person never saw.
+SELECT COUNT(*)
+FROM [RegistrationRegistrantFee] AS [f]
+INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+INNER JOIN [RegistrationTemplateFeeItem] AS [fi] ON [fi].[Id] = [f].[RegistrationTemplateFeeItemId]
+WHERE [f].[ForeignKey] = @ForeignKey
+    AND ( [f].[Quantity] < 1 OR ( [f].[Quantity] > 1 AND [tf].[AllowMultiple] = 0 ) OR [f].[Cost] <> [fi].[Cost] OR [fi].[RegistrationTemplateFeeId] <> [tf].[Id] );
+
+-- check: quantity-fee-is-in-the-balance
+-- why: A template with no minimum payment takes the whole cost when a person registers, and a fee with a quantity costs its item's cost times the quantity. So a registration with such a fee that paid has paid exactly its cost, fees and discount included, as Rock's Registration.DiscountedCost adds it up.
+WITH [Registrants] AS (
+    SELECT [r].[Id]
+        , CASE WHEN [rr].[OnWaitList] = 1 THEN 0 ELSE
+            [rr].[Cost] - CASE WHEN [rr].[DiscountApplies] = 1 THEN [rr].[Cost] * [r].[DiscountPercentage] ELSE 0 END
+            + ISNULL( [fees].[Other], 0 ) + ISNULL( [fees].[Discountable], 0 ) * CASE WHEN [rr].[DiscountApplies] = 1 THEN 1 - [r].[DiscountPercentage] ELSE 1 END
+            - CASE WHEN [rr].[DiscountApplies] = 1 THEN [r].[DiscountAmount] ELSE 0 END END AS [Cost]
+    FROM [Registration] AS [r]
+    INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[RegistrationId] = [r].[Id]
+    OUTER APPLY (
+        SELECT SUM( CASE WHEN [tf].[DiscountApplies] = 1 THEN [f].[Quantity] * [f].[Cost] ELSE 0 END ) AS [Discountable]
+            , SUM( CASE WHEN [tf].[DiscountApplies] = 0 THEN [f].[Quantity] * [f].[Cost] ELSE 0 END ) AS [Other]
+        FROM [RegistrationRegistrantFee] AS [f]
+        INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+        WHERE [f].[RegistrationRegistrantId] = [rr].[Id] ) AS [fees]
+    WHERE [r].[ForeignKey] = @ForeignKey AND [t].[MinimumInitialPayment] IS NULL AND ISNULL( [t].[SetCostOnInstance], 0 ) = 0
+        AND EXISTS ( SELECT 1 FROM [RegistrationRegistrantFee] AS [q] INNER JOIN [RegistrationRegistrant] AS [qr] ON [qr].[Id] = [q].[RegistrationRegistrantId]
+            WHERE [qr].[RegistrationId] = [r].[Id] AND [q].[Quantity] > 1 )
+), [Paid] AS (
+    SELECT [c].[Id], SUM( CASE WHEN [c].[Cost] > 0 THEN [c].[Cost] ELSE 0 END ) AS [Cost]
+        , ISNULL( ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+            WHERE [et].[Name] = 'Rock.Model.Registration' AND [d].[EntityId] = [c].[Id] ), 0 ) AS [Paid]
+    FROM [Registrants] AS [c]
+    GROUP BY [c].[Id]
+)
+SELECT COUNT(*)
+FROM [Paid]
+WHERE [Paid] > 0 AND [Paid] <> [Cost];
+
+-- check: fee-item-within-its-usage-limit
+-- why: Rock hides a fee item, such as the Women's Retreat single room, once an instance's registrants have used it MaximumUsageCount times (RegistrationTemplateFeeItem.GetUsageCountRemaining), so no instance holds more.
+SELECT COUNT(*)
+FROM (
+    SELECT [r].[RegistrationInstanceId], [fi].[Id], [fi].[MaximumUsageCount], SUM( [f].[Quantity] ) AS [Used]
+    FROM [RegistrationRegistrantFee] AS [f]
+    INNER JOIN [RegistrationTemplateFeeItem] AS [fi] ON [fi].[Id] = [f].[RegistrationTemplateFeeItemId]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[Id] = [f].[RegistrationRegistrantId]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    WHERE [f].[ForeignKey] = @ForeignKey AND [fi].[MaximumUsageCount] IS NOT NULL
+    GROUP BY [r].[RegistrationInstanceId], [fi].[Id], [fi].[MaximumUsageCount]
+    HAVING SUM( [f].[Quantity] ) > [fi].[MaximumUsageCount] ) AS [x];
+
+-- check: required-fee-is-chosen
+-- why: Rock's registration form does not save until a registrant picks every required fee, such as the Women's Retreat room. A registrant off the wait list has one.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[RegistrationTemplateId] = [rr].[RegistrationTemplateId] AND [tf].[IsRequired] = 1 AND [tf].[IsActive] = 1
+WHERE [rr].[ForeignKey] = @ForeignKey AND [rr].[OnWaitList] = 0
+    AND NOT EXISTS ( SELECT 1 FROM [RegistrationRegistrantFee] AS [f] WHERE [f].[RegistrationRegistrantId] = [rr].[Id] AND [f].[RegistrationTemplateFeeId] = [tf].[Id] );
+
+-- check: registrants-share-a-family-when-the-template-says-so
+-- why: A template whose registrants must be in the same family (RegistrantsSameFamily is Yes) only offers the registrar's family members, so everyone on one of its registrations shares a family, such as a Date Night couple or VBS siblings.
+SELECT COUNT(*)
+FROM [Registration] AS [r]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+WHERE [r].[ForeignKey] = @ForeignKey AND [t].[RegistrantsSameFamily] = 1
+    AND ( SELECT COUNT( DISTINCT [p].[PrimaryFamilyId] )
+        FROM [RegistrationRegistrant] AS [rr]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+        WHERE [rr].[RegistrationId] = [r].[Id] ) > 1;
+
+-- check: date-night-registers-a-married-couple
+-- why: Marriage Date Night is for married couples, two people on one registration. Each of its registrations holds exactly two people, and both are married.
+SELECT COUNT(*)
+FROM [Registration] AS [r]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+OUTER APPLY (
+    SELECT COUNT(*) AS [People], SUM( CASE WHEN [m].[Guid] = '5FE5A540-7D9F-433E-B47E-4229D1472248' THEN 1 ELSE 0 END ) AS [Married]
+    FROM [RegistrationRegistrant] AS [rr]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    LEFT JOIN [DefinedValue] AS [m] ON [m].[Id] = [p].[MaritalStatusValueId]
+    WHERE [rr].[RegistrationId] = [r].[Id] ) AS [c]
+WHERE [r].[ForeignKey] = @ForeignKey AND [t].[Guid] = '84E166F7-F218-47AA-97C0-1410C914D0F7'
+    AND ( [c].[People] <> 2 OR [c].[Married] <> 2 );
+
+-- check: registrant-meets-the-age-and-gender-rules
+-- why: Rock checks a registrant's age and gender against the template's on the day they register (RegistrantEligibilityEvaluator), and the event is for those people, so every registrant meets them on both days: a VBS kid is 4 to 11, and every Women's Retreat guest is a woman.
+WITH [Registrants] AS (
+    SELECT [p].[BirthDate], [p].[Gender], CAST( [r].[CreatedDateTime] AS DATE ) AS [Registered]
+        , ( SELECT CAST( MIN( [sd].[StartDateTime] ) AS DATE )
+            FROM [EventItemOccurrenceGroupMap] AS [m]
+            INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+            INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
+            WHERE [m].[RegistrationInstanceId] = [i].[Id] AND [sd].[StartDateTime] > [i].[EndDateTime] ) AS [EventDay]
+        , CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MinimumAge' ) AS DECIMAL( 6, 2 ) ) AS [MinAge]
+        , CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MaximumAge' ) AS DECIMAL( 6, 2 ) ) AS [MaxAge]
+        , CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.Gender' ) AS INT ) AS [RuleGender]
+    FROM [RegistrationRegistrant] AS [rr]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    WHERE [rr].[ForeignKey] = @ForeignKey
+), [Ages] AS (
+    SELECT *
+        , DATEDIFF( YEAR, [BirthDate], [Registered] ) - CASE WHEN DATEADD( YEAR, DATEDIFF( YEAR, [BirthDate], [Registered] ), [BirthDate] ) > [Registered] THEN 1 ELSE 0 END AS [AgeRegistered]
+        , DATEDIFF( YEAR, [BirthDate], [EventDay] ) - CASE WHEN DATEADD( YEAR, DATEDIFF( YEAR, [BirthDate], [EventDay] ), [BirthDate] ) > [EventDay] THEN 1 ELSE 0 END AS [AgeAtEvent]
+    FROM [Registrants]
+)
+SELECT COUNT(*)
+FROM [Ages]
+WHERE ( [RuleGender] IS NOT NULL AND [Gender] <> [RuleGender] )
+    OR ( ( [MinAge] IS NOT NULL OR [MaxAge] IS NOT NULL ) AND ( [BirthDate] IS NULL OR [EventDay] IS NULL ) )
+    OR [AgeRegistered] < [MinAge] OR [AgeAtEvent] < [MinAge] OR [AgeRegistered] > [MaxAge] OR [AgeAtEvent] > [MaxAge];
+
+-- check: closed-instance-registrants-are-placed
+-- why: Once registration closes, the staff place everyone before the event: last summer's campers, VBS kids in crews, and Serve Day volunteers on project teams. Each registrant off the wait list of a closed instance is in a group of every placement linked to it.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+CROSS APPLY ( SELECT DISTINCT [re].[QualifierValue] FROM [RelatedEntity] AS [re] WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = [i].[Id] AND [re].[ForeignKey] = @ForeignKey ) AS [placement]
+WHERE [rr].[ForeignKey] = @ForeignKey AND [rr].[OnWaitList] = 0 AND [i].[EndDateTime] < CAST( GETDATE() AS DATE )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [RelatedEntity] AS [re]
+        INNER JOIN [GroupMember] AS [gm] ON [gm].[GroupId] = [re].[TargetEntityId] AND [gm].[PersonId] = [pa].[PersonId]
+        WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = [i].[Id] AND [re].[QualifierValue] = [placement].[QualifierValue] );
+
+-- check: vbs-crew-matches-the-grade
+-- why: VBS places each kid in the crew for their grade on the event day, Pre-K first and 5th grade last. A kid with no grade yet is in the Pre-K crew.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId] AND [gt].[Guid] = '62BF4230-6636-4CDE-ACCE-05329DB91D07'
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+CROSS APPLY (
+    SELECT CAST( MIN( [sd].[StartDateTime] ) AS DATE ) AS [EventDay]
+    FROM [RelatedEntity] AS [re]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [re].[SourceEntityId]
+    INNER JOIN [EventItemOccurrenceGroupMap] AS [m] ON [m].[RegistrationInstanceId] = [i].[Id]
+    INNER JOIN [EventItemOccurrence] AS [o] ON [o].[Id] = [m].[EventItemOccurrenceId]
+    INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
+    WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[TargetEntityId] = [g].[Id] AND [sd].[StartDateTime] > [i].[EndDateTime] ) AS [e]
+CROSS APPLY ( SELECT CASE WHEN [p].[GraduationYear] IS NULL THEN -1
+    ELSE 12 - ( [p].[GraduationYear] - ( YEAR( [e].[EventDay] ) + CASE WHEN CAST( [e].[EventDay] AS DATE ) > DATEFROMPARTS( YEAR( [e].[EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) END AS [Grade] ) AS [k]
+WHERE [gm].[ForeignKey] = @ForeignKey
+    AND [g].[Order] <> CASE WHEN [k].[Grade] < -1 THEN 0 WHEN [k].[Grade] > 5 THEN 6 ELSE [k].[Grade] + 1 END;
+
+-- check: together-placement-keeps-a-registration-together
+-- why: Serve Day places everyone who signed up on one registration, such as a family, on one project team.
+SELECT COUNT(*)
+FROM [Registration] AS [r]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( SELECT COUNT( DISTINCT [gm].[GroupId] )
+        FROM [RegistrationRegistrant] AS [rr]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+        INNER JOIN [RelatedEntity] AS [re] ON [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = [r].[RegistrationInstanceId]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [re].[TargetEntityId]
+        INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId] AND [gt].[Guid] = '17C4AC27-120D-4088-995E-94DCAFC600A5'
+        INNER JOIN [GroupMember] AS [gm] ON [gm].[GroupId] = [g].[Id] AND [gm].[PersonId] = [pa].[PersonId]
+        WHERE [rr].[RegistrationId] = [r].[Id] ) > 1;
+
+-- check: person-attribute-answer-comes-from-a-registration
+-- why: The loader writes Rock's Allergy person attribute only as a registration form saves it: for a registrant, off the wait list, of a template whose form asks for it. Kids check-in shows it, so a stray value would put an allergy on a child's label that no one entered.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = 'DBD192C9-0AA1-46EC-92AB-A3DA8E056D31'
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [RegistrationRegistrant] AS [rr]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+        INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[RegistrationTemplateId] = [rr].[RegistrationTemplateId]
+        INNER JOIN [RegistrationTemplateFormField] AS [ff] ON [ff].[RegistrationTemplateFormId] = [f].[Id] AND [ff].[FieldSource] = 1 AND [ff].[AttributeId] = [a].[Id]
+        WHERE [pa].[PersonId] = [av].[EntityId] AND [rr].[OnWaitList] = 0 );
+
+-- check: release-is-signed-for-every-registrant
+-- why: Decision 212. Rock's template screen saves the Embed action, so on a template that requires a release, every registrant signs while registering, and Rock links the registrant to that signed release, for that person, from that template. None is left pending.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [rr].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+LEFT JOIN [SignatureDocument] AS [sd] ON [sd].[Id] = [rr].[SignatureDocumentId]
+LEFT JOIN [PersonAlias] AS [applies] ON [applies].[Id] = [sd].[AppliesToPersonAliasId]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND [t].[RequiredSignatureDocumentTemplateId] IS NOT NULL
+    AND ( [t].[SignatureDocumentAction] <> 1 OR [t].[AllowExternalRegistrationUpdates] = 1
+        OR [sd].[Id] IS NULL OR [sd].[Status] <> 2 OR [sd].[SignatureDocumentTemplateId] <> [t].[RequiredSignatureDocumentTemplateId]
+        OR [applies].[PersonId] IS NULL OR [applies].[PersonId] <> [pa].[PersonId] );
+
+-- check: signed-release-is-whole
+-- why: A signed release opens from the registrant list and the person's documents. Each has a PDF in its release's file type with the release as parent, the registrar as signer and the one it is assigned to, a typed name and a reserved email, a reserved IP address, a signed time a few minutes before the registration was saved on the same day, its status date at the signing, and Rock's verification hash, which this check recomputes (SHA-1 over the UTF-8 fields joined by "|" and CRLF, as SignatureDocumentService does).
+WITH [Documents] AS (
+    SELECT [sd].[Id], [sd].[SignatureDocumentTemplateId], [sd].[BinaryFileId], [sd].[SignedByPersonAliasId], [sd].[AssignedToPersonAliasId], [sd].[SignedName], [sd].[SignedByEmail],
+        [sd].[SignedClientIp], [sd].[SignedDateTime], [sd].[LastStatusDate], [sd].[SignatureVerificationHash], [r].[PersonAliasId] AS [RegistrarAliasId], [r].[CreatedDateTime] AS [Registered],
+        CONVERT( VARCHAR(MAX), CONCAT( [sd].[SignedDocumentText], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedClientIp], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedClientUserAgent], N'|' + NCHAR(13) + NCHAR(10),
+            CONVERT( NCHAR(19), [sd].[SignedDateTime], 126 ) + N'.' + RIGHT( N'000' + CAST( DATEPART( MILLISECOND, [sd].[SignedDateTime] ) AS NVARCHAR(3) ), 3 ) + N'0000', N'|' + NCHAR(13) + NCHAR(10),
+            [sd].[SignedByPersonAliasId], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignatureDataEncrypted], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedName] ) COLLATE Latin1_General_100_CI_AS_SC_UTF8 ) AS [Signed]
+    FROM [SignatureDocument] AS [sd]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[SignatureDocumentId] = [sd].[Id]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    WHERE [sd].[ForeignKey] = @ForeignKey
+)
+SELECT COUNT(*) + ( SELECT COUNT(*) FROM [SignatureDocument] AS [sd] WHERE [sd].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [RegistrationRegistrant] AS [rr] WHERE [rr].[SignatureDocumentId] = [sd].[Id] ) )
+FROM [Documents] AS [d]
+INNER JOIN [SignatureDocumentTemplate] AS [sdt] ON [sdt].[Id] = [d].[SignatureDocumentTemplateId]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [d].[BinaryFileId]
+LEFT JOIN [BinaryFileData] AS [bfd] ON [bfd].[Id] = [bf].[Id]
+CROSS APPLY ( SELECT HASHBYTES( 'SHA1', [d].[Signed] ) AS [h] ) AS [x]
+CROSS APPLY ( SELECT 'A' + REPLACE( REPLACE( REPLACE( CAST( '' AS XML ).value( 'xs:base64Binary(sql:column("x.h"))', 'VARCHAR(100)' ), '/', 'x' ), '+', 'x' ), '=', 'x' ) AS [Hash] ) AS [computed]
+WHERE [bf].[Id] IS NULL OR [bfd].[Id] IS NULL OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1 OR [bf].[BinaryFileTypeId] <> [sdt].[BinaryFileTypeId]
+    OR [bf].[ParentEntityId] <> [sdt].[Id] OR SUBSTRING( [bfd].[Content], 1, 5 ) <> 0x255044462D OR [bf].[FileSize] <> DATALENGTH( [bfd].[Content] )
+    OR [d].[SignedByPersonAliasId] <> [d].[RegistrarAliasId] OR [d].[AssignedToPersonAliasId] <> [d].[RegistrarAliasId]
+    OR ISNULL( [d].[SignedName], '' ) = '' OR ( [d].[SignedByEmail] NOT LIKE '%@example.org' AND [d].[SignedByEmail] NOT LIKE '%@rocksolidchurchdemo.com' ) OR [d].[SignedByEmail] IS NULL
+    OR [d].[SignedDateTime] IS NULL OR [d].[SignedDateTime] > [d].[Registered] OR CAST( [d].[SignedDateTime] AS DATE ) <> CAST( [d].[Registered] AS DATE )
+    OR [d].[LastStatusDate] <> [d].[SignedDateTime]
+    OR ( [d].[SignedClientIp] NOT LIKE '192.0.2.%' AND [d].[SignedClientIp] NOT LIKE '198.51.100.%' AND [d].[SignedClientIp] NOT LIKE '203.0.113.%' )
+    OR [d].[SignatureVerificationHash] IS NULL OR [d].[SignatureVerificationHash] <> [computed].[Hash];
+
+-- check: registration-has-its-notes-and-history
+-- why: Decision 213. Rock's registration entry writes the registration's own "Added Registration" history, and on a template with Add Person Note, a note of its Event Registration type and a "Registered" history line on each registrant, tied to the registration, all as it saves. A registration without them looks entered by hand.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND ( NOT EXISTS (
+            SELECT 1
+            FROM [History] AS [h]
+            INNER JOIN [Category] AS [c] ON [c].[Id] = [h].[CategoryId] AND [c].[Guid] = '813DF1A5-ADBD-481C-AC1D-884F0FA7AE77'
+            WHERE [h].[EntityId] = [r].[Id] AND [h].[Verb] = 'ADD' AND [h].[ValueName] = 'Registration' AND [h].[CreatedByPersonAliasId] = [r].[PersonAliasId] )
+        OR ( [t].[AddPersonNote] = 1 AND (
+            NOT EXISTS (
+                SELECT 1
+                FROM [Note] AS [n]
+                INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] AND [nt].[Guid] = 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045'
+                WHERE [n].[EntityId] = [pa].[PersonId] AND [n].[Caption] = [i].[Name] AND [n].[Text] LIKE 'Registered for ' + [i].[Name] + '%'
+                    AND [n].[CreatedDateTime] BETWEEN [r].[CreatedDateTime] AND DATEADD( MINUTE, 1, [r].[CreatedDateTime] ) )
+            OR NOT EXISTS (
+                SELECT 1
+                FROM [History] AS [h]
+                INNER JOIN [Category] AS [c] ON [c].[Id] = [h].[CategoryId] AND [c].[Guid] = 'DA9C0CC7-7B31-4E1E-BBA5-50405B2D9EFE'
+                WHERE [h].[EntityId] = [pa].[PersonId] AND [h].[Verb] = 'REGISTERED' AND [h].[RelatedEntityId] = [r].[Id] AND [h].[Caption] = [i].[Name] ) ) ) );
+
+-- check: registration-data-view-is-filed-under-registrations
+-- why: Decision 185. A data view about registrations, one that filters on a registration instance or that a template names as its eligibility rule, sits in the Registrations child of the church's category, so staff find them together.
+SELECT COUNT(*)
+FROM [DataView] AS [dv]
+LEFT JOIN [Category] AS [c] ON [c].[Id] = [dv].[CategoryId]
+WHERE [dv].[ForeignKey] = @ForeignKey
+    AND ( [c].[Guid] IS NULL OR [c].[Guid] <> '38176452-3090-434B-A2C7-01B34039DFCA' )
+    AND ( EXISTS (
+            SELECT 1
+            FROM [DataViewFilter] AS [f]
+            INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter' )
+        OR EXISTS (
+            SELECT 1
+            FROM [RegistrationTemplate] AS [t]
+            WHERE [t].[ForeignKey] = @ForeignKey
+                AND TRY_CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.EligibilityDataViewGuid' ) AS UNIQUEIDENTIFIER ) = [dv].[Guid] ) );
+
+-- check: registrant-is-in-the-eligibility-data-view
+-- why: Decision 215. Rock lets someone register only when they are in the template's eligibility data view at that moment. This replays the view's grade filter (a grade moves up the day after the grade transition date, as Rock counts it) and its check-in count over the "Last N days" window on each registration day. It needs the attendance the view counts, so a load without attendance skips it.
+WITH [Views] AS (
+    SELECT [t].[Id] AS [TemplateId],
+        ( SELECT TOP 1 '["' + REPLACE( [f].[Selection], '|', '","' ) + '"]' FROM [DataViewFilter] AS [f] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter' ) AS [Attendance],
+        ( SELECT TOP 1 '["' + REPLACE( [f].[Selection], '|', '","' ) + '"]' FROM [DataViewFilter] AS [f] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.GradeFilter' ) AS [Grade]
+    FROM [RegistrationTemplate] AS [t]
+    INNER JOIN [DataView] AS [dv] ON [dv].[Guid] = TRY_CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.EligibilityDataViewGuid' ) AS UNIQUEIDENTIFIER )
+    WHERE [t].[ForeignKey] = @ForeignKey
+), [Rules] AS (
+    SELECT [v].[TemplateId], JSON_VALUE( [v].[Attendance], '$[0]' ) AS [GroupTypes], CAST( JSON_VALUE( [v].[Attendance], '$[2]' ) AS INT ) AS [CheckIns],
+        CAST( JSON_VALUE( '["' + REPLACE( JSON_VALUE( [v].[Attendance], '$[3]' ), ',', '","' ) + '"]', '$[1]' ) AS INT ) AS [Days],
+        ( SELECT CAST( [gv].[Value] AS INT ) FROM [DefinedValue] AS [gv] WHERE [gv].[Guid] = TRY_CAST( JSON_VALUE( [v].[Grade], '$[1]' ) AS UNIQUEIDENTIFIER ) ) AS [GradeOffset]
+    FROM [Views] AS [v]
+)
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [Rules] AS [rule] ON [rule].[TemplateId] = [rr].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+CROSS APPLY ( SELECT CAST( [r].[CreatedDateTime] AS DATE ) AS [Day] ) AS [d]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [Attendance] WHERE [ForeignKey] = @ForeignKey )
+    AND ( ( [rule].[GradeOffset] IS NOT NULL AND ( [p].[GraduationYear] IS NULL
+            OR [p].[GraduationYear] - ( YEAR( [d].[Day] ) + CASE WHEN DATEFROMPARTS( YEAR( [d].[Day] ), 6, 1 ) < [d].[Day] THEN 1 ELSE 0 END ) NOT BETWEEN 0 AND [rule].[GradeOffset] ) )
+        OR ( [rule].[GroupTypes] IS NOT NULL AND (
+            SELECT COUNT(*)
+            FROM [Attendance] AS [a]
+            INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+            INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+            INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
+            WHERE [apa].[PersonId] = [p].[Id] AND [a].[DidAttend] = 1
+                AND [gt].[Guid] IN ( SELECT TRY_CAST( [value] AS UNIQUEIDENTIFIER ) FROM STRING_SPLIT( [rule].[GroupTypes], ',' ) )
+                AND [o].[OccurrenceDate] >= DATEADD( DAY, 1 - [rule].[Days], [d].[Day] ) AND [o].[OccurrenceDate] <= [d].[Day] ) < [rule].[CheckIns] ) );
 
 -- check: staff-attributes-belong-to-staff
 -- why: Decision 201. The Staff person attributes describe staff, so every value belongs to an active person in RSR - Staff Workers. A value on anyone else would show a stranger as staff on a staff page.

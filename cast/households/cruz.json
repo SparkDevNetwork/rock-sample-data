@@ -105,5 +105,23 @@
       "recordStatus": "active",
       "connectionStatus": "Participant"
     }
+  ],
+  "registrations": [
+    {
+      "instance": "vbs",
+      "occurrence": "last",
+      "registrants": [
+        "adrian",
+        "camila"
+      ],
+      "registrar": "gabriela",
+      "expect": {
+        "registrar": "gabriela",
+        "placements": {
+          "crew": 1
+        },
+        "payment": "paid-in-full"
+      }
+    }
   ]
 }

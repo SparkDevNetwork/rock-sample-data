@@ -29,6 +29,56 @@ const departments = [
     [ "campuses", "Campuses" ]
 ];
 
+// The students who registered, in words, with each rate read from the file that owns it: an instance's share from
+// configuration/registrations.json, or its Student Path step's share from configuration/steps.json.
+function studentRegistrations( model ) {
+    const rule = key => model.registrations.instances.find( i => i.key === key )?.registrants;
+    const rate = key => {
+        const students = rule( key )?.students;
+        return students?.stepType ? model.stepTypes.find( t => t.key === students.stepType )?.source.percentOfStudents : students?.percent;
+    };
+    const camp = rate( "student-camp-girls" );
+    const trip = rate( "mission-trip" );
+    const retreat = rate( "student-retreat" );
+    if ( camp === undefined || trip === undefined || retreat === undefined ) {
+        return "";
+    }
+
+    return html`<p class="fine">Students have registered. Last summer's campers are exactly the students with that camp's Student Camp step, each on a bus, in a cabin, and in two activities. For next summer, ${camp}% of the students who could go register over the year, and so do ${trip}% of high school students for the mission trip and ${retreat}% of the students who attend for the fall retreat. They pay in full, pay a deposit, or set up a payment plan, through the Test Gateway.</p>`;
+}
+
+// The kids and adults who registered, in words, with each share and limit read from configuration/registrations.json.
+function familyRegistrations( model ) {
+    const instance = key => model.registrations.instances.find( i => i.key === key );
+    const vbs = instance( "vbs" )?.registrants?.kids?.statuses?.Connected;
+    const serve = instance( "community-serve-day" )?.registrants?.volunteers?.servers;
+    const childcare = instance( "date-night" )?.registrants?.fees?.childcare;
+    const singles = model.registrations.templates.find( t => t.key === "womens-retreat" )?.fees?.find( f => f.key === "room" )?.items.find( i => i.maximumUsageCount )?.maximumUsageCount;
+    const nightOut = instance( "parents-night-out" )?.maxAttendees?.[ "full-7" ];
+    if ( [ vbs, serve, childcare, singles, nightOut ].some( v => v === undefined ) ) {
+        return "";
+    }
+
+    return html`<p class="fine">Kids and adults have registered too. In Core 1 and Core 3, ${vbs}% of Connected families sign their kids up for VBS, each kid placed in the crew for their grade, and Phoenix fills with a wait list. Parents' Night Out is free, holds ${nightOut} kids at a Full 7 campus, and Phoenix keeps a wait list. ${serve}% of the people who serve there signed up for the last Community Serve Day and were placed on project teams. Couples register together for Date Night, and ${childcare}% of those with young kids add childcare per child. Most Money Matters registrants pay at the first class. Friends from one small group go to the Women's Retreat together, and its ${singles} single rooms run out.</p>`;
+}
+
+// The signed releases and the data views about registrations, with their names read from configuration/registrations.json.
+function releasesAndViews( model ) {
+    const releases = ( model.registrations.signatureDocuments ?? [] ).map( release => ( { release, templates: model.registrations.templates.filter( t => t.signatureDocument === release.key ) } ) )
+        .filter( r => r.templates.length > 0 );
+    const views = model.registrations.dataViews ?? [];
+    const eligibility = model.registrations.templates.filter( t => t.eligibility?.dataView ).map( t => ( { template: t, view: views.find( v => v.key === t.eligibility.dataView ) } ) ).filter( e => e.view );
+    if ( releases.length === 0 && views.length === 0 ) {
+        return "";
+    }
+
+    const list = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
+    const signed = releases.length ? `The ${list( releases.map( r => r.release.name ) )} ${releases.length > 1 ? "are" : "is"} signed for everyone registered for ${list( releases.flatMap( r => r.templates.map( t => t.name ) ) )}. The registrar types their name while registering, and each signed release has Rock's verification hash and a PDF drawn at install. ` : "";
+    const filed = views.length ? `${views.length} data views about registrations sit in the church's Registrations category: ${list( views.map( v => v.name ) )}.` : "";
+    const rule = eligibility.map( e => ` Only the people in ${e.view.name} may register for the ${e.template.name}.` ).join( "" );
+    return html`<p class="fine">${signed}Every registration has the notes and history Rock writes as it saves. ${filed}${rule}</p>`;
+}
+
 // The church's initiatives, in the order they started. Starting Point is the first.
 // Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
 const initiatives = [
@@ -311,7 +361,10 @@ ${model.registrations.templates.length ? html`<section class="section" id="regis
       </div>` : "";
       } )}
     </div>
-    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts. The people who register come in a later release.</p>
+    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts.</p>
+    ${studentRegistrations( model )}
+    ${familyRegistrations( model )}
+    ${releasesAndViews( model )}
   </div>
 </section>` : ""}
 

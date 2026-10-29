@@ -1,5 +1,5 @@
 {
-  "$comment": "Event registrations, slice 1: everything a church sets up before anyone registers (docs/registrations.md). Template categories, placement group types, templates with their forms, fees, discounts, and placements, and instance rules that link each registration to its calendar occurrence and group. Every date is a rule counted from the install day. Registrants, payments, and placed people come in later slices.",
+  "$comment": "Event registrations (docs/registrations.md). Slice 1 is everything a church sets up before anyone registers: template categories, placement group types, templates with their forms, fees, discounts, and placements, and instance rules that link each registration to its calendar occurrence and group. Slice 2 adds the students who registered for camp, the mission trip, and the fall retreat, through each instance rule's registrants. Every date is a rule counted from the install day.",
   "adminRole": "2A92086B-DFF0-4B9C-46CB-4DAD805615AF",
   "$adminRoleComment": "Rock's RSR - Event Registration Administration role. Rock's v19 rollup gave it Edit and Administrate on every top-level template category that existed then, so the loader does the same for these new ones.",
   "gateway": "6432D2D2-32FF-443D-B5B3-FB6C8414C3AD",
@@ -8,6 +8,27 @@
   "batchPrefix": "Event Registration",
   "emailsFrom": "5E0ADD57-B220-4ED0-975D-EEE2D0B14743",
   "$emailsFromComment": "Rock's own Baptism template. Every template copies its confirmation, reminder, payment reminder, and wait list emails, and its success text, so they read the way Rock writes them.",
+  "signedDocumentFileType": "40871411-4E2D-45C2-9E21-D9FCBA5FC340",
+  "signatureReceipt": "224A0E80-069B-463C-8187-E13682F8A550",
+  "signatureDocuments": [
+    {
+      "key": "camp-release",
+      "name": "Student Camp Release",
+      "description": "The release a parent or guardian signs for each camper. An adult student signs their own.",
+      "documentTerm": "Release",
+      "guid": "C6B834AB-68B4-4F44-8D78-1169BA4E6193",
+      "lavaTemplate": "<h2>Student Camp Release</h2>\n<p>I am the parent or guardian of {{ Registrant.FirstName }} {{ Registrant.LastName }}, or I am {{ Registrant.FirstName }} and I am signing for myself.</p>\n<p>I give permission for {{ Registrant.FirstName }} to attend {{ Registration.InstanceName }} with {{ 'Global' | Attribute:'OrganizationName' }}. This includes riding the church bus to and from camp and taking part in camp activities such as swimming, hiking, and the ropes course.</p>\n<p>If {{ Registrant.FirstName }} needs medical care and no one can reach me, I allow camp staff to get treatment from a licensed doctor or hospital. I will pay for any care that is needed.</p>\n<p>Adult leaders will watch over the students, but camp has risks. I accept those risks. I will not hold {{ 'Global' | Attribute:'OrganizationName' }}, its staff, or its volunteers responsible for any injury, loss, or damage during camp, unless it is caused by their gross negligence.</p>\n<p>{{ 'Global' | Attribute:'OrganizationName' }} may use photos and videos from camp in its newsletters, on its website, and in its app.</p>\n<p>I have read this release, I understand it, and I agree to it.</p>"
+    },
+    {
+      "key": "mission-trip-release",
+      "name": "Mission Trip Release",
+      "description": "The release a parent or guardian signs for each student on the mission trip. An adult student signs their own.",
+      "documentTerm": "Release",
+      "guid": "2BD4E696-47FD-4AFA-A1F9-7A8ADAB78785",
+      "lavaTemplate": "<h2>Mission Trip Release</h2>\n<p>I am the parent or guardian of {{ Registrant.FirstName }} {{ Registrant.LastName }}, or I am {{ Registrant.FirstName }} and I am signing for myself.</p>\n<p>I give permission for {{ Registrant.FirstName }} to travel with {{ 'Global' | Attribute:'OrganizationName' }} on {{ Registration.InstanceName }}. This includes air and van travel, staying with our partner church, and helping with the work the team is given.</p>\n<p>I will make sure {{ Registrant.FirstName }} has a valid passport before the trip, and I understand the team may need to change plans for safety or travel reasons.</p>\n<p>If {{ Registrant.FirstName }} needs medical care and no one can reach me, I allow the trip leaders to get treatment from a licensed doctor or hospital. I will pay for any care that is needed.</p>\n<p>Adult leaders will watch over the team, but travel and service work have risks. I accept those risks. I will not hold {{ 'Global' | Attribute:'OrganizationName' }}, its staff, or its volunteers responsible for any injury, illness, loss, or damage during the trip, unless it is caused by their gross negligence.</p>\n<p>I have read this release, I understand it, and I agree to it.</p>"
+    }
+  ],
+  "$signatureDocumentsComment": "Releases signed with Rock's own electronic signature, typed, on the templates that name them (signatureDocument). Rock's template screen always saves the Embed action for these, so every registrant signs while registering (decision 212). Each signed release gets a PDF drawn at install, in Rock's Digitally Signed Documents file type (signedDocumentFileType), and Rock's Electronic Signature Receipt (signatureReceipt) emails it to the signer. A lavaTemplate may use only {{ Registrant.FirstName }}, {{ Registrant.LastName }}, {{ Registration.InstanceName }}, and the Global OrganizationName attribute, which the loader renders the way Rock's Lava does.",
   "categories": [
     {
       "key": "students",
@@ -166,10 +187,21 @@
         "Church app",
         "A friend",
         "Other"
-      ]
+      ],
+      "fill": {
+        "kind": "choice",
+        "weights": [
+          30,
+          15,
+          20,
+          15,
+          15,
+          5
+        ]
+      }
     }
   ],
-  "$registrationAttributesComment": "Asked once per registration on every template.",
+  "$registrationAttributesComment": "Asked once per registration on every template. fill says how the loader answers it for each registration (see $attributeFillComment).",
   "$templatesComment": "One template per kind of registration. A template is reused every year; each year's instances come from the instance rules below. eligibility: grades (7 to 12), ages, and gender, stored the way Rock's template screen stores them. Rock refuses a registrant it cannot check, so a template that limits grade asks for grade, one that limits age asks for birthdate, and one that limits gender asks for gender. paymentPlan lists the frequencies a plan may use.",
   "templates": [
     {
@@ -251,18 +283,28 @@
           "key": "RoommateRequest",
           "name": "Cabin Mate Request",
           "fieldType": "text",
-          "description": "One friend this camper would like to share a cabin with."
+          "description": "One friend this camper would like to share a cabin with.",
+          "fill": {
+            "kind": "friend",
+            "percent": 35
+          }
         },
         {
           "key": "EmergencyContactName",
           "name": "Emergency Contact Name",
           "fieldType": "text",
-          "isGridColumn": true
+          "isGridColumn": true,
+          "fill": {
+            "kind": "contact-name"
+          }
         },
         {
           "key": "EmergencyContactPhone",
           "name": "Emergency Contact Phone",
-          "fieldType": "text"
+          "fieldType": "text",
+          "fill": {
+            "kind": "contact-phone"
+          }
         }
       ],
       "fees": [
@@ -300,6 +342,13 @@
       ],
       "discounts": [
         {
+          "key": "siblings",
+          "code": "SIBLINGS",
+          "amount": 25,
+          "autoApply": true,
+          "minRegistrants": 2
+        },
+        {
           "key": "early-bird",
           "code": "EARLYBIRD",
           "amount": 30,
@@ -308,13 +357,6 @@
             "month": 4,
             "day": 30
           }
-        },
-        {
-          "key": "siblings",
-          "code": "SIBLINGS",
-          "amount": 25,
-          "autoApply": true,
-          "minRegistrants": 2
         }
       ],
       "placements": [
@@ -337,7 +379,9 @@
           "iconCssClass": "ti ti-ball-basketball",
           "allowMultiple": true
         }
-      ]
+      ],
+      "$discountsComment": "Rock applies one discount per registration: the first automatic one, in this order, that is valid on the day. So siblings who register together get the sibling discount, and anyone else who registers by April 30 gets the early bird.",
+      "signatureDocument": "camp-release"
     },
     {
       "key": "mission-trip",
@@ -361,7 +405,8 @@
         "grades": [
           9,
           12
-        ]
+        ],
+        "dataView": "high-school-students-attending"
       },
       "instructions": "The $300 deposit holds a spot. Set up monthly payments for the rest, or pay it all now. Once the trip is full, you can join the wait list.",
       "forms": [
@@ -413,9 +458,18 @@
             "I have applied",
             "I do not have one yet"
           ],
-          "description": "Spring trips cross the border, so every student needs a passport by the trip."
+          "description": "Spring trips cross the border, so every student needs a passport by the trip.",
+          "fill": {
+            "kind": "choice",
+            "weights": [
+              60,
+              25,
+              15
+            ]
+          }
         }
-      ]
+      ],
+      "signatureDocument": "mission-trip-release"
     },
     {
       "key": "student-retreat",
@@ -543,7 +597,28 @@
               "person": "Grade"
             },
             {
-              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31"
+              "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
+              "fill": {
+                "kind": "choice",
+                "percent": 6,
+                "values": [
+                  "Allergic to peanuts",
+                  "Allergic to tree nuts",
+                  "Allergic to eggs",
+                  "Allergic to milk",
+                  "Allergic to bee stings",
+                  "Gluten free"
+                ],
+                "weights": [
+                  35,
+                  20,
+                  10,
+                  15,
+                  10,
+                  10
+                ],
+                "castKey": "Allergy"
+              }
             },
             {
               "attribute": "PickUpPerson",
@@ -557,7 +632,10 @@
           "key": "PickUpPerson",
           "name": "Who will pick up this child?",
           "fieldType": "text",
-          "isGridColumn": true
+          "isGridColumn": true,
+          "fill": {
+            "kind": "contact-name"
+          }
         }
       ],
       "placements": [
@@ -606,8 +684,28 @@
             },
             {
               "personAttribute": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31",
-              "required": true,
-              "$comment": "Saved to the child's record, so kids check-in shows it too."
+              "$comment": "Saved to the child's record, so kids check-in shows it too. Not required, so most families leave it blank.",
+              "fill": {
+                "kind": "choice",
+                "percent": 6,
+                "values": [
+                  "Allergic to peanuts",
+                  "Allergic to tree nuts",
+                  "Allergic to eggs",
+                  "Allergic to milk",
+                  "Allergic to bee stings",
+                  "Gluten free"
+                ],
+                "weights": [
+                  35,
+                  20,
+                  10,
+                  15,
+                  10,
+                  10
+                ],
+                "castKey": "Allergy"
+              }
             }
           ]
         }
@@ -665,7 +763,18 @@
             "Large",
             "XL",
             "2XL"
-          ]
+          ],
+          "fill": {
+            "kind": "choice",
+            "weights": [
+              5,
+              15,
+              30,
+              30,
+              15,
+              5
+            ]
+          }
         }
       ],
       "placements": [
@@ -829,7 +938,11 @@
         {
           "key": "RoommateRequest",
           "name": "Roommate Request",
-          "fieldType": "text"
+          "fieldType": "text",
+          "fill": {
+            "kind": "same-registration",
+            "percent": 70
+          }
         }
       ],
       "fees": [
@@ -875,6 +988,98 @@
     }
   ],
   "$instancesComment": "Each rule makes one instance per campus where the calendar holds the event in this dataset, or one church-wide instance. occurrences: next is the first whose registration closes on or after the install day, and last is the one before it. opens: rolling opens the day after the previous occurrence's registration closed, so the next one is open every day; days-before opens that many days before the event. closesDaysBefore and paymentDaysBefore count back from the event's first day. Names and slugs may use {year}, {month}, and {campus}. Groups with the same key are one group, so the girls' and boys' camp instances share their linked group and buses. maxAttendees and placement group counts are per dataset.",
+  "dataViews": [
+    {
+      "key": "next-summer-campers",
+      "name": "Next Summer's Campers",
+      "description": "Students registered for next summer's camp, girls and boys.",
+      "category": "registration-data-views",
+      "guid": "C56D308F-EC3A-4930-9EBC-B1433B0B9CA9",
+      "filter": {
+        "any": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "registration": {
+              "instance": "student-camp-girls",
+              "occurrence": "next",
+              "person": "registrant",
+              "onWaitList": false
+            }
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "registration": {
+              "instance": "student-camp-boys",
+              "occurrence": "next",
+              "person": "registrant",
+              "onWaitList": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "students-not-registered-for-camp",
+      "name": "Students Not Registered for Camp",
+      "description": "Students in grades 7 to 12 who checked in to the student service at least twice in the last 120 days and have not registered for next summer's camp.",
+      "category": "registration-data-views",
+      "guid": "5A77A59D-1F72-41AB-B634-C3BB31D2A1F4",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|3fe728ac-be25-409a-98cb-3cfce5fa063b"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|2|Last,120,Day,,|False"
+          },
+          {
+            "none": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "registration": {
+                  "instance": "student-camp-girls",
+                  "occurrence": "next",
+                  "person": "registrant",
+                  "onWaitList": null
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "registration": {
+                  "instance": "student-camp-boys",
+                  "occurrence": "next",
+                  "person": "registrant",
+                  "onWaitList": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "high-school-students-attending",
+      "name": "High School Students Attending the Student Service",
+      "description": "Students in grades 9 to 12 who checked in to the student service at least twice in the last 120 days. Only they may register for the mission trip.",
+      "category": "registration-data-views",
+      "guid": "2ED3C8C5-7AC8-420E-9A5C-BF82CEFC28AF",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|2a130e04-3712-427a-8bb0-473eb8ff8924"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|2|Last,120,Day,,|False"
+          }
+        ]
+      }
+    }
+  ],
+  "$dataViewsComment": "Person data views about registrations, filed under the Registrations category in categories.json. Filters use Rock's own data filter components and selection strings, as in group-syncs.json. A registration filter names an instance rule and occurrence instead of a selection, because Rock's selection holds the template's Id and the instance's Guid, which the loader fills at load. A template's eligibility can name one of these views (dataView), stored as Rock's EligibilityDataViewGuid, so Rock lets only the people in it register. The mission trip's view counts student service check-ins (the check-in areas of the student groups in steps.json), so the loader dates each trip registration on a day the student is in it (decision 215).",
   "instances": [
     {
       "key": "student-camp-girls",
@@ -895,7 +1100,7 @@
       "maxAttendees": {
         "core-1": 25,
         "core-3": 60,
-        "full-7": 150
+        "full-7": 300
       },
       "contact": "jenny",
       "details": "Girls in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
@@ -936,7 +1141,55 @@
             "Worship Band"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "students": {
+          "stepType": "student-camp",
+          "gender": "female"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 25
+          },
+          {
+            "before": "payment-deadline",
+            "days": 21,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 30,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 70,
+          "twice-monthly": 30
+        },
+        "fees": {
+          "t-shirt": 40
+        },
+        "placements": {
+          "each": {
+            "bus": 1,
+            "cabin": 1,
+            "activity": 2
+          },
+          "early": {
+            "placements": [
+              "activity"
+            ],
+            "days": 30
+          }
+        }
+      }
     },
     {
       "key": "student-camp-boys",
@@ -957,7 +1210,7 @@
       "maxAttendees": {
         "core-1": 25,
         "core-3": 60,
-        "full-7": 150
+        "full-7": 300
       },
       "contact": "jenny",
       "details": "Boys in grades 7 to 12. Camp runs Monday to Friday. Buses leave from the Phoenix campus Monday morning.",
@@ -998,7 +1251,55 @@
             "Worship Band"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "students": {
+          "stepType": "student-camp",
+          "gender": "male"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 25
+          },
+          {
+            "before": "payment-deadline",
+            "days": 21,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 30,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 70,
+          "twice-monthly": 30
+        },
+        "fees": {
+          "t-shirt": 40
+        },
+        "placements": {
+          "each": {
+            "bus": 1,
+            "cabin": 1,
+            "activity": 2
+          },
+          "early": {
+            "placements": [
+              "activity"
+            ],
+            "days": 30
+          }
+        }
+      }
     },
     {
       "key": "mission-trip",
@@ -1025,6 +1326,26 @@
       "linkedGroup": {
         "key": "mission-trip-{year}-{month}",
         "name": "Mission Trip Team, {month} {year}"
+      },
+      "registrants": {
+        "students": {
+          "stepType": "mission-trip"
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 30,
+            "percent": 50
+          }
+        ],
+        "payments": {
+          "paid-in-full": 30,
+          "plan": 70
+        },
+        "planFrequencies": {
+          "monthly": 100
+        },
+        "waitListPercent": 20
       }
     },
     {
@@ -1047,6 +1368,35 @@
       "linkedGroup": {
         "key": "student-retreat-{year}",
         "name": "Student Fall Retreat {year}"
+      },
+      "registrants": {
+        "students": {
+          "percent": 30
+        },
+        "studentLeaders": {
+          "stepType": "student-leader",
+          "discount": "student-leader",
+          "keepUnused": 2
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 14,
+            "percent": 40
+          }
+        ],
+        "payments": {
+          "paid-in-full": 45,
+          "deposit": 55
+        },
+        "fees": {
+          "hoodie": 35
+        }
       }
     },
     {
@@ -1066,8 +1416,8 @@
       "closesDaysBefore": 7,
       "reminderDaysBefore": 3,
       "maxAttendees": {
-        "core-1": 40,
-        "core-3": 80,
+        "core-1": 15,
+        "core-3": 15,
         "full-7": 150
       },
       "contact": "rachel",
@@ -1090,7 +1440,45 @@
             "5th Grade Crew"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "kids": {
+          "statuses": {
+            "Participant": 60,
+            "Connected": 65,
+            "Engaged": 70,
+            "Leading": 70
+          },
+          "maxGrade": 5
+        },
+        "scale": {
+          "full-7": 0.6
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 40
+          },
+          {
+            "before": "closes",
+            "days": 10,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 100
+        },
+        "waitListPercent": 60,
+        "placements": {
+          "each": {
+            "crew": 1
+          },
+          "byGrade": {
+            "crew": -1
+          }
+        }
+      }
     },
     {
       "key": "parents-night-out",
@@ -1107,12 +1495,39 @@
       "closesDaysBefore": 2,
       "reminderDaysBefore": 2,
       "maxAttendees": {
-        "core-1": 15,
-        "core-3": 25,
+        "core-1": 10,
+        "core-3": 10,
         "full-7": 40
       },
       "contact": "rachel",
-      "details": "6 to 9 pm in the Kids Wing. Kids age 2 to 11."
+      "details": "6 to 9 pm in the Kids Wing. Kids age 2 to 11.",
+      "registrants": {
+        "kids": {
+          "statuses": {
+            "Known": 20,
+            "Connected": 60,
+            "Engaged": 70,
+            "Leading": 70
+          },
+          "marriedParents": true
+        },
+        "scale": {
+          "full-7": 0.1
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 7,
+            "percent": 35
+          },
+          {
+            "before": "closes",
+            "days": 7,
+            "percent": 30
+          }
+        ],
+        "waitListPercent": 50
+      }
     },
     {
       "key": "community-serve-day",
@@ -1147,7 +1562,46 @@
             "Kids Crafts"
           ]
         }
-      ]
+      ],
+      "registrants": {
+        "volunteers": {
+          "servers": 30,
+          "groupMembers": 15,
+          "statuses": {
+            "Participant": 4,
+            "Known": 4,
+            "Connected": 3
+          },
+          "teenPercent": 40,
+          "teenAges": [
+            13,
+            17
+          ]
+        },
+        "scale": {
+          "full-7": 0.2
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 10,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 10,
+            "percent": 35
+          }
+        ],
+        "placements": {
+          "each": {
+            "team": 1
+          },
+          "together": [
+            "team"
+          ]
+        }
+      }
     },
     {
       "key": "money-matters",
@@ -1170,6 +1624,47 @@
       "linkedGroup": {
         "key": "money-matters-{year}-{month}-{campus}",
         "name": "Money Matters, {month} {year}: {campus}"
+      },
+      "registrants": {
+        "adults": {
+          "statuses": {
+            "Known": 5,
+            "Connected": 10,
+            "Engaged": 12,
+            "Leading": 8
+          },
+          "ages": [
+            25,
+            55
+          ],
+          "couplePercent": 60
+        },
+        "scale": {
+          "full-7": 0.15
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 25
+          },
+          {
+            "before": "closes",
+            "days": 21,
+            "percent": 40
+          }
+        ],
+        "payments": {
+          "paid-in-full": 35,
+          "pay-later": 65
+        },
+        "codes": [
+          {
+            "discount": "scholarship",
+            "percent": 8,
+            "keepUnused": 2
+          }
+        ]
       }
     },
     {
@@ -1191,6 +1686,40 @@
       "linkedGroup": {
         "key": "date-night-{year}-{month}-{campus}",
         "name": "Date Night, {month} {year}: {campus}"
+      },
+      "registrants": {
+        "couples": {
+          "statuses": {
+            "Known": 8,
+            "Connected": 20,
+            "Engaged": 30,
+            "Leading": 35
+          }
+        },
+        "scale": {
+          "full-7": 0.15
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 14,
+            "percent": 25
+          },
+          {
+            "before": "closes",
+            "days": 21,
+            "percent": 35
+          }
+        ],
+        "payments": {
+          "paid-in-full": 100
+        },
+        "fees": {
+          "childcare": 70
+        },
+        "feePerChild": {
+          "childcare": 12
+        }
       }
     },
     {
@@ -1213,7 +1742,75 @@
       "linkedGroup": {
         "key": "womens-retreat-{year}",
         "name": "Women's Retreat {year}"
+      },
+      "registrants": {
+        "adults": {
+          "statuses": {
+            "Known": 10,
+            "Connected": 20,
+            "Engaged": 25,
+            "Leading": 30
+          },
+          "ages": [
+            25,
+            75
+          ],
+          "smallGroupFriends": {
+            "groupPercent": 30,
+            "size": [
+              2,
+              4
+            ]
+          }
+        },
+        "scale": {
+          "full-7": 0.03
+        },
+        "timing": [
+          {
+            "after": "opens",
+            "days": 21,
+            "percent": 20
+          },
+          {
+            "before": "early-bird",
+            "days": 21,
+            "percent": 30
+          },
+          {
+            "before": "closes",
+            "days": 30,
+            "percent": 20
+          }
+        ],
+        "payments": {
+          "paid-in-full": 40,
+          "deposit": 35,
+          "plan": 25
+        },
+        "planFrequencies": {
+          "monthly": 100
+        },
+        "fees": {
+          "room": 100
+        },
+        "feeWeights": {
+          "room": [
+            55,
+            30,
+            15
+          ]
+        },
+        "codes": [
+          {
+            "discount": "friend",
+            "percent": 50,
+            "minRegistrants": 2
+          }
+        ]
       }
     }
-  ]
+  ],
+  "$attributeFillComment": "fill: how the loader answers an attribute for each registrant or registration. choice picks a value by weights, in the order of values. friend names another registrant of the same instance near the person's grade, percent of the time. contact-name and contact-phone give a parent or guardian other than the registrar when the family has one, otherwise the registrar.",
+  "$registrantsComment": "registrants: who registers for an instance, when, and how they pay (slice 2 has the student registrations). students: stepType makes the share of students who register the step type's percentOfStudents in configuration/steps.json, and an instance whose event has ended has exactly the people with that step at that event; percent is a share of the students attending the student service otherwise; gender limits an instance to girls or boys. A student registers when they are in the template's grades on the day they register (Rock's check) and on the event day, and have been attending the student service. Siblings in one family register together on one registration, by a parent or guardian, or by the student when they live on their own. studentLeaders: every current Student Leader who has been attending registers on their own with that discount code, leaving keepUnused of its uses. timing: percent of the registrations fall in the days after opens or before early-bird, payment-deadline, or closes; the rest spread across the window. Only registrations before the install day are written. payments: how registrations pay, by share: paid-in-full, deposit (the minimum now and the balance later), or plan (the minimum now and a payment plan to the payment deadline). After the deadline, every balance is paid. planFrequencies: how plans are split among frequencies. fees: the share of registrants who choose each optional fee. waitListPercent: once the instance is full, the share of later registrations that join its wait list; the rest do not register. placements: each registrant gets each placement this many times once registration closes; while it is open, people who registered in its first early.days days already have the early placements."
 }

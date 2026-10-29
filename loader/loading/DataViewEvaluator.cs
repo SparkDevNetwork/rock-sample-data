@@ -44,6 +44,7 @@ namespace RockSampleData.Loader.Loading
     internal sealed class DataViewEvaluator
     {
         private static readonly Guid NamelessRecordTypeGuid = new Guid( "721300ED-1267-4DA0-B4F2-6C6B5B17B1C5" );
+        private static readonly Guid SchoolGradesGuid = new Guid( "24E5A79F-1E62-467A-AD5D-0D10A2328B4D" );
 
         /// <summary>
         /// Rock's ComparisonType values a count can use.
@@ -176,6 +177,12 @@ GROUP BY [pa].[PersonId]" ) )
                 case "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter":
                     return AttendanceFilter( selection );
 
+                case "Rock.Reporting.DataFilter.Person.GradeFilter":
+                    return GradeFilter( selection );
+
+                case "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter":
+                    return RegistrationFilter( selection );
+
                 default:
                     throw new InvalidDataException( $"configuration/group-syncs.json uses the data filter {component}, which the loader cannot evaluate." );
             }
@@ -291,6 +298,62 @@ GROUP BY [pa].[PersonId]", P( "@Start", attendance.Start ), P( "@End", attendanc
                 .ToDictionary( r => ( int ) r["PersonId"], r => ( int ) r["Count"] );
             var compare = Comparisons[attendance.Comparison];
             return People().Where( id => compare( counts.GetValueOrDefault( id ), attendance.Count ) ).ToDictionary( id => id, id => ( DateTime? ) null );
+        }
+
+        /// <summary>
+        /// Rock's GradeFilter: comparison|school grade defined value. A grade is an offset from the current school year,
+        /// which ends on the grade transition date: Rock moves to the next year the day after it.
+        /// </summary>
+        private Dictionary<int, DateTime?> GradeFilter( string selection )
+        {
+            var parts = selection.Split( '|' );
+            var comparison = parts.Length == 2 && int.TryParse( parts[0], out var number ) ? number : 0;
+            var grades = _db.Query( "SELECT [dv].[Guid], [dv].[Value] FROM [DefinedValue] AS [dv] INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId] WHERE [dt].[Guid] = @Grades",
+                P( "@Grades", SchoolGradesGuid ) ).ToDictionary( r => ( Guid ) r["Guid"], r => int.Parse( ( string ) r["Value"] ) );
+            if ( comparison == 0 || !Guid.TryParse( parts[1], out var gradeGuid ) || !grades.TryGetValue( gradeGuid, out var offset ) )
+            {
+                throw new InvalidDataException( $"The grade filter {selection} needs a comparison and a school grade." );
+            }
+
+            var next = grades.Values.Where( v => v < offset ).DefaultIfEmpty( -1 ).Max();
+            var transition = ( _db.Scalar( "SELECT ISNULL( NULLIF( [av].[Value], '' ), [a].[DefaultValue] ) FROM [Attribute] AS [a] LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id] WHERE [a].[Key] = 'GradeTransitionDate' AND [a].[EntityTypeId] IS NULL" ) as string ?? "6/1" ).Split( '/' );
+            var graduation = new DateTime( _today.Year, int.Parse( transition[0] ), int.Parse( transition[1] ) );
+            var schoolYear = graduation < _today ? _today.Year + 1 : _today.Year;
+            var years = $"( [p].[GraduationYear] - {schoolYear} )";
+            var rule = comparison switch
+            {
+                0x1 => $"{years} <= {offset} AND {years} > {next}",
+                0x80 => $"{years} <= {next} AND {years} >= 0",
+                0x100 => $"{years} <= {offset} AND {years} >= 0",
+                0x200 => $"{years} > {offset}",
+                0x400 => $"{years} > {next}",
+                _ => throw new InvalidDataException( $"The grade filter {selection} uses a comparison the loader does not evaluate." )
+            };
+            return Ids( $"SELECT [p].[Id] FROM [Person] AS [p] WHERE {rule}" );
+        }
+
+        /// <summary>
+        /// Rock's InRegistrationInstanceFilter: a JSON selection of the template's Id, the instance's Guid or null for
+        /// any instance of the template, registrant (2) or registrar (1), and the wait list (true, false, or null for both).
+        /// </summary>
+        private Dictionary<int, DateTime?> RegistrationFilter( string selection )
+        {
+            using var document = JsonDocument.Parse( selection );
+            var root = document.RootElement;
+            var templateId = root.GetProperty( "RegistrationTemplateId" ).GetInt32();
+            var instance = root.GetProperty( "RegistrationInstanceGuid" ).ValueKind == JsonValueKind.Null ? ( Guid? ) null : root.GetProperty( "RegistrationInstanceGuid" ).GetGuid();
+            var isRegistrar = root.GetProperty( "RegistrationType" ).GetInt32() == 1;
+            var onWaitList = root.GetProperty( "OnWaitList" ).ValueKind == JsonValueKind.Null ? ( bool? ) null : root.GetProperty( "OnWaitList" ).GetBoolean();
+            var instanceRule = instance.HasValue ? $" AND [ri].[Guid] = '{instance.Value}'" : string.Empty;
+            var waitListRule = onWaitList.HasValue ? $" AND [rr].[OnWaitList] = {( onWaitList.Value ? 1 : 0 )}" : string.Empty;
+            var person = isRegistrar ? "[r].[PersonAliasId]" : "[rr].[PersonAliasId]";
+            return Ids( $@"
+SELECT DISTINCT [pa].[PersonId] AS [Id]
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [ri] ON [ri].[Id] = [r].[RegistrationInstanceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = {person}
+WHERE [ri].[RegistrationTemplateId] = {templateId}{instanceRule}{waitListRule}" );
         }
 
         /// <summary>
