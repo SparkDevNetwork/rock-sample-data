@@ -656,6 +656,18 @@
         "loader/loading/GivingLoader.cs"
       ],
       "sha256": "9e722007d417a6a56761d42f1284b2f618493c14a708662a32cde3ead2280d46"
+    },
+    {
+      "path": "Rock/Model/Core/SignatureDocument/SignatureDocumentService.cs",
+      "section": "CalculateSignatureVerificationHash",
+      "from": "public static string CalculateSignatureVerificationHash( SignatureDocument document )",
+      "to": "return verificationHash;",
+      "why": "The signature verification hash: SHA-1 over the signed text, IP address, user agent, signed time, signer, signature data, and typed name. The loader computes it for every signed release, and loader-compat-check holds vectors from Rock's own Rock.dll.",
+      "mirroredBy": [
+        "loader/generation/SignatureVerification.cs",
+        "loader-compat-check/Program.cs"
+      ],
+      "sha256": "103934b860cc7d24c6745cedbfd710afc2a535db4fb6b411083b201ce87ebfe8"
     }
   ]
 }

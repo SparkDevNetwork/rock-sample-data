@@ -44,6 +44,8 @@ using RockSampleData.Loader.Packages;
     release/sign-index.js signed with a throwaway test key, so both builds read what the Node signer
     writes. The other index checks sign their index here with a key made for this run. Neither key is
     one the shipped loader trusts.
+    The signature hash checks compare the port of Rock's CalculateSignatureVerificationHash with values computed by
+    calling that method in Rock 21's own compiled Rock.dll (Rock 20's gives the same first value).
     The registration dates check plans the repository's calendar and registrations for install day
     2026-10-28 and compares each instance's dates with the example dates the approved registrations
     proposal lists for that day (decision 190), so a rule change that moves a date fails here.
@@ -144,6 +146,18 @@ var checks = new (string Name, string Actual, string Expected)[]
     ("A file this loader cannot read gives a plain message",
         PlainError( "v0.1.0-alpha.10" ),
         "InvalidDataException|This package can't be read by this loader: configuration/church-app.json is not in the form this loader reads. Use the package for this loader's release.|JsonException"),
+    ("Rock's signature verification hash (vector from Rock 21's and Rock 20's Rock.dll)",
+        SignatureVerification.Hash( "<p>I, the undersigned, am the parent or guardian of Ava Brooks.</p>\r\n<p>O&#39;Brien &amp; sons</p>", "192.0.2.17",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+            new DateTime( 2026, 6, 22, 19, 14, 5, 123 ), 4321, "", "Sarah O&#39;Brien" ),
+        "Agv3cb23hbsqiuf4fHMn6wF2VLAQx"),
+    ("Rock's signature verification hash of an HTML-encoded name (vector from Rock 21's Rock.dll)",
+        SignatureVerification.Hash( "<h2>Release</h2>", "198.51.100.4", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)", new DateTime( 2027, 1, 5, 8, 30, 0 ), 17, "",
+            SignatureVerification.HtmlEncode( "José O'Brien" ) ),
+        "ACO0GHLz5xZFcxZTPEvtm3qcxNxsx"),
+    ("Rock's signature verification hash of an empty document (vector from Rock 21's Rock.dll)",
+        SignatureVerification.Hash( null, null, null, null, null, null, null ),
+        "A65e8jtUFi4mIwxNVznrZQLwCEDcx"),
     ("Registration dates for install day 2026-10-28",
         RegistrationDates( new DateTime( 2026, 10, 28 ) ),
         "student-camp-girls 2026-06-22 opens 2025-06-23 closes 2026-06-21 pays 2026-06-08 closed"
