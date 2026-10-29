@@ -993,6 +993,25 @@ namespace RockSampleData.Loader.Generation
         */
 
         /// <summary>
+        /// A value from a Cast person's attributes by key. Allergy has its own property, which the people step writes, so a
+        /// registration answers with that same value. Any other key comes from the file's other values. Null when there is none.
+        /// </summary>
+        private static string CastValue( CastPersonAttributes attributes, string key )
+        {
+            if ( attributes == null || key == null )
+            {
+                return null;
+            }
+
+            if ( key == nameof( CastPersonAttributes.Allergy ) )
+            {
+                return attributes.Allergy;
+            }
+
+            return attributes.Others?.TryGetValue( key, out var value ) == true && value.ValueKind == System.Text.Json.JsonValueKind.String ? value.GetString() : null;
+        }
+
+        /// <summary>
         /// The person's answer to a person attribute field: the Cast file's value, or, for anyone generated, the fill's
         /// share of a weighted choice. Null leaves the field blank.
         /// </summary>
@@ -1001,7 +1020,7 @@ namespace RockSampleData.Loader.Generation
             var fill = field.Fill;
             if ( _castHouseholdKeys.Contains( _families[person.FamilyId].Cast.Key ) )
             {
-                return fill.CastKey != null && person.Cast.Attributes?.Others?.TryGetValue( fill.CastKey, out var value ) == true && value.ValueKind == System.Text.Json.JsonValueKind.String ? value.GetString() : null;
+                return CastValue( person.Cast.Attributes, fill.CastKey );
             }
 
             var random = new SeededRandom( $"{_seed}:person-attribute:{field.PersonAttribute}:{person.Cast.Guid}" );

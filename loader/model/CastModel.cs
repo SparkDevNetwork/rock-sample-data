@@ -520,7 +520,7 @@ namespace RockSampleData.Loader.Model
         public RelativeDate FirstVisit { get; set; }
 
         /// <summary>
-        /// Every other value in the file, by attribute key, such as the Allergy a registration form shows.
+        /// Every other value in the file, by attribute key, for registration form answers that have no property of their own.
         /// </summary>
         [JsonExtensionData]
         public Dictionary<string, System.Text.Json.JsonElement> Others { get; set; }

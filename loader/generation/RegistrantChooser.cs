@@ -609,10 +609,11 @@ namespace RockSampleData.Loader.Generation
             var starts = new SortedSet<DateTime> { from };
             for ( var year = from.Year; year <= until.Year; year++ )
             {
-                var transition = new DateTime( year, AnchorDates.GradeTransitionMonth, AnchorDates.GradeTransitionDay );
-                if ( Grades != null && transition > from && transition <= until )
+                // Grades change the day after June 1, as Rock's GetCurrentGraduationDate does.
+                var gradeChange = new DateTime( year, AnchorDates.GradeTransitionMonth, AnchorDates.GradeTransitionDay ).AddDays( 1 );
+                if ( Grades != null && gradeChange > from && gradeChange <= until )
                 {
-                    starts.Add( transition );
+                    starts.Add( gradeChange );
                 }
 
                 var birthday = person.BirthDate?.AddYears( year - person.BirthDate.Value.Year );
