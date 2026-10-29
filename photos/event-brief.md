@@ -4,7 +4,7 @@ You create one image for each event on Rock Solid Church's calendar in Rock RMS 
 
 Work in your own branch from `main`. All paths are from the root of the repository.
 
-**Delivered 2026-10-28.** All 51 images are in `photos/events/`, with their originals in `photos/originals/events/` and their prompts and approval in `photos/events/manifest.json` (decision D-event-images-1). Jon approved every one, and some of his choices differ from this page; [What changed after review](#what-changed-after-review) lists them. Use this page to remake an image or to make one for a new event, and follow the approved images where they differ.
+**Delivered 2026-10-28.** All 51 images are in `photos/events/`, with their originals in `photos/originals/events/` and their prompts and approval in `photos/events/manifest.json` (decision 197). Jon approved every one, and some of his choices differ from this page; [What changed after review](#what-changed-after-review) lists them. Use this page to remake an image or to make one for a new event, and follow the approved images where they differ.
 
 Each image is the event's picture in Rock (`EventItem.PhotoId`). Rock shows it at the top of the event's page on the church website and in the church app. It should look like what a real church posts to invite people to the event.
 

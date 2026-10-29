@@ -207,7 +207,7 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
-    // Each calendar event's delivered image, by event key (decision D-event-images-1).
+    // Each calendar event's delivered image, by event key (decision 197).
     const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
     // The original full-group photos: download-only assets, never in a package (decision 196).
     const fullGroupManifest = "photos/groups-full-members/manifest.json";

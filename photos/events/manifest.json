@@ -1,5 +1,5 @@
 {
-  "$comment": "The delivered calendar event images (decision D-event-images-1): one 1536 by 768 JPEG per event in configuration/calendar.json, with its original PNG in photos/originals/events/. The loader sets each as its event item photo and reads only file and event. Every image was approved by Jon (status); prompt is the generation prompt, and editPrompt the final edit when there was one. The image tool exposed no model id or seed.",
+  "$comment": "The delivered calendar event images (decision 197): one 1536 by 768 JPEG per event in configuration/calendar.json, with its original PNG in photos/originals/events/. The loader sets each as its event item photo and reads only file and event. Every image was approved by Jon (status); prompt is the generation prompt, and editPrompt the final edit when there was one. The image tool exposed no model id or seed.",
   "model": "Built-in image_gen (model identifier not exposed)",
   "images": [
     {
