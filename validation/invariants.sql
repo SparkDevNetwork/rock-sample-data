@@ -1265,8 +1265,8 @@ WITH [Registrants] AS (
     WHERE [rr].[ForeignKey] = @ForeignKey AND JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.MaximumGradeOffset' ) IS NOT NULL
 ), [Grades] AS (
     SELECT [MinGrade], [MaxGrade], [EventDay]
-        , 12 - ( [GraduationYear] - ( YEAR( [Registered] ) + CASE WHEN [Registered] >= DATEFROMPARTS( YEAR( [Registered] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeRegistered]
-        , 12 - ( [GraduationYear] - ( YEAR( [EventDay] ) + CASE WHEN [EventDay] >= DATEFROMPARTS( YEAR( [EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeAtEvent]
+        , 12 - ( [GraduationYear] - ( YEAR( [Registered] ) + CASE WHEN CAST( [Registered] AS DATE ) > DATEFROMPARTS( YEAR( [Registered] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeRegistered]
+        , 12 - ( [GraduationYear] - ( YEAR( [EventDay] ) + CASE WHEN CAST( [EventDay] AS DATE ) > DATEFROMPARTS( YEAR( [EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) AS [GradeAtEvent]
     FROM [Registrants]
 )
 SELECT COUNT(*)
@@ -1598,7 +1598,7 @@ CROSS APPLY (
     INNER JOIN [ScheduleDate] AS [sd] ON [sd].[ScheduleId] = [o].[ScheduleId]
     WHERE [re].[PurposeKey] = 'PLACEMENT' AND [re].[TargetEntityId] = [g].[Id] AND [sd].[StartDateTime] > [i].[EndDateTime] ) AS [e]
 CROSS APPLY ( SELECT CASE WHEN [p].[GraduationYear] IS NULL THEN -1
-    ELSE 12 - ( [p].[GraduationYear] - ( YEAR( [e].[EventDay] ) + CASE WHEN [e].[EventDay] >= DATEFROMPARTS( YEAR( [e].[EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) END AS [Grade] ) AS [k]
+    ELSE 12 - ( [p].[GraduationYear] - ( YEAR( [e].[EventDay] ) + CASE WHEN CAST( [e].[EventDay] AS DATE ) > DATEFROMPARTS( YEAR( [e].[EventDay] ), 6, 1 ) THEN 1 ELSE 0 END ) ) END AS [Grade] ) AS [k]
 WHERE [gm].[ForeignKey] = @ForeignKey
     AND [g].[Order] <> CASE WHEN [k].[Grade] < -1 THEN 0 WHEN [k].[Grade] > 5 THEN 6 ELSE [k].[Grade] + 1 END;
 
