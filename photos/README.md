@@ -98,7 +98,7 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `event-brief.md` | The brief for the calendar event images: sizes, the design and photo looks, rules, and one section per event | Yes |
 | `events/` | Delivered event images, `{event-key}.jpg` at 1536 by 768, and their `manifest.json` with each prompt and approval | Yes |
 | `originals/events/` | The image model's full-size event originals, `{event-key}.png` | Yes |
-| `staff-brief.md` | The brief for the 23 staff photos: one shared outdoor look at the Phoenix entrance, 1536 by 1536, with a 3:1 crop check | Yes |
+| `staff-brief.md` | The brief for the 23 staff photos: one shared outdoor look at the Phoenix entrance, 1536 by 1536, checked at 3:2 and 16:9 crops | Yes |
 | `staff/` | Delivered staff photos, `{household}-{member}.jpg` at 1536 by 1536, and their `manifest.json` | Yes |
 | `campuses/` | Seven distinct campus exterior JPEGs, their manifest, and reuse guide | Yes |
 | `originals/campuses/` | Full-size original campus exterior PNGs | Yes |
