@@ -215,7 +215,7 @@
       },
       "prerequisites": [],
       "students": {
-        "$comment": "Who the program is for: people who check in to the student service, in these check-in groups from configuration/checkin.json. A student's grade on a day comes from their graduation year, moving up each June 1 as check-in does. Someone has been attending when they checked in to the student service at least checkIns times in the withinDays days before. Each step's percentOfStudents is a share of the students who could take it, rounded, counted for the Cast and the generated households on their own; a Cast story counts toward it.",
+        "$comment": "Who the program is for: people who check in to the student service, in these check-in groups from configuration/checkin.json. A student's grade on a day comes from their graduation year, moving up the day after each June 1, as Rock does. Someone has been attending when they checked in to the student service at least checkIns times in the withinDays days before. Each step's percentOfStudents is a share of the students who could take it, rounded, counted for the Cast and the generated households on their own; a Cast story counts toward it.",
         "checkInGroups": [ "grades-7-8", "grades-9-12" ],
         "attending": { "checkIns": 2, "withinDays": 120 }
       },

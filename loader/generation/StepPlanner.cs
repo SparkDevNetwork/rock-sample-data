@@ -215,7 +215,7 @@ namespace RockSampleData.Loader.Generation
             10/22/26 - CLAUDE
 
             The Student Path reads the student check-ins the attendance step wrote. A student's grade on a day
-            comes from their graduation year, moving up each June 1 as check-in does, and they have been attending
+            comes from their graduation year, moving up the day after each June 1, as Rock does, and they have been attending
             when they checked in to the student service enough times in the weeks before. Camps and trips are
             church-wide events on fixed days of the year, so everyone at one camp shares its dates.
 

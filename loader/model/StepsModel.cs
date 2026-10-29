@@ -305,7 +305,7 @@ namespace RockSampleData.Loader.Model
         #region event, decision, and school-years
 
         /// <summary>
-        /// The school grades a student is in on the step's start, by the June 1 grade rule.
+        /// The school grades a student is in on the step's start, by Rock's grade rule: they move up the day after June 1.
         /// </summary>
         public IntRange Grades { get; set; }
 
