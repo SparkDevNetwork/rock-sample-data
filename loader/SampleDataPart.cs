@@ -154,7 +154,7 @@ namespace RockSampleData.Loader
             occurrence, found through the calendar's plan, so the calendar must have written it. Payments are
             their own rows, so registrations do not need giving. Students register from the Student Path plan, which
             every load makes, not from the steps part's rows, so last summer's campers match the camp steps without
-            registrations needing steps (decision D-registrations-8).
+            registrations needing steps (decision 206).
 
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */

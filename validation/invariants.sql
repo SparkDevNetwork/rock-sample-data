@@ -209,7 +209,7 @@ WHERE [r].[ForeignKey] = @ForeignKey
     AND ( [r].[EntityId] <> [n].[EntityId] OR [r].[NoteTypeId] <> [n].[NoteTypeId] OR [r].[CreatedDateTime] < [n].[CreatedDateTime] );
 
 -- check: note-author-is-not-the-noted-person
--- why: Staff write notes about other people; a note about its own author looks like a load error. Rock's own Event Registration notes are left out: Rock writes one on each registrant as the registrar, who is often the registrant (decision D-registrations-15).
+-- why: Staff write notes about other people; a note about its own author looks like a load error. Rock's own Event Registration notes are left out: Rock writes one on each registrant as the registrar, who is often the registrant (decision 213).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
@@ -220,7 +220,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
     AND [pa].[PersonId] = [n].[EntityId];
 
 -- check: person-note-looks-saved-by-rock
--- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes. Rock's Event Registration notes come from Rock's code, not its editor, so they have no EditedDateTime (decision D-registrations-15).
+-- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes. Rock's Event Registration notes come from Rock's code, not its editor, so they have no EditedDateTime (decision 213).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
@@ -234,7 +234,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
 -- check: no-high-schooler-in-adult-groups
--- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts after June 1 of the person's graduation year, the day after Rock's last day of grade 12 (decisions 169 and D-grades-1).
+-- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts after June 1 of the person's graduation year, the day after Rock's last day of grade 12 (decisions 169 and 205).
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
@@ -449,7 +449,7 @@ FROM (
     WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];
 
 -- check: student-step-belongs-to-a-student
--- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up the day after each June 1, as Rock does (decision D-grades-1).
+-- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up the day after each June 1, as Rock does (decision 205).
 WITH [StudentSteps] AS (
     SELECT [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [pa].[PersonId], [p].[GraduationYear],
         12 - ( [p].[GraduationYear] - CASE WHEN CAST( [s].[StartDateTime] AS DATE ) > DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
@@ -573,7 +573,7 @@ WHERE [t].[ForeignKey] = @ForeignKey AND [b].[Name] LIKE 'Sunday Offering %'
             AND [o].[SundayDate] = CAST( [t].[TransactionDateTime] AS DATE ) );
 
 -- check: student-check-in-fits-the-grade
--- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up the day after each June 1, as Rock does (decision D-grades-1).
+-- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up the day after each June 1, as Rock does (decision 205).
 SELECT COUNT(*)
 FROM (
     SELECT [g].[Name],
@@ -1631,7 +1631,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         WHERE [pa].[PersonId] = [av].[EntityId] AND [rr].[OnWaitList] = 0 );
 
 -- check: release-is-signed-for-every-registrant
--- why: Decision D-registrations-14. Rock's template screen saves the Embed action, so on a template that requires a release, every registrant signs while registering, and Rock links the registrant to that signed release, for that person, from that template. None is left pending.
+-- why: Decision 212. Rock's template screen saves the Embed action, so on a template that requires a release, every registrant signs while registering, and Rock links the registrant to that signed release, for that person, from that template. None is left pending.
 SELECT COUNT(*)
 FROM [RegistrationRegistrant] AS [rr]
 INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [rr].[RegistrationTemplateId]
@@ -1674,7 +1674,7 @@ WHERE [bf].[Id] IS NULL OR [bfd].[Id] IS NULL OR [bf].[MimeType] <> 'application
     OR [d].[SignatureVerificationHash] IS NULL OR [d].[SignatureVerificationHash] <> [computed].[Hash];
 
 -- check: registration-has-its-notes-and-history
--- why: Decision D-registrations-15. Rock's registration entry writes the registration's own "Added Registration" history, and on a template with Add Person Note, a note of its Event Registration type and a "Registered" history line on each registrant, tied to the registration, all as it saves. A registration without them looks entered by hand.
+-- why: Decision 213. Rock's registration entry writes the registration's own "Added Registration" history, and on a template with Add Person Note, a note of its Event Registration type and a "Registered" history line on each registrant, tied to the registration, all as it saves. A registration without them looks entered by hand.
 SELECT COUNT(*)
 FROM [RegistrationRegistrant] AS [rr]
 INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
@@ -1719,7 +1719,7 @@ WHERE [dv].[ForeignKey] = @ForeignKey
                 AND TRY_CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.EligibilityDataViewGuid' ) AS UNIQUEIDENTIFIER ) = [dv].[Guid] ) );
 
 -- check: registrant-is-in-the-eligibility-data-view
--- why: Decision D-registrations-17. Rock lets someone register only when they are in the template's eligibility data view at that moment. This replays the view's grade filter (a grade moves up the day after the grade transition date, as Rock counts it) and its check-in count over the "Last N days" window on each registration day. It needs the attendance the view counts, so a load without attendance skips it.
+-- why: Decision 215. Rock lets someone register only when they are in the template's eligibility data view at that moment. This replays the view's grade filter (a grade moves up the day after the grade transition date, as Rock counts it) and its check-in count over the "Last N days" window on each registration day. It needs the attendance the view counts, so a load without attendance skips it.
 WITH [Views] AS (
     SELECT [t].[Id] AS [TemplateId],
         ( SELECT TOP 1 '["' + REPLACE( [f].[Selection], '|', '","' ) + '"]' FROM [DataViewFilter] AS [f] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]

@@ -399,7 +399,7 @@ namespace RockSampleData.Loader
 
             // The Student Path's camps, trips, decisions, and Student Leader steps come from the student check-ins just
             // planned. They are planned in every load, so the steps part copies them and the registrations part reads
-            // them, and last summer's campers are the people with its camp step whichever parts load (decision D-registrations-8).
+            // them, and last summer's campers are the people with its camp step whichever parts load (decision 206).
             StudentPath studentPath = null;
             if ( source.Steps != null )
             {

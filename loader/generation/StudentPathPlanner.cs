@@ -46,7 +46,7 @@ namespace RockSampleData.Loader.Generation
         last summer's Student Camp step without registrations needing the steps part. The rules moved here
         from StepPlanner unchanged, so the steps are the same as before.
 
-        Reason: Registrations agree with the Student Path without depending on the Steps part (decision D-registrations-8).
+        Reason: Registrations agree with the Student Path without depending on the Steps part (decision 206).
     */
 
     /// <summary>

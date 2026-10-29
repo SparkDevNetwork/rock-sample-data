@@ -34,7 +34,7 @@ namespace RockSampleData.Loader.Generation
         A Cast person less involved than Connected registers only through a Cast story: their story is often about
         their one touch, such as a diaper drive, and a registration the story does not name would contradict it.
 
-        Reason: Registrations follow the Student Path's rules and the people's plans on any install day (decisions D-registrations-8, D-registrations-9, and D-registrations-11).
+        Reason: Registrations follow the Student Path's rules and the people's plans on any install day (decisions 206, 207, and 209).
     */
 
     /// <summary>
@@ -230,7 +230,7 @@ namespace RockSampleData.Loader.Generation
             rule would let register on their own. The rest come one at a time by connection status, and a share of the
             married ones bring their spouse on the same registration.
 
-            Reason: The Women's Retreat shows clusters of friends from one group, and Money Matters shows couples (decision D-registrations-11).
+            Reason: The Women's Retreat shows clusters of friends from one group, and Money Matters shows couples (decision 209).
         */
 
         /// <summary>

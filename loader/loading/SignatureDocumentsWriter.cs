@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Loading
         release's binary file type, with the release as its parent, and Rock's receipt emails it right after the save.
         A registrar with no email in Rock types one into the signature form; Rock keeps it on the document only.
 
-        Reason: Decision D-registrations-14. The Signed Documents list, the registrant's signed release, and its PDF
+        Reason: Decision 212. The Signed Documents list, the registrant's signed release, and its PDF
         read the way Rock wrote them.
     */
 

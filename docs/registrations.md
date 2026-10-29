@@ -123,7 +123,7 @@ Students registered for Student Camp (last summer and next summer, girls and boy
 
 ### The Student Path plan
 
-Students register from the Student Path plan (decision D-registrations-8). The loader plans the camps, trips, Follow Jesus decisions, and Student Leader steps once in every load, from the people, the attendance plan's student check-ins, the Cast stories, and the seed. The steps part copies those steps, and the registrations part reads them. So the registrations part needs only the calendar, as decision 189 says, and last summer's campers still match the camp steps. The steps are the same as before the plan moved: Core 3's Step rows, program completions, and baptism values are identical, row for row.
+Students register from the Student Path plan (decision 206). The loader plans the camps, trips, Follow Jesus decisions, and Student Leader steps once in every load, from the people, the attendance plan's student check-ins, the Cast stories, and the seed. The steps part copies those steps, and the registrations part reads them. So the registrations part needs only the calendar, as decision 189 says, and last summer's campers still match the camp steps. The steps are the same as before the plan moved: Core 3's Step rows, program completions, and baptism values are identical, row for row.
 
 ### Who
 
@@ -134,7 +134,7 @@ Students register from the Student Path plan (decision D-registrations-8). The l
 | Mission trip, next | 20% of the high school students who could go (the Mission Trip step's own rate), until the limit fills. After that, 1 in 5 of the rest join the wait list. Members join the team group as Pending, as the template says. Each registers on a day they are in the trip's [eligibility data view](#data-views). |
 | Fall retreat | 30% of the students who attend the student service, plus every current Student Leader. |
 
-A student registers on a day Rock lets them: Rock checks a registrant's grade on the day they register, so a rising 7th grader registers for camp only after June 1. Every registrant is in the template's grades on that day and on the event day (decision D-registrations-9).
+A student registers on a day Rock lets them: Rock checks a registrant's grade on the day they register, so a rising 7th grader registers for camp only after June 1. Every registrant is in the template's grades on that day and on the event day (decision 207).
 
 - **Siblings** in one family register together on one registration, up to the template's limit. Camp's girls and boys have their own instances, so a brother and sister register on two registrations, made the same day.
 - **The registrar** is a parent or guardian in the student's family, one with an email when there is one. A student whose parents are not in Rock registers themselves. The registration keeps the registrar's name and email, and the linkage's group and campus.
@@ -149,7 +149,7 @@ About 40% of campers add a camp T-shirt and 35% of retreat students a hoodie, ol
 
 ### Payments
 
-Each payment is an Event Registration transaction from the registrar, from the Website, through the Test Gateway, with the registrar's own card or bank account (the same wallet their gifts use). Its one detail points at the registration and posts to Rock's Event Registration account. The transaction carries the summary Rock's registration entry writes. Payments land in daily batches named the way Rock names them: "Event Registration" and the card type's batch suffix, such as "Event Registration VMD" for Visa, MasterCard, and Discover, or "Event Registration ACH". Payment plan payments come through Rock's Download Payments job, so they land in its "Online Giving VMD" batches. Each batch's control amount is its total, and a batch older than a week is closed (decision D-registrations-10).
+Each payment is an Event Registration transaction from the registrar, from the Website, through the Test Gateway, with the registrar's own card or bank account (the same wallet their gifts use). Its one detail points at the registration and posts to Rock's Event Registration account. The transaction carries the summary Rock's registration entry writes. Payments land in daily batches named the way Rock names them: "Event Registration" and the card type's batch suffix, such as "Event Registration VMD" for Visa, MasterCard, and Discover, or "Event Registration ACH". Payment plan payments come through Rock's Download Payments job, so they land in its "Online Giving VMD" batches. Each batch's control amount is its total, and a batch older than a week is closed (decision 208).
 
 | Registration | Paid in full | Deposit, balance due | Payment plan |
 |---|---|---|---|
@@ -198,7 +198,7 @@ The small datasets have few students, so neither fills the mission trip or has t
 
 ## Who registered: kids and adults
 
-Kids and adults go through the same steps as students: dated, registered, priced, paid, placed, and answered. Only the choosing differs (decision D-registrations-11). Each instance's `registrants` rule names one audience. The audiences read the people and the small group and serving plans that every load makes, never another part's rows, so registrations still need only the calendar.
+Kids and adults go through the same steps as students: dated, registered, priced, paid, placed, and answered. Only the choosing differs (decision 209). Each instance's `registrants` rule names one audience. The audiences read the people and the small group and serving plans that every load makes, never another part's rows, so registrations still need only the calendar.
 
 ### Who
 
@@ -229,7 +229,7 @@ Kids and adults go through the same steps as students: dated, registered, priced
 - **VBS crews.** Once registration closes, each kid is in the crew for their grade on the first day of VBS, from the Pre-K crew to the 5th grade crew. A kid with no grade yet is in the Pre-K crew.
 - **Serve Day teams.** Everyone on one registration is on one project team, and the teams fill evenly.
 - **Answers.** VBS asks who will pick up each child, answered with a parent or guardian. Serve Day asks for a shirt size. 70% of Women's Retreat guests who came with friends ask for one of them as a roommate.
-- **Allergies.** VBS and Parents' Night Out ask Rock's Allergy person attribute, which Rock saves to the child, so kids check-in prints it. About 6% of generated kids answer it, from a short list such as "Allergic to peanuts." Each child's answer is drawn once, so every form shows the same value, and it is saved once, from the first registration that asked. A child who already has a value, written by an earlier step, keeps it, so nothing is written twice. A Cast child answers only with the allergy their household file holds, such as Alex Decker's peanut allergy. The Parents' Night Out question is not required, so most families leave it blank (decision D-registrations-13).
+- **Allergies.** VBS and Parents' Night Out ask Rock's Allergy person attribute, which Rock saves to the child, so kids check-in prints it. About 6% of generated kids answer it, from a short list such as "Allergic to peanuts." Each child's answer is drawn once, so every form shows the same value, and it is saved once, from the first registration that asked. A child who already has a value, written by an earlier step, keeps it, so nothing is written twice. A Cast child answers only with the allergy their household file holds, such as Alex Decker's peanut allergy. The Parents' Night Out question is not required, so most families leave it blank (decision 211).
 
 ### Cast stories
 
@@ -263,7 +263,7 @@ The early bird runs through October 31, so every Women's Retreat registration on
 
 ## Release forms
 
-Camp and the mission trip each require a release, signed with Rock's own electronic signature (decision D-registrations-14). The signature is typed, because Rock encrypts a drawn one with each install's own key (decision 194).
+Camp and the mission trip each require a release, signed with Rock's own electronic signature (decision 212). The signature is typed, because Rock encrypts a drawn one with each install's own key (decision 194).
 
 | Release | Template | What it says |
 |---|---|---|
@@ -294,7 +294,7 @@ On install day October 29, 2026, at the default seed:
 
 ## Notes and history
 
-Every registration has the notes and history Rock's registration entry writes as it saves (decision D-registrations-15), dated that moment and written by the registrar:
+Every registration has the notes and history Rock's registration entry writes as it saves (decision 213), dated that moment and written by the registrar:
 
 - **The registration's history.** "Added Registration", then the registrar's first name, last name, and email, the discount code, percent, and amount, the linked group, and the campus. A registration's campus is the linkage's, or else the registrar's family's, as Rock sets it.
 - **Each registrant's history,** captioned "Registrant:" and their name: a person attribute the form saved to them, such as an allergy, each fee with its quantity and cost, and each answer.
@@ -314,7 +314,7 @@ On the same day, from 58 registrations in Core 1 and 109 in Core 3:
 
 ## Reminders
 
-Reminders look as if Rock's jobs ran on schedule (decision D-registrations-16):
+Reminders look as if Rock's jobs ran on schedule (decision 214):
 
 - **Registration Reminder** runs every hour. When an instance's reminder time has passed, it emails each registration and marks the instance's reminder sent at that time.
 - **Event Payment Reminders** runs at 9 AM on weekdays. Each registration's last reminder is when that job last emailed it ([Payments](#payments)).
@@ -325,7 +325,7 @@ Both jobs' emails would also leave a communication record in Rock. They are not 
 
 ## Data views
 
-Three person data views sit in a Registrations child of the church's own data view category (decision D-registrations-17). Their filters are Rock's own, saved the way Rock's data view editor saves them, so each opens and edits like one a person made.
+Three person data views sit in a Registrations child of the church's own data view category (decision 215). Their filters are Rock's own, saved the way Rock's data view editor saves them, so each opens and edits like one a person made.
 
 | Data view | Filters | Core 1 | Core 3 |
 |---|---|---|---|
@@ -349,10 +349,10 @@ The proposal also listed "Campers with a balance due." Rock has no data filter f
 
 ## The registrations part
 
-Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision D-registrations-8). Kids and adults register from the people and the small group and serving plans, which every load makes too, so it needs neither the small groups nor the serving part (decision D-registrations-11). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, so only the student registrations are skipped. The release forms, notes, history, and data views are part of the same step. The data views are filed in `configuration/categories.json`, which every package has, and the check that each mission trip registrant was in its eligibility view runs only when the load has attendance.
+Registrations are their own loader part, `Registrations` ("Event registrations"). They need the calendar only: every linkage points at an occurrence the calendar wrote (decision 189). The step takes the calendar's plan instead of planning the calendar again. Students register from the Student Path plan every load makes, so the part does not need steps (decision 206). Kids and adults register from the people and the small group and serving plans, which every load makes too, so it needs neither the small groups nor the serving part (decision 209). A package built before registrations existed has no `configuration/registrations.json`, and the step skips. A package with no `configuration/steps.json` has no students to register, so only the student registrations are skipped. The release forms, notes, history, and data views are part of the same step. The data views are filed in `configuration/categories.json`, which every package has, and the check that each mission trip registrant was in its eligibility view runs only when the load has attendance.
 
 ## Later
 
 1. **Refunds.** One cancelled mission trip spot with a refunded deposit.
 2. **Batch history.** Rock writes financial batch history when a registration payment lands in a batch. The loader does not write it yet.
-3. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision D-registrations-16).
+3. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision 214).

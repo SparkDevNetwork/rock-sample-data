@@ -50,7 +50,7 @@ Each dataset includes groups made for testing Group Finder and group history.
 
 - **The Cast** joins at high rates so Core datasets have plenty of full, lively groups: about 95% of Leading, 85% of Engaged, 80% of Connected, and 30% of Known adults, and a few Prospects and Participants. That gives Core 1 about 8 active groups.
 - **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower. A campus too small to fill its test groups at that rate adds the households that came closest to joining, until each group can reach the minimum size. Core 3 gets 6 groups at each companion campus, 24 in all.
-- **Registrations** read the small group plan, not its rows: a share of the members on the day of the Community Serve Day signed up for it, and some active groups send two to four women to the Women's Retreat on one registration (decision D-registrations-11). See [Event registrations](registrations.md#who-registered-kids-and-adults).
+- **Registrations** read the small group plan, not its rows: a share of the members on the day of the Community Serve Day signed up for it, and some active groups send two to four women to the Women's Retreat on one registration (decision 209). See [Event registrations](registrations.md#who-registered-kids-and-adults).
 
 ## The Cast's groups
 

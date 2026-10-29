@@ -37,7 +37,7 @@ namespace RockSampleData.Loader.Loading
         grows with each payment. A payment plan's payments come through Rock's Download Payments job, which uses its own
         batch prefix. Placed people are members of their placement groups with the group type's default role.
 
-        Reason: Rock's registration screens, balances, batches, and placement board read these rows as if people had registered (decision D-registrations-10).
+        Reason: Rock's registration screens, balances, batches, and placement board read these rows as if people had registered (decision 208).
     */
 
     /// <summary>

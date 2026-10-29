@@ -34,7 +34,7 @@ namespace RockSampleData.Loader.Generation
         Rock checks a registrant's grade on the day they register, so a registration falls on a day when every
         registrant meets the template's rules, and every registrant also meets them on the event day.
 
-        Reason: Registrations follow Rock's rules on any install day (decisions D-registrations-8 and D-registrations-9).
+        Reason: Registrations follow Rock's rules on any install day (decisions 206 and 207).
     */
 
     /// <summary>
@@ -241,7 +241,7 @@ namespace RockSampleData.Loader.Generation
             grade filter counts it, moving up the day after the grade transition date. check-registrations.js keeps the
             view's check-in areas the Student Path's, and an invariant checks every registrant against the view in SQL.
 
-            Reason: Decision D-registrations-17. Every trip registrant is someone Rock would have let register.
+            Reason: Decision 215. Every trip registrant is someone Rock would have let register.
         */
 
         /// <summary>
@@ -989,7 +989,7 @@ namespace RockSampleData.Loader.Generation
             and every registration that asks shows the same value. A Cast person answers only with the value their file
             holds, so no Cast story gains an allergy it does not tell.
 
-            Reason: A child's allergy agrees across every registration and check-in (decision D-registrations-13).
+            Reason: A child's allergy agrees across every registration and check-in (decision 211).
         */
 
         /// <summary>

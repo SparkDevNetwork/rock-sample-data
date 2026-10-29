@@ -292,7 +292,7 @@ namespace RockSampleData.Loader.Loading
             off external registration updates, since an edit could change what was signed. So the registrant signs while
             registering, and the template keeps AllowExternalRegistrationUpdates off.
 
-            Reason: Decision D-registrations-14. The templates read the way Rock's screen saves them.
+            Reason: Decision 212. The templates read the way Rock's screen saves them.
         */
 
         /// <summary>
@@ -647,7 +647,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
             registration's confirmation address, then sets SendReminderDateTime to when it ran and ReminderSent to true,
             and saving the instance moves its ModifiedDateTime. Reminders are set on the hour, so the job's run is that
             time. Its emails, like the confirmation and payment reminder emails, are not written as communication history
-            (decision D-registrations-16).
+            (decision 214).
 
             Reason: An instance whose reminder day has passed reads as if the job ran on schedule.
         */

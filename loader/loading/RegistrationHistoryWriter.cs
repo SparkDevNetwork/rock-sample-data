@@ -45,7 +45,7 @@ namespace RockSampleData.Loader.Loading
 
         Everything is dated the moment the registration was saved, and written by the registrar, who is logged in.
 
-        Reason: Decision D-registrations-15. The registration's History tab and the person's Notes and History tabs
+        Reason: Decision 213. The registration's History tab and the person's Notes and History tabs
         read the way Rock wrote them.
     */
 

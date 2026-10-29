@@ -30,7 +30,7 @@ namespace RockSampleData.Loader.Generation
         memberships (Small Group, Serve, Lead), the giving journey (Give), the Baptism Date (Baptism),
         classes (Starting Point Class, Foundations), and, from student check-ins, events (Student Camp,
         Mission Trip), a decision (Follow Jesus), and school years (Student Leader). The student kinds are
-        planned once per load by StudentPathPlanner and copied here (decision D-registrations-8). The planner is pure:
+        planned once per load by StudentPathPlanner and copied here (decision 206). The planner is pure:
         it turns facts that earlier load steps wrote into step records, so the same facts, seed, and
         anchor give the same steps.
 
@@ -211,7 +211,7 @@ namespace RockSampleData.Loader.Generation
 
         /// <summary>
         /// Copies one step type's planned Student Path steps (an event, the decision, or school years) and its share,
-        /// in the order the Student Path planned them (decision D-registrations-8).
+        /// in the order the Student Path planned them (decision 206).
         /// </summary>
         private void AddStudentSteps( StepTypeDefinition type )
         {

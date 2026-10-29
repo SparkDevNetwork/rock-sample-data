@@ -54,7 +54,7 @@ The words this project uses, in alphabetical order.
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
-| **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision D-registrations-11). See [Event registrations](registrations.md). |
+| **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision 209). See [Event registrations](registrations.md). |
 | **Registrant** | A person registered on a registration, such as a camper. One registration can hold several, such as siblings. |
 | **Registrar** | The person who made a registration, usually a parent or guardian. They get the confirmation email and make the payments. |
 | **Registration instance** | One registration people can sign up for, such as Student Camp 2027: Girls, with its open and close dates and its limit. It comes from a template. |
@@ -76,7 +76,7 @@ The words this project uses, in alphabetical order.
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
-| **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision D-registrations-8). |
+| **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision 206). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
