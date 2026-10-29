@@ -144,7 +144,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |
 | `only-this-dataset` | One database holds one dataset. Another's rows mean the database was not fresh. |
-| `no-high-schooler-in-adult-groups` | Nobody joins or leads a small group or serving team while still in high school: each membership starts on or after the June 1 grade change in the person's graduation year. |
+| `no-high-schooler-in-adult-groups` | Nobody joins or leads a small group or serving team while still in high school: each membership starts after June 1 of the person's graduation year, the day after Rock's last day of grade 12. |
 | `step-matches-its-membership` | A Small Group, Serve, or Lead step records one membership, with its dates, and every membership that counts has its step. |
 | `step-looks-saved-by-rock` | Rock fills each step's date keys from its dates, and a Complete step has a completion date. Every step is on the person's primary alias and campus. |
 | `baptism-step-agrees-with-baptism-date` | The Baptism step and the Baptism Date attribute always agree, and Baptized Here matches on the step and the person. |
@@ -157,7 +157,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `student-baptism-follows-the-student-service` | A child's baptism is here, on a Sunday, after they started coming to the student service. |
 | `young-kid-checks-in-with-the-family` | A kid from the nursery to 6th grade checks in only with an adult of their family who was in the service that Sunday. A child whose families have no living, active adult checks in on their own (decision 146). |
 | `onsite-gift-on-a-family-sunday` | Every gift in a Sunday Offering batch falls on a Sunday an adult of the giver's family came. A student on their own never makes a family Sunday (decision 146). |
-| `student-check-in-fits-the-grade` | Every student check-in fits the student's grade that day, so a recent graduate's student check-ins end at the June 1 grade change after they graduate (decision 148). |
+| `student-check-in-fits-the-grade` | Every student check-in fits the student's grade that day, so a recent graduate's student check-ins end after June 1 of their graduation year, when Rock moves them out of grade 12 (decisions 148 and D-grades-1). |
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
 | `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an email that is active, or that bounced after they joined. |
 | `volunteers-list-follows-the-teams`, `small-group-leaders-list-follows-the-groups` | The Volunteers list is exactly the people active on a serving team, and the Small Group Leaders list exactly the leaders of active small groups. |

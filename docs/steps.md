@@ -107,7 +107,7 @@ Student steps come from the student check-ins the attendance step already writes
 
 ### Who is a student
 
-- **A student** is a child who checked in to the student service. Their grade on a day comes from their graduation year and moves up each June 1, the way Rock's check-in does. So a camp in late June counts a rising 9th grader as a 9th grader.
+- **A student** is a child who checked in to the student service. Their grade on a day comes from their graduation year and moves up the day after each June 1, the way Rock's check-in does (on June 1 itself, Rock still shows the old grade). So a camp in late June counts a rising 9th grader as a 9th grader.
 - **Attending.** A student has been attending on a day when they checked in to the student service at least twice in the 120 days before it. A rising 7th grader has not been to the student service yet, so they wait for next summer's camp.
 - **The window.** Student steps fall inside the dataset's history window and are never dated after the install day. A student who graduates keeps their steps.
 

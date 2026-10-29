@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Loading
 
         Attendance is planned per household, then written per person, so the whole family
         agrees: kids only check in on Sundays the family came, at the family's service time,
-        in the room for their age or grade on that date (kids move up a grade each June 1).
+        in the room for their age or grade on that date (kids move up a grade the day after each June 1, as Rock does).
         Students check in at the student service. The Sundays a family attended are kept
         for the giving step, so onsite checks and cash only happen when the family was there.
 
