@@ -208,9 +208,19 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
         }
 
+        /*
+            10/29/26 - CLAUDE
+
+            An earlier step may already have saved a person's value for the same attribute, such as the people step
+            writing a Cast child's Allergy from their file. Rock keeps one value per person and attribute, and its form
+            shows that current value, so a registration keeps it and writes nothing.
+
+            Reason: Registrations and the people step never write the same person value twice.
+        */
+
         /// <summary>
         /// Saves each person attribute a registration form answered to the person, once, from their first registration
-        /// that answered it, as Rock's registration entry saves it.
+        /// that answered it, as Rock's registration entry saves it. A person who already has a value keeps it.
         /// </summary>
         private void WritePersonAnswers( List<PlannedRegistration> registrations )
         {
@@ -219,13 +229,23 @@ namespace RockSampleData.Loader.Loading
             var answers = registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid )
                 .SelectMany( r => r.Registrants.SelectMany( p => p.PersonAnswers.Select( a => (r.When, p.Person, Attribute: a.Key, a.Value) ) ) )
                 .GroupBy( a => (a.Attribute, a.Person.PersonId) )
-                .Select( g => g.First() );
+                .Select( g => g.First() )
+                .ToList();
+            foreach ( var attribute in answers.Select( a => a.Attribute ).Distinct() )
+            {
+                attributeIds[attribute] = _db.RequireIdByGuid( "Attribute", attribute );
+            }
+
+            var saved = attributeIds.Count == 0 ? new HashSet<(int, int)>()
+                : _db.Query( $"SELECT [AttributeId], [EntityId] FROM [AttributeValue] WHERE [AttributeId] IN ( {string.Join( ", ", attributeIds.Values )} ) AND [EntityId] IS NOT NULL" )
+                    .Select( r => (Convert.ToInt32( r["AttributeId"] ), Convert.ToInt32( r["EntityId"] )) )
+                    .ToHashSet();
             foreach ( var answer in answers )
             {
-                if ( !attributeIds.TryGetValue( answer.Attribute, out var attributeId ) )
+                var attributeId = attributeIds[answer.Attribute];
+                if ( saved.Contains( (attributeId, answer.Person.PersonId) ) )
                 {
-                    attributeId = _db.RequireIdByGuid( "Attribute", answer.Attribute );
-                    attributeIds[answer.Attribute] = attributeId;
+                    continue;
                 }
 
                 values.Rows.Add( false, attributeId, answer.Person.PersonId, answer.Value, true, SeededRandom.StableGuid( $"{answer.Person.Cast.Guid}:person-attribute:{answer.Attribute}" ), _foreignKey, answer.When, answer.When );
