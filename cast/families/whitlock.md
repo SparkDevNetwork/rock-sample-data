@@ -6,10 +6,10 @@ Dana Whitlock is the Gilbert Campus Director. She runs the campus's Sundays, vol
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Dana Whitlock | 40 | adult | Engaged |
-| (photo coming) | Scott Whitlock | 42 | adult | Engaged |
-| (photo coming) | Harper Whitlock | 10 | child | Engaged |
-| (photo coming) | Wes (Wesley) Whitlock | 7 | child | Engaged |
+| <img src="../../photos/cast/whitlock-dana.jpg" width="96" alt="Dana Whitlock"> | Dana Whitlock | 40 | adult | Engaged |
+| <img src="../../photos/cast/whitlock-scott.jpg" width="96" alt="Scott Whitlock"> | Scott Whitlock | 42 | adult | Engaged |
+| <img src="../../photos/cast/whitlock-harper.jpg" width="96" alt="Harper Whitlock"> | Harper Whitlock | 10 | child | Engaged |
+| <img src="../../photos/cast/whitlock-wes.jpg" width="96" alt="Wes Whitlock"> | Wes (Wesley) Whitlock | 7 | child | Engaged |
 
 ## People
 

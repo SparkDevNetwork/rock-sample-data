@@ -6,9 +6,9 @@ Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sono
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Andre Haywood | 48 | adult | Engaged |
-| (photo coming) | Keisha Haywood | 46 | adult | Engaged |
-| (photo coming) | Isaiah Haywood | 16 | child | Engaged |
+| <img src="../../photos/cast/haywood-andre.jpg" width="96" alt="Andre Haywood"> | Andre Haywood | 48 | adult | Engaged |
+| <img src="../../photos/cast/haywood-keisha.jpg" width="96" alt="Keisha Haywood"> | Keisha Haywood | 46 | adult | Engaged |
+| <img src="../../photos/cast/haywood-isaiah.jpg" width="96" alt="Isaiah Haywood"> | Isaiah Haywood | 16 | child | Engaged |
 
 ## People
 

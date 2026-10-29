@@ -6,7 +6,7 @@ Naomi Castillo is the Worship Director. She leads worship at Phoenix most Sunday
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Naomi Castillo | 34 | adult | Engaged |
+| <img src="../../photos/cast/castillo-naomi.jpg" width="96" alt="Naomi Castillo"> | Naomi Castillo | 34 | adult | Engaged |
 
 ## People
 

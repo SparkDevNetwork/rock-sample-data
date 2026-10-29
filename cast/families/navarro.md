@@ -6,8 +6,8 @@ Dee Navarro is the Care Director. She makes hospital visits, leads grief care, o
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Dee (Dolores) Navarro | 61 | adult | Engaged |
-| (photo coming) | Hector Navarro | 64 | adult | Engaged |
+| <img src="../../photos/cast/navarro-dee.jpg" width="96" alt="Dee Navarro"> | Dee (Dolores) Navarro | 61 | adult | Engaged |
+| <img src="../../photos/cast/navarro-hector.jpg" width="96" alt="Hector Navarro"> | Hector Navarro | 64 | adult | Engaged |
 
 ## People
 

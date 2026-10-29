@@ -6,7 +6,7 @@ Miles Okafor is the Tempe Campus Pastor, at the urban campus full of singles and
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Miles Okafor | 31 | adult | Engaged |
+| <img src="../../photos/cast/okafor-miles.jpg" width="96" alt="Miles Okafor"> | Miles Okafor | 31 | adult | Engaged |
 
 ## People
 

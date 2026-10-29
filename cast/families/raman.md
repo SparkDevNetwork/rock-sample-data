@@ -6,9 +6,9 @@ Priya Raman is the Finance Director. She runs payroll, deposits, giving statemen
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Priya Raman | 46 | adult | Engaged |
-| (photo coming) | Sunil Raman | 48 | adult | Engaged |
-| (photo coming) | Anika Raman | 15 | child | Engaged |
+| <img src="../../photos/cast/raman-priya.jpg" width="96" alt="Priya Raman"> | Priya Raman | 46 | adult | Engaged |
+| <img src="../../photos/cast/raman-sunil.jpg" width="96" alt="Sunil Raman"> | Sunil Raman | 48 | adult | Engaged |
+| <img src="../../photos/cast/raman-anika.jpg" width="96" alt="Anika Raman"> | Anika Raman | 15 | child | Engaged |
 
 ## People
 

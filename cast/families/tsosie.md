@@ -6,7 +6,7 @@ Leah Tsosie is the Tempe Worship Leader, at the urban campus full of singles and
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Leah Tsosie | 32 | adult | Engaged |
+| <img src="../../photos/cast/tsosie-leah.jpg" width="96" alt="Leah Tsosie"> | Leah Tsosie | 32 | adult | Engaged |
 
 ## People
 

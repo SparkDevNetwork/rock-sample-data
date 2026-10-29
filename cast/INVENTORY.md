@@ -132,7 +132,7 @@ Seven households were added so every campus has a named campus pastor who is alw
 | [ibarra](households/ibarra.json) | Goodyear | Rafael (campus pastor), Elisa, Nico 1 | Staff family with a baby in the nursery. |
 | [tsosie](households/tsosie.json) | Tempe | Leah (Worship Leader since 2026-10-29) | Single adult on staff, living alone. |
 
-The Cast is now 94 households and 206 people. Their profile photos are still to be made.
+The Cast is now 94 households and 206 people. Their profile photos were delivered on 2026-10-29.
 
 ## Central staff (2026-10-28)
 
@@ -148,7 +148,7 @@ Seven households were added so the church has 20 named staff (decision D-staff-3
 | [delgado](households/delgado.json) | Ray (Facilities Director), Carmen | Facilities Director with Rock's safety and security role. |
 | [morrow](households/morrow.json) | Kelsey (Production Director), Evan | Production Director who oversees every campus's production team. |
 
-The Cast is now 101 households and 221 people. The 36 new people's profile photos are still to be made.
+The Cast is now 101 households and 221 people. The 36 new people's profile photos were delivered on 2026-10-29.
 
 ## Campus pastors at Gilbert, Chandler, and Tempe (2026-10-29)
 
@@ -160,7 +160,7 @@ Every pastor on staff is a man (decision D-staff-6). Three households were added
 | [faleolo](households/faleolo.json) | Chandler | Josiah (campus pastor), Leilani, Malia 4, Kai 1 | Chandler's campus pastor, with a preschooler and a baby. |
 | [okafor](households/okafor.json) | Tempe | Miles (campus pastor) | Tempe's campus pastor, single and living alone. |
 
-The Cast is now 104 households and 230 people. The 9 new people's profile photos are still to be made.
+The Cast is now 104 households and 230 people. The 9 new people's profile photos were delivered on 2026-10-29, with all 23 staff photos.
 
 ## Issues to fix during Cast review
 

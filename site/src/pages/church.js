@@ -161,7 +161,7 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
     ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
     <div class="staff-grid">
       ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">
-        ${s.staffPhoto ? html`<img class="portrait portrait-lg" src="${r( "images/staff/" + s.staffPhoto )}" alt="${esc( s.member.displayName )}" loading="lazy" width="200" height="200">` : portrait( s.member, r, "lg" )}
+        ${s.staffPhoto ? html`<img class="portrait portrait-lg staff-photo" src="${r( "images/staff/" + s.staffPhoto )}" alt="${esc( s.member.displayName )}" loading="lazy" width="200" height="200" style="object-position: ${esc( s.staffPhotoPosition )}">` : portrait( s.member, r, "lg" )}
         <span class="staff-name">${esc( s.member.displayName )}</span>
         <span class="staff-title">${esc( s.title )}</span>
       </a>` )}
@@ -192,6 +192,16 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
         ${c.pastor ? html`<p class="campus-meta">Campus pastor: <a href="${r( "cast/" + c.pastor.household.key + ".html" )}">${esc( c.pastor.displayName )}</a></p>` : ""}
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>
+        ${c.staff.length ? html`<div class="campus-staff">
+          ${c.staff.map( s => {
+                const src = s.campusPhoto ? "images/staff/campus/" + s.campusPhoto : s.staffPhoto ? "images/staff/" + s.staffPhoto : null;
+                const position = s.campusPhoto ? s.campusPhotoPosition : s.staffPhotoPosition;
+                return html`<a class="campus-staff-person" href="${r( "cast/" + s.member.household.key + ".html" )}">
+            ${src ? html`<img class="staff-photo" src="${r( src )}" alt="${esc( s.member.displayName )}" loading="lazy" width="64" height="64" style="object-position: ${esc( position )}">` : portrait( s.member, r, "md" )}
+            <span><strong>${esc( s.member.displayName )}</strong> ${esc( s.title )}</span>
+          </a>`;
+            } )}
+        </div>` : ""}
       </div>` )}
     </div>
   </div>

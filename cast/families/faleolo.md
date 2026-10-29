@@ -6,10 +6,10 @@ Josiah Faleolo is the Chandler Campus Pastor, at the campus full of young famili
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Josiah Faleolo | 34 | adult | Engaged |
-| (photo coming) | Leilani Faleolo | 32 | adult | Engaged |
-| (photo coming) | Malia Faleolo | 4 | child | Engaged |
-| (photo coming) | Kai Faleolo | 1 | child | Engaged |
+| <img src="../../photos/cast/faleolo-josiah.jpg" width="96" alt="Josiah Faleolo"> | Josiah Faleolo | 34 | adult | Engaged |
+| <img src="../../photos/cast/faleolo-leilani.jpg" width="96" alt="Leilani Faleolo"> | Leilani Faleolo | 32 | adult | Engaged |
+| <img src="../../photos/cast/faleolo-malia.jpg" width="96" alt="Malia Faleolo"> | Malia Faleolo | 4 | child | Engaged |
+| <img src="../../photos/cast/faleolo-kai.jpg" width="96" alt="Kai Faleolo"> | Kai Faleolo | 1 | child | Engaged |
 
 ## People
 

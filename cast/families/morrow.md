@@ -6,8 +6,8 @@ Kelsey Morrow is the Production Director. She runs sound, lights, and streaming 
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (photo coming) | Kelsey Morrow | 31 | adult | Engaged |
-| (photo coming) | Evan Morrow | 32 | adult | Engaged |
+| <img src="../../photos/cast/morrow-kelsey.jpg" width="96" alt="Kelsey Morrow"> | Kelsey Morrow | 31 | adult | Engaged |
+| <img src="../../photos/cast/morrow-evan.jpg" width="96" alt="Evan Morrow"> | Evan Morrow | 32 | adult | Engaged |
 
 ## People
 

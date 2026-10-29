@@ -165,7 +165,8 @@ module.exports = function brand( { model, r, downloads } ) {
             [ "campuses", "Campus exteriors", "7 distinct campuses ready for Sunday, without people, JPEG" ],
             [ "serving", "Serving teams", "8 photos of Cast volunteers at work, JPEG" ],
             [ "groups", "Small groups", "12 Cast small group photos, JPEG" ],
-            [ "portraits", "Cast portraits", `${model.counts.photos} profile photos, JPEG` ]
+            [ "portraits", "Cast portraits", `${model.counts.photos} profile photos, JPEG` ],
+            [ "staff", "Staff photos", `${model.staff.filter( s => s.staffPhoto ).length} staff photos at the Phoenix campus, plus ${model.staff.filter( s => s.campusPhoto ).length} at their own campuses, JPEG` ]
         ].map( ( [ key, title, detail ] ) => html`<a class="pack reveal" href="${r( "downloads/" + downloads.zips[key].name )}" download>
           <span class="pack-title">${esc( title )}</span>
           <span class="pack-detail">${esc( detail )}</span>

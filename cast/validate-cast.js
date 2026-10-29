@@ -921,13 +921,31 @@ for ( const { file, data: h } of households ) {
     }
 }
 
-// Pass 4b: staff photos (decision D-staff-4). Each is a 1536-pixel square JPEG of a staff member, named for them,
-// with its original kept. A staff member with no staff photo yet is a warning, not an error.
+// Pass 4b: staff photos (decision D-staff-4). Each is a 1536-pixel square JPEG of a staff member, named for them.
+// The image agent delivers the final square, so it is its own original. A staff member with no staff photo yet
+// is a warning, not an error. Campus versions (photos/staff/campus/) are a staff member's photo at their own
+// campus: the site shows them, and Rock does not load them.
 {
     const staffManifestFile = path.join( photosDir, "staff", "manifest.json" );
     const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
+    const sha256 = file => require( "crypto" ).createHash( "sha256" ).update( fs.readFileSync( file ) ).digest( "hex" );
+    const checkFile = ( owner, image ) => {
+        const file = path.join( photosDir, image.file );
+        const size = fs.existsSync( file ) ? jpegSize( file ) : null;
+        if ( !size ) {
+            errors.push( `${owner}: the file is missing or is not a JPEG.` );
+            return;
+        }
+        if ( size.width !== 1536 || size.height !== 1536 ) {
+            errors.push( `${owner}: is ${size.width} by ${size.height}; staff photos are 1536 by 1536.` );
+        }
+        if ( image.sha256 && sha256( file ) !== image.sha256 ) {
+            errors.push( `${owner}: the file's SHA-256 is not the one the image agent handed back.` );
+        }
+    };
     if ( fs.existsSync( staffManifestFile ) && fs.existsSync( staffFile ) ) {
-        const staffPeople = new Set( JSON.parse( fs.readFileSync( staffFile, "utf8" ) ).staff.map( s => s.person ) );
+        const staffConfig = JSON.parse( fs.readFileSync( staffFile, "utf8" ) );
+        const staffPeople = new Set( staffConfig.staff.map( s => s.person ) );
         const delivered = new Set();
         for ( const image of JSON.parse( fs.readFileSync( staffManifestFile, "utf8" ) ).images ) {
             const owner = `photos/staff/manifest.json (${image.file})`;
@@ -946,23 +964,39 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${owner}: ${image.household}/${image.member} is not staff in configuration/staff.json.` );
             }
 
-            const size = fs.existsSync( path.join( photosDir, image.file ) ) ? jpegSize( path.join( photosDir, image.file ) ) : null;
-            if ( !size ) {
-                errors.push( `${owner}: the file is missing or is not a JPEG.` );
-            }
-            else if ( size.width !== 1536 || size.height !== 1536 ) {
-                errors.push( `${owner}: is ${size.width} by ${size.height}; staff photos are 1536 by 1536.` );
-            }
-
-            const originalBase = path.join( photosDir, "originals", image.file.replace( /\.jpg$/, "" ) );
-            if ( ![ ".jpg", ".jpeg", ".png" ].some( ext => fs.existsSync( originalBase + ext ) ) ) {
-                errors.push( `${owner}: has no original in photos/originals/staff/.` );
-            }
+            checkFile( owner, image );
         }
 
         const missing = [ ...people.values() ].filter( x => staffPeople.has( x.person.guid ) && !delivered.has( `${x.household.key}-${x.person.key}` ) );
         if ( missing.length ) {
             warnings.push( `${missing.length} staff ${missing.length === 1 ? "member has" : "members have"} no staff photo yet. See photos/staff-brief.md.` );
+        }
+
+        // A campus version is of a staff member who serves that campus, named {household}-{member}-{campus}.jpg.
+        const campusManifestFile = path.join( photosDir, "staff", "campus", "manifest.json" );
+        if ( fs.existsSync( campusManifestFile ) ) {
+            const seen = new Set();
+            for ( const image of JSON.parse( fs.readFileSync( campusManifestFile, "utf8" ) ).images ) {
+                const owner = `photos/staff/campus/manifest.json (${image.file})`;
+                const key = `${image.household}-${image.member}-${image.campus}`;
+                if ( image.file !== `staff/campus/${key}.jpg` ) {
+                    errors.push( `${owner}: should be staff/campus/${key}.jpg.` );
+                }
+                if ( seen.has( key ) ) {
+                    errors.push( `${owner}: listed twice.` );
+                }
+                seen.add( key );
+                const match = households.find( x => x.data.key === image.household );
+                const person = match && ( match.data.members || [] ).find( m => m.key === image.member );
+                const member = person && staffConfig.staff.find( s => s.person === person.guid );
+                if ( !member ) {
+                    errors.push( `${owner}: ${image.household}/${image.member} is not staff in configuration/staff.json.` );
+                }
+                else if ( member.campus !== image.campus ) {
+                    errors.push( `${owner}: ${member.name} serves ${member.campus || "every campus"}, not ${image.campus}.` );
+                }
+                checkFile( owner, image );
+            }
         }
     }
 }
