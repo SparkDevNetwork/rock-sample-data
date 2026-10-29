@@ -103,11 +103,11 @@ Who takes a class, in this order:
 
 ## How student steps are made
 
-Student steps come from the student check-ins the attendance step already writes (decision 115). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those check-ins from the attendance plan, the same rows the attendance step writes, so a load that leaves out attendance still gets the same student steps (decision 125). It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
+Student steps come from the student check-ins the attendance step already writes (decision 115). Jr High and High School students check in one by one to the Sunday 10:30 student service, in the Grades 7-8 and Grades 9-12 groups. The steps step reads those check-ins from the attendance plan, the same rows the attendance step writes, so a load that leaves out attendance still gets the same student steps (decision 125). The camps, trips, Follow Jesus decisions, and Student Leader steps are planned once in every load, right after attendance, whether or not steps load. The steps step copies them, and the registrations step reads them, so last summer's campers are exactly the people with last summer's Student Camp step (decision 206). It does not wait for per-person attendance: when that lands, the Student Path follows whatever check-ins it writes. The loader is described in [How steps load](../loader/README.md#how-steps-load).
 
 ### Who is a student
 
-- **A student** is a child who checked in to the student service. Their grade on a day comes from their graduation year and moves up each June 1, the way Rock's check-in does. So a camp in late June counts a rising 9th grader as a 9th grader.
+- **A student** is a child who checked in to the student service. Their grade on a day comes from their graduation year and moves up the day after each June 1, the way Rock's check-in does (on June 1 itself, Rock still shows the old grade). So a camp in late June counts a rising 9th grader as a 9th grader.
 - **Attending.** A student has been attending on a day when they checked in to the student service at least twice in the 120 days before it. A rising 7th grader has not been to the student service yet, so they wait for next summer's camp.
 - **The window.** Student steps fall inside the dataset's history window and are never dated after the install day. A student who graduates keeps their steps.
 
@@ -222,6 +222,6 @@ Jasmine's household file now sets her graduation as a relative date, this past M
 ## Later
 
 - **eRA steps** in Rock's Core Steps program, from the attendance the data already has.
-- **Links to learning and events.** When learning (LMS) and event registrations are built, Foundations can link to a learning class, and Student Camp and Mission Trip to a registration.
+- **Links to learning and events.** When learning (LMS) is built, Foundations can link to a learning class. Student registrations are built, and last summer's campers are exactly the students with that camp's step (see [Event registrations](registrations.md#who-registered-students)), so each Student Camp step could also point at its registration.
 - **Student small groups,** which would add a group step to the Student Path.
 - **Step workflows,** such as a follow-up after a baptism.

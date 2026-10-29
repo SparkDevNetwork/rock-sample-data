@@ -293,6 +293,7 @@ function load() {
             return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
         } ) : [],
         registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
+        stepTypes: exists( "configuration/steps.json" ) ? readJson( "configuration/steps.json" ).programs.flatMap( p => p.stepTypes ) : [],
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {
             households: households.length,

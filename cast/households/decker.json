@@ -284,5 +284,45 @@
         "Allergy": "Allergic to peanuts"
       }
     }
+  ],
+  "registrations": [
+    {
+      "instance": "vbs",
+      "occurrence": "last",
+      "registrants": [
+        "noah",
+        "alex"
+      ],
+      "registrar": "cindy",
+      "expect": {
+        "registrar": "cindy",
+        "placements": {
+          "crew": 1
+        },
+        "answers": {
+          "alex": { "Allergy": "Allergic to peanuts" }
+        },
+        "payment": "paid-in-full"
+      }
+    },
+    {
+      "instance": "date-night",
+      "occurrence": "next",
+      "registrants": [
+        "ted",
+        "cindy"
+      ],
+      "registrar": "ted",
+      "fees": [
+        "childcare"
+      ],
+      "expect": {
+        "registrar": "ted",
+        "fees": {
+          "childcare": 2
+        },
+        "payment": "paid-in-full"
+      }
+    }
   ]
 }

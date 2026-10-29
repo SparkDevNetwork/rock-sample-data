@@ -86,5 +86,24 @@
         }
       ]
     }
+  ],
+  "registrations": [
+    {
+      "instance": "community-serve-day",
+      "occurrence": "last",
+      "registrants": [
+        "brianna"
+      ],
+      "registrar": "brianna",
+      "placements": {
+        "team": "School Supplies"
+      },
+      "expect": {
+        "registrar": "brianna",
+        "placedIn": {
+          "team": "School Supplies"
+        }
+      }
+    }
   ]
 }

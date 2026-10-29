@@ -160,8 +160,256 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Registrations ) ? CheckRegistrations( db, source, guids, failures ) : 0;
+
             return (checks, failures);
         }
+
+        /// <summary>
+        /// Checks each Cast registration (a household's registrations list): its members are registered together on
+        /// one registration of the instance, off the wait list, and Rock shows the registrar, placements, payment, and
+        /// discount it expects. An instance that opened only today has no registrations yet, so its Cast
+        /// registrations are not checked that day.
+        /// </summary>
+        private static int CheckRegistrations( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var config = source.Registrations;
+            if ( config == null || source.Steps == null )
+            {
+                return 0;
+            }
+
+            // The Cast lives on the main campus, so a Cast registration for a campus event is the main campus's instance.
+            var mainCampus = source.Campuses.Campuses.Single( c => c.RockDefault ).Name;
+            var checks = 0;
+            foreach ( var household in source.ReadHouseholds() )
+            {
+                foreach ( var pin in household.Registrations )
+                {
+                    var rule = config.Instances.First( i => i.Key == pin.Instance );
+                    var template = config.Templates.First( t => t.Key == rule.Template );
+                    var people = pin.Registrants.Select( key => household.Members.First( m => m.Key == key ) ).ToList();
+                    var names = string.Join( " and ", people.Select( p => $"{p.NickName ?? p.FirstName} {p.LastName}" ) );
+                    var pattern = rule.Name.Replace( "{year}", "%" ).Replace( "{month}", "%" ).Replace( "{campus}", mainCampus );
+                    var instances = db.Query( @"
+SELECT [i].[Id], [i].[Name], [i].[StartDateTime]
+FROM [RegistrationInstance] AS [i]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [i].[RegistrationTemplateId]
+WHERE [t].[Guid] = @Template AND [i].[Name] LIKE @Pattern
+ORDER BY [i].[StartDateTime]", P( "@Template", SeededRandom.StableGuid( $"registration-template:{template.Key}" ) ), P( "@Pattern", pattern ) );
+                    var picks = rule.Occurrences.OrderBy( o => o == RegistrationOccurrencePick.Next ).ToList();
+                    if ( instances.Count != picks.Count )
+                    {
+                        checks++;
+                        failures.Add( $"{names}: expected {picks.Count} {template.Name} instances like \"{pattern}\", Rock shows {instances.Count}" );
+                        continue;
+                    }
+
+                    var instance = instances[picks.IndexOf( pin.Occurrence )];
+                    if ( ( ( DateTime ) instance["StartDateTime"] ).Date >= DateTime.Today )
+                    {
+                        continue;
+                    }
+
+                    checks++;
+                    var rows = people.Select( p => db.Query( @"
+SELECT [r].[Id], [r].[DiscountCode], [r].[DiscountPercentage], [r].[DiscountAmount], [r].[PaymentPlanFinancialScheduledTransactionId], [rr].[OnWaitList], [rp].[Guid] AS [RegistrarGuid]
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+LEFT JOIN [PersonAlias] AS [ra] ON [ra].[Id] = [r].[PersonAliasId]
+LEFT JOIN [Person] AS [rp] ON [rp].[Id] = [ra].[PersonId]
+WHERE [r].[RegistrationInstanceId] = @Instance AND [p].[Guid] = @Person", P( "@Instance", instance["Id"] ), P( "@Person", guids.Value( p.Guid ) ) ).FirstOrDefault() ).ToList();
+                    var name = ( string ) instance["Name"];
+                    if ( rows.Any( r => r == null ) || rows.Select( r => ( int ) r["Id"] ).Distinct().Count() != 1 || rows.Any( r => ( bool ) r["OnWaitList"] ) )
+                    {
+                        failures.Add( $"{names}: expected to be registered together for {name}, off the wait list, Rock shows {( rows.Any( r => r == null ) ? "no registration" : "something else" )}" );
+                        continue;
+                    }
+
+                    var registration = rows[0];
+                    var expect = pin.Expect;
+                    if ( expect == null )
+                    {
+                        continue;
+                    }
+
+                    if ( expect.Registrar != null )
+                    {
+                        checks++;
+                        var registrar = household.Members.First( m => m.Key == expect.Registrar );
+                        if ( !( registration["RegistrarGuid"] is Guid registrarGuid ) || registrarGuid != guids.Rock( registrar.Guid ) )
+                        {
+                            failures.Add( $"{names}: expected {registrar.NickName ?? registrar.FirstName} {registrar.LastName} to have registered them for {name}" );
+                        }
+                    }
+
+                    if ( expect.Discount != null )
+                    {
+                        checks++;
+                        if ( registration["DiscountCode"] as string != expect.Discount )
+                        {
+                            failures.Add( $"{names}: expected discount {expect.Discount} on {name}, Rock shows {registration["DiscountCode"] as string ?? "none"}" );
+                        }
+                    }
+
+                    foreach ( var (placementKey, count) in expect.Placements ?? new Dictionary<string, int>() )
+                    {
+                        foreach ( var person in people )
+                        {
+                            checks++;
+                            var placed = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [RelatedEntity] AS [re] ON [re].[TargetEntityId] = [gm].[GroupId] AND [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = @Instance
+INNER JOIN [RegistrationTemplatePlacement] AS [tp] ON CAST( [tp].[Id] AS NVARCHAR( 200 ) ) = [re].[QualifierValue]
+WHERE [p].[Guid] = @Person AND [tp].[Guid] = @Placement", P( "@Instance", instance["Id"] ), P( "@Person", guids.Value( person.Guid ) ),
+                                P( "@Placement", SeededRandom.StableGuid( $"registration-placement:{template.Key}:{placementKey}" ) ) ) );
+                            if ( placed != count )
+                            {
+                                failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected {count} {placementKey} placement(s) at {name}, Rock shows {placed}" );
+                            }
+                        }
+                    }
+
+                    foreach ( var (placementKey, groupName) in expect.PlacedIn ?? new Dictionary<string, string>() )
+                    {
+                        foreach ( var person in people )
+                        {
+                            checks++;
+                            var groups = db.Query( @"
+SELECT [g].[Name]
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [RelatedEntity] AS [re] ON [re].[TargetEntityId] = [gm].[GroupId] AND [re].[PurposeKey] = 'PLACEMENT' AND [re].[SourceEntityId] = @Instance
+INNER JOIN [RegistrationTemplatePlacement] AS [tp] ON CAST( [tp].[Id] AS NVARCHAR( 200 ) ) = [re].[QualifierValue]
+WHERE [p].[Guid] = @Person AND [tp].[Guid] = @Placement", P( "@Instance", instance["Id"] ), P( "@Person", guids.Value( person.Guid ) ),
+                                P( "@Placement", SeededRandom.StableGuid( $"registration-placement:{template.Key}:{placementKey}" ) ) ).Select( r => ( string ) r["Name"] ).ToList();
+                            if ( !groups.Contains( groupName ) )
+                            {
+                                failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected to be in {groupName} at {name}, Rock shows {( groups.Count == 0 ? "no " + placementKey : string.Join( ", ", groups ) )}" );
+                            }
+                        }
+                    }
+
+                    foreach ( var (feeKey, quantity) in expect.Fees ?? new Dictionary<string, int>() )
+                    {
+                        checks++;
+                        var actual = Convert.ToInt32( db.Scalar( @"
+SELECT ISNULL( SUM( [f].[Quantity] ), 0 )
+FROM [RegistrationRegistrantFee] AS [f]
+INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[Id] = [f].[RegistrationRegistrantId]
+INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+WHERE [rr].[RegistrationId] = @Id AND [tf].[Guid] = @Fee", P( "@Id", registration["Id"] ), P( "@Fee", SeededRandom.StableGuid( $"registration-fee:{template.Key}:{feeKey}" ) ) ) );
+                        if ( actual != quantity )
+                        {
+                            failures.Add( $"{names}: expected {feeKey} for {quantity} on {name}, Rock shows {actual}" );
+                        }
+                    }
+
+                    foreach ( var (memberKey, answers) in expect.Answers ?? new Dictionary<string, Dictionary<string, string>>() )
+                    {
+                        var person = household.Members.First( m => m.Key == memberKey );
+                        foreach ( var (attributeKey, value) in answers )
+                        {
+                            checks++;
+                            var asked = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [RegistrationTemplateFormField] AS [ff]
+INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[Id] = [ff].[RegistrationTemplateFormId]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [ff].[AttributeId]
+WHERE [ff].[FieldSource] = 1 AND [a].[Key] = @Key
+    AND [f].[RegistrationTemplateId] = ( SELECT [RegistrationTemplateId] FROM [RegistrationInstance] WHERE [Id] = @Instance )", P( "@Key", attributeKey ), P( "@Instance", instance["Id"] ) ) );
+                            var held = db.Scalar( @"
+SELECT [av].[Value]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE [et].[Name] = 'Rock.Model.Person' AND [a].[Key] = @Key AND [p].[Guid] = @Person", P( "@Key", attributeKey ), P( "@Person", guids.Value( person.Guid ) ) ) as string;
+                            if ( asked == 0 || held != value )
+                            {
+                                failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected {name}'s form to ask {attributeKey} and Rock to hold \"{value}\", Rock shows {( asked == 0 ? "no such question" : held == null ? "no value" : $"\"{held}\"" )}" );
+                            }
+                        }
+                    }
+
+                    if ( expect.Payment != null )
+                    {
+                        checks++;
+                        var actual = PaymentState( db, ( int ) registration["Id"], registration );
+                        if ( actual != expect.Payment )
+                        {
+                            failures.Add( $"{names}: expected {expect.Payment} for {name}, Rock shows {actual}" );
+                        }
+                    }
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// How a registration stands: paid-in-full, balance-due, plan-on-pace, plan-behind, or plan-complete. The cost is
+        /// Rock's Registration.DiscountedCost, and a plan is on pace when it has made every payment due before today.
+        /// </summary>
+        private static string PaymentState( RockDatabase db, int registrationId, Dictionary<string, object> registration )
+        {
+            var percent = ( decimal ) registration["DiscountPercentage"];
+            var amount = ( decimal ) registration["DiscountAmount"];
+            var fees = db.Query( @"
+SELECT [f].[RegistrationRegistrantId], [f].[Quantity], [f].[Cost], [tf].[DiscountApplies]
+FROM [RegistrationRegistrantFee] AS [f]
+INNER JOIN [RegistrationTemplateFee] AS [tf] ON [tf].[Id] = [f].[RegistrationTemplateFeeId]
+INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[Id] = [f].[RegistrationRegistrantId]
+WHERE [rr].[RegistrationId] = @Id", P( "@Id", registrationId ) );
+            var cost = 0m;
+            foreach ( var registrant in db.Query( "SELECT [Id], [Cost], [OnWaitList], [DiscountApplies] FROM [RegistrationRegistrant] WHERE [RegistrationId] = @Id", P( "@Id", registrationId ) ).Where( r => !( bool ) r["OnWaitList"] ) )
+            {
+                var applies = ( bool ) registrant["DiscountApplies"];
+                var each = ( decimal ) registrant["Cost"] - ( applies ? ( decimal ) registrant["Cost"] * percent : 0 );
+                foreach ( var fee in fees.Where( f => ( int ) f["RegistrationRegistrantId"] == ( int ) registrant["Id"] ) )
+                {
+                    var total = ( int ) fee["Quantity"] * ( decimal ) fee["Cost"];
+                    each += ( bool ) fee["DiscountApplies"] && applies ? total - ( total * percent ) : total;
+                }
+
+                each -= applies ? amount : 0;
+                cost += Math.Max( each, 0 );
+            }
+
+            var paid = Convert.ToDecimal( db.Scalar( @"
+SELECT ISNULL( SUM( [d].[Amount] ), 0 )
+FROM [FinancialTransactionDetail] AS [d]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [d].[EntityTypeId]
+WHERE [et].[Name] = 'Rock.Model.Registration' AND [d].[EntityId] = @Id", P( "@Id", registrationId ) ) );
+            if ( !( registration["PaymentPlanFinancialScheduledTransactionId"] is int planId ) )
+            {
+                return paid >= cost ? "paid-in-full" : "balance-due";
+            }
+
+            var plan = db.Query( @"
+SELECT [s].[StartDate], [s].[NumberOfPayments], [s].[IsActive], [f].[Guid] AS [Frequency],
+    ( SELECT COUNT(*) FROM [FinancialTransaction] AS [ft] WHERE [ft].[ScheduledTransactionId] = [s].[Id] AND [ft].[TransactionDateTime] > [s].[StartDate] ) AS [Processed]
+FROM [FinancialScheduledTransaction] AS [s]
+INNER JOIN [DefinedValue] AS [f] ON [f].[Id] = [s].[TransactionFrequencyValueId]
+WHERE [s].[Id] = @Id", P( "@Id", planId ) ).Single();
+            var frequency = ( Guid ) plan["Frequency"] == MonthlyFrequencyGuid ? PaymentPlanFrequency.Monthly : PaymentPlanFrequency.TwiceMonthly;
+            var start = ( DateTime ) plan["StartDate"];
+            var dates = RegistrantPlanner.PaymentDates( frequency, start, start.AddYears( 10 ) ).Take( ( int ) plan["NumberOfPayments"] ).ToList();
+            var processed = ( int ) plan["Processed"];
+            if ( processed == dates.Count && paid >= cost )
+            {
+                return "plan-complete";
+            }
+
+            return ( bool ) plan["IsActive"] && processed == dates.Count( d => d < DateTime.Today ) ? "plan-on-pace" : "plan-behind";
+        }
+
+        private static readonly Guid MonthlyFrequencyGuid = new Guid( "1400753C-A0F9-4A45-8A1D-81C98450BD1F" );
 
         /// <summary>
         /// Checks each calendar event's Cast stories: the event has a start at the story's campus on the days the story

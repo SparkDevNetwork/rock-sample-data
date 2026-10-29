@@ -70,7 +70,8 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Sets up the programs and their step types, plans every step from what earlier steps wrote, and writes it.
         /// </summary>
-        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        /// <param name="studentPath">The Student Path planned for this load, whose camp, trip, decision, and Student Leader steps are copied.</param>
+        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
             var config = _source.Steps;
             if ( config == null )
@@ -81,7 +82,7 @@ namespace RockSampleData.Loader.Loading
 
             var setup = ConfigurePrograms( config );
             var facts = ReadFacts( config, people, castHouseholdKeys, attendance, gifts, finalJourneyRun );
-            var plan = StepPlanner.Plan( config, facts, _seed );
+            var plan = StepPlanner.Plan( config, facts, studentPath, _seed );
             Write( config, setup, plan );
 
             foreach ( var program in config.Programs )
@@ -103,8 +104,8 @@ namespace RockSampleData.Loader.Loading
                 return active.Count == 0 ? string.Empty : $", {100.0 * active.Count( p => baptized.Contains( p.PersonId ) ) / active.Count:N0}% of {label} active adults";
             }
 
-            var students = facts.People.Count( p => facts.StudentCheckIns.ContainsKey( p.PersonId ) );
-            var studentBaptisms = facts.People.Count( p => !p.IsAdult && facts.StudentCheckIns.ContainsKey( p.PersonId ) && baptized.Contains( p.PersonId ) );
+            var students = facts.People.Count( p => studentPath.HasCheckedIn( p.PersonId ) );
+            var studentBaptisms = facts.People.Count( p => !p.IsAdult && studentPath.HasCheckedIn( p.PersonId ) && baptized.Contains( p.PersonId ) );
             _db.Log.Write( $"  Active adults: {activeAdults:N0}; students: {students:N0}; baptisms: {plan.Baptisms.Count:N0} ({plan.Baptisms.Count( b => b.IsHere ):N0} here{Share( true, "Cast" )}{Share( false, "generated" )}; {studentBaptisms:N0} students)" );
             if ( plan.Shares.Count > 0 )
             {
@@ -287,7 +288,6 @@ VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now
                 HistoryStart = _historyStart,
                 FinalJourneyRun = finalJourneyRun,
                 Memberships = ReadMemberships(),
-                StudentCheckIns = attendance.CheckInDays( config.Programs.Where( p => p.Students != null ).SelectMany( p => p.Students.CheckInGroups ) ),
                 GiftDatesByGivingId = gifts.ToDictionary( g => g.Key, g => g.Value.Select( gift => gift.When ).OrderBy( d => d ).ToList() ),
                 OpenServeRequests = _db.Query( @"
 SELECT DISTINCT [pa].[PersonId]
@@ -298,35 +298,17 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
 
             var inSmallGroup = facts.Memberships.Where( m => m.GroupType == "small-group" && !m.IsPending && m.Left == null ).Select( m => m.PersonId ).ToHashSet();
 
-            foreach ( var household in people.Households.Where( h => h.Cast.Kind != "business" ).OrderBy( h => h.Cast.Guid ) )
+            foreach ( var (household, person) in StepPerson.Of( people.Households ) )
             {
                 var isCast = castHouseholdKeys.Contains( household.Cast.Key );
-                var firstVisit = FirstVisit( household.Cast );
                 var attended = attendance.FamilySundays.TryGetValue( household.FamilyId, out var sundays ) && sundays.Any( s => s >= yearAgo );
-
-                // A shared child is a member of two households; they belong to their primary family's.
-                foreach ( var person in household.Members.Where( m => m.FamilyId == household.FamilyId && m.Cast.RecordType != "business" ) )
-                {
-                    var gave = person.GivingId != null && gifts.TryGetValue( person.GivingId, out var unitGifts ) && unitGifts.Any( g => g.When >= yearAgo );
-                    facts.People.Add( new StepPerson
-                    {
-                        PersonId = person.PersonId,
-                        AliasId = person.AliasId,
-                        Guid = person.Cast.Guid,
-                        Name = $"{person.Cast.NickName ?? person.Cast.FirstName} {person.Cast.LastName}",
-                        CampusId = person.CampusId,
-                        CampusKey = household.CampusKey,
-                        GivingId = person.GivingId,
-                        BirthDate = person.BirthDate,
-                        IsAdult = person.IsAdult,
-                        IsActiveAdult = person.IsAdult && person.CanAttend && person.BirthDate.HasValue && ( attended || gave || inSmallGroup.Contains( person.PersonId ) ),
-                        IsCast = isCast,
-                        FirstVisit = firstVisit,
-                        CastBaptismDate = isCast ? _dates.Resolve( person.Cast.Attributes?.BaptismDate ) : null,
-                        GraduationYear = person.GraduationYear,
-                        StepChoices = person.Cast.Steps ?? new Dictionary<string, CastStepChoice>()
-                    } );
-                }
+                var gave = person.GivingId != null && gifts.TryGetValue( person.GivingId, out var unitGifts ) && unitGifts.Any( g => g.When >= yearAgo );
+                var stepPerson = StepPerson.From( household, person, isCast );
+                stepPerson.GivingId = person.GivingId;
+                stepPerson.IsActiveAdult = person.IsAdult && person.CanAttend && person.BirthDate.HasValue && ( attended || gave || inSmallGroup.Contains( person.PersonId ) );
+                stepPerson.FirstVisit = FirstVisit( household.Cast );
+                stepPerson.CastBaptismDate = isCast ? _dates.Resolve( person.Cast.Attributes?.BaptismDate ) : null;
+                facts.People.Add( stepPerson );
             }
 
             return facts;

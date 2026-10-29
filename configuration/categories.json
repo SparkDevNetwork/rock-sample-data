@@ -19,6 +19,15 @@
       "guid": "2CB420DA-1939-4BD6-A032-0C68FADD80E3"
     },
     {
+      "key": "registration-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Registrations",
+      "description": "Data views about event registrations: who has registered, who has not, and who may register.",
+      "iconCssClass": "ti ti-clipboard-check",
+      "guid": "38176452-3090-434B-A2C7-01B34039DFCA"
+    },
+    {
       "key": "care-lists",
       "entityType": "Rock.Model.Group",
       "qualifierGroupType": "D1D95777-FFA3-CBB3-4A6D-658706DAED33",

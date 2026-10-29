@@ -27,8 +27,8 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Rock's default grade transition date (the GradeTransitionDate global attribute): June 1.
         /// </summary>
-        private const int GradeTransitionMonth = 6;
-        private const int GradeTransitionDay = 1;
+        internal const int GradeTransitionMonth = 6;
+        internal const int GradeTransitionDay = 1;
 
         /// <summary>
         /// The day every relative date counts back from.
@@ -115,24 +115,42 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         public int GraduationYear( int grade )
         {
-            var transition = new DateTime( Anchor.Year, GradeTransitionMonth, GradeTransitionDay );
-            var schoolYearEnds = Anchor >= transition ? Anchor.Year + 1 : Anchor.Year;
-            return schoolYearEnds + ( 12 - grade );
+            return CurrentGraduationYear( Anchor ) + ( 12 - grade );
         }
 
         /// <summary>
-        /// The school grade on a day for a graduation year (12 = senior, 13 = graduated), moving up each grade
-        /// transition date as Rock's check-in does.
+        /// The school grade on a day for a graduation year (12 = senior, 13 = graduated), moving up the day after
+        /// each grade transition date as Rock's check-in does.
         /// </summary>
         public static int GradeOn( int graduationYear, DateTime day )
         {
-            var schoolYearEnds = day.Date >= new DateTime( day.Year, GradeTransitionMonth, GradeTransitionDay ) ? day.Year + 1 : day.Year;
-            return 12 - ( graduationYear - schoolYearEnds );
+            return 12 - ( graduationYear - CurrentGraduationYear( day ) );
+        }
+
+        /*
+            10/29/26 - CLAUDE
+
+            Rock's PersonService.GetCurrentGraduationDate keeps this year's transition date (June 1) through that day
+            and moves to next year's only once the date is past ( graduationDate < RockDateTime.Today ). So a student
+            is still in their grade on June 1 and moves up on June 2. The loader moved them up on June 1, a day early,
+            which changed grades, check-in rooms, and step and registration eligibility on and around June 1.
+
+            Reason: Every grade the loader works out matches what Rock shows on the same day.
+        */
+
+        /// <summary>
+        /// The graduation year of the seniors on a day, as Rock's PersonService.GetCurrentGraduationYear works it out:
+        /// the transition date's year through the transition date, and the next year after it.
+        /// </summary>
+        public static int CurrentGraduationYear( DateTime day )
+        {
+            var transition = new DateTime( day.Year, GradeTransitionMonth, GradeTransitionDay );
+            return transition < day.Date ? day.Year + 1 : day.Year;
         }
 
         /// <summary>
         /// The day a person may first join an adult group or team: their birthday at the minimum age, or, when
-        /// their graduation is known, the grade transition date after it, whichever is later. Grade decides,
+        /// their graduation is known, the day after the grade transition date that year, whichever is later. Grade decides,
         /// so an 18-year-old senior waits until they are out of high school (decision 169).
         /// </summary>
         public DateTime AdultSince( CastPerson person, int minimumAge )
@@ -145,7 +163,8 @@ namespace RockSampleData.Loader.Loading
                 return byAge;
             }
 
-            var outOfHighSchool = new DateTime( graduated.Value.Year, GradeTransitionMonth, GradeTransitionDay );
+            // Rock keeps a senior in grade 12 through the transition date, so they are out of high school the day after.
+            var outOfHighSchool = new DateTime( graduated.Value.Year, GradeTransitionMonth, GradeTransitionDay ).AddDays( 1 );
             return outOfHighSchool > byAge ? outOfHighSchool : byAge;
         }
 

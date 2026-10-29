@@ -42,19 +42,6 @@ namespace RockSampleData.Loader.Loading
     internal sealed class GroupSyncLoader
     {
         /// <summary>
-        /// The data filter components Rock declares with a fixed EntityType Guid, for any one a base has not registered yet.
-        /// Rock registers every component when its web site starts (EntityTypeService.RegisterEntityTypes).
-        /// </summary>
-        private static readonly Dictionary<string, Guid> ComponentGuids = new Dictionary<string, Guid>
-        {
-            ["Rock.Reporting.DataFilter.PropertyFilter"] = new Guid( "03F0D6AC-D181-48B6-B4BC-1F2652B55323" ),
-            ["Rock.Reporting.DataFilter.Person.InGroupFilter"] = new Guid( "A40B4BD4-FA17-4A82-97CC-2C71805F9D7C" ),
-            ["Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter"] = new Guid( "0E239967-6D33-4205-B19F-08AD8FF6ED0B" ),
-            ["Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter"] = new Guid( "55E78F48-F849-444A-B285-FDA99E7236E7" ),
-            ["Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter"] = new Guid( "5748F0E7-E033-4D36-819C-0AA3823A8935" )
-        };
-
-        /// <summary>
         /// Rock's Group Sync job runs every 20 minutes, so a sync with no interval adds a person about that long after they match.
         /// </summary>
         private const int JobMinutes = 20;
@@ -88,8 +75,9 @@ namespace RockSampleData.Loader.Loading
             }
 
             var now = DateTime.Now;
-            RegisterComponents( configuration );
-            var viewIds = configuration.DataViews.ToDictionary( v => v.Key, v => WriteDataView( v, now ) );
+            var writer = new DataViewWriter( _db, _source.Categories, _foreignKey );
+            writer.RegisterComponents( configuration.DataViews, "configuration/group-syncs.json" );
+            var viewIds = configuration.DataViews.ToDictionary( v => v.Key, v => writer.Write( v, now, new SeededRandom( $"{_seed}:group-sync:{v.Key}" ), f => f.Selection ) );
             var evaluator = new DataViewEvaluator( _db, _dates.Anchor );
             var welcomeId = _db.RequireIdByGuid( "SystemCommunication", configuration.WelcomeCommunicationGuid );
             var exitId = _db.RequireIdByGuid( "SystemCommunication", configuration.ExitCommunicationGuid );
@@ -125,65 +113,6 @@ VALUES ( @GroupId, @RoleId, @DataViewId, @WelcomeId, @ExitId, @CreateLogin, @Int
             }
 
             _db.Log.Write( $"  Group syncs: {configuration.Syncs.Count} from {viewIds.Count} data views ({string.Join( ", ", summary )})" );
-        }
-
-        /// <summary>
-        /// Adds a row for each data filter component the views use that this Rock has not registered yet, the row Rock's
-        /// start-up would write: the class name, Rock's assembly, a friendly name, and the component's own Guid.
-        /// </summary>
-        private void RegisterComponents( GroupSyncConfiguration configuration )
-        {
-            var components = configuration.DataViews.SelectMany( v => Leaves( v.Filter ) ).Select( f => f.Component ).Distinct().ToList();
-            var rockAssembly = ( string ) _db.Scalar( "SELECT [AssemblyName] FROM [EntityType] WHERE [Name] = 'Rock.Reporting.DataFilter.PropertyFilter'" );
-            foreach ( var component in components.Where( c => _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", c ) ) == null ) )
-            {
-                if ( !ComponentGuids.TryGetValue( component, out var guid ) || rockAssembly == null )
-                {
-                    throw new InvalidDataException( $"configuration/group-syncs.json uses {component}, which this Rock has not registered." );
-                }
-
-                var className = component.Substring( component.LastIndexOf( '.' ) + 1 );
-                _db.Execute( @"
-INSERT INTO [EntityType] ( [Name], [AssemblyName], [FriendlyName], [IsEntity], [IsSecured], [IsCommon], [Guid], [ForeignKey] )
-VALUES ( @Name, @AssemblyName, @FriendlyName, 0, 1, 0, @Guid, @ForeignKey )",
-                    P( "@Name", component ), P( "@AssemblyName", component + rockAssembly.Substring( rockAssembly.IndexOf( ',' ) ) ),
-                    P( "@FriendlyName", SplitCase( className ) ), P( "@Guid", guid ), P( "@ForeignKey", _foreignKey ) );
-            }
-        }
-
-        /// <summary>
-        /// Writes one data view and its filter tree, as Rock's data view editor saves them. Returns its Id.
-        /// </summary>
-        private int WriteDataView( DataViewDefinition view, DateTime now )
-        {
-            var category = _source.Categories.Get( view.Category );
-            var viewId = ( int ) _db.Scalar( @"
-INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-OUTPUT INSERTED.[Id]
-VALUES ( 0, @Name, @Description, @CategoryId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ), 0, 0, @Guid, @ForeignKey, @Now, @Now )",
-                P( "@Name", view.Name ), P( "@Description", view.Description ), P( "@CategoryId", _db.RequireIdByGuid( "Category", category.Guid ) ),
-                P( "@Guid", view.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
-
-            var random = new SeededRandom( $"{_seed}:group-sync:{view.Key}" );
-            var rootId = WriteFilter( view.Filter, null, viewId, random, now );
-            _db.Execute( "UPDATE [DataView] SET [DataViewFilterId] = @FilterId WHERE [Id] = @Id", P( "@FilterId", rootId ), P( "@Id", viewId ) );
-            return viewId;
-        }
-
-        private int WriteFilter( DataViewFilterDefinition filter, int? parentId, int viewId, SeededRandom random, DateTime now )
-        {
-            var id = ( int ) _db.Scalar( @"
-INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-OUTPUT INSERTED.[Id]
-VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @Guid, @ForeignKey, @Now, @Now )",
-                P( "@ExpressionType", filter.ExpressionType ), P( "@ParentId", parentId ), P( "@Component", filter.Component ), P( "@Selection", filter.Selection ),
-                P( "@DataViewId", viewId ), P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
-            foreach ( var child in filter.Children )
-            {
-                WriteFilter( child, id, viewId, random, now );
-            }
-
-            return id;
         }
 
         /// <summary>
@@ -251,19 +180,6 @@ WHERE [g].[Id] = @Id", P( "@Id", groupId ) ).Single();
             }
 
             _db.BulkInsert( "GroupMember", rows, keepIdentity: true );
-        }
-
-        private static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter )
-        {
-            return filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
-        }
-
-        /// <summary>
-        /// "GroupTypeFirstAttendanceFilter" becomes "Group Type First Attendance Filter", Rock's friendly name for a type.
-        /// </summary>
-        private static string SplitCase( string name )
-        {
-            return string.Concat( name.Select( ( c, i ) => i > 0 && char.IsUpper( c ) ? " " + c : c.ToString() ) );
         }
     }
 }

@@ -69,6 +69,8 @@ const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", 
 const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
 const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
 const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+const REGISTRATIONS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "registrations.json" ), "utf8" ) );
+const REGISTRATION_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.registration.properties;
 const adultsWithoutPhotoEthnicity = [];
 const adminPeople = [];
 
@@ -516,6 +518,85 @@ for ( const { file, data: h } of households ) {
         const isLine = [ "ahead", "on-pace", "behind", "stopped" ].includes( c.followThrough );
         if ( isLine && !( h.giving || [] ).some( gv => gv.person === c.person && gv.persona === c.frequency ) ) {
             errors.push( `${owner}: a ${c.followThrough} pledge rides on usual gifts, so its frequency must match one of the giver's giving rhythms.` );
+        }
+    }
+
+    // Event registrations (docs/registrations.md): an instance rule with registrants, one of its occurrences, members of
+    // this household, and a payment the template allows. Placement groups, fees, and expectations name the template's
+    // placements, groups, fees, and discounts.
+    for ( const [ index, reg ] of ( h.registrations || [] ).entries() ) {
+        const owner = `${file}: registrations[${index}]`;
+        const rule = REGISTRATIONS.instances.find( i => i.key === reg.instance );
+        const template = rule && REGISTRATIONS.templates.find( t => t.key === rule.template );
+        if ( !rule || !rule.registrants ) {
+            errors.push( `${owner} names instance "${reg.instance}", which configuration/registrations.json does not hold with registrants.` );
+            continue;
+        }
+        if ( !rule.occurrences.includes( reg.occurrence ) ) {
+            errors.push( `${owner}: instance ${reg.instance} has no ${reg.occurrence} occurrence.` );
+        }
+        for ( const key of [ ...( reg.registrants || [] ), reg.registrar, reg.expect?.registrar ].filter( k => k !== undefined ) ) {
+            if ( !memberKeys.has( key ) ) {
+                errors.push( `${owner} names "${key}", who is not a member of the household.` );
+            }
+        }
+        if ( ( reg.registrants || [] ).length > ( template.maxRegistrants || 1 ) ) {
+            errors.push( `${owner} has more registrants than template ${template.key} allows on one registration.` );
+        }
+        for ( const field of [ "payment", "frequency" ] ) {
+            if ( reg[field] !== undefined && !REGISTRATION_SCHEMA[field].enum.includes( reg[field] ) ) {
+                errors.push( `${owner}: ${field} "${reg[field]}" is not one of ${REGISTRATION_SCHEMA[field].enum.join( ", " )}.` );
+            }
+        }
+        if ( reg.payment === "plan" && !( template.paymentPlan || [] ).length ) {
+            errors.push( `${owner} pays by plan, but template ${template.key} has no payment plans.` );
+        }
+        if ( reg.payment === "deposit" && template.fullPaymentOrPlanRequired ) {
+            errors.push( `${owner} pays a deposit, but template ${template.key} needs full payment or a plan.` );
+        }
+        if ( reg.frequency !== undefined && !( template.paymentPlan || [] ).includes( reg.frequency ) ) {
+            errors.push( `${owner}: template ${template.key} has no ${reg.frequency} payment plan.` );
+        }
+        for ( const key of Object.keys( reg.expect?.placements || {} ) ) {
+            if ( !( template.placements || [] ).some( p => p.key === key ) ) {
+                errors.push( `${owner} expects placement "${key}", which template ${template.key} does not hold.` );
+            }
+        }
+        if ( reg.expect?.payment !== undefined && !REGISTRATION_SCHEMA.expect.properties.payment.enum.includes( reg.expect.payment ) ) {
+            errors.push( `${owner}: expect.payment "${reg.expect.payment}" is not one of ${REGISTRATION_SCHEMA.expect.properties.payment.enum.join( ", " )}.` );
+        }
+        if ( reg.expect?.discount !== undefined && !( template.discounts || [] ).some( d => d.code === reg.expect.discount ) ) {
+            errors.push( `${owner} expects discount ${reg.expect.discount}, which template ${template.key} does not hold.` );
+        }
+        if ( reg.payment === "pay-later" && ( rule.minimumInitialPayment ?? template.minimumInitialPayment ) !== 0 ) {
+            errors.push( `${owner} pays later, but instance ${reg.instance} asks for a minimum payment.` );
+        }
+        for ( const [ key, name ] of [ ...Object.entries( reg.placements || {} ), ...Object.entries( reg.expect?.placedIn || {} ) ] ) {
+            const groups = ( rule.placementGroups || [] ).filter( g => g.placement === key );
+            if ( !groups.some( g => ( g.names || [] ).includes( name ) ) ) {
+                errors.push( `${owner} places them in "${name}", which instance ${reg.instance} has no ${key} group named.` );
+            }
+        }
+        for ( const [ memberKey, answers ] of Object.entries( reg.expect?.answers || {} ) ) {
+            const member = ( h.members || [] ).find( m => m.key === memberKey );
+            if ( !( reg.registrants || [] ).includes( memberKey ) || !member ) {
+                errors.push( `${owner} expects answers for "${memberKey}", who is not one of its registrants.` );
+                continue;
+            }
+            for ( const [ attributeKey, value ] of Object.entries( answers ) ) {
+                const asked = ( template.forms || [] ).some( form => ( form.fields || [] ).some( field => field.fill?.castKey === attributeKey ) );
+                if ( !asked ) {
+                    errors.push( `${owner} expects a ${attributeKey} answer, which template ${template.key}'s form does not ask.` );
+                }
+                if ( member.attributes?.[ attributeKey ] !== value ) {
+                    errors.push( `${owner} expects ${memberKey}'s ${attributeKey} to be "${value}", but the household file says "${member.attributes?.[ attributeKey ] ?? "nothing"}".` );
+                }
+            }
+        }
+        for ( const key of [ ...( reg.fees || [] ), ...Object.keys( reg.expect?.fees || {} ) ] ) {
+            if ( !( template.fees || [] ).some( f => f.key === key ) ) {
+                errors.push( `${owner} names fee "${key}", which template ${template.key} does not hold.` );
+            }
         }
     }
 

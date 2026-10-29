@@ -244,5 +244,58 @@
       "recordStatus": "active",
       "connectionStatus": "Engaged"
     }
+  ],
+  "registrations": [
+    {
+      "instance": "student-camp-boys",
+      "occurrence": "last",
+      "registrants": [
+        "benjamin"
+      ],
+      "expect": {
+        "placements": {
+          "bus": 1,
+          "cabin": 1,
+          "activity": 2
+        },
+        "payment": "paid-in-full"
+      }
+    },
+    {
+      "instance": "mission-trip",
+      "occurrence": "next",
+      "registrants": [
+        "benjamin"
+      ],
+      "registrar": "sarah",
+      "payment": "plan",
+      "frequency": "monthly",
+      "expect": {
+        "registrar": "sarah",
+        "payment": "plan-on-pace"
+      }
+    },
+    {
+      "instance": "student-camp-boys",
+      "occurrence": "next",
+      "registrants": [
+        "benjamin"
+      ],
+      "registrar": "sarah",
+      "expect": {
+        "registrar": "sarah"
+      }
+    },
+    {
+      "instance": "student-camp-girls",
+      "occurrence": "next",
+      "registrants": [
+        "abigail"
+      ],
+      "registrar": "sarah",
+      "expect": {
+        "registrar": "sarah"
+      }
+    }
   ]
 }

@@ -397,6 +397,20 @@ namespace RockSampleData.Loader
                 }
             }
 
+            // The Student Path's camps, trips, decisions, and Student Leader steps come from the student check-ins just
+            // planned. They are planned in every load, so the steps part copies them and the registrations part reads
+            // them, and last summer's campers are the people with its camp step whichever parts load (decision 206).
+            StudentPath studentPath = null;
+            if ( source.Steps != null )
+            {
+                using ( log.TimePart( "Plan the Student Path" ) )
+                {
+                    var stepPeople = StepPerson.Of( people.Households ).Select( p => StepPerson.From( p.Household, p.Person, castHouseholdKeys.Contains( p.Household.Cast.Key ) ) ).ToList();
+                    var studentCheckIns = attendance.CheckInDays( source.Steps.Programs.Where( p => p.Students != null ).SelectMany( p => p.Students.CheckInGroups ) );
+                    studentPath = StudentPathPlanner.Plan( source.Steps, stepPeople, studentCheckIns, calendar.HistoryStart, dates.Anchor, seed );
+                }
+            }
+
             // Kids check-in streaks and achievements come straight from the check-ins just planned. They read the plan
             // in memory, not Attendance, and no later step reads what they write.
             if ( steps.Begin( "Achievements" ) )
@@ -498,7 +512,7 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Steps" ) )
             {
                 new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
             // The church's texting numbers, its branded template, and its communication lists. The lists copy the
@@ -522,10 +536,12 @@ namespace RockSampleData.Loader
             }
 
             // Registrations link to the occurrences the calendar just wrote, so they take its plan instead of planning the
-            // calendar again. Registrations need the calendar (SampleDataParts.All), so it has run whenever they load.
+            // calendar again. Registrations need the calendar (SampleDataParts.All), so it has run whenever they load. Students
+            // register from the Student Path plan, and adults and volunteers from the small group and serving plans, which
+            // every load makes, so they need neither the steps, small groups, nor serving part.
             if ( steps.Begin( "Registrations" ) )
             {
-                new RegistrationsLoader( db, source, dates, dataset, foreignKey ).Load( calendarPlan, people, configuration.CampusPlans );
+                new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
             }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and

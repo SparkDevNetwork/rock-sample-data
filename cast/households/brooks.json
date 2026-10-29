@@ -206,5 +206,22 @@
       "recordStatus": "active",
       "connectionStatus": "Engaged"
     }
+  ],
+  "registrations": [
+    {
+      "instance": "student-camp-girls",
+      "occurrence": "last",
+      "registrants": [
+        "ava"
+      ],
+      "expect": {
+        "placements": {
+          "bus": 1,
+          "cabin": 1,
+          "activity": 2
+        },
+        "payment": "paid-in-full"
+      }
+    }
   ]
 }
