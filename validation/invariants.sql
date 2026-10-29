@@ -1220,6 +1220,20 @@ INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstance
 WHERE [rr].[ForeignKey] = @ForeignKey
     AND ( [rr].[RegistrationTemplateId] <> [r].[RegistrationTemplateId] OR [r].[RegistrationTemplateId] <> [i].[RegistrationTemplateId] );
 
+-- check: registrant-is-in-one-instance-per-event
+-- why: A person goes to an event once. A family registers at its own campus, so nobody is a registrant in two instances of one template that open and close on the same days, such as VBS at two campuses the same week.
+SELECT COUNT(*)
+FROM (
+    SELECT [pa].[PersonId], [i].[RegistrationTemplateId], [i].[StartDateTime], [i].[EndDateTime]
+    FROM [RegistrationRegistrant] AS [rr]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+    WHERE [rr].[ForeignKey] = @ForeignKey
+    GROUP BY [pa].[PersonId], [i].[RegistrationTemplateId], [i].[StartDateTime], [i].[EndDateTime]
+    HAVING COUNT( DISTINCT [i].[Id] ) > 1
+) AS [twice];
+
 -- check: registrant-required-answers-are-filled
 -- why: Rock's registration form does not save until every required question it shows is answered. A registrant has an answer to each required registrant question on its template, except one on the wait list that the wait list form does not show.
 SELECT COUNT(*)

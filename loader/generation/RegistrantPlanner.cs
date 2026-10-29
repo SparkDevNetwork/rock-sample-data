@@ -116,10 +116,10 @@ namespace RockSampleData.Loader.Generation
                 registrations.AddRange( PlanInstance( instance, plan ) );
             }
 
-            var unknown = _pins.FirstOrDefault( p => !plan.Instances.Any( i => i.Rule.Key == p.Pin.Instance && i.Pick == p.Pin.Occurrence && i.Rule.Registrants != null ) );
+            var unknown = _pins.FirstOrDefault( p => !plan.Instances.Any( i => IsPinnedTo( p, i ) && i.Rule.Registrants != null ) );
             if ( unknown.Pin != null )
             {
-                throw new InvalidOperationException( $"cast/households/{unknown.Household.Cast.Key}.json registers people for the {unknown.Pin.Occurrence.ToString().ToLowerInvariant()} {unknown.Pin.Instance}, which configuration/registrations.json does not plan with a registrants rule." );
+                throw new InvalidOperationException( $"cast/households/{unknown.Household.Cast.Key}.json registers people for the {unknown.Pin.Occurrence.ToString().ToLowerInvariant()} {unknown.Pin.Instance}, which configuration/registrations.json does not plan with a registrants rule at the household's campus." );
             }
 
             return registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid ).ToList();
@@ -135,7 +135,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             var eligibility = RegistrantEligibility.Of( instance.Template, rule.Students?.Gender );
-            var pins = _pins.Where( p => p.Pin.Instance == instance.Rule.Key && p.Pin.Occurrence == instance.Pick ).ToList();
+            var pins = _pins.Where( p => IsPinnedTo( p, instance ) ).ToList();
             var pinned = pins.SelectMany( p => p.Pin.Registrants.Select( key => PinPerson( p.Household, p.Pin, key ) ) ).Select( p => p.PersonId ).ToHashSet();
             var drafts = pins.Select( p => new RegistrationDraft( p.Pin.Registrants.Select( key => PinPerson( p.Household, p.Pin, key ) ).ToList(), p.Pin, p.Household, false ) ).ToList();
             var choice = _chooser.Choose( instance, pinned );
@@ -152,6 +152,17 @@ namespace RockSampleData.Loader.Generation
             Place( registrations, instance, rule, eligibility, plan );
             Answer( registrations, instance );
             return registrations;
+        }
+
+        /// <summary>
+        /// True when a Cast pin names this instance: its rule and occurrence, at the household's campus. A church-wide
+        /// instance has no campus, so it takes pins from any campus. A per-campus rule plans one instance at each
+        /// campus, and a family registers only at their own.
+        /// </summary>
+        private static bool IsPinnedTo( (LoadedHousehold Household, CastRegistration Pin) pin, PlannedRegistrationInstance instance )
+        {
+            return pin.Pin.Instance == instance.Rule.Key && pin.Pin.Occurrence == instance.Pick
+                && ( instance.CampusKey == null || instance.CampusKey == pin.Household.CampusKey );
         }
 
         private static LoadedPerson PinPerson( LoadedHousehold household, CastRegistration pin, string key ) => household.Members.FirstOrDefault( m => m.Cast.Key == key )
