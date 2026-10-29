@@ -253,5 +253,86 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @Now, @Now
         }
 
         #endregion Values
+
+        #region Org chart
+
+        /// <summary>
+        /// True when the package has the org chart (decision D-staff-5).
+        /// </summary>
+        public bool HasOrgChart => _source.Staff?.OrgChart != null && _source.Staff.OrgChart.Units.Count > 0;
+
+        /// <summary>
+        /// Adds the org chart units Rock does not ship, under their parents, in Rock's Organization Unit group type.
+        /// The units Rock ships are already there. Returns a summary for the log.
+        /// </summary>
+        public string LoadOrgChartSetup()
+        {
+            var chart = _source.Staff.OrgChart;
+            var groupTypeId = _db.RequireIdByGuid( "GroupType", chart.GroupType );
+            var added = new List<string>();
+            foreach ( var unit in chart.Units.Where( u => !u.RockShips ) )
+            {
+                var parent = chart.Units.FirstOrDefault( u => u.Key == unit.Parent )
+                    ?? throw new InvalidDataException( $"configuration/staff.json: org chart unit {unit.Key} has parent '{unit.Parent}', which is not a unit." );
+                if ( !parent.RockShips && chart.Units.IndexOf( parent ) > chart.Units.IndexOf( unit ) )
+                {
+                    throw new InvalidDataException( $"configuration/staff.json: org chart unit {unit.Key} comes before its parent {parent.Key}." );
+                }
+
+                _db.Execute( @"
+INSERT INTO [Group] ( [IsSystem], [ParentGroupId], [GroupTypeId], [Name], [Description], [IsSecurityRole], [IsActive], [IsPublic], [Order], [SchedulingMustMeetRequirements], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+VALUES ( 0, @ParentId, @GroupTypeId, @Name, @Description, 0, 1, 1, @Order, 0, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
+                    P( "@ParentId", _db.RequireIdByGuid( "Group", parent.Guid ) ), P( "@GroupTypeId", groupTypeId ), P( "@Name", unit.Name ), P( "@Description", unit.Description ),
+                    P( "@Order", unit.Order ), P( "@Guid", unit.Guid ), P( "@ForeignKey", _foreignKey ) );
+                added.Add( unit.Name );
+            }
+
+            return $"{chart.Units.Count} units, adding {string.Join( " and ", added )}";
+        }
+
+        /// <summary>
+        /// Adds each unit's leader in the Leader role and its staff in the Staff role, as active members. A staff
+        /// member whose campus is not in the dataset is not loaded and is left out. Returns how many members.
+        /// </summary>
+        public int LoadOrgChartMembers( PeopleLoader people )
+        {
+            var chart = _source.Staff.OrgChart;
+            var staff = _source.Staff.Staff.ToDictionary( s => s.Key, StringComparer.Ordinal );
+            var groupTypeId = _db.RequireIdByGuid( "GroupType", chart.GroupType );
+            var leaderRoleId = _db.RequireIdByGuid( "GroupTypeRole", chart.LeaderRole );
+            var staffRoleId = _db.RequireIdByGuid( "GroupTypeRole", chart.StaffRole );
+            var now = DateTime.Now;
+            var count = 0;
+
+            foreach ( var unit in chart.Units )
+            {
+                var groupId = _db.RequireIdByGuid( "Group", unit.Guid );
+                var members = new[] { (Key: unit.Leader, RoleId: leaderRoleId) }.Concat( unit.Staff.Select( k => (Key: k, RoleId: staffRoleId) ) );
+                foreach ( var (key, roleId) in members.Where( m => m.Key != null ) )
+                {
+                    if ( !staff.TryGetValue( key, out var member ) )
+                    {
+                        throw new InvalidDataException( $"configuration/staff.json: org chart unit {unit.Key} names '{key}', who is not staff." );
+                    }
+
+                    if ( !people.People.TryGetValue( member.Person, out var person ) )
+                    {
+                        continue;
+                    }
+
+                    var since = _dates.Resolve( member.StartDate ) ?? now;
+                    _db.Execute( @"
+INSERT INTO [GroupMember] ( [IsSystem], [GroupId], [GroupTypeId], [PersonId], [GroupRoleId], [GroupMemberStatus], [DateTimeAdded], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+VALUES ( 0, @GroupId, @GroupTypeId, @PersonId, @GroupRoleId, 1, @Since, NEWID(), @ForeignKey, @Since, @Since )",
+                        P( "@GroupId", groupId ), P( "@GroupTypeId", groupTypeId ), P( "@PersonId", person.PersonId ), P( "@GroupRoleId", roleId ),
+                        P( "@Since", since ), P( "@ForeignKey", _foreignKey ) );
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        #endregion Org chart
     }
 }

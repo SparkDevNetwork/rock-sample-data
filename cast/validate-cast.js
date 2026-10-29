@@ -291,6 +291,32 @@ for ( const h of households.map( x => x.data ) ) {
                 errors.push( `configuration/staff.json: ${pastorKey}, the ${campus} campus pastor, must serve ${campus} in the campuses department.` );
             }
         }
+
+        // The org chart (decision D-staff-5): every unit's people are staff, every staff member is on it, and a
+        // unit's staff report to its leader, so the Org Chart page and the Supervisor attribute agree.
+        if ( staff.orgChart ) {
+            const onChart = new Set();
+            for ( const unit of staff.orgChart.units ) {
+                for ( const key of [ unit.leader, ...unit.staff ].filter( Boolean ) ) {
+                    if ( !keys.has( key ) ) {
+                        errors.push( `configuration/staff.json: org chart unit ${unit.key} names "${key}", who is not staff.` );
+                    }
+                    onChart.add( key );
+                }
+                for ( const key of unit.staff ) {
+                    const member = staff.staff.find( s => s.key === key );
+                    if ( member && member.supervisor !== unit.leader ) {
+                        errors.push( `configuration/staff.json: ${key} is staff in org chart unit ${unit.key}, so their supervisor should be its leader, ${unit.leader}, not ${member.supervisor}.` );
+                    }
+                }
+                if ( !unit.rockShips && !staff.orgChart.units.some( u => u.key === unit.parent ) ) {
+                    errors.push( `configuration/staff.json: org chart unit ${unit.key} has parent "${unit.parent}", which is not a unit.` );
+                }
+            }
+            for ( const s of staff.staff.filter( x => !onChart.has( x.key ) ) ) {
+                errors.push( `configuration/staff.json: ${s.key} is not on the org chart.` );
+            }
+        }
     }
 }
 

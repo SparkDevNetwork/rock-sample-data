@@ -257,6 +257,12 @@ namespace RockSampleData.Loader
                 log.Write( $"  Staff attributes: {staffLoader.LoadSetup()}" );
             }
 
+            // The org chart's units in Rock's Organization Unit groups (decision D-staff-5).
+            if ( staffLoader.HasOrgChart )
+            {
+                log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
+            }
+
             var profile = source.ReadProfile();
             var years = options.HistoryYears;
             var calendar = new SundayCalendar( dates.Anchor, years, profile );
@@ -347,6 +353,12 @@ namespace RockSampleData.Loader
                 {
                     var campusGuids = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Guid );
                     log.Write( $"  Staff attribute values: {staffLoader.LoadValues( people, campusGuids ):N0}" );
+                }
+
+                // Each org chart unit's leader and staff.
+                if ( staffLoader.HasOrgChart )
+                {
+                    log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
                 }
             }
 

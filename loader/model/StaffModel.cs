@@ -53,6 +53,70 @@ namespace RockSampleData.Loader.Model
         /// The Attribute Values block that shows the category on the person profile's Extended Attributes page.
         /// </summary>
         public StaffBlock Block { get; set; }
+
+        /// <summary>
+        /// The org chart in Rock's Organization Unit groups, or null in a package from before it (decision D-staff-5).
+        /// </summary>
+        public StaffOrgChart OrgChart { get; set; }
+    }
+
+    /// <summary>
+    /// The org chart: Rock's Organization Unit groups, with each unit's leader and staff.
+    /// </summary>
+    internal sealed class StaffOrgChart
+    {
+        /// <summary>
+        /// Rock's Organization Unit group type.
+        /// </summary>
+        public Guid GroupType { get; set; }
+
+        /// <summary>
+        /// The group type's Leader role.
+        /// </summary>
+        public Guid LeaderRole { get; set; }
+
+        /// <summary>
+        /// The group type's Staff role.
+        /// </summary>
+        public Guid StaffRole { get; set; }
+
+        public List<StaffOrgUnit> Units { get; set; } = new List<StaffOrgUnit>();
+    }
+
+    /// <summary>
+    /// One unit of the org chart.
+    /// </summary>
+    internal sealed class StaffOrgUnit
+    {
+        public string Key { get; set; }
+
+        public Guid Guid { get; set; }
+
+        /// <summary>
+        /// True for a unit Rock ships, which is already in the database. Otherwise the loader adds it.
+        /// </summary>
+        public bool RockShips { get; set; }
+
+        /// <summary>
+        /// For a unit the church adds: its name, description, parent unit key, and order among its siblings.
+        /// </summary>
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public string Parent { get; set; }
+
+        public int Order { get; set; }
+
+        /// <summary>
+        /// The staff key of the unit's leader.
+        /// </summary>
+        public string Leader { get; set; }
+
+        /// <summary>
+        /// The staff keys of the unit's staff.
+        /// </summary>
+        public List<string> Staff { get; set; } = new List<string>();
     }
 
     /// <summary>

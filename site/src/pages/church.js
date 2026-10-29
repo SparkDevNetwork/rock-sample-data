@@ -157,7 +157,7 @@ module.exports = function church( { model, r } ) {
 
 ${model.staff.length ? html`<section class="section section-sand" id="staff">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Staff", title: `${model.staff.length} people, every one in the Cast.`, lede: "Each staff member is a Cast person with a story, a family, and a login, and is the same in every load. Every campus has its own named campus pastor, who writes that campus's notes, welcomes its first-time guests, and is the contact for its events. A campus pastor outside Phoenix is in the datasets that have their campus." } )}
+    ${sectionHead( { eyebrow: "Staff", title: `${model.staff.length} people, every one in the Cast.`, lede: "Each staff member is a Cast person with a story, a family, and a login, and is the same in every load. Every campus has its own named campus pastor, who writes that campus's notes, welcomes its first-time guests, and is the contact for its events. A campus pastor outside Phoenix is in the datasets that have their campus. Rock's Org Chart page shows the same staff in seven units, each with its leader." } )}
     ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
     <div class="staff-grid">
       ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">

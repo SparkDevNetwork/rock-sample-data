@@ -567,6 +567,8 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 
 When `configuration/staff.json` has attributes (decision D-staff-4), the church setup adds them after the categories: each Person attribute in the Staff category, with its qualifiers, its security (each role allowed in order, then all users denied, as Rock's security editor writes them), and an Attribute Values block named Staff on the Extended Attributes page, set to the category. The people step then writes each loaded staff member's title, department, campus, bio, quote, supervisor, and start date, with the ValueAs columns Rock's save hook would set. A campus pastor whose campus is not in the dataset is not loaded and gets no values. Staff Photo is set by the photos step.
 
+The org chart (decision D-staff-5) loads the same way. The church setup adds the units Rock does not ship (Campuses and Worship) under Organization, in Rock's Organization Unit group type. The people step adds each unit's leader in the Leader role and its staff in the Staff role, as active members added on their start date. A staff member whose campus is not in the dataset is left out.
+
 ## Communications
 
 `loading/CommunicationsLoader.cs` sets up how the church communicates from `../configuration/communications.json`, and `generation/CommunicationListPlanner.cs` plans who is on each list. The design is in [Communications](../docs/communications.md).

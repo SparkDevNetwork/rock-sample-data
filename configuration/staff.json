@@ -485,5 +485,92 @@
     "blockType": "D70A59DC-16BE-43BE-9880-59598FA7A94C",
     "zone": "SectionB3",
     "order": 3
+  },
+  "$orgChartComment": "The org chart (decision D-staff-5): Rock's Organization Unit groups, which its Office Information > Org Chart page shows. Rock ships Organization and four departments under it; the church adds Campuses and Worship. Each unit has its leader in Rock's Leader role and its staff in the Staff role, by staff key. A unit's leader is the supervisor of its staff. Staff whose campus is not in the dataset are left out.",
+  "orgChart": {
+    "groupType": "AAB2E9F4-E828-4FEE-8467-73DC9DAB784C",
+    "leaderRole": "8438D6C5-DB92-4C99-947B-60E9100F223D",
+    "staffRole": "17E516FC-76A4-4BF4-9B6F-0F859B13F563",
+    "units": [
+      {
+        "key": "organization",
+        "guid": "EF41CD00-1266-4BE6-9130-453982014B79",
+        "rockShips": true,
+        "leader": "pete",
+        "staff": [
+          "alisha",
+          "greg",
+          "ted",
+          "naomi"
+        ]
+      },
+      {
+        "key": "childrens",
+        "guid": "56AD5243-DED9-42F1-A922-5069A4EF7A7B",
+        "rockShips": true,
+        "leader": "rachel",
+        "staff": []
+      },
+      {
+        "key": "students",
+        "guid": "44C85087-A452-4D13-B95B-EC92FF0F9A7F",
+        "rockShips": true,
+        "leader": "isaac",
+        "staff": []
+      },
+      {
+        "key": "connections",
+        "guid": "4737CD5D-DEA1-4F78-A581-D246B08CED6A",
+        "rockShips": true,
+        "leader": "ted",
+        "staff": [
+          "jamal",
+          "dee"
+        ]
+      },
+      {
+        "key": "administration",
+        "guid": "5B6BE24F-349B-4630-B99C-20BB62BC8BD2",
+        "rockShips": true,
+        "leader": "greg",
+        "staff": [
+          "daniel",
+          "priya",
+          "ray"
+        ]
+      },
+      {
+        "key": "campuses",
+        "guid": "3A392C39-05D5-4D9F-BAE3-A3D530E58CEE",
+        "rockShips": false,
+        "name": "Campuses",
+        "description": "Department for campus pastors.",
+        "parent": "organization",
+        "order": 5,
+        "leader": "greg",
+        "staff": [
+          "aaron",
+          "andre",
+          "dana",
+          "walt",
+          "tina",
+          "rafael",
+          "leah"
+        ]
+      },
+      {
+        "key": "worship",
+        "guid": "FF8A8A01-416E-4090-9D55-8FACE7FFF21D",
+        "rockShips": false,
+        "name": "Worship",
+        "description": "Department for worship and production staff.",
+        "parent": "organization",
+        "order": 6,
+        "leader": "naomi",
+        "staff": [
+          "kelsey"
+        ]
+      }
+    ]
   }
 }
