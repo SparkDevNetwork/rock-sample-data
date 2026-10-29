@@ -394,8 +394,19 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .campus.campus-main p { color: var(--on-night-2); }
 .campus.campus-main .campus-meta { color: #A8A096; }
 .campus.campus-main h3 { color: var(--on-night); }
+.campus.campus-main a { color: var(--on-night); }
 @media (max-width: 1000px) { .campus-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .campus-grid { grid-template-columns: 1fr; } .campus-main { grid-column: auto; } }
+
+/* The church's staff, grouped by department, each card linking to the person's household page. */
+.staff-department { font-size: 1.1rem; margin: 32px 0 14px; color: var(--ink-2); }
+.staff-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.staff-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 20px 14px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); color: inherit; text-decoration: none; }
+.staff-card .portrait { margin-bottom: 8px; }
+.staff-name { font-weight: 600; }
+.staff-title { font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 1000px) { .staff-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .staff-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .tour {
     display: grid; grid-auto-flow: column; grid-auto-columns: min(78vw, 640px); gap: 20px;

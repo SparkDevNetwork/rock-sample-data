@@ -1,0 +1,85 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "castillo",
+  "guid": "D764B2B3-C4D1-4F14-AF4B-7580F02E3920",
+  "name": "Castillo Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Naomi Castillo is the Worship Pastor. She leads worship at Phoenix most Sundays and trains each campus's worship leaders. She is single and lives near the Phoenix campus.",
+  "testPurposes": [
+    "Worship Pastor who oversees worship at every campus.",
+    "Single adult on staff, living alone."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "17202 N 31st Ln",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85053",
+    "latitude": 33.641757,
+    "longitude": -112.12647
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 95,
+    "started": {
+      "yearsAgo": 4,
+      "month": 8,
+      "day": 6
+    }
+  },
+  "giving": [
+    {
+      "persona": "weekly",
+      "person": "naomi",
+      "funds": {
+        "General Fund": 50
+      },
+      "percentOfPeriodsGiven": 91,
+      "started": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 13
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "naomi",
+      "guid": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
+      "firstName": "Naomi",
+      "lastName": "Castillo",
+      "bio": "Naomi is the Worship Pastor. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 34,
+        "month": 6,
+        "day": 22
+      },
+      "maritalStatus": "single",
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "naomi@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6025550197"
+      },
+      "photo": {
+        "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Worship Pastor"
+      },
+      "logins": [
+        "ncastillo"
+      ],
+      "securityRoles": [
+        "Staff Users"
+      ]
+    }
+  ]
+}

@@ -23,6 +23,7 @@ using System.Text.Json.Nodes;
 
 using RockSampleData.Loader;
 using RockSampleData.Loader.Generation;
+using RockSampleData.Loader.Model;
 using RockSampleData.Loader.Packages;
 
 namespace RockSampleData.Builder
@@ -72,9 +73,23 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // The church setup, the Cast, and the dataset's own settings, as they are in the repository.
+            // The church setup, the Cast, and the dataset's own settings, as they are in the repository. A Cast
+            // household on another campus comes only with that campus (decision 199).
+            var campusKeys = source.Campuses.Campuses.Where( c => c.Datasets.Contains( dataset ) ).Select( c => c.Key ).ToHashSet();
+            var mainCampusKey = source.Campuses.Campuses.Single( c => c.RockDefault ).Key;
+            var castOffCampus = source.ReadHouseholds()
+                .Where( h => !campusKeys.Contains( h.CampusSlot == "main" ? mainCampusKey : h.CampusSlot ) )
+                .Select( h => h.Key )
+                .ToHashSet( StringComparer.Ordinal );
             AddFolder( "configuration", ".json" );
-            AddFolder( "cast/households", ".json" );
+            foreach ( var path in repository.List( "cast/households" ).Where( p => p.EndsWith( ".json", StringComparison.Ordinal ) ) )
+            {
+                if ( !castOffCampus.Contains( Path.GetFileNameWithoutExtension( path ) ) )
+                {
+                    AddFile( path );
+                }
+            }
+
             AddFolder( "cast/groups", ".json" );
             AddFolder( "cast/notes", ".json" );
             if ( repository.Exists( SampleDataSource.CastPrayerRequestsPath ) )
@@ -98,10 +113,9 @@ namespace RockSampleData.Builder
             files[SampleDataPackage.ProfilePath] = Encoding.UTF8.GetBytes( ProfileTargets.Resolve( repository, profileName ).ToJson() );
 
             // Only the dataset's campuses' addresses, and only the photos the dataset shows.
-            var campusKeys = source.Campuses.Campuses.Where( c => c.Datasets.Contains( dataset ) ).Select( c => c.Key ).ToHashSet();
             files["addresses/pool.json"] = Utf8( FilterAddressPool( repository.ReadText( "addresses/pool.json" ), campusKeys ) );
             var isPoolIncluded = ( datasetManifest.Photos?.GeneratedHouseholdPercent ?? 0 ) > 0;
-            var (photoManifest, photoFiles) = FilterPhotos( repository.ReadText( "photos/manifest.json" ), isPoolIncluded );
+            var (photoManifest, photoFiles) = FilterPhotos( repository.ReadText( "photos/manifest.json" ), isPoolIncluded, castOffCampus );
             files["photos/manifest.json"] = Utf8( photoManifest );
             foreach ( var photo in photoFiles )
             {
@@ -243,7 +257,7 @@ namespace RockSampleData.Builder
             }
 
             source.ReadProfile();
-            AddressPool.Load( files, "check" );
+            AddressPool.Load( files, "check", Enumerable.Empty<CastAddress>() );
             foreach ( var photo in source.ReadPhotoManifest().Images.Where( p => !files.Exists( $"photos/{p.File}" ) ) )
             {
                 throw new InvalidOperationException( $"photos/manifest.json lists {photo.File}, but the file is missing." );
@@ -274,14 +288,20 @@ namespace RockSampleData.Builder
         }
 
         /// <summary>
-        /// Keeps the Cast photos, plus the pool when the dataset gives generated households faces.
-        /// Returns the filtered manifest and the photo files to include.
+        /// Keeps the Cast photos, except for households left out of the dataset, plus the pool when the dataset
+        /// gives generated households faces. Returns the filtered manifest and the photo files to include.
         /// </summary>
-        private static (string Manifest, List<string> Files) FilterPhotos( string json, bool isPoolIncluded )
+        private static (string Manifest, List<string> Files) FilterPhotos( string json, bool isPoolIncluded, HashSet<string> leftOutHouseholds )
         {
             var manifest = JsonNode.Parse( json ).AsObject();
             var images = manifest["images"].AsArray();
-            foreach ( var image in images.Where( i => !( i["set"].GetValue<string>() == "cast" || ( isPoolIncluded && i["set"].GetValue<string>() == PoolSet ) ) ).ToList() )
+            bool IsKept( JsonNode image )
+            {
+                var set = image["set"].GetValue<string>();
+                return set == "cast" ? !leftOutHouseholds.Contains( image["household"].GetValue<string>() ) : isPoolIncluded && set == PoolSet;
+            }
+
+            foreach ( var image in images.Where( i => !IsKept( i ) ).ToList() )
             {
                 images.Remove( image );
             }

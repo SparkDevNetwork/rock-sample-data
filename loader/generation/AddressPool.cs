@@ -39,7 +39,11 @@ namespace RockSampleData.Loader.Generation
         /// Each campus shuffles on its own, so a package that carries only its dataset's campuses
         /// hands out the same addresses. Returns an empty pool when the file is missing.
         /// </summary>
-        public static AddressPool Load( IPackageFiles files, string seed )
+        /// <param name="files">The package files.</param>
+        /// <param name="seed">The load's seed.</param>
+        /// <param name="castAddresses">The Cast's addresses. A Cast household may live at a pool address, and no
+        /// generated household ever gets one. They are left out after the shuffle, so every other address keeps its turn.</param>
+        public static AddressPool Load( IPackageFiles files, string seed, IEnumerable<CastAddress> castAddresses )
         {
             var pool = new AddressPool();
             if ( !files.Exists( "addresses/pool.json" ) )
@@ -47,6 +51,7 @@ namespace RockSampleData.Loader.Generation
                 return pool;
             }
 
+            var taken = castAddresses.Where( a => a != null ).Select( a => $"{a.Street1}|{a.PostalCode}" ).ToHashSet( StringComparer.OrdinalIgnoreCase );
             using var document = JsonDocument.Parse( files.ReadText( "addresses/pool.json" ) );
             foreach ( var campus in document.RootElement.GetProperty( "campuses" ).EnumerateObject() )
             {
@@ -69,7 +74,7 @@ namespace RockSampleData.Loader.Generation
                     ( rows[i], rows[j] ) = ( rows[j], rows[i] );
                 }
 
-                pool._byCampus[campus.Name] = new Queue<CastAddress>( rows );
+                pool._byCampus[campus.Name] = new Queue<CastAddress>( rows.Where( r => !taken.Contains( $"{r.Street1}|{r.PostalCode}" ) ) );
             }
 
             return pool;

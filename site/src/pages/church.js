@@ -16,7 +16,18 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead, zoomable, formatSize } = require( "../components" );
+const { sectionHead, zoomable, portrait, formatSize } = require( "../components" );
+
+// The staff departments, in the order the church page shows them (configuration/staff.json).
+const departments = [
+    [ "executive", "Leadership" ],
+    [ "administration", "Operations" ],
+    [ "worship", "Worship and production" ],
+    [ "kids", "Kids" ],
+    [ "students", "Students" ],
+    [ "connections", "Outreach, groups, and care" ],
+    [ "campuses", "Campus pastors" ]
+];
 
 // The church's initiatives, in the order they started. Starting Point is the first.
 // Artwork comes from graphics/initiatives/<key>/ when it exists; until then the card shows instead.
@@ -131,7 +142,7 @@ module.exports = function church( { model, r, downloads } ) {
     <div class="split-text reveal">
       <p class="eyebrow">Who we are</p>
       <h2>Rock Solid Church</h2>
-      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where the Cast lives, and has grown to seven campuses across the Valley.</p>
+      <p>Rock Solid Church is a fictional, multi-campus church in the Phoenix area. It started in north Phoenix, where most of the Cast lives, and has grown to seven campuses across the Valley.</p>
       <p>The original Phoenix building has warm-white stucco, charcoal trim, pale oak, gray floors, and muted teal furniture. The other campuses have their own buildings, including a high school auditorium in Goodyear, where volunteers set up and tear down every Sunday. Scottsdale meets in a traditional church building. It was an independent church until it merged with Rock Solid Church. The sample data uses the same room setup at every campus, so check-in and serving work the same everywhere.</p>
       <p>The church is in the middle of Built on the Rock, a two-year building campaign for a Student Center at Phoenix and more kids rooms at every campus. People and businesses at every campus have pledged.</p>
     </div>
@@ -143,6 +154,20 @@ module.exports = function church( { model, r, downloads } ) {
     </div>
   </div>
 </section>
+
+${model.staff.length ? html`<section class="section section-sand" id="staff">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Staff", title: `${model.staff.length} people, every one in the Cast.`, lede: "Each staff member is a Cast person with a story, a family, and a login, and is the same in every load. Every campus has its own named campus pastor, who writes that campus's notes, welcomes its first-time guests, and is the contact for its events. A campus pastor outside Phoenix is in the datasets that have their campus." } )}
+    ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
+    <div class="staff-grid">
+      ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">
+        ${portrait( s.member, r, "lg" )}
+        <span class="staff-name">${esc( s.member.displayName )}</span>
+        <span class="staff-title">${esc( s.title )}</span>
+      </a>` )}
+    </div>` )}
+  </div>
+</section>` : ""}
 
 <section class="section" id="initiatives">
   <div class="wrap">
@@ -162,9 +187,10 @@ module.exports = function church( { model, r, downloads } ) {
         ${c.photo ? zoomable( { src: r( "images/campuses/" + c.photo ), alt: c.photoDescription, className: "campus-photo" } ) : ""}
         <span class="campus-number">${String( i + 1 ).padStart( 2, "0" )}</span>
         <h3>${esc( c.name )}${c.rockDefault ? html` <span class="tag tag-accent">Broadcast campus</span>` : ""}</h3>
-        <p>${esc( c.rockDefault ? "North Phoenix, where the Cast lives. The original and largest campus." : c.notes )}</p>
+        <p>${esc( c.rockDefault ? "North Phoenix, where most of the Cast lives. The original and largest campus." : c.notes )}</p>
         <p>${esc( c.buildingType )}</p>
         <p class="campus-meta">Sundays at ${c.schedules.filter( s => s.type === "weekend" ).map( s => servingTime( s.slot ) ).join( ", " )}</p>
+        ${c.pastor ? html`<p class="campus-meta">Campus pastor: <a href="${r( "cast/" + c.pastor.household.key + ".html" )}">${esc( c.pastor.displayName )}</a></p>` : ""}
         <p class="campus-meta">In ${c.datasets.map( d => ( { "core-1": "Core 1", "core-3": "Core 3", "full-7": "Full 7" } )[d] ).join( ", " )}</p>
       </div>` )}
     </div>

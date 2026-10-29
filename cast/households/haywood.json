@@ -1,0 +1,145 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "haywood",
+  "guid": "2738F35C-7DF9-464F-B470-D248A47BC55F",
+  "name": "Haywood Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "peoria",
+  "story": "Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sonoran Valley University, and their son Isaiah checks in to the Peoria student service.",
+  "testPurposes": [
+    "Named campus pastor at Peoria, loaded only in datasets with the Peoria campus.",
+    "Cast family that lives at a campus other than the main one.",
+    "High school student at a campus other than the main one."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "7473 W Banff Ln",
+    "city": "Peoria",
+    "state": "AZ",
+    "postalCode": "85381",
+    "latitude": 33.619759,
+    "longitude": -112.218921
+  },
+  "attendance": {
+    "persona": "core",
+    "percentAttended": 93,
+    "started": {
+      "yearsAgo": 4,
+      "month": 1,
+      "day": 8
+    }
+  },
+  "giving": [
+    {
+      "persona": "bi-weekly",
+      "person": "andre",
+      "funds": {
+        "General Fund": 160
+      },
+      "percentOfPeriodsGiven": 92,
+      "started": {
+        "yearsAgo": 4,
+        "month": 1,
+        "day": 10
+      }
+    }
+  ],
+  "members": [
+    {
+      "key": "andre",
+      "guid": "DF911BBD-E3DA-4852-9C35-1A6F92A13558",
+      "firstName": "Andre",
+      "lastName": "Haywood",
+      "bio": "Andre is the Peoria Campus Pastor. He joined staff four years ago and leads the West Valley campus.",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 48,
+        "month": 5,
+        "day": 30
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 22,
+        "month": 7,
+        "day": 16
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "andre@rocksolidchurchdemo.com",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550199"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Employer": "Rock Solid Church",
+        "Position": "Peoria Campus Pastor"
+      },
+      "logins": [
+        "ahaywood"
+      ],
+      "securityRoles": [
+        "Pastoral Staff",
+        "Staff Users"
+      ]
+    },
+    {
+      "key": "keisha",
+      "guid": "8CA9CF2C-CBD7-449B-8857-CF013AA71E65",
+      "firstName": "Keisha",
+      "lastName": "Haywood",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 46,
+        "month": 12,
+        "day": 11
+      },
+      "maritalStatus": "married",
+      "anniversary": {
+        "yearsAgo": 22,
+        "month": 7,
+        "day": 16
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "keisha.haywood@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550198"
+      },
+      "photo": {
+        "ethnicity": "black"
+      },
+      "attributes": {
+        "Employer": "Sonoran Valley University",
+        "Position": "Academic Advisor"
+      }
+    },
+    {
+      "key": "isaiah",
+      "guid": "BCAA38E2-00EF-44AB-B38A-3B34CD159D07",
+      "firstName": "Isaiah",
+      "lastName": "Haywood",
+      "gender": "male",
+      "familyRole": "child",
+      "birth": {
+        "age": 16,
+        "month": 2,
+        "day": 19
+      },
+      "recordStatus": "active",
+      "connectionStatus": "Engaged",
+      "email": "isaiah.haywood@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550196"
+      }
+    }
+  ]
+}

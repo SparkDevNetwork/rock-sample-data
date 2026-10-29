@@ -255,11 +255,19 @@ namespace RockSampleData.Loader
             var calendar = new SundayCalendar( dates.Anchor, years, profile );
             var seed = options.Seed;
 
-            // The Cast always lives on the main campus. Generated households come from the dataset manifest's
-            // count per campus, or from the spike crowd, which spreads across the dataset's campuses.
+            // Most of the Cast lives on the main campus. A Cast household on another campus, such as its campus
+            // pastor's, comes only in a package with that campus (decision 199). Generated households come
+            // from the dataset manifest's count per campus, or from the spike crowd, which spreads across the
+            // dataset's campuses.
             steps.Begin( "People" );
             var mainCampusKey = source.Campuses.Campuses.Single( c => c.RockDefault ).Key;
             var households = source.ReadHouseholds();
+            var offCampus = households.Where( h => h.CampusSlot != "main" && !string.IsNullOrEmpty( h.CampusSlot ) && !configuration.CampusIds.ContainsKey( h.CampusSlot ) ).Select( h => h.Key ).ToList();
+            if ( offCampus.Count > 0 )
+            {
+                throw new InvalidDataException( $"The package has Cast households on campuses not in {dataset}: {string.Join( ", ", offCampus )}. The builder leaves them out." );
+            }
+
             var castHouseholdKeys = households.Select( h => h.Key ).ToHashSet();
             var manifest = source.ReadDataset( dataset );
 
@@ -502,7 +510,7 @@ namespace RockSampleData.Loader
                 {
                     Households = people.Households,
                     CastHouseholdKeys = castHouseholdKeys,
-                    CampusPastors = CampusPastors.Pick( people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey ),
+                    CampusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff ),
                     GroupPlans = groupPlans,
                     ServingPlans = servingPlans,
                     Gifts = giving.QualifyingGifts,

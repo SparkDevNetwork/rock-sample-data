@@ -112,15 +112,19 @@ Each event names a contact:
 
 | Contact | Person | Events |
 |---|---|---|
-| `pete` | Pete Foster, senior pastor | Big Sundays, marriage and grief events, staff meetings, the Young at Heart Lunch |
+| `pete` | Pete Foster, senior pastor | Big Sundays, marriage events, and staff meetings |
 | `ted` | Ted Decker, outreach pastor | Outreach, men's events, Serve Sunday, the blood drive, the Leader Huddle |
 | `isaac` | Isaac Silva, student pastor | Student events, with the student line and inbox |
-| `alisha` | Alisha Marble, Rock administrator | Women's events, Money Matters, safety training, Rock Office Hours |
+| `alisha` | Alisha Marble, executive assistant and Rock administrator | Women's events, Rock Office Hours, and the staff Christmas party |
 | `jenny` | Jenny Michaels, who coordinates the car show and camp | The car show and Student Camp |
-| `rachel` | Rachel Brooks, kids volunteer | Kids events, with the kids inbox |
-| `campus-pastor` | Each campus's campus pastor, the one notes and texting use. Ted stands in on the main campus. | Campus events such as Easter, Starting Point, and the Fall Festival |
+| `rachel` | Rachel Brooks, Kids Director | Kids events, with the kids inbox |
+| `dee` | Dee Navarro, Care Pastor | Hope for the Holidays and the Young at Heart Lunch, with the care inbox |
+| `priya` | Priya Raman, Finance Director | Money Matters, with the finance inbox |
+| `ray` | Ray Delgado, Facilities Director | Volunteer safety training, with the facilities inbox |
+| `aaron` | Aaron Mitchell, Phoenix campus pastor | Phoenix's campus events, and church-wide campus events |
+| `campus-pastor` | Each campus's named campus pastor from `configuration/staff.json`, the one notes and texting use. Aaron Mitchell is the Phoenix campus pastor, and the contact for church-wide campus events. | Campus events such as Easter, Starting Point, and the Fall Festival |
 
-Phones are the church office line (623) 555-0108, or the student line (623) 555-0160. Emails are at `rocksolidchurchdemo.com`, with a campus inbox such as `peoria@rocksolidchurchdemo.com` for campus pastors.
+Phones are the church office line (623) 555-0108, or the student line (623) 555-0160. Emails are at `rocksolidchurchdemo.com`, with a campus inbox such as `peoria@rocksolidchurchdemo.com` for campus pastors, `phoenix@rocksolidchurchdemo.com` included.
 
 ## Photos
 

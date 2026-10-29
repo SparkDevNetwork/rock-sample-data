@@ -91,7 +91,7 @@ namespace RockSampleData.Loader.Generation
             _source = source;
             _seed = seed;
             _anchor = anchor;
-            _addresses = AddressPool.Load( source.Files, seed );
+            _addresses = AddressPool.Load( source.Files, seed, source.ReadHouseholds().Select( h => h.Address ) );
             _adultAges = PlanAdultAges();
 
             var numbers = source.Communications?.PhoneNumbers;

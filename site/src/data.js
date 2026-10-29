@@ -106,6 +106,7 @@ function load() {
         household.stages = lifeStages( household );
         for ( const member of household.members ) {
             const photo = `${household.key}-${member.key}.jpg`;
+            member.isPhotoOmitted = !!( member.photo && member.photo.isOmitted ) || household.kind === "business";
             member.photo = castPhotos.has( photo ) ? photo : null;
             member.displayName = `${member.nickName || member.firstName} ${member.lastName}`;
             member.household = household;
@@ -198,6 +199,33 @@ function load() {
         };
     } );
 
+    // Each household's campus. Most of the Cast lives on the main campus; a campus pastor's household lives on
+    // its own campus and loads only in the datasets that have it (decision 199).
+    const mainCampus = campuses.find( c => c.rockDefault );
+    for ( const household of households ) {
+        household.campus = household.campusSlot === "main" ? mainCampus : campuses.find( c => c.key === household.campusSlot ) || mainCampus;
+    }
+
+    // The church's staff, every one a Cast person, and each campus's campus pastor (configuration/staff.json).
+    const staffFile = exists( "configuration/staff.json" ) ? readJson( "configuration/staff.json" ) : { staff: [], campusPastors: {} };
+    const staff = staffFile.staff
+        .map( s => {
+            const member = people.get( s.person.toUpperCase() );
+            const campus = s.campus ? campuses.find( c => c.key === s.campus ) : null;
+            return member ? { ...s, member, campusName: campus ? campus.name : null } : null;
+        } )
+        .filter( Boolean );
+    for ( const s of staff ) {
+        s.member.staffTitle = s.title;
+        if ( !s.member.household.stages.includes( "staff" ) ) {
+            s.member.household.stages.push( "staff" );
+        }
+    }
+    for ( const campus of campuses ) {
+        const pastor = staff.find( s => s.key === staffFile.campusPastors[campus.key] );
+        campus.pastor = pastor ? pastor.member : null;
+    }
+
     // Each folder in graphics/initiatives/ is one initiative and its artwork (graphics/README.md).
     const initiativeGraphics = fs.readdirSync( path.join( root, "graphics/initiatives" ) )
         .filter( folder => exists( `graphics/initiatives/${folder}/manifest.json` ) )
@@ -233,6 +261,7 @@ function load() {
         fullGroupPhotos,
         opportunities,
         campuses,
+        staff,
         campusPhotos,
         initiativeGraphics,
         campaign: readJson( "configuration/campaign.json" ),

@@ -30,14 +30,16 @@ function initials( member ) {
 }
 
 /**
- * A round portrait, or a monogram for the few Cast people left without a photo on purpose.
+ * A round portrait, or a monogram for a Cast person with no photo: one left without a photo on purpose, or a
+ * new person whose photo is still to be made.
  */
 function portrait( member, r, size = "md" ) {
     if ( member.photo ) {
         return html`<img class="portrait portrait-${size}" src="${r( "images/cast/" + member.photo )}" alt="${esc( member.displayName )}" loading="lazy" width="200" height="200">`;
     }
 
-    return html`<span class="portrait portrait-${size} monogram" role="img" aria-label="${esc( member.displayName )}, no photo on purpose">${esc( initials( member ) )}</span>`;
+    const why = member.isPhotoOmitted ? "no photo on purpose" : "photo coming soon";
+    return html`<span class="portrait portrait-${size} monogram" role="img" aria-label="${esc( member.displayName )}, ${why}">${esc( initials( member ) )}</span>`;
 }
 
 const stageLabels = {
@@ -46,6 +48,7 @@ const stageLabels = {
     teens: "Teens",
     single: "Single adults",
     seniors: "Seniors",
+    staff: "Staff",
     business: "Businesses"
 };
 

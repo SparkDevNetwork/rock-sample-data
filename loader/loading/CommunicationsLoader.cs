@@ -73,7 +73,7 @@ namespace RockSampleData.Loader.Loading
         /// Writes the phone numbers, the template, and the lists with their members.
         /// </summary>
         /// <param name="people">Everyone loaded.</param>
-        /// <param name="castHouseholdKeys">The Cast's households. Campus pastors come from the rest.</param>
+        /// <param name="castHouseholdKeys">The Cast's households. A package without staff.json picks campus pastors from the rest.</param>
         /// <param name="mainCampusKey">The main campus.</param>
         /// <param name="campusIds">The dataset's campuses.</param>
         /// <param name="familySundays">Each family's attended Sundays, from the attendance plan.</param>
@@ -131,7 +131,7 @@ namespace RockSampleData.Loader.Loading
             var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
             using ( _db.Log.TimePart( "One-to-one" ) )
             {
-                new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, CampusPastors.Pick( generated, mainCampusKey ) );
+                new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, CampusPastors.Pick( people, generated, mainCampusKey, _source.Staff ) );
             }
 
             // The app and its pushes reach the same active adults.
@@ -253,7 +253,7 @@ WHERE [st].[Guid] = @Type AND [s].[StartDateTime] IS NOT NULL AND [s].[CampusId]
                 var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
                 var campusNames = _source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
                 var order = configuration.Numbers.Count == 0 ? 0 : configuration.Numbers.Max( n => n.Order ) + 1;
-                foreach ( var (campusKey, pastor) in CampusPastors.Pick( generated, mainCampusKey ).OrderBy( p => p.Key, StringComparer.Ordinal ) )
+                foreach ( var (campusKey, pastor) in CampusPastors.Pick( people, generated, mainCampusKey, _source.Staff ).OrderBy( p => p.Key, StringComparer.Ordinal ) )
                 {
                     if ( !configuration.CampusPastors.Numbers.TryGetValue( campusKey, out var number ) )
                     {

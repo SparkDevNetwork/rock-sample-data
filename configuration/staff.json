@@ -1,0 +1,174 @@
+{
+  "$comment": "The church staff (decision 198). Each staff member is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
+  "staff": [
+    {
+      "key": "pete",
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "title": "Senior Pastor",
+      "department": "executive",
+      "campus": null
+    },
+    {
+      "key": "greg",
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "title": "Executive Pastor",
+      "department": "executive",
+      "campus": null
+    },
+    {
+      "key": "ted",
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "title": "Outreach Pastor",
+      "department": "connections",
+      "campus": null
+    },
+    {
+      "key": "alisha",
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "title": "Executive Assistant",
+      "department": "executive",
+      "campus": null
+    },
+    {
+      "key": "daniel",
+      "person": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "name": "Daniel Peak",
+      "title": "Director of Communications",
+      "department": "administration",
+      "campus": null
+    },
+    {
+      "key": "priya",
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "title": "Finance Director",
+      "department": "administration",
+      "campus": null
+    },
+    {
+      "key": "ray",
+      "person": "201B7E08-7C29-4472-931F-047B4A310347",
+      "name": "Ray Delgado",
+      "title": "Facilities Director",
+      "department": "administration",
+      "campus": null
+    },
+    {
+      "key": "naomi",
+      "person": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
+      "name": "Naomi Castillo",
+      "title": "Worship Pastor",
+      "department": "worship",
+      "campus": null
+    },
+    {
+      "key": "kelsey",
+      "person": "2D46542F-54ED-4511-AD8F-A4F7E887A11B",
+      "name": "Kelsey Morrow",
+      "title": "Production Director",
+      "department": "worship",
+      "campus": null
+    },
+    {
+      "key": "rachel",
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "title": "Kids Director",
+      "department": "kids",
+      "campus": null
+    },
+    {
+      "key": "isaac",
+      "person": "581C940E-A788-4F32-BCF3-33F4D1948390",
+      "name": "Isaac Silva",
+      "title": "Student Pastor",
+      "department": "students",
+      "campus": null
+    },
+    {
+      "key": "jamal",
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "title": "Groups Pastor",
+      "department": "connections",
+      "campus": null
+    },
+    {
+      "key": "dee",
+      "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "name": "Dee Navarro",
+      "title": "Care Pastor",
+      "department": "connections",
+      "campus": null
+    },
+    {
+      "key": "aaron",
+      "person": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+      "name": "Aaron Mitchell",
+      "title": "Phoenix Campus Pastor",
+      "department": "campuses",
+      "campus": "phoenix"
+    },
+    {
+      "key": "andre",
+      "person": "DF911BBD-E3DA-4852-9C35-1A6F92A13558",
+      "name": "Andre Haywood",
+      "title": "Peoria Campus Pastor",
+      "department": "campuses",
+      "campus": "peoria"
+    },
+    {
+      "key": "dana",
+      "person": "9781F0D0-DF05-4C96-A599-F3971238981D",
+      "name": "Dana Whitlock",
+      "title": "Gilbert Campus Pastor",
+      "department": "campuses",
+      "campus": "gilbert"
+    },
+    {
+      "key": "walt",
+      "person": "E47EAABF-E7E2-4C6A-AD9B-A2353D4A5613",
+      "name": "Walt Hargrove",
+      "title": "Scottsdale Campus Pastor",
+      "department": "campuses",
+      "campus": "scottsdale"
+    },
+    {
+      "key": "tina",
+      "person": "87A06537-76C2-4100-8408-1CFF4EE55248",
+      "name": "Tina Vu",
+      "title": "Chandler Campus Pastor",
+      "department": "campuses",
+      "campus": "chandler"
+    },
+    {
+      "key": "rafael",
+      "person": "E65DD626-9A6A-4353-837B-E6D48808E621",
+      "name": "Rafael Ibarra",
+      "title": "Goodyear Campus Pastor",
+      "department": "campuses",
+      "campus": "goodyear"
+    },
+    {
+      "key": "leah",
+      "person": "2C1EC260-13B8-489E-9B38-61F732ED7022",
+      "name": "Leah Tsosie",
+      "title": "Tempe Campus Pastor",
+      "department": "campuses",
+      "campus": "tempe"
+    }
+  ],
+  "campusPastors": {
+    "phoenix": "aaron",
+    "peoria": "andre",
+    "gilbert": "dana",
+    "scottsdale": "walt",
+    "chandler": "tina",
+    "goodyear": "rafael",
+    "tempe": "leah"
+  }
+}

@@ -41,6 +41,10 @@ const SECURITY_ROLE_NAMES = new Set( securityRoleConfiguration.roles.concat( sec
 const ROCK_ROLE_NAMES = new Set( securityRoleConfiguration.roles.map( r => r.name ) );
 const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchdemo.com" ];
 
+// A Cast household lives on the main campus, or on another campus and loads only in datasets that have it.
+const OTHER_CAMPUS_KEYS = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses
+    .filter( c => !c.rockDefault ).map( c => c.key ) );
+
 const errors = [];
 const warnings = [];
 const smallGroups = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "small-groups.json" ), "utf8" ) );
@@ -110,8 +114,8 @@ for ( const { file, data: h } of households ) {
     if ( !KEY.test( h.key ) ) {
         errors.push( `${file}: key "${h.key}" is not a lowercase slug.` );
     }
-    if ( h.campusSlot !== "main" ) {
-        errors.push( `${file}: the Cast must use the main campus slot.` );
+    if ( h.campusSlot !== "main" && !OTHER_CAMPUS_KEYS.has( h.campusSlot ) ) {
+        errors.push( `${file}: campusSlot "${h.campusSlot}" is neither "main" nor another campus's key in configuration/campuses.json.` );
     }
     householdKeys.add( h.key );
     claimGuid( h.guid, file );
@@ -209,6 +213,32 @@ for ( const h of households.map( x => x.data ) ) {
             .filter( r => r.state === "Active" && r.connector && p.connects.statuses.includes( r.status ) );
         if ( matching.length < p.connects.minimum ) {
             errors.push( `${h.key} (${p.key}): connects at least ${p.connects.minimum} requests, but the Cast has only ${matching.length} active requests at that campus in ${p.connects.statuses.join( " or " )} with a connector.` );
+        }
+    }
+}
+
+// A household on another campus is missing from datasets without that campus, so nothing that loads in
+// every dataset may name its people. configuration/staff.json may, since it names staff by campus.
+{
+    const campusPeople = new Map();
+    for ( const { file, data } of households.filter( x => x.data.campusSlot !== "main" ) ) {
+        for ( const p of data.members || [] ) {
+            campusPeople.set( p.guid, `${file} (${p.key})` );
+        }
+    }
+    const root = path.join( castDir, ".." );
+    const shared = [
+        ...households.filter( x => x.data.campusSlot === "main" ).map( x => path.join( castDir, x.file ) ),
+        ...[ "groups", "notes" ].flatMap( d => fs.readdirSync( path.join( castDir, d ) ).filter( f => f.endsWith( ".json" ) ).map( f => path.join( castDir, d, f ) ) ),
+        ...[ "sms-threads.json", "staff-emails.json", "prayer-requests.json" ].map( f => path.join( castDir, f ) ),
+        ...fs.readdirSync( path.join( root, "configuration" ) ).filter( f => f.endsWith( ".json" ) && f !== "staff.json" ).map( f => path.join( root, "configuration", f ) )
+    ].filter( f => fs.existsSync( f ) );
+    for ( const file of shared ) {
+        const text = fs.readFileSync( file, "utf8" ).toUpperCase();
+        for ( const [ guid, who ] of campusPeople ) {
+            if ( text.includes( guid ) ) {
+                errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
+            }
         }
     }
 }

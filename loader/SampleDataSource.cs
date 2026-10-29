@@ -139,10 +139,19 @@ namespace RockSampleData.Loader
             ChurchApp = Files.Exists( ChurchAppConfigurationPath ) ? Read<ChurchAppConfiguration>( ChurchAppConfigurationPath ) : null;
             Calendar = Files.Exists( CalendarConfigurationPath ) ? Read<CalendarConfiguration>( CalendarConfigurationPath ) : null;
             Logins = Files.Exists( LoginsConfigurationPath ) ? Read<LoginsConfiguration>( LoginsConfigurationPath ) : null;
+            Staff = Files.Exists( StaffConfigurationPath ) ? Read<StaffConfiguration>( StaffConfigurationPath ) : null;
             Registrations = Files.Exists( RegistrationsConfigurationPath ) ? Read<RegistrationsConfiguration>( RegistrationsConfigurationPath ) : null;
             Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The church staff and each campus's named campus pastor, or null in a package built before staff were
+        /// named, whose campus pastors come from generated households.
+        /// </summary>
+        public StaffConfiguration Staff { get; }
+
+        public const string StaffConfigurationPath = "configuration/staff.json";
 
         /// <summary>
         /// Reads from a folder, such as the rock-sample-data repository.
