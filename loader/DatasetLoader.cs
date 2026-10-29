@@ -357,6 +357,13 @@ namespace RockSampleData.Loader
                 var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
+
+                // Each staff member's staff photo, as their Staff Photo attribute (decision D-staff-4).
+                var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
+                if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
+                {
+                    log.Write( $"  Staff photos: {photoLoader.LoadStaffPhotos( people.Households, staffPhotoAttribute.Guid )}" );
+                }
             }
 
             // Sunday attendance, small group attendance, and serving requests all copy into Attendance. Its

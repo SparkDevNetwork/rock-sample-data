@@ -207,12 +207,15 @@ function load() {
     }
 
     // The church's staff, every one a Cast person, and each campus's campus pastor (configuration/staff.json).
+    // A delivered staff photo (photos/staff/manifest.json) shows on the staff card in place of the profile photo.
     const staffFile = exists( "configuration/staff.json" ) ? readJson( "configuration/staff.json" ) : { staff: [], campusPastors: {} };
+    const staffPhotos = exists( "photos/staff/manifest.json" ) ? readJson( "photos/staff/manifest.json" ).images : [];
     const staff = staffFile.staff
         .map( s => {
             const member = people.get( s.person.toUpperCase() );
             const campus = s.campus ? campuses.find( c => c.key === s.campus ) : null;
-            return member ? { ...s, member, campusName: campus ? campus.name : null } : null;
+            const photo = member ? staffPhotos.find( p => p.household === member.household.key && p.member === member.key ) : null;
+            return member ? { ...s, member, campusName: campus ? campus.name : null, staffPhoto: photo ? path.basename( photo.file ) : null } : null;
         } )
         .filter( Boolean );
     for ( const s of staff ) {

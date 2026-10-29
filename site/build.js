@@ -58,11 +58,13 @@ const castFiles = fs.readdirSync( path.join( repo, "photos/cast" ) ).filter( f =
 const servingFiles = model.opportunities.filter( o => o.photo ).map( o => o.photo );
 const groupFiles = model.smallGroups.filter( g => g.photo ).map( g => g.photo );
 const campusFiles = model.campuses.filter( c => c.photo ).map( c => c.photo );
+const staffFiles = model.staff.filter( s => s.staffPhoto ).map( s => s.staffPhoto );
 copyInto( churchDir, path.join( dist, "images/church" ), model.churchViews.map( v => v.jpeg ) );
 copyInto( path.join( repo, "photos/cast" ), path.join( dist, "images/cast" ), castFiles );
 copyInto( path.join( repo, "photos/opportunities" ), path.join( dist, "images/serving" ), servingFiles );
 copyInto( path.join( repo, "photos/groups" ), path.join( dist, "images/groups" ), groupFiles );
 copyInto( path.join( repo, "photos/campuses" ), path.join( dist, "images/campuses" ), campusFiles );
+copyInto( path.join( repo, "photos/staff" ), path.join( dist, "images/staff" ), staffFiles );
 
 // Single-file downloads: every logo file, and each building view and small group photo as JPEG and PNG master.
 const brandFiles = fs.readdirSync( brandDir ).filter( f => /\.(svg|png)$/.test( f ) );

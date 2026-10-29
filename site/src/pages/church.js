@@ -161,7 +161,7 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
     ${departments.filter( ( [ key ] ) => model.staff.some( s => s.department === key ) ).map( ( [ key, label ] ) => html`<h3 class="staff-department">${esc( label )}</h3>
     <div class="staff-grid">
       ${model.staff.filter( s => s.department === key ).map( s => html`<a class="staff-card reveal" href="${r( "cast/" + s.member.household.key + ".html" )}">
-        ${portrait( s.member, r, "lg" )}
+        ${s.staffPhoto ? html`<img class="portrait portrait-lg" src="${r( "images/staff/" + s.staffPhoto )}" alt="${esc( s.member.displayName )}" loading="lazy" width="200" height="200">` : portrait( s.member, r, "lg" )}
         <span class="staff-name">${esc( s.member.displayName )}</span>
         <span class="staff-title">${esc( s.title )}</span>
       </a>` )}

@@ -895,6 +895,52 @@ for ( const { file, data: h } of households ) {
     }
 }
 
+// Pass 4b: staff photos (decision D-staff-4). Each is a 1536-pixel square JPEG of a staff member, named for them,
+// with its original kept. A staff member with no staff photo yet is a warning, not an error.
+{
+    const staffManifestFile = path.join( photosDir, "staff", "manifest.json" );
+    const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
+    if ( fs.existsSync( staffManifestFile ) && fs.existsSync( staffFile ) ) {
+        const staffPeople = new Set( JSON.parse( fs.readFileSync( staffFile, "utf8" ) ).staff.map( s => s.person ) );
+        const delivered = new Set();
+        for ( const image of JSON.parse( fs.readFileSync( staffManifestFile, "utf8" ) ).images ) {
+            const owner = `photos/staff/manifest.json (${image.file})`;
+            const key = `${image.household}-${image.member}`;
+            if ( image.file !== `staff/${key}.jpg` ) {
+                errors.push( `${owner}: the file is named staff/{household}-{member}.jpg, so it should be staff/${key}.jpg.` );
+            }
+            if ( delivered.has( key ) ) {
+                errors.push( `${owner}: listed twice.` );
+            }
+            delivered.add( key );
+
+            const match = households.find( x => x.data.key === image.household );
+            const person = match && ( match.data.members || [] ).find( m => m.key === image.member );
+            if ( !person || !staffPeople.has( person.guid ) ) {
+                errors.push( `${owner}: ${image.household}/${image.member} is not staff in configuration/staff.json.` );
+            }
+
+            const size = fs.existsSync( path.join( photosDir, image.file ) ) ? jpegSize( path.join( photosDir, image.file ) ) : null;
+            if ( !size ) {
+                errors.push( `${owner}: the file is missing or is not a JPEG.` );
+            }
+            else if ( size.width !== 1536 || size.height !== 1536 ) {
+                errors.push( `${owner}: is ${size.width} by ${size.height}; staff photos are 1536 by 1536.` );
+            }
+
+            const originalBase = path.join( photosDir, "originals", image.file.replace( /\.jpg$/, "" ) );
+            if ( ![ ".jpg", ".jpeg", ".png" ].some( ext => fs.existsSync( originalBase + ext ) ) ) {
+                errors.push( `${owner}: has no original in photos/originals/staff/.` );
+            }
+        }
+
+        const missing = [ ...people.values() ].filter( x => staffPeople.has( x.person.guid ) && !delivered.has( `${x.household.key}-${x.person.key}` ) );
+        if ( missing.length ) {
+            warnings.push( `${missing.length} staff ${missing.length === 1 ? "member has" : "members have"} no staff photo yet. See photos/staff-brief.md.` );
+        }
+    }
+}
+
 // Pass 5: the Cast's prayer requests (decision 67). Each names a real Cast adult or a guest, a prayer category
 // that gets requests, and a state whose dates make sense. At least 8 are always current, so every dataset's
 // prayer list and prayer session have requests to pray through.

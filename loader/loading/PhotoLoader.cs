@@ -299,6 +299,47 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// Writes each loaded staff member's staff photo (photos/staff/manifest.json) as a file of Rock's Unsecured
+        /// type, stored in the database and not temporary, and sets their Staff Photo attribute to the file's Guid, as
+        /// Rock's Image field stores it (decision D-staff-4). Unsecured lets a visitor who is not signed in see it on
+        /// a staff page. A staff member whose campus is not in the dataset is not loaded and gets none. Returns how
+        /// many staff got a photo.
+        /// </summary>
+        /// <param name="households">Every loaded household.</param>
+        /// <param name="staffPhotoAttributeGuid">The Staff Photo person attribute.</param>
+        public int LoadStaffPhotos( IReadOnlyList<LoadedHousehold> households, Guid staffPhotoAttributeGuid )
+        {
+            var people = households
+                .SelectMany( h => h.Members.Select( m => (Key: $"{h.Cast.Key}/{m.Cast.Key}", Person: m) ) )
+                .GroupBy( x => x.Key, StringComparer.Ordinal )
+                .ToDictionary( g => g.Key, g => g.First().Person, StringComparer.Ordinal );
+            var photos = _source.ReadStaffPhotoManifest().Images
+                .Where( p => people.ContainsKey( $"{p.Household}/{p.Member}" ) )
+                .OrderBy( p => p.File, StringComparer.Ordinal )
+                .ToList();
+            if ( photos.Count == 0 )
+            {
+                return 0;
+            }
+
+            var attributeId = _db.RequireIdByGuid( "Attribute", staffPhotoAttributeGuid );
+            var fileIds = WriteFiles( DefaultFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.StaffPhotoManifestPath );
+            var fileGuids = _db.Query( $"SELECT [Id], [Guid] FROM [BinaryFile] WHERE [Id] IN ( {string.Join( ", ", fileIds )} )" )
+                .ToDictionary( row => Convert.ToInt32( row["Id"] ), row => ( Guid ) row["Guid"] );
+
+            var now = DateTime.Now;
+            var values = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "IsPersistedValueDirty:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            for ( var i = 0; i < photos.Count; i++ )
+            {
+                var person = people[$"{photos[i].Household}/{photos[i].Member}"];
+                values.Rows.Add( false, attributeId, person.PersonId, fileGuids[fileIds[i]].ToString(), true, Guid.NewGuid(), _foreignKey, now, now );
+            }
+
+            _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
+            return photos.Count;
+        }
+
+        /// <summary>
         /// Writes one JPEG file per item, in order, stored in the database, and returns their Ids in the same
         /// order. Files are not temporary, the same as Rock leaves an image once it is saved to a record.
         /// </summary>

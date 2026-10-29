@@ -11,6 +11,7 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | Kind | Rock field | Source |
 |---|---|---|
 | People | `Person.PhotoId` | AI-generated portraits, matched to each person's photo ethnicity, gender, and age |
+| Staff photos | The Staff Photo person attribute, a file of Rock's Unsecured type | AI-generated outdoor photos of each of the 20 staff at the Phoenix campus entrance, made from their profile photos, from the [staff photo brief](staff-brief.md) (decision D-staff-4). All 20 share one look, so they line up on a staff page. |
 | Cast small groups | `Group.PhotoId` | AI-generated group photos of each group's real members, made from their profile photos, from the [group photo brief](group-brief.md) (decision 56) |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
 | Calendar events | `EventItem.PhotoId` | AI-generated 2:1 images of each event on the church calendar from the [event image brief](event-brief.md): titled designs for most events, and photos with anonymous people for the rest (decisions 176 and 184) |
@@ -71,6 +72,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Set | Coverage |
 |---|---|
 | Cast (in every dataset) | Every adult and child, except a few omitted on purpose (duplicate records and a deceased child). The 45 legacy portraits have approved replacements. Businesses get no portrait. |
+| Staff photos | Each staff member in the dataset whose photo is delivered and listed in `staff/manifest.json`. A campus pastor's photo is in the datasets with their campus. None are delivered yet; the [staff photo brief](staff-brief.md) asks for all 20. |
 | Core 3 companions | About half, from a pool of 120 photos. |
 | Cast small groups (in every dataset) | All 12, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
@@ -94,6 +96,19 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `opportunities/` | Delivered opportunity photos, `{team}.jpg`, and their `manifest.json` | Yes |
 | `event-brief.md` | The brief for the calendar event images: sizes, the design and photo looks, rules, and one section per event | Yes |
 | `events/` | Delivered event photos, `{event-key}.jpg` at 1536 by 768, and their `manifest.json` | Yes |
+| `staff-brief.md` | The brief for the 20 staff photos: one shared outdoor look at the Phoenix entrance, 1536 by 1536, with a 3:1 crop check | Yes |
+| `staff/` | Delivered staff photos, `{household}-{member}.jpg` at 1536 by 1536, and their `manifest.json` | Yes |
 | `campuses/` | Seven distinct campus exterior JPEGs, their manifest, and reuse guide | Yes |
 | `originals/campuses/` | Full-size original campus exterior PNGs | Yes |
 | `originals/` | The image model's full-size originals of both, same names, in the format the model made (JPEG or PNG) | Yes |
+
+## Installing staff photos
+
+Jon's image agent makes the staff photos outside the repository, from the [staff photo brief](staff-brief.md), and hands back a folder of JPEGs with a manifest and a handback note. A Rock sample data session installs them:
+
+1. **Check each image** against the brief's check list, and that it is a 1536 by 1536 JPEG named `{household}-{member}.jpg` for a staff member in `configuration/staff.json`.
+2. **Copy the files.** Each JPEG goes to `photos/staff/` under the same name. If the agent handed back a larger original, it goes to `photos/originals/staff/` under the same name (in its own format); otherwise copy the JPEG there too.
+3. **List each one** in `photos/staff/manifest.json`, with `file` (such as `staff/foster-pete.jpg`), `household`, `member`, and the agent's `reference`, `place`, `seed`, and `prompt`. Set `model` to the model the agent named.
+4. **Run** `node cast/validate-cast.js` (0 errors, and the staff photo warning gone once all 20 are in) and `node site/build.js`.
+
+No code changes when they arrive. The builder packs every listed photo into the datasets that have that person, and the loader's `Photos` part writes each one as a file of Rock's Unsecured type, stored in the database and not temporary, and sets the person's Staff Photo to it. A staff member with no listed photo loads with an empty Staff Photo.

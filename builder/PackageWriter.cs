@@ -152,6 +152,24 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // The staff photos delivered so far, for the staff in this dataset (decision D-staff-4).
+            if ( repository.Exists( SampleDataSource.StaffPhotoManifestPath ) )
+            {
+                var staffManifest = JsonNode.Parse( repository.ReadText( SampleDataSource.StaffPhotoManifestPath ) ).AsObject();
+                var staffImages = staffManifest["images"].AsArray();
+                foreach ( var image in staffImages.Where( i => castOffCampus.Contains( i["household"].GetValue<string>() ) ).ToList() )
+                {
+                    staffImages.Remove( image );
+                }
+
+                var options = new JsonSerializerOptions { WriteIndented = true, NewLine = "\n", Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+                files[SampleDataSource.StaffPhotoManifestPath] = Utf8( staffManifest.ToJsonString( options ) + "\n" );
+                foreach ( var image in staffImages )
+                {
+                    AddFile( $"photos/{image["file"].GetValue<string>()}" );
+                }
+            }
+
             // Fonts for check images, with their licenses, the prayer and note text pools, the message library with the
             // email template and its logo, and the license for the data itself.
             AddFolder( "content/notes", ".json" );
@@ -247,6 +265,22 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.EventPhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            // A staff photo belongs to a staff member, and its file is in the package.
+            var staffGuids = source.Staff?.Staff.Select( s => s.Person ).ToHashSet() ?? new HashSet<Guid>();
+            var castPeople = source.ReadHouseholds().SelectMany( h => h.Members.Select( m => (Key: $"{h.Key}/{m.Key}", m.Guid) ) ).ToDictionary( x => x.Key, x => x.Guid, StringComparer.Ordinal );
+            foreach ( var photo in source.ReadStaffPhotoManifest().Images )
+            {
+                if ( !castPeople.TryGetValue( $"{photo.Household}/{photo.Member}", out var personGuid ) || !staffGuids.Contains( personGuid ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.StaffPhotoManifestPath} has a photo for {photo.Household}/{photo.Member}, who is not staff in configuration/staff.json." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.StaffPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

@@ -95,6 +95,37 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// photos/staff/manifest.json: the delivered staff photos, each a staff member's Staff Photo.
+    /// </summary>
+    internal sealed class StaffPhotoManifest
+    {
+        public string Model { get; set; }
+
+        public List<StaffPhotoEntry> Images { get; set; } = new List<StaffPhotoEntry>();
+    }
+
+    /// <summary>
+    /// One staff photo.
+    /// </summary>
+    internal sealed class StaffPhotoEntry
+    {
+        /// <summary>
+        /// The JPEG under photos/, such as staff/foster-pete.jpg.
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The Cast household key.
+        /// </summary>
+        public string Household { get; set; }
+
+        /// <summary>
+        /// The Cast member key.
+        /// </summary>
+        public string Member { get; set; }
+    }
+
+    /// <summary>
     /// The block that shows the staff attributes on a person's profile.
     /// </summary>
     internal sealed class StaffBlock
