@@ -64,6 +64,7 @@ namespace RockSampleData.Loader.Generation
 
         private readonly RegistrationsConfiguration _config;
         private readonly RegistrantChooser _chooser;
+        private readonly StudentPath _path;
         private readonly DateTime _anchor;
         private readonly string _seed;
         private readonly int _reminderDays;
@@ -88,6 +89,7 @@ namespace RockSampleData.Loader.Generation
             _anchor = anchor.Date;
             _seed = seed;
             _reminderDays = reminderDays;
+            _path = path;
             foreach ( var household in households )
             {
                 _families[household.FamilyId] = household;
@@ -192,13 +194,96 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
-            if ( day > lastDay )
+            if ( EligibilityAttendance( instance.Template ) is { } attending )
+            {
+                // Rock lets only the people in the template's eligibility data view register, so the day moves to one
+                // when every registrant is in it, or the registration is not made.
+                var limit = Min( until, lastDay );
+                while ( day <= limit && !draft.People.All( p => IsInEligibilityView( p, day, instance.Template, attending ) ) )
+                {
+                    day = day.AddDays( 1 );
+                }
+
+                if ( day > limit && draft.Pin != null )
+                {
+                    throw new InvalidOperationException( $"The Cast registration in cast/households/{draft.PinHousehold.Cast.Key}.json for {instance.Name} has no day before the install day when its registrants are in the template's eligibility data view." );
+                }
+            }
+
+            if ( day > lastDay || day > until )
             {
                 return false;
             }
 
             draft.When = day.AddMinutes( random.Between( 7 * 60, 22 * 60 ) );
             return true;
+        }
+
+        /*
+            10/29/26 - CLAUDE
+
+            Rock checks a template's eligibility data view when someone registers (RegistrationTemplateService
+            GetRegistrantEligibility), so a registrant must be in it on their registration day. The mission trip's view is
+            high school students with at least two student service check-ins in the last 120 days. The Student Path holds
+            each student's student service check-ins, so the view is replayed from them: the check-ins from 119 days
+            before through the day before, which Rock's "Last 120 days" window always holds, and the grade the way Rock's
+            grade filter counts it, moving up the day after the grade transition date. check-registrations.js keeps the
+            view's check-in areas the Student Path's, and an invariant checks every registrant against the view in SQL.
+
+            Reason: Decision D-registrations-17. Every trip registrant is someone Rock would have let register.
+        */
+
+        /// <summary>
+        /// The check-ins the template's eligibility data view asks for, or null when it names none.
+        /// </summary>
+        private (int CheckIns, int Days)? EligibilityAttendance( RegistrationTemplateDefinition template )
+        {
+            if ( template.Eligibility?.DataView is not { } key )
+            {
+                return null;
+            }
+
+            var view = _config.DataViews.FirstOrDefault( v => v.Key == key )
+                ?? throw new InvalidDataException( $"configuration/registrations.json: template {template.Key} names eligibility data view {key}, which 'dataViews' does not hold." );
+            var leaf = Loading.DataViewWriter.Leaves( view.Filter ).SingleOrDefault( f => f.Component == "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter" );
+            if ( leaf == null )
+            {
+                return null;
+            }
+
+            var parts = leaf.Selection.Split( '|' );
+            var range = parts[3].Split( ',' );
+            if ( parts[1] != "256" || range[0] != "Last" || range[2] != "Day" || _path == null )
+            {
+                throw new InvalidDataException( $"configuration/registrations.json: data view {key} must count at least N student service check-ins in the last N days for the loader to replay it." );
+            }
+
+            return (int.Parse( parts[2], CultureInfo.InvariantCulture ), int.Parse( range[1], CultureInfo.InvariantCulture ));
+        }
+
+        /// <summary>
+        /// True when the person is in the template's eligibility data view on the day: in its grades as Rock's grade
+        /// filter counts them, and checked in often enough before the day.
+        /// </summary>
+        private bool IsInEligibilityView( LoadedPerson person, DateTime day, RegistrationTemplateDefinition template, (int CheckIns, int Days) attending )
+        {
+            var grades = template.Eligibility.Grades;
+            if ( grades != null )
+            {
+                if ( !person.GraduationYear.HasValue )
+                {
+                    return false;
+                }
+
+                var transition = new DateTime( day.Year, AnchorDates.GradeTransitionMonth, AnchorDates.GradeTransitionDay );
+                var offset = person.GraduationYear.Value - ( transition < day.Date ? day.Year + 1 : day.Year );
+                if ( offset < 12 - grades[1] || offset > 12 - grades[0] )
+                {
+                    return false;
+                }
+            }
+
+            return _path.CheckIns( person.PersonId ).GetViewBetween( day.AddDays( -( attending.Days - 1 ) ), day.AddDays( -1 ) ).Count >= attending.CheckIns;
         }
 
         /// <summary>

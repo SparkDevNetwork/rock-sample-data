@@ -60,6 +60,16 @@ namespace RockSampleData.Loader.Loading
 
         private const string RegistrationAttributeTitle = "Registration Information";
 
+        /// <summary>
+        /// Rock's SignatureDocumentAction.Embed. Rock's template screen saves it on every template (UpdateSignatureDocumentSettings).
+        /// </summary>
+        private const int SignatureDocumentActionEmbed = 1;
+
+        /// <summary>
+        /// Rock's SignatureType.Typed.
+        /// </summary>
+        private const int SignatureTypeTyped = 0;
+
         private static readonly Guid CategoryEntityTypeGuid = new Guid( "1D68154E-EC76-44C8-9813-7736B27AECF9" );
         private static readonly Guid TemplateEntityTypeGuid = new Guid( "A01E3E99-A8AD-4C6C-BAAC-98795738BA70" );
         private static readonly Guid InstanceEntityTypeGuid = new Guid( "5CD9C0C8-C047-61A0-4E36-0FDB8496F066" );
@@ -149,6 +159,8 @@ namespace RockSampleData.Loader.Loading
             var plans = new RegistrantPlans( _dataset, smallGroups, serving, statusOrder, castHouseholdKeys, mainCampusKey, _dates );
             var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, plans, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
             new RegistrantsLoader( _db, _foreignKey, _seed, _dates ).Write( registrations, new RegistrationIds( templates, groupTypes, groupIds, instanceIds, campusPlans, accountId, _db.RequireIdByGuid( "FinancialGateway", config.Gateway ), config.BatchPrefix ) );
+            WriteDataViews( config, plan, templates );
+            CheckEligibility( config, registrations );
             return plan;
         }
 
@@ -262,6 +274,7 @@ namespace RockSampleData.Loader.Loading
                 templates[template.Key] = new RegistrationTemplateIds( nextId++, template, Created( opens ) );
             }
 
+            WriteSignatureTemplates( config, templates );
             WriteTemplateRows( config, templates, categoryIds, groupTypes );
             WriteAttributes( config, templates );
             WriteForms( templates );
@@ -269,6 +282,56 @@ namespace RockSampleData.Loader.Loading
             WriteDiscounts( templates, plan );
             WritePlacements( templates, groupTypes );
             return templates;
+        }
+
+        /*
+            10/29/26 - CLAUDE
+
+            A release is a SignatureDocumentTemplate with no provider, so it uses Rock's own electronic signature, typed.
+            Rock's template screen saves every template with the Embed action, and for a release with no provider it turns
+            off external registration updates, since an edit could change what was signed. So the registrant signs while
+            registering, and the template keeps AllowExternalRegistrationUpdates off.
+
+            Reason: Decision D-registrations-14. The templates read the way Rock's screen saves them.
+        */
+
+        /// <summary>
+        /// Adds each release the templates name, and records its Id on each template that requires it.
+        /// </summary>
+        private void WriteSignatureTemplates( RegistrationsConfiguration config, Dictionary<string, RegistrationTemplateIds> templates )
+        {
+            var fileTypeId = _db.RequireIdByGuid( "BinaryFileType", config.SignedDocumentFileType );
+            var receiptId = config.SignatureReceipt is { } receipt ? _db.RequireIdByGuid( "SystemCommunication", receipt ) : ( int? ) null;
+            var nextId = NextId( "SignatureDocumentTemplate" );
+            var rows = TableFactory.Create( "Id:int", "Name:string", "Description:string", "BinaryFileTypeId:int", "LavaTemplate:string", "IsActive:bool", "DocumentTerm:string", "SignatureType:int",
+                "CompletionSystemCommunicationId:int", "IsValidInFuture:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            foreach ( var document in config.SignatureDocuments )
+            {
+                var users = templates.Values.Where( t => t.Definition.SignatureDocument == document.Key ).ToList();
+                if ( users.Count == 0 )
+                {
+                    continue;
+                }
+
+                var id = nextId++;
+                var created = users.Min( t => t.Created );
+                SignatureLava.Check( document.LavaTemplate );
+                rows.Rows.Add( id, document.Name, document.Description, fileTypeId, document.LavaTemplate, true, document.DocumentTerm, SignatureTypeTyped, ( object ) receiptId ?? DBNull.Value, false,
+                    document.Guid, _foreignKey, created, created );
+                foreach ( var user in users )
+                {
+                    user.SignatureTemplateId = id;
+                    user.Signature = document;
+                }
+            }
+
+            var unknown = templates.Values.FirstOrDefault( t => t.Definition.SignatureDocument != null && t.Signature == null );
+            if ( unknown != null )
+            {
+                throw new InvalidDataException( $"configuration/registrations.json: template {unknown.Definition.Key} requires release {unknown.Definition.SignatureDocument}, which 'signatureDocuments' does not hold." );
+            }
+
+            _db.BulkInsert( "SignatureDocumentTemplate", rows, keepIdentity: true );
         }
 
         private void WriteTemplateRows( RegistrationsConfiguration config, Dictionary<string, RegistrationTemplateIds> templates, Dictionary<string, int> categoryIds, Dictionary<string, RegistrationGroupTypeIds> groupTypes )
@@ -290,7 +353,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                 "SuccessTitle:string", "SuccessText:string", "AllowMultipleRegistrants:bool", "MaxRegistrants:int", "FinancialGatewayId:int", "IsActive:bool", "Notify:int", "ConfirmationFromName:string", "ConfirmationFromEmail:string",
                 "ConfirmationSubject:string", "ReminderFromName:string", "ReminderFromEmail:string", "ReminderSubject:string", "AddPersonNote:bool", "AllowGroupPlacement:bool", "SetCostOnInstance:bool", "PaymentReminderFromName:string",
                 "PaymentReminderFromEmail:string", "PaymentReminderSubject:string", "PaymentReminderEmailTemplate:string", "PaymentReminderTimeSpan:int", "AllowExternalRegistrationUpdates:bool", "BatchNamePrefix:string",
-                "SignatureDocumentAction:int", "ShowCurrentFamilyMembers:bool", "WaitListEnabled:bool", "WaitListTransitionFromName:string", "WaitListTransitionFromEmail:string", "WaitListTransitionSubject:string",
+                "SignatureDocumentAction:int", "RequiredSignatureDocumentTemplateId:int", "ShowCurrentFamilyMembers:bool", "WaitListEnabled:bool", "WaitListTransitionFromName:string", "WaitListTransitionFromEmail:string", "WaitListTransitionSubject:string",
                 "WaitListTransitionEmailTemplate:string", "RegistrationInstructions:string", "RegistrarOption:int", "RegistrationAttributeTitleStart:string", "RegistrationAttributeTitleEnd:string", "IsRegistrationMeteringEnabled:bool",
                 "ShowSmsOptIn:bool", "IsPaymentPlanAllowed:bool", "PaymentPlanFrequencyValueIds:string", "AdditionalSettingsJson:string", "AreDuplicateRegistrantsPrevented:bool", "IsFullPaymentOrPaymentPlanRequired:bool",
                 "FullPaymentOrPaymentPlanRequiredMessage:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -314,10 +377,10 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                     Rock( "DiscountCodeTerm" ), Rock( "ConfirmationEmailTemplate" ), Rock( "ReminderEmailTemplate" ), template.Cost, ( object ) template.MinimumInitialPayment ?? DBNull.Value, false, ( int ) template.RegistrantsSameFamily,
                     Rock( "RequestEntryName" ), Rock( "SuccessTitle" ), Rock( "SuccessText" ), template.MaxRegistrants > 1, template.MaxRegistrants, template.IsPaid ? gatewayId : DBNull.Value, true, NotifyRegistrationContact,
                     Rock( "ConfirmationFromName" ), Rock( "ConfirmationFromEmail" ), Rock( "ConfirmationSubject" ), Rock( "ReminderFromName" ), Rock( "ReminderFromEmail" ), Rock( "ReminderSubject" ), true, template.Placements.Count > 0,
-                    template.SetCostOnInstance, Rock( "PaymentReminderFromName" ), Rock( "PaymentReminderFromEmail" ), Rock( "PaymentReminderSubject" ), Rock( "PaymentReminderEmailTemplate" ), template.IsPaid ? PaymentReminderDays : DBNull.Value, true,
-                    template.IsPaid ? config.BatchPrefix : DBNull.Value, 0, template.ShowCurrentFamilyMembers, template.WaitList, Rock( "WaitListTransitionFromName" ), Rock( "WaitListTransitionFromEmail" ), Rock( "WaitListTransitionSubject" ),
+                    template.SetCostOnInstance, Rock( "PaymentReminderFromName" ), Rock( "PaymentReminderFromEmail" ), Rock( "PaymentReminderSubject" ), Rock( "PaymentReminderEmailTemplate" ), template.IsPaid ? PaymentReminderDays : DBNull.Value,
+                    info.SignatureTemplateId == null, template.IsPaid ? config.BatchPrefix : DBNull.Value, SignatureDocumentActionEmbed, ( object ) info.SignatureTemplateId ?? DBNull.Value, template.ShowCurrentFamilyMembers, template.WaitList, Rock( "WaitListTransitionFromName" ), Rock( "WaitListTransitionFromEmail" ), Rock( "WaitListTransitionSubject" ),
                     Rock( "WaitListTransitionEmailTemplate" ), ( object ) template.Instructions ?? DBNull.Value, ( int ) template.RegistrarOption, RegistrationAttributeTitle, RegistrationAttributeTitle, false,
-                    false, isPaymentPlanAllowed, isPaymentPlanAllowed ? frequencies : DBNull.Value, ( object ) EligibilityJson( template.Eligibility ) ?? DBNull.Value, false, template.FullPaymentOrPlanRequired != null,
+                    false, isPaymentPlanAllowed, isPaymentPlanAllowed ? frequencies : DBNull.Value, ( object ) EligibilityJson( template.Eligibility, config ) ?? DBNull.Value, false, template.FullPaymentOrPlanRequired != null,
                     ( object ) template.FullPaymentOrPlanRequired ?? DBNull.Value, SeededRandom.StableGuid( $"registration-template:{template.Key}" ), _foreignKey, info.Created, info.Created );
             }
 
@@ -532,7 +595,7 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
             _db.BulkInsert( "RegistrationTemplatePlacement", placements, keepIdentity: true );
         }
 
-        internal static string EligibilityJson( RegistrationEligibility eligibility )
+        internal static string EligibilityJson( RegistrationEligibility eligibility, RegistrationsConfiguration config )
         {
             if ( eligibility == null )
             {
@@ -544,10 +607,12 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
             string Integer( int? value ) => value?.ToString( CultureInfo.InvariantCulture ) ?? "null";
             var grades = eligibility.Grades;
             var ages = eligibility.Ages;
+            var dataView = eligibility.DataView == null ? "null"
+                : $"\"{( config.DataViews.FirstOrDefault( v => v.Key == eligibility.DataView ) ?? throw new InvalidDataException( $"configuration/registrations.json: eligibility names data view {eligibility.DataView}, which 'dataViews' does not hold." ) ).Guid.ToString( "D" )}\"";
             return "{\"RegistrantEligibilitySettings\":{"
                 + $"\"MinimumAge\":{Number( ages?[0] )},\"MaximumAge\":{Number( ages?[1] )},\"AgeClassification\":null,"
                 + $"\"MaximumGradeOffset\":{Integer( grades == null ? null : 12 - grades[0] )},\"MinimumGradeOffset\":{Integer( grades == null ? null : 12 - grades[1] )},"
-                + $"\"Gender\":{Integer( ( int? ) eligibility.Gender )},\"EligibilityDataViewGuid\":null}}}}";
+                + $"\"Gender\":{Integer( ( int? ) eligibility.Gender )},\"EligibilityDataViewGuid\":{dataView}}}}}";
         }
 
         /// <summary>
@@ -575,6 +640,18 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
             return ids;
         }
 
+        /*
+            10/29/26 - CLAUDE
+
+            Rock's Registration Reminder job runs every hour. When an instance's reminder time has passed, it emails each
+            registration's confirmation address, then sets SendReminderDateTime to when it ran and ReminderSent to true,
+            and saving the instance moves its ModifiedDateTime. Reminders are set on the hour, so the job's run is that
+            time. Its emails, like the confirmation and payment reminder emails, are not written as communication history
+            (decision D-registrations-16).
+
+            Reason: An instance whose reminder day has passed reads as if the job ran on schedule.
+        */
+
         /// <summary>
         /// Adds every instance with its dates, limits, account, contact, and reminder.
         /// </summary>
@@ -595,15 +672,16 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
                     : throw new InvalidDataException( $"configuration/calendar.json: contact {rule.Contact} is person {contact.Person}, who is not in the Cast." );
                 var isCostOnInstance = instance.Template.SetCostOnInstance;
                 var created = Created( instance.Opens );
+                var isReminderSent = instance.SendReminder < _dates.Anchor;
                 var id = nextId++;
                 ids[instance] = id;
 
                 // The last day of registration runs to its end, as a person picks 11:59 PM on Rock's screen.
                 rows.Rows.Add( id, instance.Name, templates[instance.Template.Key].Id, instance.Opens, instance.Closes.AddDays( 1 ).AddMinutes( -1 ), ( object ) rule.Details ?? DBNull.Value,
                     ( object ) instance.MaxAttendees ?? DBNull.Value, accountId, true, contact.Email, contact.Phone, person.AliasId,
-                    ( object ) instance.SendReminder ?? DBNull.Value, instance.SendReminder < _dates.Anchor, isCostOnInstance ? rule.Cost ?? 0 : DBNull.Value,
+                    ( object ) instance.SendReminder ?? DBNull.Value, isReminderSent, isCostOnInstance ? rule.Cost ?? 0 : DBNull.Value,
                     isCostOnInstance ? ( object ) rule.MinimumInitialPayment ?? DBNull.Value : DBNull.Value, ( object ) rule.Instructions ?? DBNull.Value,
-                    ( object ) instance.PaymentDeadline ?? DBNull.Value, instance.Guid, _foreignKey, created, created );
+                    ( object ) instance.PaymentDeadline ?? DBNull.Value, instance.Guid, _foreignKey, created, isReminderSent ? instance.SendReminder.Value : created );
             }
 
             _db.BulkInsert( "RegistrationInstance", rows, keepIdentity: true );
@@ -655,6 +733,97 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         }
 
         /// <summary>
+        /// Writes the registration data views under their church category, filling each registration filter's selection the
+        /// way Rock's editor saves it, and logs how many people each finds today.
+        /// </summary>
+        private void WriteDataViews( RegistrationsConfiguration config, RegistrationPlan plan, Dictionary<string, RegistrationTemplateIds> templates )
+        {
+            if ( config.DataViews.Count == 0 )
+            {
+                return;
+            }
+
+            var categories = _source.Categories ?? throw new InvalidDataException( "configuration/registrations.json has data views, but the package has no configuration/categories.json to file them in." );
+            var writer = new DataViewWriter( _db, categories, _foreignKey );
+            writer.RegisterComponents( config.DataViews, "configuration/registrations.json" );
+            var now = DateTime.Now;
+            string Selection( DataViewFilterDefinition filter )
+            {
+                if ( filter.Registration is not { } rule )
+                {
+                    return filter.Selection;
+                }
+
+                var instance = plan.Instances.Where( i => i.Rule.Key == rule.Instance && i.Pick == rule.Occurrence ).ToList();
+                if ( instance.Count != 1 )
+                {
+                    throw new InvalidDataException( $"configuration/registrations.json: a data view names the {rule.Occurrence.ToString().ToLowerInvariant()} {rule.Instance}, which this dataset plans {instance.Count} times. It must name exactly one instance." );
+                }
+
+                // Rock's ToJson: Newtonsoft with properties in declaration order and a lowercase Guid.
+                var type = rule.Person == "registrar" ? 1 : 2;
+                var waitList = rule.OnWaitList.HasValue ? ( rule.OnWaitList.Value ? "true" : "false" ) : "null";
+                return $"{{\"RegistrationTemplateId\":{templates[instance[0].Template.Key].Id},\"RegistrationInstanceGuid\":\"{instance[0].Guid:D}\",\"RegistrationType\":{type},\"OnWaitList\":{waitList}}}";
+            }
+
+            var evaluator = new DataViewEvaluator( _db, _dates.Anchor );
+            var sizes = new List<string>();
+            foreach ( var view in config.DataViews )
+            {
+                writer.Write( view, now, new SeededRandom( $"{_seed}:registrations:data-view:{view.Key}" ), Selection );
+                sizes.Add( $"{view.Name} {evaluator.Evaluate( Resolved( view.Filter, Selection ) ).Count:N0}" );
+            }
+
+            _db.Log.Write( $"  Registration data views: {string.Join( ", ", sizes )}" );
+        }
+
+        /// <summary>
+        /// A copy of a filter tree with each registration filter's selection filled in, for the evaluator.
+        /// </summary>
+        private static DataViewFilterDefinition Resolved( DataViewFilterDefinition filter, Func<DataViewFilterDefinition, string> selection )
+        {
+            List<DataViewFilterDefinition> Children( List<DataViewFilterDefinition> children ) => children?.Select( c => Resolved( c, selection ) ).ToList();
+            return filter.Component != null
+                ? new DataViewFilterDefinition { Component = filter.Component, Selection = selection( filter ) }
+                : new DataViewFilterDefinition { All = Children( filter.All ), Any = Children( filter.Any ), None = Children( filter.None ) };
+        }
+
+        /// <summary>
+        /// Stops the load when a registrant on a template with an eligibility data view was not in it, as Rock evaluates
+        /// the view, on the day they registered. Rock would have refused them. Needs the attendance the view counts.
+        /// </summary>
+        private void CheckEligibility( RegistrationsConfiguration config, List<PlannedRegistration> registrations )
+        {
+            var checkedRegistrations = registrations.Where( r => r.Instance.Template.Eligibility?.DataView != null ).ToList();
+            if ( checkedRegistrations.Count == 0 )
+            {
+                return;
+            }
+
+            if ( Convert.ToInt32( _db.Scalar( "SELECT COUNT(*) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) ) ) == 0 )
+            {
+                _db.Log.Write( "  Eligibility data views not checked (this load has no attendance for them to count)" );
+                return;
+            }
+
+            var refused = new List<string>();
+            foreach ( var day in checkedRegistrations.GroupBy( r => (r.When.Date, r.Instance.Template.Eligibility.DataView) ) )
+            {
+                var view = config.DataViews.First( v => v.Key == day.Key.DataView );
+                var inView = new DataViewEvaluator( _db, day.Key.Date ).Evaluate( view.Filter );
+                refused.AddRange( day.SelectMany( r => r.Registrants ).Where( p => !inView.ContainsKey( p.Person.PersonId ) )
+                    .Select( p => $"{p.Person.Cast.NickName ?? p.Person.Cast.FirstName} {p.Person.Cast.LastName} on {day.Key.Date:yyyy-MM-dd}" ) );
+            }
+
+            if ( refused.Count > 0 )
+            {
+                throw new InvalidOperationException( $"Rock's eligibility data view would have refused {refused.Count} registrants: {string.Join( ", ", refused.Take( 5 ) )}." );
+            }
+
+            _db.Log.Write( $"  Eligibility data views: all {checkedRegistrations.Sum( r => r.Registrants.Count ):N0} registrants were in their template's view on the day they registered" );
+        }
+
+        /// <summary>
         /// When a row was added: two weeks before its registration opened, and never after the install day began.
         /// </summary>
         private DateTime Created( DateTime opens )
@@ -689,6 +858,13 @@ WHERE [Guid] = @Guid", P( "@Guid", config.EmailsFrom ) ).SingleOrDefault()
         public RegistrationTemplateDefinition Definition { get; }
 
         public DateTime Created { get; }
+
+        /// <summary>
+        /// The release every registrant signs, and its SignatureDocumentTemplate Id, or null.
+        /// </summary>
+        public SignatureDocumentDefinition Signature { get; set; }
+
+        public int? SignatureTemplateId { get; set; }
 
         public Dictionary<string, int> PlacementIds { get; } = new Dictionary<string, int>( StringComparer.Ordinal );
 

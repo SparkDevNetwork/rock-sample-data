@@ -17,7 +17,8 @@
 
 // Checks configuration/registrations.json against the files it names (docs/registrations.md): every instance's event,
 // template, contact, groups, and placements exist; slug patterns make valid, unique slugs; templates ask for what their
-// eligibility needs; and every registration feature has an always-open home, as decision 190 promises.
+// eligibility needs; every registration feature has an always-open home, as decision 190 promises; releases use only the
+// Lava the loader renders; and data views are filed and name instances the loader can fill, with eligibility views it replays.
 // The dates themselves are checked by loader-compat-check, which runs the real planner for install day 2026-10-28.
 // Run: node validation/check-registrations.js
 
@@ -515,6 +516,85 @@ for ( const template of registrations.templates ) {
     const several = automatic.findIndex( d => d.minRegistrants > 1 );
     if ( earlyBird >= 0 && several > earlyBird ) {
         problems.push( `template ${template.key}: discount ${automatic[several].key} needs several registrants, so it must come before the early bird ${automatic[earlyBird].key}` );
+    }
+}
+
+// Releases: every template's release exists, and its Lava uses only what the loader renders (loader/generation/SignatureLava.cs).
+const releaseTokens = [ "{{ Registrant.FirstName }}", "{{ Registrant.LastName }}", "{{ Registration.InstanceName }}", "{{ 'Global' | Attribute:'OrganizationName' }}" ];
+const releases = new Map( ( registrations.signatureDocuments ?? [] ).map( d => [ d.key, d ] ) );
+unique( ( registrations.signatureDocuments ?? [] ).map( d => d.key ), "release" );
+for ( const release of releases.values() ) {
+    const rest = releaseTokens.reduce( ( text, token ) => text.split( token ).join( "" ), release.lavaTemplate ?? "" );
+    if ( rest.includes( "{{" ) || rest.includes( "{%" ) ) {
+        problems.push( `release ${release.key}: its lavaTemplate uses Lava the loader cannot render; it may use only ${releaseTokens.join( ", " )}` );
+    }
+
+    if ( !/^<h2>[^<]+<\/h2>/.test( release.lavaTemplate ?? "" ) ) {
+        problems.push( `release ${release.key}: its lavaTemplate must start with an h2 title, which the PDF shows` );
+    }
+}
+
+for ( const template of registrations.templates.filter( t => t.signatureDocument ) ) {
+    if ( !releases.has( template.signatureDocument ) ) {
+        problems.push( `template ${template.key}: release ${template.signatureDocument} is not in 'signatureDocuments'` );
+    }
+}
+
+// Data views: filed under a church category, registration filters name a planned instance, and a template's
+// eligibility view counts the student service check-ins the loader replays (loader/generation/RegistrantPlanner.cs).
+const churchCategories = read( "configuration/categories.json" ).categories;
+const checkin = read( "configuration/checkin.json" );
+const dataViews = new Map( ( registrations.dataViews ?? [] ).map( v => [ v.key, v ] ) );
+unique( ( registrations.dataViews ?? [] ).map( v => v.key ), "data view" );
+const leaves = filter => filter.component ? [ filter ] : ( filter.all ?? filter.any ?? filter.none ?? [] ).flatMap( leaves );
+for ( const view of dataViews.values() ) {
+    const category = churchCategories.find( c => c.key === view.category );
+    if ( !category || category.parent !== "church-data-views" || category.entityType !== "Rock.Model.DataView" ) {
+        problems.push( `data view ${view.key}: category ${view.category} must be a data view child of church-data-views in configuration/categories.json` );
+    }
+
+    for ( const leaf of leaves( view.filter ) ) {
+        const rule = leaf.registration;
+        if ( leaf.component === "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter" ) {
+            const instance = registrations.instances.find( i => i.key === rule?.instance );
+            if ( !instance || !( instance.occurrences ?? [] ).includes( rule.occurrence ) || ![ "registrant", "registrar" ].includes( rule.person ) ) {
+                problems.push( `data view ${view.key}: a registration filter must name an instance rule, one of its occurrences, and registrant or registrar` );
+            }
+            else if ( isPerCampus( events.get( instance.event ) ) ) {
+                problems.push( `data view ${view.key}: registration filter ${rule.instance} names a per-campus instance, which has one instance per campus` );
+            }
+        }
+        else if ( rule || !leaf.selection ) {
+            problems.push( `data view ${view.key}: filter ${leaf.component} needs a selection, and only a registration filter names an instance` );
+        }
+    }
+}
+
+const studentAreas = new Set( checkin.areas.filter( a => a.groups.some( g => steps.programs.some( p => p.students?.checkInGroups.includes( g ) ) ) ).map( a => a.guid.toUpperCase() ) );
+for ( const template of registrations.templates.filter( t => t.eligibility?.dataView ) ) {
+    const view = dataViews.get( template.eligibility.dataView );
+    if ( !view ) {
+        problems.push( `template ${template.key}: eligibility data view ${template.eligibility.dataView} is not in 'dataViews'` );
+        continue;
+    }
+
+    const attendance = leaves( view.filter ).filter( l => l.component === "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter" );
+    const parts = attendance[ 0 ]?.selection.split( "|" ) ?? [];
+    const range = ( parts[ 3 ] ?? "" ).split( "," );
+    const areas = new Set( ( parts[ 0 ] ?? "" ).split( "," ).map( g => g.toUpperCase() ) );
+    if ( view.filter.all === undefined || attendance.length !== 1 || parts[ 1 ] !== "256" || range[ 0 ] !== "Last" || range[ 2 ] !== "Day"
+        || areas.size !== studentAreas.size || [ ...areas ].some( a => !studentAreas.has( a ) ) ) {
+        problems.push( `template ${template.key}: eligibility data view ${view.key} must require, among all its filters, at least N check-ins in the last N days in exactly the student check-in areas (${[ ...studentAreas ].join( ", " )}), which the loader replays from the Student Path` );
+    }
+
+    const schoolGrades = { "c49bd3af-ff94-4a7c-99e1-08503a3c746e": 12, "78f7d773-8244-4995-8bc4-ad6f6a7b7820": 11, "e04e3f62-ef5c-4860-8f32-1c152ca1700a": 10, "2a130e04-3712-427a-8bb0-473eb8ff8924": 9, "d58d70af-3ccc-4d4e-bfaf-2014d8579d60": 8, "3fe728ac-be25-409a-98cb-3cfce5fa063b": 7 };
+    const grade = leaves( view.filter ).filter( l => l.component === "Rock.Reporting.DataFilter.Person.GradeFilter" ).map( l => l.selection.split( "|" ) );
+    if ( grade.some( g => g[ 0 ] !== "256" || schoolGrades[ ( g[ 1 ] ?? "" ).toLowerCase() ] !== template.eligibility.grades?.[ 0 ] ) || ( grade.length > 0 && template.eligibility.grades?.[ 1 ] !== 12 ) ) {
+        problems.push( `template ${template.key}: eligibility data view ${view.key} must count grades from the template's lowest grade up, as the template's own grades do` );
+    }
+
+    if ( leaves( view.filter ).some( l => ![ "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter", "Rock.Reporting.DataFilter.Person.GradeFilter" ].includes( l.component ) ) ) {
+        problems.push( `template ${template.key}: eligibility data view ${view.key} may use only grade and attendance filters, which the loader replays` );
     }
 }
 

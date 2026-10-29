@@ -47,6 +47,21 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public Guid EmailsFrom { get; set; }
 
+        /// <summary>
+        /// Rock's Digitally Signed Documents binary file type, which holds each signed release's PDF.
+        /// </summary>
+        public Guid SignedDocumentFileType { get; set; }
+
+        /// <summary>
+        /// Rock's Electronic Signature Receipt system communication, which emails a signed release to its signer.
+        /// </summary>
+        public Guid? SignatureReceipt { get; set; }
+
+        /// <summary>
+        /// The releases signed with Rock's own electronic signature, which templates name by key.
+        /// </summary>
+        public List<SignatureDocumentDefinition> SignatureDocuments { get; set; } = new List<SignatureDocumentDefinition>();
+
         public List<RegistrationCategoryDefinition> Categories { get; set; } = new List<RegistrationCategoryDefinition>();
 
         public List<RegistrationGroupTypeDefinition> GroupTypes { get; set; } = new List<RegistrationGroupTypeDefinition>();
@@ -59,6 +74,11 @@ namespace RockSampleData.Loader.Model
         public List<RegistrationTemplateDefinition> Templates { get; set; } = new List<RegistrationTemplateDefinition>();
 
         public List<RegistrationInstanceRule> Instances { get; set; } = new List<RegistrationInstanceRule>();
+
+        /// <summary>
+        /// Person data views about registrations, in the shape group-syncs.json uses. A template's eligibility may name one.
+        /// </summary>
+        public List<DataViewDefinition> DataViews { get; set; } = new List<DataViewDefinition>();
     }
 
     internal sealed class RegistrationCategoryDefinition
@@ -186,9 +206,38 @@ namespace RockSampleData.Loader.Model
         public List<RegistrationPlacementDefinition> Placements { get; set; } = new List<RegistrationPlacementDefinition>();
 
         /// <summary>
+        /// The signatureDocuments key of the release every registrant signs while registering, or null.
+        /// </summary>
+        public string SignatureDocument { get; set; }
+
+        /// <summary>
         /// True when a registration can cost money, so the template needs a gateway.
         /// </summary>
         public bool IsPaid => Cost > 0 || SetCostOnInstance || Fees.Count > 0;
+    }
+
+    /// <summary>
+    /// A release signed with Rock's own electronic signature: a SignatureDocumentTemplate with a typed signature.
+    /// </summary>
+    internal sealed class SignatureDocumentDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// What Rock calls the document on screen, such as "Release".
+        /// </summary>
+        public string DocumentTerm { get; set; }
+
+        public Guid Guid { get; set; }
+
+        /// <summary>
+        /// The document's Lava. It may use only the merge fields <see cref="Generation.SignatureLava"/> renders.
+        /// </summary>
+        public string LavaTemplate { get; set; }
     }
 
     /// <summary>
@@ -207,6 +256,11 @@ namespace RockSampleData.Loader.Model
         public List<decimal> Ages { get; set; }
 
         public RegistrationGender? Gender { get; set; }
+
+        /// <summary>
+        /// The key of a dataViews entry whose people alone may register (Rock's EligibilityDataViewGuid), or null.
+        /// </summary>
+        public string DataView { get; set; }
     }
 
     internal sealed class RegistrationFormDefinition

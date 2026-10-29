@@ -8,6 +8,27 @@
   "batchPrefix": "Event Registration",
   "emailsFrom": "5E0ADD57-B220-4ED0-975D-EEE2D0B14743",
   "$emailsFromComment": "Rock's own Baptism template. Every template copies its confirmation, reminder, payment reminder, and wait list emails, and its success text, so they read the way Rock writes them.",
+  "signedDocumentFileType": "40871411-4E2D-45C2-9E21-D9FCBA5FC340",
+  "signatureReceipt": "224A0E80-069B-463C-8187-E13682F8A550",
+  "signatureDocuments": [
+    {
+      "key": "camp-release",
+      "name": "Student Camp Release",
+      "description": "The release a parent or guardian signs for each camper. An adult student signs their own.",
+      "documentTerm": "Release",
+      "guid": "C6B834AB-68B4-4F44-8D78-1169BA4E6193",
+      "lavaTemplate": "<h2>Student Camp Release</h2>\n<p>I am the parent or guardian of {{ Registrant.FirstName }} {{ Registrant.LastName }}, or I am {{ Registrant.FirstName }} and I am signing for myself.</p>\n<p>I give permission for {{ Registrant.FirstName }} to attend {{ Registration.InstanceName }} with {{ 'Global' | Attribute:'OrganizationName' }}. This includes riding the church bus to and from camp and taking part in camp activities such as swimming, hiking, and the ropes course.</p>\n<p>If {{ Registrant.FirstName }} needs medical care and no one can reach me, I allow camp staff to get treatment from a licensed doctor or hospital. I will pay for any care that is needed.</p>\n<p>Adult leaders will watch over the students, but camp has risks. I accept those risks. I will not hold {{ 'Global' | Attribute:'OrganizationName' }}, its staff, or its volunteers responsible for any injury, loss, or damage during camp, unless it is caused by their gross negligence.</p>\n<p>{{ 'Global' | Attribute:'OrganizationName' }} may use photos and videos from camp in its newsletters, on its website, and in its app.</p>\n<p>I have read this release, I understand it, and I agree to it.</p>"
+    },
+    {
+      "key": "mission-trip-release",
+      "name": "Mission Trip Release",
+      "description": "The release a parent or guardian signs for each student on the mission trip. An adult student signs their own.",
+      "documentTerm": "Release",
+      "guid": "2BD4E696-47FD-4AFA-A1F9-7A8ADAB78785",
+      "lavaTemplate": "<h2>Mission Trip Release</h2>\n<p>I am the parent or guardian of {{ Registrant.FirstName }} {{ Registrant.LastName }}, or I am {{ Registrant.FirstName }} and I am signing for myself.</p>\n<p>I give permission for {{ Registrant.FirstName }} to travel with {{ 'Global' | Attribute:'OrganizationName' }} on {{ Registration.InstanceName }}. This includes air and van travel, staying with our partner church, and helping with the work the team is given.</p>\n<p>I will make sure {{ Registrant.FirstName }} has a valid passport before the trip, and I understand the team may need to change plans for safety or travel reasons.</p>\n<p>If {{ Registrant.FirstName }} needs medical care and no one can reach me, I allow the trip leaders to get treatment from a licensed doctor or hospital. I will pay for any care that is needed.</p>\n<p>Adult leaders will watch over the team, but travel and service work have risks. I accept those risks. I will not hold {{ 'Global' | Attribute:'OrganizationName' }}, its staff, or its volunteers responsible for any injury, illness, loss, or damage during the trip, unless it is caused by their gross negligence.</p>\n<p>I have read this release, I understand it, and I agree to it.</p>"
+    }
+  ],
+  "$signatureDocumentsComment": "Releases signed with Rock's own electronic signature, typed, on the templates that name them (signatureDocument). Rock's template screen always saves the Embed action for these, so every registrant signs while registering (decision D-registrations-14). Each signed release gets a PDF drawn at install, in Rock's Digitally Signed Documents file type (signedDocumentFileType), and Rock's Electronic Signature Receipt (signatureReceipt) emails it to the signer. A lavaTemplate may use only {{ Registrant.FirstName }}, {{ Registrant.LastName }}, {{ Registration.InstanceName }}, and the Global OrganizationName attribute, which the loader renders the way Rock's Lava does.",
   "categories": [
     {
       "key": "students",
@@ -359,7 +380,8 @@
           "allowMultiple": true
         }
       ],
-      "$discountsComment": "Rock applies one discount per registration: the first automatic one, in this order, that is valid on the day. So siblings who register together get the sibling discount, and anyone else who registers by April 30 gets the early bird."
+      "$discountsComment": "Rock applies one discount per registration: the first automatic one, in this order, that is valid on the day. So siblings who register together get the sibling discount, and anyone else who registers by April 30 gets the early bird.",
+      "signatureDocument": "camp-release"
     },
     {
       "key": "mission-trip",
@@ -383,7 +405,8 @@
         "grades": [
           9,
           12
-        ]
+        ],
+        "dataView": "high-school-students-attending"
       },
       "instructions": "The $300 deposit holds a spot. Set up monthly payments for the rest, or pay it all now. Once the trip is full, you can join the wait list.",
       "forms": [
@@ -445,7 +468,8 @@
             ]
           }
         }
-      ]
+      ],
+      "signatureDocument": "mission-trip-release"
     },
     {
       "key": "student-retreat",
@@ -964,6 +988,98 @@
     }
   ],
   "$instancesComment": "Each rule makes one instance per campus where the calendar holds the event in this dataset, or one church-wide instance. occurrences: next is the first whose registration closes on or after the install day, and last is the one before it. opens: rolling opens the day after the previous occurrence's registration closed, so the next one is open every day; days-before opens that many days before the event. closesDaysBefore and paymentDaysBefore count back from the event's first day. Names and slugs may use {year}, {month}, and {campus}. Groups with the same key are one group, so the girls' and boys' camp instances share their linked group and buses. maxAttendees and placement group counts are per dataset.",
+  "dataViews": [
+    {
+      "key": "next-summer-campers",
+      "name": "Next Summer's Campers",
+      "description": "Students registered for next summer's camp, girls and boys.",
+      "category": "registration-data-views",
+      "guid": "C56D308F-EC3A-4930-9EBC-B1433B0B9CA9",
+      "filter": {
+        "any": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "registration": {
+              "instance": "student-camp-girls",
+              "occurrence": "next",
+              "person": "registrant",
+              "onWaitList": false
+            }
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "registration": {
+              "instance": "student-camp-boys",
+              "occurrence": "next",
+              "person": "registrant",
+              "onWaitList": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "students-not-registered-for-camp",
+      "name": "Students Not Registered for Camp",
+      "description": "Students in grades 7 to 12 who checked in to the student service at least twice in the last 120 days and have not registered for next summer's camp.",
+      "category": "registration-data-views",
+      "guid": "5A77A59D-1F72-41AB-B634-C3BB31D2A1F4",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|3fe728ac-be25-409a-98cb-3cfce5fa063b"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|2|Last,120,Day,,|False"
+          },
+          {
+            "none": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "registration": {
+                  "instance": "student-camp-girls",
+                  "occurrence": "next",
+                  "person": "registrant",
+                  "onWaitList": null
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "registration": {
+                  "instance": "student-camp-boys",
+                  "occurrence": "next",
+                  "person": "registrant",
+                  "onWaitList": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "high-school-students-attending",
+      "name": "High School Students Attending the Student Service",
+      "description": "Students in grades 9 to 12 who checked in to the student service at least twice in the last 120 days. Only they may register for the mission trip.",
+      "category": "registration-data-views",
+      "guid": "2ED3C8C5-7AC8-420E-9A5C-BF82CEFC28AF",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|2a130e04-3712-427a-8bb0-473eb8ff8924"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|2|Last,120,Day,,|False"
+          }
+        ]
+      }
+    }
+  ],
+  "$dataViewsComment": "Person data views about registrations, filed under the Registrations category in categories.json. Filters use Rock's own data filter components and selection strings, as in group-syncs.json. A registration filter names an instance rule and occurrence instead of a selection, because Rock's selection holds the template's Id and the instance's Guid, which the loader fills at load. A template's eligibility can name one of these views (dataView), stored as Rock's EligibilityDataViewGuid, so Rock lets only the people in it register. The mission trip's view counts student service check-ins (the check-in areas of the student groups in steps.json), so the loader dates each trip registration on a day the student is in it (decision D-registrations-17).",
   "instances": [
     {
       "key": "student-camp-girls",

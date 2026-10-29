@@ -209,17 +209,18 @@ WHERE [r].[ForeignKey] = @ForeignKey
     AND ( [r].[EntityId] <> [n].[EntityId] OR [r].[NoteTypeId] <> [n].[NoteTypeId] OR [r].[CreatedDateTime] < [n].[CreatedDateTime] );
 
 -- check: note-author-is-not-the-noted-person
--- why: Staff write notes about other people; a note about its own author looks like a load error.
+-- why: Staff write notes about other people; a note about its own author looks like a load error. Rock's own Event Registration notes are left out: Rock writes one on each registrant as the registrar, who is often the registrant (decision D-registrations-15).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nt].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [n].[CreatedByPersonAliasId]
 WHERE [n].[ForeignKey] = @ForeignKey
+    AND [nt].[Guid] <> 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045'
     AND [pa].[PersonId] = [n].[EntityId];
 
 -- check: person-note-looks-saved-by-rock
--- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes.
+-- why: Rock's save hook approves notes whose type needs no approval, and its editor sets EditedDateTime and a private note's caption. Unsent flags would make Rock's Send Note Notifications job email staff about old notes. Rock's Event Registration notes come from Rock's code, not its editor, so they have no EditedDateTime (decision D-registrations-15).
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
@@ -228,7 +229,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
     AND ( [n].[ApprovalStatus] <> 1
         OR [n].[NotificationsSent] = 0
         OR [n].[ApprovalsSent] = 0
-        OR [n].[EditedDateTime] IS NULL
+        OR ( [n].[EditedDateTime] IS NULL AND [nt].[Guid] <> 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045' )
         OR [n].[CreatedByPersonAliasId] IS NULL
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
@@ -1614,3 +1615,130 @@ WHERE [av].[ForeignKey] = @ForeignKey
         INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[RegistrationTemplateId] = [rr].[RegistrationTemplateId]
         INNER JOIN [RegistrationTemplateFormField] AS [ff] ON [ff].[RegistrationTemplateFormId] = [f].[Id] AND [ff].[FieldSource] = 1 AND [ff].[AttributeId] = [a].[Id]
         WHERE [pa].[PersonId] = [av].[EntityId] AND [rr].[OnWaitList] = 0 );
+
+-- check: release-is-signed-for-every-registrant
+-- why: Decision D-registrations-14. Rock's template screen saves the Embed action, so on a template that requires a release, every registrant signs while registering, and Rock links the registrant to that signed release, for that person, from that template. None is left pending.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [rr].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+LEFT JOIN [SignatureDocument] AS [sd] ON [sd].[Id] = [rr].[SignatureDocumentId]
+LEFT JOIN [PersonAlias] AS [applies] ON [applies].[Id] = [sd].[AppliesToPersonAliasId]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND [t].[RequiredSignatureDocumentTemplateId] IS NOT NULL
+    AND ( [t].[SignatureDocumentAction] <> 1 OR [t].[AllowExternalRegistrationUpdates] = 1
+        OR [sd].[Id] IS NULL OR [sd].[Status] <> 2 OR [sd].[SignatureDocumentTemplateId] <> [t].[RequiredSignatureDocumentTemplateId]
+        OR [applies].[PersonId] IS NULL OR [applies].[PersonId] <> [pa].[PersonId] );
+
+-- check: signed-release-is-whole
+-- why: A signed release opens from the registrant list and the person's documents. Each has a PDF in its release's file type with the release as parent, the registrar as signer and the one it is assigned to, a typed name and a reserved email, a reserved IP address, a signed time a few minutes before the registration was saved on the same day, its status date at the signing, and Rock's verification hash, which this check recomputes (SHA-1 over the UTF-8 fields joined by "|" and CRLF, as SignatureDocumentService does).
+WITH [Documents] AS (
+    SELECT [sd].[Id], [sd].[SignatureDocumentTemplateId], [sd].[BinaryFileId], [sd].[SignedByPersonAliasId], [sd].[AssignedToPersonAliasId], [sd].[SignedName], [sd].[SignedByEmail],
+        [sd].[SignedClientIp], [sd].[SignedDateTime], [sd].[LastStatusDate], [sd].[SignatureVerificationHash], [r].[PersonAliasId] AS [RegistrarAliasId], [r].[CreatedDateTime] AS [Registered],
+        CONVERT( VARCHAR(MAX), CONCAT( [sd].[SignedDocumentText], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedClientIp], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedClientUserAgent], N'|' + NCHAR(13) + NCHAR(10),
+            CONVERT( NCHAR(19), [sd].[SignedDateTime], 126 ) + N'.' + RIGHT( N'000' + CAST( DATEPART( MILLISECOND, [sd].[SignedDateTime] ) AS NVARCHAR(3) ), 3 ) + N'0000', N'|' + NCHAR(13) + NCHAR(10),
+            [sd].[SignedByPersonAliasId], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignatureDataEncrypted], N'|' + NCHAR(13) + NCHAR(10), [sd].[SignedName] ) COLLATE Latin1_General_100_CI_AS_SC_UTF8 ) AS [Signed]
+    FROM [SignatureDocument] AS [sd]
+    INNER JOIN [RegistrationRegistrant] AS [rr] ON [rr].[SignatureDocumentId] = [sd].[Id]
+    INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+    WHERE [sd].[ForeignKey] = @ForeignKey
+)
+SELECT COUNT(*) + ( SELECT COUNT(*) FROM [SignatureDocument] AS [sd] WHERE [sd].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [RegistrationRegistrant] AS [rr] WHERE [rr].[SignatureDocumentId] = [sd].[Id] ) )
+FROM [Documents] AS [d]
+INNER JOIN [SignatureDocumentTemplate] AS [sdt] ON [sdt].[Id] = [d].[SignatureDocumentTemplateId]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [d].[BinaryFileId]
+LEFT JOIN [BinaryFileData] AS [bfd] ON [bfd].[Id] = [bf].[Id]
+CROSS APPLY ( SELECT HASHBYTES( 'SHA1', [d].[Signed] ) AS [h] ) AS [x]
+CROSS APPLY ( SELECT 'A' + REPLACE( REPLACE( REPLACE( CAST( '' AS XML ).value( 'xs:base64Binary(sql:column("x.h"))', 'VARCHAR(100)' ), '/', 'x' ), '+', 'x' ), '=', 'x' ) AS [Hash] ) AS [computed]
+WHERE [bf].[Id] IS NULL OR [bfd].[Id] IS NULL OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1 OR [bf].[BinaryFileTypeId] <> [sdt].[BinaryFileTypeId]
+    OR [bf].[ParentEntityId] <> [sdt].[Id] OR SUBSTRING( [bfd].[Content], 1, 5 ) <> 0x255044462D OR [bf].[FileSize] <> DATALENGTH( [bfd].[Content] )
+    OR [d].[SignedByPersonAliasId] <> [d].[RegistrarAliasId] OR [d].[AssignedToPersonAliasId] <> [d].[RegistrarAliasId]
+    OR ISNULL( [d].[SignedName], '' ) = '' OR ( [d].[SignedByEmail] NOT LIKE '%@example.org' AND [d].[SignedByEmail] NOT LIKE '%@rocksolidchurchdemo.com' ) OR [d].[SignedByEmail] IS NULL
+    OR [d].[SignedDateTime] IS NULL OR [d].[SignedDateTime] > [d].[Registered] OR CAST( [d].[SignedDateTime] AS DATE ) <> CAST( [d].[Registered] AS DATE )
+    OR [d].[LastStatusDate] <> [d].[SignedDateTime]
+    OR ( [d].[SignedClientIp] NOT LIKE '192.0.2.%' AND [d].[SignedClientIp] NOT LIKE '198.51.100.%' AND [d].[SignedClientIp] NOT LIKE '203.0.113.%' )
+    OR [d].[SignatureVerificationHash] IS NULL OR [d].[SignatureVerificationHash] <> [computed].[Hash];
+
+-- check: registration-has-its-notes-and-history
+-- why: Decision D-registrations-15. Rock's registration entry writes the registration's own "Added Registration" history, and on a template with Add Person Note, a note of its Event Registration type and a "Registered" history line on each registrant, tied to the registration, all as it saves. A registration without them looks entered by hand.
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [i] ON [i].[Id] = [r].[RegistrationInstanceId]
+INNER JOIN [RegistrationTemplate] AS [t] ON [t].[Id] = [r].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND ( NOT EXISTS (
+            SELECT 1
+            FROM [History] AS [h]
+            INNER JOIN [Category] AS [c] ON [c].[Id] = [h].[CategoryId] AND [c].[Guid] = '813DF1A5-ADBD-481C-AC1D-884F0FA7AE77'
+            WHERE [h].[EntityId] = [r].[Id] AND [h].[Verb] = 'ADD' AND [h].[ValueName] = 'Registration' AND [h].[CreatedByPersonAliasId] = [r].[PersonAliasId] )
+        OR ( [t].[AddPersonNote] = 1 AND (
+            NOT EXISTS (
+                SELECT 1
+                FROM [Note] AS [n]
+                INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] AND [nt].[Guid] = 'BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045'
+                WHERE [n].[EntityId] = [pa].[PersonId] AND [n].[Caption] = [i].[Name] AND [n].[Text] LIKE 'Registered for ' + [i].[Name] + '%'
+                    AND [n].[CreatedDateTime] BETWEEN [r].[CreatedDateTime] AND DATEADD( MINUTE, 1, [r].[CreatedDateTime] ) )
+            OR NOT EXISTS (
+                SELECT 1
+                FROM [History] AS [h]
+                INNER JOIN [Category] AS [c] ON [c].[Id] = [h].[CategoryId] AND [c].[Guid] = 'DA9C0CC7-7B31-4E1E-BBA5-50405B2D9EFE'
+                WHERE [h].[EntityId] = [pa].[PersonId] AND [h].[Verb] = 'REGISTERED' AND [h].[RelatedEntityId] = [r].[Id] AND [h].[Caption] = [i].[Name] ) ) ) );
+
+-- check: registration-data-view-is-filed-under-registrations
+-- why: Decision 185. A data view about registrations, one that filters on a registration instance or that a template names as its eligibility rule, sits in the Registrations child of the church's category, so staff find them together.
+SELECT COUNT(*)
+FROM [DataView] AS [dv]
+LEFT JOIN [Category] AS [c] ON [c].[Id] = [dv].[CategoryId]
+WHERE [dv].[ForeignKey] = @ForeignKey
+    AND ( [c].[Guid] IS NULL OR [c].[Guid] <> '38176452-3090-434B-A2C7-01B34039DFCA' )
+    AND ( EXISTS (
+            SELECT 1
+            FROM [DataViewFilter] AS [f]
+            INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter' )
+        OR EXISTS (
+            SELECT 1
+            FROM [RegistrationTemplate] AS [t]
+            WHERE [t].[ForeignKey] = @ForeignKey
+                AND TRY_CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.EligibilityDataViewGuid' ) AS UNIQUEIDENTIFIER ) = [dv].[Guid] ) );
+
+-- check: registrant-is-in-the-eligibility-data-view
+-- why: Decision D-registrations-17. Rock lets someone register only when they are in the template's eligibility data view at that moment. This replays the view's grade filter (a grade moves up the day after the grade transition date, as Rock counts it) and its check-in count over the "Last N days" window on each registration day. It needs the attendance the view counts, so a load without attendance skips it.
+WITH [Views] AS (
+    SELECT [t].[Id] AS [TemplateId],
+        ( SELECT TOP 1 '["' + REPLACE( [f].[Selection], '|', '","' ) + '"]' FROM [DataViewFilter] AS [f] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter' ) AS [Attendance],
+        ( SELECT TOP 1 '["' + REPLACE( [f].[Selection], '|', '","' ) + '"]' FROM [DataViewFilter] AS [f] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+            WHERE [f].[DataViewId] = [dv].[Id] AND [et].[Name] = 'Rock.Reporting.DataFilter.Person.GradeFilter' ) AS [Grade]
+    FROM [RegistrationTemplate] AS [t]
+    INNER JOIN [DataView] AS [dv] ON [dv].[Guid] = TRY_CAST( JSON_VALUE( [t].[AdditionalSettingsJson], '$.RegistrantEligibilitySettings.EligibilityDataViewGuid' ) AS UNIQUEIDENTIFIER )
+    WHERE [t].[ForeignKey] = @ForeignKey
+), [Rules] AS (
+    SELECT [v].[TemplateId], JSON_VALUE( [v].[Attendance], '$[0]' ) AS [GroupTypes], CAST( JSON_VALUE( [v].[Attendance], '$[2]' ) AS INT ) AS [CheckIns],
+        CAST( JSON_VALUE( '["' + REPLACE( JSON_VALUE( [v].[Attendance], '$[3]' ), ',', '","' ) + '"]', '$[1]' ) AS INT ) AS [Days],
+        ( SELECT CAST( [gv].[Value] AS INT ) FROM [DefinedValue] AS [gv] WHERE [gv].[Guid] = TRY_CAST( JSON_VALUE( [v].[Grade], '$[1]' ) AS UNIQUEIDENTIFIER ) ) AS [GradeOffset]
+    FROM [Views] AS [v]
+)
+SELECT COUNT(*)
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [Rules] AS [rule] ON [rule].[TemplateId] = [rr].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+CROSS APPLY ( SELECT CAST( [r].[CreatedDateTime] AS DATE ) AS [Day] ) AS [d]
+WHERE [rr].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [Attendance] WHERE [ForeignKey] = @ForeignKey )
+    AND ( ( [rule].[GradeOffset] IS NOT NULL AND ( [p].[GraduationYear] IS NULL
+            OR [p].[GraduationYear] - ( YEAR( [d].[Day] ) + CASE WHEN DATEFROMPARTS( YEAR( [d].[Day] ), 6, 1 ) < [d].[Day] THEN 1 ELSE 0 END ) NOT BETWEEN 0 AND [rule].[GradeOffset] ) )
+        OR ( [rule].[GroupTypes] IS NOT NULL AND (
+            SELECT COUNT(*)
+            FROM [Attendance] AS [a]
+            INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+            INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+            INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [a].[PersonAliasId]
+            WHERE [apa].[PersonId] = [p].[Id] AND [a].[DidAttend] = 1
+                AND [gt].[Guid] IN ( SELECT TRY_CAST( [value] AS UNIQUEIDENTIFIER ) FROM STRING_SPLIT( [rule].[GroupTypes], ',' ) )
+                AND [o].[OccurrenceDate] >= DATEADD( DAY, 1 - [rule].[Days], [d].[Day] ) AND [o].[OccurrenceDate] <= [d].[Day] ) < [rule].[CheckIns] ) );

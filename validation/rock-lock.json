@@ -668,6 +668,110 @@
         "loader-compat-check/Program.cs"
       ],
       "sha256": "103934b860cc7d24c6745cedbfd710afc2a535db4fb6b411083b201ce87ebfe8"
+    },
+    {
+      "path": "Rock.Blocks/Event/RegistrationEntry.cs",
+      "section": "CreateSignatureDocument",
+      "from": "private static SignatureDocument CreateSignatureDocument(",
+      "to": "return signatureDocument;",
+      "why": "The signed release Rock saves when a release is embedded: who signs, who it applies to and is assigned to, the signed text, name, email, IP address, user agent, time, status, hash, and the PDF's file type and parent.",
+      "mirroredBy": [
+        "loader/loading/SignatureDocumentsWriter.cs"
+      ],
+      "sha256": "b2bf85a3f242e161b7f5f39383d4c722fa0b702fe221affa6bf5fe4770ccf884"
+    },
+    {
+      "path": "Rock.Blocks/Event/RegistrationEntry.cs",
+      "section": "Registration history",
+      "from": "registrationChanges.AddChange( History.HistoryVerb.Add, History.HistoryChangeType.Record, \"Registration\" );",
+      "to": "context.Registration.IsTemporary = false;",
+      "why": "The history a new registration gets (added, the registrar's name and email, the discount, the group, and the campus) and how its campus is chosen.",
+      "mirroredBy": [
+        "loader/loading/RegistrationHistoryWriter.cs",
+        "loader/loading/RegistrantsLoader.cs"
+      ],
+      "sha256": "80738ddc88a933a5c9a6891be28a5adb2649e5eaea6d6e48c9a112cc2c8a01d2"
+    },
+    {
+      "path": "Rock.Blocks/Event/RegistrationEntry.cs",
+      "section": "Registrant fee history",
+      "from": "// Upsert fees if not on the waiting list",
+      "to": "// Only check if a required fee is missing",
+      "why": "The history each fee a registrant picks writes: the fee added, its quantity, and its cost.",
+      "mirroredBy": [
+        "loader/loading/RegistrationHistoryWriter.cs"
+      ],
+      "sha256": "1cfde47a0d8042d5e18fcb7c687afc795643fe1e5616cd7b1c4b2f10cbe99845"
+    },
+    {
+      "path": "Rock.Blocks/Event/RegistrationEntry.cs",
+      "section": "Payment history",
+      "from": "registrationChanges.AddChange( History.HistoryVerb.Add, History.HistoryChangeType.Record, \"Payment\" )",
+      "to": "context.TransactionCode = transaction.TransactionCode;",
+      "why": "The history a website payment writes on its registration.",
+      "mirroredBy": [
+        "loader/loading/RegistrationHistoryWriter.cs"
+      ],
+      "sha256": "1e78c978e5abc90c1575db259fcfff08af636d109b237eb572b7eded1ed8390c"
+    },
+    {
+      "path": "Rock/Model/Event/Registration/Registration.Logic.cs",
+      "section": "SavePersonNotesAndHistory",
+      "from": "public void SavePersonNotesAndHistory( string registrationPersonFirstName",
+      "to": "public override string ToString()",
+      "why": "The person notes and Registered history lines a registration writes on each registrant and on the registrar, and their text.",
+      "mirroredBy": [
+        "loader/loading/RegistrationHistoryWriter.cs"
+      ],
+      "sha256": "b61b08aaccafc2831cdccc6b205b5f5bb44f4001d47707badd2d0d56f66bb7d9"
+    },
+    {
+      "path": "Rock/ElectronicSignature/ElectronicSignatureHelper.cs",
+      "section": "GetSignatureInformationHtml",
+      "from": "public static string GetSignatureInformationHtml(",
+      "to": "public static bool SendSignatureCompletionCommunication(",
+      "why": "The signature box Rock prints on a signed release's PDF: the typed name, the signer, the date, the IP address, the agreement, and the reference code.",
+      "mirroredBy": [
+        "loader/generation/SignedReleasePdf.cs"
+      ],
+      "sha256": "73d9a4197515ea03bc4be84388c30e6e5aeb3f997bf57c3a2e9e408e4a8f2f94"
+    },
+    {
+      "path": "Rock.Blocks/Event/RegistrationTemplateDetail.cs",
+      "section": "UpdateSignatureDocumentSettings",
+      "from": "private void UpdateSignatureDocumentSettings( RegistrationTemplate entity )",
+      "to": "entity.AllowExternalRegistrationUpdates = false;",
+      "why": "Rock's template screen always saves the Embed action and turns off external updates for a release with no provider.",
+      "mirroredBy": [
+        "loader/loading/RegistrationsLoader.cs"
+      ],
+      "sha256": "ea8f28190cb2bc2b9fbcc9a248707291b43f5c4703861bbb19ac9d0556b0fcc3"
+    },
+    {
+      "path": "Rock/Jobs/SendRegistrationReminders.cs",
+      "why": "The Registration Reminder job: when it sends an instance's reminder, it stamps SendReminderDateTime with its run time and sets ReminderSent.",
+      "mirroredBy": [
+        "loader/loading/RegistrationsLoader.cs"
+      ],
+      "sha256": "3a608d0079b30ac7aa1f4ea5256cf3f74922bb4eee9b3d78cbef963fce9fa0b1"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/GradeFilter.cs",
+      "why": "The grade data filter's selection and rules, which the loader evaluates in SQL and the planner replays for the mission trip's eligibility view.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs",
+        "loader/generation/RegistrantPlanner.cs"
+      ],
+      "sha256": "b942ef068260127eb9df3ca1179907029ba09d53aacf373f36d119b3179c9c73"
+    },
+    {
+      "path": "Rock/Reporting/DataFilter/Person/InRegistrationInstanceFilter.cs",
+      "why": "The registration instance data filter's JSON selection and rules, which the loader writes and evaluates in SQL.",
+      "mirroredBy": [
+        "loader/loading/DataViewEvaluator.cs",
+        "loader/loading/RegistrationsLoader.cs"
+      ],
+      "sha256": "e27a48d3b75abb148427eb86abde49c5dea6256060d40c90bc5530ed7ff4eb2e"
     }
   ]
 }

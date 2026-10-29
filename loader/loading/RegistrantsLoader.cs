@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
         10/28/26 - CLAUDE
 
         Registrations are written the way Rock's registration entry block saves them (Rock.Blocks/Event/RegistrationEntry.cs):
-        the registration with the registrar's name and email and the linkage's group and campus, each registrant with
+        the registration with the registrar's name and email, the linkage's group, and the linkage's campus or else the registrar's family's, each registrant with
         the template's cost and their fees, and each registrant not on the wait list added to the linked group with the
         template's role and status. A payment is an Event Registration transaction from the registrar, from the Website,
         through the template's gateway, whose one detail points at the registration and posts to the instance's
@@ -93,14 +93,18 @@ namespace RockSampleData.Loader.Loading
 
             var memberIds = WriteGroupMembers( registrations, ids );
             var planIds = WritePayments( registrations, registrationIds, ids );
+            var documentIds = new SignatureDocumentsWriter( _db, _foreignKey, _seed ).Write( registrations, ids );
             WriteRegistrations( registrations, registrationIds, planIds, ids );
-            WriteRegistrants( registrations, registrationIds, memberIds, ids );
-            WritePersonAnswers( registrations );
+            WriteRegistrants( registrations, registrationIds, memberIds, documentIds, ids );
+            var savedAnswers = WritePersonAnswers( registrations );
+            var history = new RegistrationHistoryWriter( _db, _foreignKey );
+            history.Write( registrations, registrationIds, ids, savedAnswers );
 
             var registrants = registrations.SelectMany( r => r.Registrants ).ToList();
             var dollars = registrations.Sum( r => r.Paid );
             _db.Log.Write( $"  Registrants: {registrations.Count:N0} registrations, {registrants.Count:N0} registrants ({registrants.Count( r => r.OnWaitList ):N0} on wait lists, {registrants.Count( r => r.Placements.Count > 0 ):N0} placed); "
-                + $"{registrations.Sum( r => r.Payments.Count ):N0} payments (${dollars:N0}), {registrations.Count( r => r.Plan != null ):N0} payment plans, {registrations.Count( r => r.DiscountedCost > r.Paid ):N0} with a balance due" );
+                + $"{registrations.Sum( r => r.Payments.Count ):N0} payments (${dollars:N0}), {registrations.Count( r => r.Plan != null ):N0} payment plans, {registrations.Count( r => r.DiscountedCost > r.Paid ):N0} with a balance due; "
+                + $"{documentIds.Count:N0} signed releases, {history.Notes:N0} person notes, {history.HistoryRows:N0} history rows" );
         }
 
         /// <summary>
@@ -158,7 +162,7 @@ namespace RockSampleData.Loader.Loading
                 var id = registrationIds[registration];
                 rows.Rows.Add( id, ids.InstanceIds[instance], templateIds.Id, registration.Registrar.AliasId, registrar.NickName ?? registrar.FirstName, registrar.LastName, ( object ) registrar.Email ?? DBNull.Value,
                     instance.LinkedGroup == null ? DBNull.Value : ids.GroupIds[instance.LinkedGroup.Key], ( object ) discount?.Code ?? DBNull.Value, ( discount?.Percent ?? 0 ) / 100, discount?.Amount ?? 0, false,
-                    ( object ) registration.LastPaymentReminder ?? DBNull.Value, DateKey( registration.When ), instance.CampusKey == null ? DBNull.Value : ids.CampusPlans[instance.CampusKey].CampusId,
+                    ( object ) registration.LastPaymentReminder ?? DBNull.Value, DateKey( registration.When ), RegistrationHistoryWriter.CampusId( registration, ids ),
                     planIds.TryGetValue( registration, out var planId ) ? planId : DBNull.Value, registration.Guid, _foreignKey, registration.When, modified );
 
                 foreach ( var answer in registration.Answers )
@@ -171,10 +175,10 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
         }
 
-        private void WriteRegistrants( List<PlannedRegistration> registrations, Dictionary<PlannedRegistration, int> registrationIds, Dictionary<PlannedRegistrant, int> memberIds, RegistrationIds ids )
+        private void WriteRegistrants( List<PlannedRegistration> registrations, Dictionary<PlannedRegistration, int> registrationIds, Dictionary<PlannedRegistrant, int> memberIds, Dictionary<PlannedRegistrant, int> documentIds, RegistrationIds ids )
         {
             var nextId = NextId( "RegistrationRegistrant" );
-            var rows = TableFactory.Create( "Id:int", "RegistrationId:int", "RegistrationTemplateId:int", "PersonAliasId:int", "GroupMemberId:int", "Cost:decimal", "OnWaitList:bool", "DiscountApplies:bool",
+            var rows = TableFactory.Create( "Id:int", "RegistrationId:int", "RegistrationTemplateId:int", "PersonAliasId:int", "GroupMemberId:int", "Cost:decimal", "OnWaitList:bool", "DiscountApplies:bool", "SignatureDocumentId:int",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var fees = TableFactory.Create( "RegistrationRegistrantId:int", "RegistrationTemplateFeeId:int", "RegistrationTemplateFeeItemId:int", "Option:string", "Quantity:int", "Cost:decimal",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -187,7 +191,7 @@ namespace RockSampleData.Loader.Loading
                     var id = nextId++;
                     var when = registration.When;
                     rows.Rows.Add( id, registrationIds[registration], templateIds.Id, registrant.Person.AliasId, memberIds.TryGetValue( registrant, out var memberId ) ? memberId : DBNull.Value,
-                        registrant.Cost, registrant.OnWaitList, registrant.DiscountApplies, registrant.Guid, _foreignKey, when, when );
+                        registrant.Cost, registrant.OnWaitList, registrant.DiscountApplies, documentIds.TryGetValue( registrant, out var documentId ) ? documentId : DBNull.Value, registrant.Guid, _foreignKey, when, when );
 
                     // Rock's placement board joins on the fee item, so every fee names its item.
                     foreach ( var fee in registrant.Fees )
@@ -220,14 +224,16 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// Saves each person attribute a registration form answered to the person, once, from their first registration
-        /// that answered it, as Rock's registration entry saves it. A person who already has a value keeps it.
+        /// that answered it, as Rock's registration entry saves it. A person who already has a value keeps it. Returns
+        /// the values saved, by the registrant whose form saved them.
         /// </summary>
-        private void WritePersonAnswers( List<PlannedRegistration> registrations )
+        private ILookup<PlannedRegistrant, (Guid Attribute, string Value)> WritePersonAnswers( List<PlannedRegistration> registrations )
         {
             var values = AttributeValueTable();
             var attributeIds = new Dictionary<Guid, int>();
+            var savedBy = new List<(PlannedRegistrant Registrant, Guid Attribute, string Value)>();
             var answers = registrations.OrderBy( r => r.When ).ThenBy( r => r.Guid )
-                .SelectMany( r => r.Registrants.SelectMany( p => p.PersonAnswers.Select( a => (r.When, p.Person, Attribute: a.Key, a.Value) ) ) )
+                .SelectMany( r => r.Registrants.SelectMany( p => p.PersonAnswers.Select( a => (r.When, p.Person, Registrant: p, Attribute: a.Key, a.Value) ) ) )
                 .GroupBy( a => (a.Attribute, a.Person.PersonId) )
                 .Select( g => g.First() )
                 .ToList();
@@ -249,9 +255,11 @@ namespace RockSampleData.Loader.Loading
                 }
 
                 values.Rows.Add( false, attributeId, answer.Person.PersonId, answer.Value, true, SeededRandom.StableGuid( $"{answer.Person.Cast.Guid}:person-attribute:{answer.Attribute}" ), _foreignKey, answer.When, answer.When );
+                savedBy.Add( (answer.Registrant, answer.Attribute, answer.Value) );
             }
 
             _db.BulkInsert( "AttributeValue", values, keepIdentity: false );
+            return savedBy.ToLookup( s => s.Registrant, s => (s.Attribute, s.Value) );
         }
 
         /// <summary>
