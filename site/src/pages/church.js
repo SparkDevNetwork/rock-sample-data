@@ -16,7 +16,7 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead, zoomable, portrait } = require( "../components" );
+const { sectionHead, zoomable, portrait, formatSize } = require( "../components" );
 
 // The staff departments, in the order the church page shows them (configuration/staff.json).
 const departments = [
@@ -112,7 +112,7 @@ function initiativeBlock( initiative, image, index, r ) {
   </div>`;
 }
 
-module.exports = function church( { model, r } ) {
+module.exports = function church( { model, r, downloads } ) {
     // Every initiative folder shows up, even one this page has no words for yet.
     const known = new Set( initiatives.map( i => i.key ) );
     const shown = [
@@ -228,16 +228,30 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
 
 <section class="section" id="groups">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its actual members, made from their profile photos." } )}
-    <div class="group-grid">
-      ${model.smallGroups.filter( g => g.photo ).map( g => html`<article class="group reveal">
-        ${zoomable( { src: r( "images/groups/" + g.photo ), alt: `${g.name}: ${g.photoPeople.join( ", " )}` } )}
+    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its leaders, made from their profile photos. The original photos of every member are beside them." } )}
+    <div class="group-grid group-grid-pairs">
+      ${model.smallGroups.filter( g => g.photo ).map( g => {
+            const full = model.fullGroupPhotos.find( p => p.key === g.key );
+            const photo = ( label, folder, file, people ) => {
+                const size = downloads.files[`${folder}/${file}`];
+                const link = size ? html` <a href="${r( `downloads/${folder}/${file}` )}" download>JPEG ${formatSize( size.size )}</a>` : "";
+                return html`<div class="group-photo">
+            ${zoomable( { src: r( `images/${folder}/${file}` ), alt: `${g.name}, ${label.toLowerCase()}: ${people.join( ", " )}` } )}
+            <p class="group-photo-caption"><span class="group-photo-label">${esc( label )}</span>${link}</p>
+          </div>`;
+            };
+            return html`<article class="group reveal">
+        <div class="group-photos">
+          ${photo( "Leaders", "groups", g.photo, g.photoPeople )}
+          ${full ? photo( "Full group", "groups-full-members", full.photo, full.photoPeople ) : ""}
+        </div>
         <div class="group-body">
           <p class="group-topic">${esc( g.topic || "Small group" )}${g.day ? html` · ${esc( g.day )}s` : ""}</p>
           <h3>${esc( g.name )}</h3>
           <p>${esc( g.description )}</p>
         </div>
-      </article>` )}
+      </article>`;
+        } )}
     </div>
   </div>
 </section>
