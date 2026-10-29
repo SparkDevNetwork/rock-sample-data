@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
         /*
             10/28/26 - CLAUDE
 
-            Campus pastors are named Cast people now (decision D-staff-1), one for every campus, the main campus
+            Campus pastors are named Cast people now (decision 198), one for every campus, the main campus
             included. A package built before that has no configuration/staff.json, and it still gets the old
             rule: each campus other than the main one takes its oldest Leading adult from its generated
             households, or its oldest Engaged adult when it has no Leading adult.

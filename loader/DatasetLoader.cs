@@ -256,7 +256,7 @@ namespace RockSampleData.Loader
             var seed = options.Seed;
 
             // Most of the Cast lives on the main campus. A Cast household on another campus, such as its campus
-            // pastor's, comes only in a package with that campus (decision D-staff-2). Generated households come
+            // pastor's, comes only in a package with that campus (decision 199). Generated households come
             // from the dataset manifest's count per campus, or from the spike crowd, which spreads across the
             // dataset's campuses.
             steps.Begin( "People" );

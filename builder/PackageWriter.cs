@@ -74,7 +74,7 @@ namespace RockSampleData.Builder
             }
 
             // The church setup, the Cast, and the dataset's own settings, as they are in the repository. A Cast
-            // household on another campus comes only with that campus (decision D-staff-2).
+            // household on another campus comes only with that campus (decision 199).
             var campusKeys = source.Campuses.Campuses.Where( c => c.Datasets.Contains( dataset ) ).Select( c => c.Key ).ToHashSet();
             var mainCampusKey = source.Campuses.Campuses.Single( c => c.RockDefault ).Key;
             var castOffCampus = source.ReadHouseholds()

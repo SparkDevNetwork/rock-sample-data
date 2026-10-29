@@ -200,7 +200,7 @@ function load() {
     } );
 
     // Each household's campus. Most of the Cast lives on the main campus; a campus pastor's household lives on
-    // its own campus and loads only in the datasets that have it (decision D-staff-2).
+    // its own campus and loads only in the datasets that have it (decision 199).
     const mainCampus = campuses.find( c => c.rockDefault );
     for ( const household of households ) {
         household.campus = household.campusSlot === "main" ? mainCampus : campuses.find( c => c.key === household.campusSlot ) || mainCampus;

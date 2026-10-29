@@ -1,5 +1,5 @@
 {
-  "$comment": "The church staff (decision D-staff-1). Each staff member is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
+  "$comment": "The church staff (decision 198). Each staff member is a Cast person, named by Guid, with a church title, a department, and the campus they serve (null means every campus). campusPastors names the one campus pastor of every campus, by staff key, so notes, the calendar, first-visit welcomes, and campus texting numbers always use the same person. A campus pastor lives on their campus, so one on a campus other than the main one loads only in datasets with that campus. Every campus in a dataset must have a campus pastor here.",
   "staff": [
     {
       "key": "pete",

@@ -30,7 +30,7 @@ Full 7's manifest (`datasets/full-7.json`) sets how many households each campus 
 | Tempe | 2,100 | 3,174 |
 | **All seven** | **16,800** | **25,284** |
 
-Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision D-staff-2). People are counted by primary campus, at the default seed.
+Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed.
 
 ## Personas
 
