@@ -70,19 +70,20 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Plans and writes every event. Run after people load.
+        /// Plans and writes every event. Run after people load. Returns the planned events, which the registrations part
+        /// links to, or null when the package has no calendar.
         /// </summary>
         /// <param name="people">The loaded people: contacts and the approver are Cast people.</param>
         /// <param name="castHouseholdKeys">The Cast's households. A package without staff.json picks campus pastors from the rest.</param>
         /// <param name="mainCampusKey">The main campus, whose campus pastor is the calendar's mainCampusPastor contact.</param>
         /// <param name="campusPlans">The dataset's campuses with their Sunday services.</param>
-        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, IReadOnlyDictionary<string, CampusPlan> campusPlans )
+        public List<PlannedEvent> Load( PeopleLoader people, HashSet<string> castHouseholdKeys, string mainCampusKey, IReadOnlyDictionary<string, CampusPlan> campusPlans )
         {
             var calendar = _source.Calendar;
             if ( calendar == null )
             {
                 _db.Log.Write( "  Calendar skipped (this package has no configuration/calendar.json)" );
-                return;
+                return null;
             }
 
             var campusServices = _source.Campuses.Campuses
@@ -114,6 +115,7 @@ namespace RockSampleData.Loader.Loading
 
             var photoCount = new PhotoLoader( _db, _source, _foreignKey, _seed ).LoadEventPhotos( eventIds );
             _db.Log.Write( $"  Calendar: {planned.Count} events ({planned.Count( p => p.Event.Calendars.Contains( "internal" ) && !p.Event.Calendars.Contains( "public" ) )} internal), {occurrenceCount:N0} occurrences, {photoCount} photos" );
+            return planned;
         }
 
         /// <summary>
@@ -250,7 +252,7 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
                 foreach ( var occurrence in plan.Occurrences )
                 {
                     var schedule = occurrence.Schedule;
-                    var key = $"{plan.Event.Key}:{occurrence.CampusKey ?? "church-wide"}:{schedule.FirstStart:s}";
+                    var key = occurrence.Key;
                     var created = Created( schedule.FirstStart, today );
                     var scheduleId = nextScheduleId++;
                     schedules.Rows.Add( scheduleId, schedule.ICalendar( SeededRandom.StableGuid( $"calendar-uid:{key}" ), created ), schedule.EffectiveStartDate, ( object ) schedule.EffectiveEndDate ?? DBNull.Value,
@@ -264,7 +266,7 @@ SELECT CASE WHEN EXISTS ( SELECT 1 FROM [EventItemOccurrence] WHERE [ScheduleId]
                     var contact = Contact( plan.Event, occurrence.CampusKey, mainCampus, calendar, contacts );
                     var campusId = occurrence.CampusKey == null ? DBNull.Value : ( object ) campusPlans[occurrence.CampusKey].CampusId;
                     occurrences.Rows.Add( eventIds[plan.Event.Key], campusId, occurrence.Location, scheduleId, contact.AliasId, contact.Phone, contact.Email, string.Empty,
-                        ( object ) schedule.NextStart( now ) ?? DBNull.Value, SeededRandom.StableGuid( $"calendar-occurrence:{key}" ), _foreignKey, created, created );
+                        ( object ) schedule.NextStart( now ) ?? DBNull.Value, occurrence.Guid, _foreignKey, created, created );
                     count++;
                 }
             }

@@ -34,6 +34,7 @@ The words this project uses, in alphabetical order.
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
+| **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
@@ -45,12 +46,16 @@ The words this project uses, in alphabetical order.
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
+| **Placement group** | A group that registrants are placed in after they register, such as a camp bus or cabin. It belongs to one placement of the template and is linked to each instance that uses it. |
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
+| **Registration instance** | One registration people can sign up for, such as Student Camp 2027: Girls, with its open and close dates and its limit. It comes from a template. |
+| **Registration template** | The setup a registration reuses every year: its cost, forms, fees, discounts, placements, and who may register. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
+| **Rolling registration** | A registration that opens the day after the previous one closed, so its event always has one open (decision 190). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
 | **Saturation** | How many messages each adult got in a period. Rock's Communication Saturation report sorts adults into buckets by count. See [Communications](communications.md#message-load-per-person). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |

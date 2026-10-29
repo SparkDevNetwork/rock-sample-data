@@ -19,7 +19,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, `Communications`, and `Calendar`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, `Communications`, `Calendar`, and `Registrations`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is on another Rock major release than the package, or its Rock version is unknown, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--rock-version` | The database's Rock version, for example `21.0.2`. Without it, the loader reads `RockWeb/bin/Rock.Version.dll` in the `--rock` checkout. |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
@@ -84,6 +84,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 | `Steps` | Steps | Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with the Baptism Date on each baptized person and program completions | Small groups, serving teams, giving |
 | `Communications` | Communications | Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use | Small groups, serving teams, prayer requests, steps |
 | `Calendar` | Calendar events | Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos | |
+| `Registrations` | Event registrations | Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups | Calendar events |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
 `SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
@@ -93,6 +94,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 3. **Steps need small groups, serving teams, and giving** (decision 125). Each Small Group, Serve, and Lead step copies one membership, read back from the `GroupMember` rows the small groups and serving parts wrote, and points at its group. People with an open request to serve, who go first in the current Starting Point Class, come from the serving part's connection requests. Each Give step must agree with the journey stage the giving part writes. Student Path steps follow student check-ins, but they read them from the attendance plan, not the rows, so steps do not need attendance.
 
 4. **Communications need small groups, serving teams, prayer requests, and steps.** The Volunteers and Small Group Leaders lists copy the team and group memberships read back from the rows those parts wrote, and the Prayer Team list holds the prayer part's team. Class messages, baptism follow-ups, and the After Starting Point flow read the steps part's rows. Who is involved enough for a newsletter comes from the attendance and giving plans, so communications do not need those parts.
+5. **Registrations need the calendar** (decision 189). Every linkage points at a calendar occurrence, which the registrations step finds through the calendar's plan, so the calendar must have written it. See [Event registrations](../docs/registrations.md).
 
 Other parts read another part's plan, not its rows, so they need nothing. Serving and giving read the attendance plan (volunteers serve and families give on Sundays they came), steps read its student check-ins, and prayer reads the giving plan. Pledges are planned before giving in every load, because their campaign lines are part of the giving plan, so prayer reads the same gifts whether or not giving loads. The generated pledgers are drawn from the giving patterns that people carry, and people always load, so the draw needs no part. No part reads pledge rows. The loader plans every part in memory, chosen or not, and skips only the writes of the parts not chosen. Each piece of data draws from its own seeded stream, so a chosen part's rows are the same as in a full load. Group photos belong to small groups and opportunity photos to photos, so no part's choice changes the photos part's rows. Steps come last of the data parts and plan from rows (besides the student check-ins), so they plan only when they load. Nothing after them reads what they plan or write, so leaving them out changes no other part's rows.
 
@@ -586,7 +588,18 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 5. **Contacts.** Named Cast staff, or each campus's campus pastor (`CampusPastors`). Aaron Mitchell, the Phoenix campus pastor, is the contact for church-wide campus events. Ted approves every event.
 6. **Photos.** `PhotoLoader.LoadEventPhotos` sets each photo listed in `photos/events/manifest.json`.
 
-Speed: Core 1 has 323 occurrences, Core 3 has 675, and Full 7 has 1,349. The step takes well under a second.
+Speed: with a six-month window, Core 1 had 323 occurrences, Core 3 675, and Full 7 1,349. The 13-month window (decision 190) adds about 28, 55, and 99. The step takes well under a second.
+
+## Registrations
+
+`generation/RegistrationPlanner.cs` plans every registration instance from `../configuration/registrations.json` and the calendar's plan, and `loading/RegistrationsLoader.cs` writes them. The design is in [Event registrations](../docs/registrations.md).
+
+1. **Dates.** An event's dates at one campus form a list: one per occurrence, or one per start of a monthly occurrence. An instance takes the next date (the first whose registration closes on or after the install day) or the last one before it, and opens rolling (the day after the previous date closed) or a number of days before the event.
+2. **Linkages.** Each instance links to its occurrence by the occurrence's Guid, which comes from `PlannedOccurrence.Key`, the same key the calendar step writes it with.
+3. **Groups.** Linked and placement groups are planned by key, so instances that name the same key share one group. Placement groups link to their instance through `RelatedEntity` with the purpose key `PLACEMENT` and the template placement's Id.
+4. **What Rock sets.** Templates copy their emails from Rock's Baptism template, eligibility goes in `AdditionalSettingsJson` the way Rock writes it, form fields carry Rock's empty visibility rules, and the four new categories get Rock's registration admin role.
+
+Size on October 28, 2026: Core 1 has 13 instances and 53 groups, Core 3 21 and 112, and Full 7 33 and 205. Core 1's step took 0.6 seconds.
 
 ## Check images
 

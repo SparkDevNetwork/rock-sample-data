@@ -15,8 +15,8 @@
     "youth": "59CD7FD8-6A62-4C3B-8966-1520E74EED58",
     "staff": "833EE2C7-F83A-4744-AD14-6907554DF8AE"
   },
-  "$windowComment": "Occurrences fall from the start of the history window to monthsAhead months after the install day. A weekly or monthly occurrence starts at the history window's start and has no end.",
-  "monthsAhead": 6,
+  "$windowComment": "Occurrences fall from the start of the history window to monthsAhead months after the install day. A weekly or monthly occurrence starts at the history window's start and has no end. Thirteen months reaches next year's camp, VBS, and Women's Retreat on any install day, so their registrations always have an occurrence to link to (decision 190).",
+  "monthsAhead": 13,
   "$contactsComment": "Who to contact, by key: a Cast person and the email and phone shown on the event. 'campus-pastor' is each campus's campus pastor (configuration/staff.json names them), with the campus's own address at the church's domain. mainCampusPastor is the main campus's campus pastor, who is also the contact for church-wide campus events.",
   "contacts": {
     "pete": { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "email": "peter@rocksolidchurchdemo.com", "phone": "(623) 555-0108" },

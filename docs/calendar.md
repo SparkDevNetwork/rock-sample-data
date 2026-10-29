@@ -47,7 +47,7 @@ Their old occurrences, schedules, calendars, and audiences are replaced. Rock's 
 
 ## Dates
 
-Every date is a rule counted from the install day, never a fixed date (decision 175). Occurrences reach from the start of the history window to six months after the install day (`monthsAhead`).
+Every date is a rule counted from the install day, never a fixed date (decision 175). Occurrences reach from the start of the history window to 13 months after the install day (`monthsAhead`), so next year's camp, VBS, and Women's Retreat are always on the calendar for their registrations (decision 190).
 
 Dates that other features use come from the same rules they use, so the calendar, the steps, and the messages always name the same day:
 
@@ -142,9 +142,14 @@ The loader sets a photo for each event listed in `photos/events/manifest.json`, 
 
 The calendar is its own loader part, `Calendar` ("Calendar events"). It needs no other part: it reads only configuration and people. A package built before the calendar existed has no `configuration/calendar.json`, and the step skips.
 
+The calendar step hands its plan to the registrations step, which links each registration to an occurrence the calendar wrote. Both take the occurrence's key, and so its Guid, from one place.
+
+## Registrations
+
+Student Camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat are linked to registration instances, so their event pages show a Register button. See [Event registrations](registrations.md).
+
 ## Later
 
-1. **Registrations.** Link Student Camp, the mission trip, VBS, and the classes to registration instances once registrations are built, so the event pages show a Register button.
-2. **Content channel items.** Rock links the Public calendar to the External Website Ads and Service Bulletin channels. Promoting a few events there would fill the home page rotator.
-3. **Social images.** Rock's Public calendar has Facebook (1200 by 630) and Twitter (440 by 220) image attributes. They could be cropped from the event photos.
-4. **A midweek student check-in.** Student Night is on the calendar because Cast stories describe it, but students check in only on Sunday (see the roadmap).
+1. **Content channel items.** Rock links the Public calendar to the External Website Ads and Service Bulletin channels. Promoting a few events there would fill the home page rotator.
+2. **Social images.** Rock's Public calendar has Facebook (1200 by 630) and Twitter (440 by 220) image attributes. They could be cropped from the event photos.
+3. **A midweek student check-in.** Student Night is on the calendar because Cast stories describe it, but students check in only on Sunday (see the roadmap).

@@ -101,6 +101,11 @@ namespace RockSampleData.Loader
         public LoginsConfiguration Logins { get; }
 
         /// <summary>
+        /// The event registrations, or null in a package built before registrations loaded.
+        /// </summary>
+        public RegistrationsConfiguration Registrations { get; }
+
+        /// <summary>
         /// The categories the church adds, or null in a package built before they existed.
         /// </summary>
         public CategoryConfiguration Categories { get; }
@@ -135,6 +140,7 @@ namespace RockSampleData.Loader
             Calendar = Files.Exists( CalendarConfigurationPath ) ? Read<CalendarConfiguration>( CalendarConfigurationPath ) : null;
             Logins = Files.Exists( LoginsConfigurationPath ) ? Read<LoginsConfiguration>( LoginsConfigurationPath ) : null;
             Staff = Files.Exists( StaffConfigurationPath ) ? Read<StaffConfiguration>( StaffConfigurationPath ) : null;
+            Registrations = Files.Exists( RegistrationsConfigurationPath ) ? Read<RegistrationsConfiguration>( RegistrationsConfigurationPath ) : null;
             Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
         }
@@ -224,6 +230,8 @@ namespace RockSampleData.Loader
         public const string EventPhotoManifestPath = "photos/events/manifest.json";
 
         public const string LoginsConfigurationPath = "configuration/logins.json";
+
+        public const string RegistrationsConfigurationPath = "configuration/registrations.json";
 
         public const string CategoriesConfigurationPath = "configuration/categories.json";
 
