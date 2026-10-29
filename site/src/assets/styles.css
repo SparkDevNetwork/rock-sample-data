@@ -664,6 +664,15 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 @media (max-width: 520px) { .pack-grid { grid-template-columns: 1fr; } }
 
 .view-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.view.view-wide img { aspect-ratio: 2 / 1; }
+.calendar-stage ~ .fine { margin-top: 28px; }
+.calendar-stage { margin-top: 36px; }
+.calendar-stage-text { color: var(--ink-2); margin: 4px 0 16px; }
+.event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.event-art .zoom-button img { aspect-ratio: 2 / 1; }
+.event-name { margin: 8px 2px 0; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+@media (max-width: 900px) { .event-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .event-grid { grid-template-columns: 1fr; } }
 .view { margin: 0; }
 .view img { border-radius: 14px; aspect-ratio: 3 / 2; object-fit: cover; box-shadow: var(--shadow); }
 .view figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 10px 2px 0; font-size: 0.92rem; font-weight: 600; flex-wrap: wrap; }

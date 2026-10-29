@@ -235,6 +235,8 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
+    // Each calendar event's delivered image, by event key (decision 197).
+    const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
     // The original full-group photos: download-only assets, never in a package (decision 196).
     const fullGroupManifest = "photos/groups-full-members/manifest.json";
     const fullGroupPhotos = exists( fullGroupManifest )
@@ -268,7 +270,10 @@ function load() {
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,
-        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events : [],
+        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events.map( e => {
+            const photo = eventPhotos.find( p => p.event === e.key );
+            return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
+        } ) : [],
         registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {

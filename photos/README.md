@@ -74,7 +74,7 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Core 3 companions | About half, from a pool of 120 photos. |
 | Cast small groups (in every dataset) | All 12, each showing the group's leader and spouse, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
-| Calendar events (in every dataset) | Each event listed in `events/manifest.json` gets its photo. None are made yet; the [event image brief](event-brief.md) asks for all 51. |
+| Calendar events (in every dataset) | All 51, set as each event's photo and shown on its web and app pages (decision 197). |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos
@@ -94,7 +94,8 @@ The [photo brief](brief.md) is the complete brief for the image model. The build
 | `opportunity-brief.md` | The brief for the serving opportunity photos | Yes |
 | `opportunities/` | Delivered opportunity photos, `{team}.jpg`, and their `manifest.json` | Yes |
 | `event-brief.md` | The brief for the calendar event images: sizes, the design and photo looks, rules, and one section per event | Yes |
-| `events/` | Delivered event photos, `{event-key}.jpg` at 1536 by 768, and their `manifest.json` | Yes |
+| `events/` | Delivered event images, `{event-key}.jpg` at 1536 by 768, and their `manifest.json` with each prompt and approval | Yes |
+| `originals/events/` | The image model's full-size event originals, `{event-key}.png` | Yes |
 | `campuses/` | Seven distinct campus exterior JPEGs, their manifest, and reuse guide | Yes |
 | `originals/campuses/` | Full-size original campus exterior PNGs | Yes |
 | `originals/` | The image model's full-size originals of both, same names, in the format the model made (JPEG or PNG) | Yes |

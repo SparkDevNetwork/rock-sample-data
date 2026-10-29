@@ -128,9 +128,9 @@ Phones are the church office line (623) 555-0108, or the student line (623) 555-
 
 ## Photos
 
-Each event's image is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every image is 2:1, 1536 by 768 pixels (decision 176). The [event image brief](../photos/event-brief.md) asks the image agent for all 51. 28 events get a design, a marketing graphic whose only text is the event's title, and 23 get a photo of the event with no text (decision 184).
+Each event's image is `EventItem.PhotoId`. Rock shows it whole on the event's web page and cropped to 2:1 in the church app, so every image is 2:1, 1536 by 768 pixels (decision 176). All 51 were delivered on 2026-10-28 from the [event image brief](../photos/event-brief.md) and approved by Jon. Most events get a design, a marketing graphic whose only text is the event's title, and the rest get a photo with no text (decision 184). Jon's review changed a few rules: VBS shows children's faces, Baby Dedication shows Pete Foster, the mission trip is in Mexico, the women's events share a purple family, and the staff events are photos with no text (decision 197).
 
-The loader sets a photo for each event listed in `photos/events/manifest.json`, stored the way Rock stores an uploaded one. The builder packs every listed photo into every dataset and refuses an entry for an event that does not exist or a file that is missing. Adding photos needs no code change: deliver the files, list them, and rebuild the packages. Until then, events load with no photo.
+The loader sets a photo for each event listed in `photos/events/manifest.json`, stored the way Rock stores an uploaded one. The builder packs every listed photo into every dataset and refuses an entry for an event that does not exist or a file that is missing. Adding or replacing a photo needs no code change: deliver the file, list it, and rebuild the packages. The images add about 15 MB to each package. The public site shows every event's image on the church page's calendar section, by stage, and offers each one, and a zip of all of them, on the brand page.
 
 ## Checks
 
