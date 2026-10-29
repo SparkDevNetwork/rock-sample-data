@@ -233,7 +233,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
         OR ( [n].[IsPrivateNote] = 1 AND ISNULL( [n].[Caption], '' ) <> 'You - Personal Note' ) );
 
 -- check: no-high-schooler-in-adult-groups
--- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts on or after the June 1 grade change in the person's graduation year (decision 169).
+-- why: Small groups and serving teams are adult-only. Nobody joins or leads one while still in high school: a membership starts after June 1 of the person's graduation year, the day after Rock's last day of grade 12 (decisions 169 and D-grades-1).
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
@@ -242,7 +242,7 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gm].[ForeignKey] = @ForeignKey
     AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
     AND [p].[GraduationYear] IS NOT NULL
-    AND [gm].[DateTimeAdded] < DATEFROMPARTS( [p].[GraduationYear], 6, 1 );
+    AND [gm].[DateTimeAdded] < DATEFROMPARTS( [p].[GraduationYear], 6, 2 );
 
 -- check: step-matches-its-membership
 -- why: A Small Group, Serve, or Lead step records one membership (decision 86): same person, group, and dates, In Progress only while the member is Pending. And every membership that counts has its step.
@@ -448,10 +448,10 @@ FROM (
     WHERE [g].[ForeignKey] = @ForeignKey AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [c];
 
 -- check: student-step-belongs-to-a-student
--- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up each June 1, as check-in's does.
+-- why: The Student Path follows student check-ins (decision 115). Every Student Path step belongs to someone who was in grades 7 to 12 on its start and had checked in to the student service by then. Mission Trip is for high school students, and Student Leader for juniors and seniors. A student's grade comes from their graduation year and moves up the day after each June 1, as Rock does (decision D-grades-1).
 WITH [StudentSteps] AS (
     SELECT [st].[Guid] AS [StepTypeGuid], [s].[StartDateTime], [pa].[PersonId], [p].[GraduationYear],
-        12 - ( [p].[GraduationYear] - CASE WHEN [s].[StartDateTime] >= DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
+        12 - ( [p].[GraduationYear] - CASE WHEN CAST( [s].[StartDateTime] AS DATE ) > DATEFROMPARTS( YEAR( [s].[StartDateTime] ), 6, 1 ) THEN YEAR( [s].[StartDateTime] ) + 1 ELSE YEAR( [s].[StartDateTime] ) END ) AS [Grade]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
     INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [st].[StepProgramId]
@@ -489,7 +489,7 @@ SELECT ( SELECT COUNT(*)
         INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
         WHERE [st].[Guid] = '724C69AF-20BC-4299-8FD5-A84ED2B4D42D' AND [s].[ForeignKey] = @ForeignKey
             AND ( ( [s].[EndDateTime] IS NOT NULL AND ( YEAR( [s].[EndDateTime] ) <> [p].[GraduationYear] OR MONTH( [s].[EndDateTime] ) <> 5 ) )
-                OR ( [s].[EndDateTime] IS NULL AND DATEFROMPARTS( [p].[GraduationYear], 6, 1 ) <= CAST( GETDATE() AS DATE ) ) ) );
+                OR ( [s].[EndDateTime] IS NULL AND DATEFROMPARTS( [p].[GraduationYear], 6, 1 ) < CAST( GETDATE() AS DATE ) ) ) );
 
 -- check: student-baptism-follows-the-student-service
 -- why: A student's baptism goes on the Discipleship Path's Baptism step (decision 87). A child is baptized here, on a Sunday, after they started coming to the student service. The Baptism Date and Baptized Here agree with the step (checked above).
@@ -572,11 +572,11 @@ WHERE [t].[ForeignKey] = @ForeignKey AND [b].[Name] LIKE 'Sunday Offering %'
             AND [o].[SundayDate] = CAST( [t].[TransactionDateTime] AS DATE ) );
 
 -- check: student-check-in-fits-the-grade
--- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up each June 1, as check-in's does.
+-- why: Only students in grades 7 to 12 check in to the student service, in the room for their grade on that day. A recent graduate's student check-ins end when they graduate (decision 148). The grade comes from the graduation year and moves up the day after each June 1, as Rock does (decision D-grades-1).
 SELECT COUNT(*)
 FROM (
     SELECT [g].[Name],
-        12 - ( [p].[GraduationYear] - CASE WHEN [o].[OccurrenceDate] >= DATEFROMPARTS( YEAR( [o].[OccurrenceDate] ), 6, 1 ) THEN YEAR( [o].[OccurrenceDate] ) + 1 ELSE YEAR( [o].[OccurrenceDate] ) END ) AS [Grade]
+        12 - ( [p].[GraduationYear] - CASE WHEN CAST( [o].[OccurrenceDate] AS DATE ) > DATEFROMPARTS( YEAR( [o].[OccurrenceDate] ), 6, 1 ) THEN YEAR( [o].[OccurrenceDate] ) + 1 ELSE YEAR( [o].[OccurrenceDate] ) END ) AS [Grade]
     FROM [Attendance] AS [a]
     INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
     INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
