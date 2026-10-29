@@ -577,6 +577,22 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${owner} places them in "${name}", which instance ${reg.instance} has no ${key} group named.` );
             }
         }
+        for ( const [ memberKey, answers ] of Object.entries( reg.expect?.answers || {} ) ) {
+            const member = ( h.members || [] ).find( m => m.key === memberKey );
+            if ( !( reg.registrants || [] ).includes( memberKey ) || !member ) {
+                errors.push( `${owner} expects answers for "${memberKey}", who is not one of its registrants.` );
+                continue;
+            }
+            for ( const [ attributeKey, value ] of Object.entries( answers ) ) {
+                const asked = ( template.forms || [] ).some( form => ( form.fields || [] ).some( field => field.fill?.castKey === attributeKey ) );
+                if ( !asked ) {
+                    errors.push( `${owner} expects a ${attributeKey} answer, which template ${template.key}'s form does not ask.` );
+                }
+                if ( member.attributes?.[ attributeKey ] !== value ) {
+                    errors.push( `${owner} expects ${memberKey}'s ${attributeKey} to be "${value}", but the household file says "${member.attributes?.[ attributeKey ] ?? "nothing"}".` );
+                }
+            }
+        }
         for ( const key of [ ...( reg.fees || [] ), ...Object.keys( reg.expect?.fees || {} ) ] ) {
             if ( !( template.fees || [] ).some( f => f.key === key ) ) {
                 errors.push( `${owner} names fee "${key}", which template ${template.key} does not hold.` );

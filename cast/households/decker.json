@@ -299,6 +299,9 @@
         "placements": {
           "crew": 1
         },
+        "answers": {
+          "alex": { "Allergy": "Allergic to peanuts" }
+        },
         "payment": "paid-in-full"
       }
     },

@@ -146,6 +146,12 @@ namespace RockSampleData.Loader.Model
         public Dictionary<string, int> Fees { get; set; }
 
         /// <summary>
+        /// The value Rock holds for a person attribute the registration's form asks, by member key, then attribute key,
+        /// such as a child's Allergy.
+        /// </summary>
+        public Dictionary<string, Dictionary<string, string>> Answers { get; set; }
+
+        /// <summary>
         /// paid-in-full, balance-due, plan-on-pace, or plan-complete.
         /// </summary>
         public string Payment { get; set; }

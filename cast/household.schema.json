@@ -64,6 +64,7 @@
             "placements": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 }, "description": "How many placement groups of each placement key (bus, cabin, activity, crew, team) each registrant is in." },
             "placedIn": { "type": "object", "additionalProperties": { "type": "string" }, "description": "The placement group, by name, each registrant is in, for a placement key." },
             "fees": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 }, "description": "The quantity of each fee on the registration, by fee key, such as childcare for two." },
+            "answers": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "string" } }, "description": "The value Rock holds for a person attribute the registration's form asks, by registrant member key, then attribute key, such as a child's Allergy." },
             "payment": { "enum": [ "paid-in-full", "balance-due", "plan-on-pace", "plan-complete" ], "description": "paid-in-full: nothing is owed. balance-due: some is owed and there is no plan. plan-on-pace: an active plan has made every payment due before today. plan-complete: the plan made all its payments." },
             "discount": { "type": "string", "description": "The discount code on the registration." }
           }

@@ -235,7 +235,7 @@ Kids and adults go through the same steps as students: dated, registered, priced
 
 | Who | Registration | Expected |
 |---|---|---|
-| Noah and Alex Decker | Last summer's VBS at Phoenix | Registered together by Cindy, paid in full, each in one crew, the crew for their grade |
+| Noah and Alex Decker | Last summer's VBS at Phoenix | Registered together by Cindy, paid in full, each in one crew, the crew for their grade. Alex keeps her peanut allergy, which the VBS form asks and Rock holds |
 | Ted and Cindy Decker | The next Date Night at Phoenix | Registered together by Ted, with childcare for two, paid in full |
 | Adrian and Camila Cruz | Last summer's VBS at Phoenix | Registered together by Gabriela, paid in full, each in one crew. Their household's story says the Cruzes registered them for VBS. |
 | Bri Hall | The last Serve Day at Phoenix | Registered herself, on the School Supplies team, as her note says she sorted school supplies |

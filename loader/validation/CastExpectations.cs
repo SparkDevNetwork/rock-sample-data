@@ -310,6 +310,33 @@ WHERE [rr].[RegistrationId] = @Id AND [tf].[Guid] = @Fee", P( "@Id", registratio
                         }
                     }
 
+                    foreach ( var (memberKey, answers) in expect.Answers ?? new Dictionary<string, Dictionary<string, string>>() )
+                    {
+                        var person = household.Members.First( m => m.Key == memberKey );
+                        foreach ( var (attributeKey, value) in answers )
+                        {
+                            checks++;
+                            var asked = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [RegistrationTemplateFormField] AS [ff]
+INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[Id] = [ff].[RegistrationTemplateFormId]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [ff].[AttributeId]
+WHERE [ff].[FieldSource] = 1 AND [a].[Key] = @Key
+    AND [f].[RegistrationTemplateId] = ( SELECT [RegistrationTemplateId] FROM [RegistrationInstance] WHERE [Id] = @Instance )", P( "@Key", attributeKey ), P( "@Instance", instance["Id"] ) ) );
+                            var held = db.Scalar( @"
+SELECT [av].[Value]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE [et].[Name] = 'Rock.Model.Person' AND [a].[Key] = @Key AND [p].[Guid] = @Person", P( "@Key", attributeKey ), P( "@Person", guids.Value( person.Guid ) ) ) as string;
+                            if ( asked == 0 || held != value )
+                            {
+                                failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected {name}'s form to ask {attributeKey} and Rock to hold \"{value}\", Rock shows {( asked == 0 ? "no such question" : held == null ? "no value" : $"\"{held}\"" )}" );
+                            }
+                        }
+                    }
+
                     if ( expect.Payment != null )
                     {
                         checks++;
