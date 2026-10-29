@@ -31,6 +31,7 @@ const features = [
     [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions, on the profiles demos open first." ],
     [ "Steps", "A seven-step Discipleship Path and a four-step Student Path made from each person's records: classes, groups, baptism, serving, giving, leading, camps, and mission trips." ],
     [ "Calendar", "Easter to the car show: a full year of events at every campus, each serving a Ministry by Design stage, with dates that match the steps and newsletters." ],
+    [ "Event registrations", "Camp, retreats, VBS, and classes with Register buttons, fees, discounts, payment plans, and placement groups." ],
     [ "Communications", "Weekly newsletters, church-wide and ministry emails, mass texts, live SMS conversations, serving reminders, and app pushes." ],
     [ "Logins", "Sign in as admin, the Outreach Pastor, or the Senior Pastor, with a password you choose at install. Many church members can sign in too." ],
     [ "Group sync", "Data views in the church's own categories keep staff lists, a prayer role, and two care lists current." ],

@@ -230,6 +230,7 @@ function load() {
             const photo = eventPhotos.find( p => p.event === e.key );
             return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
         } ) : [],
+        registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {
             households: households.length,

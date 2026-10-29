@@ -249,6 +249,22 @@ ${model.calendarEvents.length ? html`<section class="section section-sand" id="c
   </div>
 </section>` : ""}
 
+${model.registrations.templates.length ? html`<section class="section" id="registrations">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Event registrations", title: "Register now, on every install day.", lede: `${model.registrations.templates.length} kinds of registration are linked to their calendar events, so each event's page shows a Register button. Each opens and closes on a rule counted from install day. Most open again the day after the last one closes, so some are always open and every feature can be tried.` } )}
+    <div class="card-grid">
+      ${model.registrations.categories.map( category => {
+          const templates = model.registrations.templates.filter( t => t.category === category.key );
+          return templates.length ? html`<div class="card reveal">
+        <h3>${esc( category.name )}</h3>
+        <span class="tags">${templates.map( t => html`<span class="tag">${esc( t.name )}</span>` )}</span>
+      </div>` : "";
+      } )}
+    </div>
+    <p class="fine">Student Camp has a girls' and a boys' registration, each with its own limit, sharing one set of buses. Paid ones are set up with deposits, payment plans, fees, and discounts. The people who register come in a later release.</p>
+  </div>
+</section>` : ""}
+
 <section class="section">
   <div class="wrap">
     ${sectionHead( { eyebrow: "A week at the church", title: "What the data remembers." } )}
