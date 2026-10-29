@@ -120,7 +120,7 @@ The Cast is now 87 households and 185 people, with 6 businesses.
 
 ## Campus pastors (2026-10-28)
 
-Seven households were added so every campus has a named campus pastor who is always the same (decision D-staff-1). Each lives near their own campus. The six outside Phoenix load only in datasets with their campus (decision D-staff-2): Core 1 has the Mitchells, Core 3 adds the Haywoods and Whitlocks, and Full 7 has all seven.
+Seven households were added so every campus has a named campus pastor who is always the same (decision 198). Each lives near their own campus. The six outside Phoenix load only in datasets with their campus (decision 199): Core 1 has the Mitchells, Core 3 adds the Haywoods and Whitlocks, and Full 7 has all seven.
 
 | Household | Campus | Members (child age) | Main test purpose |
 |---|---|---|---|
@@ -136,7 +136,7 @@ The Cast is now 94 households and 206 people. Their profile photos were delivere
 
 ## Central staff (2026-10-28)
 
-Seven households were added so the church has 20 named staff (decision D-staff-3). All live near Phoenix and load in every dataset. Rachel Brooks, already in the Cast, joined staff as the Kids Director.
+Seven households were added so the church has 20 named staff (decision 200). All live near Phoenix and load in every dataset. Rachel Brooks, already in the Cast, joined staff as the Kids Director.
 
 | Household | Members (child age) | Main test purpose |
 |---|---|---|

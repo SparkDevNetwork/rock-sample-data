@@ -16,7 +16,7 @@
 //
 
 const { esc, html } = require( "../layout" );
-const { sectionHead, zoomable, portrait } = require( "../components" );
+const { sectionHead, zoomable, portrait, formatSize } = require( "../components" );
 
 // The staff departments, in the order the church page shows them (configuration/staff.json).
 const departments = [
@@ -112,7 +112,7 @@ function initiativeBlock( initiative, image, index, r ) {
   </div>`;
 }
 
-module.exports = function church( { model, r } ) {
+module.exports = function church( { model, r, downloads } ) {
     // Every initiative folder shows up, even one this page has no words for yet.
     const known = new Set( initiatives.map( i => i.key ) );
     const shown = [
@@ -238,16 +238,30 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
 
 <section class="section" id="groups">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its actual members, made from their profile photos." } )}
-    <div class="group-grid">
-      ${model.smallGroups.filter( g => g.photo ).map( g => html`<article class="group reveal">
-        ${zoomable( { src: r( "images/groups/" + g.photo ), alt: `${g.name}: ${g.photoPeople.join( ", " )}` } )}
+    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its leaders, made from their profile photos. The original photos of every member are beside them." } )}
+    <div class="group-grid group-grid-pairs">
+      ${model.smallGroups.filter( g => g.photo ).map( g => {
+            const full = model.fullGroupPhotos.find( p => p.key === g.key );
+            const photo = ( label, folder, file, people ) => {
+                const size = downloads.files[`${folder}/${file}`];
+                const link = size ? html` <a href="${r( `downloads/${folder}/${file}` )}" download>JPEG ${formatSize( size.size )}</a>` : "";
+                return html`<div class="group-photo">
+            ${zoomable( { src: r( `images/${folder}/${file}` ), alt: `${g.name}, ${label.toLowerCase()}: ${people.join( ", " )}` } )}
+            <p class="group-photo-caption"><span class="group-photo-label">${esc( label )}</span>${link}</p>
+          </div>`;
+            };
+            return html`<article class="group reveal">
+        <div class="group-photos">
+          ${photo( "Leaders", "groups", g.photo, g.photoPeople )}
+          ${full ? photo( "Full group", "groups-full-members", full.photo, full.photoPeople ) : ""}
+        </div>
         <div class="group-body">
           <p class="group-topic">${esc( g.topic || "Small group" )}${g.day ? html` · ${esc( g.day )}s` : ""}</p>
           <h3>${esc( g.name )}</h3>
           <p>${esc( g.description )}</p>
         </div>
-      </article>` )}
+      </article>`;
+        } )}
     </div>
   </div>
 </section>
@@ -268,16 +282,19 @@ ${model.communicationLists.length ? html`<section class="section" id="lists">
 ${model.calendarEvents.length ? html`<section class="section section-sand" id="calendar">
   <div class="wrap">
     ${sectionHead( { eyebrow: "The calendar", title: "A year of events, on purpose.", lede: `The church has ${model.calendarEvents.length} events on Rock's Public and Internal calendars, at every campus a dataset has. Each event serves one Ministry by Design stage, the same path the step programs follow: Belong, then Equip, then Contribute, then Lead.` } )}
-    <div class="card-grid">
-      ${calendarStages.map( ( [ stage, text ] ) => {
+    ${calendarStages.map( ( [ stage, text ] ) => {
           const events = model.calendarEvents.filter( e => e.stage === stage );
-          return events.length ? html`<div class="card reveal">
-        <h3>${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
-        <p>${esc( text )}</p>
-        <span class="tags">${events.map( e => html`<span class="tag">${esc( e.name )}</span>` )}</span>
-      </div>` : "";
+          return events.length ? html`<div class="calendar-stage">
+      <h3 class="view-heading">${esc( stage )} <small class="fine">${events.length} ${events.length === 1 ? "event" : "events"}</small></h3>
+      <p class="calendar-stage-text">${esc( text )}</p>
+      <div class="event-grid">
+        ${events.map( e => html`<div class="event-tile reveal">
+          ${e.photo ? zoomable( { src: r( "images/events/" + e.photo ), alt: e.name, className: "event-art", width: 1536, height: 768 } ) : ""}
+          <p class="event-name">${esc( e.name )}${e.calendars.includes( "public" ) ? "" : html` <span class="tag">Internal</span>`}</p>
+        </div>` )}
+      </div>
+    </div>` : "";
       } )}
-    </div>
     <p class="fine">Dates count from install day and match the steps, the newsletters, and the Cast's stories. The car show was two days ago, and the student retreat is coming up.</p>
   </div>
 </section>` : ""}

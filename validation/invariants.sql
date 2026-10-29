@@ -1247,7 +1247,7 @@ WHERE [a].[Key] = 'StaffSupervisor' AND [a].[EntityTypeId] = ( SELECT [Id] FROM 
         OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] WHERE [ta].[Key] = 'StaffTitle' AND [ta].[EntityTypeId] = [a].[EntityTypeId] AND [t].[EntityId] = [pa].[PersonId] ) );
 
 -- check: every-campus-has-one-campus-pastor
--- why: Decisions D-staff-1 and D-staff-4. Each campus in the dataset has exactly one named campus pastor, in the Campus Pastors department with that campus, who is in RSR - Pastoral Workers to read the notes they write. A load with staff attributes and a campus with none, or two, breaks the calendar, welcomes, and notes that name them.
+-- why: Decisions 198 and D-staff-4. Each campus in the dataset has exactly one named campus pastor, in the Campus Pastors department with that campus, who is in RSR - Pastoral Workers to read the notes they write. A load with staff attributes and a campus with none, or two, breaks the calendar, welcomes, and notes that name them.
 SELECT COUNT(*)
 FROM [Campus] AS [cm]
 WHERE EXISTS ( SELECT 1 FROM [Category] WHERE [Guid] = '6A3F015A-6CE1-401F-9C5F-8F29D33C99E9' )

@@ -200,7 +200,7 @@ function load() {
     } );
 
     // Each household's campus. Most of the Cast lives on the main campus; a campus pastor's household lives on
-    // its own campus and loads only in the datasets that have it (decision D-staff-2).
+    // its own campus and loads only in the datasets that have it (decision 199).
     const mainCampus = campuses.find( c => c.rockDefault );
     for ( const household of households ) {
         household.campus = household.campusSlot === "main" ? mainCampus : campuses.find( c => c.key === household.campusSlot ) || mainCampus;
@@ -253,12 +253,30 @@ function load() {
             return { key: folder, name: manifest.program, images: manifest.images };
         } );
 
+    // Each calendar event's delivered image, by event key (decision 197).
+    const eventPhotos = exists( "photos/events/manifest.json" ) ? readJson( "photos/events/manifest.json" ).images : [];
+    // The original full-group photos: download-only assets, never in a package (decision 196).
+    const fullGroupManifest = "photos/groups-full-members/manifest.json";
+    const fullGroupPhotos = exists( fullGroupManifest )
+        ? readJson( fullGroupManifest ).images.map( p => {
+            const group = groups.find( g => g.key === p.group );
+            return {
+                key: p.group,
+                name: group ? group.name : p.group,
+                photo: path.basename( p.file ),
+                original: path.basename( p.original ),
+                photoPeople: p.people
+            };
+        } )
+        : [];
+
     return {
         root,
         households,
         people,
         groups,
         smallGroups,
+        fullGroupPhotos,
         opportunities,
         campuses,
         staff,
@@ -270,7 +288,10 @@ function load() {
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,
-        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events : [],
+        calendarEvents: exists( "configuration/calendar.json" ) ? readJson( "configuration/calendar.json" ).events.map( e => {
+            const photo = eventPhotos.find( p => p.event === e.key );
+            return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
+        } ) : [],
         registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {

@@ -243,7 +243,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// The staff (configuration/staff.json, decisions D-staff-1 and D-staff-4): every staff member is a Cast person on
+// The staff (configuration/staff.json, decisions 198 and D-staff-4): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {
     const staffFile = path.join( castDir, "..", "configuration", "staff.json" );

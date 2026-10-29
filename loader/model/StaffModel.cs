@@ -19,7 +19,7 @@ namespace RockSampleData.Loader.Model
 {
     /// <summary>
     /// configuration/staff.json: the church staff, every one a Cast person, and the campus pastor of each campus
-    /// (decision D-staff-1).
+    /// (decision 198).
     /// </summary>
     internal sealed class StaffConfiguration
     {
