@@ -32,6 +32,90 @@ namespace RockSampleData.Loader.Model
         /// Each campus's campus pastor: a staff key by campus key.
         /// </summary>
         public Dictionary<string, string> CampusPastors { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// The key of the Person attribute category in configuration/categories.json that holds the staff attributes,
+        /// or null in a package from before staff attributes (decision D-staff-4).
+        /// </summary>
+        public string Category { get; set; }
+
+        /// <summary>
+        /// The security roles the attributes name, by key: Rock role group Guids.
+        /// </summary>
+        public Dictionary<string, Guid> Roles { get; set; } = new Dictionary<string, Guid>();
+
+        /// <summary>
+        /// The staff person attributes, in order.
+        /// </summary>
+        public List<StaffAttribute> Attributes { get; set; } = new List<StaffAttribute>();
+
+        /// <summary>
+        /// The Attribute Values block that shows the category on the person profile's Extended Attributes page.
+        /// </summary>
+        public StaffBlock Block { get; set; }
+    }
+
+    /// <summary>
+    /// One staff person attribute.
+    /// </summary>
+    internal sealed class StaffAttribute
+    {
+        /// <summary>
+        /// The attribute key, such as "StaffTitle".
+        /// </summary>
+        public string Key { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The field type: image, text, single-select, campus, memo, person, or date.
+        /// </summary>
+        public string FieldType { get; set; }
+
+        public int Order { get; set; }
+
+        /// <summary>
+        /// The field type's settings, as Rock stores them in AttributeQualifier.
+        /// </summary>
+        public Dictionary<string, string> Qualifiers { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// The roles allowed to view the attribute, with everyone else denied, or null when everyone may view it.
+        /// </summary>
+        public List<string> Viewers { get; set; }
+
+        /// <summary>
+        /// The roles allowed to edit the attribute. Everyone else is denied.
+        /// </summary>
+        public List<string> Editors { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// The block that shows the staff attributes on a person's profile.
+    /// </summary>
+    internal sealed class StaffBlock
+    {
+        public Guid Guid { get; set; }
+
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The page's Guid: Rock's Extended Attributes page on the person profile.
+        /// </summary>
+        public Guid Page { get; set; }
+
+        /// <summary>
+        /// The block type's Guid: Rock's Attribute Values block.
+        /// </summary>
+        public Guid BlockType { get; set; }
+
+        public string Zone { get; set; }
+
+        public int Order { get; set; }
     }
 
     /// <summary>
@@ -62,5 +146,25 @@ namespace RockSampleData.Loader.Model
         /// The campus key the staff member serves, or null for every campus.
         /// </summary>
         public string Campus { get; set; }
+
+        /// <summary>
+        /// The staff key of the person they report to, or null.
+        /// </summary>
+        public string Supervisor { get; set; }
+
+        /// <summary>
+        /// The day they joined staff.
+        /// </summary>
+        public RelativeDate StartDate { get; set; }
+
+        /// <summary>
+        /// A few public sentences about them, for a staff page.
+        /// </summary>
+        public string Bio { get; set; }
+
+        /// <summary>
+        /// Their favorite quote or Bible verse, with its reference.
+        /// </summary>
+        public string Quote { get; set; }
     }
 }

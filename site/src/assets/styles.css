@@ -711,3 +711,7 @@ code { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospac
 .rules-light .rule li strong { color: var(--ink); }
 .view-heading { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 40px 0 16px; }
 .view-topic { display: block; font-weight: 500; font-size: 0.82rem; color: var(--muted); }
+
+/* A staff member's staff page bio and favorite quote on their household page (decision D-staff-4). */
+.staff-bio { font-size: 0.95rem; }
+.staff-quote { font-family: var(--serif); font-style: italic; color: var(--ink-2); border-left: 3px solid var(--paper-2); padding-left: 12px; }

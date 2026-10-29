@@ -243,6 +243,57 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// The staff (configuration/staff.json, decisions D-staff-1 and D-staff-4): every staff member is a Cast person on
+// their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
+{
+    const staffFile = path.join( castDir, "..", "configuration", "staff.json" );
+    const staff = fs.existsSync( staffFile ) ? JSON.parse( fs.readFileSync( staffFile, "utf8" ) ) : null;
+    if ( staff ) {
+        const keys = new Set( staff.staff.map( s => s.key ) );
+        const departmentValues = new Set( ( ( staff.attributes || [] ).find( a => a.key === "StaffDepartment" )?.qualifiers.values || "" ).split( "," ).map( v => v.split( "^" )[ 0 ] ).filter( Boolean ) );
+        const quoteLimit = Number( ( staff.attributes || [] ).find( a => a.key === "StaffFavoriteQuote" )?.qualifiers.maxcharacters || 0 );
+        const allCampusKeys = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.map( c => c.key ) );
+        for ( const s of staff.staff ) {
+            const who = `configuration/staff.json (${s.key})`;
+            const found = people.get( s.person );
+            if ( !found ) {
+                errors.push( `${who}: person ${s.person} is not in the Cast.` );
+                continue;
+            }
+            if ( s.campus && !allCampusKeys.has( s.campus ) ) {
+                errors.push( `${who}: campus "${s.campus}" is not in configuration/campuses.json.` );
+            }
+            if ( found.household.campusSlot !== "main" && found.household.campusSlot !== s.campus ) {
+                errors.push( `${who}: lives on ${found.household.campusSlot}, so they can serve only that campus.` );
+            }
+            if ( s.supervisor && !keys.has( s.supervisor ) ) {
+                errors.push( `${who}: supervisor "${s.supervisor}" is not a staff key.` );
+            }
+            if ( staff.attributes ) {
+                if ( !departmentValues.has( s.department ) ) {
+                    errors.push( `${who}: department "${s.department}" is not a Department value.` );
+                }
+                if ( !s.bio || !s.quote || !s.startDate ) {
+                    errors.push( `${who}: needs a bio, a quote, and a start date for the staff attributes.` );
+                }
+                if ( quoteLimit && s.quote && s.quote.length > quoteLimit ) {
+                    errors.push( `${who}: the quote is ${s.quote.length} characters, over the attribute's ${quoteLimit}.` );
+                }
+            }
+        }
+        for ( const campus of allCampusKeys ) {
+            const pastorKey = staff.campusPastors[ campus ];
+            const pastor = staff.staff.find( s => s.key === pastorKey );
+            if ( !pastor ) {
+                errors.push( `configuration/staff.json: campus ${campus} has no campus pastor.` );
+            }
+            else if ( pastor.campus !== campus || pastor.department !== "campuses" ) {
+                errors.push( `configuration/staff.json: ${pastorKey}, the ${campus} campus pastor, must serve ${campus} in the campuses department.` );
+            }
+        }
+    }
+}
+
 if ( adminPeople.length !== 1 ) {
     errors.push( `Exactly one Cast person replaces Rock's admin person (replacesAdmin); found ${adminPeople.length}: ${adminPeople.join( ", " ) || "none"}.` );
 }

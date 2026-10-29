@@ -26,6 +26,15 @@
       "description": "Private lists staff use to follow up with people, such as first-time guests and people who have not been back in a while.",
       "iconCssClass": "ti ti-heart-handshake",
       "guid": "2833CBF0-95C9-453A-9CC2-38AD9E87B76E"
+    },
+    {
+      "key": "staff-person-attributes",
+      "entityType": "Rock.Model.Attribute",
+      "qualifierEntityType": "Rock.Model.Person",
+      "name": "Staff",
+      "description": "What the church shows about each staff member, such as on a staff page: their staff photo, title, department, campus, bio, and favorite quote, plus their supervisor and start date for staff only.",
+      "iconCssClass": "ti ti-id-badge-2",
+      "guid": "6A3F015A-6CE1-401F-9C5F-8F29D33C99E9"
     }
   ]
 }

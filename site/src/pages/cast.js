@@ -97,6 +97,8 @@ function memberCard( m, r ) {
     <p class="member-meta">${esc( ageLine( m ) )}${m.connectionStatus ? html` · ${esc( m.connectionStatus )}` : ""}${m.attributes && m.attributes.Position ? html` · ${esc( m.attributes.Position )}` : ""}</p>
     ${m.staffTitle ? html`<span class="tags"><span class="tag tag-accent">Staff: ${esc( m.staffTitle )}</span></span>` : ""}
     ${m.bio ? html`<p>${esc( m.bio )}</p>` : ""}
+    ${m.staffBio ? html`<p class="staff-bio"><strong>On the staff page:</strong> ${esc( m.staffBio )}</p>` : ""}
+    ${m.staffQuote ? html`<p class="staff-quote">${esc( m.staffQuote )}</p>` : ""}
     ${!m.photo ? html`<p class="fine">${m.isPhotoOmitted ? "No photo, on purpose." : "Photo coming soon."}</p>` : ""}
     ${loginLine( m ) ? html`<p class="fine">${loginLine( m )}</p>` : ""}
     ${chips.length ? html`<span class="tags">${chips.map( c => html`<span class="tag">${esc( c )}</span>` )}</span>` : ""}

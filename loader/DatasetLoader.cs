@@ -250,6 +250,13 @@ namespace RockSampleData.Loader
                 log.Write( $"  Church categories: {categoryCount}" );
             }
 
+            // The Staff person attributes, in their category, with the block that shows them (decision D-staff-4).
+            var staffLoader = new StaffLoader( db, source, dates, foreignKey );
+            if ( staffLoader.HasAttributes )
+            {
+                log.Write( $"  Staff attributes: {staffLoader.LoadSetup()}" );
+            }
+
             var profile = source.ReadProfile();
             var years = options.HistoryYears;
             var calendar = new SundayCalendar( dates.Anchor, years, profile );
@@ -334,6 +341,13 @@ namespace RockSampleData.Loader
                 // Cast staff join the security roles their stories give them, all roles Rock ships.
                 securityRoles = new SecurityRolesLoader( db, foreignKey );
                 log.Write( $"  Security role memberships: {securityRoles.LoadCast( source, people.People.Values ):N0}" );
+
+                // Each loaded staff member's title, department, campus, bio, quote, supervisor, and start date.
+                if ( staffLoader.HasAttributes )
+                {
+                    var campusGuids = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Guid );
+                    log.Write( $"  Staff attribute values: {staffLoader.LoadValues( people, campusGuids ):N0}" );
+                }
             }
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.

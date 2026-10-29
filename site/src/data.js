@@ -217,6 +217,8 @@ function load() {
         .filter( Boolean );
     for ( const s of staff ) {
         s.member.staffTitle = s.title;
+        s.member.staffBio = s.bio || null;
+        s.member.staffQuote = s.quote || null;
         if ( !s.member.household.stages.includes( "staff" ) ) {
             s.member.household.stages.push( "staff" );
         }
