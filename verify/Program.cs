@@ -21,6 +21,7 @@ using Microsoft.Data.SqlClient;
 
 using RockSampleData.Loader;
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Model;
 using RockSampleData.Loader.Packages;
 using RockSampleData.Loader.Validation;
 using RockSampleData.Verify;
@@ -216,6 +217,17 @@ try
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
 
+            stage = "data-views";
+            var source = new SampleDataSource( package );
+            var (dataViews, counts) = DataViewsCheck( rock, sql, database, source );
+            checks.Add( dataViews );
+            stage = "metrics";
+            checks.Add( MetricsCheck( sql, database, source, counts ) );
+            stage = "access";
+            checks.Add( AccessCheck( rock, sql, database, source ) );
+            stage = "reports";
+            checks.Add( ReportsCheck( rock, sql, database, source ) );
+
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
@@ -366,6 +378,163 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 
     var accepted = string.Join( " and ", tries.Where( t => t.IsAccepted ).Select( t => t.UserName ) );
     return CheckResult.From( "sign-in", problems.Count == 0 ? $"Rock signed in as {accepted} and refused a wrong password" : "Rock's Database login did not treat the sample logins as it should", problems );
+}
+
+/// <summary>
+/// Runs every data view in the load, the church's and Rock's own, through Rock's own engine. A filter whose selection Rock
+/// cannot read fails here, the way it would for a person opening the view. Prints each church view's count and time, and
+/// returns the counts by key.
+/// </summary>
+static (CheckResult Check, Dictionary<string, int> Counts) DataViewsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var counts = new Dictionary<string, int>();
+    var names = ( source.Reporting?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() )
+        .ToDictionary( v => v.Guid, v => v.Key );
+    var lines = RockRunner.Run( rock, sql, database, "data-views" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    var church = 0;
+    foreach ( var parts in lines.Select( l => l.Split( '\t' ) ) )
+    {
+        var known = Guid.TryParse( parts.ElementAtOrDefault( 1 ), out var guid ) && names.ContainsKey( guid );
+        var name = known ? names[guid] : $"Rock's data view {parts.ElementAtOrDefault( 1 )}";
+        if ( parts[0] != "ok" )
+        {
+            problems.Add( $"Rock could not run {name}: {parts.ElementAtOrDefault( 2 )}" );
+        }
+        else if ( known )
+        {
+            church++;
+            counts[name] = int.Parse( parts[2] );
+            Console.WriteLine( $"    {name}: {counts[name]:N0} in {parts[3]} ms" );
+        }
+    }
+
+    return (CheckResult.From( "data-views", problems.Count == 0 ? $"Rock ran all {lines.Length} data views, {church} of them the church's" : "Rock could not run every data view", problems ), counts);
+}
+
+/// <summary>
+/// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
+/// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
+/// value must be Rock's count of the view today less those people. The same rule read in SQL must also give Rock's count,
+/// so the subtraction uses the view's own rule.
+/// </summary>
+static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSource source, Dictionary<string, int> counts )
+{
+    var problems = new List<string>();
+    var metrics = source.Reporting?.Metrics ?? new List<MetricDefinition>();
+    foreach ( var metric in metrics )
+    {
+        var latest = sql.Query( database, @"
+SELECT TOP 1 [mv].[YValue], [mv].[MetricValueDateTime]
+FROM [MetricValue] AS [mv]
+INNER JOIN [Metric] AS [m] ON [m].[Id] = [mv].[MetricId]
+WHERE [m].[Guid] = @Guid
+ORDER BY [mv].[MetricValueDateTime] DESC", new SqlParameter( "@Guid", metric.Guid ) ).FirstOrDefault();
+        if ( latest == null || !counts.TryGetValue( metric.DataView, out var rockCount ) )
+        {
+            problems.Add( $"{metric.Key}: no values, or Rock did not run {metric.DataView}" );
+            continue;
+        }
+
+        var view = source.Reporting.DataViews.First( v => v.Key == metric.DataView );
+        var matches = string.Join( " OR ", Leaves( view.Filter ).Where( f => f.Steps != null ).Select( f =>
+        {
+            var program = source.Steps.Programs.First( p => p.Key == f.Steps.Program );
+            var types = program.StepTypes.Where( t => f.Steps.StepType != null ? t.Key == f.Steps.StepType : f.Steps.Stage == null || t.Stage == f.Steps.Stage );
+            return $"( [st].[Guid] = '{program.Statuses.Complete}' AND [t].[Guid] IN ( {string.Join( ", ", types.Select( t => $"'{t.Guid}'" ) )} ) )";
+        } ) );
+        var row = sql.Query( database, $@"
+SELECT COUNT(*) AS [Now], SUM( CASE WHEN [First] > @Taken THEN 1 ELSE 0 END ) AS [Later]
+FROM (
+    SELECT MIN( COALESCE( [s].[CompletedDateTime], [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [First]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [t] ON [t].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [st] ON [st].[Id] = [s].[StepStatusId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    INNER JOIN [DefinedValue] AS [status] ON [status].[Id] = [p].[RecordStatusValueId]
+    LEFT JOIN [DefinedValue] AS [type] ON [type].[Id] = [p].[RecordTypeValueId]
+    WHERE ( {matches} ) AND [p].[IsDeceased] = 0 AND [status].[Guid] = '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E'
+        AND ISNULL( [type].[Guid], '00000000-0000-0000-0000-000000000000' ) <> '721300ED-1267-4DA0-B4F2-6C6B5B17B1C5'
+    GROUP BY [pa].[PersonId] ) AS [people]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) ).Single();
+        var now = Convert.ToInt32( row["Now"] );
+        var later = Convert.ToInt32( row["Later"] ?? 0 );
+        var value = Convert.ToInt32( latest["YValue"] );
+        if ( now != rockCount )
+        {
+            problems.Add( $"{metric.Key}: the stage rule finds {now:N0} people, but Rock's {metric.DataView} finds {rockCount:N0}" );
+        }
+        else if ( value != rockCount - later )
+        {
+            problems.Add( $"{metric.Key}: its newest value, {value:N0} on {latest["MetricValueDateTime"]:g}, should be {rockCount - later:N0}: Rock's {rockCount:N0} less {later:N0} who reached the stage since" );
+        }
+        else
+        {
+            Console.WriteLine( $"    {metric.Key}: {value:N0} on {latest["MetricValueDateTime"]:g}, and {rockCount:N0} today" );
+        }
+    }
+
+    return CheckResult.From( "metrics", problems.Count == 0 ? $"Each of the {metrics.Count} path metrics' newest value matches Rock's count of its stage view" : "A path metric does not match its stage view", problems );
+
+    static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter ) =>
+        filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
+}
+
+/// <summary>
+/// Asks Rock's own security check each question in the security walkthrough (configuration/reporting.json access): may
+/// this Cast person take this action on this category or data view. Rock walks each item's categories as it does on a page.
+/// </summary>
+static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.Reporting?.Reports ?? new List<ReportDefinition>() ).ToDictionary( r => r.Guid, r => r.Key );
+    var all = RockRunner.Run( rock, sql, database, "reports" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var webOnly = all.Where( p => p[0] == "web-only" ).Select( p => p[1] ).FirstOrDefault() ?? "0";
+    var lines = all.Where( p => p[0] != "web-only" ).ToList();
+    var problems = lines.Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var g ) && names.TryGetValue( g, out var key ) ? key : $"Rock's report {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .ToList();
+
+    // A link column (Person Link, Group Link) builds its URL from the web site's root, which only IIS has.
+    return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Count} reports and renders every Lava column ({webOnly} link columns need the web site)" : "Rock cannot read every report column", problems );
+}
+
+static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var access = source.Reporting?.Access ?? new List<AccessExpectation>();
+    if ( access.Count == 0 )
+    {
+        return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
+    }
+
+    var categories = source.Categories.Categories.ToDictionary( c => c.Key, c => c.Guid );
+    var views = source.Reporting.DataViews.Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() ).ToDictionary( v => v.Key, v => v.Guid );
+
+    // Alisha Marble is Rock's own admin person, so her Guid is the one Rock gave Person 1 at install (decision 177).
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}" : a.Report != null ? $"Report\t{reports[a.Report]}" : $"DataView\t{views[a.DataView]}" )
+        + $"\t{a.Action}\t{people.Rock( a.Person )}" );
+    var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    for ( var i = 0; i < access.Count; i++ )
+    {
+        var expected = access[i].Allowed.ToString();
+        var actual = i < answers.Length ? answers[i] : "no answer";
+        if ( actual != expected )
+        {
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report}: expected {expected}, but Rock answered {actual}." );
+        }
+    }
+
+    return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
 }
 
 /// <summary>

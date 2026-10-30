@@ -998,7 +998,7 @@
       "filter": {
         "any": [
           {
-            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "component": "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter",
             "registration": {
               "instance": "student-camp-girls",
               "occurrence": "next",
@@ -1007,7 +1007,7 @@
             }
           },
           {
-            "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+            "component": "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter",
             "registration": {
               "instance": "student-camp-boys",
               "occurrence": "next",
@@ -1037,7 +1037,7 @@
           {
             "none": [
               {
-                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "component": "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter",
                 "registration": {
                   "instance": "student-camp-girls",
                   "occurrence": "next",
@@ -1046,7 +1046,7 @@
                 }
               },
               {
-                "component": "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter",
+                "component": "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter",
                 "registration": {
                   "instance": "student-camp-boys",
                   "occurrence": "next",

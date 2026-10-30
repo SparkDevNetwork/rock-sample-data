@@ -47,6 +47,10 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
+| `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
+| `metrics` | Each path metric's newest value equals Rock's count of its stage view, less the people who first reached the stage after that value. A SQL count of the stage rule must also equal Rock's count. |
+| `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`): which Cast person may view or edit which category, data view, or report. |
+| `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
 
@@ -129,3 +133,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
 | `anchor-sweep` | A Cast giving story holds on some install days and not others. Each line names the expectation and the days. Keep that giver's gifts from landing close together on any day, for example with `isOnTime` for a monthly giver, then sweep a year with `--anchor-sweep 365`. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |
+| `data-views` | Rock could not read a data view's filter. Fix its selection in the configuration file that holds it, or how `loader/loading/ReportingLoader.cs` builds it. |
+| `metrics` | The loader's weekly values in `loader/loading/MetricsWriter.cs` no longer follow the stage view's rule, or the view changed shape. A metric can count only a view of active people with any of some steps. |
+| `reports` | Fix the column in `configuration/reporting.json`: the property name, attribute key, or the component's selection. |
+| `access` | Rock's answer differs from the walkthrough. Fix the category's `security` in `configuration/categories.json`, or the row in `configuration/reporting.json` if the walkthrough is wrong. |

@@ -45,6 +45,7 @@ namespace RockSampleData.Loader.Loading
         {
             var categories = _source.Categories?.Categories ?? new List<Model.CategoryDefinition>();
             var now = DateTime.Now;
+            var security = new SecurityRuleWriter( _db, _source.SecurityRoles, _foreignKey );
             var ids = new Dictionary<string, int>();
             var written = 0;
             while ( written < categories.Count )
@@ -58,6 +59,14 @@ namespace RockSampleData.Loader.Loading
 
                 foreach ( var category in ready )
                 {
+                    if ( category.RockShips )
+                    {
+                        ids[category.Key] = Rename( category, now );
+                        security.Write( "Rock.Model.Category", ids[category.Key], category.Security, now, $"configuration/categories.json: category '{category.Key}'" );
+                        written++;
+                        continue;
+                    }
+
                     var entityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", category.EntityType ) )
                         ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' holds {category.EntityType}, which this Rock has no entity type for." ) );
                     var qualifierColumn = category.QualifierGroupType.HasValue ? "GroupTypeId" : category.QualifierEntityType != null ? "EntityTypeId" : null;
@@ -91,11 +100,25 @@ VALUES ( 0, @ParentId, @EntityTypeId, @QualifierColumn, @QualifierValue, @Name, 
                         P( "@ParentId", parentId ), P( "@EntityTypeId", entityTypeId ), P( "@QualifierColumn", qualifierColumn ),
                         P( "@QualifierValue", qualifierValue ), P( "@Name", category.Name ), P( "@Icon", category.IconCssClass ), P( "@Description", category.Description ),
                         P( "@Order", order ), P( "@Guid", category.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+                    security.Write( "Rock.Model.Category", ids[category.Key], category.Security, now, $"configuration/categories.json: category '{category.Key}'" );
                     written++;
                 }
             }
 
             return written;
+        }
+
+        /// <summary>
+        /// Renames a category Rock ships, found by its Guid, and returns its Id. Rock's own code finds it by Guid too,
+        /// so a view a later Rock update adds still lands in it.
+        /// </summary>
+        private int Rename( Model.CategoryDefinition category, DateTime now )
+        {
+            var id = _db.IdByGuid( "Category", category.Guid )
+                ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' is one Rock ships, but this Rock has no category {category.Guid}." );
+            _db.Execute( "UPDATE [Category] SET [Name] = @Name, [Description] = @Description, [ModifiedDateTime] = @Now WHERE [Id] = @Id",
+                P( "@Name", category.Name ), P( "@Description", category.Description ), P( "@Now", now ), P( "@Id", id ) );
+            return id;
         }
     }
 }

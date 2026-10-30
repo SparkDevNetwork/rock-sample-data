@@ -24,8 +24,8 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Loading
 {
     /// <summary>
-    /// Writes person data views and their filter trees as Rock's data view editor saves them, filed in a church category.
-    /// Group syncs and registrations both use it.
+    /// Writes data views and their filter trees as Rock's data view editor saves them, filed in a church category.
+    /// Group syncs, registrations, and the reporting views all use it.
     /// </summary>
     internal sealed class DataViewWriter
     {
@@ -41,18 +41,34 @@ namespace RockSampleData.Loader.Loading
             ["Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter"] = new Guid( "55E78F48-F849-444A-B285-FDA99E7236E7" ),
             ["Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter"] = new Guid( "5748F0E7-E033-4D36-819C-0AA3823A8935" ),
             ["Rock.Reporting.DataFilter.Person.GradeFilter"] = new Guid( "7311CCCF-BBFB-4FF7-AFD0-3D7F2D466C1B" ),
-            ["Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter"] = new Guid( "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA" )
+
+            // Rock declares this filter in the DataSelect namespace, though its file is with the data filters. Its class
+            // name is what Rock's filter container looks it up by, so the DataFilter name would leave Rock unable to run it.
+            ["Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter"] = new Guid( "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA" )
+        };
+
+        /// <summary>
+        /// The filters whose selection is Rock's JSON with the other view's Id. Every other filter that points at a view
+        /// holds its Guid.
+        /// </summary>
+        private static readonly HashSet<string> IdSelectionFilters = new HashSet<string>
+        {
+            "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "Rock.Reporting.DataFilter.NotInOtherDataViewFilter"
         };
 
         private readonly RockDatabase _db;
         private readonly CategoryConfiguration _categories;
         private readonly string _foreignKey;
+        private readonly IReadOnlyDictionary<string, DataViewDefinition> _views;
 
-        public DataViewWriter( RockDatabase db, CategoryConfiguration categories, string foreignKey )
+        /// <param name="views">The views a leaf may point at, by key, when any leaf does.</param>
+        public DataViewWriter( RockDatabase db, CategoryConfiguration categories, string foreignKey, IReadOnlyDictionary<string, DataViewDefinition> views = null )
         {
             _db = db;
             _categories = categories;
             _foreignKey = foreignKey;
+            _views = views;
         }
 
         /// <summary>
@@ -95,14 +111,32 @@ VALUES ( @Name, @AssemblyName, @FriendlyName, 0, 1, 0, @Guid, @ForeignKey )",
         /// </summary>
         /// <param name="random">The stream each filter's Guid is drawn from.</param>
         /// <param name="selection">Each leaf's selection string.</param>
-        public int Write( DataViewDefinition view, DateTime now, SeededRandom random, Func<DataViewFilterDefinition, string> selection )
+        /// <param name="scheduleIds">The named schedules a persisted view may name, by key.</param>
+        public int Write( DataViewDefinition view, DateTime now, SeededRandom random, Func<DataViewFilterDefinition, string> selection, IReadOnlyDictionary<string, int> scheduleIds = null )
         {
             var category = _categories.Get( view.Category );
+            var entityTypeId = EntityTypeId( view.EntityType ?? "Rock.Model.Person", view );
+            int? transformId = view.Transform == null ? null : EntityTypeId( view.Transform, view );
+            int? scheduleId = view.Persisted?.Schedule == null ? null
+                : scheduleIds != null && scheduleIds.TryGetValue( view.Persisted.Schedule, out var id ) ? id
+                : throw new InvalidDataException( $"Data view {view.Key} is persisted on schedule {view.Persisted.Schedule}, which is not a named schedule." );
+
+            /*
+                10/30/26 - CLAUDE
+
+                A persisted view's last refresh stays empty. Rock runs a view live until its Update Persisted DataViews job
+                persists it, and that job runs every minute and persists any view that has never been refreshed. So the view
+                is right on install day, and Rock, not the loader, decides what it holds.
+
+                Reason: The loader cannot run every filter Rock can, so it leaves the persisted values to Rock.
+            */
             var viewId = ( int ) _db.Scalar( @"
-INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [TransformEntityTypeId], [PersistedScheduleIntervalMinutes], [PersistedScheduleId],
+    [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, @Name, @Description, @CategoryId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ), 0, 0, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Interval, @ScheduleId, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
                 P( "@Name", view.Name ), P( "@Description", view.Description ), P( "@CategoryId", _db.RequireIdByGuid( "Category", category.Guid ) ),
+                P( "@EntityTypeId", entityTypeId ), P( "@TransformId", transformId ), P( "@Interval", view.Persisted?.IntervalMinutes ), P( "@ScheduleId", scheduleId ),
                 P( "@Guid", view.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
 
             var rootId = WriteFilter( view.Filter, null, viewId, random, now, selection );
@@ -110,13 +144,43 @@ VALUES ( 0, @Name, @Description, @CategoryId, ( SELECT [Id] FROM [EntityType] WH
             return viewId;
         }
 
+        /// <summary>
+        /// The selection of a leaf that points at another data view, which this load must have written by now.
+        /// </summary>
+        public string ViewSelection( DataViewFilterDefinition filter )
+        {
+            if ( !IdSelectionFilters.Contains( filter.Component ) )
+            {
+                // A related data view filter's settings start with the view's Guid. A filter with more settings, such as
+                // Rock's group data view filter (Guid, member status, role type), gives them with a {dataView} placeholder.
+                var guid = View( filter ).Guid.ToString();
+                return filter.Selection?.Replace( "{dataView}", guid ) ?? guid;
+            }
+
+            // Rock's data view editor saves "Use Persisted" on by default.
+            return $"{{\"DataViewId\":{RelatedId( filter )},\"UsePersisted\":true}}";
+        }
+
+        private DataViewDefinition View( DataViewFilterDefinition filter )
+        {
+            return _views != null && _views.TryGetValue( filter.DataView, out var view ) ? view
+                : throw new InvalidDataException( $"A data view points at {filter.DataView}, which is not a data view in any configuration file." );
+        }
+
+        private int RelatedId( DataViewFilterDefinition filter )
+        {
+            return _db.IdByGuid( "DataView", View( filter ).Guid )
+                ?? throw new InvalidDataException( $"A data view points at {filter.DataView}, which this load has not written yet." );
+        }
+
         private int WriteFilter( DataViewFilterDefinition filter, int? parentId, int viewId, SeededRandom random, DateTime now, Func<DataViewFilterDefinition, string> selection )
         {
             var id = ( int ) _db.Scalar( @"
-INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [RelatedDataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @RelatedId, @Guid, @ForeignKey, @Now, @Now )",
                 P( "@ExpressionType", filter.ExpressionType ), P( "@ParentId", parentId ), P( "@Component", filter.Component ), P( "@Selection", filter.Component == null ? null : selection( filter ) ),
+                P( "@RelatedId", filter.DataView == null ? null : RelatedId( filter ) ),
                 P( "@DataViewId", viewId ), P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
             foreach ( var child in filter.Children )
             {
@@ -124,6 +188,12 @@ VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name
             }
 
             return id;
+        }
+
+        private int EntityTypeId( string name, DataViewDefinition view )
+        {
+            return Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", name ) )
+                ?? throw new InvalidDataException( $"Data view {view.Key} uses {name}, which this Rock has no entity type for." ) );
         }
 
         public static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter )

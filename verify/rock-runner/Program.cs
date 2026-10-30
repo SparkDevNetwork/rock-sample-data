@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|reports|authorize --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -42,6 +43,13 @@ namespace RockSampleData.RockRunner
     ///   group-sync  Runs Rock's own group sync (GroupSyncService.SyncGroups, what the Group Sync job calls) on every sync,
     ///            whatever its interval, and prints how many syncs ran, the members added, removed, and not added, and
     ///            each warning.
+    ///   data-views  Runs every data view through Rock's own engine (DataViewCache.GetEntityIds) and prints, for each,
+    ///            "ok", its Guid, how many it found, and its milliseconds, or "error", its Guid, and Rock's message.
+    ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
+    ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
+    ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
+    ///            (Category, DataView, or Report), its Guid, an action, and a person's Guid, separated by tabs. Prints True or
+    ///            False for each, in order.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -56,10 +64,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "reports", "authorize" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|reports|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -91,6 +99,9 @@ namespace RockSampleData.RockRunner
                     "hash-password" => worker.HashPassword( lines.FirstOrDefault() ?? string.Empty ),
                     "sign-in" => worker.SignIn( lines ),
                     "group-sync" => worker.GroupSync(),
+                    "data-views" => worker.DataViews(),
+                    "reports" => worker.Reports(),
+                    "authorize" => worker.Authorize( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -293,6 +304,188 @@ namespace RockSampleData.RockRunner
             lines.AddRange( ( ( IEnumerable<string> ) resultType.GetProperty( "WarningMessages" ).GetValue( result ) ).Select( w => $"warning {w}" ) );
             lines.AddRange( ( ( IEnumerable<Exception> ) resultType.GetProperty( "WarningExceptions" ).GetValue( result ) ).Select( e => $"warning {e.GetBaseException().Message}" ) );
             return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Runs every data view through Rock's own engine, the call Rock's data view screens and jobs make. A filter Rock
+        /// cannot read fails here, the way it would fail for a person opening the view.
+        /// </summary>
+        public string DataViews()
+        {
+            Start();
+            StartMessageBus();
+            var cache = _rock.GetType( "Rock.Web.Cache.DataViewCache", true );
+            var all = ( System.Collections.IEnumerable ) cache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var getEntityIds = cache.GetMethod( "GetEntityIds", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no DataViewCache.GetEntityIds(). The runner needs updating for this Rock." );
+            var lines = new List<string>();
+            foreach ( var view in all )
+            {
+                var guid = cache.GetProperty( "Guid" ).GetValue( view );
+                var timer = Stopwatch.StartNew();
+                try
+                {
+                    var ids = ( System.Collections.ICollection ) getEntityIds.Invoke( view, null );
+                    lines.Add( $"ok\t{guid}\t{ids.Count}\t{timer.ElapsedMilliseconds}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    lines.Add( $"error\t{guid}\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                }
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Checks every report's columns against Rock the way its report grid reads them: a property must be one of Rock's
+        /// reportable fields for the entity, an attribute must exist, and a data select component must build its expression
+        /// from the stored selection. A Lava column is rendered by Rock's Lava engine for the first row its data view finds.
+        /// </summary>
+        public string Reports()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var context = createContext.Invoke( null, new[] { app } );
+            var serviceType = _rock.GetType( "Rock.Model.ReportService", true );
+            var reports = ( ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, context ), null ) ).ToList();
+            var entityTypeCache = _rock.GetType( "Rock.Web.Cache.EntityTypeCache", true );
+            var getEntityType = entityTypeCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            var getEntityFields = _rock.GetType( "Rock.Reporting.EntityHelper", true ).GetMethod( "GetEntityFields", new[] { typeof( Type ), typeof( bool ), typeof( bool ) } );
+            var attributeCache = _rock.GetType( "Rock.Web.Cache.AttributeCache", true ).GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null );
+            var getComponent = _rock.GetType( "Rock.Reporting.DataSelectContainer", true ).GetMethod( "GetComponent", new[] { typeof( string ) } );
+            var rockContextType = _rock.GetType( "Rock.Data.RockContext", true );
+            var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( bool ), typeof( bool ) } );
+            var dataViewCache = _rock.GetType( "Rock.Web.Cache.DataViewCache", true );
+
+            var lines = new List<string>();
+            var webOnly = 0;
+            foreach ( var report in reports )
+            {
+                var guid = report.GetType().GetProperty( "Guid" ).GetValue( report );
+                var problems = new List<string>();
+                try
+                {
+                    var entity = getEntityType.Invoke( null, new object[] { report.GetType().GetProperty( "EntityTypeId" ).GetValue( report ) } );
+                    var type = ( Type ) entity.GetType().GetMethod( "GetEntityType", Type.EmptyTypes ).Invoke( entity, null );
+                    var fieldNames = ( ( System.Collections.IEnumerable ) getEntityFields.Invoke( null, new object[] { type, true, false } ) ).Cast<object>()
+                        .Select( f => ( string ) f.GetType().GetProperty( "Name" ).GetValue( f ) ).ToHashSet();
+                    var idProperty = System.Linq.Expressions.Expression.Property( System.Linq.Expressions.Expression.Parameter( type, "p" ), "Id" );
+                    var view = dataViewCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null )
+                        .Invoke( null, new object[] { report.GetType().GetProperty( "DataViewId" ).GetValue( report ) } );
+                    var firstId = ( ( System.Collections.IEnumerable ) dataViewCache.GetMethod( "GetEntityIds", Type.EmptyTypes ).Invoke( view, null ) ).Cast<int>().FirstOrDefault();
+
+                    foreach ( var field in ( ( System.Collections.IEnumerable ) report.GetType().GetProperty( "ReportFields" ).GetValue( report ) ).Cast<object>() )
+                    {
+                        var fieldType = Convert.ToInt32( field.GetType().GetProperty( "ReportFieldType" ).GetValue( field ) );
+                        var selection = ( string ) field.GetType().GetProperty( "Selection" ).GetValue( field );
+                        var header = ( string ) field.GetType().GetProperty( "ColumnHeaderText" ).GetValue( field );
+                        if ( fieldType == 0 && !fieldNames.Contains( selection ) )
+                        {
+                            problems.Add( $"{header}: {selection} is not a reportable field of {type.Name}" );
+                        }
+                        else if ( fieldType == 1 && attributeCache.Invoke( null, new object[] { Guid.Parse( selection ) } ) == null )
+                        {
+                            problems.Add( $"{header}: attribute {selection} does not exist" );
+                        }
+                        else if ( fieldType == 2 )
+                        {
+                            var componentType = getEntityType.Invoke( null, new object[] { field.GetType().GetProperty( "DataSelectComponentEntityTypeId" ).GetValue( field ) } );
+                            var componentName = ( string ) componentType.GetType().GetProperty( "Name" ).GetValue( componentType );
+                            var component = getComponent.Invoke( null, new object[] { componentName } );
+                            if ( component == null )
+                            {
+                                problems.Add( $"{header}: Rock has no data select component {componentName}" );
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    if ( componentName == "Rock.Reporting.DataSelect.LiquidSelect" )
+                                    {
+                                        var mergeFields = new Dictionary<string, object> { ["Id"] = firstId, ["BaptismDate"] = "1/1/2026", ["Allergy"] = "Peanuts" };
+                                        resolve.Invoke( null, new object[] { selection, mergeFields, false, true } );
+                                    }
+                                    else
+                                    {
+                                        var getExpression = component.GetType().GetMethod( "GetExpression", new[] { rockContextType, typeof( System.Linq.Expressions.MemberExpression ), typeof( string ) } );
+                                        if ( getExpression.Invoke( component, new[] { context, idProperty, selection ?? string.Empty } ) == null )
+                                        {
+                                            problems.Add( $"{header}: {componentName} built no expression from \"{selection}\"" );
+                                        }
+                                    }
+                                }
+                                catch ( TargetInvocationException ex ) when ( ex.GetBaseException().Message.Contains( "cannot be made absolute" ) )
+                                {
+                                    // A link column builds its URL from the web site's root, which only exists under IIS. Rock's own
+                                    // reports do the same, so the column is left to the web site, as Rock Cleanup's web-only tasks are.
+                                    webOnly++;
+                                }
+                                catch ( TargetInvocationException ex )
+                                {
+                                    problems.Add( $"{header}: {ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                                }
+                            }
+                        }
+                    }
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    problems.Add( ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' ) );
+                }
+
+                lines.Add( problems.Count == 0 ? $"ok\t{guid}" : $"error\t{guid}\t{string.Join( "; ", problems )}" );
+            }
+
+            lines.Add( $"web-only\t{webOnly}" );
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Asks Rock's own security check whether each person may take each action on each category or data view. Rock walks
+        /// the item's parent authorities (a data view's category, then its parent categories) as it does on every page.
+        /// </summary>
+        public string Authorize( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var personService = Activator.CreateInstance( personServiceType, createContext.Invoke( null, new[] { app } ) );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var securedType = _rock.GetType( "Rock.Security.ISecured", true );
+            var authorized = _rock.GetType( "Rock.Security.Authorization", true ).GetMethod( "Authorized", BindingFlags.Public | BindingFlags.Static, null,
+                new[] { securedType, typeof( string ), _rock.GetType( "Rock.Model.Person", true ) }, null )
+                ?? throw new InvalidOperationException( "This Rock has no Authorization.Authorized( ISecured, string, Person ). The runner needs updating for this Rock." );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                object item;
+                if ( parts[0] == "Report" )
+                {
+                    // Rock keeps no cache of reports; its report screens load the report and check it.
+                    var reportService = _rock.GetType( "Rock.Model.ReportService", true );
+                    item = reportService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( reportService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                }
+                else
+                {
+                    var cache = _rock.GetType( parts[0] == "Category" ? "Rock.Web.Cache.CategoryCache" : "Rock.Web.Cache.DataViewCache", true );
+                    item = cache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                        .Invoke( null, new object[] { new Guid( parts[1] ) } );
+                }
+
+                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>

@@ -1463,8 +1463,14 @@
         "Guid",
         "IncludeDeceased",
         "IsSystem",
+        "LastRunDateTime",
         "ModifiedDateTime",
-        "Name"
+        "Name",
+        "PersistedScheduleId",
+        "PersistedScheduleIntervalMinutes",
+        "RunCount",
+        "RunCountLastRefreshDateTime",
+        "TransformEntityTypeId"
       ],
       "rockColumns": {
         "CategoryId": "int null",
@@ -1507,6 +1513,7 @@
         "Guid",
         "ModifiedDateTime",
         "ParentId",
+        "RelatedDataViewId",
         "Selection"
       ],
       "rockColumns": {
@@ -3287,6 +3294,160 @@
         "Name": "nvarchar(50) not null"
       }
     },
+    "Metric": {
+      "written": [
+        "CreatedDateTime",
+        "DataViewId",
+        "Description",
+        "ForeignKey",
+        "Guid",
+        "IconCssClass",
+        "IsCumulative",
+        "IsSystem",
+        "LastRunDateTime",
+        "ModifiedDateTime",
+        "ScheduleId",
+        "SourceValueTypeId",
+        "Title"
+      ],
+      "rockColumns": {
+        "AdminPersonAliasId": "int null",
+        "AutoPartitionOnPrimaryCampus": "bit not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataViewId": "int null",
+        "Description": "nvarchar(max) null",
+        "EnableAnalytics": "bit not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsCumulative": "bit not null",
+        "IsSystem": "bit not null",
+        "LastRunDateTime": "datetime null",
+        "MeasurementClassificationValueId": "int null",
+        "MetricChampionPersonAliasId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "NumericDataType": "int not null",
+        "ScheduleId": "int null",
+        "SourceLava": "nvarchar(max) null",
+        "SourceSql": "nvarchar(max) null",
+        "SourceValueTypeId": "int null",
+        "Subtitle": "nvarchar(100) null",
+        "Title": "nvarchar(100) not null",
+        "UnitType": "int not null",
+        "XAxisLabel": "nvarchar(max) null",
+        "YAxisLabel": "nvarchar(max) null"
+      }
+    },
+    "MetricCategory": {
+      "written": [
+        "CategoryId",
+        "ForeignKey",
+        "Guid",
+        "MetricId",
+        "Order"
+      ],
+      "rockColumns": {
+        "CategoryId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "MetricId": "int not null",
+        "Order": "int not null"
+      }
+    },
+    "MetricPartition": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsRequired",
+        "MetricId",
+        "ModifiedDateTime",
+        "Order"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityTypeId": "int null",
+        "EntityTypeQualifierColumn": "nvarchar(50) null",
+        "EntityTypeQualifierValue": "nvarchar(200) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsRequired": "bit not null",
+        "Label": "nvarchar(100) null",
+        "MetricId": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int not null"
+      }
+    },
+    "MetricValue": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "Id",
+        "MetricId",
+        "MetricValueDateKey",
+        "MetricValueDateTime",
+        "MetricValueType",
+        "ModifiedDateTime",
+        "YValue"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "MetricId": "int not null",
+        "MetricValueDateKey": "int null",
+        "MetricValueDateTime": "datetime null",
+        "MetricValueType": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Note": "nvarchar(max) null",
+        "XValue": "nvarchar(max) null",
+        "YValue": "decimal(18,2) null"
+      }
+    },
+    "MetricValuePartition": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "Id",
+        "MetricPartitionId",
+        "MetricValueId",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "MetricPartitionId": "int not null",
+        "MetricValueId": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null"
+      }
+    },
     "Note": {
       "written": [
         "ApprovalStatus",
@@ -4429,10 +4590,89 @@
         "TargetEntityTypeId": "int not null"
       }
     },
+    "Report": {
+      "written": [
+        "CategoryId",
+        "CreatedDateTime",
+        "DataViewId",
+        "Description",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IsSystem",
+        "LastRunDateTime",
+        "ModifiedDateTime",
+        "Name",
+        "RunCount"
+      ],
+      "rockColumns": {
+        "CategoryId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataViewId": "int null",
+        "Description": "nvarchar(max) null",
+        "EntityTypeId": "int null",
+        "FetchTop": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsSystem": "bit not null",
+        "LastRunDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "QueryHint": "nvarchar(max) null",
+        "RunCount": "int null",
+        "TimeToRunDurationMilliseconds": "int null"
+      }
+    },
+    "ReportField": {
+      "written": [
+        "ColumnHeaderText",
+        "ColumnOrder",
+        "CreatedDateTime",
+        "DataSelectComponentEntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "ReportFieldType",
+        "ReportId",
+        "Selection",
+        "ShowInGrid",
+        "SortDirection",
+        "SortOrder"
+      ],
+      "rockColumns": {
+        "ColumnHeaderText": "nvarchar(max) null",
+        "ColumnOrder": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataSelectComponentEntityTypeId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsCommunicationMergeField": "bit null",
+        "IsCommunicationRecipientField": "bit null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ReportFieldType": "int not null",
+        "ReportId": "int not null",
+        "Selection": "nvarchar(max) null",
+        "ShowInGrid": "bit not null",
+        "SortDirection": "int not null",
+        "SortOrder": "int null"
+      }
+    },
     "Schedule": {
       "written": [
         "AutoInactivateWhenComplete",
+        "CategoryId",
         "CreatedDateTime",
+        "Description",
         "EffectiveEndDate",
         "EffectiveStartDate",
         "ForeignKey",
@@ -4441,6 +4681,7 @@
         "IsActive",
         "IsPublic",
         "ModifiedDateTime",
+        "Name",
         "Order",
         "WeeklyDayOfWeek",
         "WeeklyTimeOfDay",
@@ -5154,6 +5395,7 @@
       "517BB2D3-0A50-4132-818E-63BB3C81EAE9",
       "51D3EC5A-D079-45ED-909E-B0AB2FD06835",
       "5412E4C8-6E51-4CA8-98A9-49AAC91486B5",
+      "5A794741-5444-43F0-90D7-48E47276D426",
       "5C63A5B0-B2CF-4476-8F0E-D415BEE163D8",
       "6C76B9D2-B298-4DAB-A34D-3363721672FC",
       "813DF1A5-ADBD-481C-AC1D-884F0FA7AE77",
@@ -5165,10 +5407,12 @@
       "AD4A08D6-4A60-456F-AFD0-660AA776021D",
       "AF51A735-59EF-4713-B9BD-604EBB86CA13",
       "B08F10AA-CA78-4527-93BF-A0D5640E4549",
+      "BDD2C36F-7575-48A8-8B70-3A566E3811ED",
       "C35752E2-A575-4182-8B5A-8AE9D0694B97",
       "C47AD7D0-DDD0-4BE6-AE1D-D69D72B13842",
       "D12837CF-EEE7-4822-9899-36E8884CD848",
       "DA9C0CC7-7B31-4E1E-BBA5-50405B2D9EFE",
+      "EEC7A935-BEF2-4450-9CBF-B85CEC6F7FEA",
       "F291034B-7581-48F3-B522-E31B8534D529",
       "FB4A609E-3A7D-4AD0-A55A-D707638A35F5"
     ],
@@ -5201,6 +5445,7 @@
       "283BC4AC-CCCD-4FCF-8C94-9848B6B5E734",
       "2CC66D5A-F61C-4B74-9AF9-590A9847C13C",
       "2D607262-52D6-4724-910D-5C6E8FB89ACC",
+      "2EC60BCF-EF63-4CCC-A970-F152292765D0",
       "33CB96DD-8752-4BEE-A142-88DB7DE538F0",
       "35711E44-131B-4534-B0B2-F0A749292362",
       "368DD475-242C-49C4-A42C-7278BE690CC2",
@@ -5259,7 +5504,6 @@
       "0E99356C-0DEA-4F24-944E-21CD5FA83B9E",
       "174F0AFF-3A5E-4A20-AE8B-D8D83D43BACD",
       "1D68154E-EC76-44C8-9813-7736B27AECF9",
-      "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA",
       "337EED57-D4AB-4EED-BBDB-0CB3A467DBCC",
       "3638C6DF-4FF3-4A52-B4B8-AFB754991597",
       "3F9828CC-8224-4AB0-98A5-6D60001EBE32",
