@@ -121,7 +121,7 @@ module.exports = function home( { model, r } ) {
 
 <section class="section">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "The Cast", title: "Meet the people in the data.", lede: `The Cast is ${c.households} hand-designed households and ${c.people} people. They are the same in every dataset, and each one exists for a reason.`, center: true } )}
+    ${sectionHead( { eyebrow: "The Cast", title: "Meet the people in the data.", lede: `The Cast is ${c.households} hand-designed households and ${c.people} people. Those at the broadcast campus are in every dataset, a campus pastor's family on another campus is in the datasets with that campus, and each one exists for a reason.`, center: true } )}
     <div class="face-row reveal">
       ${faces.map( p => html`<a class="face" href="${r( "cast/" + p.household.key + ".html" )}">${portrait( p, r, "lg" )}<span class="face-name">${esc( p.displayName )}</span></a>` )}
     </div>
