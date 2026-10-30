@@ -96,7 +96,7 @@ module.exports = function datasets( { model } ) {
   <div class="wrap">
     ${sectionHead( { eyebrow: "Sign in", title: "Sign in as someone you know.", lede: "When you install, you choose one password. Every sample login uses it, and it is never saved. Leave it blank, and no sample logins load. The admin login keeps the password your Rock already had." } )}
     <div class="card-grid card-grid-four">
-      <div class="card reveal"><h3><code>admin</code></h3><p>Alisha Marble, the Rock administrator. Rock's own admin person becomes her, in the Marble family, with her photo, her story, and real connection requests to work.</p></div>
+      <div class="card reveal"><h3><code>admin</code></h3><p>Alisha Marble, the Rock administrator. Rock's own admin person becomes her, in the Marble family, with her photo, her story, and real connection requests to work, many with the celebrations she wrote.</p></div>
       <div class="card reveal"><h3><code>tdecker</code></h3><p>Ted Decker, the Outreach Pastor. He holds most staff security roles, so he is the login for testing staff screens.</p></div>
       <div class="card reveal"><h3><code>pfoster</code></h3><p>Pete Foster, the Senior Pastor, with pastoral and staff security roles.</p></div>
       <div class="card reveal"><h3><code>cdecker</code></h3><p>Cindy Decker, a volunteer with staff-like and finance access, who also serves on the prayer team.</p></div>

@@ -79,7 +79,8 @@
             "daysAgo": 12
           },
           "connector": true,
-          "comment": "Me and my wife would like to serve together on the greeters team."
+          "comment": "Me and my wife would like to serve together on the greeters team.",
+          "celebration": "Brian asked if he and Wendy can greet at the same door. We will make sure they do."
         }
       ]
     },
@@ -139,7 +140,8 @@
             "daysAgo": 12
           },
           "connector": true,
-          "comment": "Me and my husband would like to serve together on the greeters team."
+          "comment": "Me and my husband would like to serve together on the greeters team.",
+          "celebration": "Brian and Wendy already open their home to a small group every week. Now they want to greet side by side on Sundays, and they signed up for Starting Point first to get ready."
         }
       ]
     }

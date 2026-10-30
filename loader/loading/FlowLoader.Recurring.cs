@@ -38,7 +38,7 @@ namespace RockSampleData.Loader.Loading
         written it, so Rock's job fills every run after install from the view itself. A paused flow keeps only
         runs that finished before install, since Rock would leave a paused run unsent.
 
-        Reason: decisions D-comm-flows-1 and D-comm-flows-6.
+        Reason: decisions 220 and D-comm-flows-6.
     */
 
     internal sealed partial class FlowLoader

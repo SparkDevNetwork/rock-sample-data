@@ -120,6 +120,56 @@
       "isAlert": true,
       "text": "Noah may leave the Grades 4-6 room on his own only to meet his dad in the production booth. Any other pickup needs his check-in tag.",
       "testPurpose": "A Safety Alert about pickup on a staff child, written by staff outside the family."
+    },
+    {
+      "key": "ted-young-adults-plan",
+      "guid": "FC7C4D61-B34C-40DE-993E-7345231CCA05",
+      "about": "ted",
+      "type": "followUp",
+      "author": "pete",
+      "written": {
+        "daysAgo": 33
+      },
+      "time": "14:00",
+      "text": "Ted brought a real plan for a young adults night: one Thursday a month, dinner and a short talk. A dozen people in their twenties have already asked about it. {@jamal} will help him find two leaders. We meet again in two weeks to set a start date.",
+      "testPurpose": "A recent Follow-up note with a mention and a reply, picking up the young adults idea from his legacy note.",
+      "replies": [
+        {
+          "guid": "2BBE5BF3-977A-47A1-B98F-EE98C79C3DFF",
+          "author": "jamal",
+          "written": {
+            "daysAgo": 32
+          },
+          "time": "09:40",
+          "text": "I have two names from the groups list already. I'll set up coffee with each of them."
+        }
+      ]
+    },
+    {
+      "key": "ted-serve-day-email",
+      "guid": "D3C77904-BF08-4497-B790-D7D057DD687E",
+      "about": "ted",
+      "type": "personal",
+      "author": "daniel",
+      "written": {
+        "daysAgo": 71
+      },
+      "time": "10:30",
+      "text": "Ted will tell the Community Serve Day story in the next church-wide email. He picked three photos his Production Team took that morning, and the draft goes to him by Friday.",
+      "testPurpose": "A Personal Note from the Director of Communications, tied to the Serve Day Ted leads."
+    },
+    {
+      "key": "ted-out-sick",
+      "guid": "50C51138-AE42-4F65-8F83-BE1BAC321869",
+      "about": "ted",
+      "type": "phone",
+      "author": "alisha",
+      "written": {
+        "daysAgo": 6
+      },
+      "time": "07:55",
+      "text": "Ted called in sick with the flu. Moved his meetings to next week, and Aaron is leading the Tuesday men's study in his place.",
+      "testPurpose": "A recent Phone Note from the church office on the demo family's dad."
     }
   ]
 }
