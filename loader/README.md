@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, communications, calendar, Cast and business expectations, and check images. Configuration and people always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, data views, calendar, registrations, communications (with the Communication Flows), reports, Cast and business expectations, and check images. Configuration and people always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -590,14 +590,16 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 
 ## Data views
 
-`loading/ReportingLoader.cs` writes the church's layered data views from `../configuration/reporting.json` in its own step, after group sync and registrations, because a view can point at theirs. The design is in [Data views and reports](../docs/reporting.md).
+`loading/ReportingLoader.cs` writes the church's layered data views from `../configuration/reporting.json` in two steps. The Data views step runs after steps and before communications, because two group sync views are built on the foundations. A view that points at a registration view waits for the Reports step after registrations, which writes it and then the reports, run history, and metrics. The design is in [Data views and reports](../docs/reporting.md).
 
 1. **Categories.** `loading/CategoriesLoader.cs` writes each category's `security` as Rock's security editor saves it: each allowed role, then "deny All Users" when the action is locked. It renames Rock's shipped Foundational Views category, found by Guid, to Foundational Views (Shipped).
-2. **The named schedule.** "Nightly at 2 AM", in Rock's Persisted DataView Schedules category.
-3. **The views.** Each view is written after the views it points at. An Existing Data View filter gets Rock's JSON with the other view's Id and Use Persisted on, a related data view filter gets the other view's Guid, and a steps filter gets Rock's Steps Taken settings for every step type in its stage, from `steps.json`. A view can return another entity (groups, pledges), be persisted on the named schedule or an interval, and use Rock's Family Members transformation. A persisted view's last refresh stays empty, so Rock's job persists it in its first minute.
+2. **The named schedules.** "Nightly at 2 AM", in Rock's Persisted DataView Schedules category, and "Weekly on Monday at 3 AM", in Rock's Metrics schedule category.
+3. **The views.** Each view is written after the views it points at. Every filter that points at a view saves it as its related data view, as Rock's editor does. An Existing Data View filter gets Rock's JSON with the other view's Id and Use Persisted on, a related data view filter gets the other view's Guid, and a steps filter gets Rock's Steps Taken settings for every step type in its stage, from `steps.json`. A view can return another entity (groups, pledges), be persisted on the named schedule or an interval, and use Rock's Family Members transformation. A persisted view's last refresh stays empty, so Rock's job persists it in its first minute.
 4. **Item rules.** A view or report with its own `security`, such as Top Givers, gets its rules after it is written.
 5. **Reports.** Each report returns its data view's entity. A column is a property (its name), an attribute (found by key on the entity, stored as its Guid), a data select component with its selection, where a `{dataView}` placeholder takes a view's Guid, or Lava (Rock's LiquidSelect).
-6. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view and report built on it.
+6. **Run history.** `loading/UsageHistoryWriter.cs` gives each view and report the day staff made it, its run count since, and its last run, with each view made after the views it points at (decision 233). A `usage` entry gives one its own history, as for the retired Men's Retreat Invites.
+7. **Metrics.** `loading/MetricsWriter.cs` writes each metric with Rock's one default partition, filed in its metric category, and a value for each scheduled run from the week its stage view was made to install: the active people with a completed step of the stage by then (decision 234).
+8. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view and report built on it.
 
 ## Calendar
 

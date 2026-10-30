@@ -57,10 +57,11 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
+            ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
             ("Communications", SampleDataPart.Communications),
-            ("Data views", null),
+            ("Reports", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -522,6 +523,13 @@ namespace RockSampleData.Loader
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
+            // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so
+            // they come before communications, and after steps, because the stage views match step types. A view that
+            // needs a part this load left out is skipped.
+            steps.Begin( "Data views" );
+            var reporting = new ReportingLoader( db, source, dates, foreignKey, seed );
+            reporting.WriteViews();
+
             // History takes thousands of rows from registrations, over a million from communications, then thousands more
             // from logins. Its indexes stay off until logins are written, and nothing in between reads it.
             db.DeferIndexRebuild( "History" );
@@ -554,10 +562,9 @@ namespace RockSampleData.Loader
                     .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
             }
 
-            // The church's layered data views (docs/reporting.md). Some point at the group sync and registration views, so
-            // they come after both. A view that needs a part this load left out is skipped.
-            steps.Begin( "Data views" );
-            new ReportingLoader( db, source, dates, foreignKey, seed ).Load();
+            // The reports, and the data views that point at a registration view, so they come after registrations.
+            steps.Begin( "Reports" );
+            reporting.Finish();
 
             // A recurring flow fills each run after install from its guarded audience view, which exists only now.
             FlowLoader.LinkAudiences( db, source, seed );

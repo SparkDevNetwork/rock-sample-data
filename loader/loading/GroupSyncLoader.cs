@@ -75,10 +75,14 @@ namespace RockSampleData.Loader.Loading
             }
 
             var now = DateTime.Now;
-            var writer = new DataViewWriter( _db, _source.Categories, _foreignKey );
+            // A sync view may be built on a foundation view (docs/reporting.md), which the Data views step wrote before
+            // communications.
+            var allViews = _source.DataViews();
+            var writer = new DataViewWriter( _db, _source.Categories, _foreignKey, allViews );
             writer.RegisterComponents( configuration.DataViews, "configuration/group-syncs.json" );
-            var viewIds = configuration.DataViews.ToDictionary( v => v.Key, v => writer.Write( v, now, new SeededRandom( $"{_seed}:group-sync:{v.Key}" ), f => f.Selection ) );
-            var evaluator = new DataViewEvaluator( _db, _dates.Anchor );
+            string Selection( DataViewFilterDefinition filter ) => filter.DataView != null ? writer.ViewSelection( filter ) : filter.Selection;
+            var viewIds = configuration.DataViews.ToDictionary( v => v.Key, v => writer.Write( v, now, new SeededRandom( $"{_seed}:group-sync:{v.Key}" ), Selection ) );
+            var evaluator = new DataViewEvaluator( _db, _dates.Anchor, allViews );
             var welcomeId = _db.RequireIdByGuid( "SystemCommunication", configuration.WelcomeCommunicationGuid );
             var exitId = _db.RequireIdByGuid( "SystemCommunication", configuration.ExitCommunicationGuid );
             var summary = new List<string>();

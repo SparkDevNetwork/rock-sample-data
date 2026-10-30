@@ -1,6 +1,6 @@
 # Data views and reports
 
-Status: slices 1 to 5 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 25 reports in `configuration/reporting.json`. Not built yet: rebuilding the group sync and registration views on the foundations (slice 6), run history (slice 7), and path metrics (slice 8). Every open question is answered. Decisions D-reporting-1 to D-reporting-9 record what is built, and section 8.2 lists where the build differs from the design.
+Status: slices 1 to 8 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 25 reports in `configuration/reporting.json`; the New Here and We Miss You syncs rebuilt on the foundations (slice 6); a run history on every view and report (slice 7); and a weekly metric for each stage (slice 8). Slice 9, a reporting page on the site, waits for Jon. Every open question is answered. Decisions 223 to 234 record what is built, and section 8.2 lists where the build differs from the design.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -239,7 +239,7 @@ Notice ──► Belong ──► Equip ──► Contribute ──► Lead
                      Re-engage alongside: C3, C5, C6
 ```
 
-The church already has eight data views: five for group sync and three for registrations (decisions 186 and 215). They repeat rules the foundations would hold. For example, four of the five syncs repeat "Adult" and "accepts mass email". Slice 6 rebuilds them on the foundations (question 7).
+The church already has eight data views: five for group sync and three for registrations (decisions 186 and 215). They repeat rules the foundations would hold. For example, New Here and We Miss You repeated "Adult" and "accepts mass email". Slice 6 rebuilt those two on the foundations (question 7). Section 8.2 says why the other six keep their own rules.
 
 ## 4. Data views
 
@@ -252,13 +252,13 @@ All data views use Rock's own filter components and selection strings, as `confi
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | F1 | Active People | Person | Record status is Active. Deceased people left out (the data view default) | None. It is the root | No. One indexed column | Every Person view below |
-| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, C1, C3, C4, C7, RG1, F10, FN8, and the syncs after slice 6 |
+| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
-| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1, C7, and the syncs after slice 6 |
-| F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | C4, C5, RG1, and the four syncs that need email after slice 6 |
+| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1 and C7 |
+| F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | C4, C5, RG1, and the New Here and We Miss You syncs |
 | F7 | In a Small Group | Person | In F1, and an active member of an active Small Group, any role | F1 | No. Membership changes should show the same day | N1, N4, N5, F10 |
-| F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, S1, F10, and the Volunteers sync after slice 6 |
+| F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, S1, and F10. The Volunteers sync keeps its own roster rule (section 8.2) |
 | F9 | Active Small Groups | Group | Group type is Small Group, and the group is active | None | No | G3 |
 | F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | X7 (the Christmas at Rock Solid flow) and FN11. A broad "who is part of us" list that later views and reports can share |
 
@@ -304,7 +304,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | N1 | Ready to Belong | Person | In F2, in F5 (use persisted), not in F7 | F2, F5, F7 | No. F5 already carries the slow part | R3 |
 | G3 | Small Groups With Room | Group | In F9, and fewer than 12 active members, the church's target size (Rock's member count filter) | F9 | No | R4 |
 | K1 | Kids Checked In Recently | Person | In F3, and checked in to the Nursery/Preschool or Elementary area at least once in the last 4 weeks | F3 | **Yes, every 60 minutes**. Kids staff open it on Sunday, so it should be fresh that afternoon. This is the interval example, beside F5's named schedule | K2, R7 |
-| K3 | Students Attending the Student Service | Person | In F1, grade 7 to 12, and checked in to the Jr High or High School area at least once in the last 12 weeks | F1 | No | R8, and the registration views after slice 6 |
+| K3 | Students Attending the Student Service | Person | In F1, grade 7 to 12, and checked in to the Jr High or High School area at least once in the last 12 weeks | F1 | No | R8. The registration views keep their own rules (section 8.2) |
 
 ### 4.5 Equip (category: Rock Solid Church > Equip)
 
@@ -331,7 +331,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync after slice 6 |
+| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync |
 | C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
 | C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
 
@@ -679,8 +679,16 @@ The build follows the design, with these differences. Each was found by running 
 - **Step columns** use Rock's `Steps` Lava filter once for each step type in the stage, read from `steps.json`.
 - **First-Time Givers** uses Rock's First Contribution Date filter, which Rock locks to the finance roles. Top Givers carries its own rule on both the data view and the report.
 - **The registration filter.** Rock declares its registration instance filter in the `Rock.Reporting.DataSelect.Person` namespace. The camp registration views used the folder's name, so Rock could not run them. They now use Rock's real class name.
+- **Related views.** Rock's data view editor saves the view a filter points at in the filter's related data view column, and a view's page lists the views built on it from that column. The loader now saves it too, so Active People lists every view that uses it.
+- **Slice 6 rebuilt two of the eight views.** New Here is Adults and Accepts Mass Email plus its first-visit rule, and We Miss You is Drifting Adults and Accepts Mass Email (decision 232). The loader's own evaluator learned Rock's Existing Data View filter and the record status filter, so it still fills each group exactly as Rock's job would. The other six stay as they were:
+  - **Volunteers** follows the team rosters, which hold Jon Smith, a pending record. Serving holds only active records, so a Volunteers view built on it would drop him, and Rock's first sync would remove him from the list.
+  - **Small Group Leaders** needs the leader role, and no foundation holds only leaders.
+  - **Prayer Team** reads one group, the Prayer Team list, and needs only an email address.
+  - **The three registration views** use their own windows and grades. The mission trip eligibility rule is replayed on every registration day (decision 215), and Students Attending (K3) counts a different window.
+- **Run history (slice 7).** A view that points at no other view was made 700 to 1,095 days before install, and a view or report built on others 1 to 120 days after the newest of them. Each ran 0.2 to 3 times a week since then, and last ran in the two weeks before install, in office hours. Run time stays empty until Rock first runs the view. Men's Retreat Invites, in Staff Workspace, was made 450 days ago, ran 5 times, and last ran 420 days ago, so it is the one view not run in over a year (decision 233).
+- **Path metrics (slice 8).** Belong Stage, Equip Stage, Contribute Stage, and Lead Stage are Rock Metrics in a new Ministry Path metric category. Each counts its stage view on a named schedule, "Weekly on Monday at 3 AM", in Rock's Metrics schedule category. Values start the week the stage view was made, not at the start of the history window, because a church cannot count a view before it exists. Each week's value is the active people with a completed step of the stage by then. Record status is today's, because Rock keeps no history of it (decision 234).
 
-Verify checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
+Verify checks each metric's newest value against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
 
 ## 9. Open questions
 

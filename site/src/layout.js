@@ -29,6 +29,7 @@ const nav = [
     { key: "why", label: "Why", href: "why.html" },
     { key: "church", label: "The Church", href: "church.html" },
     { key: "cast", label: "The Cast", href: "cast.html" },
+    { key: "features", label: "Features", href: "features.html" },
     { key: "datasets", label: "Datasets", href: "datasets.html" },
     { key: "how", label: "How It's Built", href: "how-its-built.html" },
     { key: "brand", label: "Brand & Downloads", href: "brand.html" },

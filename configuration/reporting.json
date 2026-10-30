@@ -7,6 +7,15 @@
       "description": "Refreshes the persisted data views that are slow to run, once a night.",
       "guid": "89470D7F-E14C-4BE7-9A95-7F245A751B2E",
       "time": "02:00"
+    },
+    {
+      "key": "weekly-metrics",
+      "name": "Weekly on Monday at 3 AM",
+      "description": "Counts the Ministry Path metrics once a week, after the weekend.",
+      "guid": "B7EA69B9-DB53-42ED-A7E0-587993230B25",
+      "time": "03:00",
+      "weekday": "Monday",
+      "forMetrics": true
     }
   ],
   "dataViews": [
@@ -1263,6 +1272,34 @@
           }
         ]
       }
+    },
+    {
+      "key": "mens-retreat-invites",
+      "name": "Men's Retreat Invites",
+      "description": "Men who accept mass email, for the men's retreat invitation. Made for a retreat that has not run since, so no one has used it in over a year.",
+      "category": "staff-workspace-data-views",
+      "guid": "7D5107F1-E4B6-4D82-9724-E50D1126CBC9",
+      "usage": {
+        "createdDaysAgo": 450,
+        "runs": 5,
+        "lastRunDaysAgo": 420
+      },
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "accepts-mass-email"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"Property_Gender\",\"Male\"]"
+          }
+        ]
+      }
     }
   ],
   "$accessComment": "The security walkthrough (docs/reporting.md section 7): for a Cast person, a category or data view key, and an action, whether Rock's own security check must allow it. Verify asks Rock each one.",
@@ -2514,6 +2551,52 @@
           "property": "Email"
         }
       ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "belong-stage",
+      "title": "Belong Stage",
+      "description": "How many active people have reached the Belong stage of the path, counted each week from the Belong Stage data view.",
+      "category": "path-metrics",
+      "dataView": "belong-stage",
+      "schedule": "weekly-metrics",
+      "iconCssClass": "ti ti-route",
+      "guid": "2DDAA6EE-0D3C-4229-9412-739C14A25A27",
+      "partitionGuid": "61CB49CB-BA05-4E69-B4E1-927455A5E946"
+    },
+    {
+      "key": "equip-stage",
+      "title": "Equip Stage",
+      "description": "How many active people have reached the Equip stage of the path, counted each week from the Equip Stage data view.",
+      "category": "path-metrics",
+      "dataView": "equip-stage",
+      "schedule": "weekly-metrics",
+      "iconCssClass": "ti ti-route",
+      "guid": "E2827601-4914-4AD8-85A3-81740DD987AD",
+      "partitionGuid": "77941624-0D08-408F-9750-4457260F03E8"
+    },
+    {
+      "key": "contribute-stage",
+      "title": "Contribute Stage",
+      "description": "How many active people have reached the Contribute stage of the path, counted each week from the Contribute Stage data view.",
+      "category": "path-metrics",
+      "dataView": "contribute-stage",
+      "schedule": "weekly-metrics",
+      "iconCssClass": "ti ti-route",
+      "guid": "87ADAE7B-1727-42F8-9278-93750A907F75",
+      "partitionGuid": "7772ECAB-C58C-4676-BE40-A87BE4590954"
+    },
+    {
+      "key": "lead-stage",
+      "title": "Lead Stage",
+      "description": "How many active people have reached the Lead stage of the path, counted each week from the Lead Stage data view.",
+      "category": "path-metrics",
+      "dataView": "lead-stage",
+      "schedule": "weekly-metrics",
+      "iconCssClass": "ti ti-route",
+      "guid": "5E23B910-6C98-4701-AFCB-7836DCA52D2F",
+      "partitionGuid": "D66E555D-C2AC-4DCB-8B9B-8717C63C66B6"
     }
   ]
 }
