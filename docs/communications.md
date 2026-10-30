@@ -34,13 +34,13 @@ The loader writes rows straight into Rock's tables, so it has to write what Rock
    - A texted STOP marks the newest text the person got in the last 60 days as a level All unsubscribe, and Twilio turns off texting on that phone.
 10. **The Saturation report** counts each active adult's messages in a date range, by the send's own type (Email, SMS, or Push), and sorts adults into buckets, including those who got none. By default it counts only sends flagged `IsBulkCommunication`. Recipient preference sends have no single type, so the report never shows them.
 
-## Nothing ever sends
+## What can send after install
 
-A loaded database must never email, text, or push to anyone, even though every address is fictional (decision 95).
+What a load writes is history, so Rock never sends it again (decision 95). Some things may send after install, but only to contact points no real person has (decision D-comm-flows-1).
 
-- Every communication is Approved with a `SendDateTime`. Rock's send job only picks up communications with no `SendDateTime`.
-- No recipient is Pending or Sending.
-- Every flow instance is finished and inactive, so the flow job has nothing to do.
+- Every communication a load writes is Approved with a `SendDateTime`. Rock's send job only picks up communications with no `SendDateTime`.
+- No recipient a load writes is Pending or Sending.
+- A Communication Flow run that started before install and still has messages left stays open. Rock's Process Communication Flows job sends the rest on their dates. Everyone still Active in an open run has an email on `example.org` or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on `rocksolidchurchdemo.com`, a real domain with live mail servers, so no staff member is ever in an open run. See [Communication flows](#communication-flows).
 - The verify tool gets an invariant for each of these.
 - Group syncs carry Rock's welcome and exit emails, and some make logins, but only for a person who joins or leaves a synced group after install. Each synced group already holds exactly its data view's people, so the Group Sync job's first run adds and removes nobody, and verify proves it on every load (decision 187). See [Group sync](#group-sync).
 
@@ -165,22 +165,29 @@ One-to-one emails go through the bulk email planner, so they follow the same rul
 
 The [steps plan](steps.md) has a seven-step Discipleship Path and a four-step Student Path (decisions 83 to 89). Their milestones get their own messages (decisions 96 and 162). The communications load runs after the steps load and reads each person's Step rows back.
 
-- **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters one finished Communication Flow, "After Starting Point": a thank-you the next day, a small group invitation a week later, and a serving invitation three weeks later. Each person's flow instance is complete, so Rock's flow screens have data.
+- **Starting Point Class.** Each campus's monthly class gets an invitation email. Everyone who completes it enters the "After Starting Point" Communication Flow: a thank-you the next day, a small group invitation a week later, and an invitation to Foundations three weeks later.
 - **Baptism.** Baptism Sunday gets a mass invitation. Each person baptized gets a follow-up email that invites them to Foundations.
-- **Foundations.** Weekly reminder emails and texts to the people in each six-week course.
+- **Foundations.** Weekly reminder emails and texts to the people in each six-week course. Everyone who finishes it enters the "After Foundations" Communication Flow.
 - **Student Path.** Student Camp and Mission Trip get registration emails and reminder texts to students and their parents on the student line.
 - **Serve and Lead.** These already get serving reminders (see One-to-one messages).
 
 Class emails and texts go to the people in that campus's class, matched by the class's first night. They are not flagged bulk, because they go to the people who signed up.
 
-### The After Starting Point flow
+### Communication flows
 
-"After Starting Point" is an on-demand Communication Flow (decision 163), the kind a workflow's Activate Communication Flow action fills. Rock 21 has no trigger for entering a data view.
+The church's flows are set in [configuration/flows.json](../configuration/flows.json) (decision D-comm-flows-2). Each serves one Ministry by Design stage, and its category in Rock is that stage, under a Rock Solid Church flow category. The full plan, with the recurring flows and the Baptism flow still to come, is in the [flows proposal](communication-flows-proposal.md).
 
-- **Instances.** Everyone who finishes a Starting Point Class joins the instance for the next day.
-- **Messages.** Three emails, each from its own flow template: a thank-you that day, a small group invitation 6 days later, and a serving invitation 14 days after that. Each is a bulk email named "After Starting Point – Thank You" and so on, with the rows Rock's Process Communication Flows job writes. A person on "No mass emails" does not get them.
-- **Goal.** Joining a small group within 30 days. Each conversion credits the newest email the person got before they joined.
-- **Finished.** Only classes whose last email went out before install day get an instance, and every instance is complete. The job never has a message left to send (decision 95).
+| Flow | Category | People enter | Messages | Goal | Exit |
+|---|---|---|---|---|---|
+| After Starting Point (decision 163) | Belong | The day after they finish a Starting Point Class | A thank-you that day, a small group invitation 6 days later, and an invitation to Foundations 14 days after that, all email | Joined a small group within 30 days | Last message sent |
+| After Foundations (decision D-comm-flows-3) | Equip | The day after they finish a Foundations course, if they are not serving yet | An email that day, a text 5 days later, and volunteer stories by email 14 days after that | The Serve step within 90 days | Goal met |
+
+- **On-Demand.** Both are On-Demand flows, the kind a workflow's Activate Communication Flow action fills. Each day people enter is its own run.
+- **What Rock's job writes.** Each message is a bulk email or text from its own flow template, named like "After Starting Point – Thank You", with the rows Rock's Process Communication Flows job writes. A person on "No mass emails" does not get the emails. A flow text goes out on the main line, delivered with the words the person got, or failed with Rock's note when they have no mobile that takes texts.
+- **Goals.** Each conversion credits the newest message the person got on or before it, or on its day, as Rock's job does. Rock counts a step by its completed date through the whole last day of the window.
+- **Who leaves.** Rock's job prunes recipients only while a run is still sending. So with "last message sent" every recipient stays Active, and with "goal met" a person whose goal came before the run's last message leaves and gets no later message.
+- **Mid-flow on install day.** A run that started before install and still has messages left stays open, and Rock's job sends the rest (decision D-comm-flows-1). The most recent Starting Point Class and Foundations course are usually mid-flow. Only people with reserved contact points are in an open run, so a staff member who just finished a class is left out of it.
+- **How far back.** After Starting Point's runs reach back 2 years, and After Foundations' 18 months.
 
 ## Volume and the history window
 
@@ -209,13 +216,13 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 
 ## How it is checked
 
-- **Step and flow invariants (built):** no flow instance is still sending, every flow email went out before install day, and each reaches exactly its instance's people from its message's flow template.
+- **Step and flow invariants (built):** a flow run still sending at install is in an active On-Demand flow with its next message due today or later, everyone still Active in it has reserved contact points, every flow send went out before install day, and each reaches only its run's people from its message's flow template.
 - **Push invariants (built):** every sent push is Delivered through Rock Mobile Push with its History line, a push went out only to a person with a device that takes notifications, and every device token starts with `sample-data-`.
 - **One-to-one invariants (built):** every serving email has the request it came from and one recipient, and no one on "Do not email" got a one-to-one email.
 - **Text invariants (built):** every sent text is Delivered with its words in `SentMessage` and its "SMS message" History line, a text Rock could not send failed with its note, every STOP turns off texting on the person's mobile, and every text a person sent comes from their own mobile to an active church number.
 - **Bulk email invariants (built):** every communication is Approved with its send time and date key, no recipient is Pending or Sending, recipient statuses agree with their dates and notes, every open and click belongs to an opened recipient after its first open, every unsubscribe matches the person and the list, and every sent email has its "Sent" History line.
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
-- **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, no active flow instance, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
+- **Invariants:** no Pending or Sending recipient, no communication without a `SendDateTime`, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped. Each Cast staff email shows in the person's Communication History, delivered, from the staff member, on its day.
 - **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision 155).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
@@ -230,7 +237,8 @@ Each slice lands on its own, passes verify, and goes to the integrator.
 4. **Texts and SMS conversations.** Bulk texts, replies, the Cast's threads, generated threads, and STOP opt-outs. Done.
 5. **One-to-one messages.** Serving, connections, prayer, first visits, and staff messages. Done.
 6. **Push.** The church app's site and layout, personal devices, pushes, and push opens. Done.
-7. **Steps.** Step messages and the finished Communication Flow, after steps land. Done.
+7. **Steps.** Step messages and the After Starting Point flow, after steps land. Done.
+8. **Communication flows.** The flows in the [flows proposal](communication-flows-proposal.md). Slice 1 is built: flow categories, After Starting Point's new third email and open runs, and After Foundations.
 
 ## Open questions
 

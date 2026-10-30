@@ -47,6 +47,7 @@ Each message names the occasion it belongs to. The loader dates every occasion f
 | `first-visit` | The week after a household's first Sunday. One message per person. |
 | `baptized` | The week after a person is baptized. One message per person. |
 | `after-starting-point` | The "After Starting Point" Communication Flow. `daysBefore` is negative: days after the class ends. |
+| `after-foundations` | The "After Foundations" Communication Flow. `daysBefore` is negative: days after the course ends. |
 
 ## Audiences
 

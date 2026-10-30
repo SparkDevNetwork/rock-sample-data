@@ -27,6 +27,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `registrations.json` | The church's event registrations: template categories, group types for linked and placement groups, templates with forms, fees, discounts, placements, and eligibility, the rules that make each year's instances from calendar events and who registers, the camp and mission trip releases, and the data views about registrations. See [Event registrations](../docs/registrations.md). |
 | `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
 | `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
+| `flows.json` | The church's Communication Flows: each flow's Ministry by Design category, how people enter, its messages from the message library, its goal, its exit rule, and how far back its runs reach, plus the one email domain that can be in a run Rock still sends after install. See [Communication flows](../docs/communications.md#communication-flows). |
 | `group-syncs.json` | The church's data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
 
 ## Categories
@@ -39,6 +40,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule |
 | Communication lists | Care | The New Here and We Miss You lists |
 | Person attributes | Staff | The eight staff attributes (decision 201) |
+| Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision D-comm-flows-2) |
 
 To add rows of a new kind or for a new purpose:
 

@@ -140,10 +140,11 @@ namespace RockSampleData.Loader.Loading
                 new PushLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails );
             }
 
-            // Everyone who finishes a Starting Point Class goes through the After Starting Point flow.
+            // Everyone who finishes a Starting Point Class or Foundations goes through that class's flow.
             using ( _db.Log.TimePart( "Flows" ) )
             {
-                new FlowLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, configuration.Template.Guid, smallGroupTypeId );
+                var groupTypeIds = new Dictionary<string, int> { ["small-groups"] = smallGroupTypeId, ["serving-teams"] = servingTypeId };
+                new FlowLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, configuration.Template.Guid, groupTypeIds );
             }
 
             using ( _db.Log.TimePart( "Rebuild indexes" ) )

@@ -106,7 +106,8 @@ Every flow setting Rock has, and the sample flow that shows it. Flow numbers ref
 | | Push | 8 |
 | Goal progress | Not Tracked, Pending, Achieved, Missed | 8; recent runs of 2 and 9; most runs of 3; most runs of 4 |
 | Flow status | Active, Inactive, Completed | 1, 2, 3, 5 to 10; 4, paused to show the feature (questions 1 and 12); 11 |
-| Why a person left | Goal met, opened, clicked, last message sent, unsubscribed from the flow, person made inactive | 2, 6, 7, 9, 10, 11; 4; 5; 1, 3, 8; a few in every flow; a few in 2 |
+| Why a person left | Goal met, opened, clicked, unsubscribed from the flow, person made inactive | 2, 6, 7, 9, 10, 11; 4; 5; a few in every flow; a few in 2 |
+| | Last message sent | None. Rock's job prunes recipients only while a run is still sending, and it marks the run done on the pass after its last message, so it never records this reason. Flows 1, 3, and 8 leave everyone Active, as Rock does |
 | Unsubscribe at the Flows level | Unsubscribe report and flow screens | A few in every flow |
 | Goal met before the run | Skipped in the rate | 3, 4, and 9 |
 | Run vs. flow average | Needs two or more runs | 1 to 6, 8, 9, and 10 |
@@ -194,9 +195,9 @@ See Section 4.
 ### Flow 9. After Foundations (new)
 
 - **Purpose.** Help people who just finished Foundations find their place to serve. This is Equip to Contribute: they have been formed, and now they are invited to take part.
-- **Trigger.** On-Demand, like After Starting Point. Everyone who finishes a Foundations course joins the run for the day after its last night.
+- **Trigger.** On-Demand, like After Starting Point. Everyone who finishes a Foundations course and is not serving yet joins the run for the day after its last night. Most people who take Foundations already serve (9 in 10 on Full 7), and a workflow that invites people to serve would leave them out.
 - **Messages.** Email that day ("You finished Foundations. What's next?"), with the serving teams at their campus. SMS 5 days later ("Want help finding a team? Just reply."). Email 14 days later, with stories from volunteers and the next Serve Sunday.
-- **Goal.** Took Step: Serve, within 90 days. People already serving met the goal before the run, so Rock leaves them out of the rate. They still get a thank-you, since the messages also celebrate the course.
+- **Goal.** Took Step: Serve, within 90 days. Target 15%, set from the data: on Full 7, 18% of the people who entered took the Serve step in the window.
 - **Exit.** Conversion Achieved. A person who joins a team gets no more asks.
 - **On install day.** Active. The most recent course's run is mid-flow, so its later messages go out after install.
 - **Cast.** None pinned. If a Cast adult finished Foundations in the window and then joined a team, the build pins them.
@@ -215,9 +216,9 @@ See Section 4.
 ### Flow 11. Built on the Rock Follow-Up (new, the One-Time flow)
 
 - **Purpose.** After Commitment Sunday for the Built on the Rock campaign (decision 97), invite involved adults who have not pledged yet. The campaign's own emails (the Commitment Sunday invitation, the thank-you, and the updates) stay as they are. This flow is the personal follow-up a church sends to everyone who missed the day.
-- **Trigger.** One-Time, the Monday after Commitment Sunday, about 40 weeks before install. Its audience is Involved Adults who have not pledged to Built on the Rock. That view is built on the reports work's FN6 Built on the Rock Pledges, so it reads pledge data, and it is filed in the reports work's locked Finance category for that reason. Rock's flow job checks no person's security, so the lock limits only who can open the view.
+- **Trigger.** One-Time, the Monday after Commitment Sunday, about 40 weeks before install. Its audience is Involved Adults who have not pledged to Built on the Rock. Rock's pledge filter matches only the person named on a pledge, not their spouse, so the view leaves out every household where someone pledged. It reads pledge data, so it is filed in the reports work's locked Finance category. Rock's flow job checks no person's security, so the lock limits only who can open the view.
 - **Messages.** Four, over two weeks. Email that Monday ("Missed Commitment Sunday? There's still time"). SMS 4 days later. Email 6 days after that, with a story about the Student Center plans. Email 4 days after that ("Pledge cards close Sunday").
-- **Goal.** Entered Data View: Built on the Rock Pledgers (FN6, in Finance). Window 42 days. The target is set from the data, likely about 15%.
+- **Goal.** Entered Data View: Built on the Rock Pledge Households (in Finance), so a person converts when anyone in their household pledges. Window 42 days. The target is set from the data, likely about 15%.
 - **Exit.** Conversion Achieved. A person who pledges gets no more asks.
 - **On install day.** Its one run finished months ago, so it shows Completed and can never send again.
 - **Cast.** None pinned, unless a Cast pledger's pledge falls in the window. The build checks the Cast's campaign stories (decisions 110 to 112).
@@ -231,7 +232,7 @@ Jon pointed out that a message sent once is better shown as a regular communicat
 - **Recipients.** Phoenix's involved adults on reserved addresses, each written as a Pending recipient. It names no communication list, because Rock can refresh a list's recipients when it sends, and the newsletter lists include staff.
 - **Where it lives.** A new `scheduled` entry in `configuration/communications.json`: the library email key, the sender and approver, the send rule ("December 23, 10 a.m., the next one after install"), and the audience rule. The message text is a new library email.
 
-**Data views.** The flows use views from the reports and data views proposal (`docs/reporting.md` Section 3.8 on its branch), built with Rock's own filters on its shared foundation views. They are filed by subject in its tree under the church's Rock Solid Church category (decision 185), not by the flow that uses them:
+**Data views.** The flows use views from the reports and data views proposal (`docs/reporting.md` Sections 4.11 to 4.13 on its branch), built with Rock's own filters on its shared foundation views. They are filed by subject in its tree under the church's Rock Solid Church category (decision 185), not by the flow that uses them:
 
 | View | Key | Category | Used by |
 |---|---|---|---|
@@ -239,12 +240,12 @@ Jon pointed out that a message sent once is better shown as a regular communicat
 | Newly Missed, Reserved Email | `newly-missed-reserved-email` | Sample Data | Flow 4 audience: Newly Missed (Re-engage) and the guard |
 | Back in the Last 30 Days | `back-in-the-last-30-days` | Re-engage | Flow 4 goal |
 | Unbaptized Regular Attenders, Reserved Email | `unbaptized-regular-attenders-reserved-email` | Sample Data | Flow 5 audience: Unbaptized Regular Attenders (Equip, built on Regular Attenders) and the guard |
-| Students Not Registered for Camp, with the guard | Asked of the reports work | Sample Data | Flow 6 audience: the existing registration view (decision 215) and the guard |
-| Women Who Attend, with the guard | Asked of the reports work | Sample Data | Flow 7 audience |
-| Involved Adults, with the guard | Asked of the reports work | Sample Data | Flow 8 audience |
-| Ready to Lead, with the guard | Asked of the reports work | Sample Data | Flow 10 audience |
-| Involved Adults Not Yet Pledged | Asked of the reports work | Finance | Flow 11 audience. Its run is finished, so it needs no guard |
-| Built on the Rock Pledges (FN6) | Reports work's key | Finance | Flow 11 goal |
+| Students Not Registered for Camp, Reserved Email | `students-not-registered-for-camp-reserved-email` | Sample Data | Flow 6 audience: the existing registration view (decision 215) and the guard |
+| Women Who Attend, Reserved Email | `women-who-attend-reserved-email` | Sample Data | Flow 7 audience |
+| Involved Adults, Reserved Email | `involved-adults-reserved-email` | Sample Data | Flow 8 audience |
+| Ready to Lead, Reserved Email | `ready-to-lead-reserved-email` | Sample Data | Flow 10 audience |
+| Involved Adults Not Yet Pledged | `involved-adults-not-yet-pledged` | Finance | Flow 11 audience: Involved Adults not in a pledging household. Its run is finished, so it needs no guard |
+| Built on the Rock Pledge Households | `built-on-the-rock-pledge-households` | Finance | Flow 11 goal: everyone in a household where someone pledged |
 
 The reports work files its views by Ministry by Design system too: Notice, Belong, Equip, Contribute, Lead, and Re-engage, plus Foundations and a Path category of stage views. Flow 3's goal is now the Starting Point Class step, so it no longer uses Regular Attenders directly.
 
@@ -309,7 +310,7 @@ Left out from the first draft: a push with a story video, which reaches only peo
 | 6 Student Camp Registration | 40% | About 45% |
 | 7 Women's Retreat Early Bird | 10% | About 8%, Missed |
 | 8 Christmas at Rock Solid | None | Not Tracked |
-| 9 After Foundations | Set from the data, about 20% | A little above the target, recent runs Pending |
+| 9 After Foundations | 15%, set from the data | 18% on Full 7, recent runs Pending |
 | 10 Lead a Group | Set from the data, about 3% | Whatever each launch's new leaders give |
 | 11 Built on the Rock Follow-Up | Set from the data, about 15% | Whatever the pledges made after Commitment Sunday give |
 
@@ -419,14 +420,14 @@ Jon said, "We'll work on some of that how that works before we're done." These a
 
 ## 7. Implementation slices
 
-Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
+Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. Slice 1 needs no new data view, so it goes first. The recurring flows wait for the reports work's views.
 
 | Slice | What it adds | Size |
 |---|---|---|
-| 1. Setup | Flow categories, the data views (reused or filed in the reports and data views tree), flow templates for email, SMS, and push, the ten new flows with their messages and no runs, and After Starting Point's category, public name, and new third email. Invariants: a goal always has a window, settings match the goal type, SMS templates have a phone number, and the after-install checks in Section 6 | Small |
-| 2. On-Demand flows | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its mid-flow runs, and Josh's story, After Foundations with its history, After Starting Point's mid-flow run, and verify running Rock's flow job as referee | Medium |
-| 3. Recurring flows | First-Time Guest Welcome, We Miss You, Baptism Sunday Invitation, Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, with the Ellis and Ortiz stories | Medium to large |
-| 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
+| 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule D-comm-flows-1, with invariants for open runs and reserved contact points | Small to medium |
+| 2. The Baptism flow | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
+| 3. Recurring flows | The data views they need (from the reports work, or added under its keys), First-Time Guest Welcome, We Miss You, Baptism Sunday Invitation, Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, with the Ellis and Ortiz stories | Medium to large |
+| 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
 ## 8. Questions and answers
 

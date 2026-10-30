@@ -1,0 +1,40 @@
+{
+  "$comment": "The church's Communication Flows (docs/communication-flows-proposal.md and docs/communications.md#communication-flows). Each flow names its Ministry by Design category from configuration/categories.json, how people enter it, its messages from the message library in path order (an email key from emails.json or a text key from texts.json), its goal, and its exit rule. 'entry' is the step a person completes to enter an On-Demand flow: they join the run that starts the day after. 'skipIfGoalMet' leaves out people who already met the goal, as the workflow that adds them would check. 'daysToWait' counts from the previous message, as Rock does. 'historyMonths' is how far back the flow's runs reach. A run that started before install day and still has messages left stays open, and Rock's Process Communication Flows job sends the rest (decision D-comm-flows-1), so only people whose email is on 'reservedEmailDomain' or empty are ever in an open run.",
+  "reservedEmailDomain": "example.org",
+  "flows": [
+    {
+      "key": "after-starting-point",
+      "name": "After Starting Point",
+      "publicName": "Next Steps After Starting Point",
+      "description": "Follows up with everyone who finishes the Starting Point Class: a thank-you the next day, a small group invitation a week later, and an invitation to Foundations three weeks later.",
+      "category": "flows-belong",
+      "trigger": "onDemand",
+      "entry": { "stepType": "starting-point-class" },
+      "historyMonths": 24,
+      "messages": [
+        { "key": "after-starting-point-thanks", "name": "Thank You", "daysToWait": 0, "time": "10:00" },
+        { "key": "after-starting-point-groups", "name": "Small Groups", "daysToWait": 6, "time": "10:00" },
+        { "key": "after-starting-point-grow", "name": "Foundations", "daysToWait": 14, "time": "10:00" }
+      ],
+      "goal": { "type": "joinedGroupType", "groupType": "small-groups", "days": 30, "targetPercent": 30 },
+      "exit": "lastMessageSent"
+    },
+    {
+      "key": "after-foundations",
+      "name": "After Foundations",
+      "publicName": "Next Steps After Foundations",
+      "description": "Helps everyone who finishes Foundations and is not serving yet find their place to serve: a congratulations the next day, a text offering help finding a team, and volunteer stories two weeks later.",
+      "category": "flows-equip",
+      "trigger": "onDemand",
+      "entry": { "stepType": "foundations", "skipIfGoalMet": true },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "after-foundations-next", "name": "What's Next", "daysToWait": 0, "time": "10:00" },
+        { "key": "after-foundations-team", "name": "Find a Team", "daysToWait": 5, "time": "10:00" },
+        { "key": "after-foundations-stories", "name": "Volunteer Stories", "daysToWait": 14, "time": "10:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "serve", "days": 90, "targetPercent": 15, "$targetPercentComment": "Set from the data: on Full 7, 11 of the 60 people not yet serving when they entered took the Serve step within 90 days (18%), rounded down to a whole 5%." },
+      "exit": "conversionAchieved"
+    }
+  ]
+}
