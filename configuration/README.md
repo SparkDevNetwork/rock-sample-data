@@ -14,7 +14,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 | `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
-| `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
+| `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve and their celebrations. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template, and the communication lists with the rules for who is on them. See [Communications](../docs/communications.md#the-setup). |
