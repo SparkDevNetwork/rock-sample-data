@@ -135,7 +135,7 @@ The loader sets a photo for each event listed in `photos/events/manifest.json`, 
 ## Checks
 
 - **Invariants** (`validation/invariants.sql`): every occurrence belongs to an active, approved event on a calendar with an audience; has an active schedule with iCalendar text and an effective start; has a contact person with a church email and a reserved phone; and every event photo is a stored file.
-- **Cast expectations**: each event's `expect` entries are Cast stories the load checks against Rock's dates, such as a car show start 2 to 8 days before today at Phoenix.
+- **Cast expectations**: each event's `expect` entries are Cast stories a CLI or verify load checks against Rock's dates, such as a car show start 2 to 8 days before today at Phoenix.
 - **Rock Cleanup referee**: the schedules' dates and next starts must be what Rock would set.
 
 ## The calendar part

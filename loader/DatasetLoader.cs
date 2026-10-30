@@ -33,7 +33,13 @@ namespace RockSampleData.Loader
     public static class DatasetLoader
     {
         /// <summary>
-        /// Every load step in order, with the part it belongs to. Null is a step that always runs.
+        /// The step that checks the Cast expectations. It runs only when <see cref="DatasetLoadOptions.IsCastExpectationsChecked"/> is true.
+        /// </summary>
+        private const string CastExpectationsStep = "Cast expectations";
+
+        /// <summary>
+        /// Every load step in order, with the part it belongs to. Null is a step that always runs, except the
+        /// Cast expectations, which run only when asked.
         /// </summary>
         private static readonly (string Name, SampleDataPart? Part)[] Steps =
         {
@@ -56,7 +62,7 @@ namespace RockSampleData.Loader
             ("Registrations", SampleDataPart.Registrations),
             ("Data views", null),
             ("Logins", null),
-            ("Cast expectations", null),
+            (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
 
@@ -79,7 +85,7 @@ namespace RockSampleData.Loader
                 throw new ArgumentException( "LoginPasswordHash must be a BCrypt hash, made the way Rock's Database login stores a password. Nothing was loaded." );
             }
 
-            var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) ) };
+            var log = new LoadLog( options.Progress ) { TotalSteps = Steps.Count( s => IsLoaded( s.Part, parts ) && ( s.Name != CastExpectationsStep || options.IsCastExpectationsChecked ) ) };
 
             using var db = new RockDatabase( connectionString ) { Recorder = options.Recorder, Log = log };
 
@@ -585,9 +591,25 @@ namespace RockSampleData.Loader
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
             db.RebuildDeferredIndexes( "History" );
 
-            // The Cast givers and kids that documentation and tests lean on must still show what their stories say.
-            steps.Begin( "Cast expectations" );
-            CastExpectations.Check( db, source, parts );
+            /*
+                10/30/26 - CLAUDE
+
+                The Cast expectations check that the people documentation and tests lean on still show what their
+                stories say. They are a check for those who build the sample data, and the verify tool holds every
+                release to them. A person installing through Rock's block saw "WARNING: 1 of 437 Cast expectations do
+                not hold" on a complete install, which read as a failure. So only a caller that asks runs them.
+
+                Reason: People installing see only what matters to them (decision 217).
+            */
+            if ( options.IsCastExpectationsChecked )
+            {
+                steps.Begin( CastExpectationsStep );
+                CastExpectations.Check( db, source, parts );
+            }
+            else
+            {
+                steps.Skip( CastExpectationsStep );
+            }
 
             // Scanned check images are the slowest step, so the CLI leaves them out unless asked.
             if ( steps.Begin( "Check images", $"  Skipped ({giving.CheckGifts.Count:N0} check gifts have no images). Turn on check images to draw them." ) )
@@ -657,6 +679,22 @@ namespace RockSampleData.Loader
                 _isRunning = true;
                 _timer.Restart();
                 return true;
+            }
+
+            /// <summary>
+            /// Finishes the step before and moves past the next one, which must be <paramref name="name"/>,
+            /// without reporting it. For a step the caller did not ask for, such as the Cast expectations.
+            /// </summary>
+            public void Skip( string name )
+            {
+                FinishRunningStep();
+                var step = _next < Steps.Length ? Steps[_next] : default;
+                if ( step.Name != name )
+                {
+                    throw new InvalidOperationException( $"The load skipped step \"{name}\" where DatasetLoader.Steps has \"{step.Name}\"." );
+                }
+
+                _next++;
             }
 
             /// <summary>

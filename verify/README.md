@@ -29,6 +29,7 @@ It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Ro
 | `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today on the database server and `rock-sample-data`. Rock Cleanup is judged only when the anchor is today (see `rock-cleanup` below). |
 | `--record-contract` | Records `validation/rock-contract.json` from these loads, instead of only checking it. Needs every dataset. |
 | `--keep` | Keeps each loaded database (`RockSampleVerify-<run tag>-core-1` and so on) for a look afterward. |
+| `--anchor-sweep [days]` | Runs only the anchor sweep (see below), for 60 install days or as many as you give, from `--anchor` or today, on `--dataset` (Core 1 by default). Writes no receipt. |
 | `--check-receipts [folder]` | Runs nothing else. The publishing gate: exits with 1 unless every package has a passing receipt. |
 
 A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trusted base adds about 9 minutes, once for each Rock release.
@@ -50,6 +51,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`): which Cast person may view or edit which category, data view, or report. |
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
+| `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
 
 ### The trusted base
 
@@ -128,6 +130,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
+| `anchor-sweep` | A Cast giving story holds on some install days and not others. Each line names the expectation and the days. Keep that giver's gifts from landing close together on any day, for example with `isOnTime` for a monthly giver, then sweep a year with `--anchor-sweep 365`. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |
 | `data-views` | Rock could not read a data view's filter. Fix its selection in the configuration file that holds it, or how `loader/loading/ReportingLoader.cs` builds it. |
 | `reports` | Fix the column in `configuration/reporting.json`: the property name, attribute key, or the component's selection. |
