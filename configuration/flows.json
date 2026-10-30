@@ -64,6 +64,59 @@
       ],
       "goal": { "type": "tookStep", "stepType": "baptism", "days": 180, "targetPercent": 35, "$targetPercentComment": "Set from the data: on Full 7, 403 of the 1,034 people who filled out the form were baptized within 180 days (39%), rounded down to a whole 5%. Some people never got a message they could open, such as people on No mass emails with no mobile that takes texts, and Rock counts a conversion only for someone a message reached." },
       "exit": "conversionAchieved"
+    },
+    {
+      "key": "first-time-guest-welcome",
+      "name": "First-Time Guest Welcome",
+      "publicName": "Welcome to Rock Solid",
+      "description": "Every Wednesday, welcomes the adults who came to worship for the first time in the past week: what to expect when they come back, a text before Sunday, and an invitation to Starting Point a week later. Their campus pastor's personal welcome goes out on Monday, before this flow starts.",
+      "category": "flows-notice",
+      "trigger": "recurring",
+      "schedule": { "kind": "weekly", "weekday": "Wednesday", "time": "09:00" },
+      "audience": { "view": "first-visit-last-week-reserved-email", "rule": "firstVisitLastWeek" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "guest-welcome-next-sunday", "name": "Next Sunday", "daysToWait": 0, "time": "09:00" },
+        { "key": "guest-welcome-text", "name": "Before Sunday", "daysToWait": 3, "time": "10:00" },
+        { "key": "guest-welcome-starting-point", "name": "Starting Point", "daysToWait": 4, "time": "09:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "starting-point-class", "days": 84, "targetPercent": 10 },
+      "exit": "lastMessageSent"
+    },
+    {
+      "key": "we-miss-you",
+      "name": "We Miss You",
+      "publicName": "We Miss You",
+      "description": "On the first Tuesday of each month, reaches adults who came regularly and stopped in the past month: a note that we miss them and are praying, and a text a week later to anyone who did not open it. Paused, to show what a paused flow looks like.",
+      "category": "flows-re-engage",
+      "trigger": "recurring",
+      "isActive": false,
+      "schedule": { "kind": "monthly", "weekday": "Tuesday", "week": 1, "time": "10:00" },
+      "audience": { "view": "newly-missed-reserved-email", "rule": "newlyMissed" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "we-miss-you-note", "name": "We Miss You", "daysToWait": 0, "time": "10:00" },
+        { "key": "we-miss-you-text", "name": "Praying for You", "daysToWait": 7, "time": "10:00" }
+      ],
+      "goal": { "type": "enteredDataView", "view": "back-in-the-last-30-days", "rule": "backInLast30Days", "days": 60, "targetPercent": 15 },
+      "exit": "anyEmailOpened"
+    },
+    {
+      "key": "baptism-sunday-invitation",
+      "name": "Baptism Sunday Invitation",
+      "publicName": "Baptism Sunday",
+      "description": "Five weeks before each baptism Sunday, invites regular attenders who have not been baptized to fill out the Baptism Interest form, with a text a week later to anyone who has not clicked through.",
+      "category": "flows-equip",
+      "trigger": "recurring",
+      "schedule": { "kind": "beforeBaptismSundays", "daysBefore": 35, "time": "09:00" },
+      "audience": { "view": "unbaptized-regular-attenders-reserved-email", "rule": "unbaptizedRegularAttenders" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "baptism-invitation-email", "name": "Is It Time?", "daysToWait": 0, "time": "09:00" },
+        { "key": "baptism-invitation-text", "name": "Four Weeks Away", "daysToWait": 7, "time": "10:00" }
+      ],
+      "goal": { "type": "completedForm", "workflow": "baptism-interest", "days": 35, "targetPercent": 5 },
+      "exit": "anyEmailClicked"
     }
   ],
   "workflows": [

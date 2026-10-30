@@ -125,6 +125,69 @@ namespace RockSampleData.Loader.Model
         /// lastMessageSent, anyEmailOpened, anyEmailClicked, or conversionAchieved.
         /// </summary>
         public string Exit { get; set; }
+
+        /// <summary>
+        /// For a recurring flow: when each run starts.
+        /// </summary>
+        public FlowSchedule Schedule { get; set; }
+
+        /// <summary>
+        /// For a recurring flow: who each run reaches.
+        /// </summary>
+        public FlowAudience Audience { get; set; }
+
+        /// <summary>
+        /// False ships the flow paused. Only a recurring flow can be paused.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+    }
+
+    /// <summary>
+    /// When a recurring flow's runs start.
+    /// </summary>
+    internal sealed class FlowSchedule
+    {
+        /// <summary>
+        /// weekly, monthly, or beforeBaptismSundays.
+        /// </summary>
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// The day of the week, such as Wednesday.
+        /// </summary>
+        public string Weekday { get; set; }
+
+        /// <summary>
+        /// For monthly: which of the month's weekdays, counted from 1.
+        /// </summary>
+        public int Week { get; set; }
+
+        /// <summary>
+        /// For beforeBaptismSundays: how many days before each baptism Sunday.
+        /// </summary>
+        public int DaysBefore { get; set; }
+
+        /// <summary>
+        /// The time of day, as HH:mm.
+        /// </summary>
+        public string Time { get; set; }
+    }
+
+    /// <summary>
+    /// Who a recurring flow's runs reach: its guarded data view, and the same rule worked out for each past run date,
+    /// since Rock cannot run a data view as of a past day.
+    /// </summary>
+    internal sealed class FlowAudience
+    {
+        /// <summary>
+        /// The data view's key in configuration/reporting.json.
+        /// </summary>
+        public string View { get; set; }
+
+        /// <summary>
+        /// firstVisitLastWeek, newlyMissed, or unbaptizedRegularAttenders.
+        /// </summary>
+        public string Rule { get; set; }
     }
 
     /// <summary>
@@ -238,6 +301,21 @@ namespace RockSampleData.Loader.Model
         /// For tookStep: the step type's key in configuration/steps.json.
         /// </summary>
         public string StepType { get; set; }
+
+        /// <summary>
+        /// For enteredDataView: the data view's key in configuration/reporting.json.
+        /// </summary>
+        public string View { get; set; }
+
+        /// <summary>
+        /// For enteredDataView: backInLast30Days, the rule the view holds, worked out for each person's dates.
+        /// </summary>
+        public string Rule { get; set; }
+
+        /// <summary>
+        /// For completedForm: the workflow's key in this file.
+        /// </summary>
+        public string Workflow { get; set; }
 
         /// <summary>
         /// The goal's window, in days from the run's start date.

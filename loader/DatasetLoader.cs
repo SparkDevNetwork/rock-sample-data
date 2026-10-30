@@ -556,6 +556,9 @@ namespace RockSampleData.Loader
             steps.Begin( "Data views" );
             new ReportingLoader( db, source, dates, foreignKey, seed ).Load();
 
+            // A recurring flow fills each run after install from its guarded audience view, which exists only now.
+            FlowLoader.LinkAudiences( db, source, seed );
+
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows
             // logins, security roles, and scheduled gifts, so every load sets it here.

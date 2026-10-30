@@ -924,7 +924,7 @@ FROM [PersonalDevice] AS [pd]
 WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
 
 -- check: open-flow-run-is-allowed
--- why: Decision D-comm-flows-1, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
+-- why: Decision D-comm-flows-1, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand or recurring flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
 SELECT ( SELECT COUNT(*)
         FROM [CommunicationFlowInstance] AS [i]
         INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
@@ -939,7 +939,7 @@ SELECT ( SELECT COUNT(*)
             WHERE [fc].[CommunicationFlowId] = [f].[Id] AND [fc].[Order] > ISNULL( [last].[Order], -1 )
             ORDER BY [fc].[Order] ) AS [next]
         WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0
-            AND ( [f].[IsActive] = 0 OR [f].[TriggerType] <> 2 OR [next].[DaysToWait] IS NULL
+            AND ( [f].[IsActive] = 0 OR [f].[TriggerType] NOT IN ( 1, 2 ) OR [next].[DaysToWait] IS NULL
                 OR DATEADD( DAY, [next].[DaysToWait], CAST( ISNULL( [last].[SendDateTime], [i].[StartDate] ) AS DATE ) ) < CAST( GETDATE() AS DATE ) ) )
     + ( SELECT COUNT(*)
         FROM [CommunicationFlowInstanceCommunication] AS [ic]
@@ -956,6 +956,19 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 AND [r].[Status] = 1
     AND ( ( ISNULL( [p].[Email], '' ) <> '' AND [p].[Email] NOT LIKE '%@example.org' )
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [ph] WHERE [ph].[PersonId] = [p].[Id] AND [ph].[Number] NOT LIKE '___55501__' ) );
+
+-- check: recurring-flow-audience-has-the-guard
+-- why: Decision D-comm-flows-1. Rock's job starts a recurring flow's next run on its schedule date after install, from its audience view, and a paused flow can be turned on with one click. So every recurring flow has a schedule and an audience view that includes Reserved or No Email directly, which keeps every real address, such as staff on rocksolidchurchdemo.com, out of every future run.
+SELECT COUNT(*)
+FROM [CommunicationFlow] AS [f]
+WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
+    AND ( [f].[ScheduleId] IS NULL OR [f].[TargetAudienceDataViewId] IS NULL
+        OR NOT EXISTS ( SELECT 1
+            FROM [DataViewFilter] AS [df]
+            INNER JOIN [EntityType] AS [et] ON [et].[Id] = [df].[EntityTypeId]
+            INNER JOIN [DataView] AS [guard] ON [guard].[Guid] = '7440C1BC-57B1-4B18-BAD5-40EDEFFF6779'
+            WHERE [df].[DataViewId] = [f].[TargetAudienceDataViewId] AND [et].[Name] = 'Rock.Reporting.DataFilter.OtherDataViewFilter'
+                AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
 -- check: flow-send-reaches-its-instance
 -- why: Decision 96 and decision D-comm-flows-1. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
