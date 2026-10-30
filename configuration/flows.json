@@ -62,7 +62,7 @@
         { "key": "baptism-interest-sunday", "name": "Baptism Sunday", "daysToWait": 12, "time": "10:00" },
         { "key": "baptism-interest-spot", "name": "Save a Spot", "daysToWait": 28, "time": "10:00" }
       ],
-      "goal": { "type": "tookStep", "stepType": "baptism", "days": 180, "targetPercent": 50 },
+      "goal": { "type": "tookStep", "stepType": "baptism", "days": 180, "targetPercent": 35, "$targetPercentComment": "Set from the data: on Full 7, 403 of the 1,034 people who filled out the form were baptized within 180 days (39%), rounded down to a whole 5%. Some people never got a message they could open, such as people on No mass emails with no mobile that takes texts, and Rock counts a conversion only for someone a message reached." },
       "exit": "conversionAchieved"
     }
   ],

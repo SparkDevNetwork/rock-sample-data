@@ -277,7 +277,7 @@ The views are in the reports work's slice 2. If flows slice 1 lands first, it ad
 
 Left out from the first draft: a push with a story video, which reaches only people with the app; a second stories email; a questions email; and a "whenever you're ready" email. Message 3 carries the stories, and message 4 asks for the decision. Push stays covered by the Christmas flow.
 
-**The goal.** Took Step: Baptism, within 180 days, target 50%. The window runs well past the last message, so a person baptized a few months after the reminders end still counts. Runs from 6 weeks to 6 months ago show Pending on install day. Staff can put a person back in for another round at any time.
+**The goal.** Took Step: Baptism, within 180 days. Target 35%, set from the data: on Full 7, 39% of the people who filled out the form were baptized in the window. The window runs well past the last message, so a person baptized a few months after the reminders end still counts. Runs from 6 weeks to 6 months ago show Pending on install day. Staff can put a person back in for another round at any time.
 
 **Who is in it.** The flow reads the Baptism steps the steps part already wrote. It never changes them.
 
@@ -303,7 +303,7 @@ Left out from the first draft: a push with a story video, which reaches only peo
 
 | Flow | Target | Designed result |
 |---|---|---|
-| 2 Baptism Next Steps | 50% | About 55%, recent runs Pending |
+| 2 Baptism Next Steps | 35%, set from the data | 39% on Full 7, recent runs Pending |
 | 3 First-Time Guest Welcome | Set from the data, about 10% | A little above the target, most runs Achieved |
 | 4 We Miss You | 15% | About 10%, most runs Missed |
 | 5 Baptism Sunday Invitation | Set from the data, about 5% | A little above the target |
