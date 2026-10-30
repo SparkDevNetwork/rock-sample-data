@@ -37,7 +37,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 
 | Holds | Tree | Used by |
 |---|---|---|
-| Data views | Rock Solid Church, locked to staff (decision D-reporting-1) | Every church data view, in the children below |
+| Data views | Rock Solid Church, locked to staff (decision 223) | Every church data view, in the children below |
 | Data views | Rock Solid Church, then Foundations, Path, Notice, Belong, Equip, Contribute, Lead, and Re-engage | The layered views in `reporting.json`, filed by Ministry System |
 | Data views | Rock Solid Church, then Group Sync | The five group sync data views |
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule, and Women Who Attend |
@@ -45,7 +45,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Safety, locked to the safety and background check roles | Kids and Student Teams, Kids and Student Volunteers, and Kids With an Allergy |
 | Data views | Rock Solid Church, then Finance, locked to the finance roles | The Built on the Rock pledge views |
 | Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Men's Retreat Invites, which no one has run in over a year, and room for staff to build |
-| Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision D-reporting-2) | Rock's 8 shipped example views, unchanged |
+| Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision 224) | Rock's 8 shipped example views, unchanged |
 | Reports | Rock Solid Church, locked to staff, then Leadership (locked to pastors), Notice, Belong, Equip, Contribute, Lead, Re-engage, Safety and Finance (each locked to its roles), and Staff Workspace | The 25 reports in `reporting.json`; Staff Workspace is empty |
 | Metrics | Ministry Path | The four stage metrics in `reporting.json`, Belong Stage to Lead Stage |
 | Communication lists | Care | The New Here and We Miss You lists |

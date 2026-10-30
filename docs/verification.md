@@ -74,7 +74,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Reporting check
 
-**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision D-reporting-5). Every access row names a Cast person, a real category or view, and a Rock action.
+**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision 227). Every access row names a Cast person, a real category or view, and a Rock action.
 
 **Why it's there.** Rock checks none of this when a view runs: a report or data view built on a locked view is open to anyone who can see its own category (section 1.4 of the design).
 
@@ -266,13 +266,13 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** `verify/rock-runner` runs every data view in the load, the church's and Rock's own, through Rock's own engine (`DataViewCache.GetEntityIds`), the call Rock's data view screens and jobs make. Any error fails the check, and each church view's count and time are printed. A persisted view runs live, since Rock's job has not persisted it yet.
 
-**Why it's there.** The loader writes each filter's selection string itself. Only Rock can prove it reads every one, on both Rock builds (decision D-reporting-7).
+**Why it's there.** The loader writes each filter's selection string itself. Only Rock can prove it reads every one, on both Rock builds (decision 229).
 
 ### Metrics
 
 **What it does.** For each path metric in `configuration/reporting.json`, reads its newest value and when it was taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value. The SQL count must equal Rock's count of the stage view from the data views check, and the newest value must equal Rock's count less the later ones.
 
-**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest value to Rock's own count proves the loader used the view's rule (decision D-reporting-12).
+**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest value to Rock's own count proves the loader used the view's rule (decision 234).
 
 ### Access
 
@@ -284,7 +284,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** `verify/rock-runner` checks every report the way Rock's report grid reads it: a property column names one of Rock's reportable fields for the entity, an attribute column's attribute exists, and a data select column's component builds its expression from the stored selection. Each Lava column is rendered through Rock's own Lava engine, with the first row its data view finds, and any Lava error fails the check.
 
-**Why it's there.** A property or attribute Rock cannot find is quietly left out of the grid, and a component that cannot read its selection stops the whole report. Only Rock can say which, on both builds (decision D-reporting-9).
+**Why it's there.** A property or attribute Rock cannot find is quietly left out of the grid, and a component that cannot read its selection stops the whole report. Only Rock can say which, on both builds (decision 231).
 
 ### Anchor sweep
 
