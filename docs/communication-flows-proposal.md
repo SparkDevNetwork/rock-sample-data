@@ -27,7 +27,7 @@ The step programs and the calendar follow [Ministry by Design](https://electric-
 | 2 | Baptism Next Steps | Equip | Equip: Baptism | Baptism step | No. Anyone, at any time |
 | 7 | Women's Retreat Early Bird | Equip | Equip: the retreat | Registered. No step marks a retreat | No. Women who attend |
 | 9 | After Foundations (new) | Equip | Contribute | Serve step | No. Entering at the end of the course is timing, not a gate |
-| 10 | Lead a Group (new) | Contribute | Lead | Lead step | Yes, people in a group or on a team. The framework grows leaders "through formation and qualification rather than recruitment alone" |
+| 10 | Lead a Group (new) | Contribute | Lead | Lead step | Yes, the Equip and Contribute stages and a small group. The framework grows leaders "through formation and qualification rather than recruitment alone" |
 | 4 | We Miss You | Re-engage | Back to Belong | Back in the last 30 days. No step marks coming back | Yes, regulars who stopped. That is what Re-engage serves |
 
 **Every transition has a flow.** Notice to Belong: 3 and 8. Within Belong, class to group: 1, and camp on the Student Path: 6. Belong to Equip: 5, 2, and 7. Equip to Contribute: 9. Contribute to Lead: 10. Re-engage: 4. Before this rethink, Equip to Contribute and Contribute to Lead had no flow, so Flows 9 and 10 are new.
@@ -190,7 +190,7 @@ See Section 4.
 ### Flow 10. Lead a Group (new)
 
 - **Purpose.** Before a small group launch, invite people who are growing in a group or serving to lead one. This is Contribute to Lead.
-- **Trigger.** One-Time, 6 weeks before the most recent group launch before install day (the launches in `configuration/communications.json`), to a "ready to lead" view: adults in a small group or on a serving team who lead nothing. The reports session is asked to own that view (open question 10).
+- **Trigger.** One-Time, 6 weeks before the most recent group launch before install day (the launches in `configuration/communications.json`), to the reports work's Ready to Lead view: adults in the Equip and Contribute stages who are in a small group and have no Lead step. The framework grows leaders from people who have been formed and who serve, so this audience needs both earlier stages.
 - **Messages.** Email from the campus pastor ("Have you thought about leading?"). SMS 7 days later, with the Group Leader Training date. Email 14 days later: what leaders get, from training to the Leader Huddle.
 - **Goal.** Took Step: Lead, within 60 days, so it covers the launch.
 - **Exit.** Conversion Achieved.
@@ -200,15 +200,17 @@ See Section 4.
 
 | View | Key | Category | Used by |
 |---|---|---|---|
-| First Visit Last Week | `first-visit-last-week` | Care | Flow 3 audience |
-| Newly Missed | `newly-missed` | Care | Flow 4 audience |
-| Back in the Last 30 Days | `back-in-the-last-30-days` | Care | Flow 4 goal |
-| Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Care | Flow 5 audience (built on Regular Attenders) |
+| First Visit Last Week | `first-visit-last-week` | Notice | Flow 3 audience |
+| Newly Missed | `newly-missed` | Re-engage | Flow 4 audience |
+| Back in the Last 30 Days | `back-in-the-last-30-days` | Re-engage | Flow 4 goal |
+| Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Equip | Flow 5 audience (built on Regular Attenders) |
 | Women Who Attend | `women-who-attend` | Registrations | Flow 7 audience |
 | Involved Adults | `involved-adults` | Foundations | Flow 8 audience |
-| A "ready to lead" view, name and key from the reports session | To come | To come | Flow 10 audience |
+| Ready to Lead | `ready-to-lead` | Lead | Flow 10 audience |
 
-Flow 3's goal is now the Starting Point Class step, so it no longer uses Regular Attenders directly. The views are in the reports work's slice 2. If flows slice 1 lands first, it adds them to `configuration/reporting.json` with these keys, plus the foundation views they build on, as that proposal describes them. Rock's flow job checks no person's security, so a view's category limits only who can open it, not whether the flow works.
+The reports work files its views by Ministry by Design system too: Notice, Belong, Equip, Contribute, Lead, and Re-engage, plus Foundations and a Path category of stage views. Flow 3's goal is now the Starting Point Class step, so it no longer uses Regular Attenders directly.
+
+**Why step goals, not stage views.** The reports work also has stage views, such as Equip Stage and Contribute Stage, that an Entered Data View goal could use. The flows keep Took Step goals where one step fits, for two reasons. Jon asked that a flow end when the person takes the next step. And Rock dates an Entered Data View conversion by when its job last ran the view, while a step goal uses the step's own date (Section 6, risk 3). The views are in the reports work's slice 2. If flows slice 1 lands first, it adds them to `configuration/reporting.json` with these keys, plus the foundation views they build on, as that proposal describes them. Rock's flow job checks no person's security, so a view's category limits only who can open it, not whether the flow works.
 
 **Message text.** New entries in the message library in `content/communications`, about 28 messages in all, in the church's voice, plus a new third email for After Starting Point. No images are needed: the emails use the branded template's logo.
 
@@ -330,7 +332,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 
 8. **Change After Starting Point's third email?** Today it invites people to serve three weeks after the class. Ministry by Design puts growth before serving. **Recommendation: yes.** It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), and After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
 9. **Add After Foundations and Lead a Group?** Without them, no flow moves people from Equip to Contribute, or from Contribute to Lead. **Recommendation: yes.** Both are types that cannot send after install (On-Demand and One-Time), and both end on a step: Serve and Lead.
-10. **Who owns the "ready to lead" view?** Flow 10 needs adults in a small group or on a serving team who lead nothing. **Recommendation:** the reports session owns it in its tree, like the other views. It has been asked.
+10. **Who owns the "ready to lead" view?** Answered: the reports session owns it as Ready to Lead (`ready-to-lead`, in its Lead category). It needs the Equip and Contribute stages and a small group, which is narrower than the first draft's "in a group or on a team," and closer to the framework.
 11. **The guest flow's goal.** It moves from the Regular Attenders view (settled earlier) to the Starting Point Class step, because Jon asked that goals be the steps that mark each stage. Its target, set from the data, drops from about 25% to about 10%. **Recommendation: yes.** We Miss You keeps a data view goal, since no step marks coming back, so Entered Data View is still covered.
 
 **Settled by the coordinator, 2026-10-29:**
