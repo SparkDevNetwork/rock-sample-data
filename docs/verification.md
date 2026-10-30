@@ -21,6 +21,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Cast validator](#cast-validator) | Before every pull request | The Cast files are complete and consistent. |
 | [Content standards check](#content-standards-check) | Before every pull request | The data follows the content standards a script can check. |
 | [Registrations check](#registrations-check) | Before every pull request that changes registrations | Every registration names real events, templates, and groups, makes valid unique slugs, every feature has an always-open home, every registrants rule is one the template allows, releases use only the Lava the loader renders, and data views are filed and replayable. |
+| [Reporting check](#reporting-check) | Before every pull request that changes data views or categories | Every data view is filed under a church category, points only at views that exist, never loops, names real step types, and sits under the same lock as any locked view it builds on, and every flow audience in Sample Data carries the email guard. |
 | [Package self-check](#package-self-check) | Every time the builder writes a package | A package that would fail to load is never written. |
 | [Trusted base](#trusted-base) | Verify tool, before publishing | Every load starts from a clean copy of exactly this Rock release. |
 | [Contract schema](#contract-schema) | Verify tool | Everything the loader depends on still exists in this Rock, unchanged. |
@@ -30,6 +31,8 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Invariants](#invariants) | Verify tool | Rules Rock relies on hold in the loaded data. |
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
+| [Data views](#data-views) | Verify tool | Rock's own engine runs every data view in the load without an error. |
+| [Access](#access) | Verify tool | Rock's own security check gives every answer in the security walkthrough. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
@@ -65,6 +68,12 @@ These need only Node.js, so every contributor runs them.
 **What it does.** `node validation/check-registrations.js` reads `configuration/registrations.json` with the calendar, accounts, campuses, and datasets. Every instance names a real event, template, contact, placement, and group type; its slug and group keys carry the year, month, and campus they need, so no two instances share one, and its slug matches Rock's pattern; every template asks for the fields its grade, age, or gender rule needs; and every registration feature sits on an instance that is open on any install day (decision 190). For the people who register: each registrants rule names exactly one audience (students, kids, couples, adults, or volunteers) with real connection statuses, ages, and shares; students name a Student Path event step or a share; a paid template's payments add up to 100 and are ones the template allows, pay later only with no minimum payment, and a free template has none; its fees, fee weights, per-child fees, codes, and placements are the template's; attribute and person attribute fills fit their attributes; and a discount that needs several registrants comes before an early bird, since Rock gives only the first one valid (decision 207). Each release names a template's `signatureDocument`, and its Lava uses only the four outputs the loader renders and starts with a title for the PDF. Each data view sits in a data view child of the church's category, a registration filter names an instance rule and occurrence that make exactly one instance, and the mission trip's eligibility view counts student service check-ins in exactly the student check-in areas over a "Last N days" window, from the template's lowest grade, which the loader replays from the Student Path (decision 215).
 
 **Why it's there.** Rock checks slugs only in its screens and refuses a registrant it cannot check for eligibility. A broken reference or a feature with no open home would only show up after someone installed the data.
+
+### Reporting check
+
+**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision D-reporting-5). Every access row names a Cast person, a real category or view, and a Rock action.
+
+**Why it's there.** Rock checks none of this when a view runs: a report or data view built on a locked view is open to anyone who can see its own category (section 1.4 of the design).
 
 ## When packages are built
 
@@ -247,6 +256,18 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
 
 **Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision 187). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
+
+### Data views
+
+**What it does.** `verify/rock-runner` runs every data view in the load, the church's and Rock's own, through Rock's own engine (`DataViewCache.GetEntityIds`), the call Rock's data view screens and jobs make. Any error fails the check, and each church view's count and time are printed. A persisted view runs live, since Rock's job has not persisted it yet.
+
+**Why it's there.** The loader writes each filter's selection string itself. Only Rock can prove it reads every one, on both Rock builds (decision D-reporting-7).
+
+### Access
+
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`: may this Cast person view or edit this category or data view. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
+
+**Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
 
 ### Unchanged during run
 

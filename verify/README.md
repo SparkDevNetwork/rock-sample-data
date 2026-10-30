@@ -46,6 +46,8 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
+| `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
+| `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`): which Cast person may view or edit which category or data view. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 
 ### The trusted base
@@ -126,3 +128,5 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |
+| `data-views` | Rock could not read a data view's filter. Fix its selection in the configuration file that holds it, or how `loader/loading/ReportingLoader.cs` builds it. |
+| `access` | Rock's answer differs from the walkthrough. Fix the category's `security` in `configuration/categories.json`, or the row in `configuration/reporting.json` if the walkthrough is wrong. |

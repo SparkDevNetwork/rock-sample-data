@@ -1,6 +1,6 @@
-# Data views and reports: proposal
+# Data views and reports
 
-Status: proposal only. Nothing here is built. No loader code is written until Jon approves it through the coordinator. Decision placeholders (`D-reporting-N`) are written when it is approved.
+Status: slices 1 and 2 are built. They are the data view and report categories with their security (Finance locked, no Leadership or Safety yet), the Foundational Views (Shipped) rename, and the data views in `configuration/reporting.json`. Not built yet: the reports, the Leadership and Safety categories (questions 3 to 5), Contribute Stage (question 16), and the Finance views other than the Built on the Rock pledge views. Decisions D-reporting-1 to D-reporting-7 record what is built.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -361,7 +361,7 @@ R11 also shows how Rock's shipped "Background check about to expire" data view (
 | FN3 | First-Time Givers | Person | In F1, and first contribution date in the last 90 days (a filter Rock locks to finance roles) | F1 | No | R1, R12 |
 | FN4 | Lapsed Givers | Person | In F1, and Current Journey Giving Stage is Lapsed Giver (Rock's own giving journey) | F1 | No | R13 |
 | FN5 | Top Givers | Person | In F1, and Giving Bin is 1 (Rock's top bin, a finance-locked attribute) | F1 | No | R14. **Item locked**, see section 6.3 |
-| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund or one of its campus accounts | None | No | R15, FN9 |
+| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund, which every campaign pledge names | None | No | R15, FN9 |
 | FN7 | Event Registration Payments | Financial Transaction | Transaction type is Event Registration, in the last 12 months | None | No | R16 |
 | FN8 | Money Matters Invite List | Person | In F2, in F4, not in FN2 (use persisted) | F2, F4, FN2 | No | R17 |
 | FN9 | Built on the Rock Pledgers | Person | Has a pledge in FN6 (Rock's Financial Pledge Data View filter) | FN6 | No | FN10 |
@@ -650,7 +650,7 @@ The church's data views go in a new `configuration/reporting.json`. Its shape fo
       "transform": "Rock.Reporting.DataTransform.Person.FamilyMembersTransform",
       "filter": {
         "all": [
-          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "ready-to-lead", "usePersisted": true },
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "ready-to-lead" },
           { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "reserved-or-no-email" }
         ]
       }
@@ -659,9 +659,9 @@ The church's data views go in a new `configuration/reporting.json`. Its shape fo
 }
 ```
 
-- The example shows every field. The real X8 has no `persisted` or `transform`, and no `usePersisted`.
+- The example shows every field. The real X8 has no `persisted` or `transform`.
 - `entityType` is left out for a Person view. `persisted` and `transform` are left out when not used. `persisted` is either `{ "schedule": "<named schedule key>" }` or `{ "intervalMinutes": 60 }`.
-- A leaf that points at another data view names it by `dataView` key, and the loader writes Rock's selection with that view's Id at load. This covers the Existing Data View and Not in Existing Data View filters (`usePersisted` defaults to false) and the related data view filters, such as the Financial Transaction and Financial Pledge Data View filters. Every other leaf holds Rock's own selection string, as group-syncs.json does.
+- A leaf that points at another data view names it by `dataView` key, and the loader writes Rock's selection with that view's Id at load. This covers the Existing Data View and Not in Existing Data View filters, written with Use Persisted on as Rock's editor saves them, and the related data view filters, such as the Financial Transaction and Financial Pledge Data View filters. Every other leaf holds Rock's own selection string, as group-syncs.json does.
 - Keys are kebab-case and unique across `reporting.json`, `group-syncs.json`, and `registrations.json`. A view may point at a view in any of them.
 - Category keys, all children of `church-data-views` in `configuration/categories.json`: `foundation-data-views`, `path-data-views`, `notice-data-views`, `belong-data-views`, `equip-data-views`, `contribute-data-views`, `lead-data-views`, `reengage-data-views`, `sample-data-data-views`, `safety-data-views`, `finance-data-views`, and `staff-workspace-data-views`, beside the existing `group-sync-data-views` and `registration-data-views`. The report tree uses the same names with `-reports` in place of `-data-views`, plus `leadership-reports`.
 - **Finance and Safety must land with their security.** A view filed in `finance-data-views` before that category's rules exist would be open to every staff member, because the global default lets everyone view (section 1.2). So whoever adds the first Finance or Safety view also adds the category's `security` list in the same change.

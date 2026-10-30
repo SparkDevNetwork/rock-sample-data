@@ -587,6 +587,15 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 8. **Steps and the flow.** `CommunicationsLoader` reads each class's people from the Step rows, so the email and text planners send class messages to them. `loading/FlowLoader.cs` writes the After Starting Point flow, its templates and messages, and an instance with its emails and conversions for each finished class.
 9. **Group syncs.** `loading/GroupSyncLoader.cs` writes each data view in `configuration/group-syncs.json` with its filter tree, as Rock's data view editor saves it, and registers any data filter component this Rock has not registered yet, as Rock's start-up would. `loading/DataViewEvaluator.cs` finds each view's people in SQL, following Rock's own filters and the install day's sliding date ranges. A group another step filled must already match its view, or the load stops. An empty group gets the view's people as active members, each added when Rock's Group Sync job would have added them. Each sync row is stamped as refreshed now, so the job's first run changes nobody and sends nothing (decision 187). This runs last, after every send has changed what it changes, such as email preferences.
 
+## Data views
+
+`loading/ReportingLoader.cs` writes the church's layered data views from `../configuration/reporting.json` in its own step, after group sync and registrations, because a view can point at theirs. The design is in [Data views and reports](../docs/reporting.md).
+
+1. **Categories.** `loading/CategoriesLoader.cs` writes each category's `security` as Rock's security editor saves it: each allowed role, then "deny All Users" when the action is locked. It renames Rock's shipped Foundational Views category, found by Guid, to Foundational Views (Shipped).
+2. **The named schedule.** "Nightly at 2 AM", in Rock's Persisted DataView Schedules category.
+3. **The views.** Each view is written after the views it points at. An Existing Data View filter gets Rock's JSON with the other view's Id and Use Persisted on, a related data view filter gets the other view's Guid, and a steps filter gets Rock's Steps Taken settings for every step type in its stage, from `steps.json`. A view can return another entity (groups, pledges), be persisted on the named schedule or an interval, and use Rock's Family Members transformation. A persisted view's last refresh stays empty, so Rock's job persists it in its first minute.
+4. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view built on it.
+
 ## Calendar
 
 `generation/CalendarPlanner.cs` plans every event's occurrences from `../configuration/calendar.json`, and `loading/CalendarLoader.cs` writes them. The design is in [Calendar](../docs/calendar.md).
