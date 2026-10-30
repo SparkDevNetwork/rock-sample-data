@@ -48,13 +48,15 @@ namespace RockSampleData.Loader.Loading
 
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
+        private readonly AnchorDates _dates;
         private readonly string _foreignKey;
         private readonly string _seed;
 
-        public ReportingLoader( RockDatabase db, SampleDataSource source, string foreignKey, string seed )
+        public ReportingLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed )
         {
             _db = db;
             _source = source;
+            _dates = dates;
             _foreignKey = foreignKey;
             _seed = seed;
         }
@@ -105,18 +107,34 @@ namespace RockSampleData.Loader.Loading
         {
             var ids = new Dictionary<string, int>();
             var categoryId = _db.RequireIdByGuid( "Category", PersistedDataViewSchedulesCategory );
+            var scheduleDates = TableFactory.Create( "ScheduleId:int", "StartDateTime:date", "EndDateTime:date", "StartDateKey:int" );
+            var today = _dates.Anchor.Date;
             foreach ( var schedule in configuration.NamedSchedules )
             {
                 var time = TimeSpan.Parse( schedule.Time );
                 var calendar = $"BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTEND:20130501T{time.Add( TimeSpan.FromMinutes( 1 ) ):hhmm}00\r\nDTSTART:20130501T{time:hhmm}00\r\nRRULE:FREQ=DAILY\r\nEND:VEVENT\r\nEND:VCALENDAR";
-                ids[schedule.Key] = ( int ) _db.Scalar( @"
+                var id = ( int ) _db.Scalar( @"
 INSERT INTO [Schedule] ( [Name], [Description], [iCalendarContent], [EffectiveStartDate], [CategoryId], [IsActive], [Order], [AutoInactivateWhenComplete], [IsPublic], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
 VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
                     P( "@Name", schedule.Name ), P( "@Description", schedule.Description ), P( "@Calendar", calendar ), P( "@CategoryId", categoryId ),
                     P( "@Guid", schedule.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+                ids[schedule.Key] = id;
+
+                // Rock's Schedule save hook writes a ScheduleDate row for each start from two years before to two years
+                // after, and Rock Cleanup rebuilds them nightly, as the calendar's schedules do (CalendarPlanner). The window
+                // counts from the install day at midnight, so the same anchor gives the same rows.
+                for ( var day = today.AddYears( -2 ).AddDays( -1 ); day < today.AddYears( 2 ); day = day.AddDays( 1 ) )
+                {
+                    var start = day.Add( time );
+                    if ( start < today.AddYears( 2 ) && start.AddMinutes( 1 ) > today.AddYears( -2 ) )
+                    {
+                        scheduleDates.Rows.Add( id, start, start.AddMinutes( 1 ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
+                    }
+                }
             }
 
+            _db.BulkInsert( "ScheduleDate", scheduleDates, keepIdentity: false );
             return ids;
         }
 

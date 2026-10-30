@@ -400,7 +400,15 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var categories = source.Categories.Categories.ToDictionary( c => c.Key, c => c.Guid );
     var views = source.Reporting.DataViews.Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
         .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() ).ToDictionary( v => v.Key, v => v.Guid );
-    var questions = access.Select( a => a.Category != null ? $"Category\t{categories[a.Category]}\t{a.Action}\t{a.Person}" : $"DataView\t{views[a.DataView]}\t{a.Action}\t{a.Person}" );
+
+    // Alisha Marble is Rock's own admin person, so her Guid is the one Rock gave Person 1 at install (decision 177).
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    var questions = access.Select( a => a.Category != null ? $"Category\t{categories[a.Category]}\t{a.Action}\t{people.Rock( a.Person )}" : $"DataView\t{views[a.DataView]}\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
     var problems = new List<string>();
     for ( var i = 0; i < access.Count; i++ )

@@ -180,7 +180,7 @@ GROUP BY [pa].[PersonId]" ) )
                 case "Rock.Reporting.DataFilter.Person.GradeFilter":
                     return GradeFilter( selection );
 
-                case "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter":
+                case "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter":
                     return RegistrationFilter( selection );
 
                 default:

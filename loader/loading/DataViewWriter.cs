@@ -41,7 +41,10 @@ namespace RockSampleData.Loader.Loading
             ["Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter"] = new Guid( "55E78F48-F849-444A-B285-FDA99E7236E7" ),
             ["Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter"] = new Guid( "5748F0E7-E033-4D36-819C-0AA3823A8935" ),
             ["Rock.Reporting.DataFilter.Person.GradeFilter"] = new Guid( "7311CCCF-BBFB-4FF7-AFD0-3D7F2D466C1B" ),
-            ["Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter"] = new Guid( "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA" )
+
+            // Rock declares this filter in the DataSelect namespace, though its file is with the data filters. Its class
+            // name is what Rock's filter container looks it up by, so the DataFilter name would leave Rock unable to run it.
+            ["Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter"] = new Guid( "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA" )
         };
 
         private readonly RockDatabase _db;
