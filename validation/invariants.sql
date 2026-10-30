@@ -989,7 +989,7 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
                 AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
 -- check: flow-send-reaches-its-instance
--- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
+-- why: Decision 96, decision 220, and decision D-comm-flows-16. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
@@ -999,15 +999,15 @@ INNER JOIN [CommunicationTemplate] AS [t] ON [t].[Id] = [fc].[CommunicationTempl
 WHERE [ic].[ForeignKey] = @ForeignKey
     AND ( [c].[CommunicationType] <> [fc].[CommunicationType] OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
         OR ( [fc].[CommunicationType] = 2 AND ( [t].[SmsFromSystemPhoneNumberId] IS NULL OR ISNULL( [c].[SmsFromSystemPhoneNumberId], 0 ) <> [t].[SmsFromSystemPhoneNumberId] ) )
-        OR ( [f].[ExitConditionType] = 0
-            AND ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
-                <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] ) )
+        OR ( [f].[ExitConditionType] = 0 AND EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r]
+            WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[Status] = 1
+                AND NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] AND [cr].[PersonAliasId] = [r].[RecipientPersonAliasId] ) ) )
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             WHERE [cr].[CommunicationId] = [c].[Id]
                 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) )
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             INNER JOIN [CommunicationFlowInstanceRecipient] AS [r] ON [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId]
-            WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) ) );
+            WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND ( [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) OR ( [r].[InactiveReason] = 7 AND [r].[ModifiedDateTime] < [c].[SendDateTime] ) ) ) );
 
 -- check: flow-form-entry-has-its-workflow
 -- why: Decision D-comm-flows-4. The only way into an On-Demand flow is Rock's Activate Communication Flow workflow action. In a flow a workflow type activates (its Communication Flow attribute names the flow), every person in a run started that workflow themselves and it finished on the run's start date.

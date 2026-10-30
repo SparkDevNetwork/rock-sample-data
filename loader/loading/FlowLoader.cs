@@ -486,7 +486,7 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
             foreach ( var (message, at) in due )
             {
                 // Rock makes each send early on its day, from the people still Active then.
-                var to = members.Where( p => !left.TryGetValue( p.PersonId, out var l ) || l.When.Date >= at.Date ).ToList();
+                var to = members.Where( p => !left.TryGetValue( p.PersonId, out var l ) || ( l.Reason != UnsubscribedFromFlow && l.When.Date >= at.Date ) ).ToList();
                 var key = $"flow:{flow.Key}:{message.Key}:{start:yyyyMMdd}";
                 var engaged = new Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)>();
                 var unsubscribes = new Dictionary<int, (DateTime When, int RecipientId)>();
