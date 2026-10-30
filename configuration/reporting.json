@@ -1,0 +1,1143 @@
+{
+  "$comment": "The church's layered data views (docs/reporting.md): foundations, the Ministry by Design path, next-step views filed by Ministry System, the communication flows' audiences, and Finance. Every view uses Rock's own filter components and selection strings, as group-syncs.json does. A leaf that points at another view names it by 'dataView' key, in this file or group-syncs.json or registrations.json, and the loader writes Rock's selection with that view's Id (Existing Data View filters, with Use Persisted on, as Rock's editor saves it) or Guid (related data view filters). A 'steps' leaf is Rock's Steps Taken filter: Complete steps in one program, of one step type or every type in a stage from steps.json. 'entityType' is left out for a person view. 'persisted' names a named schedule or an interval; Rock's job persists a view the first minute after install. 'transform' is Rock's post-filter transformation. A view whose part was left out of a load is skipped.",
+  "namedSchedules": [
+    {
+      "key": "nightly",
+      "name": "Nightly at 2 AM",
+      "description": "Refreshes the persisted data views that are slow to run, once a night.",
+      "guid": "89470D7F-E14C-4BE7-9A95-7F245A751B2E",
+      "time": "02:00"
+    }
+  ],
+  "dataViews": [
+    {
+      "key": "active-people",
+      "name": "Active People",
+      "description": "Everyone whose record is active. Every other church person view starts here.",
+      "category": "foundation-data-views",
+      "guid": "4E6AF4CA-B4B6-4C60-B369-B9955CA552A3",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"RecordStatusValueId\",\"618f906c-c33d-4fa3-8aef-e58cb7b63f1e\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "adults",
+      "name": "Adults",
+      "description": "Active people Rock classifies as adults.",
+      "category": "foundation-data-views",
+      "guid": "22B1CB80-6DC0-43BE-B05C-4A4EE0603FFF",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"AgeClassification\",\"Adult\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "children",
+      "name": "Children",
+      "description": "Active people Rock classifies as children.",
+      "category": "foundation-data-views",
+      "guid": "DA02ED48-0BD7-4DC7-BCEF-91D70C364296",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"AgeClassification\",\"Child\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "church-family",
+      "name": "Church Family",
+      "description": "Active people who are Connected, Engaged, or Leading, the church's three most involved connection statuses. Rock's shipped Member & Attendees view checks Rock's old statuses, so it leaves out Leading.",
+      "category": "foundation-data-views",
+      "guid": "511C80AB-846B-43A9-9044-407D63C9413D",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"ConnectionStatusValueId\",\"39f491c5-d6ac-4a9b-8ac0-c431cb17d588,41540783-d9ef-4c70-8f1d-c9e83d91ed5f,377b6513-5671-4b8b-a520-bfda739afca6\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "regular-attenders",
+      "name": "Regular Attenders",
+      "description": "Active people who came to a worship service 4 or more times in the last 12 weeks. Persisted nightly, since it counts attendance and many views build on it.",
+      "category": "foundation-data-views",
+      "guid": "1C4EB0F8-1722-46E0-821A-F08D5C48B233",
+      "persisted": {
+        "schedule": "nightly"
+      },
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|4|Last,12,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "accepts-mass-email",
+      "name": "Accepts Mass Email",
+      "description": "Active people with an email who accept mass email.",
+      "category": "foundation-data-views",
+      "guid": "1FC93342-46AA-42E9-81FD-6D6AC9D5BA97",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"EmailPreference\",\"EmailAllowed\"]"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"Email\",\"64\",\"\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "in-a-small-group",
+      "name": "In a Small Group",
+      "description": "Active people who are active members of an active small group, in any role.",
+      "category": "foundation-data-views",
+      "guid": "9B00C2DC-F288-45F4-8A77-51394A0EBF13",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+            "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B||1|True"
+          }
+        ]
+      }
+    },
+    {
+      "key": "serving",
+      "name": "Serving",
+      "description": "Active people who are active members of an active serving team, in any role.",
+      "category": "foundation-data-views",
+      "guid": "791AEC3B-9CB3-45C6-BCB8-7C91E91AF53C",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+            "selection": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4||1|True"
+          }
+        ]
+      }
+    },
+    {
+      "key": "active-small-groups",
+      "name": "Active Small Groups",
+      "description": "Every active small group.",
+      "category": "foundation-data-views",
+      "guid": "9D7CBEC4-76EF-404C-ABF5-BC5720153B76",
+      "entityType": "Rock.Model.Group",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Group.GroupTypeFilter",
+            "selection": "50fcfb30-f51a-49df-86f4-2b176ea1820b"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"IsActive\",\"1\",\"True\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "involved-adults",
+      "name": "Involved Adults",
+      "description": "Adults who came to worship, were in a small group, served, or gave in the last 12 months. Giving uses Rock's Last Gave attribute, which Rock already shows to staff, so this view stays out of Finance.",
+      "category": "foundation-data-views",
+      "guid": "EEBF9243-3340-4E55-8115-2596CFA6CB5C",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+                "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,12,Month,,|False"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+                "dataView": "in-a-small-group"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+                "dataView": "serving"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.PropertyFilter",
+                "selection": "[\"core_EraLastGave\",\"256\",\"CURRENT:-365\"]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "belong-stage",
+      "name": "Belong Stage",
+      "description": "Active people who have taken a Belong step: the Starting Point Class, a small group, or Student Camp. Stages overlap, so a person can be in more than one.",
+      "category": "path-data-views",
+      "guid": "F549AFDF-0F25-4559-98C7-974B0D2B83C1",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stage": "Belong"
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "student-path",
+                  "stage": "Belong"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "equip-stage",
+      "name": "Equip Stage",
+      "description": "Active people who have taken an Equip step: baptism, Foundations, or Follow Jesus.",
+      "category": "path-data-views",
+      "guid": "BEACC9E6-F689-4580-8359-1210FD98778C",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stage": "Equip"
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "student-path",
+                  "stage": "Equip"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "lead-stage",
+      "name": "Lead Stage",
+      "description": "Active people who have taken a Lead step: leading a small group or serving team, or Student Leader.",
+      "category": "path-data-views",
+      "guid": "310AA0C0-B04D-41A5-B249-0B82FFBEC04E",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stage": "Lead"
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "student-path",
+                  "stage": "Lead"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "path-steps-last-90-days",
+      "name": "Path Steps in the Last 90 Days",
+      "description": "Active people who completed any step on either path in the last 90 days.",
+      "category": "path-data-views",
+      "guid": "6788E4B6-864A-4ED6-96E5-479D784929DE",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "completedInLastDays": 90
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "student-path",
+                  "completedInLastDays": 90
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "guests-coming-back",
+      "name": "Guests Coming Back",
+      "description": "Adults who first came to worship in the last 6 months, have come 3 or more times since, and have not taken the Starting Point Class. The next step from Notice into Belong.",
+      "category": "notice-data-views",
+      "guid": "FFEA8F1E-B1F1-4F87-B225-5DE3AE9E26CD",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,6,Month,,|False"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|3|Last,6,Month,,|False"
+          },
+          {
+            "none": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stepType": "starting-point-class"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "first-visit-last-week",
+      "name": "First Visit Last Week",
+      "description": "Adults who accept mass email and came to worship for the first time in the last 7 days. The First-Time Guest Welcome flow's audience, through its reserved email view.",
+      "category": "notice-data-views",
+      "guid": "8B7A775C-D28F-4B2B-BB1D-DB47D8BA27EE",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "accepts-mass-email"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,7,Day,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "ready-to-belong",
+      "name": "Ready to Belong",
+      "description": "Adults who come regularly but are not in a small group, to invite to Small Group Connect.",
+      "category": "belong-data-views",
+      "guid": "F4363C51-88B1-4AD0-8C8E-D1C45F8132CB",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "regular-attenders"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "in-a-small-group"
+          }
+        ]
+      }
+    },
+    {
+      "key": "small-groups-with-room",
+      "name": "Small Groups With Room",
+      "description": "Active small groups with fewer than 10 active members, where a new person can join.",
+      "category": "belong-data-views",
+      "guid": "E0F185CC-A8E8-48C5-9711-461DFB1C79D6",
+      "entityType": "Rock.Model.Group",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-small-groups"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Group.MemberCountFilter",
+            "selection": "512|10||1"
+          }
+        ]
+      }
+    },
+    {
+      "key": "kids-checked-in-recently",
+      "name": "Kids Checked In Recently",
+      "description": "Children who checked in to the Nursery/Preschool or Elementary area in the last 4 weeks. Persisted every 60 minutes, so it is fresh on a Sunday afternoon.",
+      "category": "belong-data-views",
+      "guid": "DD8F1E81-568A-45B2-89B4-166F82CA64D6",
+      "persisted": {
+        "intervalMinutes": 60
+      },
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "children"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8,E3C8F7D6-5CEB-43BB-802F-66C3E734049E|256|1|Last,4,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "students-attending",
+      "name": "Students Attending the Student Service",
+      "description": "Students in grades 7 to 12 who checked in to the Jr High or High School area in the last 12 weeks.",
+      "category": "belong-data-views",
+      "guid": "D0CCD597-FCD9-4300-A292-26A11E0FB22F",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|3fe728ac-be25-409a-98cb-3cfce5fa063b"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|1|Last,12,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "ready-to-grow",
+      "name": "Ready to Grow",
+      "description": "Adults who have taken a Belong step but no Equip step yet, to invite to Foundations or baptism.",
+      "category": "equip-data-views",
+      "guid": "E9BF2370-300C-4621-A3C1-B62E13B2D159",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "belong-stage"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "equip-stage"
+          }
+        ]
+      }
+    },
+    {
+      "key": "belonging-a-year-not-growing",
+      "name": "Belonging a Year, Not Yet Growing",
+      "description": "People in a small group whose Belong steps are all more than a year old, and who have no Equip step. Their group leader can offer a next step.",
+      "category": "equip-data-views",
+      "guid": "47B1655E-D416-4C60-A662-0554BEDE6A1E",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "belong-stage"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "in-a-small-group"
+          },
+          {
+            "none": [
+              {
+                "any": [
+                  {
+                    "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                    "steps": {
+                      "program": "discipleship-path",
+                      "stage": "Belong",
+                      "completedInLastDays": 365
+                    }
+                  },
+                  {
+                    "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                    "steps": {
+                      "program": "student-path",
+                      "stage": "Belong",
+                      "completedInLastDays": 365
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "equip-stage"
+          }
+        ]
+      }
+    },
+    {
+      "key": "unbaptized-regular-attenders",
+      "name": "Unbaptized Regular Attenders",
+      "description": "Adults who come regularly and have not been baptized. The Baptism Sunday Invitation flow's audience, through its reserved email view.",
+      "category": "equip-data-views",
+      "guid": "57CD284B-8789-4D17-BCD4-30563886972E",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "regular-attenders"
+          },
+          {
+            "none": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stepType": "baptism"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "baptized-this-year",
+      "name": "Baptized This Year",
+      "description": "Active people whose Baptism Date is in the last 12 months, to celebrate.",
+      "category": "equip-data-views",
+      "guid": "8501A841-D34D-44F5-8EBB-FE275908BA6E",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"BaptismDate\",\"256\",\"CURRENT:-365\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "ready-to-serve",
+      "name": "Ready to Serve",
+      "description": "Adults who have taken an Equip step and are not serving. Growth comes before serving, so an Equip step comes first.",
+      "category": "contribute-data-views",
+      "guid": "3DDF8D59-FC88-418F-9EA6-DD8A85CBA116",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "equip-stage"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "serving"
+          }
+        ]
+      }
+    },
+    {
+      "key": "ready-to-lead",
+      "name": "Ready to Lead",
+      "description": "Adults who have taken an Equip step, serve on a team, and are in a small group, but lead nothing yet. To invite to Group Leader Training.",
+      "category": "lead-data-views",
+      "guid": "DE0C0D7C-F53B-406D-9D74-0F0DC476CFB6",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "equip-stage"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "serving"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "in-a-small-group"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "lead-stage"
+          }
+        ]
+      }
+    },
+    {
+      "key": "drifting-adults",
+      "name": "Drifting Adults",
+      "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days.",
+      "category": "reengage-data-views",
+      "guid": "76245C8F-4191-48BD-BA56-E64C72530FF5",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|10|Last,18,Month,,|False"
+          },
+          {
+            "none": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+                "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,90,Day,,|False"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "newly-missed",
+      "name": "Newly Missed",
+      "description": "Drifting adults who accept mass email and came at least once in the last 120 days, so their 90 days ran out in the last month. The We Miss You flow's audience, through its reserved email view.",
+      "category": "reengage-data-views",
+      "guid": "E97A4FBC-7918-4CD9-A8CC-E1E93266EF5D",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "drifting-adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "accepts-mass-email"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,120,Day,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "back-in-the-last-30-days",
+      "name": "Back in the Last 30 Days",
+      "description": "Active people who came to worship in the last 30 days. The We Miss You flow's goal.",
+      "category": "reengage-data-views",
+      "guid": "ACA7DE0F-3D94-435A-BCE7-2D7AAE7206AF",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,30,Day,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "women-who-attend",
+      "name": "Women Who Attend",
+      "description": "Women 25 to 75 who accept mass email and came to worship in the last 12 months, to invite to the Women's Retreat.",
+      "category": "registration-data-views",
+      "guid": "A7217347-1F67-4DAA-AFD8-29D5A899974D",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "accepts-mass-email"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"Property_Gender\",\"Female\"]"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.AgeFilter",
+            "selection": "4096||25,75"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,12,Month,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "reserved-or-no-email",
+      "name": "Reserved or No Email",
+      "description": "People whose email is on the reserved example.org domain, or who have none. Only the Cast staff use a real domain, so the flows send only to people in this view. A real church would not need it.",
+      "category": "sample-data-data-views",
+      "guid": "7440C1BC-57B1-4B18-BAD5-40EDEFFF6779",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.PropertyFilter",
+                "selection": "[\"Email\",\"2048\",\"@example.org\"]"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.PropertyFilter",
+                "selection": "[\"Email\",\"32\",\"\"]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "first-visit-last-week-reserved-email",
+      "name": "First Visit Last Week, Reserved Email",
+      "description": "First Visit Last Week, with a reserved email or none. The First-Time Guest Welcome flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "359F922B-9562-4EF1-A74C-8E4A37F237EB",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "first-visit-last-week"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "newly-missed-reserved-email",
+      "name": "Newly Missed, Reserved Email",
+      "description": "Newly Missed, with a reserved email or none. The We Miss You flow's audience. The flow ships paused, but its audience keeps the guard.",
+      "category": "sample-data-data-views",
+      "guid": "70F45BAF-D79A-4854-81A3-FF1C786191A9",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "newly-missed"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "unbaptized-regular-attenders-reserved-email",
+      "name": "Unbaptized Regular Attenders, Reserved Email",
+      "description": "Unbaptized Regular Attenders, with a reserved email or none. The Baptism Sunday Invitation flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "B678188F-0BA7-48D0-8126-BAFC8AF9C434",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "unbaptized-regular-attenders"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "students-not-registered-for-camp-reserved-email",
+      "name": "Students Not Registered for Camp, Reserved Email",
+      "description": "Students Not Registered for Camp, with a reserved email or none. The Student Camp flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "52B042CF-D245-4F7B-A1EA-2309E8476082",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "students-not-registered-for-camp"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "women-who-attend-reserved-email",
+      "name": "Women Who Attend, Reserved Email",
+      "description": "Women Who Attend, with a reserved email or none. The Women's Retreat flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "A3F85087-075D-4CC0-ACC6-B0DFE7C1112F",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "women-who-attend"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "involved-adults-reserved-email",
+      "name": "Involved Adults, Reserved Email",
+      "description": "Involved Adults, with a reserved email or none. The Christmas at Rock Solid flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "E6F8A1B4-8127-4C74-B10D-3FF62A76F3F9",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "involved-adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "ready-to-lead-reserved-email",
+      "name": "Ready to Lead, Reserved Email",
+      "description": "Ready to Lead, with a reserved email or none. The Lead a Group flow's audience.",
+      "category": "sample-data-data-views",
+      "guid": "F895B891-49CC-4773-A5A7-9932B6E37FE1",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "ready-to-lead"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "reserved-or-no-email"
+          }
+        ]
+      }
+    },
+    {
+      "key": "built-on-the-rock-pledges",
+      "name": "Built on the Rock Pledges",
+      "description": "Every pledge to the Built on the Rock building campaign.",
+      "category": "finance-data-views",
+      "guid": "577F9BF2-E2F0-4031-B4ED-D7E4BF6493C8",
+      "entityType": "Rock.Model.FinancialPledge",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.FinancialPledge.AccountFilter",
+            "selection": "67c6181c-1d8c-44d7-b262-b81e746f06d8"
+          }
+        ]
+      }
+    },
+    {
+      "key": "built-on-the-rock-pledgers",
+      "name": "Built on the Rock Pledgers",
+      "description": "The people named on a Built on the Rock pledge.",
+      "category": "finance-data-views",
+      "guid": "792CE61B-C227-48B7-A4CC-FFC684B0DE97",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.FinancialPledgeDataViewFilter",
+            "dataView": "built-on-the-rock-pledges"
+          }
+        ]
+      }
+    },
+    {
+      "key": "built-on-the-rock-pledge-households",
+      "name": "Built on the Rock Pledge Households",
+      "description": "Everyone in a family where someone pledged to Built on the Rock, through Rock's Family Members transformation. A pledge names one person, so this keeps a spouse from being asked to pledge again. The Built on the Rock Follow-Up flow's goal.",
+      "category": "finance-data-views",
+      "guid": "D9E41571-0832-4D3C-B363-52B744470BC5",
+      "transform": "Rock.Reporting.DataTransform.Person.FamilyMembersTransform",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "built-on-the-rock-pledgers"
+          }
+        ]
+      }
+    },
+    {
+      "key": "involved-adults-not-yet-pledged",
+      "name": "Involved Adults Not Yet Pledged",
+      "description": "Involved adults in a family that has not pledged to Built on the Rock. The Built on the Rock Follow-Up flow's audience.",
+      "category": "finance-data-views",
+      "guid": "A4DAD7E5-68C1-4C60-B9D4-3AF31FDAB9C4",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "involved-adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "built-on-the-rock-pledge-households"
+          }
+        ]
+      }
+    }
+  ],
+  "$accessComment": "The security walkthrough (docs/reporting.md section 7): for a Cast person, a category or data view key, and an action, whether Rock's own security check must allow it. Verify asks Rock each one.",
+  "access": [
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "dataView": "active-people",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "dataView": "ready-to-belong",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
+      "dataView": "active-people",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
+      "dataView": "volunteers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
+      "category": "church-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "category": "church-reports",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "dataView": "involved-adults-not-yet-pledged",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "dataView": "built-on-the-rock-pledgers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "category": "finance-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "dataView": "involved-adults-not-yet-pledged",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "dataView": "built-on-the-rock-pledgers",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "category": "finance-reports",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "dataView": "built-on-the-rock-pledge-households",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "dataView": "built-on-the-rock-pledges",
+      "action": "Edit",
+      "allowed": true
+    },
+    {
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "dataView": "built-on-the-rock-pledges",
+      "action": "Edit",
+      "allowed": false
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "dataView": "active-people",
+      "action": "Edit",
+      "allowed": false
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "dataView": "active-people",
+      "action": "Edit",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "category": "staff-workspace-data-views",
+      "action": "Edit",
+      "allowed": true
+    },
+    {
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "category": "staff-workspace-reports",
+      "action": "Edit",
+      "allowed": true
+    },
+    {
+      "person": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "category": "staff-workspace-data-views",
+      "action": "Edit",
+      "allowed": false
+    }
+  ]
+}

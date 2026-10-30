@@ -54,6 +54,7 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
+            ("Data views", null),
             ("Logins", null),
             ("Cast expectations", null),
             ("Check images", SampleDataPart.CheckImages)
@@ -543,6 +544,11 @@ namespace RockSampleData.Loader
             {
                 new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
             }
+
+            // The church's layered data views (docs/reporting.md). Some point at the group sync and registration views, so
+            // they come after both. A view that needs a part this load left out is skipped.
+            steps.Begin( "Data views" );
+            new ReportingLoader( db, source, foreignKey, seed ).Load();
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

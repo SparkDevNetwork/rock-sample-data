@@ -1,5 +1,5 @@
 {
-  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup.",
+  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup. A category can carry 'security': for each action, the Rock roles allowed (Rock's role names, mapped to Guids in security-roles.json) and whether All Users are denied after them, written as Rock's security editor saves them. Data views and reports inherit their category's security (decision D-reporting-1). 'rockShips' marks a category Rock ships: the loader finds it by Guid and changes only its name and description.",
   "categories": [
     {
       "key": "church-data-views",
@@ -7,7 +7,90 @@
       "name": "Rock Solid Church",
       "description": "The church's own data views. Each child category holds the views for one purpose.",
       "iconCssClass": "ti ti-building-church",
-      "guid": "D4925960-FD65-4781-8068-F1F65784452C"
+      "guid": "D4925960-FD65-4781-8068-F1F65784452C",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Staff Like Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "foundation-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Foundations",
+      "description": "The shared rules every other church view builds on: who is active, who is an adult, who comes regularly, who is in a group, and who serves. Each holds one idea.",
+      "iconCssClass": "ti ti-building",
+      "guid": "424D18BC-47EF-4E6C-A709-B2468CB1E668"
+    },
+    {
+      "key": "path-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Path",
+      "description": "The Ministry by Design stages, built from steps: who has reached each stage of the path. A person can be in more than one.",
+      "iconCssClass": "ti ti-route",
+      "guid": "F1B8FFF5-C3BF-49A4-91FE-EC312646BD2A"
+    },
+    {
+      "key": "notice-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Notice",
+      "description": "First contact: guests who are new or coming back, before they belong.",
+      "iconCssClass": "ti ti-eye",
+      "guid": "C690E8FA-7C6C-47C8-9A3F-E670B2DA6245"
+    },
+    {
+      "key": "belong-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Belong",
+      "description": "Connection: who belongs, and who is ready to belong.",
+      "iconCssClass": "ti ti-users",
+      "guid": "8EF47944-1B70-4771-9FAA-37A063B2E868"
+    },
+    {
+      "key": "equip-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Equip",
+      "description": "Discipleship: who is growing, and who is ready for a next step such as Foundations or baptism.",
+      "iconCssClass": "ti ti-book",
+      "guid": "84E359CB-4767-48F4-85DC-B796F2DA8AE7"
+    },
+    {
+      "key": "contribute-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Contribute",
+      "description": "Engagement: who takes part in the church's mission, and who is ready to serve.",
+      "iconCssClass": "ti ti-heart",
+      "guid": "21753AA7-683A-4680-8613-6306035111A0"
+    },
+    {
+      "key": "lead-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Lead",
+      "description": "Leadership development: who leads, and who is ready to lead.",
+      "iconCssClass": "ti ti-flag",
+      "guid": "A241D105-AE1F-4414-9E9A-0CAE59B18EBB"
+    },
+    {
+      "key": "reengage-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Re-engage",
+      "description": "Retention: people who have stopped coming, so someone can reach out.",
+      "iconCssClass": "ti ti-arrow-back-up",
+      "guid": "3E2EA16E-9BBF-4573-9E64-B8B46DC5BC31"
     },
     {
       "key": "group-sync-data-views",
@@ -26,6 +109,182 @@
       "description": "Data views about event registrations: who has registered, who has not, and who may register.",
       "iconCssClass": "ti ti-clipboard-check",
       "guid": "38176452-3090-434B-A2C7-01B34039DFCA"
+    },
+    {
+      "key": "sample-data-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Sample Data",
+      "description": "Views that exist only because this is sample data. The flows send only to people with a reserved email or none, so no message reaches a real staff address. A real church would not need these.",
+      "iconCssClass": "ti ti-flask",
+      "guid": "6B43491D-0119-4BFB-8D35-9C61CAE07D83"
+    },
+    {
+      "key": "finance-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Finance",
+      "description": "Giving and pledge data views. Only the finance roles and Rock Administration can see them, and only Finance Administration can edit them.",
+      "iconCssClass": "ti ti-currency-dollar",
+      "guid": "383D3687-F014-4E0D-AA46-BB32BB5EC92C",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Finance Administration"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-workspace-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Staff Workspace",
+      "description": "A place where any staff member can build their own data views. The other church categories are kept by Rock Administration.",
+      "iconCssClass": "ti ti-pencil",
+      "guid": "4E91CBE3-5B4E-4929-861D-4C45FAAD4C7A",
+      "security": [
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Staff Workers"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "shipped-foundational-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Foundational Views (Shipped)",
+      "description": "The data views Rock ships as examples. The church's own foundations are in Rock Solid Church > Foundations.",
+      "guid": "BDD2C36F-7575-48A8-8B70-3A566E3811ED",
+      "rockShips": true
+    },
+    {
+      "key": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Rock Solid Church",
+      "description": "The church's own reports. Each child category holds the reports for one part of the path.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "1B612206-B01B-4A76-BCC0-BF916AC6DA1D",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Staff Like Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "notice-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Notice",
+      "description": "Reports on first contact: guests who are new or coming back.",
+      "iconCssClass": "ti ti-eye",
+      "guid": "BC624289-CDAD-4BD2-AB8C-706D7C3406CE"
+    },
+    {
+      "key": "belong-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Belong",
+      "description": "Reports on connection: who belongs, and who is ready to belong.",
+      "iconCssClass": "ti ti-users",
+      "guid": "4FB374AD-7D19-4682-ABF2-DE162C28866B"
+    },
+    {
+      "key": "equip-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Equip",
+      "description": "Reports on discipleship: who is growing, and who is ready for a next step.",
+      "iconCssClass": "ti ti-book",
+      "guid": "9B1A298A-9175-4867-BDFB-EFA5BF2E70DF"
+    },
+    {
+      "key": "contribute-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Contribute",
+      "description": "Reports on engagement: who is ready to serve.",
+      "iconCssClass": "ti ti-heart",
+      "guid": "3C0A1D81-8973-4E60-8A81-5DF7D909E69C"
+    },
+    {
+      "key": "lead-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Lead",
+      "description": "Reports on leadership development: who is ready to lead.",
+      "iconCssClass": "ti ti-flag",
+      "guid": "90E9A999-F00E-4FC8-A0A5-0F289865BCD4"
+    },
+    {
+      "key": "reengage-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Re-engage",
+      "description": "Reports on people who have stopped coming.",
+      "iconCssClass": "ti ti-arrow-back-up",
+      "guid": "51B50560-6755-48C1-969A-1DB4BEC633AC"
+    },
+    {
+      "key": "finance-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Finance",
+      "description": "Giving and pledge reports. Only the finance roles and Rock Administration can see them, and only Finance Administration can edit them.",
+      "iconCssClass": "ti ti-currency-dollar",
+      "guid": "B53E5D71-8227-439C-8201-E64B2B885B4F",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Finance Administration"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-workspace-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Staff Workspace",
+      "description": "A place where any staff member can build their own reports. The other church categories are kept by Rock Administration.",
+      "iconCssClass": "ti ti-pencil",
+      "guid": "0EE92848-F702-4F13-B34E-D4787A60E2D0",
+      "security": [
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Staff Workers"
+          ]
+        }
+      ]
     },
     {
       "key": "care-lists",

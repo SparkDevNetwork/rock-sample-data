@@ -116,6 +116,11 @@ namespace RockSampleData.Loader
         public GroupSyncConfiguration GroupSyncs { get; }
 
         /// <summary>
+        /// The church's layered data views, or null in a package built before they loaded.
+        /// </summary>
+        public ReportingConfiguration Reporting { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -143,6 +148,7 @@ namespace RockSampleData.Loader
             Registrations = Files.Exists( RegistrationsConfigurationPath ) ? Read<RegistrationsConfiguration>( RegistrationsConfigurationPath ) : null;
             Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
+            Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -246,6 +252,8 @@ namespace RockSampleData.Loader
         public const string CategoriesConfigurationPath = "configuration/categories.json";
 
         public const string GroupSyncsConfigurationPath = "configuration/group-syncs.json";
+
+        public const string ReportingConfigurationPath = "configuration/reporting.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

@@ -24,8 +24,8 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Loading
 {
     /// <summary>
-    /// Writes person data views and their filter trees as Rock's data view editor saves them, filed in a church category.
-    /// Group syncs and registrations both use it.
+    /// Writes data views and their filter trees as Rock's data view editor saves them, filed in a church category.
+    /// Group syncs, registrations, and the reporting views all use it.
     /// </summary>
     internal sealed class DataViewWriter
     {
@@ -95,14 +95,32 @@ VALUES ( @Name, @AssemblyName, @FriendlyName, 0, 1, 0, @Guid, @ForeignKey )",
         /// </summary>
         /// <param name="random">The stream each filter's Guid is drawn from.</param>
         /// <param name="selection">Each leaf's selection string.</param>
-        public int Write( DataViewDefinition view, DateTime now, SeededRandom random, Func<DataViewFilterDefinition, string> selection )
+        /// <param name="scheduleIds">The named schedules a persisted view may name, by key.</param>
+        public int Write( DataViewDefinition view, DateTime now, SeededRandom random, Func<DataViewFilterDefinition, string> selection, IReadOnlyDictionary<string, int> scheduleIds = null )
         {
             var category = _categories.Get( view.Category );
+            var entityTypeId = EntityTypeId( view.EntityType ?? "Rock.Model.Person", view );
+            int? transformId = view.Transform == null ? null : EntityTypeId( view.Transform, view );
+            int? scheduleId = view.Persisted?.Schedule == null ? null
+                : scheduleIds != null && scheduleIds.TryGetValue( view.Persisted.Schedule, out var id ) ? id
+                : throw new InvalidDataException( $"Data view {view.Key} is persisted on schedule {view.Persisted.Schedule}, which is not a named schedule." );
+
+            /*
+                10/30/26 - CLAUDE
+
+                A persisted view's last refresh stays empty. Rock runs a view live until its Update Persisted DataViews job
+                persists it, and that job runs every minute and persists any view that has never been refreshed. So the view
+                is right on install day, and Rock, not the loader, decides what it holds.
+
+                Reason: The loader cannot run every filter Rock can, so it leaves the persisted values to Rock.
+            */
             var viewId = ( int ) _db.Scalar( @"
-INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [TransformEntityTypeId], [PersistedScheduleIntervalMinutes], [PersistedScheduleId],
+    [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, @Name, @Description, @CategoryId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ), 0, 0, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Interval, @ScheduleId, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
                 P( "@Name", view.Name ), P( "@Description", view.Description ), P( "@CategoryId", _db.RequireIdByGuid( "Category", category.Guid ) ),
+                P( "@EntityTypeId", entityTypeId ), P( "@TransformId", transformId ), P( "@Interval", view.Persisted?.IntervalMinutes ), P( "@ScheduleId", scheduleId ),
                 P( "@Guid", view.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
 
             var rootId = WriteFilter( view.Filter, null, viewId, random, now, selection );
@@ -124,6 +142,12 @@ VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name
             }
 
             return id;
+        }
+
+        private int EntityTypeId( string name, DataViewDefinition view )
+        {
+            return Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", name ) )
+                ?? throw new InvalidDataException( $"Data view {view.Key} uses {name}, which this Rock has no entity type for." ) );
         }
 
         public static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter )

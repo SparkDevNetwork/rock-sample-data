@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|authorize --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -42,6 +43,11 @@ namespace RockSampleData.RockRunner
     ///   group-sync  Runs Rock's own group sync (GroupSyncService.SyncGroups, what the Group Sync job calls) on every sync,
     ///            whatever its interval, and prints how many syncs ran, the members added, removed, and not added, and
     ///            each warning.
+    ///   data-views  Runs every data view through Rock's own engine (DataViewCache.GetEntityIds) and prints, for each,
+    ///            "ok", its Guid, how many it found, and its milliseconds, or "error", its Guid, and Rock's message.
+    ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
+    ///            (Category or DataView), its Guid, an action, and a person's Guid, separated by tabs. Prints True or
+    ///            False for each, in order.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -56,10 +62,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "authorize" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -91,6 +97,8 @@ namespace RockSampleData.RockRunner
                     "hash-password" => worker.HashPassword( lines.FirstOrDefault() ?? string.Empty ),
                     "sign-in" => worker.SignIn( lines ),
                     "group-sync" => worker.GroupSync(),
+                    "data-views" => worker.DataViews(),
+                    "authorize" => worker.Authorize( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -293,6 +301,68 @@ namespace RockSampleData.RockRunner
             lines.AddRange( ( ( IEnumerable<string> ) resultType.GetProperty( "WarningMessages" ).GetValue( result ) ).Select( w => $"warning {w}" ) );
             lines.AddRange( ( ( IEnumerable<Exception> ) resultType.GetProperty( "WarningExceptions" ).GetValue( result ) ).Select( e => $"warning {e.GetBaseException().Message}" ) );
             return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Runs every data view through Rock's own engine, the call Rock's data view screens and jobs make. A filter Rock
+        /// cannot read fails here, the way it would fail for a person opening the view.
+        /// </summary>
+        public string DataViews()
+        {
+            Start();
+            StartMessageBus();
+            var cache = _rock.GetType( "Rock.Web.Cache.DataViewCache", true );
+            var all = ( System.Collections.IEnumerable ) cache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var getEntityIds = cache.GetMethod( "GetEntityIds", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no DataViewCache.GetEntityIds(). The runner needs updating for this Rock." );
+            var lines = new List<string>();
+            foreach ( var view in all )
+            {
+                var guid = cache.GetProperty( "Guid" ).GetValue( view );
+                var timer = Stopwatch.StartNew();
+                try
+                {
+                    var ids = ( System.Collections.ICollection ) getEntityIds.Invoke( view, null );
+                    lines.Add( $"ok\t{guid}\t{ids.Count}\t{timer.ElapsedMilliseconds}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    lines.Add( $"error\t{guid}\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                }
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Asks Rock's own security check whether each person may take each action on each category or data view. Rock walks
+        /// the item's parent authorities (a data view's category, then its parent categories) as it does on every page.
+        /// </summary>
+        public string Authorize( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var personService = Activator.CreateInstance( personServiceType, createContext.Invoke( null, new[] { app } ) );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var securedType = _rock.GetType( "Rock.Security.ISecured", true );
+            var authorized = _rock.GetType( "Rock.Security.Authorization", true ).GetMethod( "Authorized", BindingFlags.Public | BindingFlags.Static, null,
+                new[] { securedType, typeof( string ), _rock.GetType( "Rock.Model.Person", true ) }, null )
+                ?? throw new InvalidOperationException( "This Rock has no Authorization.Authorized( ISecured, string, Person ). The runner needs updating for this Rock." );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var cache = _rock.GetType( parts[0] == "Category" ? "Rock.Web.Cache.CategoryCache" : "Rock.Web.Cache.DataViewCache", true );
+                var item = cache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                    .Invoke( null, new object[] { new Guid( parts[1] ) } );
+                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>

@@ -58,6 +58,14 @@ namespace RockSampleData.Loader.Loading
 
                 foreach ( var category in ready )
                 {
+                    if ( category.RockShips )
+                    {
+                        ids[category.Key] = Rename( category, now );
+                        WriteSecurity( category, ids[category.Key], now );
+                        written++;
+                        continue;
+                    }
+
                     var entityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", category.EntityType ) )
                         ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' holds {category.EntityType}, which this Rock has no entity type for." ) );
                     var qualifierColumn = category.QualifierGroupType.HasValue ? "GroupTypeId" : category.QualifierEntityType != null ? "EntityTypeId" : null;
@@ -91,11 +99,65 @@ VALUES ( 0, @ParentId, @EntityTypeId, @QualifierColumn, @QualifierValue, @Name, 
                         P( "@ParentId", parentId ), P( "@EntityTypeId", entityTypeId ), P( "@QualifierColumn", qualifierColumn ),
                         P( "@QualifierValue", qualifierValue ), P( "@Name", category.Name ), P( "@Icon", category.IconCssClass ), P( "@Description", category.Description ),
                         P( "@Order", order ), P( "@Guid", category.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+                    WriteSecurity( category, ids[category.Key], now );
                     written++;
                 }
             }
 
             return written;
+        }
+
+        /// <summary>
+        /// Renames a category Rock ships, found by its Guid, and returns its Id. Rock's own code finds it by Guid too,
+        /// so a view a later Rock update adds still lands in it.
+        /// </summary>
+        private int Rename( Model.CategoryDefinition category, DateTime now )
+        {
+            var id = _db.IdByGuid( "Category", category.Guid )
+                ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' is one Rock ships, but this Rock has no category {category.Guid}." );
+            _db.Execute( "UPDATE [Category] SET [Name] = @Name, [Description] = @Description, [ModifiedDateTime] = @Now WHERE [Id] = @Id",
+                P( "@Name", category.Name ), P( "@Description", category.Description ), P( "@Now", now ), P( "@Id", id ) );
+            return id;
+        }
+
+        /// <summary>
+        /// Writes the category's security rules as Rock's security editor saves them: for each action, each allowed role
+        /// in order, then "deny All Users" when the action is locked. Data views and reports in the category inherit them.
+        /// </summary>
+        private void WriteSecurity( Model.CategoryDefinition category, int categoryId, DateTime now )
+        {
+            if ( category.Security.Count == 0 )
+            {
+                return;
+            }
+
+            var roles = _source.SecurityRoles?.Roles
+                ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' has security, but this package has no configuration/security-roles.json." );
+            var categoryEntityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Category'" ) );
+            foreach ( var rule in category.Security )
+            {
+                var order = 0;
+                foreach ( var roleName in rule.Allow )
+                {
+                    var role = roles.FirstOrDefault( r => r.RockRole == roleName )
+                        ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' allows {roleName}, which is not a role in configuration/security-roles.json." );
+                    InsertAuth( categoryEntityTypeId, categoryId, order++, rule.Action, "A", 0, _db.RequireIdByGuid( "Group", role.Guid ), now );
+                }
+
+                if ( rule.DenyAllUsers )
+                {
+                    InsertAuth( categoryEntityTypeId, categoryId, order, rule.Action, "D", 1, null, now );
+                }
+            }
+        }
+
+        private void InsertAuth( int entityTypeId, int entityId, int order, string action, string allowOrDeny, int specialRole, int? groupId, DateTime now )
+        {
+            _db.Execute( @"
+INSERT INTO [Auth] ( [EntityTypeId], [EntityId], [Order], [Action], [AllowOrDeny], [SpecialRole], [GroupId], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
+VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, @GroupId, NEWID(), @Now, @Now, @ForeignKey )",
+                P( "@EntityTypeId", entityTypeId ), P( "@EntityId", entityId ), P( "@Order", order ), P( "@Action", action ), P( "@AllowOrDeny", allowOrDeny ),
+                P( "@SpecialRole", specialRole ), P( "@GroupId", groupId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
         }
     }
 }
