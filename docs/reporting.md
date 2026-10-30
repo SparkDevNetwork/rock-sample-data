@@ -197,7 +197,7 @@ Active People (F1)
 │   └── Kids Checked In Recently (K1)
 │       └── Kids With an Allergy (K2)  [Safety]
 ├── Church Family (F4)
-├── Regular Attenders (F5)  [persisted nightly; also the guest flow's goal]
+├── Regular Attenders (F5)  [persisted nightly]
 ├── Back in the Last 30 Days (C6)
 ├── Accepts Mass Email (F6)
 ├── In a Small Group (F7)
@@ -252,7 +252,7 @@ All data views use Rock's own filter components and selection strings, as `confi
 | F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, C1, C3, C4, C7, RG1, F10, FN8, and the syncs after slice 6 |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
-| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1, C7, the First-Time Guest Welcome flow's goal ("Coming Regularly"), and the syncs after slice 6 |
+| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1, C7, and the syncs after slice 6 |
 | F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | C4, C5, RG1, and the four syncs that need email after slice 6 |
 | F7 | In a Small Group | Person | In F1, and an active member of an active Small Group, any role | F1 | No. Membership changes should show the same day | N1, N4, N5, F10 |
 | F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, S1, F10, and the Volunteers sync after slice 6 |
@@ -316,7 +316,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25. Formed, serving on a team, and in a group, but not yet leading |
+| N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
 
 ### 4.8 Re-engage (category: Rock Solid Church > Re-engage)
 
@@ -365,7 +365,7 @@ The communication flows proposal (`docs/communication-flows-proposal.md` on bran
 | Flow need | Data view | Key | Category | Note |
 |---|---|---|---|---|
 | First Visit Last Week (guest flow audience) | C4 First Visit Last Week | `first-visit-last-week` | Notice | |
-| Coming Regularly (guest flow goal) | F5 Regular Attenders | `regular-attenders` | Foundations | Reused, not a new view. Its rule is 4 or more in 12 weeks (question 13) |
+| Lead a Group (new flow's audience) | N4 Ready to Lead | `ready-to-lead` | Lead | Reused, not a new view. Its goal is the Lead step |
 | Newly Missed (We Miss You flow audience) | C5 Newly Missed | `newly-missed` | Re-engage | |
 | Back in the Last 30 Days (We Miss You flow goal) | C6 Back in the Last 30 Days | `back-in-the-last-30-days` | Re-engage | |
 | Unbaptized Regular Attenders (baptism invitation audience) | C7 Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Equip | Uses F5's rule (question 13) |
@@ -602,7 +602,7 @@ Each has one recommendation.
 10. **Say why Cindy Decker is a Finance Worker?** Recommend adding one sentence to her story: she helps count the Sunday offering. The role came from Rock's old sample data, and the walkthrough now depends on it.
 11. **Regular attender rule: 4 or more worship check-ins in the last 12 weeks?** Recommend that, kept in `configuration/reporting.json` so it can be tuned. Verify will report how many people it finds on each dataset.
 12. **Also lock Rock's financial "related data view" filters?** Recommend no. That changes Rock's shipped settings for every church. The locked Finance categories already protect the finished items, and the docs can mention it as a tip.
-13. **One "regular attender" rule for the flows too?** Recommend both flows use F5 (4 or more in 12 weeks), so the church has one definition, and the flows session sets its targets from what F5 finds.
+13. **One "regular attender" rule for the flows too?** Recommend the flows use F5 (4 or more in 12 weeks), so the church has one definition, and the flows session sets its targets from what F5 finds. Since the Ministry by Design rethink, the guest flow's goal is the Starting Point Class step, so only the baptism invitation still uses F5, through C7.
 14. **Involved Adults: Rock's Last Gave attribute instead of a Finance data view?** Recommend yes. Rock already shows Last Gave to all staff, so F10 can stay out of Finance and be shared.
 15. **Stage counts over time as Rock Metrics (slice 8)?** Recommend yes, as a later slice after slice 3. A metric per stage, fed by the stage views, is Rock's own tool for a count over time, and dashboards can show it. The loader fills weekly values for the history window from the steps, so the trend is there on install. Until then, Rock's Step Program page charts steps by type.
 16. **Contribute Stage counts the Give step. Keep it outside Finance?** Recommend yes. Rock already shows every Give step on the person's Steps tab to staff (decision 85), so P3 adds no new exposure. If Jon wants giving hidden from staff, the fix is security on the Give step type, which would hide it from the Steps tab too, and P3 would then move to Finance.
