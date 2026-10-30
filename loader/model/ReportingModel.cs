@@ -27,6 +27,8 @@ namespace RockSampleData.Loader.Model
 
         public List<DataViewDefinition> DataViews { get; set; } = new List<DataViewDefinition>();
 
+        public List<ReportDefinition> Reports { get; set; } = new List<ReportDefinition>();
+
         /// <summary>
         /// The security walkthrough as expectations: what Rock's own security check must answer for a Cast person.
         /// Verify asks Rock each one.
@@ -54,6 +56,83 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// One report: the data view behind it, and its columns in order.
+    /// </summary>
+    internal sealed class ReportDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The key of its report category in configuration/categories.json.
+        /// </summary>
+        public string Category { get; set; }
+
+        public Guid Guid { get; set; }
+
+        /// <summary>
+        /// The key of the data view behind it, in any configuration file. The report returns that view's entity.
+        /// </summary>
+        public string DataView { get; set; }
+
+        /// <summary>
+        /// Rules on this report alone, only where it must be narrower than its category.
+        /// </summary>
+        public List<CategorySecurityRule> Security { get; set; } = new List<CategorySecurityRule>();
+
+        public List<ReportColumnDefinition> Columns { get; set; } = new List<ReportColumnDefinition>();
+    }
+
+    /// <summary>
+    /// One report column, one of four kinds: a property of the record, an attribute, a Rock data select component, or a
+    /// Lava template (Rock's LiquidSelect component).
+    /// </summary>
+    internal sealed class ReportColumnDefinition
+    {
+        /// <summary>
+        /// The column header.
+        /// </summary>
+        public string Header { get; set; }
+
+        /// <summary>
+        /// A property of the record, such as Email.
+        /// </summary>
+        public string Property { get; set; }
+
+        /// <summary>
+        /// An attribute of the record's entity, by key, such as BaptismDate.
+        /// </summary>
+        public string Attribute { get; set; }
+
+        /// <summary>
+        /// A Rock data select component, by class name, with its selection.
+        /// </summary>
+        public string Component { get; set; }
+
+        public string Selection { get; set; }
+
+        /// <summary>
+        /// For a component whose selection names a data view: the view's key, which fills a {dataView} placeholder.
+        /// </summary>
+        public string DataView { get; set; }
+
+        /// <summary>
+        /// A Lava template, run for each row.
+        /// </summary>
+        public string Lava { get; set; }
+
+        /// <summary>
+        /// Sorts the report by this column: 1 sorts first. Null does not sort by it.
+        /// </summary>
+        public int? Sort { get; set; }
+
+        public bool Descending { get; set; }
+    }
+
+    /// <summary>
     /// One answer Rock's security check must give: whether a Cast person may take an action on a category or data view.
     /// </summary>
     internal sealed class AccessExpectation
@@ -69,14 +148,19 @@ namespace RockSampleData.Loader.Model
         public string Name { get; set; }
 
         /// <summary>
-        /// A category's key in configuration/categories.json, or null when the item is a data view.
+        /// A category's key in configuration/categories.json, or null when the item is not a category.
         /// </summary>
         public string Category { get; set; }
 
         /// <summary>
-        /// A data view's key, in any configuration file, or null when the item is a category.
+        /// A data view's key, in any configuration file, or null when the item is not a data view.
         /// </summary>
         public string DataView { get; set; }
+
+        /// <summary>
+        /// A report's key, or null when the item is not a report.
+        /// </summary>
+        public string Report { get; set; }
 
         /// <summary>
         /// Rock's action, such as View or Edit.

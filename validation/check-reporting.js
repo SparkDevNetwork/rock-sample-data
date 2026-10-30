@@ -135,6 +135,48 @@ for ( const view of reporting.dataViews ) {
     }
 }
 
+// Reports: a church report category, a real data view, real column kinds, and the consumer rule. A report shows its
+// columns to anyone who can view it, so one on a locked view sits under the same lock, except the listed ones, which
+// show no locked columns on purpose (docs/reporting.md section 6.4).
+const reportExceptions = new Set( [ "first-time-givers-to-thank" ] );
+const reportLock = key => viewLock( key ) && viewLock( key ).replace( /-reports$/, "" );
+const reports = new Map();
+for ( const report of reporting.reports || [] ) {
+    const name = `report ${report.key}`;
+    if ( reports.has( report.key ) || !guidPattern.test( report.guid ) || guids.has( report.guid ) ) {
+        problems.push( `${name}: needs its own key and upper-case Guid` );
+    }
+
+    reports.set( report.key, report );
+    guids.add( report.guid );
+    const category = categoryByKey.get( report.category );
+    if ( !category || category.entityType !== "Rock.Model.Report" ) {
+        problems.push( `${name}: category ${report.category} is not one of the church's report categories` );
+    }
+
+    const view = views.get( report.dataView );
+    if ( !view ) {
+        problems.push( `${name}: data view ${report.dataView} is not a data view in any configuration file` );
+    } else {
+        const viewArea = viewLock( view.category ) === "church-data-views" ? null : viewLock( view.category ).replace( /-data-views$/, "" );
+        const reportArea = reportLock( report.category ) === "church" ? null : reportLock( report.category );
+        if ( viewArea && viewArea !== reportArea && !reportExceptions.has( report.key ) ) {
+            problems.push( `${name}: its data view ${view.key} is locked to ${viewArea}, so the report must sit under the same lock` );
+        }
+    }
+
+    for ( const column of report.columns ) {
+        const kinds = [ column.property, column.attribute, column.component, column.lava ].filter( k => k != null );
+        if ( kinds.length !== 1 || !column.header ) {
+            problems.push( `${name}: column ${column.header || "(no header)"} needs a header and exactly one of property, attribute, component, or lava` );
+        }
+
+        if ( column.dataView && !views.has( column.dataView ) ) {
+            problems.push( `${name}: column ${column.header} names data view ${column.dataView}, which does not exist` );
+        }
+    }
+}
+
 // No loops among the views.
 const visiting = new Set();
 const done = new Set();
@@ -169,12 +211,14 @@ for ( const row of reporting.access || [] ) {
         problems.push( `${name}: ${row.person} is not a Cast person` );
     }
 
-    if ( ( row.category == null ) === ( row.dataView == null ) ) {
-        problems.push( `${name}: name a category or a data view, not both` );
+    if ( [ row.category, row.dataView, row.report ].filter( k => k != null ).length !== 1 ) {
+        problems.push( `${name}: name exactly one category, data view, or report` );
     } else if ( row.category && !categoryByKey.has( row.category ) ) {
         problems.push( `${name}: ${row.category} is not a category` );
     } else if ( row.dataView && !views.has( row.dataView ) ) {
         problems.push( `${name}: ${row.dataView} is not a data view` );
+    } else if ( row.report && !reports.has( row.report ) ) {
+        problems.push( `${name}: ${row.report} is not a report` );
     }
 
     if ( ![ "View", "Edit", "Administrate" ].includes( row.action ) ) {
@@ -182,7 +226,7 @@ for ( const row of reporting.access || [] ) {
     }
 }
 
-console.log( `Reporting: ${reporting.dataViews.length} data views, ${( reporting.access || [] ).length} access rows, ${categories.length} categories. ${problems.length} problems.` );
+console.log( `Reporting: ${reporting.dataViews.length} data views, ${reports.size} reports, ${( reporting.access || [] ).length} access rows, ${categories.length} categories. ${problems.length} problems.` );
 for ( const problem of problems ) {
     console.log( `  ${problem}` );
 }

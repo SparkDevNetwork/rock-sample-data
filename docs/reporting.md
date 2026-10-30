@@ -1,6 +1,6 @@
 # Data views and reports
 
-Status: slices 1 and 2 are built. They are the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, and the data views in `configuration/reporting.json`, including Contribute Stage and the Safety views. Not built yet: the reports, the Finance views other than the Built on the Rock pledge views, rebuilding the existing views on the foundations, run history, and path metrics. Every open question is answered. Decisions D-reporting-1 to D-reporting-8 record what is built.
+Status: slices 1 to 5 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 25 reports in `configuration/reporting.json`. Not built yet: rebuilding the group sync and registration views on the foundations (slice 6), run history (slice 7), and path metrics (slice 8). Every open question is answered. Decisions D-reporting-1 to D-reporting-9 record what is built, and section 8.2 lists where the build differs from the design.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -361,7 +361,7 @@ R11 also shows how Rock's shipped "Background check about to expire" data view (
 | FN3 | First-Time Givers | Person | In F1, and first contribution date in the last 90 days (a filter Rock locks to finance roles) | F1 | No | R1, R12 |
 | FN4 | Lapsed Givers | Person | In F1, and Current Journey Giving Stage is Lapsed Giver (Rock's own giving journey) | F1 | No | R13 |
 | FN5 | Top Givers | Person | In F1, and Giving Bin is 1 (Rock's top bin, a finance-locked attribute) | F1 | No | R14. **Item locked**, see section 6.3 |
-| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund, which every campaign pledge names | None | No | R15, FN9 |
+| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund, which every campaign pledge names | None | No | FN9 |
 | FN7 | Event Registration Payments | Financial Transaction | Transaction type is Event Registration, in the last 12 months | None | No | R16 |
 | FN8 | Money Matters Invite List | Person | In F2, in F4, not in FN2 (use persisted) | F2, F4, FN2 | No | R17 |
 | FN9 | Built on the Rock Pledgers | Person | Has a pledge in FN6 (Rock's Financial Pledge Data View filter) | FN6 | No | FN10 |
@@ -665,6 +665,22 @@ The church's data views go in a new `configuration/reporting.json`. Its shape fo
 - Keys are kebab-case and unique across `reporting.json`, `group-syncs.json`, and `registrations.json`. A view may point at a view in any of them.
 - Category keys, all children of `church-data-views` in `configuration/categories.json`: `foundation-data-views`, `path-data-views`, `notice-data-views`, `belong-data-views`, `equip-data-views`, `contribute-data-views`, `lead-data-views`, `reengage-data-views`, `sample-data-data-views`, `safety-data-views`, `finance-data-views`, and `staff-workspace-data-views`, beside the existing `group-sync-data-views` and `registration-data-views`. The report tree uses the same names with `-reports` in place of `-data-views`, plus `leadership-reports`.
 - **Finance and Safety must land with their security.** A view filed in `finance-data-views` before that category's rules exist would be open to every staff member, because the global default lets everyone view (section 1.2). So whoever adds the first Finance or Safety view also adds the category's `security` list in the same change.
+
+### 8.2 As built
+
+The build follows the design, with these differences. Each was found by running the views and reports in real Rock.
+
+- **Group columns.** Rock's "In Group of Group Type" column only says yes or no. So the Small Group and Team columns use Rock's Group Participation column, which lists the groups, over two Group data views: Active Small Groups and a new foundation, Active Serving Teams.
+- **Check-in columns.** Rock's Last Attended column matches one group type exactly, so the kids and student reports have one column per check-in area.
+- **Small Groups With Room** counts groups under 12 active members, the church's target size. Every group has 10 or more, so "fewer than 10" found none.
+- **Kids and Student Volunteers** builds on a Group data view, Teams Requiring a Background Check (Rock's group attribute filter on the Requires Background Check setting), through Rock's group data view filter. It is in Safety with the teams view.
+- **Built on the Rock Pledgers.** A pledge report cannot show the pledger's name as a column, so R15 is a person report on FN9: each pledger, their spouse, and what they gave to the campaign. Rock's Pledge Analytics page still shows each pledge.
+- **Registration Payments** shows the date, amount, source, and transaction code. A transaction's person is not a reportable column.
+- **Step columns** use Rock's `Steps` Lava filter once for each step type in the stage, read from `steps.json`.
+- **First-Time Givers** uses Rock's First Contribution Date filter, which Rock locks to the finance roles. Top Givers carries its own rule on both the data view and the report.
+- **The registration filter.** Rock declares its registration instance filter in the `Rock.Reporting.DataSelect.Person` namespace. The camp registration views used the folder's name, so Rock could not run them. They now use Rock's real class name.
+
+Verify checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
 
 ## 9. Open questions
 

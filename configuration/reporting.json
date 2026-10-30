@@ -186,6 +186,26 @@
       }
     },
     {
+      "key": "active-serving-teams",
+      "name": "Active Serving Teams",
+      "category": "foundation-data-views",
+      "guid": "0CA3EDB3-F6E4-4C6B-B0E7-16F351B1B1C2",
+      "entityType": "Rock.Model.Group",
+      "description": "Every active serving team, at every campus.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Group.GroupTypeFilter",
+            "selection": "2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"IsActive\",\"1\",\"True\"]"
+          }
+        ]
+      }
+    },
+    {
       "key": "involved-adults",
       "name": "Involved Adults",
       "description": "Adults who came to worship, were in a small group, served, or gave in the last 12 months. Giving uses Rock's Last Gave attribute, which Rock already shows to staff, so this view stays out of Finance.",
@@ -977,8 +997,8 @@
             "selection": "2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4"
           },
           {
-            "component": "Rock.Reporting.DataFilter.PropertyFilter",
-            "selection": "[\"RequiresBackgroundCheck\",\"1\",\"True\"]"
+            "component": "Rock.Reporting.DataFilter.Group.GroupAttributesFilter",
+            "selection": "[\"2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4\",\"RequiresBackgroundCheck\",\"1\",\"True\"]"
           }
         ]
       }
@@ -1018,6 +1038,154 @@
           {
             "component": "Rock.Reporting.DataFilter.PropertyFilter",
             "selection": "[\"Allergy\",\"64\",\"\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "gifts-in-the-last-12-months",
+      "name": "Gifts in the Last 12 Months",
+      "category": "finance-data-views",
+      "guid": "C077A101-E963-4D3F-A709-3262CEB3543D",
+      "entityType": "Rock.Model.FinancialTransaction",
+      "description": "Every contribution in the last 12 months.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"TransactionTypeValueId\",\"2d607262-52d6-4724-910d-5c6e8fb89acc\"]"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"TransactionDateTime\",\"256\",\"CURRENT:-365\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "givers-in-the-last-12-months",
+      "name": "Givers in the Last 12 Months",
+      "category": "finance-data-views",
+      "guid": "4722D0EB-87B6-49B1-89CA-46B1B8CD4E23",
+      "persisted": {
+        "schedule": "nightly"
+      },
+      "description": "People with a contribution in the last 12 months. Persisted nightly, since it reads a year of gifts.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.FinancialTransactionDataViewFilter",
+            "dataView": "gifts-in-the-last-12-months"
+          }
+        ]
+      }
+    },
+    {
+      "key": "first-time-givers",
+      "name": "First-Time Givers",
+      "category": "finance-data-views",
+      "guid": "8322E6EE-627E-4643-9125-A87E7559CEEC",
+      "description": "Active people whose first contribution was in the last 90 days. Its filter is one Rock locks to the finance roles.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.FirstContributionDateFilter",
+            "selection": "{\"AccountGuids\":[],\"DelimitedValues\":\"Last|90|Day||\",\"UseSundayDate\":false}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "lapsed-givers",
+      "name": "Lapsed Givers",
+      "category": "finance-data-views",
+      "guid": "E75DA054-300E-48AB-96F2-B1145F90353F",
+      "description": "Active people Rock's giving journey shows as Lapsed Givers.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"4\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "top-givers",
+      "name": "Top Givers",
+      "category": "finance-data-views",
+      "guid": "9F9157D4-CE17-40F3-B881-F89DC64893D3",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ],
+      "description": "Active people in Rock's top giving bin. Only Finance Administration and Rock Administration can see it, so even Finance Workers do not see who gives the most.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"GivingBin\",\"1\",\"1\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "event-registration-payments",
+      "name": "Event Registration Payments",
+      "category": "finance-data-views",
+      "guid": "5FDFF851-6F4B-4498-A533-C3B50533765F",
+      "entityType": "Rock.Model.FinancialTransaction",
+      "description": "Every event registration payment in the last 12 months.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"TransactionTypeValueId\",\"33cb96dd-8752-4bee-a142-88db7de538f0\"]"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"TransactionDateTime\",\"256\",\"CURRENT:-365\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "money-matters-invite-list",
+      "name": "Money Matters Invite List",
+      "category": "finance-data-views",
+      "guid": "B97F00E3-BE00-49E3-832C-1746AE1640DA",
+      "description": "Church Family adults who have not given in the last 12 months, to invite to Money Matters. It builds on a Finance view, so it tells who does not give, and it is in Finance.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "church-family"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "givers-in-the-last-12-months"
           }
         ]
       }
@@ -1300,6 +1468,1044 @@
       "dataView": "contribute-stage",
       "action": "View",
       "allowed": true
+    },
+    {
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "report": "top-givers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
+      "report": "lapsed-givers",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "dataView": "top-givers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "report": "top-givers",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "report": "top-givers",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "report": "first-time-givers-to-thank",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "dataView": "first-time-givers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "report": "first-time-givers-to-thank",
+      "action": "View",
+      "allowed": false
+    }
+  ],
+  "reports": [
+    {
+      "key": "path-movement-last-90-days",
+      "name": "Path Movement, Last 90 Days",
+      "description": "Who took a step on either path in the last 90 days, and which.",
+      "category": "leadership-reports",
+      "guid": "95BA12BB-6A39-4D68-A1A7-127D6769BC9D",
+      "dataView": "path-steps-last-90-days",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Steps Taken",
+          "lava": "{% assign s = Id | Steps:'All','Complete' %}{% for x in s %}{% assign d = x.CompletedDateTime | DateDiff:'Now','d' %}{% if d <= 90 %}{{ x.StepType.Name }} ({{ x.CompletedDateTime | Date:'MMM d' }}) {% endif %}{% endfor %}"
+        }
+      ]
+    },
+    {
+      "key": "belong-stage",
+      "name": "Belong Stage",
+      "description": "Everyone who has taken a Belong step. The grid's count is the stage's size. Stages overlap.",
+      "category": "leadership-reports",
+      "guid": "4B141B3B-1E15-40D4-AF92-5CEB9BC0290F",
+      "dataView": "belong-stage",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Belong Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','f3585131-3ebf-49c4-83a0-3f88271a9b9b' %}{% for x in s %}Starting Point Class {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','efa15a4f-5666-4153-b92f-af3ecd73c504' %}{% for x in s %}Small Group {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','eed45e21-7602-47a7-a204-6658f2e712a3' %}{% for x in s %}Student Camp {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        }
+      ]
+    },
+    {
+      "key": "equip-stage",
+      "name": "Equip Stage",
+      "description": "Everyone who has taken an Equip step.",
+      "category": "leadership-reports",
+      "guid": "99EC1B95-DC8C-4731-8A22-C561B72F9FBA",
+      "dataView": "equip-stage",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Equip Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','801cc43c-0641-4271-939e-75e428f31d06' %}{% for x in s %}Baptism {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','7afa9411-d982-4b38-85fb-827522db9b2d' %}{% for x in s %}Foundations {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','fac9e970-7434-4067-9e1c-180043ce6fcb' %}{% for x in s %}Follow Jesus {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        }
+      ]
+    },
+    {
+      "key": "contribute-stage",
+      "name": "Contribute Stage",
+      "description": "Everyone who has taken a Contribute step.",
+      "category": "leadership-reports",
+      "guid": "3D4AC6E2-7AAC-473E-93CD-5BFC77221ED4",
+      "dataView": "contribute-stage",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Contribute Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','71e66730-8f7d-4eef-9c53-524c4bde5e59' %}{% for x in s %}Serve {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','ce640cd3-dd6e-4bf3-addd-953f086e6e14' %}{% for x in s %}Give {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','8464ef05-f8e2-4db3-9ac4-bc1eee18cbc9' %}{% for x in s %}Mission Trip {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Team",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-serving-teams"
+        }
+      ]
+    },
+    {
+      "key": "lead-stage",
+      "name": "Lead Stage",
+      "description": "Everyone who has taken a Lead step.",
+      "category": "leadership-reports",
+      "guid": "B46C8368-E535-459D-9DB0-19697DAE4622",
+      "dataView": "lead-stage",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Lead Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','cff0e432-3ab6-4290-8f6e-c1a3d8d8f375' %}{% for x in s %}Lead {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','724c69af-20bc-4299-8fd5-a84ed2b4d42d' %}{% for x in s %}Student Leader {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Small Group Led",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}|1|1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Team Led",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}|1|1",
+          "dataView": "active-serving-teams"
+        }
+      ]
+    },
+    {
+      "key": "first-time-givers-to-thank",
+      "name": "First-Time Givers to Thank",
+      "description": "Who to write a thank-you note to this week. Names and addresses only, no amounts: a pastor can run it without seeing any giving. The finance team's version, First-Time Givers, shows the amounts.",
+      "category": "leadership-reports",
+      "guid": "43027A4F-1AE6-4AD7-B766-ED29517AE49D",
+      "dataView": "first-time-givers",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Spouse",
+          "component": "Rock.Reporting.DataSelect.Person.SpouseNameSelect",
+          "selection": "True"
+        },
+        {
+          "header": "Address",
+          "component": "Rock.Reporting.DataSelect.Person.AddressSelect",
+          "selection": "8c52e53c-2a66-435a-ae6e-5ee307d9a0dc|0"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        }
+      ]
+    },
+    {
+      "key": "guests-coming-back",
+      "name": "Guests Coming Back",
+      "description": "Guests to invite to the next Starting Point Class.",
+      "category": "notice-reports",
+      "guid": "55578495-162E-467B-B5B7-B27D05008C9B",
+      "dataView": "guests-coming-back",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "First Visit",
+          "attribute": "FirstVisit",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "ready-to-belong",
+      "name": "Ready to Belong",
+      "description": "Regular attenders to invite to Small Group Connect.",
+      "category": "belong-reports",
+      "guid": "2D31E137-E2D4-427F-A0EF-995DD787C2FB",
+      "dataView": "ready-to-belong",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Last Worship Attendance",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "235bae2b-5760-4763-aadf-3938f34ba100",
+          "sort": 1,
+          "descending": true
+        }
+      ]
+    },
+    {
+      "key": "small-groups-with-room",
+      "name": "Small Groups With Room",
+      "description": "Where to send someone who wants a group.",
+      "category": "belong-reports",
+      "guid": "72400D7D-F4D9-4BD0-B334-FF5467C18B75",
+      "dataView": "small-groups-with-room",
+      "columns": [
+        {
+          "header": "Group",
+          "component": "Rock.Reporting.DataSelect.Group.GroupLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Group.CampusSelect",
+          "selection": "{}"
+        },
+        {
+          "header": "Leaders",
+          "component": "Rock.Reporting.DataSelect.Group.MemberListSelect",
+          "selection": "1||6d798efa-0110-41d5-bce4-30acefe4317e|1"
+        },
+        {
+          "header": "Members",
+          "component": "Rock.Reporting.DataSelect.Group.MemberCountSelect",
+          "selection": "|1",
+          "sort": 1
+        },
+        {
+          "header": "Meets",
+          "component": "Rock.Reporting.DataSelect.Group.ScheduleSelect",
+          "selection": "{}"
+        },
+        {
+          "header": "Location",
+          "component": "Rock.Reporting.DataSelect.Group.LocationSelect",
+          "selection": "96d540f5-071d-4bbd-9906-28f0a64d39c4"
+        }
+      ]
+    },
+    {
+      "key": "kids-checked-in-lately",
+      "name": "Kids Checked In Lately",
+      "description": "Which families came lately, for a welcome or a follow-up.",
+      "category": "belong-reports",
+      "guid": "3008D0C6-BF84-41FB-88AF-FCD93F502048",
+      "dataView": "kids-checked-in-recently",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Grade",
+          "component": "Rock.Reporting.DataSelect.Person.GradeSelect",
+          "selection": null
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Last Nursery or Preschool Check-in",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "cadb2d12-7836-44bc-8eea-3c6ab22fd5e8"
+        },
+        {
+          "header": "Last Elementary Check-in",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "e3c8f7d6-5ceb-43bb-802f-66c3e734049e"
+        },
+        {
+          "header": "Parents",
+          "component": "Rock.Reporting.DataSelect.Person.ParentsNamesSelect",
+          "selection": null
+        },
+        {
+          "header": "Parent Email",
+          "component": "Rock.Reporting.DataSelect.Person.ParentsEmailSelect",
+          "selection": ""
+        }
+      ]
+    },
+    {
+      "key": "students-attending",
+      "name": "Students Attending",
+      "description": "The student ministry's active roster.",
+      "category": "belong-reports",
+      "guid": "814C0951-9C43-494C-A82B-5F733E24EB22",
+      "dataView": "students-attending",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Grade",
+          "component": "Rock.Reporting.DataSelect.Person.GradeSelect",
+          "selection": null
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Last Jr High Check-in",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "7a17235b-69ad-439b-bab0-1a0a472db96f"
+        },
+        {
+          "header": "Last High School Check-in",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "9a88743b-f336-4404-b877-2a623689195d"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Parents",
+          "component": "Rock.Reporting.DataSelect.Person.ParentsNamesSelect",
+          "selection": null
+        }
+      ]
+    },
+    {
+      "key": "ready-to-grow",
+      "name": "Ready to Grow",
+      "description": "Who belongs and is ready for Foundations or baptism.",
+      "category": "equip-reports",
+      "guid": "B1A10AE0-2139-4465-A9FD-D29325A079E8",
+      "dataView": "ready-to-grow",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Belong Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','f3585131-3ebf-49c4-83a0-3f88271a9b9b' %}{% for x in s %}Starting Point Class {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','efa15a4f-5666-4153-b92f-af3ecd73c504' %}{% for x in s %}Small Group {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','eed45e21-7602-47a7-a204-6658f2e712a3' %}{% for x in s %}Student Camp {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "belonging-a-year-not-growing",
+      "name": "Belonging a Year, Not Yet Growing",
+      "description": "Who has stalled, so their group leader can offer a next step.",
+      "category": "equip-reports",
+      "guid": "4EC5E760-CD05-44FD-B6F2-CD5276320F52",
+      "dataView": "belonging-a-year-not-growing",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Belong Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','f3585131-3ebf-49c4-83a0-3f88271a9b9b' %}{% for x in s %}Starting Point Class {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','efa15a4f-5666-4153-b92f-af3ecd73c504' %}{% for x in s %}Small Group {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','eed45e21-7602-47a7-a204-6658f2e712a3' %}{% for x in s %}Student Camp {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        }
+      ]
+    },
+    {
+      "key": "baptized-this-year",
+      "name": "Baptized This Year",
+      "description": "Whose story to celebrate, and who still needs a group.",
+      "category": "equip-reports",
+      "guid": "20192F79-4CCA-4AAF-A00C-D9CA10812182",
+      "dataView": "baptized-this-year",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Age",
+          "component": "Rock.Reporting.DataSelect.Person.AgeSelect",
+          "selection": null
+        },
+        {
+          "header": "Baptism Date",
+          "attribute": "BaptismDate",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Baptized",
+          "lava": "{{ BaptismDate | HumanizeDateTime }}"
+        }
+      ]
+    },
+    {
+      "key": "ready-to-serve",
+      "name": "Ready to Serve",
+      "description": "Who has been formed and is ready for a team, to invite on Serve Sunday.",
+      "category": "contribute-reports",
+      "guid": "E835D0F5-A195-46DC-A955-0D239D904499",
+      "dataView": "ready-to-serve",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Equip Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','801cc43c-0641-4271-939e-75e428f31d06' %}{% for x in s %}Baptism {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','7afa9411-d982-4b38-85fb-827522db9b2d' %}{% for x in s %}Foundations {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','fac9e970-7434-4067-9e1c-180043ce6fcb' %}{% for x in s %}Follow Jesus {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "ready-to-lead",
+      "name": "Ready to Lead",
+      "description": "Who to invite to Group Leader Training.",
+      "category": "lead-reports",
+      "guid": "B6E28E15-40D4-4587-8224-024938E512D9",
+      "dataView": "ready-to-lead",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Team",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-serving-teams"
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Equip Steps",
+          "lava": "{% assign s = Id | Steps:'All','Complete','801cc43c-0641-4271-939e-75e428f31d06' %}{% for x in s %}Baptism {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','7afa9411-d982-4b38-85fb-827522db9b2d' %}{% for x in s %}Foundations {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}{% assign s = Id | Steps:'All','Complete','fac9e970-7434-4067-9e1c-180043ce6fcb' %}{% for x in s %}Follow Jesus {{ x.StartDateTime | Date:'yyyy' }} {% endfor %}"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "drifting-adults",
+      "name": "Drifting Adults",
+      "description": "Who a pastor should call this week.",
+      "category": "reengage-reports",
+      "guid": "D4A5A889-41B6-4D25-AC8C-4687040425B5",
+      "dataView": "drifting-adults",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Last Worship Attendance",
+          "component": "Rock.Reporting.DataSelect.Person.LastAttendedGroupOfType",
+          "selection": "235bae2b-5760-4763-aadf-3938f34ba100",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Spouse",
+          "component": "Rock.Reporting.DataSelect.Person.SpouseNameSelect",
+          "selection": "True"
+        },
+        {
+          "header": "Mobile Phone",
+          "component": "Rock.Reporting.DataSelect.Person.PhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453|False"
+        },
+        {
+          "header": "Profile",
+          "lava": "<a href=\"~/Person/{{ Id }}\">Open</a>"
+        }
+      ]
+    },
+    {
+      "key": "volunteer-background-checks",
+      "name": "Volunteer Background Checks",
+      "description": "Who needs a renewal before they serve again.",
+      "category": "safety-reports",
+      "guid": "10EE474F-8E52-4549-B015-BAB307FF283C",
+      "dataView": "kids-and-student-volunteers",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Team",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-serving-teams"
+        },
+        {
+          "header": "Background Checked",
+          "attribute": "BackgroundChecked"
+        },
+        {
+          "header": "Background Check Date",
+          "attribute": "BackgroundCheckDate",
+          "sort": 1
+        },
+        {
+          "header": "Background Check Result",
+          "attribute": "BackgroundCheckResult"
+        }
+      ]
+    },
+    {
+      "key": "kids-allergy-list",
+      "name": "Kids Allergy List",
+      "description": "The sheet a classroom leader keeps by the snack table.",
+      "category": "safety-reports",
+      "guid": "5684A0A5-4548-4B1B-8FA5-A207C2B3DE97",
+      "dataView": "kids-with-an-allergy",
+      "columns": [
+        {
+          "header": "Photo",
+          "component": "Rock.Reporting.DataSelect.Person.PhotoSelect",
+          "selection": "50|50"
+        },
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Grade",
+          "component": "Rock.Reporting.DataSelect.Person.GradeSelect",
+          "selection": null
+        },
+        {
+          "header": "Allergy",
+          "attribute": "Allergy"
+        },
+        {
+          "header": "Parents",
+          "component": "Rock.Reporting.DataSelect.Person.ParentsNamesSelect",
+          "selection": null
+        },
+        {
+          "header": "Parent Phone",
+          "component": "Rock.Reporting.DataSelect.Person.ParentsPhoneNumberSelect",
+          "selection": "407e7e45-7b2e-4fcd-9605-ecb1339f2453"
+        },
+        {
+          "header": "Alert",
+          "lava": "<span class=\"label label-danger\">{{ Allergy }}</span>"
+        }
+      ]
+    },
+    {
+      "key": "first-time-givers",
+      "name": "First-Time Givers",
+      "description": "The same people as First-Time Givers to Thank, with the amounts finance needs.",
+      "category": "finance-reports",
+      "guid": "C449952D-7E46-4232-9A8F-B2F1BA25003C",
+      "dataView": "first-time-givers",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "First Gift",
+          "component": "Rock.Reporting.DataSelect.Person.FirstContributionSelect",
+          "selection": "|False",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Given in the Last 90 Days",
+          "component": "Rock.Reporting.DataSelect.Person.TotalGivingAmountSelect",
+          "selection": "256|0.00||||False|Last,90,Day,,|False"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "lapsed-givers",
+      "name": "Lapsed Givers",
+      "description": "Who stopped giving, and how often they used to give.",
+      "category": "finance-reports",
+      "guid": "2EE4B113-EB46-4AB4-BF10-7F58EBFCB3F8",
+      "dataView": "lapsed-givers",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Last Gave",
+          "attribute": "core_EraLastGave",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Giving Stage",
+          "attribute": "CurrentJourneyGivingStage"
+        },
+        {
+          "header": "Frequency",
+          "attribute": "FrequencyLabel"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        }
+      ]
+    },
+    {
+      "key": "top-givers",
+      "name": "Top Givers",
+      "description": "The church's largest givers. Only Finance Administration and Rock Administration can see it.",
+      "category": "finance-reports",
+      "guid": "2793FEE2-6FB0-4134-84BA-350DCDE13B51",
+      "dataView": "top-givers",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ],
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Giving Bin",
+          "attribute": "GivingBin"
+        },
+        {
+          "header": "Giving Percentile",
+          "attribute": "GivingPercentile"
+        },
+        {
+          "header": "Given in the Last 12 Months",
+          "component": "Rock.Reporting.DataSelect.Person.TotalGivingAmountSelect",
+          "selection": "256|0.00||||False|Last,12,Month,,|False"
+        },
+        {
+          "header": "Last Gift",
+          "component": "Rock.Reporting.DataSelect.Person.LastContributionSelect",
+          "selection": "|False"
+        }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-pledgers",
+      "name": "Built on the Rock Pledgers",
+      "description": "Everyone who pledged to the campaign, and what they have given to it, beside Rock's Pledge Analytics.",
+      "category": "finance-reports",
+      "guid": "0341057D-DC86-48AD-AC1A-A49E7A5037EB",
+      "dataView": "built-on-the-rock-pledgers",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Spouse",
+          "component": "Rock.Reporting.DataSelect.Person.SpouseNameSelect",
+          "selection": "True"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Given to the Campaign",
+          "component": "Rock.Reporting.DataSelect.Person.TotalGivingAmountSelect",
+          "selection": "256|0.00|||67c6181c-1d8c-44d7-b262-b81e746f06d8|False|Last,3,Year,,|False"
+        },
+        {
+          "header": "Last Campaign Gift",
+          "component": "Rock.Reporting.DataSelect.Person.LastContributionSelect",
+          "selection": "67c6181c-1d8c-44d7-b262-b81e746f06d8|False"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
+    },
+    {
+      "key": "registration-payments",
+      "name": "Registration Payments",
+      "description": "Every registration payment this year, for reconciling.",
+      "category": "finance-reports",
+      "guid": "911A4021-1D0A-4943-B153-1EDC53302462",
+      "dataView": "event-registration-payments",
+      "columns": [
+        {
+          "header": "Date",
+          "property": "TransactionDateTime",
+          "sort": 1,
+          "descending": true
+        },
+        {
+          "header": "Amount",
+          "component": "Rock.Reporting.DataSelect.FinancialTransaction.TotalAmountSelect",
+          "selection": null
+        },
+        {
+          "header": "Source",
+          "property": "SourceTypeValueId"
+        },
+        {
+          "header": "Transaction Code",
+          "property": "TransactionCode"
+        }
+      ]
+    },
+    {
+      "key": "money-matters-invite-list",
+      "name": "Money Matters Invite List",
+      "description": "Engaged adults to invite to the Money Matters class.",
+      "category": "finance-reports",
+      "guid": "A730C800-23B6-46E0-9D1D-8B1E0BCEB794",
+      "dataView": "money-matters-invite-list",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Campus",
+          "component": "Rock.Reporting.DataSelect.Person.CampusSelect",
+          "selection": null
+        },
+        {
+          "header": "Connection Status",
+          "property": "ConnectionStatusValueId"
+        },
+        {
+          "header": "Small Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
+        },
+        {
+          "header": "Email",
+          "property": "Email"
+        }
+      ]
     }
   ]
 }

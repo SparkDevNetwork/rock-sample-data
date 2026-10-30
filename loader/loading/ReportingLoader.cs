@@ -78,6 +78,7 @@ namespace RockSampleData.Loader.Loading
             var views = configuration.DataViews.ToDictionary( v => v.Key );
             var writer = new DataViewWriter( _db, _source.Categories, _foreignKey );
             writer.RegisterComponents( configuration.DataViews, SampleDataSource.ReportingConfigurationPath );
+            var security = new SecurityRuleWriter( _db, _source.SecurityRoles, _foreignKey );
 
             var ids = new Dictionary<string, int>();
             var skipped = new List<string>();
@@ -93,10 +94,99 @@ namespace RockSampleData.Loader.Loading
 
                 ids[view.Key] = writer.Write( view, now, new SeededRandom( $"{_seed}:reporting:{view.Key}" ),
                     f => Selection( f, views, otherViews, ids ), scheduleIds );
+                security.Write( "Rock.Model.DataView", ids[view.Key], view.Security, now, $"{SampleDataSource.ReportingConfigurationPath}: data view {view.Key}" );
             }
 
             var skippedText = skipped.Count == 0 ? "" : $", {skipped.Count} skipped because this load left out a part they need";
             _db.Log.Write( $"  Data views: {ids.Count} for reporting{skippedText}" );
+
+            var reports = 0;
+            foreach ( var report in configuration.Reports )
+            {
+                var guid = views.TryGetValue( report.DataView, out var view ) ? view.Guid
+                    : otherViews.TryGetValue( report.DataView, out var other ) ? other
+                    : throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key} uses data view {report.DataView}, which is not a data view in any configuration file." );
+                var viewId = _db.IdByGuid( "DataView", guid );
+                if ( viewId == null )
+                {
+                    _db.Log.Write( $"    Skipped report {report.Key}: its data view {report.DataView} was not written" );
+                    continue;
+                }
+
+                var reportId = WriteReport( report, viewId.Value, views, otherViews, now );
+                security.Write( "Rock.Model.Report", reportId, report.Security, now, $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key}" );
+                reports++;
+            }
+
+            _db.Log.Write( $"  Reports: {reports}" );
+        }
+
+        /// <summary>
+        /// Writes one report and its columns, as Rock's report editor saves them. The report returns its data view's entity.
+        /// Returns its Id.
+        /// </summary>
+        private int WriteReport( ReportDefinition report, int viewId, Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews, DateTime now )
+        {
+            var category = _source.Categories.Get( report.Category );
+            var entityTypeId = ( int ) _db.Scalar( "SELECT [EntityTypeId] FROM [DataView] WHERE [Id] = @Id", P( "@Id", viewId ) );
+            var reportId = ( int ) _db.Scalar( @"
+INSERT INTO [Report] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [DataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+OUTPUT INSERTED.[Id]
+VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @DataViewId, @Guid, @ForeignKey, @Now, @Now )",
+                P( "@Name", report.Name ), P( "@Description", report.Description ), P( "@CategoryId", _db.RequireIdByGuid( "Category", category.Guid ) ),
+                P( "@EntityTypeId", entityTypeId ), P( "@DataViewId", viewId ), P( "@Guid", report.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+
+            var random = new SeededRandom( $"{_seed}:report:{report.Key}" );
+            var order = 0;
+            foreach ( var column in report.Columns )
+            {
+                var (type, componentId, selection) = Column( report, column, entityTypeId, views, otherViews );
+                _db.Execute( @"
+INSERT INTO [ReportField] ( [ReportId], [ReportFieldType], [ShowInGrid], [DataSelectComponentEntityTypeId], [Selection], [ColumnOrder], [SortOrder], [SortDirection],
+    [ColumnHeaderText], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+VALUES ( @ReportId, @Type, 1, @ComponentId, @Selection, @Order, @SortOrder, @SortDirection, @Header, @Guid, @ForeignKey, @Now, @Now )",
+                    P( "@ReportId", reportId ), P( "@Type", type ), P( "@ComponentId", componentId ), P( "@Selection", selection ), P( "@Order", order++ ),
+                    P( "@SortOrder", column.Sort ), P( "@SortDirection", column.Descending ? 1 : 0 ), P( "@Header", column.Header ),
+                    P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+            }
+
+            return reportId;
+        }
+
+        /// <summary>
+        /// A column's Rock field type (0 property, 1 attribute, 2 data select component), its component's entity type, and its
+        /// selection: the property name, the attribute's Guid, or the component's settings.
+        /// </summary>
+        private (int Type, int? ComponentId, string Selection) Column( ReportDefinition report, ReportColumnDefinition column, int entityTypeId,
+            Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews )
+        {
+            if ( column.Property != null )
+            {
+                return (0, null, column.Property);
+            }
+
+            if ( column.Attribute != null )
+            {
+                var guid = _db.Scalar( @"
+SELECT TOP 1 [Guid] FROM [Attribute]
+WHERE [EntityTypeId] = @EntityTypeId AND [Key] = @Key AND ISNULL( [EntityTypeQualifierColumn], '' ) = ''",
+                    P( "@EntityTypeId", entityTypeId ), P( "@Key", column.Attribute ) )
+                    ?? throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key} shows attribute {column.Attribute}, which this Rock does not have." );
+                return (1, null, guid.ToString());
+            }
+
+            var component = column.Lava != null ? "Rock.Reporting.DataSelect.LiquidSelect" : column.Component
+                ?? throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key} has a column with no property, attribute, component, or Lava." );
+            var componentId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", component ) )
+                ?? throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key} uses {component}, which this Rock has not registered." ) );
+            var selection = column.Lava ?? column.Selection;
+            if ( column.DataView != null )
+            {
+                var viewGuid = views.TryGetValue( column.DataView, out var view ) ? view.Guid : otherViews[column.DataView];
+                selection = selection.Replace( "{dataView}", viewGuid.ToString() );
+            }
+
+            return (2, componentId, selection);
         }
 
         /// <summary>

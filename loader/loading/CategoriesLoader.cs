@@ -45,6 +45,7 @@ namespace RockSampleData.Loader.Loading
         {
             var categories = _source.Categories?.Categories ?? new List<Model.CategoryDefinition>();
             var now = DateTime.Now;
+            var security = new SecurityRuleWriter( _db, _source.SecurityRoles, _foreignKey );
             var ids = new Dictionary<string, int>();
             var written = 0;
             while ( written < categories.Count )
@@ -61,7 +62,7 @@ namespace RockSampleData.Loader.Loading
                     if ( category.RockShips )
                     {
                         ids[category.Key] = Rename( category, now );
-                        WriteSecurity( category, ids[category.Key], now );
+                        security.Write( "Rock.Model.Category", ids[category.Key], category.Security, now, $"configuration/categories.json: category '{category.Key}'" );
                         written++;
                         continue;
                     }
@@ -99,7 +100,7 @@ VALUES ( 0, @ParentId, @EntityTypeId, @QualifierColumn, @QualifierValue, @Name, 
                         P( "@ParentId", parentId ), P( "@EntityTypeId", entityTypeId ), P( "@QualifierColumn", qualifierColumn ),
                         P( "@QualifierValue", qualifierValue ), P( "@Name", category.Name ), P( "@Icon", category.IconCssClass ), P( "@Description", category.Description ),
                         P( "@Order", order ), P( "@Guid", category.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
-                    WriteSecurity( category, ids[category.Key], now );
+                    security.Write( "Rock.Model.Category", ids[category.Key], category.Security, now, $"configuration/categories.json: category '{category.Key}'" );
                     written++;
                 }
             }
@@ -118,46 +119,6 @@ VALUES ( 0, @ParentId, @EntityTypeId, @QualifierColumn, @QualifierValue, @Name, 
             _db.Execute( "UPDATE [Category] SET [Name] = @Name, [Description] = @Description, [ModifiedDateTime] = @Now WHERE [Id] = @Id",
                 P( "@Name", category.Name ), P( "@Description", category.Description ), P( "@Now", now ), P( "@Id", id ) );
             return id;
-        }
-
-        /// <summary>
-        /// Writes the category's security rules as Rock's security editor saves them: for each action, each allowed role
-        /// in order, then "deny All Users" when the action is locked. Data views and reports in the category inherit them.
-        /// </summary>
-        private void WriteSecurity( Model.CategoryDefinition category, int categoryId, DateTime now )
-        {
-            if ( category.Security.Count == 0 )
-            {
-                return;
-            }
-
-            var roles = _source.SecurityRoles?.Roles
-                ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' has security, but this package has no configuration/security-roles.json." );
-            var categoryEntityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Category'" ) );
-            foreach ( var rule in category.Security )
-            {
-                var order = 0;
-                foreach ( var roleName in rule.Allow )
-                {
-                    var role = roles.FirstOrDefault( r => r.RockRole == roleName )
-                        ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' allows {roleName}, which is not a role in configuration/security-roles.json." );
-                    InsertAuth( categoryEntityTypeId, categoryId, order++, rule.Action, "A", 0, _db.RequireIdByGuid( "Group", role.Guid ), now );
-                }
-
-                if ( rule.DenyAllUsers )
-                {
-                    InsertAuth( categoryEntityTypeId, categoryId, order, rule.Action, "D", 1, null, now );
-                }
-            }
-        }
-
-        private void InsertAuth( int entityTypeId, int entityId, int order, string action, string allowOrDeny, int specialRole, int? groupId, DateTime now )
-        {
-            _db.Execute( @"
-INSERT INTO [Auth] ( [EntityTypeId], [EntityId], [Order], [Action], [AllowOrDeny], [SpecialRole], [GroupId], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
-VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, @GroupId, NEWID(), @Now, @Now, @ForeignKey )",
-                P( "@EntityTypeId", entityTypeId ), P( "@EntityId", entityId ), P( "@Order", order ), P( "@Action", action ), P( "@AllowOrDeny", allowOrDeny ),
-                P( "@SpecialRole", specialRole ), P( "@GroupId", groupId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
         }
     }
 }

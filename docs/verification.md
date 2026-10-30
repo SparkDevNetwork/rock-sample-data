@@ -33,6 +33,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
 | [Data views](#data-views) | Verify tool | Rock's own engine runs every data view in the load without an error. |
 | [Access](#access) | Verify tool | Rock's own security check gives every answer in the security walkthrough. |
+| [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
@@ -268,6 +269,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`: may this Cast person view or edit this category or data view. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
+
+### Reports
+
+**What it does.** `verify/rock-runner` checks every report the way Rock's report grid reads it: a property column names one of Rock's reportable fields for the entity, an attribute column's attribute exists, and a data select column's component builds its expression from the stored selection. Each Lava column is rendered through Rock's own Lava engine, with the first row its data view finds, and any Lava error fails the check.
+
+**Why it's there.** A property or attribute Rock cannot find is quietly left out of the grid, and a component that cannot read its selection stops the whole report. Only Rock can say which, on both builds (decision D-reporting-9).
 
 ### Unchanged during run
 

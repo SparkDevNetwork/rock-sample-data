@@ -287,6 +287,7 @@ function load() {
         syncedListKeys: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).syncs.map( s => s.target.list ).filter( Boolean ) : [],
         syncDataViews: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).dataViews : [],
         reportingDataViews: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).dataViews : [],
+        reports: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).reports || [] : [],
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,

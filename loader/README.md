@@ -594,7 +594,9 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 1. **Categories.** `loading/CategoriesLoader.cs` writes each category's `security` as Rock's security editor saves it: each allowed role, then "deny All Users" when the action is locked. It renames Rock's shipped Foundational Views category, found by Guid, to Foundational Views (Shipped).
 2. **The named schedule.** "Nightly at 2 AM", in Rock's Persisted DataView Schedules category.
 3. **The views.** Each view is written after the views it points at. An Existing Data View filter gets Rock's JSON with the other view's Id and Use Persisted on, a related data view filter gets the other view's Guid, and a steps filter gets Rock's Steps Taken settings for every step type in its stage, from `steps.json`. A view can return another entity (groups, pledges), be persisted on the named schedule or an interval, and use Rock's Family Members transformation. A persisted view's last refresh stays empty, so Rock's job persists it in its first minute.
-4. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view built on it.
+4. **Item rules.** A view or report with its own `security`, such as Top Givers, gets its rules after it is written.
+5. **Reports.** Each report returns its data view's entity. A column is a property (its name), an attribute (found by key on the entity, stored as its Guid), a data select component with its selection, where a `{dataView}` placeholder takes a view's Guid, or Lava (Rock's LiquidSelect).
+6. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view and report built on it.
 
 ## Calendar
 

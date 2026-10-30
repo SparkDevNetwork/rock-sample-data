@@ -166,6 +166,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public string Transform { get; set; }
 
+        /// <summary>
+        /// Rules on this view alone, only where it must be narrower than its category, such as Top Givers.
+        /// </summary>
+        public List<CategorySecurityRule> Security { get; set; } = new List<CategorySecurityRule>();
+
         public DataViewFilterDefinition Filter { get; set; }
     }
 

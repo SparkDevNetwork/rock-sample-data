@@ -21,7 +21,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations**: one cancelled mission trip spot with a refunded deposit, financial batch history for registration payments, and the registration emails (confirmations, reminders, payment reminders, and signature receipts) as communication history. Everything else is built: the setup, the students, kids, and adults who registered, their payments, payment plans, wait lists, and placements, the signed camp and mission trip releases, the notes and history, reminders, and data views. See [Event registrations](registrations.md).
-- **Reports:** the 25 reports in [Data views and reports](reporting.md), the rest of the Finance views, run history, path metrics, and the group sync and registration views rebuilt on the foundations. The categories, their security, and the data views are built.
+- **Data views and reports, the last slices:** the group sync and registration views rebuilt on the foundations, a run history on each view and report, and path metrics with history. The categories, their security, the data views, and the 25 reports are built. See [Data views and reports](reporting.md).
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 

@@ -209,6 +209,8 @@ try
             checks.Add( DataViewsCheck( rock, sql, database, source ) );
             stage = "access";
             checks.Add( AccessCheck( rock, sql, database, source ) );
+            stage = "reports";
+            checks.Add( ReportsCheck( rock, sql, database, source ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -389,6 +391,16 @@ static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string datab
 /// Asks Rock's own security check each question in the security walkthrough (configuration/reporting.json access): may
 /// this Cast person take this action on this category or data view. Rock walks each item's categories as it does on a page.
 /// </summary>
+static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.Reporting?.Reports ?? new List<ReportDefinition>() ).ToDictionary( r => r.Guid, r => r.Key );
+    var lines = RockRunner.Run( rock, sql, database, "reports" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = lines.Select( l => l.Split( '\t' ) ).Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var g ) && names.TryGetValue( g, out var key ) ? key : $"Rock's report {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .ToList();
+    return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Length} reports, and renders every Lava column" : "Rock cannot read every report column", problems );
+}
+
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
     var access = source.Reporting?.Access ?? new List<AccessExpectation>();
@@ -408,7 +420,9 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         people = new CastPersonGuids( db, source );
     }
 
-    var questions = access.Select( a => a.Category != null ? $"Category\t{categories[a.Category]}\t{a.Action}\t{people.Rock( a.Person )}" : $"DataView\t{views[a.DataView]}\t{a.Action}\t{people.Rock( a.Person )}" );
+    var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}" : a.Report != null ? $"Report\t{reports[a.Report]}" : $"DataView\t{views[a.DataView]}" )
+        + $"\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
     var problems = new List<string>();
     for ( var i = 0; i < access.Count; i++ )
@@ -417,7 +431,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
