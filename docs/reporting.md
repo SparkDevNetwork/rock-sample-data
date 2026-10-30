@@ -303,7 +303,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 |---|---|---|---|---|---|---|
 | N2 | Ready to Grow | Person | In F2, in P1, not in P2 | F2, P1, P2 | No | R23 |
 | N5 | Belonging a Year, Not Yet Growing | Person | In P1, in F7, a "none" group holding "a Belong step completed in the last 12 months", and not in P2 | P1, F7, P2 | No | R24. The one "stalled" view |
-| C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience, through X4 if the flow ships Active |
+| C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience, through X4 |
 | C2 | Baptized This Year | Person | In F1, and the Baptism Date attribute is in the last 12 months | F1 | No | R2 |
 
 ### 4.6 Contribute (category: Rock Solid Church > Contribute)
@@ -323,7 +323,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync after slice 6 |
-| C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3 if the flow ships Active. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
+| C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
 | C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
 
 ### 4.9 Registrations (category: Rock Solid Church > Registrations, exists)
@@ -384,18 +384,18 @@ These views go in slice 2. If the flows land first, the flows session adds them 
 
 Views that exist only because this is sample data. A real church would not need them, so they stay out of Foundations, which teaches real practice.
 
-Jon wants recurring communication flows to ship Active, so Rock's flow job sends their runs after install. Every contact point in the data is reserved, except the 22 Cast staff households' emails, which use the church's real demo domain (decision 139). That domain has live mail servers. So each Active recurring flow sends only to people with a reserved email or none.
+Jon wants recurring communication flows to ship Active, so Rock's flow job sends their runs after install. Every contact point in the data is reserved, except the 22 Cast staff households' emails, which use the church's real demo domain (decision 139). That domain has live mail servers. So every recurring flow sends only to people with a reserved email or none. That includes a flow that ships paused, because a church can turn it on with one click.
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | X1 | Reserved or No Email | Person | In F1, and any of: email ends with `@example.org`; email is blank | F1 | No | X2 to X4 |
 | X2 | First Visit Last Week, Reserved Email | Person | In C4, and in X1 | C4, X1 | No | The First-Time Guest Welcome flow's audience |
-| X3 | Newly Missed, Reserved Email | Person | In C5, and in X1 | C5, X1 | No | The We Miss You flow's audience, if it ships Active |
-| X4 | Unbaptized Regular Attenders, Reserved Email | Person | In C7, and in X1 | C7, X1 | No | The Baptism Sunday Invitation flow's audience, if it ships Active |
+| X3 | Newly Missed, Reserved Email | Person | In C5, and in X1 | C5, X1 | No | The We Miss You flow's audience. The flow ships paused, but its audience keeps the guard, so turning it on can never reach a staff address |
+| X4 | Unbaptized Regular Attenders, Reserved Email | Person | In C7, and in X1 | C7, X1 | No | The Baptism Sunday Invitation flow's audience, which ships Active |
 
 X1 lists the safe domain, not the unsafe one. A new real domain added later is then left out by default, instead of leaking.
 
-The subject views C4, C5, and C7 stay pure, so a report or a later flow that needs the same people does not inherit a sample-data rule. Each flow's audience is a thin view that adds the guard to the subject view, and verify checks that every Active recurring flow's audience includes X1 (question 18).
+The subject views C4, C5, and C7 stay pure, so a report or a later flow that needs the same people does not inherit a sample-data rule. Each flow's audience is a thin view that adds the guard to the subject view, and verify checks, in each view's definition, that every recurring flow's audience includes X1, directly or through the Existing Data View filter (question 18).
 
 ## 5. Reports
 
@@ -625,6 +625,6 @@ Each has one recommendation.
 15. **Stage counts over time as Rock Metrics (slice 8)?** Recommend yes, as a later slice after slice 3. A metric per stage, fed by the stage views, is Rock's own tool for a count over time, and dashboards can show it. The loader fills weekly values for the history window from the steps, so the trend is there on install. Until then, Rock's Step Program page charts steps by type.
 16. **Contribute Stage counts the Give step. Keep it outside Finance?** Recommend yes. Rock already shows every Give step on the person's Steps tab to staff (decision 85), so P3 adds no new exposure. If Jon wants giving hidden from staff, the fix is security on the Give step type, which would hide it from the Steps tab too, and P3 would then move to Finance.
 17. **Move the Kids Allergy List into Safety?** Recommend yes. An allergy is medical information. Both kids directors are already Safety & Security Workers, so the people who need the list keep it.
-18. **How should Active recurring flows avoid emailing the Cast staff's real addresses?** Recommend a guard view, X1 Reserved or No Email, in its own Sample Data category, plus one thin audience view per Active recurring flow (X2 to X4). Folding the guard into C4, C5, and C7 would hide a sample-data rule inside views meant to teach real practice. The root-cause fix, moving staff emails to a reserved domain, would undo decision 139's real sender domain, so it is not recommended.
+18. **How should recurring flows avoid emailing the Cast staff's real addresses?** Recommend a guard view, X1 Reserved or No Email, in its own Sample Data category, plus one thin audience view per recurring flow (X2 to X4), paused ones included. Folding the guard into C4, C5, and C7 would hide a sample-data rule inside views meant to teach real practice. The root-cause fix, moving staff emails to a reserved domain, would undo decision 139's real sender domain, so it is not recommended.
 
 **Settled by the coordinator, 2026-10-29:** questions 6 to 15, 17, and 18, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 and 16 are with Jon.
