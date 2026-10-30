@@ -457,4 +457,4 @@ Each has one recommendation.
 13. **One "regular attender" rule for the flows too?** The guest flow's goal asks for 3 or more visits in 8 weeks, and the baptism flow's audience for 6 or more in 3 months. Recommend both use F5 (4 or more in 12 weeks), so the church has one definition, and the flows session sets its targets from what F5 finds. Two near-same rules are what the layers exist to prevent.
 14. **Involved Adults: Rock's Last Gave attribute instead of a Finance data view?** Recommend yes. Rock already shows Last Gave to all staff, so F10 can stay out of Finance and be shared. Building on Givers in the Last 12 Months would force it into Finance.
 
-**Settled by the coordinator, 2026-10-29:** questions 6 to 12, each as recommended. Questions 1 to 5 are with Jon. Questions 13 and 14 came with the communication flows audiences.
+**Settled by the coordinator, 2026-10-29:** questions 6 to 14, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 are with Jon.
