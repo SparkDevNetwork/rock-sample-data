@@ -1,10 +1,10 @@
 # Communication Flows: proposal
 
-Status: proposal only. No loader code until Jon approves it through the coordinator.
+Status: proposal. Jon answered every question on 2026-10-29 (Section 8). No loader code until the coordinator says to start.
 
-Rock Solid Church gets ten Communication Flows. Each one serves a Ministry by Design stage and moves people toward the next one, and most end when the person takes the step that marks it. Together they use every flow type, every conversion goal, every exit rule, and every message channel Rock has. Each flow has months of history: people who entered, the emails, texts, and pushes they got, opens and clicks, people who reached the goal, and people who left. The centerpiece is a **Baptism flow**. Staff or a web form can put a person in at any time, they get steady reminders, and the flow stops for them on its own the day their Baptism step is recorded.
+Rock Solid Church gets ten Communication Flows. Each one serves a Ministry by Design stage and moves people toward the next one, and most end when the person takes the step that marks it. Together they use every flow type, every conversion goal, every exit rule, and every message channel Rock has. Each flow has months of history: people who entered, the emails, texts, and pushes they got, opens and clicks, people who reached the goal, and people who left. Some runs are still under way on install day, and Rock keeps sending them. The centerpiece is a **Baptism flow**. Staff or a web form can put a person in at any time, they get steady reminders, and the flow stops for them on its own the day their Baptism step is recorded.
 
-One flow already exists on `main`: "After Starting Point" (decision 163). It keeps its shape, with one message changed (open question 8).
+One flow already exists on `main`: "After Starting Point" (decision 163). It keeps its shape, with one message changed (question 8).
 
 The example dates assume an install day of Thursday, October 29, 2026. Every real date is a rule counted from install day.
 
@@ -101,7 +101,7 @@ Every flow setting Rock has, and the sample flow that shows it. Flow numbers ref
 | | Conversion Achieved | 2, 6, 7, 9, 10 |
 | Channel | Email | Every flow |
 | | SMS | 2, 3, 4, 5, 6, 8, 9, 10 |
-| | Push | 2, 8 |
+| | Push | 8 |
 | Goal progress | Not Tracked, Pending, Achieved, Missed | 8; recent runs of 2 and 9; most runs of 3; most runs of 4 |
 | Flow status | Active, Inactive, Completed | 1, 2, 3, 5, and 9; 4, paused to show the feature (questions 1 and 12); 6, 7, 8, and 10 |
 | Why a person left | Goal met, opened, clicked, last message sent, unsubscribed from the flow, person made inactive | 2, 6, 7, 9, 10; 4; 5; 1, 3, 8; a few in every flow; a few in 2 |
@@ -118,7 +118,7 @@ All flows send from the church's address, through flow templates built on the Ro
 
 ### Flow 1. After Starting Point (exists)
 
-On-Demand, three emails, goal Joined Group of Type (small groups) in 30 days, exit Last Message Sent. It gets a category and a public name. One message changes (open question 8): the third email today invites people to serve three weeks after the class. Ministry by Design puts growth before serving, so it becomes an Equip invitation instead: Foundations, and baptism for anyone not yet baptized. Flow 9 now asks people to serve, after Foundations. People who already asked to serve, like the Gilberts, still serve: the step program's prerequisite is only Starting Point.
+On-Demand, three emails, goal Joined Group of Type (small groups) in 30 days, exit Last Message Sent. It gets a category and a public name. One message changes (question 8): the third email today invites people to serve three weeks after the class. Ministry by Design puts growth before serving, so it becomes an Equip invitation instead: Foundations, and baptism for anyone not yet baptized. Flow 9 now asks people to serve, after Foundations. People who already asked to serve, like the Gilberts, still serve: the step program's prerequisite is only Starting Point. The most recent class's run is mid-flow at install, so its later emails go out after install (decision 163 changes here, since it kept only finished classes).
 
 ### Flow 2. Baptism Next Steps
 
@@ -131,7 +131,7 @@ See Section 4.
 - **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
 - **Goal.** Took Step: Starting Point Class, the first Belong step. Window 84 days, long enough for the next four-week class to start and finish. The target is set from what the data finds, likely about 10% (see Section 5).
 - **Exit.** Last Message Sent. A guest gets all three messages, because the welcome matters even after they sign up.
-- **On install day.** Active. Its audience includes the "Reserved or No Email" guard (Section 6, "After install").
+- **On install day.** Active. Its audience includes the "Reserved or No Email" guard. The runs from the last two Mondays are mid-flow, so their remaining messages go out after install (Section 6, "After install").
 - **Cast.** Jordan and Hannah Ellis, who first came 120 days ago. They are in the run for the Monday after. Hannah clicked the Starting Point link, but neither has taken the class, so their run shows the goal missed. They still come most weeks, which is "the norm, not a gate": belonging does not wait for the class.
 
 ### Flow 4. We Miss You
@@ -149,9 +149,9 @@ See Section 4.
 - **Purpose.** Before each baptism Sunday, invite regular attenders who have not been baptized.
 - **Trigger.** Recurring, on specific dates: 5 weeks before Easter and 5 weeks before the July baptism Sunday. Audience: the Unbaptized Regular Attenders data view, adults who are Regular Attenders and have no Baptism step.
 - **Messages.** Email ("Is it time?") with a button to the Baptism Interest form. SMS 7 days later.
-- **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. The target is set from what the regular attender rule finds in the data, likely about 5% (see Section 5).
+- **Goal.** Completed Form: the Baptism Interest workflow (question 2). Window 35 days. The target is set from what the regular attender rule finds in the data, likely about 5% (see Section 5).
 - **Exit.** Any Email Clicked. A person who clicked has the form in front of them, so the text would only nag.
-- **On install day.** Active. Its audience includes the "Reserved or No Email" guard (Section 6, "After install").
+- **On install day.** Active. Its audience includes the "Reserved or No Email" guard. A run is mid-flow only when install falls in the week after a run date (Section 6, "After install").
 - **Cast.** None pinned. People who fill out the form inside a run's window convert, and the form puts them in the Baptism flow.
 
 ### Flow 6. Student Camp Registration
@@ -188,6 +188,7 @@ See Section 4.
 - **Messages.** Email that day ("You finished Foundations. What's next?"), with the serving teams at their campus. SMS 5 days later ("Want help finding a team? Just reply."). Email 14 days later, with stories from volunteers and the next Serve Sunday.
 - **Goal.** Took Step: Serve, within 90 days. People already serving met the goal before the run, so Rock leaves them out of the rate. They still get a thank-you, since the messages also celebrate the course.
 - **Exit.** Conversion Achieved. A person who joins a team gets no more asks.
+- **On install day.** Active. The most recent course's run is mid-flow, so its later messages go out after install.
 - **Cast.** None pinned. If a Cast adult finished Foundations in the window and then joined a team, the build pins them.
 
 ### Flow 10. Lead a Group (new)
@@ -213,11 +214,11 @@ See Section 4.
 
 The reports work files its views by Ministry by Design system too: Notice, Belong, Equip, Contribute, Lead, and Re-engage, plus Foundations and a Path category of stage views. Flow 3's goal is now the Starting Point Class step, so it no longer uses Regular Attenders directly.
 
-**Why step goals, not stage views.** The reports work also has stage views, such as Equip Stage and Contribute Stage, that an Entered Data View goal could use. The flows keep Took Step goals where one step fits, for two reasons. A step goal ends the flow for a person when they take the next step on the path, which is how the framework marks movement. And Rock dates an Entered Data View conversion by when its job last ran the view, while a step goal uses the step's own date (Section 6, risk 3).
+**Why step goals, not stage views.** The reports work also has stage views, such as Equip Stage and Contribute Stage, that an Entered Data View goal could use. The flows keep Took Step goals where one step fits, for two reasons. A step goal ends the flow for a person when they take the next step on the path, which is how the framework marks movement. And Rock dates an Entered Data View conversion by when its job last ran the view, while a step goal uses the step's own date (Section 6, risk 4).
 
 The views are in the reports work's slice 2. If flows slice 1 lands first, it adds them to `configuration/reporting.json` with these keys, plus the foundation views they build on, as that proposal describes them. Rock's flow job checks no person's security, so a view's category limits only who can open it, not whether the flow works.
 
-**Message text.** New entries in the message library in `content/communications`, about 28 messages in all, in the church's voice, plus a new third email for After Starting Point. No images are needed: the emails use the branded template's logo.
+**Message text.** New entries in the message library in `content/communications`, about 24 messages in all, in the church's voice, plus a new third email for After Starting Point. No images are needed: the emails use the branded template's logo.
 
 ## 4. The Baptism flow
 
@@ -225,44 +226,43 @@ The views are in the reports work's slice 2. If flows slice 1 lands first, it ad
 
 **How Rock does this.** It is an On-Demand flow whose goal is Took Step, with Rock's Discipleship Path and its Baptism step type (`801CC43C-0641-4271-939E-75E428F31D06`, the one the steps data already uses). Its exit rule is Conversion Achieved. Each time the job runs, it finds people whose Baptism step was completed inside their window, records the conversion, and marks them Inactive with the reason "goal met." The job never sends an Inactive person another message. That is the "stops on its own" behavior, and it needs no custom code.
 
-**How a person gets in.** Through Rock's "Activate Communication Flow" workflow action, which is the only way into an On-Demand flow. The proposal adds one workflow type, "Baptism Interest," with a short form and that action (open question 2). People reach it two ways:
+**How a person gets in.** Through Rock's "Activate Communication Flow" workflow action, which is the only way into an On-Demand flow. The proposal adds one workflow type, "Baptism Interest," with a short form and that action (question 2). People reach it two ways:
 
 1. They fill out the "I'm interested in baptism" form on the website, often after the Baptism Sunday Invitation (Flow 5).
 2. Staff launch it from the person's profile after a conversation.
 
-**The messages.** Eight, over 24 weeks, so the reminders are steady but not pushy.
+**The messages.** Four, over six weeks (Jon, 2026-10-29: "Let's limit it to four"). Each one does a different job, and they alternate email and text, so the reminders are steady but not pushy.
 
-| # | Wait | Channel | Message |
-|---|---|---|---|
-| 1 | Day 0, 10 a.m. | Email | "We're so glad you're thinking about baptism": what it means, and who to ask |
-| 2 | 2 days | SMS | "Any questions about baptism? Just reply to this text." |
-| 3 | 12 days | Email | What happens on a baptism Sunday, and what to bring |
-| 4 | 14 days | Push | A baptism story video, for people with the app |
-| 5 | 21 days | Email | Stories from people who were baptized here |
-| 6 | 28 days | SMS | "Our next baptism Sunday is coming up. Want us to save you a spot?" |
-| 7 | 35 days | Email | Questions people ask about baptism |
-| 8 | 56 days | Email | "Whenever you're ready, we're here," with the campus pastor's contact |
+| # | Wait | Day | Channel | Message |
+|---|---|---|---|---|
+| 1 | 0 days, 10 a.m. | 0 | Email | "We're so glad you're thinking about baptism": what it means, and who to ask |
+| 2 | 2 days | 2 | SMS | "Any questions about baptism? Just reply to this text." |
+| 3 | 12 days | 14 | Email | What happens on a baptism Sunday and what to bring, with stories from people baptized here |
+| 4 | 28 days | 42 | SMS | "Our next baptism Sunday is coming up. Want us to save you a spot? Reply YES." |
 
-**The goal.** Took Step: Baptism, within 365 days, target 50%. The window runs past the last message, so a person baptized a few months after the reminders end still counts. That also gives runs from 6 to 12 months ago the Pending state on install day.
+Left out from the first draft: a push with a story video, which reaches only people with the app; a second stories email; a questions email; and a "whenever you're ready" email. Message 3 carries the stories, and message 4 asks for the decision. Push stays covered by the Christmas flow.
+
+**The goal.** Took Step: Baptism, within 180 days, target 50%. The window runs well past the last message, so a person baptized a few months after the reminders end still counts. Runs from 6 weeks to 6 months ago show Pending on install day. Staff can put a person back in for another round at any time.
 
 **Who is in it.** The flow reads the Baptism steps the steps part already wrote. It never changes them.
 
 - **People baptized here** in the last 18 months: about 70% of them entered the flow first, from 1 to 16 weeks before their baptism. The rest signed up on the day. Each one who entered converts, credited to the newest message before their baptism, and gets no more reminders.
-- **People not baptized:** about as many again entered and are not baptized. They got all eight messages and left after the last one, or they are still Pending. So the flow converts about half of the people who enter, a little above its 50% target.
+- **People not baptized:** about as many again entered and are not baptized. They got all four messages and left after the last one, or they are still Pending. So the flow converts about half of the people who enter, a little above its 50% target.
+- **People mid-flow:** everyone who entered in the 6 weeks before install is still in it, with messages left. Rock's job sends those after install (see "On install day" below).
 - **A few** unsubscribe from the flow, and a few are made inactive (for example, they moved away).
 
 **Cast stories.**
 
 1. **Josh Sanders** filled out the Baptism Interest form 66 days before install, the day he texted Ted "I turned in my baptism form." That put him in Baptism Next Steps. It came weeks after the July invitation's window closed, so it is not a Flow 5 conversion. He got the welcome email and the text, was baptized 60 days before install, and left the flow with the reason "goal met." He never got message 3.
-2. **One Cast adult who is not baptized,** chosen at build from the adults the steps plan leaves unbaptized, entered about 8 months before install. They got all eight messages, opened a few, and are still Pending.
+2. **One Cast adult who is not baptized,** chosen at build from the unbaptized Cast adults with an `example.org` email, entered 30 days before install. They got messages 1 to 3 and opened the email about baptism Sunday. Message 4, the "save you a spot" text, is still to come: Rock's job sends it 12 days after install.
 
-**On install day.** The flow is Active, so anyone testing the sample data can launch "Baptism Interest" for a person and watch Rock run the flow for real. No run in the history still has a message to send, because nothing a load writes sends at install (decision 95, with the amendment in Section 6). See open question 1.
+**On install day.** The flow is Active. People who entered in the last 6 weeks are mid-flow (Jon, 2026-10-29: "I would want people to be in mid-flow on install day"), and Rock's job sends their next messages on their dates. Anyone testing the sample data can also launch "Baptism Interest" for a person and watch Rock run the flow for real. Section 6, "After install," says who these sends can reach.
 
 ## 5. How the history is backfilled
 
 **How far back.** Communication history covers 2 years (decision 90). After Starting Point keeps its 2 years. The new flows started 18 months before install day, so each one has a launch date, a few rough early runs, and a steadier recent stretch. The one-time flows each have their single run.
 
-**What the loader writes.** Everything Rock's job writes, and nothing it does not. For each run: the instance, its recipients with status and leave reason, one bulk communication per message from that message's flow template, the recipients and their send outcomes, opens and clicks as interactions with `OpenedDateTime` set, unsubscribes at the Flows level, and conversions. The code that already writes After Starting Point is generalized to write all ten flows, and it uses the same email planner, so a person on "No mass emails" never gets a flow email, as Rock decides.
+**What the loader writes.** Everything Rock's job writes, and nothing it does not. For each run: the instance, its recipients with status and leave reason, one bulk communication per message from that message's flow template, the recipients and their send outcomes, opens and clicks as interactions with `OpenedDateTime` set, unsubscribes at the Flows level, and conversions. A run that is mid-flow at install has every message that was due before install, and nothing more: Rock's job writes the rest when they come due. The code that already writes After Starting Point is generalized to write all ten flows, and it uses the same email planner, so a person on "No mass emails" never gets a flow email, as Rock decides.
 
 **Rates.** Opens and clicks follow the measured email shapes the bulk email already uses (decision 149). The flow rates are designed, because no calibration source has flows yet:
 
@@ -290,17 +290,17 @@ Flow unsubscribes run about 0.3% per email, a little above bulk email, because f
 |---|---|---|
 | 3 Guest Welcome, 78 weekly runs | About 1,000 | About 3,000 |
 | 4 We Miss You, 18 monthly runs | About 500 | About 800 |
-| 2 Baptism Next Steps | About 600 | About 2,500 |
+| 2 Baptism Next Steps | About 600 | About 1,500 |
 | 5 Baptism Sunday Invitation, 3 runs | About 3,000 each | About 12,000 |
 | 6 and 7, one run each | About 800 and 2,500 | About 7,000 |
 | 8 Christmas | About 6,000 | About 14,000 |
 | 9 After Foundations, a run per course | About 800 | About 2,000 |
 | 10 Lead a Group, one run | About 2,500 | About 6,000 |
-| **Total** | | **About 48,000** |
+| **Total** | | **About 47,000** |
 
 That is about 3% on top of the 1.6 million communication recipients Full 7 already has. The flows write inside the Communications step's deferred index rebuild, so they add a few seconds to a load of about 173 seconds. Core 1 and Core 3 get the same flows with far fewer people.
 
-**Dates.** Every date is a rule from install day, and every send is before it. Times are local wall-clock times, like the rest of the data. Each run's start date is a date only, as Rock stores it. One-time flows tied to an event pick the newest occurrence whose run and goal window fit before install day. For example, the camp flow uses next summer's camp once its registration has been open for 75 days, and otherwise last summer's.
+**Dates.** Every date is a rule from install day, and every send the loader writes is before it. Runs that are mid-flow at install send the rest after. Times are local wall-clock times, like the rest of the data. Each run's start date is a date only, as Rock stores it. One-time flows tied to an event pick the newest occurrence whose run and goal window fit before install day. For example, the camp flow uses next summer's camp once its registration has been open for 75 days, and otherwise last summer's.
 
 ## 6. Risks, and Rock 20 vs Rock 21
 
@@ -308,41 +308,63 @@ That is about 3% on top of the 1.6 million communication recipients Full 7 alrea
 
 **Risks.**
 
-1. **Sending after install.** Jon asked that the recurring flows not ship paused, except one to show the feature (open question 1). So two recurring flows ship Active, and Rock's job starts their next run on its next schedule date after install. See "After install" below for what keeps those sends away from real people.
-2. **The job as referee.** Rock re-adds conversions for any run whose goal tracking is still open. If the loader credits a conversion differently from Rock, the job would add a second row. So verify runs Rock's Process Communication Flows job once after each load, as it runs Group Sync today (decision 187). It expects no new conversion, and no send except a new run of an Active recurring flow whose schedule falls on install day, which must reach only reserved contact points.
-3. **Entered Data View dates.** Rock dates these conversions by when the job last ran the view. History needs each person's real date, so the loader writes them for runs whose window has closed. For a run whose window is still open at install, the loader credits the way the job would on install day, so the referee adds nothing.
-4. **Two unsubscribe paths.** Rock marks a flow unsubscribe one way from the email preference page and another way from the job. The loader follows the preference page path, which is what a person clicking the link does, and the build checks both against Rock's code.
-5. **Workflows are new here.** No workflow types exist in the sample data yet. The Baptism Interest type must open and edit in Rock's workflow screens like one a person built, and Rock Cleanup must find nothing to fix.
-6. **Cast dates.** Josh Sanders' text thank-you to Ted is dated 62 days before install, before his baptism 60 days before. The flow uses his Baptism step date. The text's date is a small Cast fix for whoever owns the threads.
+1. **Sending after install.** Jon wants flows to send after install (questions 1 and 4). So runs that were mid-flow at install send their remaining messages, and the Active recurring flows start new runs on their dates. See "After install" below for what keeps every one of those sends away from real people.
+2. **The job as referee.** Rock re-adds conversions for any run whose goal tracking is still open. If the loader credits a conversion differently from Rock, the job would add a second row. So verify runs Rock's Process Communication Flows job once after each load, as it runs Group Sync today (decision 187). It expects no new conversion. It may create messages that are due on install day, and each must reach only reserved contact points.
+3. **Mid-flow timing.** Rock dates each next message from the day the previous one actually went out. So the loader writes every message that was due before install as sent, and leaves the next one for the job. No message is ever overdue at install, so the first job run does not send a backlog.
+4. **Entered Data View dates.** Rock dates these conversions by when the job last ran the view. History needs each person's real date, so the loader writes them for runs whose window has closed. For a run whose window is still open at install, the loader credits the way the job would on install day, so the referee adds nothing.
+5. **Two unsubscribe paths.** Rock marks a flow unsubscribe one way from the email preference page and another way from the job. The loader follows the preference page path, which is what a person clicking the link does, and the build checks both against Rock's code.
+6. **Workflows are new here.** No workflow types exist in the sample data yet. The Baptism Interest type must open and edit in Rock's workflow screens like one a person built, and Rock Cleanup must find nothing to fix.
+7. **Cast dates.** Josh Sanders' text thank-you to Ted is dated 62 days before install, before his baptism 60 days before. The flow uses his Baptism step date. The text's date is a small Cast fix for whoever owns the threads.
 
 ### After install
 
-**What can send.** Two recurring flows ship Active with their schedules: First-Time Guest Welcome and Baptism Sunday Invitation. We Miss You ships paused, to show the pause feature (open question 12). The On-Demand flows are Active, but only a workflow someone launches can add a person. Every One-Time run is finished. So after install, only the two Active recurring flows can send on their own.
+**Jon's direction, 2026-10-29.** "I don't think nothing sends after install rule is valid. I think I do want things to send." So decision 95's blanket rule retires. Flows, and runs already under way, may send after install. One safety rule takes its place: whatever sends after install can reach only reserved contact points. Jon added: "We'll work on some of that how that works before we're done." The open details are listed under "Follow-up" below.
 
-**Who they can reach.** Every generated person, business, and prayer guest has an `example.org` email or none, a 555-0100 to 555-0199 phone, and a `sample-data-` push token (decisions 13 and 95). Cast people use `example.org` too, **except the 22 Cast staff households, whose emails are on `rocksolidchurchdemo.com`.** That domain is real: it has live Google mail servers, so an email to a staff address would be delivered.
+**What can send.**
+
+- **Runs that are mid-flow at install** send their remaining messages on their dates. That covers the On-Demand flows (After Starting Point, Baptism Next Steps, and After Foundations) and the Active recurring flows. A run is mid-flow when its first message went out before install and its last one falls after.
+- **The two Active recurring flows,** First-Time Guest Welcome and Baptism Sunday Invitation, start new runs on their schedule dates.
+- **Anyone testing** can launch the Baptism Interest workflow for a person and start a new Baptism run.
+- **Nothing else sends on its own.** We Miss You ships paused, to show the pause feature (question 12). Every One-Time run is finished.
+
+**Who they can reach.** Every generated person, business, and prayer guest has an `example.org` email or none, a 555-0100 to 555-0199 phone, and a `sample-data-` push token (decision 13). Cast people use `example.org` too, **except the 22 Cast staff households, whose emails are on `rocksolidchurchdemo.com`.** That domain is real: it has live Google mail servers, so an email to a staff address would be delivered.
 
 - **First-Time Guest Welcome** cannot reach staff. Its audience is people whose first worship visit was in the last 7 days, and every staff member first came years ago. No attendance is written after install, so the view finds only the last week's guests, for one Monday, and then nobody.
 - **Baptism Sunday Invitation** could reach staff without the guard, since a staff member with no Baptism step is an unbaptized regular attender. Its audience shrinks to nobody 12 weeks after install, because no one keeps 4 check-ins in 12 weeks once attendance stops. Its next date, 5 weeks before Easter or the July baptism Sunday, is usually months away, so it often sends nothing at all.
 - **We Miss You** ships paused for a reason. No attendance is written after install, so every regular attender "stops coming" on install day. About 90 to 120 days later, Newly Missed holds nearly every regular, staff included, and one monthly run would email thousands. A church that turns it on gets that run. The guard keeps it on `example.org`, but those emails bounce, which can hurt a real mail service's sending reputation in a test copy.
+- **Mid-flow runs** reach only the people already in them. On-Demand flows have no audience view, so the loader puts a person in a run that is still open at install only if their contact points are reserved. A staff member can be in a finished run in the history, but never in an open one.
 
-**The guard.** The reports work owns it (its Section 4.13). "Reserved or No Email" (`reserved-or-no-email`, in a new Rock Solid Church > Sample Data category) holds active people whose email ends with `@example.org` or is blank. It names the safe domain, so any new real domain is left out by default. Each recurring flow's audience is a thin view in the same category that joins its subject view with the guard, such as "First Visit Last Week, Reserved Email." The subject views stay clean, so a report or a later flow that uses them does not inherit a sample-data rule. No staff address can ever be in a flow audience, whatever the dates do. Phones and push tokens need no filter, because every one is reserved. Goals send nothing, so they need no guard.
+**The guard.** The reports work owns it (its Section 4.13). "Reserved or No Email" (`reserved-or-no-email`, in a new Rock Solid Church > Sample Data category) holds active people whose email ends with `@example.org` or is blank. It names the safe domain, so any new real domain is left out by default. Each recurring flow's audience is a thin view in the same category that joins its subject view with the guard, such as "First Visit Last Week, Reserved Email." The subject views stay clean, so a report or a later flow that uses them does not inherit a sample-data rule. No staff address can ever be in a recurring flow's audience, whatever the dates do. Phones and push tokens need no filter, because every one is reserved. Goals send nothing, so they need no guard.
 
 We Miss You keeps its guarded view while paused, so a church that turns it on later is still safe. The reports work agreed: every recurring flow keeps its guarded view, paused ones included.
 
-**Proposed amendment to decision 95** (placeholder D-comm-flows-1, numbered at merge):
+**Proposed decision** (placeholder D-comm-flows-1, numbered at merge). It retires decision 95's rule that nothing a load writes can ever send:
 
-> Nothing a load writes sends at install. Every communication is Approved with a `SendDateTime`, no recipient is Pending or Sending, and every flow run in the history is finished. Named recurring flows, listed in `configuration/`, ship Active, so Rock's flow job starts their next run on its schedule date after install. Each one's audience includes the "Reserved or No Email" view, so it can reach only `example.org` emails, 555-0100 to 555-0199 phones, and `sample-data-` push tokens. Every other recurring flow ships paused, every One-Time run is finished, and On-Demand flows add people only when a workflow is launched.
+> Things may send after install, only to reserved contact points. What a load writes is history: every communication it writes is Approved with a `SendDateTime`, and no recipient it writes is Pending or Sending, so Rock never re-sends the past. After install, Rock may send: flow runs that were mid-flow at install send their remaining messages, recurring flows named in `configuration/` start new runs on their dates, and On-Demand flows add people when a workflow is launched. Everything that can send after install reaches only `example.org` emails or none, 555-0100 to 555-0199 phones, and `sample-data-` push tokens. Each recurring flow's audience includes the "Reserved or No Email" view, and every person in a run that is open at install has only reserved contact points.
 >
-> Reason: Jon asked that the recurring flows show as running, not paused. Sends after install are acceptable when they can reach only reserved contact points, because no real person can receive them.
+> Reason: Jon wants the sample church to look and act alive after install, with flows that keep sending (2026-10-29). Sends are safe when they can reach only reserved contact points, because no real person can receive them. The real staff domain, `rocksolidchurchdemo.com`, is the one exception the guard exists for.
 
-**What verify checks instead.**
+Decision 95's other parts stay as history rules, not a "nothing sends" rule. Group sync's welcome and exit emails (decision 187) are unchanged.
+
+**What verify checks.**
 
 1. No recipient is Pending or Sending, and every communication has a `SendDateTime` (unchanged).
-2. Every flow run in the history has its messaging done (unchanged).
+2. A flow run may be mid-flow at install only in an On-Demand flow or an Active recurring flow. Its next message is due on or after install day, never before.
 3. A recurring flow is Active only if `configuration/` names it, and every other recurring flow is inactive. Every One-Time flow has messaging closed.
 4. Each recurring flow's audience view includes `reserved-or-no-email`, directly or through Rock's Existing Data View filter, checked in the view's definition, not just in today's results.
-5. Every person each Active flow's audience finds today has an `example.org` email or none, only 555-0100 to 555-0199 phones, and only `sample-data-` devices.
-6. Rock's flow job, run once as referee, adds no conversion. Any run it starts belongs to a named Active flow, and every recipient passes check 5.
+5. Every person each Active recurring flow's audience finds today, and every Active recipient of a mid-flow run, has an `example.org` email or none, only 555-0100 to 555-0199 phones, and only `sample-data-` devices.
+6. Rock's flow job, run once as referee, adds no conversion. Every message it creates belongs to a mid-flow run or a named Active flow, and every recipient passes check 5.
+
+### Follow-up: details to work out with Jon
+
+Jon said, "We'll work on some of that how that works before we're done." These are the details still open. None blocks slice 1.
+
+1. **The staff domain.** `rocksolidchurchdemo.com` is real. The guard keeps it out of every flow audience and every open run, but a tester who launches the Baptism Interest workflow for a staff member would email a real address. Moving staff to a reserved domain fixes the root cause, but the reports proposal's question 18 explains why it undoes decision 139's real sender domain.
+2. **A test copy with a real mail service.** A church that installs into a copy of production, with its real email and texting services on, will send to `example.org` and 555 numbers. Those bounce or fail, which can hurt the service's reputation, and texts can cost money. Should the installer warn, or turn off the flow job until someone turns it on?
+3. **Install-day sends.** Messages due on install day go out on the job's first run, minutes after install. Is that wanted, or should the first sends wait a day?
+4. **How long the church stays alive.** No attendance, steps, or registrations are written after install, so audiences and goals drift. The guest flow empties in a week, the baptism invitation in 12 weeks, and We Miss You would swell if turned on. How long should a sample database look alive?
+5. **Other features that could send.** This proposal opens sending only for flows. Should other parts follow, such as scheduled communications, serving reminders, or reminders?
+6. **What verify can prove.** Verify can check today's audiences and every view's rule, but not every future date. Is checking the rule enough, or should verify also run the views as of later dates?
 
 ## 7. Implementation slices
 
@@ -351,28 +373,28 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 | Slice | What it adds | Size |
 |---|---|---|
 | 1. Setup | Flow categories, the data views (reused or filed in the reports and data views tree), flow templates for email, SMS, and push, the nine new flows with their messages and no runs, and After Starting Point's category, public name, and new third email. Invariants: a goal always has a window, settings match the goal type, SMS templates have a phone number, and the after-install checks in Section 6 | Small |
-| 2. On-Demand flows | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history and Josh's story, After Foundations with its history, and verify running Rock's flow job as referee | Medium |
+| 2. On-Demand flows | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its mid-flow runs, and Josh's story, After Foundations with its history, After Starting Point's mid-flow run, and verify running Rock's flow job as referee | Medium |
 | 3. Recurring flows | First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation, with the Ellis and Ortiz stories | Medium |
 | 4. One-time flows and finish | Student Camp, Women's Retreat, Christmas, and Lead a Group, with pushes, unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
-## 8. Open questions
+## 8. Questions and answers
 
-1. **What can still run after install?** Answered by Jon, 2026-10-29: "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." So First-Time Guest Welcome and Baptism Sunday Invitation ship Active, and We Miss You ships paused (question 12). Decision 95 needs the amendment in Section 6, "After install."
-2. **Add the Baptism Interest workflow?** It is the only way into an On-Demand flow, and the only home for the Completed Form goal. It is the first workflow type in the sample data. **Recommendation: yes,** one workflow type with a form and the Activate Communication Flow action, plus a finished workflow for each person who entered the Baptism flow. Wiring After Starting Point to a workflow too can wait.
-3. **Baptism flow shape.** Eight messages over 24 weeks, a 365-day window, and a 50% target. **Recommendation: approve as written.** A shorter flow (5 messages over 10 weeks) is the alternative if Jon wants it lighter.
-4. **Mid-flow people on install day.** Jon may want to see people part way through the Baptism flow. That needs a run with messages left to send, which the job would send. **Recommendation: no.** Keep decision 95. Show "in progress" through Pending runs and Josh's finished story, and let a tester add someone live.
+Every question is answered. The details Jon wants to work out later are in Section 6, "Follow-up."
 
-**From the Ministry by Design rethink (2026-10-29).** Question 9 is open for Jon. Questions 8, 10, and 11 are settled.
+**Answered by Jon, 2026-10-29** (his words in quotes):
 
-12. **Which recurring flow is the paused one?** Settled by the coordinator, 2026-10-29: swap them, as recommended. We Miss You ships paused, and Baptism Sunday Invitation and First-Time Guest Welcome ship Active, both on the guard and verify checks 3 to 6. The reasoning: We Miss You's audience grows on its own after install: about 90 to 120 days later, nearly every regular attender looks "newly missed," so one monthly run would email thousands. The guard keeps those emails on `example.org`, so no real person gets one. But a church that installs into a test copy with its real mail service turned on would send thousands of emails that bounce, which can hurt that service's sending reputation. Baptism Sunday Invitation does not have this problem. Its audience needs 4 check-ins in the last 12 weeks, so it shrinks to nobody 12 weeks after install, and its next date is usually months away. **Recommendation: swap them.** Ship We Miss You paused, as the pause example, and Baptism Sunday Invitation Active. First-Time Guest Welcome stays Active either way. Its audience empties a week after install.
-
-8. **Change After Starting Point's third email?** Settled by the coordinator, 2026-10-29: yes. Today it invites people to serve three weeks after the class. Ministry by Design puts growth before serving. **Recommendation: yes.** It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), and After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
-9. **Add After Foundations and Lead a Group?** Without them, no flow moves people from Equip to Contribute, or from Contribute to Lead. **Recommendation: yes.** Both are types that cannot send after install (On-Demand and One-Time), and both end on a step: Serve and Lead.
-10. **Who owns the "ready to lead" view?** Answered: the reports session owns it as Ready to Lead (`ready-to-lead`, in its Lead category). It needs an Equip step, a place on a serving team now, and a small group, which is narrower than the first draft's "in a group or on a team," and closer to the framework.
-11. **The guest flow's goal.** Settled by the coordinator, 2026-10-29: yes, the Starting Point Class step. It moves from the Regular Attenders view (settled earlier) to the Starting Point Class step, so the goal is the step that marks the stage (rule 3 in the Ministry by Design section). Its target, set from the data, drops from about 25% to about 10%. **Recommendation: yes.** We Miss You keeps a data view goal, since no step marks coming back, so Entered Data View is still covered.
+1. **What can still run after install?** "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." And on decision 95: "I don't think nothing sends after install rule is valid. I think I do want things to send." So First-Time Guest Welcome and Baptism Sunday Invitation ship Active, We Miss You ships paused (question 12), and decision D-comm-flows-1 in Section 6 replaces decision 95's rule.
+2. **Add the Baptism Interest workflow?** "Two is yes." One workflow type with a form and the Activate Communication Flow action, plus a finished workflow for each person who entered the Baptism flow. Wiring After Starting Point to a workflow can wait.
+3. **Baptism flow shape?** "I think the baptism flow shape is probably a few too many messages. Let's limit it to four." It is now four messages over six weeks (email, text, email, text), with a 180-day window and a 50% target. See Section 4.
+4. **Mid-flow people on install day?** "I would want people to be in mid-flow on install day. You're right." Runs that started in the weeks before install are still under way, and Rock's job sends their remaining messages to reserved contact points.
+9. **Add After Foundations and Lead a Group?** "I like your number five, two flows." Both are in, so every Ministry by Design transition has a flow.
 
 **Settled by the coordinator, 2026-10-29:**
 
 5. **History length.** 18 months for the new flows, inside the 2-year communication window. After Starting Point stays at 2 years.
 6. **Datasets.** All three (Core 1, Core 3, and Full 7), scaled, like every other communication.
-7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. Done: the names, keys, and categories are in Section 3. Flow 5 uses the one shared "regular attender" rule, 4 or more worship check-ins in the last 12 weeks, with its target set from what it finds (coordinator decision, 2026-10-29). Flow 3 used it too, until question 11. Using Rock's Last Gave attribute for "gave" in Involved Adults is still an open question in the reports proposal. The Christmas flow works with either answer.
+7. **Data views.** Reuse the reports and data views session's views, filed in its Ministry by Design category tree. The names, keys, and categories are in Section 3. Flow 5 uses the one shared "regular attender" rule, 4 or more worship check-ins in the last 12 weeks, with its target set from what it finds. Flow 3 used it too, until question 11. Using Rock's Last Gave attribute for "gave" in Involved Adults is a question in the reports proposal, and the Christmas flow works with either answer.
+8. **After Starting Point's third email.** Yes. It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), because Ministry by Design puts growth before serving. After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
+10. **Who owns the "Ready to Lead" view?** The reports session, as `ready-to-lead` in its Lead category. It needs an Equip step, a place on a serving team now, and a small group.
+11. **The guest flow's goal.** Yes, the Starting Point Class step, so the goal is the step that marks the stage (rule 3 in the Ministry by Design section). Its target, set from the data, is about 10%. We Miss You keeps a data view goal, since no step marks coming back, so Entered Data View is still covered.
+12. **Which recurring flow is the paused one?** We Miss You. About 90 to 120 days after install, nearly every regular attender looks "newly missed," so one monthly run would email thousands. The guard keeps those emails on `example.org`, but in a test copy with a real mail service turned on they would bounce and hurt its sending reputation. Baptism Sunday Invitation's audience shrinks to nobody 12 weeks after install, and its next date is usually months away, so it ships Active with First-Time Guest Welcome.
