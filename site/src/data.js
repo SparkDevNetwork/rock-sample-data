@@ -288,6 +288,7 @@ function load() {
         syncDataViews: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).dataViews : [],
         reportingDataViews: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).dataViews : [],
         reports: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).reports || [] : [],
+        metrics: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).metrics || [] : [],
         churchViews: church.images,
         branding,
         prayerRequests: exists( "cast/prayer-requests.json" ) ? readJson( "cast/prayer-requests.json" ) : null,

@@ -121,6 +121,17 @@ namespace RockSampleData.Loader
         public ReportingConfiguration Reporting { get; }
 
         /// <summary>
+        /// Every data view in every configuration file, by key: the reporting views, then the group sync and registration views.
+        /// </summary>
+        public Dictionary<string, DataViewDefinition> DataViews()
+        {
+            return ( Reporting?.DataViews ?? new List<DataViewDefinition>() )
+                .Concat( GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+                .Concat( Registrations?.DataViews ?? new List<DataViewDefinition>() )
+                .ToDictionary( v => v.Key );
+        }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )

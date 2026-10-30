@@ -57,10 +57,11 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
+            ("Data views", null),
             ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
-            ("Data views", null),
+            ("Reports", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -522,6 +523,13 @@ namespace RockSampleData.Loader
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
+            // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so
+            // they come before communications, and after steps, because the stage views match step types. A view that
+            // needs a part this load left out is skipped.
+            steps.Begin( "Data views" );
+            var reporting = new ReportingLoader( db, source, dates, foreignKey, seed );
+            reporting.WriteViews();
+
             // The church's texting numbers, its branded template, and its communication lists. The lists copy the
             // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
             // who is involved enough for a newsletter comes from the attendance and giving plans.
@@ -551,10 +559,9 @@ namespace RockSampleData.Loader
                 new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
             }
 
-            // The church's layered data views (docs/reporting.md). Some point at the group sync and registration views, so
-            // they come after both. A view that needs a part this load left out is skipped.
-            steps.Begin( "Data views" );
-            new ReportingLoader( db, source, dates, foreignKey, seed ).Load();
+            // The reports, and the data views that point at a registration view, so they come after registrations.
+            steps.Begin( "Reports" );
+            reporting.Finish();
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

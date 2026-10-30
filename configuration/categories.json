@@ -358,6 +358,14 @@
       ]
     },
     {
+      "key": "path-metrics",
+      "entityType": "Rock.Model.MetricCategory",
+      "name": "Ministry Path",
+      "description": "How many people have reached each Ministry by Design stage, week by week.",
+      "iconCssClass": "ti ti-route",
+      "guid": "CC4E884B-CA6B-4B89-BCCE-792945B39904"
+    },
+    {
       "key": "care-lists",
       "entityType": "Rock.Model.Group",
       "qualifierGroupType": "D1D95777-FFA3-CBB3-4A6D-658706DAED33",

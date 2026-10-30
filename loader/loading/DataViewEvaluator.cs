@@ -74,6 +74,11 @@ namespace RockSampleData.Loader.Loading
         };
 
         /// <summary>
+        /// The Person defined value properties a property filter may name, with the chosen values' Guids.
+        /// </summary>
+        private static readonly HashSet<string> DefinedValueProperties = new HashSet<string> { "RecordStatusValueId", "ConnectionStatusValueId" };
+
+        /// <summary>
         /// The Person text properties a property filter may test for "is not blank".
         /// </summary>
         private static readonly HashSet<string> TextProperties = new HashSet<string> { "Email" };
@@ -82,14 +87,18 @@ namespace RockSampleData.Loader.Loading
 
         private readonly RockDatabase _db;
         private readonly DateTime _today;
+        private readonly IReadOnlyDictionary<string, DataViewDefinition> _views;
+        private readonly Dictionary<string, Dictionary<int, DateTime?>> _viewResults = new Dictionary<string, Dictionary<int, DateTime?>>();
         private HashSet<int> _people;
 
         /// <param name="db">The database being loaded.</param>
         /// <param name="today">The day the data view runs: the install day.</param>
-        public DataViewEvaluator( RockDatabase db, DateTime today )
+        /// <param name="views">The views an Existing Data View filter may point at, by key.</param>
+        public DataViewEvaluator( RockDatabase db, DateTime today, IReadOnlyDictionary<string, DataViewDefinition> views = null )
         {
             _db = db;
             _today = today.Date;
+            _views = views;
         }
 
         /// <summary>
@@ -100,7 +109,7 @@ namespace RockSampleData.Loader.Loading
             switch ( filter.ExpressionType )
             {
                 case 0:
-                    return Leaf( filter.Component, filter.Selection );
+                    return filter.DataView != null ? OtherView( filter ) : Leaf( filter.Component, filter.Selection );
 
                 case 1:
                     return filter.Children.Select( Evaluate ).Aggregate( ( all, next ) => all.Keys.Where( next.ContainsKey ).ToDictionary( id => id, id => Latest( all[id], next[id] ) ) );
@@ -158,6 +167,24 @@ GROUP BY [pa].[PersonId]" ) )
             return none;
         }
 
+        /// <summary>
+        /// Rock's OtherDataViewFilter: everyone in the other view, each since they first matched it.
+        /// </summary>
+        private Dictionary<int, DateTime?> OtherView( DataViewFilterDefinition filter )
+        {
+            if ( filter.Component != "Rock.Reporting.DataFilter.OtherDataViewFilter" || _views == null || !_views.TryGetValue( filter.DataView, out var view ) )
+            {
+                throw new InvalidDataException( $"configuration/group-syncs.json points at data view {filter.DataView} with {filter.Component}. The loader evaluates only Rock's Existing Data View filter, on a view in a configuration file." );
+            }
+
+            if ( !_viewResults.TryGetValue( view.Key, out var result ) )
+            {
+                result = _viewResults[view.Key] = Evaluate( view.Filter );
+            }
+
+            return new Dictionary<int, DateTime?>( result );
+        }
+
         private Dictionary<int, DateTime?> Leaf( string component, string selection )
         {
             switch ( component )
@@ -201,9 +228,17 @@ GROUP BY [pa].[PersonId]" ) )
                 return Ids( $"SELECT [p].[Id] FROM [Person] AS [p] WHERE [p].[{values[0]}] IS NOT NULL AND LTRIM( RTRIM( [p].[{values[0]}] ) ) <> ''" );
             }
 
+            // A defined value property: any of the chosen values, a comma list of their Guids.
+            if ( values != null && values.Count == 2 && DefinedValueProperties.Contains( values[0] ) )
+            {
+                var ids = values[1].Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).Select( v => _db.RequireIdByGuid( "DefinedValue", Guid.Parse( v ) ) ).ToList();
+                return ids.Count == 0 ? throw new InvalidDataException( $"configuration/group-syncs.json has the property filter {selection}, which chooses no {values[0]} value." )
+                    : Ids( $"SELECT [p].[Id] FROM [Person] AS [p] WHERE [p].[{values[0]}] IN ( {string.Join( ", ", ids )} )" );
+            }
+
             if ( values == null || values.Count < 2 || !EnumProperties.TryGetValue( values[0], out var names ) )
             {
-                throw new InvalidDataException( $"configuration/group-syncs.json has the property filter {selection}. The loader can evaluate only {string.Join( " and ", EnumProperties.Keys )}, and whether Email is blank." );
+                throw new InvalidDataException( $"configuration/group-syncs.json has the property filter {selection}. The loader can evaluate only {string.Join( ", ", EnumProperties.Keys.Concat( DefinedValueProperties ) )}, and whether Email is blank." );
             }
 
             var chosen = values[1].Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
