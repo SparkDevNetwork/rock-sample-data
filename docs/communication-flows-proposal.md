@@ -131,7 +131,7 @@ See Section 4.
 - **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
 - **Goal.** Took Step: Starting Point Class, the first Belong step. Window 84 days, long enough for the next four-week class to start and finish. The target is set from what the data finds, likely about 10% (see Section 5).
 - **Exit.** Last Message Sent. A guest gets all three messages, because the welcome matters even after they sign up.
-- **On install day.** Active. Its audience builds on Reserved Contact Points (Section 6, "After install").
+- **On install day.** Active. Its audience includes the "Reserved or No Email" guard (Section 6, "After install").
 - **Cast.** Jordan and Hannah Ellis, who first came 120 days ago. They are in the run for the Monday after. Hannah clicked the Starting Point link, but neither has taken the class, so their run shows the goal missed. They still come most weeks, which is "the norm, not a gate": belonging does not wait for the class.
 
 ### Flow 4. We Miss You
@@ -141,7 +141,7 @@ See Section 4.
 - **Messages.** Email ("We miss you, and we're praying for you"). SMS 7 days later, only to those still in the flow.
 - **Goal.** Entered Data View: Back in the Last 30 Days. Window 60 days. Target 15%.
 - **Exit.** Any Email Opened. The point is to be seen once, so people who open the email do not get the text.
-- **On install day.** Paused, as the pause example (Section 6, "After install").
+- **On install day.** Paused, as the pause example. Its audience still includes the "Reserved or No Email" guard, so turning it on is safe (Section 6, "After install").
 - **Cast.** Luis and Teresa Ortiz, who stopped coming about six months ago. Teresa opened the email and left the flow. Luis did not open it, so he got the text. Neither has come back, so their run shows the goal missed.
 
 ### Flow 5. Baptism Sunday Invitation
@@ -151,7 +151,7 @@ See Section 4.
 - **Messages.** Email ("Is it time?") with a button to the Baptism Interest form. SMS 7 days later.
 - **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. The target is set from what the regular attender rule finds in the data, likely about 5% (see Section 5).
 - **Exit.** Any Email Clicked. A person who clicked has the form in front of them, so the text would only nag.
-- **On install day.** Active. Its audience builds on Reserved Contact Points (Section 6, "After install").
+- **On install day.** Active. Its audience includes the "Reserved or No Email" guard (Section 6, "After install").
 - **Cast.** None pinned. People who fill out the form inside a run's window convert, and the form puts them in the Baptism flow.
 
 ### Flow 6. Student Camp Registration
@@ -203,10 +203,10 @@ See Section 4.
 
 | View | Key | Category | Used by |
 |---|---|---|---|
-| First Visit Last Week | `first-visit-last-week` | Notice | Flow 3 audience |
-| Newly Missed | `newly-missed` | Re-engage | Flow 4 audience |
+| First Visit Last Week, Reserved Email | `first-visit-last-week-reserved-email` | Sample Data | Flow 3 audience: First Visit Last Week (Notice) and the guard |
+| Newly Missed, Reserved Email | `newly-missed-reserved-email` | Sample Data | Flow 4 audience: Newly Missed (Re-engage) and the guard |
 | Back in the Last 30 Days | `back-in-the-last-30-days` | Re-engage | Flow 4 goal |
-| Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Equip | Flow 5 audience (built on Regular Attenders) |
+| Unbaptized Regular Attenders, Reserved Email | `unbaptized-regular-attenders-reserved-email` | Sample Data | Flow 5 audience: Unbaptized Regular Attenders (Equip, built on Regular Attenders) and the guard |
 | Women Who Attend | `women-who-attend` | Registrations | Flow 7 audience |
 | Involved Adults | `involved-adults` | Foundations | Flow 8 audience |
 | Ready to Lead | `ready-to-lead` | Lead | Flow 10 audience |
@@ -325,11 +325,13 @@ That is about 3% on top of the 1.6 million communication recipients Full 7 alrea
 - **Baptism Sunday Invitation** could reach staff without the guard, since a staff member with no Baptism step is an unbaptized regular attender. Its audience shrinks to nobody 12 weeks after install, because no one keeps 4 check-ins in 12 weeks once attendance stops. Its next date, 5 weeks before Easter or the July baptism Sunday, is usually months away, so it often sends nothing at all.
 - **We Miss You** ships paused for a reason. No attendance is written after install, so every regular attender "stops coming" on install day. About 90 to 120 days later, Newly Missed holds nearly every regular, staff included, and one monthly run would email thousands. A church that turns it on gets that run. The guard keeps it on `example.org`, but those emails bounce, which can hurt a real mail service's sending reputation in a test copy.
 
-**The guard.** Each recurring flow's audience excludes anyone whose email is not on `example.org`, through one shared foundation view in the reports work, "Reserved Contact Points": people whose email is on `example.org` or empty. Both Active audiences build on it, and so does the paused one, so turning it on is safe too, so no staff address can ever be in them, whatever the dates do. Phones and push tokens need no filter, because every one is reserved.
+**The guard.** The reports work owns it (its Section 4.13). "Reserved or No Email" (`reserved-or-no-email`, in a new Rock Solid Church > Sample Data category) holds active people whose email ends with `@example.org` or is blank. It names the safe domain, so any new real domain is left out by default. Each recurring flow's audience is a thin view in the same category that joins its subject view with the guard, such as "First Visit Last Week, Reserved Email." The subject views stay clean, so a report or a later flow that uses them does not inherit a sample-data rule. No staff address can ever be in a flow audience, whatever the dates do. Phones and push tokens need no filter, because every one is reserved. Goals send nothing, so they need no guard.
+
+We Miss You keeps its guarded view while paused, so a church that turns it on later is still safe. The reports work planned to drop that view for a paused flow, and has been asked to keep it, since the paused flow still uses it.
 
 **Proposed amendment to decision 95** (placeholder D-comm-flows-1, numbered at merge):
 
-> Nothing a load writes sends at install. Every communication is Approved with a `SendDateTime`, no recipient is Pending or Sending, and every flow run in the history is finished. Named recurring flows, listed in `configuration/`, ship Active, so Rock's flow job starts their next run on its schedule date after install. Each one's audience builds on Reserved Contact Points, so it can reach only `example.org` emails, 555-0100 to 555-0199 phones, and `sample-data-` push tokens. Every other recurring flow ships paused, every One-Time run is finished, and On-Demand flows add people only when a workflow is launched.
+> Nothing a load writes sends at install. Every communication is Approved with a `SendDateTime`, no recipient is Pending or Sending, and every flow run in the history is finished. Named recurring flows, listed in `configuration/`, ship Active, so Rock's flow job starts their next run on its schedule date after install. Each one's audience includes the "Reserved or No Email" view, so it can reach only `example.org` emails, 555-0100 to 555-0199 phones, and `sample-data-` push tokens. Every other recurring flow ships paused, every One-Time run is finished, and On-Demand flows add people only when a workflow is launched.
 >
 > Reason: Jon asked that the recurring flows show as running, not paused. Sends after install are acceptable when they can reach only reserved contact points, because no real person can receive them.
 
@@ -338,7 +340,7 @@ That is about 3% on top of the 1.6 million communication recipients Full 7 alrea
 1. No recipient is Pending or Sending, and every communication has a `SendDateTime` (unchanged).
 2. Every flow run in the history has its messaging done (unchanged).
 3. A recurring flow is Active only if `configuration/` names it, and every other recurring flow is inactive. Every One-Time flow has messaging closed.
-4. Each Active recurring flow's audience view builds on Reserved Contact Points, checked in the view's definition, not just in today's results.
+4. Each recurring flow's audience view includes `reserved-or-no-email`, directly or through Rock's Existing Data View filter, checked in the view's definition, not just in today's results.
 5. Every person each Active flow's audience finds today has an `example.org` email or none, only 555-0100 to 555-0199 phones, and only `sample-data-` devices.
 6. Rock's flow job, run once as referee, adds no conversion. Any run it starts belongs to a named Active flow, and every recipient passes check 5.
 
