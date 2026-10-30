@@ -80,7 +80,7 @@
         { "key": "guest-welcome-text", "name": "Before Sunday", "daysToWait": 3, "time": "10:00" },
         { "key": "guest-welcome-starting-point", "name": "Starting Point", "daysToWait": 4, "time": "09:00" }
       ],
-      "goal": { "type": "tookStep", "stepType": "starting-point-class", "days": 84, "targetPercent": 10 },
+      "goal": { "type": "tookStep", "stepType": "starting-point-class", "days": 84, "targetPercent": 2, "$targetPercentComment": "Set from the data: on Full 7, 17 of 787 first-time guests took the Starting Point Class within 84 days (2.2%), rounded down to a whole 1%." },
       "exit": "lastMessageSent"
     },
     {
@@ -98,7 +98,7 @@
         { "key": "we-miss-you-note", "name": "We Miss You", "daysToWait": 0, "time": "10:00" },
         { "key": "we-miss-you-text", "name": "Praying for You", "daysToWait": 7, "time": "10:00" }
       ],
-      "goal": { "type": "enteredDataView", "view": "back-in-the-last-30-days", "rule": "backInLast30Days", "days": 60, "targetPercent": 15 },
+      "goal": { "type": "enteredDataView", "view": "back-in-the-last-30-days", "rule": "backInLast30Days", "days": 60, "targetPercent": 50, "$targetPercentComment": "Set from the data: on Full 7, 254 of 504 people came back to worship within 60 days (50.4%), rounded down to a whole 5%." },
       "exit": "anyEmailOpened"
     },
     {
@@ -115,7 +115,7 @@
         { "key": "baptism-invitation-email", "name": "Is It Time?", "daysToWait": 0, "time": "09:00" },
         { "key": "baptism-invitation-text", "name": "Four Weeks Away", "daysToWait": 7, "time": "10:00" }
       ],
-      "goal": { "type": "completedForm", "workflow": "baptism-interest", "days": 35, "targetPercent": 5 },
+      "goal": { "type": "completedForm", "workflow": "baptism-interest", "days": 35, "targetPercent": 2, "$targetPercentComment": "Set from the data: on Full 7, 65 of 2,890 people filled out the Baptism Interest form within 35 days (2.2%), rounded down to a whole 1%." },
       "exit": "anyEmailClicked"
     }
   ],

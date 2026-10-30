@@ -304,9 +304,9 @@ Left out from the first draft: a push with a story video, which reaches only peo
 | Flow | Target | Designed result |
 |---|---|---|
 | 2 Baptism Next Steps | 35%, set from the data | 39% on Full 7, recent runs Pending |
-| 3 First-Time Guest Welcome | Set from the data, about 10% | A little above the target, most runs Achieved |
-| 4 We Miss You | 15% | About 10%, most runs Missed |
-| 5 Baptism Sunday Invitation | Set from the data, about 5% | A little above the target |
+| 3 First-Time Guest Welcome | 2%, set from the data | 2.2% on Full 7 |
+| 4 We Miss You | 50%, set from the data | 50.4% on Full 7 |
+| 5 Baptism Sunday Invitation | 2%, set from the data | 2.2% on Full 7 |
 | 6 Student Camp Registration | 40% | About 45% |
 | 7 Women's Retreat Early Bird | 10% | About 8%, Missed |
 | 8 Christmas at Rock Solid | None | Not Tracked |
