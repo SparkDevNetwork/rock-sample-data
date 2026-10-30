@@ -171,6 +171,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public List<CategorySecurityRule> Security { get; set; } = new List<CategorySecurityRule>();
 
+        /// <summary>
+        /// A reporting view's run history, only where it must differ from the usual rule, or null.
+        /// </summary>
+        public UsageHistory Usage { get; set; }
+
         public DataViewFilterDefinition Filter { get; set; }
     }
 

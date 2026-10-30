@@ -1,5 +1,5 @@
 {
-  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup. A category can carry 'security': for each action, the Rock roles allowed (Rock's role names, mapped to Guids in security-roles.json) and whether All Users are denied after them, written as Rock's security editor saves them. Data views and reports inherit their category's security (decision D-reporting-1). 'rockShips' marks a category Rock ships: the loader finds it by Guid and changes only its name and description.",
+  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup. A category can carry 'security': for each action, the Rock roles allowed (Rock's role names, mapped to Guids in security-roles.json) and whether All Users are denied after them, written as Rock's security editor saves them. Data views and reports inherit their category's security (decision 223). 'rockShips' marks a category Rock ships: the loader finds it by Guid and changes only its name and description.",
   "categories": [
     {
       "key": "church-data-views",
@@ -356,6 +356,14 @@
           ]
         }
       ]
+    },
+    {
+      "key": "path-metrics",
+      "entityType": "Rock.Model.MetricCategory",
+      "name": "Ministry Path",
+      "description": "How many people have reached each Ministry by Design stage, week by week.",
+      "iconCssClass": "ti ti-route",
+      "guid": "CC4E884B-CA6B-4B89-BCCE-792945B39904"
     },
     {
       "key": "care-lists",

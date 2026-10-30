@@ -116,13 +116,26 @@ namespace RockSampleData.Loader
         public GroupSyncConfiguration GroupSyncs { get; }
 
         /// <summary>
+        /// The church's layered data views, or null in a package built before they loaded.
+        /// </summary>
+        public ReportingConfiguration Reporting { get; }
+
+        /// <summary>
+        /// Every data view in every configuration file, by key: the reporting views, then the group sync and registration views.
+        /// </summary>
+        public Dictionary<string, DataViewDefinition> DataViews()
+        {
+            return ( Reporting?.DataViews ?? new List<DataViewDefinition>() )
+                .Concat( GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+                .Concat( Registrations?.DataViews ?? new List<DataViewDefinition>() )
+                .ToDictionary( v => v.Key );
+        }
+
+        /// <summary>
         /// The church's Communication Flows, or null in a package built before flows were configured, which loads the
         /// After Starting Point flow as it was built then.
         /// </summary>
         public FlowsConfiguration Flows { get; }
-        /// The church's layered data views, or null in a package built before they loaded.
-        /// </summary>
-        public ReportingConfiguration Reporting { get; }
 
         /// <summary>
         /// Reads every configuration file.
@@ -152,8 +165,8 @@ namespace RockSampleData.Loader
             Registrations = Files.Exists( RegistrationsConfigurationPath ) ? Read<RegistrationsConfiguration>( RegistrationsConfigurationPath ) : null;
             Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
-            Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
+            Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -258,8 +271,8 @@ namespace RockSampleData.Loader
 
         public const string GroupSyncsConfigurationPath = "configuration/group-syncs.json";
 
-        public const string FlowsConfigurationPath = "configuration/flows.json";
         public const string ReportingConfigurationPath = "configuration/reporting.json";
+        public const string FlowsConfigurationPath = "configuration/flows.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

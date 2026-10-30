@@ -25,9 +25,10 @@ namespace RockSampleData.Loader.Loading
 {
     /// <summary>
     /// Writes the church's layered data views from configuration/reporting.json (docs/reporting.md): the foundations, the
-    /// Ministry by Design stage and next-step views, and the communication flow audiences. A view can point at another view
-    /// in any configuration file, so this runs after group sync and registrations, and writes each view after the views
-    /// it points at.
+    /// Ministry by Design stage and next-step views, and the communication flow audiences, then the reports on them. It
+    /// runs in two parts. The views go first, before communications, because the group sync views are built on the
+    /// foundations. A view that points at a view a later step writes, such as a registration view, waits for the second
+    /// part, which writes it and then the reports after registrations.
     /// </summary>
     internal sealed class ReportingLoader
     {
@@ -37,20 +38,29 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid PersistedDataViewSchedulesCategory = new Guid( "EEC7A935-BEF2-4450-9CBF-B85CEC6F7FEA" );
 
         /// <summary>
-        /// The filters whose selection is Rock's JSON with the other view's Id. Every other filter that points at a view
-        /// holds its Guid.
+        /// Rock's "Metrics" schedule category, where Rock's metric editor looks for named schedules.
         /// </summary>
-        private static readonly HashSet<string> IdSelectionFilters = new HashSet<string>
-        {
-            "Rock.Reporting.DataFilter.OtherDataViewFilter",
-            "Rock.Reporting.DataFilter.NotInOtherDataViewFilter"
-        };
+        private static readonly Guid MetricSchedulesCategory = new Guid( "5A794741-5444-43F0-90D7-48E47276D426" );
 
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
         private readonly string _seed;
+
+        /// <summary>
+        /// The reporting views, and every view in every configuration file, by key.
+        /// </summary>
+        private readonly Dictionary<string, DataViewDefinition> _views;
+        private readonly Dictionary<string, DataViewDefinition> _allViews;
+
+        private readonly List<DataViewDefinition> _waiting = new List<DataViewDefinition>();
+        private readonly List<string> _skipped = new List<string>();
+        private int _written;
+        private Dictionary<string, int> _scheduleIds;
+        private DataViewWriter _writer;
+        private SecurityRuleWriter _security;
+        private DateTime _now;
 
         public ReportingLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, string seed )
         {
@@ -59,52 +69,67 @@ namespace RockSampleData.Loader.Loading
             _dates = dates;
             _foreignKey = foreignKey;
             _seed = seed;
+            _views = source.Reporting?.DataViews.ToDictionary( v => v.Key );
+            _allViews = source.DataViews();
         }
 
-        public void Load()
+        private bool IsLoaded => _source.Reporting != null && _source.Categories != null;
+
+        /// <summary>
+        /// Writes the named schedules and each view whose views are written, after the views it points at. A view that
+        /// points at a view a later step writes waits for <see cref="Finish"/>.
+        /// </summary>
+        public void WriteViews()
         {
-            var configuration = _source.Reporting;
-            if ( configuration == null || _source.Categories == null )
+            if ( !IsLoaded )
             {
                 _db.Log.Write( "  Data views: skipped (this package has no configuration/reporting.json)" );
                 return;
             }
 
-            var now = DateTime.Now;
-            var scheduleIds = WriteSchedules( configuration, now );
-            var otherViews = ( _source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
-                .Concat( _source.Registrations?.DataViews ?? new List<DataViewDefinition>() )
-                .ToDictionary( v => v.Key, v => v.Guid );
-            var views = configuration.DataViews.ToDictionary( v => v.Key );
-            var writer = new DataViewWriter( _db, _source.Categories, _foreignKey );
-            writer.RegisterComponents( configuration.DataViews, SampleDataSource.ReportingConfigurationPath );
-            var security = new SecurityRuleWriter( _db, _source.SecurityRoles, _foreignKey );
+            _now = DateTime.Now;
+            _scheduleIds = WriteSchedules( _source.Reporting, _now );
+            _writer = new DataViewWriter( _db, _source.Categories, _foreignKey, _allViews );
+            _writer.RegisterComponents( _source.Reporting.DataViews, SampleDataSource.ReportingConfigurationPath );
+            _security = new SecurityRuleWriter( _db, _source.SecurityRoles, _foreignKey );
 
-            var ids = new Dictionary<string, int>();
-            var skipped = new List<string>();
-            foreach ( var view in InDependencyOrder( configuration.DataViews ) )
+            foreach ( var view in InDependencyOrder( _source.Reporting.DataViews ) )
             {
-                var missing = Missing( view, views, otherViews, ids, skipped );
-                if ( missing != null )
+                if ( Waits( view ) )
                 {
-                    skipped.Add( view.Key );
-                    _db.Log.Write( $"    Skipped data view {view.Key}: {missing}" );
+                    _waiting.Add( view );
                     continue;
                 }
 
-                ids[view.Key] = writer.Write( view, now, new SeededRandom( $"{_seed}:reporting:{view.Key}" ),
-                    f => Selection( f, views, otherViews, ids ), scheduleIds );
-                security.Write( "Rock.Model.DataView", ids[view.Key], view.Security, now, $"{SampleDataSource.ReportingConfigurationPath}: data view {view.Key}" );
+                WriteView( view );
             }
 
-            var skippedText = skipped.Count == 0 ? "" : $", {skipped.Count} skipped because this load left out a part they need";
-            _db.Log.Write( $"  Data views: {ids.Count} for reporting{skippedText}" );
+            var waitingText = _waiting.Count == 0 ? "" : $", {_waiting.Count} waiting for a later step's views";
+            _db.Log.Write( $"  Data views: {_written} for reporting{SkippedText()}{waitingText}" );
+        }
+
+        /// <summary>
+        /// Writes the views that waited, now that every step that writes views has run, then the reports.
+        /// </summary>
+        public void Finish()
+        {
+            if ( !IsLoaded )
+            {
+                _db.Log.Write( "  Reports: skipped (this package has no configuration/reporting.json)" );
+                return;
+            }
+
+            if ( _waiting.Count > 0 )
+            {
+                var before = _written;
+                _waiting.ForEach( WriteView );
+                _db.Log.Write( $"  Data views: {_written - before} more for reporting{SkippedText()}" );
+            }
 
             var reports = 0;
-            foreach ( var report in configuration.Reports )
+            foreach ( var report in _source.Reporting.Reports )
             {
-                var guid = views.TryGetValue( report.DataView, out var view ) ? view.Guid
-                    : otherViews.TryGetValue( report.DataView, out var other ) ? other
+                var guid = _allViews.TryGetValue( report.DataView, out var view ) ? view.Guid
                     : throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key} uses data view {report.DataView}, which is not a data view in any configuration file." );
                 var viewId = _db.IdByGuid( "DataView", guid );
                 if ( viewId == null )
@@ -113,19 +138,48 @@ namespace RockSampleData.Loader.Loading
                     continue;
                 }
 
-                var reportId = WriteReport( report, viewId.Value, views, otherViews, now );
-                security.Write( "Rock.Model.Report", reportId, report.Security, now, $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key}" );
+                var reportId = WriteReport( report, viewId.Value, _now );
+                _security.Write( "Rock.Model.Report", reportId, report.Security, _now, $"{SampleDataSource.ReportingConfigurationPath}: report {report.Key}" );
                 reports++;
             }
 
             _db.Log.Write( $"  Reports: {reports}" );
+
+            var history = new UsageHistoryWriter( _db, _dates, _seed ).Write( InDependencyOrder( _source.Reporting.DataViews ), References, _source.Reporting.Reports );
+            _db.Log.Write( $"  Run history: {history.Views} data views and {history.Reports} reports" );
+
+            var installed = _dates.Anchor.Date.Add( DateTime.Now.TimeOfDay );
+            var schedules = _source.Reporting.NamedSchedules.ToDictionary( s => s.Key, s => (s, _scheduleIds[s.Key]) );
+            var metrics = new MetricsWriter( _db, _source.Categories, installed, _foreignKey, _seed )
+                .Write( _source.Reporting.Metrics, _views, schedules, rule => (StepTypes( rule, null ).Select( t => t.Guid ).ToList(), Program( rule ).Statuses.Complete) );
+            _db.Log.Write( $"  Metrics: {metrics.Metrics} with {metrics.Values:N0} weekly values" );
+        }
+
+        private string SkippedText() => _skipped.Count == 0 ? "" : $", {_skipped.Count} skipped because this load left out a part they need";
+
+        /// <summary>
+        /// Writes one view and its security, or skips it when this load left out a part it needs.
+        /// </summary>
+        private void WriteView( DataViewDefinition view )
+        {
+            var missing = Missing( view );
+            if ( missing != null )
+            {
+                _skipped.Add( view.Key );
+                _db.Log.Write( $"    Skipped data view {view.Key}: {missing}" );
+                return;
+            }
+
+            var id = _writer.Write( view, _now, new SeededRandom( $"{_seed}:reporting:{view.Key}" ), Selection, _scheduleIds );
+            _security.Write( "Rock.Model.DataView", id, view.Security, _now, $"{SampleDataSource.ReportingConfigurationPath}: data view {view.Key}" );
+            _written++;
         }
 
         /// <summary>
         /// Writes one report and its columns, as Rock's report editor saves them. The report returns its data view's entity.
         /// Returns its Id.
         /// </summary>
-        private int WriteReport( ReportDefinition report, int viewId, Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews, DateTime now )
+        private int WriteReport( ReportDefinition report, int viewId, DateTime now )
         {
             var category = _source.Categories.Get( report.Category );
             var entityTypeId = ( int ) _db.Scalar( "SELECT [EntityTypeId] FROM [DataView] WHERE [Id] = @Id", P( "@Id", viewId ) );
@@ -140,7 +194,7 @@ VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @DataViewId, @Guid,
             var order = 0;
             foreach ( var column in report.Columns )
             {
-                var (type, componentId, selection) = Column( report, column, entityTypeId, views, otherViews );
+                var (type, componentId, selection) = Column( report, column, entityTypeId );
                 _db.Execute( @"
 INSERT INTO [ReportField] ( [ReportId], [ReportFieldType], [ShowInGrid], [DataSelectComponentEntityTypeId], [Selection], [ColumnOrder], [SortOrder], [SortDirection],
     [ColumnHeaderText], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
@@ -157,8 +211,7 @@ VALUES ( @ReportId, @Type, 1, @ComponentId, @Selection, @Order, @SortOrder, @Sor
         /// A column's Rock field type (0 property, 1 attribute, 2 data select component), its component's entity type, and its
         /// selection: the property name, the attribute's Guid, or the component's settings.
         /// </summary>
-        private (int Type, int? ComponentId, string Selection) Column( ReportDefinition report, ReportColumnDefinition column, int entityTypeId,
-            Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews )
+        private (int Type, int? ComponentId, string Selection) Column( ReportDefinition report, ReportColumnDefinition column, int entityTypeId )
         {
             if ( column.Property != null )
             {
@@ -182,32 +235,41 @@ WHERE [EntityTypeId] = @EntityTypeId AND [Key] = @Key AND ISNULL( [EntityTypeQua
             var selection = column.Lava ?? column.Selection;
             if ( column.DataView != null )
             {
-                var viewGuid = views.TryGetValue( column.DataView, out var view ) ? view.Guid : otherViews[column.DataView];
-                selection = selection.Replace( "{dataView}", viewGuid.ToString() );
+                selection = selection.Replace( "{dataView}", _allViews[column.DataView].Guid.ToString() );
             }
 
             return (2, componentId, selection);
         }
 
         /// <summary>
-        /// Writes each named schedule in Rock's Persisted DataView Schedules category, running every day at its time.
-        /// Returns their Ids by key.
+        /// Writes each named schedule in Rock's Persisted DataView Schedules category, or its Metrics category, running
+        /// every day or every week on its day, at its time. Returns their Ids by key.
         /// </summary>
         private Dictionary<string, int> WriteSchedules( ReportingConfiguration configuration, DateTime now )
         {
             var ids = new Dictionary<string, int>();
-            var categoryId = _db.RequireIdByGuid( "Category", PersistedDataViewSchedulesCategory );
             var scheduleDates = TableFactory.Create( "ScheduleId:int", "StartDateTime:date", "EndDateTime:date", "StartDateKey:int" );
             var today = _dates.Anchor.Date;
             foreach ( var schedule in configuration.NamedSchedules )
             {
                 var time = TimeSpan.Parse( schedule.Time );
-                var calendar = $"BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTEND:20130501T{time.Add( TimeSpan.FromMinutes( 1 ) ):hhmm}00\r\nDTSTART:20130501T{time:hhmm}00\r\nRRULE:FREQ=DAILY\r\nEND:VEVENT\r\nEND:VCALENDAR";
+                var weekday = schedule.Day;
+                var categoryId = _db.RequireIdByGuid( "Category", schedule.ForMetrics ? MetricSchedulesCategory : PersistedDataViewSchedulesCategory );
+
+                // A weekly schedule starts on its own weekday: the first one on or after the day a daily one starts.
+                var first = new DateTime( 2013, 5, 1 );
+                while ( weekday != null && first.DayOfWeek != weekday )
+                {
+                    first = first.AddDays( 1 );
+                }
+
+                var rule = weekday == null ? "FREQ=DAILY" : $"FREQ=WEEKLY;BYDAY={weekday.ToString().Substring( 0, 2 ).ToUpperInvariant()}";
+                var calendar = $"BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTEND:{first:yyyyMMdd}T{time.Add( TimeSpan.FromMinutes( 1 ) ):hhmm}00\r\nDTSTART:{first:yyyyMMdd}T{time:hhmm}00\r\nRRULE:{rule}\r\nEND:VEVENT\r\nEND:VCALENDAR";
                 var id = ( int ) _db.Scalar( @"
 INSERT INTO [Schedule] ( [Name], [Description], [iCalendarContent], [EffectiveStartDate], [CategoryId], [IsActive], [Order], [AutoInactivateWhenComplete], [IsPublic], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
-                    P( "@Name", schedule.Name ), P( "@Description", schedule.Description ), P( "@Calendar", calendar ), P( "@CategoryId", categoryId ),
+VALUES ( @Name, @Description, @Calendar, @First, @CategoryId, 1, 0, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
+                    P( "@Name", schedule.Name ), P( "@Description", schedule.Description ), P( "@Calendar", calendar ), P( "@First", first ), P( "@CategoryId", categoryId ),
                     P( "@Guid", schedule.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
                 ids[schedule.Key] = id;
 
@@ -217,7 +279,7 @@ VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, 
                 for ( var day = today.AddYears( -2 ).AddDays( -1 ); day < today.AddYears( 2 ); day = day.AddDays( 1 ) )
                 {
                     var start = day.Add( time );
-                    if ( start < today.AddYears( 2 ) && start.AddMinutes( 1 ) > today.AddYears( -2 ) )
+                    if ( ( weekday == null || day.DayOfWeek == weekday ) && start < today.AddYears( 2 ) && start.AddMinutes( 1 ) > today.AddYears( -2 ) )
                     {
                         scheduleDates.Rows.Add( id, start, start.AddMinutes( 1 ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
                     }
@@ -258,26 +320,34 @@ VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, 
         }
 
         /// <summary>
+        /// Whether the view points at a view in another file that is not written yet, or at a reporting view that waits.
+        /// </summary>
+        private bool Waits( DataViewDefinition view )
+        {
+            return References( view ).Any( key => _views.ContainsKey( key )
+                ? _waiting.Any( w => w.Key == key )
+                : _allViews.TryGetValue( key, out var other ) && _db.IdByGuid( "DataView", other.Guid ) == null );
+        }
+
+        /// <summary>
         /// Why the view cannot be written in this load, or null when it can: a view it points at was not written, because
         /// a part was left out, or a step type it matches is not in this database, because steps were left out.
         /// </summary>
-        private string Missing( DataViewDefinition view, Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews,
-            Dictionary<string, int> ids, List<string> skipped )
+        private string Missing( DataViewDefinition view )
         {
             foreach ( var key in References( view ) )
             {
-                if ( views.ContainsKey( key ) )
-                {
-                    if ( skipped.Contains( key ) )
-                    {
-                        return $"it points at {key}, which was skipped";
-                    }
-                }
-                else if ( !otherViews.TryGetValue( key, out var guid ) )
+                if ( !_allViews.TryGetValue( key, out var target ) )
                 {
                     throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: data view {view.Key} points at {key}, which is not a data view in any configuration file." );
                 }
-                else if ( _db.IdByGuid( "DataView", guid ) == null )
+
+                if ( _skipped.Contains( key ) )
+                {
+                    return $"it points at {key}, which was skipped";
+                }
+
+                if ( !_views.ContainsKey( key ) && _db.IdByGuid( "DataView", target.Guid ) == null )
                 {
                     return $"it points at {key}, which this load did not write";
                 }
@@ -296,25 +366,13 @@ VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, 
         }
 
         /// <summary>
-        /// A leaf's selection. A view it points at is written by now, so its Id is known.
+        /// A leaf's selection. A view it points at is written by now.
         /// </summary>
-        private string Selection( DataViewFilterDefinition filter, Dictionary<string, DataViewDefinition> views, Dictionary<string, Guid> otherViews,
-            Dictionary<string, int> ids )
+        private string Selection( DataViewFilterDefinition filter )
         {
             if ( filter.DataView != null )
             {
-                var guid = views.TryGetValue( filter.DataView, out var view ) ? view.Guid : otherViews[filter.DataView];
-                if ( !IdSelectionFilters.Contains( filter.Component ) )
-                {
-                    // A related data view filter's settings start with the view's Guid. A filter with more settings, such as
-                    // Rock's group data view filter (Guid, member status, role type), gives them with a {dataView} placeholder.
-                    return filter.Selection?.Replace( "{dataView}", guid.ToString() ) ?? guid.ToString();
-                }
-
-                var id = ids.TryGetValue( filter.DataView, out var written ) ? written : _db.RequireIdByGuid( "DataView", guid );
-
-                // Rock's data view editor saves "Use Persisted" on by default.
-                return $"{{\"DataViewId\":{id},\"UsePersisted\":true}}";
+                return _writer.ViewSelection( filter );
             }
 
             if ( filter.Steps != null )

@@ -45,13 +45,13 @@
     {
       "key": "new-here",
       "name": "New Here",
-      "description": "Adults who accept mass email and came to a worship service for the first time in the last 6 months. It feeds the New Here list.",
+      "description": "Everyone in Adults and Accepts Mass Email who came to a worship service for the first time in the last 6 months. It feeds the New Here list.",
       "category": "group-sync-data-views",
       "guid": "E8341AA3-6EA3-442D-99FD-1394E06C1694",
       "filter": {
         "all": [
-          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"AgeClassification\",\"Adult\"]" },
-          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" },
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "adults" },
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "accepts-mass-email" },
           { "component": "Rock.Reporting.DataFilter.Person.GroupTypeFirstAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,6,Month,,|False" }
         ]
       }
@@ -59,19 +59,13 @@
     {
       "key": "we-miss-you",
       "name": "We Miss You",
-      "description": "Adults who accept mass email, came to worship 10 or more times in the last 18 months, and have not come in the last 90 days. It feeds the We Miss You list.",
+      "description": "Everyone in Drifting Adults and Accepts Mass Email: adults who came to worship 10 or more times in the last 18 months and have not come in the last 90 days. It feeds the We Miss You list.",
       "category": "group-sync-data-views",
       "guid": "51F70593-4FF5-473A-B248-07CB72B41F43",
       "filter": {
         "all": [
-          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"AgeClassification\",\"Adult\"]" },
-          { "component": "Rock.Reporting.DataFilter.PropertyFilter", "selection": "[\"EmailPreference\",\"EmailAllowed\"]" },
-          { "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|10|Last,18,Month,,|False" },
-          {
-            "none": [
-              { "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter", "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,90,Day,,|False" }
-            ]
-          }
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "drifting-adults" },
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "accepts-mass-email" }
         ]
       }
     }
