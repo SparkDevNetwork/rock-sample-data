@@ -78,6 +78,7 @@ So locking a data view **does not lock the data views and reports built on it.**
 | Existing Data View filter | No | `OtherDataViewFilter.cs:432-463` |
 | Group sync | No. A job runs it, with no person | `Rock/Model/Group/GroupSync/GroupSyncService.cs:97-135` |
 | Communication lists | Only through group sync. The list's group has its own security | same |
+| Communication flows (the audience, and the Entered Data View goal) | No. A job runs it | `Rock/Jobs/ProcessCommunicationFlows.cs:434, 696`, in both builds |
 | Personalization segments | No. A job runs it | `Rock/Model/Cms/PersonalizationSegment/PersonalizationSegmentService.cs:164-171` |
 | Persisted data view job | No | `Rock/Jobs/UpdatePersistedDataviews.cs:152` |
 | Dynamic Data block | Does not use data views. It runs SQL, so its security is the page and block | `RockWeb/Blocks/Reporting/DynamicData.ascx.cs` |
@@ -120,7 +121,7 @@ Rock's reporting guide says: build data views that "extend and build off of each
 2. **Ministry data views.** Each answers one staff question by combining foundations and adding one or two rules.
 3. **Reports.** Each shows the columns a staff member needs for that question. Several reports can share one data view.
 
-Every data view in the tree below is used by another data view, a report, a group sync, or a registration's eligibility rule. None stands alone.
+Every data view in the tree below is used by another data view, a report, a group sync, a registration's eligibility rule, or a communication flow. None stands alone.
 
 ```
 Person data views
@@ -129,13 +130,19 @@ Active People (F1)
 │   ├── Regular Attending Adults Not in a Group (G1)   = F2 + F5 − F7
 │   ├── Group Members Ready to Serve (G2)               = F2 + F7 − F8
 │   ├── Guests Coming Back (C1)
+│   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
 │   ├── Drifting Adults (C3)
+│   │   └── Newly Missed (C5)                           = C3 + F6 + last visit 90 to 120 days ago
+│   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
+│   ├── Women Who Attend (RG1)                          = F2 + F6 + women 25 to 75
+│   ├── Involved Adults (F10)                           = F2 + (worship, F7, F8, or Last Gave)
 │   └── Money Matters Invite List (FN8)  [Finance]      = F2 + F4 − FN2
 ├── Children (F3)
 │   └── Kids Checked In Recently (K1)
 │       └── Kids With an Allergy (K2)
 ├── Church Family (F4)
-├── Regular Attenders (F5)  [persisted nightly]
+├── Regular Attenders (F5)  [persisted nightly; also the guest flow's goal]
+├── Back in the Last 30 Days (C6)
 ├── Accepts Mass Email (F6)
 ├── In a Small Group (F7)
 ├── Serving (F8)
@@ -174,15 +181,18 @@ All data views use Rock's own filter components and selection strings, as `confi
 | F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | G1, G2, C1, C3, FN8, and the syncs after slice 6 |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
-| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | G1, and the syncs after slice 6 |
-| F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | The four syncs that need email. It is built in slice 6 with them, so it never stands alone |
+| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | G1, C7, the First-Time Guest Welcome flow's goal ("Coming Regularly"), and the syncs after slice 6 |
+| F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | C4, C5, RG1, and the four syncs that need email after slice 6 |
 | F7 | In a Small Group | Person | In F1, and an active member of an active Small Group, any role | F1 | No. Membership changes should show the same day | G1, G2, R10 |
 | F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | G2, S1, and the Volunteers sync after slice 6 |
 | F9 | Active Small Groups | Group | Group type is Small Group, and the group is active | None | No | G3 |
+| F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | The Christmas at Rock Solid flow. A broad "who is part of us" list that later views and reports can share |
 
 Why the church has its own Church Family view instead of using Rock's shipped "Member & Attendees": the church renamed Rock's statuses and added Leading (decision 11). Rock's view checks Attendee and Member, which are now Connected and Engaged, so it leaves out every leader. Rock's 14 shipped data views stay as they are, in their own categories.
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
+
+Why F10 uses Rock's Last Gave attribute and not a Finance data view: "gave in the last year" through Givers in the Last 12 Months (FN2) would make F10 a finance consumer, and it would have to live in Finance (design rule 4). Rock already shows Last Gave to Staff Workers and Staff Like Workers (its attribute security in the trusted base), so using it reveals nothing Rock does not already show staff. Question 14 asks about this.
 
 ### 3.2 Groups and Serving (category: Rock Solid Church > Groups and Serving)
 
@@ -206,9 +216,21 @@ Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them.
 |---|---|---|---|---|---|---|
 | C1 | Guests Coming Back | Person | In F2; first worship attendance in the last 6 months; 3 or more worship attendances in the last 6 months; and a "none" group holding "took the Starting Point Class step" | F2 | No | R9 |
 | C2 | Baptized This Year | Person | In F1, and the Baptism Date attribute is in the last 12 months | F1 | No | R2 |
-| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, and the We Miss You sync after slice 6 |
+| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync after slice 6 |
+| C4 | First Visit Last Week | Person | In F2, in F6, and first worship attendance in the last 7 days | F2, F6 | No | The First-Time Guest Welcome flow's audience |
+| C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
+| C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
+| C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience |
 
-### 3.5 Safety (category: Rock Solid Church > Safety, locked)
+### 3.5 Registrations (category: Rock Solid Church > Registrations, exists)
+
+The category already holds three registration data views (decision 215). One flow audience joins them, because it is about who may be invited to register.
+
+| # | Name | Entity | Filters | Builds on | Persisted | Used by |
+|---|---|---|---|---|---|---|
+| RG1 | Women Who Attend | Person | In F2, in F6, gender is Female, age 25 to 75, and attended worship at least once in the last 12 months | F2, F6 | No | The Women's Retreat Early Bird flow's audience |
+
+### 3.6 Safety (category: Rock Solid Church > Safety, locked)
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
@@ -216,7 +238,7 @@ Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them.
 
 R11 also shows how Rock's shipped "Background check about to expire" data view (in Rock's Group Requirements category) fits in. Question 5 asks whether Safety is in scope.
 
-### 3.6 Finance (category: Rock Solid Church > Finance, locked)
+### 3.7 Finance (category: Rock Solid Church > Finance, locked)
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
@@ -230,6 +252,26 @@ R11 also shows how Rock's shipped "Background check about to expire" data view (
 | FN8 | Money Matters Invite List | Person | In F2, in F4, not in FN2 (use persisted) | F2, F4, FN2 | No | R17 |
 
 FN8 shows design rule 4. Its name and filters look harmless, but because it builds on FN2 it tells anyone who can see it who does **not** give. So it lives in Finance.
+
+### 3.8 Communication flow audiences
+
+The communication flows proposal (`docs/communication-flows-proposal.md` on branch `claude/comm-flows-47b4f5`) needs seven person data views for its flow audiences and goals. They are filed by subject in this tree, not in a separate Communication Flows category, and each builds on the foundations.
+
+| Flow need | Data view | Key | Category | Note |
+|---|---|---|---|---|
+| First Visit Last Week (guest flow audience) | C4 First Visit Last Week | `first-visit-last-week` | Care | |
+| Coming Regularly (guest flow goal) | F5 Regular Attenders | `regular-attenders` | Foundations | Reused, not a new view. Its rule is 4 or more in 12 weeks, not 3 or more in 8 (question 13) |
+| Newly Missed (We Miss You flow audience) | C5 Newly Missed | `newly-missed` | Care | |
+| Back in the Last 30 Days (We Miss You flow goal) | C6 Back in the Last 30 Days | `back-in-the-last-30-days` | Care | |
+| Unbaptized Regular Attenders (baptism invitation audience) | C7 Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Care | Uses F5's rule, not 6 or more in 3 months (question 13) |
+| Women Who Attend (Women's Retreat flow audience) | RG1 Women Who Attend | `women-who-attend` | Registrations | |
+| Involved Adults (Christmas flow audience) | F10 Involved Adults | `involved-adults` | Foundations | "Gave" uses Rock's Last Gave attribute (question 14) |
+
+A Communication Flows category would hold data views by who uses them, not by what they are. Then a care view and a flow view with the same rule would drift apart. Filing by subject keeps one definition, and Rock's data view screen lists every flow and report that uses each one.
+
+The flows run their audiences and goals through Rock's Process Communication Flows job, which checks no person (section 1.5). So the category a flow's view sits in limits only who can open it, not whether the flow works.
+
+These views go in slice 2. If the flows land first, the flows session adds them to `configuration/reporting.json` with these keys and the foundations they need (F1, F2, F5, F6, F7, F8, C3), and slice 2 builds on them.
 
 ## 4. Reports
 
@@ -388,11 +430,11 @@ A new static checker, `validation/check-reporting.js`, runs without a database. 
 | # | Slice | What it builds | How it is checked |
 |---|---|---|---|
 | 1 | Categories and security | The new data view and report categories in `configuration/categories.json`, with a `security` list on each; the loader writes their Auth rows. The rule on Rock Solid Church. | `authorize` against the existing eight data views: staff yes, Jerry Wright no. Contract re-recorded. |
-| 2 | Foundations and ministry data views | F1 to F5 and F7 to F9, G1 to G3, K1 to K3, C1 to C3, in a new `configuration/reporting.json`. The writer learns the Existing Data View and Not in Existing Data View filters, the persisted fields, and the named schedule. | `data-views`, `persist`, Cast anchors, the static checker. |
+| 2 | Foundations and ministry data views | F1 to F10, G1 to G3, K1 to K3, C1 to C7, and RG1, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 3.8). The writer learns the Existing Data View and Not in Existing Data View filters, the persisted fields, and the named schedule. | `data-views`, `persist`, Cast anchors, the static checker. |
 | 3 | Reports | A report writer for all four column kinds; R2 to R10. | `reports` on both builds. |
 | 4 | Finance | FN1 to FN8, R1, R12 to R17, and the Top Givers item rules. | `authorize` with the full walkthrough; `data-views`; `reports`; the consumer rule. |
 | 5 | Safety | S1 and R11. | `authorize` for Rachel Brooks yes, Jamal Pierce no; `reports`. |
-| 6 | Rebuild the existing views on foundations | F6. The five sync views and three registration views use F2, F5, F6, F8, C3, and K3. The loader's own data view evaluator learns the two Existing Data View filters, so it still fills each synced group exactly. | The existing group sync check: Rock's own sync must change nothing. Registration eligibility checks. |
+| 6 | Rebuild the existing views on foundations | The five sync views and three registration views use F2, F5, F6, F8, C3, and K3. The loader's own data view evaluator learns the two Existing Data View filters, so it still fills each synced group exactly. | The existing group sync check: Rock's own sync must change nothing. Registration eligibility checks. |
 | 7 | Usage history (if question 9 says yes) | Run counts and last run dates, and one retired data view. | Invariants on the dates. |
 | 8 | Docs and site | How it works, Verification, the glossary, Planned work, Roadmap, and a reporting page on the site if Jon wants one. | `node site/build.js`. |
 
@@ -412,3 +454,7 @@ Each has one recommendation.
 10. **Say why Cindy Decker is a Finance Worker?** Recommend adding one sentence to her story: she helps count the Sunday offering. The role came from Rock's old sample data, and the walkthrough now depends on it.
 11. **Regular attender rule: 4 or more worship check-ins in the last 12 weeks?** Recommend that, kept in `configuration/reporting.json` so it can be tuned. Verify will report how many people it finds on each dataset.
 12. **Also lock Rock's financial "related data view" filters?** Recommend no. That changes Rock's shipped settings for every church. The locked Finance categories already protect the finished items, and the docs can mention it as a tip.
+13. **One "regular attender" rule for the flows too?** The guest flow's goal asks for 3 or more visits in 8 weeks, and the baptism flow's audience for 6 or more in 3 months. Recommend both use F5 (4 or more in 12 weeks), so the church has one definition, and the flows session sets its targets from what F5 finds. Two near-same rules are what the layers exist to prevent.
+14. **Involved Adults: Rock's Last Gave attribute instead of a Finance data view?** Recommend yes. Rock already shows Last Gave to all staff, so F10 can stay out of Finance and be shared. Building on Givers in the Last 12 Months would force it into Finance.
+
+**Settled by the coordinator, 2026-10-29:** questions 6 to 12, each as recommended. Questions 1 to 5 are with Jon. Questions 13 and 14 came with the communication flows audiences.
