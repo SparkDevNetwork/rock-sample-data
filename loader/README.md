@@ -169,7 +169,7 @@ This is the index that is signed. The file itself wraps it, as the next section 
     {
       "dataset": "core-1",
       "name": "Core 1",
-      "description": "The Cast: hand-designed households at one campus, each with its own story. The same families are in every dataset.",
+      "description": "The Cast at the main campus: hand-designed households, each with its own story. These families are in every dataset.",
       "bestFor": "Automated tests, training, and everyday development.",
       "highlights": [
         "Families you can name in tests and help articles",
