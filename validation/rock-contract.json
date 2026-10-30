@@ -4427,6 +4427,81 @@
         "TargetEntityTypeId": "int not null"
       }
     },
+    "Report": {
+      "written": [
+        "CategoryId",
+        "CreatedDateTime",
+        "DataViewId",
+        "Description",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IsSystem",
+        "ModifiedDateTime",
+        "Name"
+      ],
+      "rockColumns": {
+        "CategoryId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataViewId": "int null",
+        "Description": "nvarchar(max) null",
+        "EntityTypeId": "int null",
+        "FetchTop": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsSystem": "bit not null",
+        "LastRunDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "QueryHint": "nvarchar(max) null",
+        "RunCount": "int null",
+        "TimeToRunDurationMilliseconds": "int null"
+      }
+    },
+    "ReportField": {
+      "written": [
+        "ColumnHeaderText",
+        "ColumnOrder",
+        "CreatedDateTime",
+        "DataSelectComponentEntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "ReportFieldType",
+        "ReportId",
+        "Selection",
+        "ShowInGrid",
+        "SortDirection",
+        "SortOrder"
+      ],
+      "rockColumns": {
+        "ColumnHeaderText": "nvarchar(max) null",
+        "ColumnOrder": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DataSelectComponentEntityTypeId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsCommunicationMergeField": "bit null",
+        "IsCommunicationRecipientField": "bit null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ReportFieldType": "int not null",
+        "ReportId": "int not null",
+        "Selection": "nvarchar(max) null",
+        "ShowInGrid": "bit not null",
+        "SortDirection": "int not null",
+        "SortOrder": "int null"
+      }
+    },
     "Schedule": {
       "written": [
         "AutoInactivateWhenComplete",

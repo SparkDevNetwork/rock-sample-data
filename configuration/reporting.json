@@ -984,12 +984,12 @@
       }
     },
     {
-      "key": "teams-requiring-a-background-check",
-      "name": "Teams Requiring a Background Check",
+      "key": "kids-and-student-teams",
+      "name": "Kids and Student Teams",
       "category": "safety-data-views",
       "guid": "5222992B-D32F-44A8-8BC5-D3140C6F34CF",
       "entityType": "Rock.Model.Group",
-      "description": "Serving teams whose Requires Background Check setting is on: Kids Ministry and Student Ministry at every campus.",
+      "description": "The Kids Ministry and Student Ministry serving teams at every campus: the teams with the background check requirement.",
       "filter": {
         "all": [
           {
@@ -997,8 +997,16 @@
             "selection": "2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4"
           },
           {
-            "component": "Rock.Reporting.DataFilter.Group.GroupAttributesFilter",
-            "selection": "[\"2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4\",\"RequiresBackgroundCheck\",\"1\",\"True\"]"
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.PropertyFilter",
+                "selection": "[\"Name\",\"1\",\"Kids Ministry\"]"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.PropertyFilter",
+                "selection": "[\"Name\",\"1\",\"Student Ministry\"]"
+              }
+            ]
           }
         ]
       }
@@ -1017,7 +1025,7 @@
           },
           {
             "component": "Rock.Reporting.DataFilter.Person.GroupDataViewFilter",
-            "dataView": "teams-requiring-a-background-check",
+            "dataView": "kids-and-student-teams",
             "selection": "{dataView}|1|0"
           }
         ]

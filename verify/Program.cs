@@ -394,11 +394,15 @@ static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string datab
 static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
     var names = ( source.Reporting?.Reports ?? new List<ReportDefinition>() ).ToDictionary( r => r.Guid, r => r.Key );
-    var lines = RockRunner.Run( rock, sql, database, "reports" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
-    var problems = lines.Select( l => l.Split( '\t' ) ).Where( p => p[0] != "ok" )
+    var all = RockRunner.Run( rock, sql, database, "reports" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var webOnly = all.Where( p => p[0] == "web-only" ).Select( p => p[1] ).FirstOrDefault() ?? "0";
+    var lines = all.Where( p => p[0] != "web-only" ).ToList();
+    var problems = lines.Where( p => p[0] != "ok" )
         .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var g ) && names.TryGetValue( g, out var key ) ? key : $"Rock's report {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
         .ToList();
-    return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Length} reports, and renders every Lava column" : "Rock cannot read every report column", problems );
+
+    // A link column (Person Link, Group Link) builds its URL from the web site's root, which only IIS has.
+    return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Count} reports and renders every Lava column ({webOnly} link columns need the web site)" : "Rock cannot read every report column", problems );
 }
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )

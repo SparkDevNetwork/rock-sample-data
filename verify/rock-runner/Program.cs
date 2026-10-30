@@ -363,6 +363,7 @@ namespace RockSampleData.RockRunner
             var dataViewCache = _rock.GetType( "Rock.Web.Cache.DataViewCache", true );
 
             var lines = new List<string>();
+            var webOnly = 0;
             foreach ( var report in reports )
             {
                 var guid = report.GetType().GetProperty( "Guid" ).GetValue( report );
@@ -400,17 +401,33 @@ namespace RockSampleData.RockRunner
                             {
                                 problems.Add( $"{header}: Rock has no data select component {componentName}" );
                             }
-                            else if ( componentName == "Rock.Reporting.DataSelect.LiquidSelect" )
-                            {
-                                var mergeFields = new Dictionary<string, object> { ["Id"] = firstId, ["BaptismDate"] = "1/1/2026", ["Allergy"] = "Peanuts" };
-                                resolve.Invoke( null, new object[] { selection, mergeFields, false, true } );
-                            }
                             else
                             {
-                                var getExpression = component.GetType().GetMethod( "GetExpression", new[] { rockContextType, typeof( System.Linq.Expressions.MemberExpression ), typeof( string ) } );
-                                if ( getExpression.Invoke( component, new[] { context, idProperty, selection ?? string.Empty } ) == null )
+                                try
                                 {
-                                    problems.Add( $"{header}: {componentName} built no expression from \"{selection}\"" );
+                                    if ( componentName == "Rock.Reporting.DataSelect.LiquidSelect" )
+                                    {
+                                        var mergeFields = new Dictionary<string, object> { ["Id"] = firstId, ["BaptismDate"] = "1/1/2026", ["Allergy"] = "Peanuts" };
+                                        resolve.Invoke( null, new object[] { selection, mergeFields, false, true } );
+                                    }
+                                    else
+                                    {
+                                        var getExpression = component.GetType().GetMethod( "GetExpression", new[] { rockContextType, typeof( System.Linq.Expressions.MemberExpression ), typeof( string ) } );
+                                        if ( getExpression.Invoke( component, new[] { context, idProperty, selection ?? string.Empty } ) == null )
+                                        {
+                                            problems.Add( $"{header}: {componentName} built no expression from \"{selection}\"" );
+                                        }
+                                    }
+                                }
+                                catch ( TargetInvocationException ex ) when ( ex.GetBaseException().Message.Contains( "cannot be made absolute" ) )
+                                {
+                                    // A link column builds its URL from the web site's root, which only exists under IIS. Rock's own
+                                    // reports do the same, so the column is left to the web site, as Rock Cleanup's web-only tasks are.
+                                    webOnly++;
+                                }
+                                catch ( TargetInvocationException ex )
+                                {
+                                    problems.Add( $"{header}: {ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
                                 }
                             }
                         }
@@ -424,6 +441,7 @@ namespace RockSampleData.RockRunner
                 lines.Add( problems.Count == 0 ? $"ok\t{guid}" : $"error\t{guid}\t{string.Join( "; ", problems )}" );
             }
 
+            lines.Add( $"web-only\t{webOnly}" );
             return string.Join( "\n", lines );
         }
 
