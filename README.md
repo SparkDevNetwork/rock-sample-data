@@ -143,13 +143,13 @@ and push. Ask me before anything that removes or rewrites history.
 
 ## At a glance
 
-| Dataset | People | Campuses | Load time |
-|---|---|---|---|
-| **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds |
-| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds |
-| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 3 minutes |
+| Dataset | People | Campuses | Load time | Database space |
+|---|---|---|---|---|
+| **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds | About 1.4 GB |
+| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds | About 1.7 GB |
+| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 3 minutes | About 13 GB |
 
-Load times are each dataset's `typicalInstallSeconds` in [datasets/](datasets/README.md). The public site reads them from there, so change them there. [Performance](docs/performance.md) has where Full 7's time goes, step by step.
+Load times and database space are each dataset's `typicalInstallSeconds` and `databaseSpaceMegabytes` in [datasets/](datasets/README.md). The public site reads them from there, so change them there. [Performance](docs/performance.md) has where Full 7's time goes, step by step.
 
 - **The Cast** is hand-designed and safe for tests to rely on by Guid. It is the same in every dataset, except that a campus pastor's family on another campus loads only in datasets with that campus. Every Cast person has a profile photo, except a few left without one on purpose.
 - **The Crowd** is generated from measured church patterns to give volume.

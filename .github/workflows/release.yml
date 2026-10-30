@@ -34,6 +34,13 @@ env:
   DOTNET_NOLOGO: "true"
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   CONTAINER: sampledata
+  # Git Bash on Windows rewrites any argument that starts with "/" into a Windows path before it reaches
+  # a Windows program, so an MD5 such as /2mt41CZzOhoXL0bSq+OpA== reached az as
+  # C:/Program Files/Git/2mt41CZzOhoXL0bSq+OpA== and Azure refused the upload (the v0.1.0-alpha.15
+  # run). Every path these steps pass is relative or already a Windows path, so nothing needs the
+  # rewrite. Both settings turn it off; the Ubuntu job ignores them.
+  MSYS_NO_PATHCONV: "1"
+  MSYS2_ARG_CONV_EXCL: "*"
 
 jobs:
   plan:
@@ -270,6 +277,17 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # Publish passes MD5s and other computed values from Git Bash to Windows programs. This job runs
+      # on dry runs too, so a shell that still rewrites them fails here, before any tag.
+      - name: Check that values reach Windows programs unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          sent="/2mt41CZzOhoXL0bSq+OpA=="
+          got=$(node -e 'process.stdout.write(process.argv[1])' "$sent")
+          [ "$got" = "$sent" ] || { echo "::error::Git Bash rewrote $sent as $got. Set MSYS_NO_PATHCONV for this job."; exit 1; }
+          echo "Passed $sent unchanged."
+
       # The .NET Framework build Rock uses must derive the same keys, hashes, and draws as .NET 10.
       - name: Check the .NET Framework build
         run: |
@@ -369,6 +387,16 @@ jobs:
           name: loader-nuget
           path: artifacts/nuget
 
+      # The same check as the loader job's, before this job signs or publishes anything.
+      - name: Check that values reach Windows programs unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          sent="/2mt41CZzOhoXL0bSq+OpA=="
+          got=$(node -e 'process.stdout.write(process.argv[1])' "$sent")
+          [ "$got" = "$sent" ] || { echo "::error::Git Bash rewrote $sent as $got. Set MSYS_NO_PATHCONV for this job."; exit 1; }
+          echo "Passed $sent unchanged."
+
       # The gate again, on the exact bytes this job uploads.
       - name: Publishing gate
         shell: bash
@@ -425,6 +453,9 @@ jobs:
           for file in packages/rock-*/*; do
             name="packages/v$VERSION/${file#packages/}"
             md5=$(openssl dgst -md5 -binary "$file" | base64)
+            # An MD5 is 16 bytes, so its base64 is 22 characters and "==".
+            [[ "$md5" =~ ^[A-Za-z0-9+/]{22}==$ ]] || { echo "::error::$file has no valid MD5 (got '$md5')."; exit 1; }
+            echo "$name MD5 $md5"
             type=application/zip
             [[ "$file" == *.json ]] && type=application/json
             hosted=$(az storage blob show --auth-mode login --account-name "$ACCOUNT" -c "$CONTAINER" -n "$name" --query properties.contentSettings.contentMd5 -o tsv 2>/dev/null || true)

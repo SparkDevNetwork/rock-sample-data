@@ -13,6 +13,7 @@
   "households": 16984,
   "campuses": 7,
   "typicalInstallSeconds": 173,
+  "databaseSpaceMegabytes": 13800,
   "checkImages": {
     "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
     "months": 12

@@ -111,4 +111,11 @@ function loadTime( dataset ) {
     return `about ${Math.round( seconds / 60 )} minutes`;
 }
 
-module.exports = { sectionHead, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials, loadTime };
+// The database space a dataset needs in words, from databaseSpaceMegabytes in datasets/*.json: one decimal under
+// 10 GB, whole gigabytes above.
+function databaseSpace( dataset ) {
+    const gigabytes = dataset.databaseSpaceMegabytes / 1024;
+    return gigabytes < 10 ? `about ${gigabytes.toFixed( 1 )} GB` : `about ${Math.round( gigabytes )} GB`;
+}
+
+module.exports = { sectionHead, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials, loadTime, databaseSpace };

@@ -29,6 +29,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Installing and quality
 
-- **Install from inside Rock.** Rock's Sample Data Installer block is built, so you choose a dataset in Rock and install it. It waits for a Rock release. Next it gets a field for the sample login password.
+- **Install from inside Rock.** Rock's Sample Data Installer block is built, so you choose a dataset in Rock and install it. It waits for a Rock release. It has the field for the sample login password. Next it shows each dataset's database space from the card's `databaseSpaceMegabytes`, in a later Rock change.
 - **A stable release.** Each release already builds, checks, and publishes the datasets as prereleases. The first stable release comes next, so Rock installs a tested version by default.
 - **Closer to real churches.** Today 91% of measured values fall within tolerance of real church patterns. We keep closing the gaps that remain, such as first-time visitors.
