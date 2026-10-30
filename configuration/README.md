@@ -40,7 +40,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule |
 | Communication lists | Care | The New Here and We Miss You lists |
 | Person attributes | Staff | The eight staff attributes (decision 201) |
-| Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision D-comm-flows-2) |
+| Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
 
 To add rows of a new kind or for a new purpose:
 

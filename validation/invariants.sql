@@ -924,7 +924,7 @@ FROM [PersonalDevice] AS [pd]
 WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
 
 -- check: open-flow-run-is-allowed
--- why: Decision D-comm-flows-1, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
+-- why: Decision 220, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
 SELECT ( SELECT COUNT(*)
         FROM [CommunicationFlowInstance] AS [i]
         INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
@@ -947,7 +947,7 @@ SELECT ( SELECT COUNT(*)
         WHERE [ic].[ForeignKey] = @ForeignKey AND ( [c].[SendDateTime] IS NULL OR [c].[SendDateTime] > GETDATE() ) );
 
 -- check: open-flow-run-reaches-only-reserved-contact-points
--- why: Decision D-comm-flows-1. Rock's job sends a run's remaining messages after install, so everyone still Active in an open run has an email on example.org or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on rocksolidchurchdemo.com, a real domain that receives mail.
+-- why: Decision 220. Rock's job sends a run's remaining messages after install, so everyone still Active in an open run has an email on example.org or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on rocksolidchurchdemo.com, a real domain that receives mail.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceRecipient] AS [r]
 INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [r].[CommunicationFlowInstanceId]
@@ -958,7 +958,7 @@ WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 AND [r].
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [ph] WHERE [ph].[PersonId] = [p].[Id] AND [ph].[Number] NOT LIKE '___55501__' ) );
 
 -- check: flow-send-reaches-its-instance
--- why: Decision 96 and decision D-comm-flows-1. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
+-- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]

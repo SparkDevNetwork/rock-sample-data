@@ -36,7 +36,7 @@ The loader writes rows straight into Rock's tables, so it has to write what Rock
 
 ## What can send after install
 
-What a load writes is history, so Rock never sends it again (decision 95). Some things may send after install, but only to contact points no real person has (decision D-comm-flows-1).
+What a load writes is history, so Rock never sends it again (decision 95). Some things may send after install, but only to contact points no real person has (decision 220).
 
 - Every communication a load writes is Approved with a `SendDateTime`. Rock's send job only picks up communications with no `SendDateTime`.
 - No recipient a load writes is Pending or Sending.
@@ -175,18 +175,18 @@ Class emails and texts go to the people in that campus's class, matched by the c
 
 ### Communication flows
 
-The church's flows are set in [configuration/flows.json](../configuration/flows.json) (decision D-comm-flows-2). Each serves one Ministry by Design stage, and its category in Rock is that stage, under a Rock Solid Church flow category. The full plan, with the recurring flows and the Baptism flow still to come, is in the [flows proposal](communication-flows-proposal.md).
+The church's flows are set in [configuration/flows.json](../configuration/flows.json) (decision 221). Each serves one Ministry by Design stage, and its category in Rock is that stage, under a Rock Solid Church flow category. The full plan, with the recurring flows and the Baptism flow still to come, is in the [flows proposal](communication-flows-proposal.md).
 
 | Flow | Category | People enter | Messages | Goal | Exit |
 |---|---|---|---|---|---|
 | After Starting Point (decision 163) | Belong | The day after they finish a Starting Point Class | A thank-you that day, a small group invitation 6 days later, and an invitation to Foundations 14 days after that, all email | Joined a small group within 30 days | Last message sent |
-| After Foundations (decision D-comm-flows-3) | Equip | The day after they finish a Foundations course, if they are not serving yet | An email that day, a text 5 days later, and volunteer stories by email 14 days after that | The Serve step within 90 days | Goal met |
+| After Foundations (decision 222) | Equip | The day after they finish a Foundations course, if they are not serving yet | An email that day, a text 5 days later, and volunteer stories by email 14 days after that | The Serve step within 90 days | Goal met |
 
 - **On-Demand.** Both are On-Demand flows, the kind a workflow's Activate Communication Flow action fills. Each day people enter is its own run.
 - **What Rock's job writes.** Each message is a bulk email or text from its own flow template, named like "After Starting Point – Thank You", with the rows Rock's Process Communication Flows job writes. A person on "No mass emails" does not get the emails. A flow text goes out on the main line, delivered with the words the person got, or failed with Rock's note when they have no mobile that takes texts.
 - **Goals.** Each conversion credits the newest message the person got on or before it, or on its day, as Rock's job does. Rock counts a step by its completed date through the whole last day of the window.
 - **Who leaves.** Rock's job prunes recipients only while a run is still sending. So with "last message sent" every recipient stays Active, and with "goal met" a person whose goal came before the run's last message leaves and gets no later message.
-- **Mid-flow on install day.** A run that started before install and still has messages left stays open, and Rock's job sends the rest (decision D-comm-flows-1). The most recent Starting Point Class and Foundations course are usually mid-flow. Only people with reserved contact points are in an open run, so a staff member who just finished a class is left out of it.
+- **Mid-flow on install day.** A run that started before install and still has messages left stays open, and Rock's job sends the rest (decision 220). The most recent Starting Point Class and Foundations course are usually mid-flow. Only people with reserved contact points are in an open run, so a staff member who just finished a class is left out of it.
 - **How far back.** After Starting Point's runs reach back 2 years, and After Foundations' 18 months.
 
 ## Volume and the history window
