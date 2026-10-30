@@ -259,7 +259,13 @@ All data views use Rock's own filter components and selection strings, as `confi
 | F9 | Active Small Groups | Group | Group type is Small Group, and the group is active | None | No | G3 |
 | F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | The Christmas at Rock Solid flow. A broad "who is part of us" list that later views and reports can share |
 
-Why the church has its own Church Family view instead of using Rock's shipped "Member & Attendees": the church renamed Rock's statuses and added Leading (decision 11). Rock's view checks Attendee and Member, which are now Connected and Engaged, so it leaves out every leader. Rock's 14 shipped data views stay as they are, in their own categories.
+Why the church has its own Church Family view instead of using Rock's shipped "Member & Attendees": the church renamed Rock's statuses and added Leading (decision 11). Rock's view checks Attendee and Member, which are now Connected and Engaged, so it leaves out every leader.
+
+**Rock's shipped foundations are flagged and moved out of the way** (Jon's answer to question 1). Rock ships 14 data views in three top-level categories. Its "Foundational Views" category holds 8 of them: Adult Member & Attendees, its Males and Females children, Member & Attendees, Pending People, Self Inactivated, and the two duplicate email and phone views. The loader renames that category to **Foundational Views (Shipped)**. Its 8 views stay inside, unchanged, and Rock's Data Integrity reports keep working on them. The church's own foundations are Rock Solid Church > Foundations, so a staff member sees at a glance which set is the church's.
+
+- **How.** The loader finds the category by its Guid, `BDD2C36F-7575-48A8-8B70-3A566E3811ED`, which is the same in Rock 20 and Rock 21, and changes only its name. It is the pattern the calendar uses for Rock's sample events, and the steps use for Rock's Discipleship Path: update in place under Rock's Guid. The rename keeps Rock's own words, so Rock's docs and videos that mention "Foundational Views" still point people to the right place.
+- **Rock updates.** Rock's code finds this category by Guid, never by name. For example, the script in Rock's hotfix 053 that added the duplicate email and phone views looked it up by this Guid. That script is now commented out, in both builds. So a later Rock update that adds a shipped view puts it in the renamed category, where it belongs. No Rock migration today renames the category. If one ever did, Rock's name would win, and nothing breaks.
+- **What stays.** Rock's other two shipped categories, Group Requirements (2 views, used by the background check requirement) and Communication Segments (4 views), are left as they are. Rock features use them, so they are not just examples.
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
 
@@ -505,6 +511,10 @@ Rock Solid Church                 View: Staff Workers, Staff Like Workers, Rock 
 ├── Finance                       View: Finance Administration, Finance Worker, Rock Administration. Deny All Users
 │                                 Edit: Finance Administration
 └── Staff Workspace               Edit: Staff Workers (question 8)
+
+Foundational Views (Shipped)      Rock's "Foundational Views", renamed by Guid. No rules, as Rock ships it
+Group Requirements                Rock's, unchanged
+Communication Segments            Rock's, unchanged
 ```
 
 ### 6.2 Report categories
@@ -594,21 +604,21 @@ A new static checker, `validation/check-reporting.js`, runs without a database. 
 
 | # | Slice | What it builds | How it is checked |
 |---|---|---|---|
-| 1 | Categories and security | The data view and report categories in `configuration/categories.json`, with a `security` list on each; the loader writes their Auth rows. The rule on Rock Solid Church. Staff Workspace | `authorize` against the existing eight data views: staff yes, Jerry Wright no. Contract re-recorded |
+| 1 | Categories and security | The data view and report categories in `configuration/categories.json`, with a `security` list on each; the loader writes their Auth rows. The rule on Rock Solid Church. Staff Workspace. Rock's Foundational Views category renamed to Foundational Views (Shipped) by Guid | `authorize` against the existing eight data views: staff yes, Jerry Wright no. Contract re-recorded |
 | 2 | Foundations, path, and ministry data views | F1 to F10, P1 to P5, N1 to N5, G3, K1, K3, C1 to C7, RG1, and the Sample Data guard X1 to X4, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 4.12). The writer learns the Existing Data View, Not in Existing Data View, and Steps Taken filters, the persisted fields, and the named schedule | `data-views`, `persist`, Cast anchors, the static checker |
 | 3 | Reports | A report writer for all four column kinds; R2 to R5, R7 to R10, and R18 to R25 | `reports` on both builds, with run times |
 | 4 | Finance | FN1 to FN8, R1, R12 to R17, and the Top Givers item rules | `authorize` with the full walkthrough; `data-views`; `reports`; the consumer rule |
 | 5 | Safety | S1, K2, R6, and R11 | `authorize` for Rachel Brooks yes, Jamal Pierce no; `reports` |
 | 6 | Rebuild the existing views on foundations | The five sync views and three registration views use F2, F5, F6, F8, C3, and K3. The loader's own data view evaluator learns the two Existing Data View filters, so it still fills each synced group exactly | The existing group sync check: Rock's own sync must change nothing. Registration eligibility checks |
 | 7 | Usage history | Run counts and last run dates, and one retired data view (question 9, settled yes) | Invariants on the dates |
-| 8 | Path metrics (if question 15 says yes) | A Rock Metric for each stage, sourced from P1 to P4, with weekly values back through the history window, read from the steps | Each metric's latest value equals its stage view's count |
+| 8 | Path metrics (question 15, settled yes) | A Rock Metric for each stage, sourced from P1 to P4, with weekly values back through the history window, read from the steps | Each metric's latest value equals its stage view's count |
 | 9 | Docs and site | How it works, Verification, the glossary, Planned work, Roadmap, and a reporting page on the site if Jon wants one | `node site/build.js` |
 
 ## 9. Open questions
 
 Each has one recommendation.
 
-1. **Our own foundations, or Rock's shipped Foundational Views?** Recommend our own, under Rock Solid Church > Foundations. Rock's "Member & Attendees" checks the old Member and Attendee statuses, so it misses every Leading person. Rock's 14 views stay untouched.
+1. **Our own foundations, or Rock's shipped Foundational Views?** Recommend our own, under Rock Solid Church > Foundations. Rock's "Member & Attendees" checks the old Member and Attendee statuses, so it misses every Leading person. **Jon's answer:** our own, and rename Rock's category to flag it and move it out of the way (section 4.1).
 2. **Lock the top Rock Solid Church categories to staff, staff-like users, and Rock Administration?** Recommend yes. It also covers the eight existing views. No job behaves differently, and it shows why an explicit deny matters (Jerry Wright).
 3. **Make Leadership reports pastors only?** Recommend yes. It gives the walkthrough a third kind of lock, and it is how a real church would keep a thank-you list and the path reports with the senior team.
 4. **Keep the R1 exception (a report outside Finance on a Finance data view)?** Recommend yes. It is Rock's own documented example, and it teaches that a report runs without rights to its data view.
@@ -627,4 +637,12 @@ Each has one recommendation.
 17. **Move the Kids Allergy List into Safety?** Recommend yes. An allergy is medical information. Both kids directors are already Safety & Security Workers, so the people who need the list keep it.
 18. **How should recurring flows avoid emailing the Cast staff's real addresses?** Recommend a guard view, X1 Reserved or No Email, in its own Sample Data category, plus one thin audience view per recurring flow (X2 to X4), paused ones included. Folding the guard into C4, C5, and C7 would hide a sample-data rule inside views meant to teach real practice. The root-cause fix, moving staff emails to a reserved domain, would undo decision 139's real sender domain, so it is not recommended.
 
-**Settled by the coordinator, 2026-10-29:** questions 6 to 15, 17, and 18, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 and 16 are with Jon.
+**Answered by Jon, 2026-10-29:**
+
+- Question 1: the church's own foundations, and Rock's "Foundational Views" category renamed to "Foundational Views (Shipped)".
+- Question 2: yes, lock the Rock Solid Church root categories to staff, staff-like users, and Rock Administration.
+- Finance stays with finance roles only. Jon considered letting Pastoral Workers see Finance and decided against it "for security". So Finance allows Finance Administration, Finance Worker, and Rock Administration. First-Time Givers to Thank stays in Leadership, with Pete Foster as its example.
+
+**Settled by the coordinator, 2026-10-29:** questions 6 to 15, 17, and 18, each as recommended. For question 13, the flows session sets its targets from what F5 finds.
+
+**Still open with Jon:** questions 3, 4, 5, and 16.
