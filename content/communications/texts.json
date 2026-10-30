@@ -429,6 +429,18 @@
       "line": "main",
       "topic": "events",
       "text": "Rock Solid: Hi {{ Person.NickName }}, baptism Sunday is four weeks away. Thinking about it? Fill out the short form on our website and a pastor will reach out."
+    },
+    {
+      "key": "lead-invitation-training",
+      "medium": "sms",
+      "occasion": "lead-invitation",
+      "daysBefore": -7,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "groups",
+      "asksReply": true,
+      "text": "Rock Solid: {{ Person.NickName }}, Group Leader Training is coming up before our next launch. Want a seat? Reply YES and we'll save you one."
     }
   ],
   "replies": {

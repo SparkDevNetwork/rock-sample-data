@@ -148,7 +148,9 @@ namespace RockSampleData.Loader
             prayer part's team. Class emails and texts reach the people in each Starting Point Class and
             Foundations course, baptisms get a follow-up, and the After Starting Point flow follows each
             completed class, all read back from the steps part's rows. Who is involved enough for a newsletter reads the attendance and giving
-            plans only, so communications do not need those parts.
+            plans only, so communications do not need those parts. The Women's Retreat flow's goal names the
+            retreat's registration instance, so registrations load before communications, and a load without
+            registrations leaves that one flow out instead of needing them.
 
             Registrations need the calendar only (decision 189). Every linkage points at a calendar
             occurrence, found through the calendar's plan, so the calendar must have written it. Payments are
@@ -172,9 +174,9 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
-            new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),
+            new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

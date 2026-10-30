@@ -57,9 +57,9 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
-            ("Communications", SampleDataPart.Communications),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
+            ("Communications", SampleDataPart.Communications),
             ("Data views", null),
             ("Logins", null),
             (CastExpectationsStep, null),
@@ -522,17 +522,9 @@ namespace RockSampleData.Loader
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
             }
 
-            // The church's texting numbers, its branded template, and its communication lists. The lists copy the
-            // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
-            // who is involved enough for a newsletter comes from the attendance and giving plans.
-            // History takes over a million rows from communications, then thousands more from logins. Its indexes stay
-            // off until logins are written, and nothing in between reads it.
+            // History takes thousands of rows from registrations, over a million from communications, then thousands more
+            // from logins. Its indexes stay off until logins are written, and nothing in between reads it.
             db.DeferIndexRebuild( "History" );
-            if ( steps.Begin( "Communications" ) )
-            {
-                new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )
-                    .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
-            }
 
             // The church's calendar. Its contacts are Cast staff and campus pastors, and its dates come from the same rules
             // steps and messages use, so it reads only configuration and people.
@@ -549,6 +541,17 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Registrations" ) )
             {
                 new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
+            }
+
+            // The church's texting numbers, its branded template, and its communication lists. The lists copy the
+            // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
+            // who is involved enough for a newsletter comes from the attendance and giving plans. Registrations come
+            // first, because the Women's Retreat flow's goal names the retreat's registration instance (decision
+            // D-comm-flows-11).
+            if ( steps.Begin( "Communications" ) )
+            {
+                new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )
+                    .Load( people, castHouseholdKeys, mainCampusKey, configuration.CampusIds, attendance.FamilySundays, giving.QualifyingGifts, prayer.TeamPersonIds, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId );
             }
 
             // The church's layered data views (docs/reporting.md). Some point at the group sync and registration views, so
