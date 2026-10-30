@@ -32,7 +32,7 @@ namespace RockSampleData.Verify
         expectations checked inside each load's transaction, and reports every expectation that fails on any day.
         A dry run rolls back, so one copy of the trusted base serves every day.
 
-        Reason: Cast giving stories must hold on every install day, not only the day verify ran (decision D-anchors-1).
+        Reason: Cast giving stories must hold on every install day, not only the day verify ran (decision 218).
     */
 
     /// <summary>
