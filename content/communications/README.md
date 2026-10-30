@@ -54,6 +54,7 @@ Each message names the occasion it belongs to. The loader dates every occasion f
 | `baptism-invitation` | The "Baptism Sunday Invitation" Communication Flow. `daysBefore` is 0 or negative: days after its run, five weeks before a baptism Sunday. |
 | `lead-invitation` | The "Lead a Group" Communication Flow. `daysBefore` is 0 or negative: days after its run, six weeks before a group launch. |
 | `womens-retreat-invitation` | The "Women's Retreat Early Bird" Communication Flow. `daysBefore` is 0 or negative: days after its May or September run. |
+| `campaign-follow-up` | The "Built on the Rock Follow-Up" Communication Flow. `daysBefore` is 0 or negative: days after its one run, the Monday after Commitment Sunday. |
 
 ## Audiences
 
@@ -65,6 +66,7 @@ Each message names the occasion it belongs to. The loader dates every occasion f
 | `students-and-parents` | The Students list and the parents of those students. |
 | `class` | The people in the class or course the occasion names. |
 | `person` | One person. Used by the one-to-one occasions. |
+| `scheduled` | The one email `configuration/communications.json` schedules to send after install, and only that email. The history never sends it. |
 
 ## Senders
 

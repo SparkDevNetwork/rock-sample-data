@@ -55,7 +55,7 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         public static void LinkAudiences( RockDatabase db, SampleDataSource source, string seed )
         {
-            foreach ( var flow in source.Flows?.Flows.Where( f => f.Trigger == "recurring" ) ?? Enumerable.Empty<FlowDefinition>() )
+            foreach ( var flow in source.Flows?.Flows.Where( IsScheduled ) ?? Enumerable.Empty<FlowDefinition>() )
             {
                 var viewGuid = source.Reporting?.DataViews.FirstOrDefault( v => v.Key == flow.Audience?.View )?.Guid;
                 var viewId = viewGuid.HasValue ? db.IdByGuid( "DataView", viewGuid.Value ) : null;
@@ -125,6 +125,7 @@ namespace RockSampleData.Loader.Loading
                 "unbaptizedRegularAttenders" => p => p.IsAdult && p.Count( LastWeeks( 12 ), end ) >= 4 && !( p.Baptized.HasValue && p.Baptized.Value < end ),
                 "womenWhoAttend" => p => p.IsAdult && p.AcceptsMassEmail && p.IsFemale && p.AgeOn( day ) is int age && age >= 25 && age <= 75 && p.Count( LastMonths( 12 ), end ) >= 1,
                 "readyToLead" => p => p.IsAdult && p.Equipped < end && p.InGroup( p.SmallGroups, end ) && p.InGroup( p.ServingTeams, end ) && !( p.Leading < end ),
+                "involvedAdults" => p => IsInvolvedAdult( p, day ),
                 _ => throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has audience rule '{flow.Audience?.Rule}', which the loader does not know." )
             };
 
@@ -146,8 +147,9 @@ namespace RockSampleData.Loader.Loading
             };
             var facts = loader.AudienceFacts( context );
             return ( source.Flows?.Flows ?? new List<FlowDefinition>() )
-                .Where( f => f.Trigger == "recurring" && source.Reporting?.DataViews.Any( v => v.Key == f.Audience?.View ) == true )
-                .ToDictionary( f => source.Reporting.DataViews.First( v => v.Key == f.Audience.View ).Guid, f => AudienceOn( f, facts, anchor.Date ).Select( p => p.PersonId ).ToHashSet() );
+                .Where( f => IsScheduled( f ) && source.Reporting?.DataViews.Any( v => v.Key == f.Audience?.View ) == true && ( f.Trigger != "oneTime" || loader.PledgeHouseholds().Count > 0 ) )
+                .ToDictionary( f => source.Reporting.DataViews.First( v => v.Key == f.Audience.View ).Guid,
+                    f => ( f.Trigger == "oneTime" ? loader.OneTimeAudience( f, facts, anchor.Date ) : AudienceOn( f, facts, anchor.Date ) ).Select( p => p.PersonId ).ToHashSet() );
         }
 
         /// <summary>
@@ -199,6 +201,9 @@ namespace RockSampleData.Loader.Loading
                     }
 
                     dates.Sort();
+                    break;
+                case "afterCommitmentSunday":
+                    dates.AddRange( OneTimeDate( flow, from, until ) );
                     break;
                 default:
                     throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has schedule '{schedule?.Kind}', which the loader does not know." );
@@ -324,6 +329,11 @@ WHERE [r].[RegistrationInstanceId] = @Instance AND [rr].[CreatedDateTime] IS NOT
             }
 
             // Entered Data View: a person is in "came to worship in the last 30 days" from each check-in on, so each check-in is a date that meets it.
+            if ( flow.Goal.Rule == "pledgeHouseholds" )
+            {
+                return PledgeHouseholdsGoal( flow, type );
+            }
+
             if ( flow.Goal.Rule != "backInLast30Days" )
             {
                 throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has goal rule '{flow.Goal.Rule}', which the loader does not know." );
@@ -409,6 +419,7 @@ WHERE [p].[ForeignKey] = @ForeignKey OR [p].[Id] = 1", P( "@ForeignKey", _foreig
                     };
                 } )
                 .ToList();
+            AddGivingFacts( context.Audience );
             return context.Audience;
         }
 
@@ -475,7 +486,7 @@ WHERE [gt].[Guid] = @Type", P( "@Type", groupTypeGuid ) )
         /// <summary>
         /// One person as the audience rules see them.
         /// </summary>
-        private sealed class AudiencePerson
+        private sealed partial class AudiencePerson
         {
             public int PersonId { get; set; }
 

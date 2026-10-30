@@ -179,6 +179,7 @@ namespace RockSampleData.Loader.Loading
             var mainNumber = configuration.PhoneNumbers.Numbers.FirstOrDefault( n => n.Key == "main" );
             context.MainNumberId = mainNumber == null ? null : _db.IdByGuid( "SystemPhoneNumber", mainNumber.Guid );
             _nextLinkId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [CommunicationFlowInstanceCommunication]" ) );
+            _context = context;
 
             foreach ( var flow in flows )
             {
@@ -212,8 +213,8 @@ namespace RockSampleData.Loader.Loading
             var workflow = flow.Entry?.Workflow == null ? null : _source.Flows.Workflows.FirstOrDefault( w => w.Key == flow.Entry.Workflow )
                 ?? throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} enters from workflow '{flow.Entry.Workflow}', which the file does not define." );
             var formEntries = workflow == null ? null : FormEntries( flow, context, goal, firstDay );
-            var entries = flow.Trigger == "recurring" ? null : formEntries?.Select( e => (Day: e.At.Date, e.Person) ).ToList() ?? StepEntries( flow, context );
-            var entrants = flow.Trigger == "recurring" ? RecurringRuns( flow, context, firstDay ) : entries
+            var entries = IsScheduled( flow ) ? null : formEntries?.Select( e => (Day: e.At.Date, e.Person) ).ToList() ?? StepEntries( flow, context );
+            var entrants = flow.Trigger == "oneTime" ? OneTimeRun( flow, context, firstDay ) : flow.Trigger == "recurring" ? RecurringRuns( flow, context, firstDay ) : entries
                 .Where( e => e.Day >= firstDay && ( context.AllowOpenRuns ? e.Day < _dates.Anchor.Date : LastSend( flow, e.Day ) < _dates.Anchor ) )
                 .GroupBy( e => e.Day )
                 .OrderBy( g => g.Key )
@@ -225,16 +226,16 @@ namespace RockSampleData.Loader.Loading
             }
 
             var launched = entrants[0].Start.AddDays( -14 ).AddHours( 11 );
-            var scheduleId = flow.Trigger == "recurring" ? WriteSchedule( flow, entrants[0].Start, launched ) : ( int? ) null;
+            var scheduleId = IsScheduled( flow ) ? WriteSchedule( flow, entrants[0].Start, launched ) : ( int? ) null;
             var trackingClosed = entrants.All( e => TrackingDone( flow, e.Start ) );
             var categoryId = flow.Category == null ? ( int? ) null : _db.RequireIdByGuid( "Category", _source.Categories.Get( flow.Category ).Guid );
             var flowId = Convert.ToInt32( _db.Scalar( @"
 INSERT INTO [CommunicationFlow] ( [Name], [Description], [CategoryId], [PublicName], [IsActive], [TriggerType], [ScheduleId], [ConversionGoalType], [ConversionGoalTargetPercent], [ConversionGoalTimeframeInDays],
     [ExitConditionType], [AdditionalSettingsJson], [IsMessagingClosed], [IsConversionGoalTrackingClosed], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
 OUTPUT INSERTED.[Id]
-VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @ScheduleId, @Goal, @Target, @Days, @Exit, @Settings, 0, @TrackingClosed, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
+VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @ScheduleId, @Goal, @Target, @Days, @Exit, @Settings, @MessagingClosed, @TrackingClosed, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
                 P( "@Name", flow.Name ), P( "@Description", flow.Description ), P( "@CategoryId", ( object ) categoryId ?? DBNull.Value ), P( "@PublicName", ( object ) flow.PublicName ?? DBNull.Value ),
-                P( "@Active", flow.IsActive ), P( "@Trigger", flow.Trigger == "recurring" ? Recurring : OnDemand ), P( "@ScheduleId", ( object ) scheduleId ?? DBNull.Value ), P( "@Goal", goal.TypeValue ), P( "@Target", flow.Goal.TargetPercent ), P( "@Days", flow.Goal.Days ), P( "@Exit", exitType ),
+                P( "@Active", flow.IsActive ), P( "@Trigger", TriggerValue( flow ) ), P( "@MessagingClosed", flow.Trigger == "oneTime" ), P( "@ScheduleId", ( object ) scheduleId ?? DBNull.Value ), P( "@Goal", goal.TypeValue ), P( "@Target", flow.Goal.TargetPercent ), P( "@Days", flow.Goal.Days ), P( "@Exit", exitType ),
                 P( "@Settings", goal.SettingsJson ), P( "@TrackingClosed", trackingClosed ), P( "@Guid", SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}" ) ), P( "@Launched", launched ),
                 P( "@Sender", context.SenderAliasId ), P( "@ForeignKey", _foreignKey ) ) );
 

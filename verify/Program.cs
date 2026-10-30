@@ -412,7 +412,7 @@ static CheckResult FlowAudienceCheck( RockRelease rock, SqlServer sql, string da
 
     if ( expected.Count == 0 )
     {
-        return CheckResult.From( "flow-audiences", "No recurring flow has an audience view in this load", new List<string>() );
+        return CheckResult.From( "flow-audiences", "No recurring or one-time flow has an audience view in this load", new List<string>() );
     }
 
     var lines = RockRunner.Run( rock, sql, database, "data-view-people", expected.Keys.Select( g => g.ToString() ) )
@@ -438,7 +438,7 @@ static CheckResult FlowAudienceCheck( RockRelease rock, SqlServer sql, string da
     }
 
     return CheckResult.From( "flow-audiences", problems.Count == 0
-        ? $"The loader's rule and Rock's own engine find the same {expected.Values.Sum( v => v.Count ):N0} people in {expected.Count} recurring flow audiences"
+        ? $"The loader's rule and Rock's own engine find the same {expected.Values.Sum( v => v.Count ):N0} people in {expected.Count} flow audiences"
         : "The loader's audience rules and Rock's views disagree", problems );
 }
 

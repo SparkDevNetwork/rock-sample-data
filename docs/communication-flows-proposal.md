@@ -227,7 +227,7 @@ See Section 4.
 
 Jon pointed out that a message sent once is better shown as a regular communication with a future send date. So the sample data adds one.
 
-- **What.** "Christmas Eve at Rock Solid: see you tomorrow," an email from the church's address, approved by Daniel Peak, scheduled for 10 a.m. on the December 23 after install.
+- **What.** "See you tomorrow for Christmas Eve at Rock Solid," an email from the church's address, approved by Daniel Peak, scheduled for 10 a.m. on the December 23 after install.
 - **How Rock stores it.** Status Approved, no `SendDateTime`, and `FutureSendDateTime` set. Rock's Send Communications job sends it when that time comes, and the Communication List shows it as scheduled.
 - **Recipients.** Phoenix's involved adults on reserved addresses, each written as a Pending recipient. It names no communication list, because Rock can refresh a list's recipients when it sends, and the newsletter lists include staff.
 - **Where it lives.** A new `scheduled` entry in `configuration/communications.json`: the library email key, the sender and approver, the send rule ("December 23, 10 a.m., the next one after install"), and the audience rule. The message text is a new library email.
@@ -428,7 +428,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 | 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3a. Recurring flows, first three (built) | The recurring machinery (schedules, a run per date with each run's audience worked out by its view's rule, paused flows, the audience link after the reports views load), the Entered Data View and Completed Form goals, opened and clicked exits, verify's flow-audiences check, and First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation | Medium |
 | 3b. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
-| 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
+| 4. One-Time flow, scheduled send, and finish (the flow and the email built) | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
 ## 8. Questions and answers
 

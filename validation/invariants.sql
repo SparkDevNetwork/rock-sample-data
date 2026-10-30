@@ -749,18 +749,38 @@ WHERE [spn].[ForeignKey] = @ForeignKey
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
 
 -- check: communication-is-sent-and-never-sends-again
--- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it.
+-- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it. The one scheduled communication, which waits for a future send date (decision D-comm-flows-slice4-2), is checked by scheduled-communication-waits-for-its-date.
 SELECT COUNT(*)
 FROM [Communication] AS [c]
 WHERE [c].[ForeignKey] = @ForeignKey
+    AND NOT ( [c].[SendDateTime] IS NULL AND [c].[FutureSendDateTime] > GETDATE() )
     AND ( [c].[Status] <> 3 OR [c].[SendDateTime] IS NULL OR [c].[SendDateKey] IS NULL
         OR [c].[SendDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [c].[SendDateTime], 112 ) ) );
 
 -- check: no-recipient-waits-to-send
--- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to.
+-- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to. Only the scheduled communication's recipients wait, as Pending (decision D-comm-flows-slice4-2).
 SELECT COUNT(*)
 FROM [CommunicationRecipient] AS [cr]
-WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 );
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 )
+    AND NOT ( [cr].[Status] = 0 AND [c].[SendDateTime] IS NULL AND [c].[FutureSendDateTime] > GETDATE() );
+
+-- check: scheduled-communication-waits-for-its-date
+-- why: Decisions 220 and D-comm-flows-slice4-2. A load writes at most one communication that sends after install. It is a bulk email, Approved and reviewed, with a future send date, no send date, and no communication list, so Rock's Send Communications job sends it on its date to exactly these people. Every recipient is Pending with no send times, and has an email on example.org or none, so it can never reach a real address.
+SELECT CASE WHEN ( SELECT COUNT(*) FROM [Communication] AS [c] WHERE [c].[ForeignKey] = @ForeignKey AND [c].[SendDateTime] IS NULL ) > 1 THEN 1 ELSE 0 END
+    + ( SELECT COUNT(*)
+        FROM [Communication] AS [c]
+        WHERE [c].[ForeignKey] = @ForeignKey AND [c].[SendDateTime] IS NULL
+            AND ( [c].[Status] <> 3 OR [c].[CommunicationType] <> 1 OR [c].[IsBulkCommunication] = 0 OR [c].[ReviewerPersonAliasId] IS NULL OR [c].[ReviewedDateTime] IS NULL
+                OR [c].[FutureSendDateTime] IS NULL OR [c].[FutureSendDateTime] <= GETDATE() OR [c].[SendDateKey] IS NOT NULL OR [c].[ListGroupId] IS NOT NULL
+                OR NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
+                OR EXISTS ( SELECT 1
+                    FROM [CommunicationRecipient] AS [cr]
+                    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+                    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+                    WHERE [cr].[CommunicationId] = [c].[Id]
+                        AND ( [cr].[Status] <> 0 OR [cr].[SendDateTime] IS NOT NULL OR [cr].[DeliveredDateTime] IS NOT NULL
+                            OR ( ISNULL( [p].[Email], '' ) <> '' AND [p].[Email] NOT LIKE '%@example.org' ) ) ) ) );
 
 -- check: email-recipient-states-agree
 -- why: Communication Detail counts and charts each status from these columns. A delivered or opened email was sent and confirmed, an opened one has its first open after the send, and a failed one says why. Only a bounce fails after Rock sent it.
@@ -969,6 +989,19 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
             INNER JOIN [DataView] AS [guard] ON [guard].[Guid] = '7440C1BC-57B1-4B18-BAD5-40EDEFFF6779'
             WHERE [df].[DataViewId] = [f].[TargetAudienceDataViewId] AND [et].[Name] = 'Rock.Reporting.DataFilter.OtherDataViewFilter'
                 AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
+
+-- check: one-time-flow-is-finished
+-- why: Decision D-comm-flows-slice4-1. A one-time flow ran once, from its single-date schedule and its audience view, and that run finished long before install. Rock's job closes a one-time flow's messaging once its one run is done, so the flow shows Completed and the job never reads it again. That is why its audience view carries no guard.
+SELECT COUNT(*)
+FROM [CommunicationFlow] AS [f]
+LEFT JOIN [Schedule] AS [s] ON [s].[Id] = [f].[ScheduleId]
+WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 3
+    AND ( [f].[IsMessagingClosed] = 0 OR [f].[IsConversionGoalTrackingClosed] = 0 OR [s].[Id] IS NULL OR [f].[TargetAudienceDataViewId] IS NULL
+        OR [s].[EffectiveEndDate] <> [s].[EffectiveStartDate] OR ISNULL( [s].[iCalendarContent], '' ) LIKE '%RRULE%' OR ISNULL( [s].[iCalendarContent], '' ) LIKE '%RDATE%'
+        OR ( SELECT COUNT(*) FROM [CommunicationFlowInstance] AS [i] WHERE [i].[CommunicationFlowId] = [f].[Id] ) <> 1
+        OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstance] AS [i]
+            WHERE [i].[CommunicationFlowId] = [f].[Id]
+                AND ( [i].[IsMessagingCompleted] = 0 OR [i].[IsConversionGoalTrackingCompleted] = 0 OR [i].[StartDate] <> [s].[EffectiveStartDate] OR [i].[StartDate] >= CAST( GETDATE() AS DATE ) ) ) );
 
 -- check: flow-send-reaches-its-instance
 -- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.

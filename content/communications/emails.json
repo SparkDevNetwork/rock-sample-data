@@ -971,6 +971,69 @@
         { "p": "Register together and use the code FRIEND for 10 percent off. Bring your sister, your neighbor, or a friend from your small group." },
         { "button": "Register for the retreat", "href": "/women" }
       ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-invite",
+      "occasion": "campaign-follow-up",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Missed Commitment Sunday? There's still time",
+      "preheader": "Every family can be part of Built on the Rock. Here's how to make your commitment.",
+      "body": [
+        { "h": "There's still time" },
+        { "p": "Hi {{ Person.NickName }}, yesterday families across our campuses brought their commitment cards for Built on the Rock. If you weren't there, we saved a place for you." },
+        { "p": "Built on the Rock will build a Student Center at the Phoenix campus and new kids rooms at every campus. Pray about what you can give over the next two years, then make your commitment online." },
+        { "button": "Make a commitment", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-story",
+      "occasion": "campaign-follow-up",
+      "daysBefore": -10,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Why a Student Center? Hear from our students",
+      "preheader": "What a place of their own will mean for the students at Rock Solid.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, our students meet in rooms that were built for something else. We asked a few of them what a place of their own would mean." },
+        { "list": [ "\"A place I can bring my friends who don't go to church.\" (a high school junior)", "\"Somewhere to hang out after school that isn't my phone.\" (an eighth grader)", "\"A room that feels like it's ours.\" (a student leader)" ] },
+        { "p": "Built on the Rock gives them that place, and new kids rooms at every campus. Your commitment helps build it." },
+        { "button": "See the plans", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-last",
+      "occasion": "campaign-follow-up",
+      "daysBefore": -14,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Bring your commitment card this Sunday",
+      "preheader": "Make your Built on the Rock commitment online, or bring your card this weekend.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, this Sunday we're collecting the last commitment cards for Built on the Rock at every campus." },
+        { "p": "Whatever you give, you'll help build something that lasts for the next generation. You can also make your commitment online in a few minutes." },
+        { "button": "Make a commitment", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "christmas-eve-see-you-tomorrow",
+      "occasion": "christmas",
+      "daysBefore": 1,
+      "audience": "scheduled",
+      "topic": "events",
+      "sender": "church",
+      "subject": "See you tomorrow for Christmas Eve at Rock Solid",
+      "preheader": "Parking, kids, and a few tips for the night.",
+      "body": [
+        { "h": "See you tomorrow night" },
+        { "p": "Hi {{ Person.NickName }}, Christmas Eve is {eventDate}, and we can't wait to celebrate with you at Rock Solid {campus}." },
+        { "list": [ "Come early. Parking fills up fast.", "Nursery is open for kids under 3.", "Every service ends with candles and Silent Night." ] },
+        { "button": "See service times", "href": "/christmas" }
+      ]
     }
   ]
 }

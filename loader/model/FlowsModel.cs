@@ -103,7 +103,7 @@ namespace RockSampleData.Loader.Model
         public string Category { get; set; }
 
         /// <summary>
-        /// onDemand. Recurring and one-time flows come in later slices.
+        /// onDemand, recurring, or oneTime.
         /// </summary>
         public string Trigger { get; set; }
 
@@ -127,12 +127,12 @@ namespace RockSampleData.Loader.Model
         public string Exit { get; set; }
 
         /// <summary>
-        /// For a recurring flow: when each run starts.
+        /// For a recurring or one-time flow: when each run starts.
         /// </summary>
         public FlowSchedule Schedule { get; set; }
 
         /// <summary>
-        /// For a recurring flow: who each run reaches.
+        /// For a recurring or one-time flow: who each run reaches.
         /// </summary>
         public FlowAudience Audience { get; set; }
 
@@ -171,6 +171,11 @@ namespace RockSampleData.Loader.Model
         /// For beforeBaptismSundays and beforeGroupLaunches: how many days before each baptism Sunday or small group launch.
         /// </summary>
         public int DaysBefore { get; set; }
+
+        /// <summary>
+        /// For afterCommitmentSunday, a one-time flow's date: how many days after Built on the Rock's Commitment Sunday.
+        /// </summary>
+        public int DaysAfter { get; set; }
 
         /// <summary>
         /// The time of day, as HH:mm.
@@ -313,7 +318,7 @@ namespace RockSampleData.Loader.Model
         public string View { get; set; }
 
         /// <summary>
-        /// For enteredDataView: backInLast30Days, the rule the view holds, worked out for each person's dates.
+        /// For enteredDataView: backInLast30Days or pledgeHouseholds, the rule the view holds, worked out for each person's dates.
         /// </summary>
         public string Rule { get; set; }
 

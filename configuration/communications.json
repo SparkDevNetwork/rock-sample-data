@@ -113,5 +113,14 @@
   "castUnsubscribes": [
     { "person": "DE3E4484-6818-4919-978A-A2A2EBEFC64A", "name": "Kevin Dawson", "list": "men", "daysAgo": 0 },
     { "person": "21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA", "name": "Brandon Watson", "daysAgo": 100 }
-  ]
+  ],
+  "scheduled": {
+    "$comment": "The one communication written to send after install (decision D-comm-flows-slice4-2). It is Approved with a future send date and no send date, so Rock's Send Communications job sends it when that time comes, and every recipient waits as Pending. 'email' is the library email, from the 'church' sender, approved by the approver above. It goes out at 'time' on the next 'month' and 'day' after the install moment. 'audience' is a flow audience rule, run as of install day, for the involved adults of one campus whose email is on the reserved domain or empty. It names no communication list, because Rock can refresh a list's recipients when it sends, and the newsletter lists include staff.",
+    "email": "christmas-eve-see-you-tomorrow",
+    "sender": "church",
+    "month": 12,
+    "day": 23,
+    "time": "10:00",
+    "audience": { "rule": "involvedAdults", "campus": "phoenix" }
+  }
 }

@@ -143,6 +143,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, guids, failures ) : 0;
 
+            // The Built on the Rock Follow-Up agrees with the Cast's pledges (decision D-comm-flows-slice4-1).
+            checks += parts.Contains( SampleDataPart.Giving ) && parts.Contains( SampleDataPart.Communications ) ? CheckCampaignFollowUp( db, source, guids, failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;
 
             // Signing in as admin shows Alisha Marble's open requests (decision 178).
@@ -868,6 +871,86 @@ WHERE ( [fa].[Id] = @FundId OR [fa].[ParentAccountId] = @FundId ) AND [p].[Givin
                     if ( state != entry.ExpectedState )
                     {
                         failures.Add( $"{name}: expected the pledge to be {entry.ExpectedState}, the load shows {state} (${given:N0}{( entry.Pledge == null ? string.Empty : $" of ${entry.Pledge:N0}" )})" );
+                    }
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Checks the one-time flow's run against each Cast family's campaign pledge: a family that pledged before the
+        /// run is not in it, a family that pledged inside its goal window converted, and a family that pledged later did
+        /// not.
+        /// </summary>
+        private static int CheckCampaignFollowUp( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var flow = source.Flows?.Flows.FirstOrDefault( f => f.Trigger == "oneTime" );
+            if ( flow == null || source.Campaign == null )
+            {
+                return 0;
+            }
+
+            var run = db.Query( @"
+SELECT [i].[Id], [i].[StartDate]
+FROM [CommunicationFlowInstance] AS [i]
+INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
+WHERE [f].[Name] = @Name AND [f].[TriggerType] = 3", P( "@Name", flow.Name ) ).FirstOrDefault();
+            if ( run == null )
+            {
+                failures.Add( $"{flow.Name}: the flow has no run" );
+                return 1;
+            }
+
+            var start = ( DateTime ) run["StartDate"];
+            var windowEnd = start.Date.AddDays( flow.Goal.Days );
+            var inRun = db.Query( @"
+SELECT [pa].[PersonId], CASE WHEN EXISTS (
+        SELECT 1
+        FROM [CommunicationFlowInstanceCommunicationConversion] AS [cv]
+        INNER JOIN [CommunicationFlowInstanceCommunication] AS [ic] ON [ic].[Id] = [cv].[CommunicationFlowInstanceCommunicationId]
+        INNER JOIN [PersonAlias] AS [cpa] ON [cpa].[Id] = [cv].[PersonAliasId]
+        WHERE [ic].[CommunicationFlowInstanceId] = [r].[CommunicationFlowInstanceId] AND [cpa].[PersonId] = [pa].[PersonId] ) THEN 1 ELSE 0 END AS [Converted]
+FROM [CommunicationFlowInstanceRecipient] AS [r]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId]
+WHERE [r].[CommunicationFlowInstanceId] = @Run", P( "@Run", run["Id"] ) )
+                .ToDictionary( r => ( int ) r["PersonId"], r => Convert.ToInt32( r["Converted"] ) == 1 );
+            var fundGuid = source.Accounts.Accounts.First( a => a.Name == source.Campaign.Fund ).Guid;
+            var checks = 0;
+
+            foreach ( var household in source.ReadHouseholds() )
+            {
+                foreach ( var entry in household.Campaign.Where( c => c.Pledge != null ) )
+                {
+                    var giver = household.Members.First( m => m.Key == entry.Person );
+                    var name = $"{giver.NickName ?? giver.FirstName ?? household.Name} {giver.LastName}".Trim();
+                    var pledged = db.Scalar( @"
+SELECT MIN( [fp].[CreatedDateTime] )
+FROM [FinancialPledge] AS [fp]
+INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [fp].[AccountId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [fp].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [fa].[Guid] = @Fund AND [p].[Guid] = @Person", P( "@Fund", fundGuid ), P( "@Person", guids.Value( giver.Guid ) ) ) as DateTime?;
+                    if ( pledged == null )
+                    {
+                        // CheckCampaign reports a missing pledge.
+                        continue;
+                    }
+
+                    checks++;
+                    var family = household.Members.Select( m => db.Scalar( "SELECT [Id] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", guids.Value( m.Guid ) ) ) as int? )
+                        .Where( id => id.HasValue && inRun.ContainsKey( id.Value ) ).Select( id => id.Value ).ToList();
+                    if ( pledged.Value.Date < start.Date && family.Count > 0 )
+                    {
+                        failures.Add( $"{name}: the family pledged on {pledged:yyyy-MM-dd}, before {flow.Name} ran on {start:yyyy-MM-dd}, yet {family.Count} of them are in its run" );
+                    }
+                    else if ( pledged.Value.Date >= start.Date && pledged.Value < windowEnd && family.Count > 0 && !family.Any( id => inRun[id] ) )
+                    {
+                        failures.Add( $"{name}: the family pledged on {pledged:yyyy-MM-dd}, inside {flow.Name}'s goal window, but no one in its run converted" );
+                    }
+                    else if ( pledged.Value >= windowEnd && family.Any( id => inRun[id] ) )
+                    {
+                        failures.Add( $"{name}: the family pledged on {pledged:yyyy-MM-dd}, after {flow.Name}'s goal window, but its run shows a conversion" );
                     }
                 }
             }
