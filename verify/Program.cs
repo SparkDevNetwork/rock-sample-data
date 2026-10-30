@@ -21,6 +21,7 @@ using Microsoft.Data.SqlClient;
 
 using RockSampleData.Loader;
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Model;
 using RockSampleData.Loader.Packages;
 using RockSampleData.Loader.Validation;
 using RockSampleData.Verify;
@@ -216,6 +217,14 @@ try
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
 
+            stage = "data-views";
+            var source = new SampleDataSource( package );
+            checks.Add( DataViewsCheck( rock, sql, database, source ) );
+            stage = "access";
+            checks.Add( AccessCheck( rock, sql, database, source ) );
+            stage = "reports";
+            checks.Add( ReportsCheck( rock, sql, database, source ) );
+
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
@@ -366,6 +375,92 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 
     var accepted = string.Join( " and ", tries.Where( t => t.IsAccepted ).Select( t => t.UserName ) );
     return CheckResult.From( "sign-in", problems.Count == 0 ? $"Rock signed in as {accepted} and refused a wrong password" : "Rock's Database login did not treat the sample logins as it should", problems );
+}
+
+/// <summary>
+/// Runs every data view in the load, the church's and Rock's own, through Rock's own engine. A filter whose selection Rock
+/// cannot read fails here, the way it would for a person opening the view. Prints each church view's count and time.
+/// </summary>
+static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.Reporting?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() )
+        .ToDictionary( v => v.Guid, v => v.Key );
+    var lines = RockRunner.Run( rock, sql, database, "data-views" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    var church = 0;
+    foreach ( var parts in lines.Select( l => l.Split( '\t' ) ) )
+    {
+        var known = Guid.TryParse( parts.ElementAtOrDefault( 1 ), out var guid ) && names.ContainsKey( guid );
+        var name = known ? names[guid] : $"Rock's data view {parts.ElementAtOrDefault( 1 )}";
+        if ( parts[0] != "ok" )
+        {
+            problems.Add( $"Rock could not run {name}: {parts.ElementAtOrDefault( 2 )}" );
+        }
+        else if ( known )
+        {
+            church++;
+            Console.WriteLine( $"    {name}: {int.Parse( parts[2] ):N0} in {parts[3]} ms" );
+        }
+    }
+
+    return CheckResult.From( "data-views", problems.Count == 0 ? $"Rock ran all {lines.Length} data views, {church} of them the church's" : "Rock could not run every data view", problems );
+}
+
+/// <summary>
+/// Asks Rock's own security check each question in the security walkthrough (configuration/reporting.json access): may
+/// this Cast person take this action on this category or data view. Rock walks each item's categories as it does on a page.
+/// </summary>
+static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.Reporting?.Reports ?? new List<ReportDefinition>() ).ToDictionary( r => r.Guid, r => r.Key );
+    var all = RockRunner.Run( rock, sql, database, "reports" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var webOnly = all.Where( p => p[0] == "web-only" ).Select( p => p[1] ).FirstOrDefault() ?? "0";
+    var lines = all.Where( p => p[0] != "web-only" ).ToList();
+    var problems = lines.Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var g ) && names.TryGetValue( g, out var key ) ? key : $"Rock's report {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .ToList();
+
+    // A link column (Person Link, Group Link) builds its URL from the web site's root, which only IIS has.
+    return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Count} reports and renders every Lava column ({webOnly} link columns need the web site)" : "Rock cannot read every report column", problems );
+}
+
+static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var access = source.Reporting?.Access ?? new List<AccessExpectation>();
+    if ( access.Count == 0 )
+    {
+        return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
+    }
+
+    var categories = source.Categories.Categories.ToDictionary( c => c.Key, c => c.Guid );
+    var views = source.Reporting.DataViews.Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
+        .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() ).ToDictionary( v => v.Key, v => v.Guid );
+
+    // Alisha Marble is Rock's own admin person, so her Guid is the one Rock gave Person 1 at install (decision 177).
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}" : a.Report != null ? $"Report\t{reports[a.Report]}" : $"DataView\t{views[a.DataView]}" )
+        + $"\t{a.Action}\t{people.Rock( a.Person )}" );
+    var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    for ( var i = 0; i < access.Count; i++ )
+    {
+        var expected = access[i].Allowed.ToString();
+        var actual = i < answers.Length ? answers[i] : "no answer";
+        if ( actual != expected )
+        {
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report}: expected {expected}, but Rock answered {actual}." );
+        }
+    }
+
+    return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
 }
 
 /// <summary>

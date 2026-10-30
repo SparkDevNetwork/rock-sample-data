@@ -555,7 +555,7 @@ for ( const view of dataViews.values() ) {
 
     for ( const leaf of leaves( view.filter ) ) {
         const rule = leaf.registration;
-        if ( leaf.component === "Rock.Reporting.DataFilter.Person.InRegistrationInstanceFilter" ) {
+        if ( leaf.component === "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter" ) {
             const instance = registrations.instances.find( i => i.key === rule?.instance );
             if ( !instance || !( instance.occurrences ?? [] ).includes( rule.occurrence ) || ![ "registrant", "registrar" ].includes( rule.person ) ) {
                 problems.push( `data view ${view.key}: a registration filter must name an instance rule, one of its occurrences, and registrant or registrar` );

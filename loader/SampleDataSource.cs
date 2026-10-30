@@ -120,6 +120,9 @@ namespace RockSampleData.Loader
         /// After Starting Point flow as it was built then.
         /// </summary>
         public FlowsConfiguration Flows { get; }
+        /// The church's layered data views, or null in a package built before they loaded.
+        /// </summary>
+        public ReportingConfiguration Reporting { get; }
 
         /// <summary>
         /// Reads every configuration file.
@@ -150,6 +153,7 @@ namespace RockSampleData.Loader
             Categories = Files.Exists( CategoriesConfigurationPath ) ? Read<CategoryConfiguration>( CategoriesConfigurationPath ) : null;
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -255,6 +259,7 @@ namespace RockSampleData.Loader
         public const string GroupSyncsConfigurationPath = "configuration/group-syncs.json";
 
         public const string FlowsConfigurationPath = "configuration/flows.json";
+        public const string ReportingConfigurationPath = "configuration/reporting.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

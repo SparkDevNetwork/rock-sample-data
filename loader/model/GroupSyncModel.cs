@@ -70,6 +70,41 @@ namespace RockSampleData.Loader.Model
         public string IconCssClass { get; set; }
 
         public Guid Guid { get; set; }
+
+        /// <summary>
+        /// True for a category Rock ships. The loader finds it by Guid and changes only its name and description,
+        /// so Rock's code, which finds it by Guid, still does.
+        /// </summary>
+        public bool RockShips { get; set; }
+
+        /// <summary>
+        /// The category's own security rules, by action. Items in it inherit them (Rock's parent authority).
+        /// </summary>
+        public List<CategorySecurityRule> Security { get; set; } = new List<CategorySecurityRule>();
+    }
+
+    /// <summary>
+    /// One action's rules on a category, in the order Rock's security editor saves them: each allowed role, then
+    /// "deny All Users" when the action is locked to those roles.
+    /// </summary>
+    internal sealed class CategorySecurityRule
+    {
+        /// <summary>
+        /// Rock's action, such as View or Edit.
+        /// </summary>
+        public string Action { get; set; }
+
+        /// <summary>
+        /// The Rock security roles allowed, by Rock's role name, such as "RSR - Staff Workers", which
+        /// configuration/security-roles.json maps to a Guid.
+        /// </summary>
+        public List<string> Allow { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Adds Rock's "deny All Users" after the allowed roles. Without it, anyone else falls through to the parent,
+        /// and in the end to Rock's global default, which lets everyone view.
+        /// </summary>
+        public bool DenyAllUsers { get; set; }
     }
 
     /// <summary>
@@ -99,7 +134,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// One person data view and its filter tree.
+    /// One data view and its filter tree.
     /// </summary>
     internal sealed class DataViewDefinition
     {
@@ -116,7 +151,40 @@ namespace RockSampleData.Loader.Model
 
         public Guid Guid { get; set; }
 
+        /// <summary>
+        /// The Rock entity the view returns, such as Rock.Model.Group. Null is a person.
+        /// </summary>
+        public string EntityType { get; set; }
+
+        /// <summary>
+        /// How Rock persists the view, or null to run it live every time.
+        /// </summary>
+        public DataViewPersistence Persisted { get; set; }
+
+        /// <summary>
+        /// Rock's post-filter transformation component, by class name, or null for none.
+        /// </summary>
+        public string Transform { get; set; }
+
+        /// <summary>
+        /// Rules on this view alone, only where it must be narrower than its category, such as Top Givers.
+        /// </summary>
+        public List<CategorySecurityRule> Security { get; set; } = new List<CategorySecurityRule>();
+
         public DataViewFilterDefinition Filter { get; set; }
+    }
+
+    /// <summary>
+    /// How often Rock's Update Persisted DataViews job refreshes a view: on a named schedule, or every so many minutes.
+    /// </summary>
+    internal sealed class DataViewPersistence
+    {
+        /// <summary>
+        /// A named schedule's key in configuration/reporting.json.
+        /// </summary>
+        public string Schedule { get; set; }
+
+        public int? IntervalMinutes { get; set; }
     }
 
     /// <summary>
@@ -145,15 +213,50 @@ namespace RockSampleData.Loader.Model
         public RegistrationFilterRule Registration { get; set; }
 
         /// <summary>
+        /// For a filter that points at another data view, such as Rock's Existing Data View filter or a related data view
+        /// filter: the other view's key, in place of a selection, since Rock's selection holds its Id or Guid.
+        /// </summary>
+        public string DataView { get; set; }
+
+        /// <summary>
+        /// For Rock's StepsTakenFilter in configuration/reporting.json: the steps it matches, in place of a selection.
+        /// </summary>
+        public StepsFilterRule Steps { get; set; }
+
+        /// <summary>
         /// Rock's FilterExpressionType for this node: Filter (0), GroupAll (1), GroupAny (2), or GroupAllFalse (3), which is "none".
         /// </summary>
         public int ExpressionType => Component != null ? 0 : All != null ? 1 : Any != null ? 2 : None != null ? 3
-            : throw new InvalidDataException( "configuration/group-syncs.json has a filter with no component and no all, any, or none." );
+            : throw new InvalidDataException( "A data view has a filter with no component and no all, any, or none." );
 
         /// <summary>
         /// A group's children, or none for a leaf.
         /// </summary>
         public List<DataViewFilterDefinition> Children => All ?? Any ?? None ?? new List<DataViewFilterDefinition>();
+    }
+
+    /// <summary>
+    /// The steps a StepsTakenFilter matches: Complete steps in one program, of one step type or of every type in one
+    /// Ministry by Design stage (configuration/steps.json), completed at any time or in the last so many days.
+    /// </summary>
+    internal sealed class StepsFilterRule
+    {
+        /// <summary>
+        /// The program's key in configuration/steps.json.
+        /// </summary>
+        public string Program { get; set; }
+
+        /// <summary>
+        /// A stage, such as Belong. With no step type either, every step type in the program.
+        /// </summary>
+        public string Stage { get; set; }
+
+        /// <summary>
+        /// One step type's key, in place of a stage.
+        /// </summary>
+        public string StepType { get; set; }
+
+        public int? CompletedInLastDays { get; set; }
     }
 
     /// <summary>

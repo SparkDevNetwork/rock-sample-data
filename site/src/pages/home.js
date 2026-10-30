@@ -35,6 +35,7 @@ const features = [
     [ "Communications", "Weekly newsletters, church-wide and ministry emails, mass texts, live SMS conversations, serving reminders, and app pushes." ],
     [ "Logins", "Sign in as admin, the Outreach Pastor, or the Senior Pastor, with a password you choose at install. Many church members can sign in too." ],
     [ "Group sync", "Data views in the church's own categories keep staff lists, a prayer role, and two care lists current." ],
+    [ "Data views and reports", "Layered views and reports that follow the path, from who is ready to belong to who is ready to lead, with staff-only, pastor-only, safety, and finance categories." ],
     [ "Businesses", "Businesses that give, each with one or two contacts tied to people in the church." ]
 ];
 
