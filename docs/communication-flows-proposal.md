@@ -152,7 +152,7 @@ See Section 4.
 - **Exit.** Last Message Sent.
 - **Cast.** The Deckers and the other involved Cast adults get it. Ted Decker opens it on his phone.
 
-**New data views.** Seven, filed under a new "Communication Flows" child of the church's Rock Solid Church data view category (decision 185), built with Rock's own filters: First Visit Last Week, Coming Regularly, Newly Missed, Back in the Last 30 Days, Unbaptized Regular Attenders, Women Who Attend, and Involved Adults. The reports and data views session is planning views too, so names are checked with it first.
+**Data views.** Seven, built with Rock's own filters: First Visit Last Week, Coming Regularly, Newly Missed, Back in the Last 30 Days, Unbaptized Regular Attenders, Women Who Attend, and Involved Adults. Each reuses a view the reports and data views work plans, where one fits, and the rest go in its category tree under the church's Rock Solid Church data view category (decision 185). See open question 7.
 
 **Message text.** New entries in the message library in `content/communications`, about 22 messages in all, in the church's voice. No images are needed: the emails use the branded template's logo.
 
@@ -252,7 +252,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 
 | Slice | What it adds | Size |
 |---|---|---|
-| 1. Setup | Flow categories, the "Communication Flows" data view category and seven views, flow templates for email, SMS, and push, the seven new flows with their messages and no runs, and a category and public name on After Starting Point. Invariants: a goal always has a window, settings match the goal type, SMS templates have a phone number, and no flow can start a run after install | Small |
+| 1. Setup | Flow categories, the seven data views (reused or filed in the reports and data views tree), flow templates for email, SMS, and push, the seven new flows with their messages and no runs, and a category and public name on After Starting Point. Invariants: a goal always has a window, settings match the goal type, SMS templates have a phone number, and no flow can start a run after install | Small |
 | 2. The Baptism flow | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3. Recurring flows | First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation, with the Ellis and Ortiz stories | Medium |
 | 4. One-time flows and finish | Student Camp, Women's Retreat, and Christmas, with pushes, unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
@@ -263,6 +263,8 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 2. **Add the Baptism Interest workflow?** It is the only way into an On-Demand flow, and the only home for the Completed Form goal. It is the first workflow type in the sample data. **Recommendation: yes,** one workflow type with a form and the Activate Communication Flow action, plus a finished workflow for each person who entered the Baptism flow. Wiring After Starting Point to a workflow too can wait.
 3. **Baptism flow shape.** Eight messages over 24 weeks, a 365-day window, and a 50% target. **Recommendation: approve as written.** A shorter flow (5 messages over 10 weeks) is the alternative if Jon wants it lighter.
 4. **Mid-flow people on install day.** Jon may want to see people part way through the Baptism flow. That needs a run with messages left to send, which the job would send. **Recommendation: no.** Keep decision 95. Show "in progress" through Pending runs and Josh's finished story, and let a tester add someone live.
-5. **History length.** **Recommendation: 18 months** for the new flows, inside the 2-year communication window, and leave After Starting Point at 2 years.
-6. **Datasets.** **Recommendation: all three** (Core 1, Core 3, and Full 7), scaled, like every other communication.
-7. **Data view names.** Seven new views under a "Communication Flows" category. **Recommendation:** check the names with the reports and data views session before slice 1, and reuse any view it already plans, such as an involved adults view.
+**Settled by the coordinator, 2026-10-29:**
+
+5. **History length.** 18 months for the new flows, inside the 2-year communication window. After Starting Point stays at 2 years.
+6. **Datasets.** All three (Core 1, Core 3, and Full 7), scaled, like every other communication.
+7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. The names and keys are being checked with that session before slice 1.
