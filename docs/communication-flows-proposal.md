@@ -327,7 +327,7 @@ That is about 3% on top of the 1.6 million communication recipients Full 7 alrea
 
 **The guard.** The reports work owns it (its Section 4.13). "Reserved or No Email" (`reserved-or-no-email`, in a new Rock Solid Church > Sample Data category) holds active people whose email ends with `@example.org` or is blank. It names the safe domain, so any new real domain is left out by default. Each recurring flow's audience is a thin view in the same category that joins its subject view with the guard, such as "First Visit Last Week, Reserved Email." The subject views stay clean, so a report or a later flow that uses them does not inherit a sample-data rule. No staff address can ever be in a flow audience, whatever the dates do. Phones and push tokens need no filter, because every one is reserved. Goals send nothing, so they need no guard.
 
-We Miss You keeps its guarded view while paused, so a church that turns it on later is still safe. The reports work planned to drop that view for a paused flow, and has been asked to keep it, since the paused flow still uses it.
+We Miss You keeps its guarded view while paused, so a church that turns it on later is still safe. The reports work agreed: every recurring flow keeps its guarded view, paused ones included.
 
 **Proposed amendment to decision 95** (placeholder D-comm-flows-1, numbered at merge):
 
