@@ -147,11 +147,11 @@ and push. Ask me before anything that removes or rewrites history.
 |---|---|---|---|
 | **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds |
 | **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds |
-| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 4 minutes |
+| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 3 minutes |
 
 Load times are each dataset's `typicalInstallSeconds` in [datasets/](datasets/README.md). The public site reads them from there, so change them there. [Performance](docs/performance.md) has where Full 7's time goes, step by step.
 
-- **The Cast** is hand-designed, the same in every dataset, and safe for tests to rely on by Guid. Every Cast person has a profile photo, except a few left without one on purpose.
+- **The Cast** is hand-designed and safe for tests to rely on by Guid. It is the same in every dataset, except that a campus pastor's family on another campus loads only in datasets with that campus. Every Cast person has a profile photo, except a few left without one on purpose.
 - **The Crowd** is generated from measured church patterns to give volume.
 - **Every campus has businesses** that give, each with one or two contacts. The main campus has at least 6 and every other campus at least 2.
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
@@ -159,7 +159,9 @@ Load times are each dataset's `typicalInstallSeconds` in [datasets/](datasets/RE
 - **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of the Rock release it is built on, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
 - **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff.
 - **People can sign in.** When the person installing gives a password, about 30% of Full 7's adults get a Rock login, shaped like a real church: staff, leaders, volunteers, online givers, and app users. Every sample login uses that one password, which is never stored. Sign in as `admin` (Alisha Marble, who Rock's own admin person becomes), `tdecker` (Ted Decker, the Outreach Pastor), `pfoster` (Pete Foster, the Senior Pastor), or `cdecker` (Cindy Decker). See [How logins load](loader/README.md#how-logins-load).
-- **The calendar is full.** 51 events on Rock's Public and Internal calendars, at every campus a dataset has, each serving a Ministry by Design stage. See [Calendar](docs/calendar.md).
+- **The calendar is full.** 51 events on Rock's Public and Internal calendars, at every campus a dataset has, each serving a Ministry by Design stage, and each with its own image, a titled design or a photo. See [Calendar](docs/calendar.md).
+- **People register for events.** Ten registrations tied to calendar events, with students, kids, couples, and adults registered, fees, payments, payment plans, wait lists, placements, and signed release forms. Some are open on every install day. See [Event registrations](docs/registrations.md).
+- **The staff are real people.** 23 named staff, every one in the Cast, with a named campus pastor at every campus, a Staff person attribute category with photos and bios, and Rock's org chart filled in.
 - **Connection requests come due.** Involvement's due dates run by status, so every board has requests due later, due this week, and past due on install day.
 - **Group sync keeps lists current.** Five data views, filed in the church's own category tree, keep the Volunteers and Small Group Leaders lists, the RSR - Prayer Access role, and the New Here and We Miss You care lists in step. See [Group sync](docs/communications.md#group-sync).
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
