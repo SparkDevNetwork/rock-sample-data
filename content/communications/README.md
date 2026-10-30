@@ -49,6 +49,9 @@ Each message names the occasion it belongs to. The loader dates every occasion f
 | `after-starting-point` | The "After Starting Point" Communication Flow. `daysBefore` is negative: days after the class ends. |
 | `after-foundations` | The "After Foundations" Communication Flow. `daysBefore` is negative: days after the course ends. |
 | `baptism-interest` | The "Baptism Next Steps" Communication Flow. `daysBefore` is 0 or negative: days after the person fills out the Baptism Interest form. |
+| `guest-welcome` | The "First-Time Guest Welcome" Communication Flow. `daysBefore` is 0 or negative: days after its Wednesday run starts. |
+| `we-miss-you` | The "We Miss You" Communication Flow. `daysBefore` is 0 or negative: days after its monthly run starts. |
+| `baptism-invitation` | The "Baptism Sunday Invitation" Communication Flow. `daysBefore` is 0 or negative: days after its run, five weeks before a baptism Sunday. |
 
 ## Audiences
 

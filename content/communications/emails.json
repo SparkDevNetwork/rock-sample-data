@@ -846,6 +846,68 @@
         { "p": "Many people tell us afterward that they wish they hadn't waited so long. When you're ready, we're ready." },
         { "button": "See the next baptism Sunday", "href": "/baptism" }
       ]
+    },
+    {
+      "key": "guest-welcome-next-sunday",
+      "occasion": "guest-welcome",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "What to expect when you come back",
+      "preheader": "Parking, kids, coffee, and where to find a friendly face.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, it was great to have you at Rock Solid {campus}. We hope you felt at home." },
+        { "list": [ "Park in the guest spots near the front doors. They're saved for you.", "Kids check in at the welcome desk, and our team will walk you to their room.", "Grab a coffee and stop by the Connect Center. We'd love to say hi." ] },
+        { "button": "Plan your next visit", "href": "/campuses/{campusKey}" }
+      ]
+    },
+    {
+      "key": "guest-welcome-starting-point",
+      "occasion": "guest-welcome",
+      "daysBefore": -7,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Want to know more about Rock Solid?",
+      "preheader": "Starting Point is four Wednesday nights, and the next class starts soon.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, if you're wondering what Rock Solid is all about, Starting Point is the best place to find out." },
+        { "p": "It's four Wednesday nights with dinner, a short talk, and time to meet people. You'll hear our story, what we believe, and how to get connected." },
+        { "button": "Sign up for Starting Point", "href": "/starting-point" }
+      ]
+    },
+    {
+      "key": "we-miss-you-note",
+      "occasion": "we-miss-you",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "We miss you, and we're praying for you",
+      "preheader": "No pressure. We just wanted you to know we noticed.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, we noticed we haven't seen you at Rock Solid {campus} in a while, and we wanted you to know we miss you." },
+        { "p": "Life gets full, and seasons change. If something is going on, we'd love to pray for you. Just reply to this email." },
+        { "p": "Whenever you're ready, your seat is saved." },
+        { "button": "Share a prayer request", "href": "/prayer" }
+      ]
+    },
+    {
+      "key": "baptism-invitation-email",
+      "occasion": "baptism-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Is it time to be baptized?",
+      "preheader": "Our next baptism Sunday is five weeks away.",
+      "body": [
+        { "h": "Is it time?" },
+        { "p": "Hi {{ Person.NickName }}, our next baptism Sunday is five weeks away. If you've been thinking about baptism, this could be your Sunday." },
+        { "p": "Baptism is a way to tell the world you follow Jesus. Fill out the short form, and a pastor will reach out to answer your questions." },
+        { "button": "I'm interested in baptism", "href": "/baptism" }
+      ]
     }
   ]
 }
