@@ -358,6 +358,18 @@
       "line": "main",
       "topic": "serving",
       "text": "Hey {{ Person.NickName }}, this is your connector from Rock Solid {campus}. Thanks for your interest in serving! When is a good time to chat?"
+    },
+    {
+      "key": "after-foundations-team",
+      "medium": "sms",
+      "occasion": "after-foundations",
+      "daysBefore": -6,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "serving",
+      "asksReply": true,
+      "text": "Rock Solid: Congrats again on finishing Foundations, {{ Person.NickName }}! Want help finding a serving team that fits you? Just reply and we'll connect you."
     }
   ],
   "replies": {

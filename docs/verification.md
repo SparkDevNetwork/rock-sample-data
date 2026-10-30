@@ -172,8 +172,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `unsubscribe-matches-the-person` | Decision 131: a list unsubscribe leaves the person Inactive in that list, and a Bulk one leaves them on "No mass emails" or stricter. |
 | `sent-email-has-its-history` | Every sent email recipient has Rock's "Sent" line on their History. |
 | `sent-text-is-delivered-with-its-text`, `sent-text-has-its-history` | SMS Conversations shows a text only when it is Delivered and reads its words from SentMessage, and Rock writes a "SMS message" History line for each text it sends. A text Rock could not send failed with its note. |
-| `no-active-flow-instance` | Decisions 95 and 96. Every flow instance is complete and each of its emails went out before install day, so Rock's flow job has nothing left to send. |
-| `flow-email-reaches-its-instance` | Each flow email is a bulk email from its message's flow template, to exactly the instance's people. |
+| `open-flow-run-is-allowed` | Decision 220. A flow run still sending at install is in an active On-Demand flow, its next message is due today or later, and every message the load wrote went out before install day. |
+| `open-flow-run-reaches-only-reserved-contact-points` | Decision 220. Everyone still Active in an open run has an email on example.org or none, and only reserved 555-01xx phones, because Rock's job sends their remaining messages after install. |
+| `flow-send-reaches-its-instance` | Each flow email or text is a bulk send from its message's flow template, to people in the run: every one of them when the exit rule is the last message, and never a person who already left. |
 | `sent-push-is-delivered-with-its-history` | Rock Mobile Push marks a sent push Delivered with its times and writes a "Push Notification" History line, and a person with no device that takes notifications fails with Rock's note. |
 | `push-goes-to-a-device-that-takes-notifications` | A delivered push had an active device with notifications on and a token when it went out, and a failed one had none. |
 | `app-devices-never-reach-a-phone` | Decision 95. Every device token starts with `sample-data-`, which Firebase never issues. |
