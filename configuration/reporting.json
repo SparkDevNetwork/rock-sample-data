@@ -435,7 +435,7 @@
     {
       "key": "small-groups-with-room",
       "name": "Small Groups With Room",
-      "description": "Active small groups with fewer than 10 active members, where a new person can join.",
+      "description": "Active small groups with fewer than 12 active members, the church's target size (configuration/small-groups.json), where a new person can join.",
       "category": "belong-data-views",
       "guid": "E0F185CC-A8E8-48C5-9711-461DFB1C79D6",
       "entityType": "Rock.Model.Group",
@@ -447,7 +447,7 @@
           },
           {
             "component": "Rock.Reporting.DataFilter.Group.MemberCountFilter",
-            "selection": "512|10||1"
+            "selection": "512|12||1"
           }
         ]
       }
