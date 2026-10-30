@@ -984,7 +984,7 @@ SELECT COUNT(*)
 FROM [CommunicationFlowInstanceRecipient] AS [r]
 INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [r].[CommunicationFlowInstanceId]
 INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
-INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[Key] = 'CommunicationFlow' AND TRY_CAST( [a].[DefaultValue] AS UNIQUEIDENTIFIER ) = [f].[Guid]
+INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[Key] = 'CommunicationFlow' AND TRY_CAST( CASE WHEN LEN( [a].[DefaultValue] ) = 36 THEN [a].[DefaultValue] END AS UNIQUEIDENTIFIER ) = [f].[Guid]
 INNER JOIN [PersonAlias] AS [rpa] ON [rpa].[Id] = [r].[RecipientPersonAliasId]
 WHERE [i].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1
@@ -1006,7 +1006,7 @@ WHERE [w].[ForeignKey] = @ForeignKey
                 AND NOT EXISTS ( SELECT 1 FROM [WorkflowAction] AS [ac] WHERE [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id] AND [ac].[CompletedDateTime] IS NOT NULL ) )
         OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av]
             INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
-            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( [av].[Value] AS UNIQUEIDENTIFIER )
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
             WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
                 AND [pa].[Id] = [w].[InitiatorPersonAliasId] ) );
 
