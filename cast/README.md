@@ -59,9 +59,9 @@ It rewrites every small group file and marks each new leader Leading in the hous
 
 Each of the main campus's eight serving teams has a roster in `groups/serving-{team}.json`: the team key from `configuration/serving.json`, the team's Guid, and its members, each a Leader or a Member. These rosters are hand-picked, so edit them directly; `validate-cast.js` checks each team key, name, and single leader. The loader adds each volunteer's rotation, preferences, and serving history. Generated households fill the teams at every campus.
 
-A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, and an optional background check result. The loader adds the activity history. See [Serving](../docs/serving.md).
+A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, an optional background check result, and an optional `celebration`: the story the connector recorded, which Rock shows on the request and in its Celebrations Report (decision D-celebrations-1). A celebration needs a connector and a request someone has reached, Connected or Active past No Contact. The loader adds the activity history. See [Serving](../docs/serving.md).
 
-A staff person's `connects` rule names the active request statuses they connect at their campus instead of the team leader, and an optional `minimum`. Alisha Marble connects the main campus's No Contact and In Progress requests, at least 8 in every dataset (decision 178). `validate-cast.js` checks that the Cast's own requests reach the minimum, so a Cast change cannot leave her board thin.
+A staff person's `connects` rule names the active request statuses they connect at their campus instead of the team leader, an optional `minimum`, and an optional `celebrationMinimum`. Alisha Marble connects the main campus's No Contact and In Progress requests, at least 8 in every dataset (decision 178), with at least 6 celebrations (decision D-celebrations-1). `validate-cast.js` checks that the Cast's own requests and celebrations reach both, so a Cast change cannot leave her board thin.
 
 ## Rock's admin person
 

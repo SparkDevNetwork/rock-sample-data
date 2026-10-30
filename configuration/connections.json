@@ -67,6 +67,36 @@
       "Contacted Waiting for Response": [ "Sent the team schedule. Waiting to hear back.", "Emailed details and the training dates." ],
       "Met the Team Leader": [ "Met before the service and walked through the role." ],
       "Shadowed a Team": [ "Shadowed for a Sunday. It went well." ]
+    },
+    "$celebrationsComment": "Celebrations (decision D-celebrations-1): the story a connector records on a request, as a Celebration Note. Rock shows it on the request in the Connections Hub and lists it in the Celebrations Report. Only a request with a connector that someone has reached gets one: connected requests and active requests past No Contact. Percent is the share of those requests with a celebration: staff for a Cast staff connector's requests (Alisha Marble's), then by state. The Cast's own celebrations are in their household files. A story is drawn from its team's list and the any list. {first} is the requester's first name. Stories never name a pronoun, since the loader does not pick one.",
+    "celebrations": {
+      "percent": { "staff": 60, "Connected": 35, "Active": 15 },
+      "connected": {
+        "any": [
+          "{first} served a first Sunday and stayed after to ask when the next one is. This is what we pray for when someone signs up.",
+          "{first} used to slip out right after the service. Now {first} has a team that saves a seat and a reason to stay.",
+          "{first} told the team leader that serving is the first time church has felt like home. Worth celebrating.",
+          "{first} has not missed a scheduled Sunday since joining the team.",
+          "{first} brought a friend along to shadow last week. One connection is already turning into two."
+        ],
+        "greeters": [ "Three families stopped {first} after the service to say thanks for the warm welcome at the door." ],
+        "ushers": [ "{first} noticed a first-time guest standing alone in the lobby, found the family a seat, and walked the kids to check-in." ],
+        "kids-ministry": [ "A parent told us the preschool room is the first thing their son talks about on Sunday, and {first} is a big part of why." ],
+        "worship-team": [ "{first} played a first Sunday with the band, and the room sang louder than it has in weeks." ],
+        "production-team": [ "{first} ran slides for a full service on the first try without missing a single lyric." ],
+        "student-ministry": [ "A student in {first}'s small group asked to be baptized. {first} will be right there in the water." ],
+        "prayer-team": [ "Someone {first} prayed with after the service came back the next week just to say thank you." ],
+        "first-aid-team": [ "{first} cared for a guest who felt faint during worship and stayed close until the family arrived. Calm, kind, and ready." ]
+      },
+      "active": {
+        "any": [
+          "{first} has been coming for a few months and asked to serve before anyone asked. That kind of step is worth noting.",
+          "{first} said serving is a way to say thank you for what this church has meant to the whole family.",
+          "{first} filled out the card the same Sunday serving was mentioned from the stage, then came early the next week to learn more.",
+          "When we called, {first} already had questions about the training. Excited to see where this goes.",
+          "{first} heard about serving from a friend on the team, and the two hope to serve at the same service."
+        ]
+      }
     }
   },
   "$opportunitiesComment": "Each opportunity's Name is its team's name from serving.json; publicName is the role a person takes on. The first three keep Rock's Guids. In list order.",

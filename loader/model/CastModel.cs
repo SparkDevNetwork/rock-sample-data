@@ -452,6 +452,11 @@ namespace RockSampleData.Loader.Model
         /// The fewest active requests this person connects in every dataset, checked after every load, or null.
         /// </summary>
         public int? Minimum { get; set; }
+
+        /// <summary>
+        /// The fewest of those requests with a celebration this person wrote, checked after every load, or null.
+        /// </summary>
+        public int? CelebrationMinimum { get; set; }
     }
 
     /// <summary>
@@ -488,6 +493,11 @@ namespace RockSampleData.Loader.Model
         public string BackgroundCheck { get; set; }
 
         public string Comment { get; set; }
+
+        /// <summary>
+        /// The story the connector recorded as a celebration on this request, or null. The connector is its author.
+        /// </summary>
+        public string Celebration { get; set; }
     }
 
     /// <summary>
