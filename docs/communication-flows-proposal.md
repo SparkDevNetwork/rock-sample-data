@@ -330,12 +330,12 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 3. **Baptism flow shape.** Eight messages over 24 weeks, a 365-day window, and a 50% target. **Recommendation: approve as written.** A shorter flow (5 messages over 10 weeks) is the alternative if Jon wants it lighter.
 4. **Mid-flow people on install day.** Jon may want to see people part way through the Baptism flow. That needs a run with messages left to send, which the job would send. **Recommendation: no.** Keep decision 95. Show "in progress" through Pending runs and Josh's finished story, and let a tester add someone live.
 
-**From the Ministry by Design rethink (2026-10-29):**
+**From the Ministry by Design rethink (2026-10-29).** Question 9 is open for Jon. Questions 8, 10, and 11 are settled.
 
-8. **Change After Starting Point's third email?** Today it invites people to serve three weeks after the class. Ministry by Design puts growth before serving. **Recommendation: yes.** It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), and After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
+8. **Change After Starting Point's third email?** Settled by the coordinator, 2026-10-29: yes. Today it invites people to serve three weeks after the class. Ministry by Design puts growth before serving. **Recommendation: yes.** It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), and After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
 9. **Add After Foundations and Lead a Group?** Without them, no flow moves people from Equip to Contribute, or from Contribute to Lead. **Recommendation: yes.** Both are types that cannot send after install (On-Demand and One-Time), and both end on a step: Serve and Lead.
 10. **Who owns the "ready to lead" view?** Answered: the reports session owns it as Ready to Lead (`ready-to-lead`, in its Lead category). It needs an Equip step, a place on a serving team now, and a small group, which is narrower than the first draft's "in a group or on a team," and closer to the framework.
-11. **The guest flow's goal.** It moves from the Regular Attenders view (settled earlier) to the Starting Point Class step, so the goal is the step that marks the stage (rule 3 in the Ministry by Design section). Its target, set from the data, drops from about 25% to about 10%. **Recommendation: yes.** We Miss You keeps a data view goal, since no step marks coming back, so Entered Data View is still covered.
+11. **The guest flow's goal.** Settled by the coordinator, 2026-10-29: yes, the Starting Point Class step. It moves from the Regular Attenders view (settled earlier) to the Starting Point Class step, so the goal is the step that marks the stage (rule 3 in the Ministry by Design section). Its target, set from the data, drops from about 25% to about 10%. **Recommendation: yes.** We Miss You keeps a data view goal, since no step marks coming back, so Entered Data View is still covered.
 
 **Settled by the coordinator, 2026-10-29:**
 
