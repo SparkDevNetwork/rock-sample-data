@@ -593,7 +593,7 @@ namespace RockSampleData.Loader
                 release to them. A person installing through Rock's block saw "WARNING: 1 of 437 Cast expectations do
                 not hold" on a complete install, which read as a failure. So only a caller that asks runs them.
 
-                Reason: People installing see only what matters to them (decision D-expectations-1).
+                Reason: People installing see only what matters to them (decision 217).
             */
             if ( options.IsCastExpectationsChecked )
             {

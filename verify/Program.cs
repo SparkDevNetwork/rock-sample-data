@@ -33,6 +33,7 @@ using RockSampleData.Verify;
       rock-sample-data-verify --rock <built Rock checkout> [--dataset core-1|all] [--packages <folder>] [--server localhost]
                               [--base RockSampleVerify-base] [--run <tag>] [--anchor yyyy-MM-dd] [--seed text] [--record-contract] [--keep]
       rock-sample-data-verify --check-receipts [<packages folder>]
+      rock-sample-data-verify --rock <built Rock checkout> --anchor-sweep [days] [--dataset core-1] [--anchor first-day] [--packages <folder>]
 */
 
 var options = ParseArguments( args );
@@ -116,6 +117,17 @@ try
     {
         Console.Error.WriteLine( "No receipt was written: there is no trusted base to verify on." );
         return 1;
+    }
+
+    // --anchor-sweep only sweeps, for as many install days as asked (a normal run sweeps Core 1 too), and writes no receipt.
+    if ( options.TryGetValue( "anchor-sweep", out var sweepDays ) )
+    {
+        var sweepDataset = datasetOption == "all" ? "core-1" : datasetOption;
+        var sweepPackage = SampleDataPackage.Open( Path.Combine( packagesFolder, $"{sweepDataset}.zip" ) );
+        var days = sweepDays == "true" ? AnchorSweep.DefaultDays : int.Parse( sweepDays );
+        var sweep = AnchorSweep.Run( sql, baseDatabase, $"{runPrefix}-sweep", sweepPackage, rock, builtRockVersion, anchor, days, seed, options.ContainsKey( "keep" ) );
+        sweep.Print();
+        return sweep.Passed ? 0 : 1;
     }
 
     // 3. Each dataset: load it into a copy of the base while recording what it writes, then check the result.
@@ -207,6 +219,14 @@ try
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
+
+            // The Cast giving stories must hold on every install day, not only this run's (decision 218). Core 1
+            // holds every main-campus Cast giver, so it is the one swept.
+            if ( dataset == "core-1" )
+            {
+                stage = "anchor-sweep";
+                checks.Add( AnchorSweep.Run( sql, baseDatabase, $"{runPrefix}-sweep", package, rock, builtRockVersion, anchor, AnchorSweep.DefaultDays, seed, options.ContainsKey( "keep" ) ) );
+            }
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {

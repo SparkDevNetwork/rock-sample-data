@@ -43,6 +43,7 @@
       },
       "percentOfPeriodsGiven": 100,
       "specialGiftPercent": 60,
+      "isOnTime": true,
       "started": {
         "yearsAgo": 25,
         "month": 10,

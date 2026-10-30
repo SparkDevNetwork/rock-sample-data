@@ -116,7 +116,7 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// True checks the Cast expectations at the end of the load and reports each result: whether named Cast
-        /// people show what their stories say, for those who build and test the sample data (decision D-expectations-1).
+        /// people show what their stories say, for those who build and test the sample data (decision 217).
         /// The command line and the verify tool turn it on. Rock's installer leaves it false, so a person installing
         /// sees no internal checks; a load with it false skips the step without a word.
         /// </summary>
