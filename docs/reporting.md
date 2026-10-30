@@ -608,4 +608,4 @@ Each has one recommendation.
 16. **Contribute Stage counts the Give step. Keep it outside Finance?** Recommend yes. Rock already shows every Give step on the person's Steps tab to staff (decision 85), so P3 adds no new exposure. If Jon wants giving hidden from staff, the fix is security on the Give step type, which would hide it from the Steps tab too, and P3 would then move to Finance.
 17. **Move the Kids Allergy List into Safety?** Recommend yes. An allergy is medical information. Both kids directors are already Safety & Security Workers, so the people who need the list keep it.
 
-**Settled by the coordinator, 2026-10-29:** questions 6 to 14, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 are with Jon. Questions 15 to 17 came with the Ministry by Design rethink.
+**Settled by the coordinator, 2026-10-29:** questions 6 to 15 and 17, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 and 16 are with Jon.
