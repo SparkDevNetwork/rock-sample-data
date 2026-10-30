@@ -51,7 +51,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 - **Connected requests.** Every volunteer who joined in the last two years has the request that put them on their team, ending the day they joined.
 - **Open requests.** People who are not serving ask to serve in the profile's mix of active and inactive requests, with one future follow-up and one transferred request per campus. Each request has the activity a connector would leave.
 - **Connectors.** Each team leader is the default connector for their team's opportunity at their campus. About 35% of requests have a connector, as measured. At the main campus, Alisha Marble connects the active requests still at No Contact or In Progress, as the staff person who reaches out first, and at least eight in every dataset (decision 178). She is Rock's admin person, so signing in as admin shows her requests on the connection board.
-- **Celebrations.** A connector records the story behind some requests as a celebration, Rock's Celebration Note on the request (decision D-celebrations-1). The Connections Hub shows it on the request, and the Celebrations Report lists every one for requests made in its range, the last 8 months by default. Only a request someone has reached has one: connected, or active past No Contact. About 60% of Alisha Marble's worked requests have one, 35% of other connected requests with a connector, and 15% of other worked active requests.
+- **Celebrations.** A connector records the story behind some requests as a celebration, Rock's Celebration Note on the request (decision 219). The Connections Hub shows it on the request, and the Celebrations Report lists every one for requests made in its range, the last 8 months by default. Only a request someone has reached has one: connected, or active past No Contact. About 60% of Alisha Marble's worked requests have one, 35% of other connected requests with a connector, and 15% of other worked active requests.
 - **Person history.** Each request shows on the person's History tab, the way Rock records it: added, status changed, connected, and set aside or saved for a future follow-up.
 
 ## The Cast's stories
@@ -71,7 +71,7 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 
 With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so signing in as admin shows at least eight on her connection board in every dataset. A Cast expectation checks that floor on every load (decision 178).
 
-Alisha wrote a celebration on six of them: Lauren Shaw, Derek Ward, Mark Fischer, Brian and Wendy Gilbert, and Sheryl Tennant. The three she has not reached yet have none, so her board shows both. Bri Hall's greeters leader and Rachel Brooks, for Helen Evans, wrote two more. A Cast expectation checks every one, and that Alisha has at least six, on every load (decision D-celebrations-1).
+Alisha wrote a celebration on six of them: Lauren Shaw, Derek Ward, Mark Fischer, Brian and Wendy Gilbert, and Sheryl Tennant. The three she has not reached yet have none, so her board shows both. Bri Hall's greeters leader and Rachel Brooks, for Helen Evans, wrote two more. A Cast expectation checks every one, and that Alisha has at least six, on every load (decision 219).
 
 ## How the numbers compare
 

@@ -68,7 +68,7 @@
       "Met the Team Leader": [ "Met before the service and walked through the role." ],
       "Shadowed a Team": [ "Shadowed for a Sunday. It went well." ]
     },
-    "$celebrationsComment": "Celebrations (decision D-celebrations-1): the story a connector records on a request, as a Celebration Note. Rock shows it on the request in the Connections Hub and lists it in the Celebrations Report. Only a request with a connector that someone has reached gets one: connected requests and active requests past No Contact. Percent is the share of those requests with a celebration: staff for a Cast staff connector's requests (Alisha Marble's), then by state. The Cast's own celebrations are in their household files. A story is drawn from its team's list and the any list. {first} is the requester's first name. Stories never name a pronoun, since the loader does not pick one.",
+    "$celebrationsComment": "Celebrations (decision 219): the story a connector records on a request, as a Celebration Note. Rock shows it on the request in the Connections Hub and lists it in the Celebrations Report. Only a request with a connector that someone has reached gets one: connected requests and active requests past No Contact. Percent is the share of those requests with a celebration: staff for a Cast staff connector's requests (Alisha Marble's), then by state. The Cast's own celebrations are in their household files. A story is drawn from its team's list and the any list. {first} is the requester's first name. Stories never name a pronoun, since the loader does not pick one.",
     "celebrations": {
       "percent": { "staff": 60, "Connected": 35, "Active": 15 },
       "connected": {

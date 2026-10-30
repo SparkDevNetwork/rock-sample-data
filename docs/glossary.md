@@ -17,7 +17,7 @@ The words this project uses, in alphabetical order.
 | **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts) or for a Cast person's achievements. Every load checks it, or how a Cast pledge is going on install day, along with the business expectations: each campus has its minimum number of businesses, and every business has a contact and a gift in the last 12 months. |
 | **Church app** | The Rock Solid Church App, the sample church's mobile app. It starts as a stub so push notifications have an app to point at. |
 | **Communication list** | A Rock group of people who get the same mass emails or texts, such as a campus's weekly newsletter list. See [Communications](communications.md). |
-| **Celebration** | The story behind a connection request, which its connector records. Rock stores it as a Celebration Note on the request, shows it in the Connections Hub, and lists it in the Celebrations Report (decision D-celebrations-1). |
+| **Celebration** | The story behind a connection request, which its connector records. Rock stores it as a Celebration Note on the request, shows it in the Connections Hub, and lists it in the Celebrations Report (decision 219). |
 | **Commitment Sunday** | The Sunday the building campaign started and most pledges were made: 40 weeks before install day. |
 | **Companion** | A generated household on one of Core 3's two extra campuses. Companions are more involved than the Crowd, so each campus looks like a healthy congregation (decision 142). |
 | **Connection request** | A person's request to serve on a team, in Rock's Involvement connection type. It moves through statuses until it is connected, set aside as inactive, or saved for a future follow-up. |

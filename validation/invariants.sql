@@ -1002,7 +1002,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0 AND [cs].[R
     AND CAST( [cr].[DueDate] AS DATE ) > DATEADD( DAY, [cs].[RequestStatusDueDateOffsetInDays], CAST( GETDATE() AS DATE ) );
 
 -- check: celebration-is-on-a-worked-request
--- why: Decision D-celebrations-1. A celebration is a Celebration Note the request's connector wrote after reaching the person: on a request of this dataset whose connection type turns celebrations on, with text (the Celebrations Report hides an empty one), by the connector, after the request was made, on an active or connected request past No Contact, the status of a request nobody has reached. The Connections Hub shows only a request's first celebration, so each request has at most one.
+-- why: Decision 219. A celebration is a Celebration Note the request's connector wrote after reaching the person: on a request of this dataset whose connection type turns celebrations on, with text (the Celebrations Report hides an empty one), by the connector, after the request was made, on an active or connected request past No Contact, the status of a request nobody has reached. The Connections Hub shows only a request's first celebration, so each request has at most one.
 SELECT COUNT(*)
 FROM [Note] AS [n]
 INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]

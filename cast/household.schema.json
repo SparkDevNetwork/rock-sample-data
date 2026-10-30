@@ -301,7 +301,7 @@
           "properties": {
             "statuses": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Request status names from configuration/connections.json." },
             "minimum": { "type": "integer", "minimum": 1, "description": "The fewest active requests this person connects in every dataset. The Cast's own requests must reach it alone, and every load checks it." },
-            "celebrationMinimum": { "type": "integer", "minimum": 1, "description": "The fewest of those requests with a celebration this person wrote (decision D-celebrations-1). The Cast's own celebrations must reach it alone, and every load checks it." }
+            "celebrationMinimum": { "type": "integer", "minimum": 1, "description": "The fewest of those requests with a celebration this person wrote (decision 219). The Cast's own celebrations must reach it alone, and every load checks it." }
           }
         },
         "relationships": {
@@ -339,7 +339,7 @@
               "connector": { "type": "boolean", "description": "Whether the team's leader at the person's campus is the connector." },
               "backgroundCheck": { "enum": [ "Pass", "Fail" ], "description": "A background check result recorded a week after the request." },
               "comment": { "type": "string" },
-              "celebration": { "type": "string", "description": "The story the connector recorded as a celebration on this request (decision D-celebrations-1). Rock shows it on the request and in the Celebrations Report. Needs a connector, and a request someone has reached: Connected, or Active past No Contact." }
+              "celebration": { "type": "string", "description": "The story the connector recorded as a celebration on this request (decision 219). Rock shows it on the request and in the Celebrations Report. Needs a connector, and a request someone has reached: Connected, or Active past No Contact." }
             }
           }
         }
