@@ -120,6 +120,32 @@
       "guid": "6B43491D-0119-4BFB-8D35-9C61CAE07D83"
     },
     {
+      "key": "safety-data-views",
+      "parent": "church-data-views",
+      "entityType": "Rock.Model.DataView",
+      "name": "Safety",
+      "description": "Background checks and the kids allergy list. Only Safety & Security Workers, Background Check Administration, and Rock Administration can see them.",
+      "iconCssClass": "ti ti-shield-check",
+      "guid": "813B9CA0-FB65-442D-9F7F-51F9F92B1F6D",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Safety & Security Workers",
+            "RSR - Background Check Administration",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Background Check Administration"
+          ]
+        }
+      ]
+    },
+    {
       "key": "finance-data-views",
       "parent": "church-data-views",
       "entityType": "Rock.Model.DataView",
@@ -190,6 +216,25 @@
       ]
     },
     {
+      "key": "leadership-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Leadership",
+      "description": "Reports for the pastors: the whole path, and who to thank. Only Pastoral Workers and Rock Administration can see them.",
+      "iconCssClass": "ti ti-compass",
+      "guid": "707FE82C-3C1C-494F-A780-C81F80789F07",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Pastoral Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
       "key": "notice-reports",
       "parent": "church-reports",
       "entityType": "Rock.Model.Report",
@@ -242,6 +287,32 @@
       "description": "Reports on people who have stopped coming.",
       "iconCssClass": "ti ti-arrow-back-up",
       "guid": "51B50560-6755-48C1-969A-1DB4BEC633AC"
+    },
+    {
+      "key": "safety-reports",
+      "parent": "church-reports",
+      "entityType": "Rock.Model.Report",
+      "name": "Safety",
+      "description": "Background check and allergy reports. Only Safety & Security Workers, Background Check Administration, and Rock Administration can see them.",
+      "iconCssClass": "ti ti-shield-check",
+      "guid": "C0260A7A-0E8C-4DF5-95FC-B2AA87CA2877",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Safety & Security Workers",
+            "RSR - Background Check Administration",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Edit",
+          "allow": [
+            "RSR - Background Check Administration"
+          ]
+        }
+      ]
     },
     {
       "key": "finance-reports",

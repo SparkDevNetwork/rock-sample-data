@@ -41,10 +41,11 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Group Sync | The five group sync data views |
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule, and Women Who Attend |
 | Data views | Rock Solid Church, then Sample Data | Reserved or No Email, and each recurring flow's guarded audience |
+| Data views | Rock Solid Church, then Safety, locked to the safety and background check roles | Teams Requiring a Background Check, Kids and Student Volunteers, and Kids With an Allergy |
 | Data views | Rock Solid Church, then Finance, locked to the finance roles | The Built on the Rock pledge views |
 | Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Empty, for staff to build in |
 | Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision D-reporting-2) | Rock's 8 shipped example views, unchanged |
-| Reports | Rock Solid Church, locked to staff, then Notice, Belong, Equip, Contribute, Lead, Re-engage, Finance (locked to the finance roles), and Staff Workspace | Empty until the reports are built |
+| Reports | Rock Solid Church, locked to staff, then Leadership (locked to pastors), Notice, Belong, Equip, Contribute, Lead, Re-engage, Safety and Finance (each locked to its roles), and Staff Workspace | Empty until the reports are built |
 | Communication lists | Care | The New Here and We Miss You lists |
 | Person attributes | Staff | The eight staff attributes (decision 201) |
 

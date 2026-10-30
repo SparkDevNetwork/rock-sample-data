@@ -1459,7 +1459,10 @@
         "IncludeDeceased",
         "IsSystem",
         "ModifiedDateTime",
-        "Name"
+        "Name",
+        "PersistedScheduleId",
+        "PersistedScheduleIntervalMinutes",
+        "TransformEntityTypeId"
       ],
       "rockColumns": {
         "CategoryId": "int null",
@@ -4427,7 +4430,9 @@
     "Schedule": {
       "written": [
         "AutoInactivateWhenComplete",
+        "CategoryId",
         "CreatedDateTime",
+        "Description",
         "EffectiveEndDate",
         "EffectiveStartDate",
         "ForeignKey",
@@ -4436,6 +4441,7 @@
         "IsActive",
         "IsPublic",
         "ModifiedDateTime",
+        "Name",
         "Order",
         "WeeklyDayOfWeek",
         "WeeklyTimeOfDay",
@@ -5160,10 +5166,12 @@
       "AD4A08D6-4A60-456F-AFD0-660AA776021D",
       "AF51A735-59EF-4713-B9BD-604EBB86CA13",
       "B08F10AA-CA78-4527-93BF-A0D5640E4549",
+      "BDD2C36F-7575-48A8-8B70-3A566E3811ED",
       "C35752E2-A575-4182-8B5A-8AE9D0694B97",
       "C47AD7D0-DDD0-4BE6-AE1D-D69D72B13842",
       "D12837CF-EEE7-4822-9899-36E8884CD848",
       "DA9C0CC7-7B31-4E1E-BBA5-50405B2D9EFE",
+      "EEC7A935-BEF2-4450-9CBF-B85CEC6F7FEA",
       "F291034B-7581-48F3-B522-E31B8534D529",
       "FB4A609E-3A7D-4AD0-A55A-D707638A35F5"
     ],
@@ -5254,7 +5262,6 @@
       "0E99356C-0DEA-4F24-944E-21CD5FA83B9E",
       "174F0AFF-3A5E-4A20-AE8B-D8D83D43BACD",
       "1D68154E-EC76-44C8-9813-7736B27AECF9",
-      "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA",
       "337EED57-D4AB-4EED-BBDB-0CB3A467DBCC",
       "3638C6DF-4FF3-4A52-B4B8-AFB754991597",
       "3F9828CC-8224-4AB0-98A5-6D60001EBE32",

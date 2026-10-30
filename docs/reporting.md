@@ -1,6 +1,6 @@
 # Data views and reports
 
-Status: slices 1 and 2 are built. They are the data view and report categories with their security (Finance locked, no Leadership or Safety yet), the Foundational Views (Shipped) rename, and the data views in `configuration/reporting.json`. Not built yet: the reports, the Leadership and Safety categories (questions 3 to 5), Contribute Stage (question 16), and the Finance views other than the Built on the Rock pledge views. Decisions D-reporting-1 to D-reporting-7 record what is built.
+Status: slices 1 and 2 are built. They are the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, and the data views in `configuration/reporting.json`, including Contribute Stage and the Safety views. Not built yet: the reports, the Finance views other than the Built on the Rock pledge views, rebuilding the existing views on the foundations, run history, and path metrics. Every open question is answered. Decisions D-reporting-1 to D-reporting-8 record what is built.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -697,4 +697,4 @@ Each has one recommendation.
 
 **Settled by the coordinator, 2026-10-29:** questions 6 to 15, 17, and 18, each as recommended. For question 13, the flows session sets its targets from what F5 finds.
 
-**Still open with Jon:** questions 3, 4, 5, and 16.
+- Questions 3, 4, 5, and 16, on 2026-10-30: "Approve all four". Leadership reports are for pastors only, R1 stays in Leadership on the Finance data view, Safety is in, and Contribute Stage stays outside Finance.

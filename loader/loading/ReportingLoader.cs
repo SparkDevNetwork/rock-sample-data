@@ -216,7 +216,9 @@ VALUES ( @Name, @Description, @Calendar, '2013-05-01', @CategoryId, 1, 0, 0, 0, 
                 var guid = views.TryGetValue( filter.DataView, out var view ) ? view.Guid : otherViews[filter.DataView];
                 if ( !IdSelectionFilters.Contains( filter.Component ) )
                 {
-                    return guid.ToString();
+                    // A related data view filter's settings start with the view's Guid. A filter with more settings, such as
+                    // Rock's group data view filter (Guid, member status, role type), gives them with a {dataView} placeholder.
+                    return filter.Selection?.Replace( "{dataView}", guid.ToString() ) ?? guid.ToString();
                 }
 
                 var id = ids.TryGetValue( filter.DataView, out var written ) ? written : _db.RequireIdByGuid( "DataView", guid );

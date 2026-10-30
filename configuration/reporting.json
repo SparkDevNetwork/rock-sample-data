@@ -287,6 +287,39 @@
       }
     },
     {
+      "key": "contribute-stage",
+      "name": "Contribute Stage",
+      "category": "path-data-views",
+      "guid": "70855BDB-AE70-4F98-AC1E-48FFC95E263D",
+      "description": "Active people who have taken a Contribute step: serving, giving, or a mission trip. It counts the Give step, which Rock already shows staff on each person's Steps tab, so it stays out of Finance.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "discipleship-path",
+                  "stage": "Contribute"
+                }
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+                "steps": {
+                  "program": "student-path",
+                  "stage": "Contribute"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "key": "lead-stage",
       "name": "Lead Stage",
       "description": "Active people who have taken a Lead step: leading a small group or serving team, or Student Leader.",
@@ -931,6 +964,65 @@
       }
     },
     {
+      "key": "teams-requiring-a-background-check",
+      "name": "Teams Requiring a Background Check",
+      "category": "safety-data-views",
+      "guid": "5222992B-D32F-44A8-8BC5-D3140C6F34CF",
+      "entityType": "Rock.Model.Group",
+      "description": "Serving teams whose Requires Background Check setting is on: Kids Ministry and Student Ministry at every campus.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Group.GroupTypeFilter",
+            "selection": "2c42b2d4-1c5f-4ad5-a9ad-08631b872ac4"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"RequiresBackgroundCheck\",\"1\",\"True\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "kids-and-student-volunteers",
+      "name": "Kids and Student Volunteers",
+      "category": "safety-data-views",
+      "guid": "9A243C2E-7F6C-49F0-82A8-43D02A71DE51",
+      "description": "Active people who are active members, in any role, of a team that requires a background check.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupDataViewFilter",
+            "dataView": "teams-requiring-a-background-check",
+            "selection": "{dataView}|1|0"
+          }
+        ]
+      }
+    },
+    {
+      "key": "kids-with-an-allergy",
+      "name": "Kids With an Allergy",
+      "category": "safety-data-views",
+      "guid": "6FA8DAB2-144A-4A80-B794-7941F056D084",
+      "description": "Children checked in recently who have an allergy on their record. An allergy is medical information, so the list is in Safety.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "kids-checked-in-recently"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"Allergy\",\"64\",\"\"]"
+          }
+        ]
+      }
+    },
+    {
       "key": "built-on-the-rock-pledges",
       "name": "Built on the Rock Pledges",
       "description": "Every pledge to the Built on the Rock building campaign.",
@@ -1138,6 +1230,76 @@
       "category": "staff-workspace-data-views",
       "action": "Edit",
       "allowed": false
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "category": "leadership-reports",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "category": "leadership-reports",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "category": "leadership-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "category": "leadership-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "dataView": "kids-with-an-allergy",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
+      "dataView": "kids-with-an-allergy",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "82309081-A110-496F-8295-CE6A4720D7A8",
+      "name": "Jenny Michaels",
+      "dataView": "kids-and-student-volunteers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "category": "safety-reports",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "category": "safety-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "dataView": "contribute-stage",
+      "action": "View",
+      "allowed": true
     }
   ]
 }
