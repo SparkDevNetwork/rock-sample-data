@@ -106,6 +106,23 @@
       "description": "Flows that reach people who have stopped coming, with care.",
       "iconCssClass": "ti ti-refresh",
       "guid": "9C7F0035-51FE-49EA-8C60-6973E4B1D393"
+    },
+    {
+      "key": "church-workflows",
+      "entityType": "Rock.Model.WorkflowType",
+      "name": "Rock Solid Church",
+      "description": "The church's own workflow types. Each child category is the Ministry by Design system a workflow serves first.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "E79F1857-0D6E-451E-A8D7-C382D52E93DA"
+    },
+    {
+      "key": "workflows-equip",
+      "parent": "church-workflows",
+      "entityType": "Rock.Model.WorkflowType",
+      "name": "Equip",
+      "description": "Workflows that help people grow as followers of Jesus, such as baptism.",
+      "iconCssClass": "ti ti-book",
+      "guid": "4324A74A-D17D-43C1-95B4-C3859930D923"
     }
   ]
 }

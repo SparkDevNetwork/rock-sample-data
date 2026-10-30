@@ -813,6 +813,39 @@
         { "p": "Every team has room for you, and we'll train you. Find a team online today, or stop by the Connect Center on Sunday." },
         { "button": "Find a team", "href": "/serve" }
       ]
+    },
+    {
+      "key": "baptism-interest-welcome",
+      "occasion": "baptism-interest",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "We're so glad you're thinking about baptism",
+      "preheader": "What baptism means, and who you can talk to about it.",
+      "body": [
+        { "h": "Thinking about baptism?" },
+        { "p": "Hi {{ Person.NickName }}, thank you for letting us know you're thinking about baptism. It's a big step, and we'd love to walk with you." },
+        { "p": "Baptism is a way to tell the world you follow Jesus. It doesn't mean you have it all figured out. It celebrates what God has already done in your life." },
+        { "p": "Have questions? Reply to this email, or talk with a pastor at Rock Solid {campus} any Sunday." },
+        { "button": "About baptism", "href": "/baptism" }
+      ]
+    },
+    {
+      "key": "baptism-interest-sunday",
+      "occasion": "baptism-interest",
+      "daysBefore": -14,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "What happens on a baptism Sunday",
+      "preheader": "What to bring, what to expect, and why people say they wish they hadn't waited.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, here's what a baptism Sunday at Rock Solid {campus} looks like." },
+        { "list": [ "Bring a change of clothes and a towel. We'll have a shirt for you to wear.", "Plan to get there 30 minutes early, and a pastor will walk you through everything.", "Invite your friends and family. They'll sit up front so they can see." ] },
+        { "p": "Many people tell us afterward that they wish they hadn't waited so long. When you're ready, we're ready." },
+        { "button": "See the next baptism Sunday", "href": "/baptism" }
+      ]
     }
   ]
 }

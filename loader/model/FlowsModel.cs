@@ -34,6 +34,51 @@ namespace RockSampleData.Loader.Model
         public string ReservedEmailDomain { get; set; } = "example.org";
 
         public List<FlowDefinition> Flows { get; set; } = new List<FlowDefinition>();
+
+        /// <summary>
+        /// The workflow types that put people in On-Demand flows.
+        /// </summary>
+        public List<FlowWorkflowDefinition> Workflows { get; set; } = new List<FlowWorkflowDefinition>();
+    }
+
+    /// <summary>
+    /// A workflow type with a form and Rock's Activate Communication Flow action: a person fills out the form, and the
+    /// workflow adds them to the flow.
+    /// </summary>
+    internal sealed class FlowWorkflowDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The workflow type's category key in configuration/categories.json.
+        /// </summary>
+        public string Category { get; set; }
+
+        public string WorkTerm { get; set; }
+
+        public string IconCssClass { get; set; }
+
+        /// <summary>
+        /// The key of the flow the workflow adds people to.
+        /// </summary>
+        public string Flow { get; set; }
+
+        public string FormHeader { get; set; }
+
+        public string FormFooter { get; set; }
+
+        public string CommentsLabel { get; set; }
+
+        /// <summary>
+        /// The percent of people who write something in the comments box.
+        /// </summary>
+        public int CommentShare { get; set; }
+
+        public List<string> Comments { get; set; } = new List<string>();
     }
 
     /// <summary>
@@ -98,6 +143,54 @@ namespace RockSampleData.Loader.Model
         /// Foundations asks people to serve, so it skips anyone already serving.
         /// </summary>
         public bool SkipIfGoalMet { get; set; }
+
+        /// <summary>
+        /// The workflow whose form puts people in the flow, by its key in this file. Its people are planned from the
+        /// Baptism steps: <see cref="BaptizedShare"/> and the settings after it.
+        /// </summary>
+        public string Workflow { get; set; }
+
+        /// <summary>
+        /// The percent of people baptized here in the history window who filled out the form before their baptism.
+        /// </summary>
+        public int BaptizedShare { get; set; }
+
+        public int WeeksBeforeBaptismMin { get; set; }
+
+        public int WeeksBeforeBaptismMax { get; set; }
+
+        /// <summary>
+        /// How many people who are not baptized filled out the form, for each baptized person who did.
+        /// </summary>
+        public double NotBaptizedPerBaptized { get; set; }
+
+        /// <summary>
+        /// Cast stories: a person who filled out the form on a day.
+        /// </summary>
+        public List<FlowEntryPin> Pins { get; set; } = new List<FlowEntryPin>();
+    }
+
+    /// <summary>
+    /// A Cast person who entered a flow on a day.
+    /// </summary>
+    internal sealed class FlowEntryPin
+    {
+        /// <summary>
+        /// The Cast person, or null with <see cref="UnbaptizedCastAdult"/>.
+        /// </summary>
+        public Guid? Person { get; set; }
+
+        /// <summary>
+        /// The loader picks one Cast adult who is not baptized and has a reserved email or none.
+        /// </summary>
+        public bool UnbaptizedCastAdult { get; set; }
+
+        public int DaysAgo { get; set; }
+
+        /// <summary>
+        /// The time of day they filled out the form, as HH:mm.
+        /// </summary>
+        public string Time { get; set; }
     }
 
     /// <summary>

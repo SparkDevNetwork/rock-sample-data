@@ -425,7 +425,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 | Slice | What it adds | Size |
 |---|---|---|
 | 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule D-comm-flows-1, with invariants for open runs and reserved contact points | Small to medium |
-| 2. The Baptism flow | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
+| 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3. Recurring flows | The data views they need (from the reports work, or added under its keys), First-Time Guest Welcome, We Miss You, Baptism Sunday Invitation, Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, with the Ellis and Ortiz stories | Medium to large |
 | 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 

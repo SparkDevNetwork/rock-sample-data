@@ -35,6 +35,58 @@
       ],
       "goal": { "type": "tookStep", "stepType": "serve", "days": 90, "targetPercent": 15, "$targetPercentComment": "Set from the data: on Full 7, 11 of the 60 people not yet serving when they entered took the Serve step within 90 days (18%), rounded down to a whole 5%." },
       "exit": "conversionAchieved"
+    },
+    {
+      "key": "baptism-next-steps",
+      "name": "Baptism Next Steps",
+      "publicName": "Baptism Next Steps",
+      "description": "Walks with anyone thinking about baptism, from the day they fill out the Baptism Interest form: a welcome email, a text offering to answer questions, an email about baptism Sunday, and a text offering to save them a spot. It stops for each person the day their Baptism step is recorded.",
+      "category": "flows-equip",
+      "trigger": "onDemand",
+      "entry": {
+        "workflow": "baptism-interest",
+        "$comment": "Who filled out the form. 'baptizedShare' percent of the people baptized here in the history window filled it out 1 to 16 weeks before their baptism; the rest signed up on the day. 'notBaptizedPerBaptized' as many people again, who are not baptized, filled it out at any time in the window. The pins are Cast stories: Josh Sanders filled it out 66 days before install, six days before his baptism, and one unbaptized Cast adult with a reserved email, picked by the loader, filled it out 30 days before install, so they are mid-flow.",
+        "baptizedShare": 70,
+        "weeksBeforeBaptismMin": 1,
+        "weeksBeforeBaptismMax": 16,
+        "notBaptizedPerBaptized": 1.0,
+        "pins": [
+          { "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB", "daysAgo": 66, "time": "08:10" },
+          { "unbaptizedCastAdult": true, "daysAgo": 30, "time": "07:45" }
+        ]
+      },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "baptism-interest-welcome", "name": "Welcome", "daysToWait": 0, "time": "10:00" },
+        { "key": "baptism-interest-questions", "name": "Any Questions", "daysToWait": 2, "time": "10:00" },
+        { "key": "baptism-interest-sunday", "name": "Baptism Sunday", "daysToWait": 12, "time": "10:00" },
+        { "key": "baptism-interest-spot", "name": "Save a Spot", "daysToWait": 28, "time": "10:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "baptism", "days": 180, "targetPercent": 50 },
+      "exit": "conversionAchieved"
+    }
+  ],
+  "workflows": [
+    {
+      "key": "baptism-interest",
+      "name": "Baptism Interest",
+      "description": "The \"I'm interested in baptism\" form on the church website. It puts the person in the Baptism Next Steps Communication Flow.",
+      "category": "workflows-equip",
+      "workTerm": "Interest",
+      "iconCssClass": "ti ti-droplet",
+      "flow": "baptism-next-steps",
+      "formHeader": "<h2>Thinking about baptism?</h2><p>We'd love to walk with you. Tell us a little about where you are, and a pastor will be in touch.</p>",
+      "formFooter": "<p>Questions? Talk with a pastor at any campus on Sunday.</p>",
+      "commentsLabel": "Anything you want us to know?",
+      "commentShare": 35,
+      "comments": [
+        "I've been thinking about this for a while.",
+        "I was baptized as a baby. Should I be baptized again?",
+        "Can my daughter and I be baptized together?",
+        "I'm a little nervous about getting up in front of people.",
+        "My small group leader encouraged me to sign up.",
+        "I made a decision at Easter and want to take the next step."
+      ]
     }
   ]
 }

@@ -370,6 +370,30 @@
       "topic": "serving",
       "asksReply": true,
       "text": "Rock Solid: Congrats again on finishing Foundations, {{ Person.NickName }}! Want help finding a serving team that fits you? Just reply and we'll connect you."
+    },
+    {
+      "key": "baptism-interest-questions",
+      "medium": "sms",
+      "occasion": "baptism-interest",
+      "daysBefore": -2,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "general",
+      "asksReply": true,
+      "text": "Rock Solid: Hi {{ Person.NickName }}, thanks for your interest in baptism! Any questions about it? Just reply to this text and a pastor will get back to you."
+    },
+    {
+      "key": "baptism-interest-spot",
+      "medium": "sms",
+      "occasion": "baptism-interest",
+      "daysBefore": -42,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "events",
+      "asksReply": true,
+      "text": "Rock Solid: Hi {{ Person.NickName }}, our next baptism Sunday is coming up. Want us to save you a spot? Reply YES and we'll be in touch."
     }
   ],
   "replies": {
