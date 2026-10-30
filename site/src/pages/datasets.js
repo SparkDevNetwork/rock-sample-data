@@ -59,7 +59,7 @@ module.exports = function datasets( { model } ) {
       <p class="dataset-size">Core 1</p>
       <p class="dataset-time">Loads in ${loadTime( model.datasets["core-1"] )}</p>
       <ul>
-        <li>The Cast: ${model.counts.households} households, ${model.counts.people} people</li>
+        <li>The Cast at Phoenix: ${model.datasets["core-1"].households} households, ${model.datasets["core-1"].people} people</li>
         <li>1 campus: Phoenix</li>
         <li>Every feature, with full history</li>
       </ul>
