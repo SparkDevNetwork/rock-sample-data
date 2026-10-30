@@ -80,6 +80,7 @@ namespace RockSampleData.Loader.Loading
         private static readonly Dictionary<string, int> GoalTypes = new Dictionary<string, int>
         {
             ["completedForm"] = 1,
+            ["registered"] = 2,
             ["joinedGroupType"] = 3,
             ["enteredDataView"] = 5,
             ["tookStep"] = 6
@@ -197,9 +198,15 @@ namespace RockSampleData.Loader.Loading
         {
             var messages = flow.Messages.Select( ( m, order ) => Blueprint( flow, m, order, context ) ).ToList();
             var goal = Goal( flow, context );
+            if ( goal == null )
+            {
+                _db.Log.Write( $"  Communication flow: {flow.Name} skipped, this load has no {flow.Goal.Registration} registration instance" );
+                return;
+            }
+
             var exitType = ExitTypes.TryGetValue( flow.Exit ?? string.Empty, out var exit ) ? exit
                 : throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has exit '{flow.Exit}', which is not one this slice writes." );
-            var firstDay = _dates.Anchor.AddMonths( -flow.HistoryMonths ).Date;
+            var firstDay = new[] { _dates.Anchor.AddMonths( -flow.HistoryMonths ).Date, goal.FirstRun }.Max();
 
             // A person joins the run for the day they entered: the day after their entry step, or the day they filled out the form.
             var workflow = flow.Entry?.Workflow == null ? null : _source.Flows.Workflows.FirstOrDefault( w => w.Key == flow.Entry.Workflow )
@@ -624,7 +631,8 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
         }
 
         /// <summary>
-        /// The goal's type, its settings as Rock's flow editor stores them, and each person's dates that meet it.
+        /// The goal's type, its settings as Rock's flow editor stores them, and each person's dates that meet it. Null when
+        /// the goal names a registration instance this load did not write.
         /// </summary>
         private GoalPlan Goal( FlowDefinition flow, FlowContext context )
         {
@@ -633,7 +641,7 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has goal '{flow.Goal?.Type}', which is not one this slice writes." );
             }
 
-            if ( flow.Goal.Type == "completedForm" || flow.Goal.Type == "enteredDataView" )
+            if ( flow.Goal.Type == "completedForm" || flow.Goal.Type == "enteredDataView" || flow.Goal.Type == "registered" )
             {
                 return RecurringGoal( flow, context, type );
             }
@@ -775,6 +783,11 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
             /// Whether a person had met the goal before a run started, from their dates, as Rock checks when it seeds the run.
             /// </summary>
             public Func<List<DateTime>, DateTime, bool> PreMet { get; set; } = ( dates, start ) => dates.Any( d => d < start );
+
+            /// <summary>
+            /// The first day a run can start, when the goal names something that did not exist before it.
+            /// </summary>
+            public DateTime FirstRun { get; set; } = DateTime.MinValue;
         }
 
         private sealed class FlowStats

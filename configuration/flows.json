@@ -117,6 +117,41 @@
       ],
       "goal": { "type": "completedForm", "workflow": "baptism-interest", "days": 35, "targetPercent": 2, "$targetPercentComment": "Set from the data: on Full 7, 65 of 2,890 people filled out the Baptism Interest form within 35 days (2.2%), rounded down to a whole 1%." },
       "exit": "anyEmailClicked"
+    },
+    {
+      "key": "womens-retreat-early-bird",
+      "name": "Women's Retreat Early Bird",
+      "publicName": "Women's Retreat",
+      "description": "On the first Tuesday of May, once registration opens, and of September, before the early bird ends, invites women who come to worship to the Women's Retreat, with a bring-a-friend email two weeks later. It stops for each woman who registers.",
+      "category": "flows-equip",
+      "trigger": "recurring",
+      "schedule": { "kind": "monthly", "months": [ 5, 9 ], "weekday": "Tuesday", "week": 1, "time": "10:00" },
+      "audience": { "view": "women-who-attend-reserved-email", "rule": "womenWhoAttend" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "womens-retreat-invite", "name": "Save Your Spot", "daysToWait": 0, "time": "10:00" },
+        { "key": "womens-retreat-friend", "name": "Bring a Friend", "daysToWait": 14, "time": "10:00" }
+      ],
+      "goal": { "type": "registered", "registration": "womens-retreat", "days": 60, "targetPercent": 10 },
+      "exit": "conversionAchieved"
+    },
+    {
+      "key": "lead-a-group",
+      "name": "Lead a Group",
+      "publicName": "Lead a Group",
+      "description": "Six weeks before each small group launch, invites people who are growing in a group and serving on a team to lead a group: an invitation, a text offering a seat at Group Leader Training, and an email about the support leaders get.",
+      "category": "flows-contribute",
+      "trigger": "recurring",
+      "schedule": { "kind": "beforeGroupLaunches", "daysBefore": 42, "time": "09:00" },
+      "audience": { "view": "ready-to-lead-reserved-email", "rule": "readyToLead" },
+      "historyMonths": 24,
+      "messages": [
+        { "key": "lead-invitation-ask", "name": "Have You Thought About Leading?", "daysToWait": 0, "time": "09:00" },
+        { "key": "lead-invitation-training", "name": "Group Leader Training", "daysToWait": 7, "time": "10:00" },
+        { "key": "lead-invitation-support", "name": "What Leaders Get", "daysToWait": 14, "time": "09:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "lead", "days": 60, "targetPercent": 3 },
+      "exit": "conversionAchieved"
     }
   ],
   "workflows": [

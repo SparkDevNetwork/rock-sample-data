@@ -148,9 +148,14 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowSchedule
     {
         /// <summary>
-        /// weekly, monthly, or beforeBaptismSundays.
+        /// weekly, monthly, beforeBaptismSundays, or beforeGroupLaunches.
         /// </summary>
         public string Kind { get; set; }
+
+        /// <summary>
+        /// For monthly: only these months, 1 to 12. Empty means every month.
+        /// </summary>
+        public List<int> Months { get; set; } = new List<int>();
 
         /// <summary>
         /// The day of the week, such as Wednesday.
@@ -163,7 +168,7 @@ namespace RockSampleData.Loader.Model
         public int Week { get; set; }
 
         /// <summary>
-        /// For beforeBaptismSundays: how many days before each baptism Sunday.
+        /// For beforeBaptismSundays and beforeGroupLaunches: how many days before each baptism Sunday or small group launch.
         /// </summary>
         public int DaysBefore { get; set; }
 
@@ -185,7 +190,7 @@ namespace RockSampleData.Loader.Model
         public string View { get; set; }
 
         /// <summary>
-        /// firstVisitLastWeek, newlyMissed, or unbaptizedRegularAttenders.
+        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, or readyToLead.
         /// </summary>
         public string Rule { get; set; }
     }
@@ -288,7 +293,7 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowGoal
     {
         /// <summary>
-        /// joinedGroupType or tookStep. The other goal types come in later slices.
+        /// joinedGroupType, tookStep, completedForm, enteredDataView, or registered.
         /// </summary>
         public string Type { get; set; }
 
@@ -316,6 +321,12 @@ namespace RockSampleData.Loader.Model
         /// For completedForm: the workflow's key in this file.
         /// </summary>
         public string Workflow { get; set; }
+
+        /// <summary>
+        /// For registered: the registration template's key in configuration/registrations.json. The goal names the
+        /// template's newest instance whose registration opened by install day.
+        /// </summary>
+        public string Registration { get; set; }
 
         /// <summary>
         /// The goal's window, in days from the run's start date.

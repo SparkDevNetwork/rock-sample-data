@@ -908,6 +908,69 @@
         { "p": "Baptism is a way to tell the world you follow Jesus. Fill out the short form, and a pastor will reach out to answer your questions." },
         { "button": "I'm interested in baptism", "href": "/baptism" }
       ]
+    },
+    {
+      "key": "lead-invitation-ask",
+      "occasion": "lead-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "Have you thought about leading a group?",
+      "preheader": "You're growing, you serve, and people trust you. That's what a leader looks like.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, you've grown so much over the past year. You're in a small group, and you serve on a team every month." },
+        { "p": "That's exactly what we look for in a new group leader. Our next groups launch in about six weeks, and we'd love for you to lead one, or co-lead with a friend." },
+        { "p": "You don't need to have all the answers. You just need to care about people and keep showing up. We'll train you and walk with you." },
+        { "button": "Learn about leading", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "lead-invitation-support",
+      "occasion": "lead-invitation",
+      "daysBefore": -21,
+      "audience": "person",
+      "topic": "groups",
+      "sender": "church",
+      "subject": "What group leaders get from us",
+      "preheader": "Training, a coach, and a huddle with other leaders every month.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, here's what every group leader at Rock Solid {campus} gets." },
+        { "list": [ "Group Leader Training before the launch, with dinner.", "A coach who checks in with you every few weeks.", "The Leader Huddle each month, to swap ideas with other leaders." ] },
+        { "p": "Still thinking about it? That's okay. Reply to this email, and we'll grab coffee and talk it through." },
+        { "button": "Learn about leading", "href": "/groups" }
+      ]
+    },
+    {
+      "key": "womens-retreat-invite",
+      "occasion": "womens-retreat-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Save your spot at the Women's Retreat",
+      "preheader": "A weekend away to rest, laugh, and grow together. The early bird price is on now.",
+      "body": [
+        { "h": "Women's Retreat" },
+        { "p": "Hi {{ Person.NickName }}, our Women's Retreat is a weekend away to rest, laugh, worship, and grow together." },
+        { "p": "Registration is open, and the early bird price is on now. Rooms go fast, so grab yours soon." },
+        { "button": "Register for the retreat", "href": "/women" }
+      ]
+    },
+    {
+      "key": "womens-retreat-friend",
+      "occasion": "womens-retreat-invitation",
+      "daysBefore": -14,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Bring a friend to the Women's Retreat",
+      "preheader": "Use the code FRIEND for 10 percent off when you register together.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, the Women's Retreat is better with a friend." },
+        { "p": "Register together and use the code FRIEND for 10 percent off. Bring your sister, your neighbor, or a friend from your small group." },
+        { "button": "Register for the retreat", "href": "/women" }
+      ]
     }
   ]
 }
