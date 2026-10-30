@@ -42,14 +42,14 @@ namespace RockSampleData.Loader.Loading
         10/30/26 - CLAUDE
 
         The flows come from configuration/flows.json, and a run that started before install day keeps the
-        messages that are still to come. Rock's job sends them after install (decision D-comm-flows-1), so
+        messages that are still to come. Rock's job sends them after install (decision 220), so
         an open run holds only people whose email is on the reserved domain or empty. Rock's job prunes
         recipients only while a run is still sending: with "last message sent" every recipient stays Active,
         and with "conversion achieved" a person who converted before the run's last message leaves with the
         reason "goal met" and gets no later message. A package from before flows.json loads the finished
         After Starting Point flow as it did.
 
-        Reason: Jon wants people mid-flow on install day (decision D-comm-flows-1).
+        Reason: Jon wants people mid-flow on install day (decision 220).
     */
 
     /// <summary>
@@ -292,7 +292,7 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", 
             The pins are Cast stories. A person whose run would still be sending on install day must have
             reserved contact points, so the plan leaves out anyone else in those weeks.
 
-            Reason: Jon's Baptism flow, and decision D-comm-flows-1.
+            Reason: Jon's Baptism flow, and decision 220.
         */
 
         /// <summary>

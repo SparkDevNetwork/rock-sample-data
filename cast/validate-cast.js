@@ -216,6 +216,11 @@ for ( const h of households.map( x => x.data ) ) {
         if ( matching.length < p.connects.minimum ) {
             errors.push( `${h.key} (${p.key}): connects at least ${p.connects.minimum} requests, but the Cast has only ${matching.length} active requests at that campus in ${p.connects.statuses.join( " or " )} with a connector.` );
         }
+        // Signing in as admin shows Alisha's celebrations, so the Cast's own must reach her minimum (decision 219).
+        const celebrated = matching.filter( r => r.celebration ).length;
+        if ( p.connects.celebrationMinimum && celebrated < p.connects.celebrationMinimum ) {
+            errors.push( `${h.key} (${p.key}): has at least ${p.connects.celebrationMinimum} celebrations on the requests they connect, but the Cast gives only ${celebrated}.` );
+        }
     }
 }
 
@@ -705,6 +710,11 @@ for ( const { file, data: h } of households ) {
             }
             if ( ( c.state === "FutureFollowUp" ) !== ( c.followUpInDays !== undefined ) ) {
                 errors.push( `${owner}: a connection request has followUpInDays exactly when its state is FutureFollowUp.` );
+            }
+            // Only a connector writes a celebration, after reaching the person (decision 219).
+            const isReached = c.state === "Connected" || ( c.state === "Active" && c.status !== "No Contact" );
+            if ( c.celebration !== undefined && ( !c.connector || !isReached || !c.celebration.trim() ) ) {
+                errors.push( `${owner}: a connection request's celebration needs text, a connector, and a request someone has reached (Connected, or Active past No Contact).` );
             }
         }
         for ( const r of p.relationships || [] ) {

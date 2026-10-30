@@ -29,7 +29,7 @@ namespace RockSampleData.Loader.Model
     {
         /// <summary>
         /// The one email domain that can never reach a real person. Only people whose email is on it, or who have no
-        /// email, are ever in a flow run that is still open on install day (decision D-comm-flows-1).
+        /// email, are ever in a flow run that is still open on install day (decision 220).
         /// </summary>
         public string ReservedEmailDomain { get; set; } = "example.org";
 

@@ -326,6 +326,32 @@ namespace RockSampleData.Loader.Model
         /// Note text pools by activity type name.
         /// </summary>
         public Dictionary<string, List<string>> Notes { get; set; } = new Dictionary<string, List<string>>();
+
+        /// <summary>
+        /// The stories connectors record as celebrations on generated requests, or null in packages made before them.
+        /// </summary>
+        public CelebrationRules Celebrations { get; set; }
+    }
+
+    /// <summary>
+    /// Which generated requests get a celebration from their connector, and the stories to tell.
+    /// </summary>
+    internal sealed class CelebrationRules
+    {
+        /// <summary>
+        /// Percent of eligible requests with a celebration: "staff" for a Cast staff connector's requests, then by state (Connected, Active).
+        /// </summary>
+        public Dictionary<string, double> Percent { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// Stories for connected requests, by team key, with "any" for every team. {first} is the requester's first name.
+        /// </summary>
+        public Dictionary<string, List<string>> Connected { get; set; } = new Dictionary<string, List<string>>();
+
+        /// <summary>
+        /// Stories for active requests a connector is working, by team key, with "any" for every team.
+        /// </summary>
+        public Dictionary<string, List<string>> Active { get; set; } = new Dictionary<string, List<string>>();
     }
 
     internal sealed class PendingRules
