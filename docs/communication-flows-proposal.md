@@ -103,7 +103,7 @@ See Section 4.
 - **Purpose.** Welcome every adult first-time guest and help them come back.
 - **Trigger.** Recurring, every Monday at 9 a.m., to the First Visit Last Week data view: adults who accept mass email and came to worship for the first time in the last 7 days.
 - **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
-- **Goal.** Entered Data View: Regular Attenders, 4 or more worship check-ins in 12 weeks, the reports work's shared rule. Window 84 days, so a guest has time to reach it. The target is set from what that view finds, about 25%.
+- **Goal.** Entered Data View: Regular Attenders, 4 or more worship check-ins in 12 weeks, the reports work's shared rule. Window 84 days, so a guest has time to reach it. The target is set from what that rule finds in the data, likely about 25% (see Section 5).
 - **Exit.** Last Message Sent.
 - **Cast.** Jordan and Hannah Ellis, who first came 120 days ago. They are in the run for the Monday after, both converted, and Hannah clicked the Starting Point link.
 
@@ -121,7 +121,7 @@ See Section 4.
 - **Purpose.** Before each baptism Sunday, invite regular attenders who have not been baptized.
 - **Trigger.** Recurring, on specific dates: 5 weeks before Easter and 5 weeks before the July baptism Sunday. Audience: the Unbaptized Regular Attenders data view, adults who are Regular Attenders and have no Baptism step.
 - **Messages.** Email ("Is it time?") with a button to the Baptism Interest form. SMS 7 days later.
-- **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. Target 5%.
+- **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. The target is set from what the regular attender rule finds in the data, likely about 5% (see Section 5).
 - **Exit.** Any Email Clicked. A person who clicked has the form in front of them, so the text would only nag.
 - **Cast.** None pinned. People who fill out the form inside a run's window convert, and the form puts them in the Baptism flow.
 
@@ -218,12 +218,14 @@ The views are in the reports work's slice 2. If flows slice 1 lands first, it ad
 | Flow | Target | Designed result |
 |---|---|---|
 | 2 Baptism Next Steps | 50% | About 55%, recent runs Pending |
-| 3 First-Time Guest Welcome | 25% | About 30%, most runs Achieved |
+| 3 First-Time Guest Welcome | Set from the data, about 25% | A little above the target, most runs Achieved |
 | 4 We Miss You | 15% | About 10%, most runs Missed |
-| 5 Baptism Sunday Invitation | 5% | About 6% |
+| 5 Baptism Sunday Invitation | Set from the data, about 5% | A little above the target |
 | 6 Student Camp Registration | 40% | About 45% |
 | 7 Women's Retreat Early Bird | 10% | About 8%, Missed |
 | 8 Christmas at Rock Solid | None | Not Tracked |
+
+**One regular attender rule.** Flows 3 and 5 use the church's one "regular attender" rule, 4 or more worship check-ins in the last 12 weeks, through the Regular Attenders view and the views built on it (coordinator decision, 2026-10-29). They add no thresholds of their own. Their targets come from what that rule finds: the build measures the share of each flow's people who reach the goal on Full 7, and sets the target just under it, rounded down to a whole 5% for Flow 3 and a whole 1% for Flow 5. So most runs show Achieved and a few show Missed, and the targets are recorded in `configuration/` with the measured share beside them.
 
 Flow unsubscribes run about 0.3% per email, a little above bulk email, because flows send more often.
 
@@ -279,4 +281,4 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 
 5. **History length.** 18 months for the new flows, inside the 2-year communication window. After Starting Point stays at 2 years.
 6. **Datasets.** All three (Core 1, Core 3, and Full 7), scaled, like every other communication.
-7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. Done: the names, keys, and categories are in Section 3. Two choices there are open questions in the reports proposal (its 13 and 14): one shared "regular attender" rule for Flows 3 and 5, and "gave" from Rock's Last Gave attribute in Involved Adults. The flows work with either answer.
+7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. Done: the names, keys, and categories are in Section 3. Flows 3 and 5 use the one shared "regular attender" rule, 4 or more worship check-ins in the last 12 weeks, with targets set from what it finds (coordinator decision, 2026-10-29). Using Rock's Last Gave attribute for "gave" in Involved Adults is still an open question in the reports proposal. The Christmas flow works with either answer.
