@@ -286,7 +286,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | C1 | Guests Coming Back | Person | In F2; first worship attendance in the last 6 months; 3 or more worship attendances in the last 6 months; and a "none" group holding "took the Starting Point Class step" | F2 | No | R9. The Notice to Belong next step |
-| C4 | First Visit Last Week | Person | In F2, in F6, and first worship attendance in the last 7 days | F2, F6 | No | The First-Time Guest Welcome flow's audience |
+| C4 | First Visit Last Week | Person | In F2, in F6, and first worship attendance in the last 7 days | F2, F6 | No | X2, the First-Time Guest Welcome flow's audience (section 4.13) |
 
 ### 4.4 Belong (category: Rock Solid Church > Belong)
 
@@ -303,7 +303,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 |---|---|---|---|---|---|---|
 | N2 | Ready to Grow | Person | In F2, in P1, not in P2 | F2, P1, P2 | No | R23 |
 | N5 | Belonging a Year, Not Yet Growing | Person | In P1, in F7, a "none" group holding "a Belong step completed in the last 12 months", and not in P2 | P1, F7, P2 | No | R24. The one "stalled" view |
-| C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience |
+| C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience, through X4 if the flow ships Active |
 | C2 | Baptized This Year | Person | In F1, and the Baptism Date attribute is in the last 12 months | F1 | No | R2 |
 
 ### 4.6 Contribute (category: Rock Solid Church > Contribute)
@@ -323,7 +323,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync after slice 6 |
-| C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
+| C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3 if the flow ships Active. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
 | C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
 
 ### 4.9 Registrations (category: Rock Solid Church > Registrations, exists)
@@ -379,6 +379,23 @@ A Communication Flows category would hold data views by who uses them, not by wh
 The flows run their audiences and goals through Rock's Process Communication Flows job, which checks no person (section 1.5). So the category a flow's view sits in limits only who can open it, not whether the flow works.
 
 These views go in slice 2. If the flows land first, the flows session adds them to `configuration/reporting.json` with these keys and the foundations they need (F1, F2, F5, F6, F7, F8, C3), and slice 2 builds on them.
+
+### 4.13 Sample Data (category: Rock Solid Church > Sample Data)
+
+Views that exist only because this is sample data. A real church would not need them, so they stay out of Foundations, which teaches real practice.
+
+Jon wants recurring communication flows to ship Active, so Rock's flow job sends their runs after install. Every contact point in the data is reserved, except the 22 Cast staff households' emails, which use the church's real demo domain (decision 139). That domain has live mail servers. So each Active recurring flow sends only to people with a reserved email or none.
+
+| # | Name | Entity | Filters | Builds on | Persisted | Used by |
+|---|---|---|---|---|---|---|
+| X1 | Reserved or No Email | Person | In F1, and any of: email ends with `@example.org`; email is blank | F1 | No | X2 to X4 |
+| X2 | First Visit Last Week, Reserved Email | Person | In C4, and in X1 | C4, X1 | No | The First-Time Guest Welcome flow's audience |
+| X3 | Newly Missed, Reserved Email | Person | In C5, and in X1 | C5, X1 | No | The We Miss You flow's audience, if it ships Active |
+| X4 | Unbaptized Regular Attenders, Reserved Email | Person | In C7, and in X1 | C7, X1 | No | The Baptism Sunday Invitation flow's audience, if it ships Active |
+
+X1 lists the safe domain, not the unsafe one. A new real domain added later is then left out by default, instead of leaking.
+
+The subject views C4, C5, and C7 stay pure, so a report or a later flow that needs the same people does not inherit a sample-data rule. Each flow's audience is a thin view that adds the guard to the subject view, and verify checks that every Active recurring flow's audience includes X1 (question 18).
 
 ## 5. Reports
 
@@ -482,6 +499,7 @@ Rock Solid Church                 View: Staff Workers, Staff Like Workers, Rock 
 ├── Re-engage                     inherits
 ├── Group Sync                    inherits (exists)
 ├── Registrations                 inherits (exists)
+├── Sample Data                   inherits
 ├── Safety                        View: Safety & Security Workers, Background Check Administration, Rock Administration. Deny All Users
 │                                 Edit: Background Check Administration
 ├── Finance                       View: Finance Administration, Finance Worker, Rock Administration. Deny All Users
@@ -577,7 +595,7 @@ A new static checker, `validation/check-reporting.js`, runs without a database. 
 | # | Slice | What it builds | How it is checked |
 |---|---|---|---|
 | 1 | Categories and security | The data view and report categories in `configuration/categories.json`, with a `security` list on each; the loader writes their Auth rows. The rule on Rock Solid Church. Staff Workspace | `authorize` against the existing eight data views: staff yes, Jerry Wright no. Contract re-recorded |
-| 2 | Foundations, path, and ministry data views | F1 to F10, P1 to P5, N1 to N5, G3, K1, K3, C1 to C7, and RG1, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 4.12). The writer learns the Existing Data View, Not in Existing Data View, and Steps Taken filters, the persisted fields, and the named schedule | `data-views`, `persist`, Cast anchors, the static checker |
+| 2 | Foundations, path, and ministry data views | F1 to F10, P1 to P5, N1 to N5, G3, K1, K3, C1 to C7, RG1, and the Sample Data guard X1 to X4, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 4.12). The writer learns the Existing Data View, Not in Existing Data View, and Steps Taken filters, the persisted fields, and the named schedule | `data-views`, `persist`, Cast anchors, the static checker |
 | 3 | Reports | A report writer for all four column kinds; R2 to R5, R7 to R10, and R18 to R25 | `reports` on both builds, with run times |
 | 4 | Finance | FN1 to FN8, R1, R12 to R17, and the Top Givers item rules | `authorize` with the full walkthrough; `data-views`; `reports`; the consumer rule |
 | 5 | Safety | S1, K2, R6, and R11 | `authorize` for Rachel Brooks yes, Jamal Pierce no; `reports` |
@@ -607,5 +625,6 @@ Each has one recommendation.
 15. **Stage counts over time as Rock Metrics (slice 8)?** Recommend yes, as a later slice after slice 3. A metric per stage, fed by the stage views, is Rock's own tool for a count over time, and dashboards can show it. The loader fills weekly values for the history window from the steps, so the trend is there on install. Until then, Rock's Step Program page charts steps by type.
 16. **Contribute Stage counts the Give step. Keep it outside Finance?** Recommend yes. Rock already shows every Give step on the person's Steps tab to staff (decision 85), so P3 adds no new exposure. If Jon wants giving hidden from staff, the fix is security on the Give step type, which would hide it from the Steps tab too, and P3 would then move to Finance.
 17. **Move the Kids Allergy List into Safety?** Recommend yes. An allergy is medical information. Both kids directors are already Safety & Security Workers, so the people who need the list keep it.
+18. **How should Active recurring flows avoid emailing the Cast staff's real addresses?** Recommend a guard view, X1 Reserved or No Email, in its own Sample Data category, plus one thin audience view per Active recurring flow (X2 to X4). Folding the guard into C4, C5, and C7 would hide a sample-data rule inside views meant to teach real practice. The root-cause fix, moving staff emails to a reserved domain, would undo decision 139's real sender domain, so it is not recommended.
 
-**Settled by the coordinator, 2026-10-29:** questions 6 to 15 and 17, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 and 16 are with Jon.
+**Settled by the coordinator, 2026-10-29:** questions 6 to 15 and 17, each as recommended. For question 13, the flows session sets its targets from what F5 finds. Questions 1 to 5 and 16 are with Jon. Question 18 came with the communication flows' after-install plan.
