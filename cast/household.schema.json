@@ -143,6 +143,7 @@
           "properties": { "percent": { "type": "number" }, "everyWeeks": { "type": "integer", "minimum": 1 } }
         },
         "specialGiftPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "isOnTime": { "type": "boolean", "description": "Monthly only. Keeps the gift in the first week of every month: on the first Sunday, or mailed that week after a missed Sunday, with any year-end gift on the same day as December's." },
         "started": { "$ref": "#/$defs/relativeDate" },
         "ended": { "$ref": "#/$defs/relativeDate" },
         "expect": {

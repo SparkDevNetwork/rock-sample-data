@@ -107,7 +107,8 @@ try
         RockVersion = rockVersion,
         LoginPasswordHash = options.TryGetValue( "login-password", out var loginPassword ) ? HashLoginPassword( loginPassword ) : null,
         IsDryRun = options.ContainsKey( "dry-run" ),
-        IsAnyRockVersionAllowed = options.ContainsKey( "any-rock" )
+        IsAnyRockVersionAllowed = options.ContainsKey( "any-rock" ),
+        IsCastExpectationsChecked = true
     } );
     return 0;
 }

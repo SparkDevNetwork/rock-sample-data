@@ -285,6 +285,13 @@ namespace RockSampleData.Loader.Model
 
         public int? SpecialGiftPercent { get; set; }
 
+        /// <summary>
+        /// Optional: true keeps a monthly giver's gift in the first week of every month. One who gives at church gives on
+        /// the month's first Sunday, or mails the check that week after missing it, and a year-end gift comes with
+        /// December's gift. For a Cast story whose expected frequency must hold on every install day (decision 218).
+        /// </summary>
+        public bool IsOnTime { get; set; }
+
         public RelativeDate Started { get; set; }
 
         public RelativeDate Ended { get; set; }

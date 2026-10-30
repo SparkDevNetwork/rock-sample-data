@@ -215,7 +215,7 @@ Jasmine's household file now sets her graduation as a relative date, this past M
 
 ## How it is checked
 
-- **Cast expectations,** on every load and in the verify tool: the stories above.
+- **Cast expectations,** on every CLI load and in the verify tool: the stories above.
 - **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job in both programs; and every step has the date keys, status, alias, and campus Rock expects. For the Student Path: every student step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then; Mission Trip is high school only and Student Leader juniors and seniors only; Follow Jesus and Student Leader happen at most once, and Student Leader ends at graduation or stays open while the student is in school; a child's baptism is here, on a Sunday, after they started coming to the student service; and no step is dated after the install day.
 - **Rock Cleanup** as a referee finds nothing to fix.
 

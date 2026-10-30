@@ -1033,7 +1033,7 @@ WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
         /// </summary>
         /// <summary>
         /// Checks that each Cast person with an allergy in their file shows it in Rock's Allergy person attribute, which
-        /// check-in labels print (Alex Decker is the example). People always load, so this runs on every load. A person
+        /// check-in labels print (Alex Decker is the example). People always load, so this runs whenever the expectations are checked. A person
         /// whose household is not in the dataset is skipped.
         /// </summary>
         private static int CheckAllergies( RockDatabase db, SampleDataSource source, List<string> failures )
