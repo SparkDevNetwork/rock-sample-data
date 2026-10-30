@@ -94,10 +94,10 @@ var checks = new (string Name, string Actual, string Expected)[]
         "420363,117252,926818,494383,790491,4604133140953978213"),
     ("Package index written before the card fields",
         Card( Signed( Index( "" ) ) ),
-        "core-1||0|185|0|1|0"),
+        "core-1||0|185|0|1|0|0"),
     ("Package index with the card fields and fields this loader does not know",
-        Card( Signed( Index( "\"bestFor\": \"Tests.\", \"highlights\": [ \"Photos\", \" \", \"Giving\" ], \"households\": 87, \"typicalInstallSeconds\": 10, \"futureField\": { \"nested\": [ 1, 2 ] }," ) ) ),
-        "core-1|Tests.|2|185|87|1|10"),
+        Card( Signed( Index( "\"bestFor\": \"Tests.\", \"highlights\": [ \"Photos\", \" \", \"Giving\" ], \"households\": 87, \"typicalInstallSeconds\": 10, \"databaseSpaceMegabytes\": 1400, \"futureField\": { \"nested\": [ 1, 2 ] }," ) ) ),
+        "core-1|Tests.|2|185|87|1|10|1400"),
     ("Loader versions in order",
         string.Join( ",", new[] { "1.0.0", "0.1.0-alpha.13", "0.1.0", "0.1.0-alpha.9", "1.0.0-rc.1", "0.1.0-beta", "0.1.0-alpha.13+abc" }
             .OrderBy( v => v, Comparer<string>.Create( LoaderVersion.Compare ) ) ),
@@ -306,7 +306,7 @@ static string Installable( SampleDataPackageIndex index )
 static string Card( SampleDataPackageIndex index )
 {
     var entry = index.Packages.Single();
-    return $"{entry.Dataset}|{entry.BestFor}|{entry.Highlights.Count}|{entry.People}|{entry.Households}|{entry.Campuses}|{entry.TypicalInstallSeconds}";
+    return $"{entry.Dataset}|{entry.BestFor}|{entry.Highlights.Count}|{entry.People}|{entry.Households}|{entry.Campuses}|{entry.TypicalInstallSeconds}|{entry.DatabaseSpaceMegabytes}";
 }
 
 static string Entry( SampleDataPackageIndex index )

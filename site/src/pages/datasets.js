@@ -16,7 +16,7 @@
 //
 
 const { esc, html, repoUrl } = require( "../layout" );
-const { sectionHead, loadTime } = require( "../components" );
+const { sectionHead, loadTime, databaseSpace } = require( "../components" );
 
 const inside = model => [
     [ "People and households", "The Cast in every dataset, plus generated households in Core 3 and Full 7. Every Cast person has a photo, except a few left without one on purpose." ],
@@ -61,6 +61,7 @@ module.exports = function datasets( { model } ) {
       <ul>
         <li>The Cast at Phoenix: ${model.datasets["core-1"].households} households, ${model.datasets["core-1"].people} people</li>
         <li>1 campus: Phoenix</li>
+        <li>Needs ${databaseSpace( model.datasets["core-1"] )} of database space</li>
         <li>Every feature, with full history</li>
       </ul>
       <p class="dataset-for">For tests and most development.</p>
@@ -71,6 +72,7 @@ module.exports = function datasets( { model } ) {
       <ul>
         <li>The Cast, plus 75 generated households at each of Peoria and Gilbert</li>
         <li>3 campuses</li>
+        <li>Needs ${databaseSpace( model.datasets["core-3"] )} of database space</li>
         <li>Campus test groups at every new campus</li>
       </ul>
       <p class="dataset-for">For campus features and filters.</p>
@@ -81,6 +83,7 @@ module.exports = function datasets( { model } ) {
       <ul>
         <li>The Cast, plus the Crowd: about 25,000 people</li>
         <li>7 campuses across the Valley, each with its own people</li>
+        <li>Needs ${databaseSpace( model.datasets["full-7"] )} of database space</li>
         <li>Volume for reports, charts, and search</li>
       </ul>
       <p class="dataset-for">For demos, performance, and reporting.</p>
