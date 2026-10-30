@@ -169,7 +169,7 @@ This is the index that is signed. The file itself wraps it, as the next section 
     {
       "dataset": "core-1",
       "name": "Core 1",
-      "description": "The Cast: hand-designed households at one campus, each with its own story. The same families are in every dataset.",
+      "description": "The Cast at the main campus: hand-designed households, each with its own story. These families are in every dataset.",
       "bestFor": "Automated tests, training, and everyday development.",
       "highlights": [
         "Families you can name in tests and help articles",
@@ -181,6 +181,7 @@ This is the index that is signed. The file itself wraps it, as the next section 
       "households": 87,
       "campuses": 1,
       "typicalInstallSeconds": 10,
+      "databaseSpaceMegabytes": 1400,
       "version": "1.2.0",
       "url": "v1.2.0/rock-21/core-1.zip",
       "sha256": "b94754207879953509261c3a244e7432eab882526024aa2fd84c9647502a0650",
@@ -204,6 +205,7 @@ This is the index that is signed. The file itself wraps it, as the next section 
 | `bestFor`, `highlights` | What the dataset is best for, and two to four short phrases about it. Optional. |
 | `people`, `households`, `campuses` | About how many people and family households the dataset loads, and its campuses. Optional. |
 | `typicalInstallSeconds` | About how long a load of every part takes, in seconds. Optional. |
+| `databaseSpaceMegabytes` | About how much disk space the database needs after a load of every part, in megabytes. Optional: an index written before 0.1.0-alpha.16 has none. |
 | `version` | The package release, from the release tag. Required. |
 | `url` | Where to download the package: absolute, or relative to the index's own URL. Required. |
 | `sha256`, `size` | The .zip's SHA-256 in hex (64 digits) and its size in bytes. Check a download against them before opening it. The SHA-256 is required. |
@@ -264,7 +266,7 @@ node release/sign-index.js --in index.json --out signed.json --test-key test-key
 
 The [package index](#the-package-index) carries the same card in each entry (decision 144). The catalog is fixed when the loader is built, and the index changes with every release, so Rock's installer should show the index's card and keep the catalog for when the index cannot be read. The CLI and the verify tool's card checks use the catalog.
 
-Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, and `TypicalInstallSeconds` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
+Each `SampleDataDatasetInfo` has the `Key` and `Name`, a `Summary` of who is in it, what it is `BestFor`, two to four `Highlights`, and the `People`, `Households`, `Campuses`, `TypicalInstallSeconds`, and `DatabaseSpaceMegabytes` to show. The values come from the card fields in [`datasets/*.json`](../datasets/README.md#the-dataset-card), which the loader project embeds. So the catalog ships in the same NuGet package as the loader that installs those datasets.
 
 Two checks keep the cards true:
 
@@ -281,13 +283,13 @@ The numbers were measured with the CLI: the default seed, 3 years of history, an
 
 Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
-The same loads show how much database space each needs. The trusted base starts at 392 MB of data and a 520 MB log. A load runs in one transaction, so the log holds the whole load until it commits.
+Each verify receipt records how much database space its load needs (`load.space`), and each card's `databaseSpaceMegabytes` comes from it: the data and log files at their largest, added together, and rounded up to the next 100 MB. The trusted base starts at 392 MB of data and a 520 MB log, so the numbers include the new Rock install. A load runs in one transaction, so the log holds the whole load until it commits. Verify measured these on Rock 21.0.2 on 2026-10-29, on the data in main `42f09cd`, with check images:
 
-| Dataset | Data file after the load | Log file after the load | Both, at their largest |
-|---|---|---|---|
-| Core 1 | 776 MB | 520 MB | 1.3 GB |
-| Core 3 | 968 MB | 584 MB | 1.6 GB |
-| Full 7 | 9.2 GB | 11.3 GB | 20.5 GB |
+| Dataset | Data file after the load | Log file after the load | Both | On the card |
+|---|---|---|---|---|
+| Core 1 | 840 MB | 520 MB | 1,360 MB | 1,400 MB, about 1.4 GB |
+| Core 3 | 1,032 MB | 648 MB | 1,680 MB | 1,700 MB, about 1.7 GB |
+| Full 7 | 5,896 MB | 7,816 MB | 13,712 MB | 13,800 MB, about 13 GB |
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 

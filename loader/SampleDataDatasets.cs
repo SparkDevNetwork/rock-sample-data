@@ -26,7 +26,7 @@ namespace RockSampleData.Loader
     /// </summary>
     public sealed class SampleDataDatasetInfo
     {
-        internal SampleDataDatasetInfo( string key, string name, string summary, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds )
+        internal SampleDataDatasetInfo( string key, string name, string summary, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, int databaseSpaceMegabytes )
         {
             Key = key;
             Name = name;
@@ -37,6 +37,7 @@ namespace RockSampleData.Loader
             Households = households;
             Campuses = campuses;
             TypicalInstallSeconds = typicalInstallSeconds;
+            DatabaseSpaceMegabytes = databaseSpaceMegabytes;
         }
 
         /// <summary>
@@ -85,6 +86,13 @@ namespace RockSampleData.Loader
         /// developer workstation, so a slower server takes longer.
         /// </summary>
         public int TypicalInstallSeconds { get; }
+
+        /// <summary>
+        /// About how much disk space the database needs, in megabytes: its data and log files at their
+        /// largest after a load of every part, check images included, counting the new Rock install the load
+        /// starts from. Measured by the verify tool and rounded up to the next 100 MB. Show it in gigabytes.
+        /// </summary>
+        public int DatabaseSpaceMegabytes { get; }
     }
 
     /// <summary>
@@ -152,12 +160,13 @@ namespace RockSampleData.Loader
             Require( manifest.Households > 0, "households" );
             Require( manifest.Campuses > 0, "campuses" );
             Require( manifest.TypicalInstallSeconds > 0, "typicalInstallSeconds" );
+            Require( manifest.DatabaseSpaceMegabytes > 0, "databaseSpaceMegabytes" );
             if ( missing.Count > 0 )
             {
                 throw new InvalidDataException( $"{file} is missing the dataset card's {string.Join( ", ", missing )}." );
             }
 
-            return new SampleDataDatasetInfo( manifest.Key, manifest.Name, manifest.Summary, manifest.BestFor, highlights, manifest.People, manifest.Households, manifest.Campuses, manifest.TypicalInstallSeconds );
+            return new SampleDataDatasetInfo( manifest.Key, manifest.Name, manifest.Summary, manifest.BestFor, highlights, manifest.People, manifest.Households, manifest.Campuses, manifest.TypicalInstallSeconds, manifest.DatabaseSpaceMegabytes );
         }
 
         private static IReadOnlyList<SampleDataDatasetInfo> ReadEmbedded()

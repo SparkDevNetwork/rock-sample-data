@@ -32,5 +32,6 @@ Rock's installer shows a card for each dataset, so a church admin can choose one
 | `people`, `households` | People and family households (businesses included) a load adds, measured from a real load at the default seed and 3 years of history. Verify fails a load more than 2% away from either. |
 | `campuses` | The dataset's campuses. Must match `../configuration/campuses.json`. |
 | `typicalInstallSeconds` | The median of three measured loads of every part, check images included, in whole seconds. |
+| `databaseSpaceMegabytes` | The disk space the database needs: its data and log files at their largest after a load of every part, check images included, in megabytes. Take it from the verify receipt (`load.space`, each file's `fileAfterMb`, added together) and round up to the next 100 MB. It includes the new Rock install the load starts from. |
 
 Write the text for a church admin choosing what to install. Follow the [content standards](../docs/content-standards.md) and the writing rules in [AGENTS.md](../AGENTS.md): plain, short sentences and no em dashes. Leave out numbers the number fields already give, so the text never goes stale.

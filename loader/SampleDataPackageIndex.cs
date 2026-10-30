@@ -121,6 +121,7 @@ namespace RockSampleData.Loader
                 entry.Households,
                 entry.Campuses,
                 entry.TypicalInstallSeconds,
+                entry.DatabaseSpaceMegabytes,
                 Required( entry.Version, "version" ),
                 Required( entry.Url, "url" ),
                 sha256.ToLowerInvariant(),
@@ -190,6 +191,8 @@ namespace RockSampleData.Loader
 
             public int TypicalInstallSeconds { get; set; }
 
+            public int DatabaseSpaceMegabytes { get; set; }
+
             public string Version { get; set; }
 
             public string Url { get; set; }
@@ -213,7 +216,7 @@ namespace RockSampleData.Loader
     /// </summary>
     public sealed class SampleDataPackageIndexEntry
     {
-        internal SampleDataPackageIndexEntry( string dataset, string name, string description, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, string version, string url, string sha256, long size, int rockMajor, string minimumLoaderVersion, string rockVersion, string rockMigration )
+        internal SampleDataPackageIndexEntry( string dataset, string name, string description, string bestFor, IReadOnlyList<string> highlights, int people, int households, int campuses, int typicalInstallSeconds, int databaseSpaceMegabytes, string version, string url, string sha256, long size, int rockMajor, string minimumLoaderVersion, string rockVersion, string rockMigration )
         {
             RockMajor = rockMajor;
             MinimumLoaderVersion = minimumLoaderVersion;
@@ -226,6 +229,7 @@ namespace RockSampleData.Loader
             Households = households;
             Campuses = campuses;
             TypicalInstallSeconds = typicalInstallSeconds;
+            DatabaseSpaceMegabytes = databaseSpaceMegabytes;
             Version = version;
             Url = url;
             Sha256 = sha256;
@@ -280,6 +284,13 @@ namespace RockSampleData.Loader
         /// 0 when the index has none.
         /// </summary>
         public int TypicalInstallSeconds { get; }
+
+        /// <summary>
+        /// About how much disk space the database needs, in megabytes, as the dataset card gives it (see
+        /// <see cref="SampleDataDatasetInfo.DatabaseSpaceMegabytes"/>). 0 when the index has none, as in an index
+        /// written before 0.1.0-alpha.16.
+        /// </summary>
+        public int DatabaseSpaceMegabytes { get; }
 
         /// <summary>
         /// The package release, for example "1.0.0".
