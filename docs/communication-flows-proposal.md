@@ -103,7 +103,7 @@ Every flow setting Rock has, and the sample flow that shows it. Flow numbers ref
 | | SMS | 2, 3, 4, 5, 6, 8, 9, 10 |
 | | Push | 2, 8 |
 | Goal progress | Not Tracked, Pending, Achieved, Missed | 8; recent runs of 2 and 9; most runs of 3; most runs of 4 |
-| Flow status | Active, Inactive, Completed | 1, 2, 3, 4, and 9; 5, paused to show the feature (open questions 1 and 12); 6, 7, 8, and 10 |
+| Flow status | Active, Inactive, Completed | 1, 2, 3, 5, and 9; 4, paused to show the feature (questions 1 and 12); 6, 7, 8, and 10 |
 | Why a person left | Goal met, opened, clicked, last message sent, unsubscribed from the flow, person made inactive | 2, 6, 7, 9, 10; 4; 5; 1, 3, 8; a few in every flow; a few in 2 |
 | Unsubscribe at the Flows level | Unsubscribe report and flow screens | A few in every flow |
 | Goal met before the run | Skipped in the rate | 3, 4, and 9 |
@@ -131,6 +131,7 @@ See Section 4.
 - **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
 - **Goal.** Took Step: Starting Point Class, the first Belong step. Window 84 days, long enough for the next four-week class to start and finish. The target is set from what the data finds, likely about 10% (see Section 5).
 - **Exit.** Last Message Sent. A guest gets all three messages, because the welcome matters even after they sign up.
+- **On install day.** Active. Its audience builds on Reserved Contact Points (Section 6, "After install").
 - **Cast.** Jordan and Hannah Ellis, who first came 120 days ago. They are in the run for the Monday after. Hannah clicked the Starting Point link, but neither has taken the class, so their run shows the goal missed. They still come most weeks, which is "the norm, not a gate": belonging does not wait for the class.
 
 ### Flow 4. We Miss You
@@ -140,6 +141,7 @@ See Section 4.
 - **Messages.** Email ("We miss you, and we're praying for you"). SMS 7 days later, only to those still in the flow.
 - **Goal.** Entered Data View: Back in the Last 30 Days. Window 60 days. Target 15%.
 - **Exit.** Any Email Opened. The point is to be seen once, so people who open the email do not get the text.
+- **On install day.** Paused, as the pause example (Section 6, "After install").
 - **Cast.** Luis and Teresa Ortiz, who stopped coming about six months ago. Teresa opened the email and left the flow. Luis did not open it, so he got the text. Neither has come back, so their run shows the goal missed.
 
 ### Flow 5. Baptism Sunday Invitation
@@ -149,6 +151,7 @@ See Section 4.
 - **Messages.** Email ("Is it time?") with a button to the Baptism Interest form. SMS 7 days later.
 - **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. The target is set from what the regular attender rule finds in the data, likely about 5% (see Section 5).
 - **Exit.** Any Email Clicked. A person who clicked has the form in front of them, so the text would only nag.
+- **On install day.** Active. Its audience builds on Reserved Contact Points (Section 6, "After install").
 - **Cast.** None pinned. People who fill out the form inside a run's window convert, and the form puts them in the Baptism flow.
 
 ### Flow 6. Student Camp Registration
@@ -314,14 +317,15 @@ That is about 3% on top of the 1.6 million communication recipients Full 7 alrea
 
 ### After install
 
-**What can send.** Two recurring flows ship Active with their schedules: First-Time Guest Welcome and We Miss You. Baptism Sunday Invitation ships paused, to show the pause feature. The On-Demand flows are Active, but only a workflow someone launches can add a person. Every One-Time run is finished. So after install, only the two Active recurring flows can send on their own.
+**What can send.** Two recurring flows ship Active with their schedules: First-Time Guest Welcome and Baptism Sunday Invitation. We Miss You ships paused, to show the pause feature (open question 12). The On-Demand flows are Active, but only a workflow someone launches can add a person. Every One-Time run is finished. So after install, only the two Active recurring flows can send on their own.
 
 **Who they can reach.** Every generated person, business, and prayer guest has an `example.org` email or none, a 555-0100 to 555-0199 phone, and a `sample-data-` push token (decisions 13 and 95). Cast people use `example.org` too, **except the 22 Cast staff households, whose emails are on `rocksolidchurchdemo.com`.** That domain is real: it has live Google mail servers, so an email to a staff address would be delivered.
 
 - **First-Time Guest Welcome** cannot reach staff. Its audience is people whose first worship visit was in the last 7 days, and every staff member first came years ago. No attendance is written after install, so the view finds only the last week's guests, for one Monday, and then nobody.
-- **We Miss You** can reach staff. No attendance is written after install, so every regular attender "stops coming" on install day. Newly Missed finds people whose 90 days without a visit ran out in the last month. About 90 to 120 days after install, that is nearly every regular, staff included. So the third or fourth monthly run would email thousands of people at once (open question 12).
+- **Baptism Sunday Invitation** could reach staff without the guard, since a staff member with no Baptism step is an unbaptized regular attender. Its audience shrinks to nobody 12 weeks after install, because no one keeps 4 check-ins in 12 weeks once attendance stops. Its next date, 5 weeks before Easter or the July baptism Sunday, is usually months away, so it often sends nothing at all.
+- **We Miss You** ships paused for a reason. No attendance is written after install, so every regular attender "stops coming" on install day. About 90 to 120 days later, Newly Missed holds nearly every regular, staff included, and one monthly run would email thousands. A church that turns it on gets that run. The guard keeps it on `example.org`, but those emails bounce, which can hurt a real mail service's sending reputation in a test copy.
 
-**The guard.** Each Active recurring flow's audience excludes anyone whose email is not on `example.org`, through one shared foundation view in the reports work, "Reserved Contact Points": people whose email is on `example.org` or empty. Both Active audiences build on it, so no staff address can ever be in them, whatever the dates do. Phones and push tokens need no filter, because every one is reserved.
+**The guard.** Each recurring flow's audience excludes anyone whose email is not on `example.org`, through one shared foundation view in the reports work, "Reserved Contact Points": people whose email is on `example.org` or empty. Both Active audiences build on it, and so does the paused one, so turning it on is safe too, so no staff address can ever be in them, whatever the dates do. Phones and push tokens need no filter, because every one is reserved.
 
 **Proposed amendment to decision 95** (placeholder D-comm-flows-1, numbered at merge):
 
@@ -351,14 +355,14 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 
 ## 8. Open questions
 
-1. **What can still run after install?** Answered by Jon, 2026-10-29: "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." So First-Time Guest Welcome and We Miss You ship Active, and Baptism Sunday Invitation ships paused. Decision 95 needs the amendment in Section 6, "After install."
+1. **What can still run after install?** Answered by Jon, 2026-10-29: "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." So First-Time Guest Welcome and Baptism Sunday Invitation ship Active, and We Miss You ships paused (question 12). Decision 95 needs the amendment in Section 6, "After install."
 2. **Add the Baptism Interest workflow?** It is the only way into an On-Demand flow, and the only home for the Completed Form goal. It is the first workflow type in the sample data. **Recommendation: yes,** one workflow type with a form and the Activate Communication Flow action, plus a finished workflow for each person who entered the Baptism flow. Wiring After Starting Point to a workflow too can wait.
 3. **Baptism flow shape.** Eight messages over 24 weeks, a 365-day window, and a 50% target. **Recommendation: approve as written.** A shorter flow (5 messages over 10 weeks) is the alternative if Jon wants it lighter.
 4. **Mid-flow people on install day.** Jon may want to see people part way through the Baptism flow. That needs a run with messages left to send, which the job would send. **Recommendation: no.** Keep decision 95. Show "in progress" through Pending runs and Josh's finished story, and let a tester add someone live.
 
 **From the Ministry by Design rethink (2026-10-29).** Question 9 is open for Jon. Questions 8, 10, and 11 are settled.
 
-12. **Which recurring flow is the paused one?** We Miss You's audience grows on its own after install: about 90 to 120 days later, nearly every regular attender looks "newly missed," so one monthly run would email thousands. The guard keeps those emails on `example.org`, so no real person gets one. But a church that installs into a test copy with its real mail service turned on would send thousands of emails that bounce, which can hurt that service's sending reputation. Baptism Sunday Invitation does not have this problem. Its audience needs 4 check-ins in the last 12 weeks, so it shrinks to nobody 12 weeks after install, and its next date is usually months away. **Recommendation: swap them.** Ship We Miss You paused, as the pause example, and Baptism Sunday Invitation Active. First-Time Guest Welcome stays Active either way. Its audience empties a week after install.
+12. **Which recurring flow is the paused one?** Settled by the coordinator, 2026-10-29: swap them, as recommended. We Miss You ships paused, and Baptism Sunday Invitation and First-Time Guest Welcome ship Active, both on the guard and verify checks 3 to 6. The reasoning: We Miss You's audience grows on its own after install: about 90 to 120 days later, nearly every regular attender looks "newly missed," so one monthly run would email thousands. The guard keeps those emails on `example.org`, so no real person gets one. But a church that installs into a test copy with its real mail service turned on would send thousands of emails that bounce, which can hurt that service's sending reputation. Baptism Sunday Invitation does not have this problem. Its audience needs 4 check-ins in the last 12 weeks, so it shrinks to nobody 12 weeks after install, and its next date is usually months away. **Recommendation: swap them.** Ship We Miss You paused, as the pause example, and Baptism Sunday Invitation Active. First-Time Guest Welcome stays Active either way. Its audience empties a week after install.
 
 8. **Change After Starting Point's third email?** Settled by the coordinator, 2026-10-29: yes. Today it invites people to serve three weeks after the class. Ministry by Design puts growth before serving. **Recommendation: yes.** It becomes an Equip invitation (Foundations, and baptism for anyone not baptized), and After Foundations takes over the invitation to serve. This changes a built flow's text, not its shape.
 9. **Add After Foundations and Lead a Group?** Without them, no flow moves people from Equip to Contribute, or from Contribute to Lead. **Recommendation: yes.** Both are types that cannot send after install (On-Demand and One-Time), and both end on a step: Serve and Lead.
