@@ -106,7 +106,7 @@ Every flow setting Rock has, and the sample flow that shows it. Flow numbers ref
 | | Push | 8 |
 | Goal progress | Not Tracked, Pending, Achieved, Missed | 8; recent runs of 2 and 9; most runs of 3; most runs of 4 |
 | Flow status | Active, Inactive, Completed | 1, 2, 3, 5 to 10; 4, paused to show the feature (questions 1 and 12); 11 |
-| Why a person left | Goal met, opened, clicked, unsubscribed from the flow, person made inactive | 2, 6, 7, 9, 10, 11; 4; 5; a few in every flow; a few in 2 |
+| Why a person left | Goal met, opened, clicked, unsubscribed from the flow | 2, 6, 7, 9, 10, 11; 4; 5; a few in every flow; a few in 2 |
 | | Last message sent | None. Rock's job prunes recipients only while a run is still sending, and it marks the run done on the pass after its last message, so it never records this reason. Flows 1, 3, and 8 leave everyone Active, as Rock does |
 | Unsubscribe at the Flows level | Unsubscribe report and flow screens | A few in every flow |
 | Goal met before the run | Skipped in the rate | 3, 4, and 9 |
@@ -190,7 +190,7 @@ See Section 4.
 - **Exit.** Last Message Sent.
 - **History.** The last two Decembers.
 - **On install day.** Active. The next run is the coming December 1, to nearly every involved adult, all on reserved addresses. It is the largest send after install (see "Follow-up," item 2).
-- **Cast.** The Deckers and the other involved Cast adults on `example.org` get it. Ted Decker opens it on his phone. Staff are not in the guarded audience, so they are not in its history either.
+- **Cast.** The Deckers and the other involved Cast adults on `example.org` get it. Staff are not in the guarded audience, so they are not in its history either.
 
 ### Flow 9. After Foundations (new)
 
@@ -284,7 +284,7 @@ Left out from the first draft: a push with a story video, which reaches only peo
 - **People baptized here** in the last 18 months: about 70% of them entered the flow first, from 1 to 16 weeks before their baptism. The rest signed up on the day. Each one who entered converts, credited to the newest message before their baptism, and gets no more reminders.
 - **People not baptized:** about as many again entered and are not baptized. They got all four messages and left after the last one, or they are still Pending. So the flow converts about half of the people who enter, a little above its 50% target.
 - **People mid-flow:** everyone who entered in the 6 weeks before install is still in it, with messages left. Rock's job sends those after install (see "On install day" below).
-- **A few** unsubscribe from the flow, and a few are made inactive (for example, they moved away).
+- **A few** unsubscribe from the flow (decision D-comm-flows-15). Rock never marks a flow recipient as made inactive, so none are.
 
 **Cast stories.**
 
@@ -428,7 +428,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 | 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3a. Recurring flows, first three (built) | The recurring machinery (schedules, a run per date with each run's audience worked out by its view's rule, paused flows, the audience link after the reports views load), the Entered Data View and Completed Form goals, opened and clicked exits, verify's flow-audiences check, and First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation | Medium |
 | 3b-1. Women's Retreat and Lead a Group (built) | Specific-date schedules for some months and for the group launches, the Registered goal, the Women Who Attend and Ready to Lead rules, and registrations loading before communications | Medium |
-| 3b-2. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
+| 3b-2. Student Camp and Christmas (built) | The Joined Group goal, a flow with no goal, push messages, texts on the student line, the Students Not Registered for Camp and Involved Adults rules, and flow unsubscribes | Medium |
 | 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
 ## 8. Questions and answers

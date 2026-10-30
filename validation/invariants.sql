@@ -798,7 +798,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey
         OR ( [cr].[UnsubscribeLevel] = 4 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [fr] WHERE [fr].[UnsubscribeCommunicationRecipientId] = [cr].[Id] AND [fr].[Status] = 2 AND [fr].[InactiveReason] = 1 ) ) );
 
 -- check: flow-unsubscribe-leaves-the-flow
--- why: Decision D-comm-flows-16. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
+-- why: Decision D-comm-flows-15. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceRecipient] AS [fr]
 INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[Id] = [fr].[UnsubscribeCommunicationRecipientId]
@@ -989,7 +989,7 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
                 AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
 -- check: flow-send-reaches-its-instance
--- why: Decision 96, decision 220, and decision D-comm-flows-16. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
+-- why: Decision 96, decision 220, and decision D-comm-flows-15. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
