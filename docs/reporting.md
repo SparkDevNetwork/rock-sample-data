@@ -222,6 +222,9 @@ Active Small Groups (F9, groups)
 └── Small Groups With Room (G3)
 
 Built on the Rock Pledges (FN6, pledges)  [Finance]
+└── Built on the Rock Pledgers (FN9, people)
+    └── Built on the Rock Pledge Households (FN10, Family Members transformation)
+        └── Involved Adults Not Yet Pledged (FN11)     = F10 − FN10
 Event Registration Payments (FN7, financial transactions)  [Finance]
 ```
 
@@ -257,7 +260,7 @@ All data views use Rock's own filter components and selection strings, as `confi
 | F7 | In a Small Group | Person | In F1, and an active member of an active Small Group, any role | F1 | No. Membership changes should show the same day | N1, N4, N5, F10 |
 | F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, S1, F10, and the Volunteers sync after slice 6 |
 | F9 | Active Small Groups | Group | Group type is Small Group, and the group is active | None | No | G3 |
-| F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | The Christmas at Rock Solid flow. A broad "who is part of us" list that later views and reports can share |
+| F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | X7 (the Christmas at Rock Solid flow) and FN11. A broad "who is part of us" list that later views and reports can share |
 
 Why the church has its own Church Family view instead of using Rock's shipped "Member & Attendees": the church renamed Rock's statuses and added Leading (decision 11). Rock's view checks Attendee and Member, which are now Connected and Engaged, so it leaves out every leader.
 
@@ -322,7 +325,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
+| N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and X8, the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
 
 ### 4.8 Re-engage (category: Rock Solid Church > Re-engage)
 
@@ -338,7 +341,7 @@ The category already holds three registration data views (decision 215). One flo
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| RG1 | Women Who Attend | Person | In F2, in F6, gender is Female, age 25 to 75, and attended worship at least once in the last 12 months | F2, F6 | No | The Women's Retreat Early Bird flow's audience |
+| RG1 | Women Who Attend | Person | In F2, in F6, gender is Female, age 25 to 75, and attended worship at least once in the last 12 months | F2, F6 | No | X6, the Women's Retreat flow's audience |
 
 ### 4.10 Safety (category: Rock Solid Church > Safety, locked)
 
@@ -358,9 +361,14 @@ R11 also shows how Rock's shipped "Background check about to expire" data view (
 | FN3 | First-Time Givers | Person | In F1, and first contribution date in the last 90 days (a filter Rock locks to finance roles) | F1 | No | R1, R12 |
 | FN4 | Lapsed Givers | Person | In F1, and Current Journey Giving Stage is Lapsed Giver (Rock's own giving journey) | F1 | No | R13 |
 | FN5 | Top Givers | Person | In F1, and Giving Bin is 1 (Rock's top bin, a finance-locked attribute) | F1 | No | R14. **Item locked**, see section 6.3 |
-| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund or one of its campus accounts | None | No | R15 |
+| FN6 | Built on the Rock Pledges | Financial Pledge | The account is the Built on the Rock fund or one of its campus accounts | None | No | R15, FN9 |
 | FN7 | Event Registration Payments | Financial Transaction | Transaction type is Event Registration, in the last 12 months | None | No | R16 |
 | FN8 | Money Matters Invite List | Person | In F2, in F4, not in FN2 (use persisted) | F2, F4, FN2 | No | R17 |
+| FN9 | Built on the Rock Pledgers | Person | Has a pledge in FN6 (Rock's Financial Pledge Data View filter) | FN6 | No | FN10 |
+| FN10 | Built on the Rock Pledge Households | Person | In FN9, then Rock's Family Members post-filter transformation | FN9 | No | FN11, and the Built on the Rock Follow-Up flow's goal |
+| FN11 | Involved Adults Not Yet Pledged | Person | In F10, not in FN10 | F10, FN10 | No | The Built on the Rock Follow-Up flow's audience. One-Time, and its run is finished, so it needs no email guard |
+
+FN9 to FN11 exist because a flow needs people, and FN6 holds pledges. Rock's pledge filter matches only the person named on the pledge (`Rock/Reporting/DataFilter/Person/FinancialPledgeDataViewFilter.cs:69-72`, the same in both builds), not their spouse. So FN10 uses Rock's Family Members transformation: a household that pledged counts as pledged, and the flow never asks the spouse of a pledger to pledge. The transformation also applies when another view nests FN10 (`Rock/Model/Reporting/DataView/DataView.Logic.cs:280-283`; Rock 20 `:328-331`). It is the design's one post-filter transformation, so it teaches that feature too.
 
 FN8 shows design rule 4. Its name and filters look harmless, but because it builds on FN2 it tells anyone who can see it who does **not** give. So it lives in Finance.
 
@@ -371,12 +379,14 @@ The communication flows proposal (`docs/communication-flows-proposal.md` on bran
 | Flow need | Data view | Key | Category | Note |
 |---|---|---|---|---|
 | First Visit Last Week (guest flow audience) | C4 First Visit Last Week | `first-visit-last-week` | Notice | |
-| Lead a Group (new flow's audience) | N4 Ready to Lead | `ready-to-lead` | Lead | Reused, not a new view. Its goal is the Lead step |
+| Lead a Group (flow audience) | X8 Ready to Lead, Reserved Email | `ready-to-lead-reserved-email` | Sample Data | Guards N4 `ready-to-lead`. Its goal is the Lead step |
+| Student Camp (flow audience) | X5 Students Not Registered for Camp, Reserved Email | `students-not-registered-for-camp-reserved-email` | Sample Data | Guards the existing registrations view (decision 215) |
+| Built on the Rock Follow-Up (One-Time flow audience) | FN11 Involved Adults Not Yet Pledged | `involved-adults-not-yet-pledged` | Finance | Its goal is FN10 `built-on-the-rock-pledge-households` |
 | Newly Missed (We Miss You flow audience) | C5 Newly Missed | `newly-missed` | Re-engage | |
 | Back in the Last 30 Days (We Miss You flow goal) | C6 Back in the Last 30 Days | `back-in-the-last-30-days` | Re-engage | |
 | Unbaptized Regular Attenders (baptism invitation audience) | C7 Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Equip | Uses F5's rule (question 13) |
-| Women Who Attend (Women's Retreat flow audience) | RG1 Women Who Attend | `women-who-attend` | Registrations | |
-| Involved Adults (Christmas flow audience) | F10 Involved Adults | `involved-adults` | Foundations | "Gave" uses Rock's Last Gave attribute (question 14) |
+| Women Who Attend (Women's Retreat flow audience) | X6 Women Who Attend, Reserved Email | `women-who-attend-reserved-email` | Sample Data | Guards RG1 `women-who-attend` |
+| Involved Adults (Christmas flow audience) | X7 Involved Adults, Reserved Email | `involved-adults-reserved-email` | Sample Data | Guards F10 `involved-adults`. "Gave" uses Rock's Last Gave attribute (question 14) |
 
 The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
 
@@ -394,10 +404,14 @@ Jon wants recurring communication flows to ship Active, so Rock's flow job sends
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| X1 | Reserved or No Email | Person | In F1, and any of: email ends with `@example.org`; email is blank | F1 | No | X2 to X4 |
+| X1 | Reserved or No Email | Person | In F1, and any of: email ends with `@example.org`; email is blank | F1 | No | X2 to X8 |
 | X2 | First Visit Last Week, Reserved Email | Person | In C4, and in X1 | C4, X1 | No | The First-Time Guest Welcome flow's audience |
 | X3 | Newly Missed, Reserved Email | Person | In C5, and in X1 | C5, X1 | No | The We Miss You flow's audience. The flow ships paused, but its audience keeps the guard, so turning it on can never reach a staff address |
 | X4 | Unbaptized Regular Attenders, Reserved Email | Person | In C7, and in X1 | C7, X1 | No | The Baptism Sunday Invitation flow's audience, which ships Active |
+| X5 | Students Not Registered for Camp, Reserved Email | Person | In `students-not-registered-for-camp` (Registrations, decision 215), and in X1 | that view, X1 | No | The Student Camp flow's audience, each March |
+| X6 | Women Who Attend, Reserved Email | Person | In RG1, and in X1 | RG1, X1 | No | The Women's Retreat flow's audience, in May and September |
+| X7 | Involved Adults, Reserved Email | Person | In F10, and in X1 | F10, X1 | No | The Christmas at Rock Solid flow's audience, each December 1 |
+| X8 | Ready to Lead, Reserved Email | Person | In N4, and in X1 | N4, X1 | No | The Lead a Group flow's audience, 6 weeks before each launch |
 
 X1 lists the safe domain, not the unsafe one. A new real domain added later is then left out by default, instead of leaking.
 
@@ -605,14 +619,52 @@ A new static checker, `validation/check-reporting.js`, runs without a database. 
 | # | Slice | What it builds | How it is checked |
 |---|---|---|---|
 | 1 | Categories and security | The data view and report categories in `configuration/categories.json`, with a `security` list on each; the loader writes their Auth rows. The rule on Rock Solid Church. Staff Workspace. Rock's Foundational Views category renamed to Foundational Views (Shipped) by Guid | `authorize` against the existing eight data views: staff yes, Jerry Wright no. Contract re-recorded |
-| 2 | Foundations, path, and ministry data views | F1 to F10, P1 to P5, N1 to N5, G3, K1, K3, C1 to C7, RG1, and the Sample Data guard X1 to X4, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 4.12). The writer learns the Existing Data View, Not in Existing Data View, and Steps Taken filters, the persisted fields, and the named schedule | `data-views`, `persist`, Cast anchors, the static checker |
+| 2 | Foundations, path, and ministry data views | F1 to F10, P1 to P5, N1 to N5, G3, K1, K3, C1 to C7, RG1, and the Sample Data guard X1 to X8, in a new `configuration/reporting.json`. This includes the seven communication flow audiences (section 4.12). The writer learns the Existing Data View, Not in Existing Data View, and Steps Taken filters, the persisted fields, and the named schedule. Its configuration shape is in section 8.1 | `data-views`, `persist`, Cast anchors, the static checker |
 | 3 | Reports | A report writer for all four column kinds; R2 to R5, R7 to R10, and R18 to R25 | `reports` on both builds, with run times |
-| 4 | Finance | FN1 to FN8, R1, R12 to R17, and the Top Givers item rules | `authorize` with the full walkthrough; `data-views`; `reports`; the consumer rule |
+| 4 | Finance | FN1 to FN11 (the writer learns the Financial Pledge Data View filter and the post-filter transformation), R1, R12 to R17, and the Top Givers item rules | `authorize` with the full walkthrough; `data-views`; `reports`; the consumer rule |
 | 5 | Safety | S1, K2, R6, and R11 | `authorize` for Rachel Brooks yes, Jamal Pierce no; `reports` |
 | 6 | Rebuild the existing views on foundations | The five sync views and three registration views use F2, F5, F6, F8, C3, and K3. The loader's own data view evaluator learns the two Existing Data View filters, so it still fills each synced group exactly | The existing group sync check: Rock's own sync must change nothing. Registration eligibility checks |
 | 7 | Usage history | Run counts and last run dates, and one retired data view (question 9, settled yes) | Invariants on the dates |
 | 8 | Path metrics (question 15, settled yes) | A Rock Metric for each stage, sourced from P1 to P4, with weekly values back through the history window, read from the steps | Each metric's latest value equals its stage view's count |
 | 9 | Docs and site | How it works, Verification, the glossary, Planned work, Roadmap, and a reporting page on the site if Jon wants one | `node site/build.js` |
+
+### 8.1 Configuration shape
+
+The church's data views go in a new `configuration/reporting.json`. Its shape follows `configuration/group-syncs.json`, so a data view written by any feature looks the same. Another session may add its own views to the file first, using these keys and rules.
+
+```
+{
+  "$comment": "...",
+  "namedSchedules": [
+    { "key": "nightly", "name": "Nightly at 2 AM", "guid": "...", "time": "02:00" }
+  ],
+  "dataViews": [
+    {
+      "key": "ready-to-lead-reserved-email",
+      "name": "Ready to Lead, Reserved Email",
+      "description": "What it is and what uses it.",
+      "category": "sample-data-data-views",
+      "guid": "...",
+      "entityType": "Rock.Model.Person",
+      "persisted": { "schedule": "nightly" },
+      "transform": "Rock.Reporting.DataTransform.Person.FamilyMembersTransform",
+      "filter": {
+        "all": [
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "ready-to-lead", "usePersisted": true },
+          { "component": "Rock.Reporting.DataFilter.OtherDataViewFilter", "dataView": "reserved-or-no-email" }
+        ]
+      }
+    }
+  ]
+}
+```
+
+- The example shows every field. The real X8 has no `persisted` or `transform`, and no `usePersisted`.
+- `entityType` is left out for a Person view. `persisted` and `transform` are left out when not used. `persisted` is either `{ "schedule": "<named schedule key>" }` or `{ "intervalMinutes": 60 }`.
+- A leaf that points at another data view names it by `dataView` key, and the loader writes Rock's selection with that view's Id at load. This covers the Existing Data View and Not in Existing Data View filters (`usePersisted` defaults to false) and the related data view filters, such as the Financial Transaction and Financial Pledge Data View filters. Every other leaf holds Rock's own selection string, as group-syncs.json does.
+- Keys are kebab-case and unique across `reporting.json`, `group-syncs.json`, and `registrations.json`. A view may point at a view in any of them.
+- Category keys, all children of `church-data-views` in `configuration/categories.json`: `foundation-data-views`, `path-data-views`, `notice-data-views`, `belong-data-views`, `equip-data-views`, `contribute-data-views`, `lead-data-views`, `reengage-data-views`, `sample-data-data-views`, `safety-data-views`, `finance-data-views`, and `staff-workspace-data-views`, beside the existing `group-sync-data-views` and `registration-data-views`. The report tree uses the same names with `-reports` in place of `-data-views`, plus `leadership-reports`.
+- **Finance and Safety must land with their security.** A view filed in `finance-data-views` before that category's rules exist would be open to every staff member, because the global default lets everyone view (section 1.2). So whoever adds the first Finance or Safety view also adds the category's `security` list in the same change.
 
 ## 9. Open questions
 
