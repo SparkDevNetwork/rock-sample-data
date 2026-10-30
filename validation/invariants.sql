@@ -1866,8 +1866,7 @@ FROM [DataViewFilter] AS [f]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
 WHERE [f].[ForeignKey] = @ForeignKey
     AND [et].[Name] IN ( 'Rock.Reporting.DataFilter.OtherDataViewFilter', 'Rock.Reporting.DataFilter.NotInOtherDataViewFilter' )
-    AND ( [f].[RelatedDataViewId] IS NULL OR TRY_CAST( JSON_VALUE( [f].[Selection], '$.DataViewId' ) AS int ) IS NULL
-        OR TRY_CAST( JSON_VALUE( [f].[Selection], '$.DataViewId' ) AS int ) <> [f].[RelatedDataViewId] );
+    AND ISNULL( CASE WHEN ISJSON( [f].[Selection] ) = 1 THEN TRY_CAST( JSON_VALUE( [f].[Selection], '$.DataViewId' ) AS int ) END, -1 ) <> ISNULL( [f].[RelatedDataViewId], -2 );
 
 -- check: reporting-run-history-is-whole
 -- why: Decision D-reporting-11. Rock shows "Runs Since" and "Last Run" on each data view and report. Every report, and each data view with a history, has run at least once after it was made, and a view's run count starts when it was made, as Rock's save hook sets it. A view with half a history, or a last run before it existed, would read as broken.
