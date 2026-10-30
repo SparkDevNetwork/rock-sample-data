@@ -33,8 +33,8 @@
 
     Each package becomes one entry. Its checksum, dataset, Rock, and minimum loader version come from its
     receipt, its size from the file, and its dataset card from the dataset's manifest in datasets/: the name,
-    the summary as the description, bestFor, highlights, people, households, campuses, and
-    typicalInstallSeconds. A new entry replaces the hosted entry for the same dataset and Rock major release
+    the summary as the description, bestFor, highlights, people, households, campuses,
+    typicalInstallSeconds, and databaseSpaceMegabytes. A new entry replaces the hosted entry for the same dataset and Rock major release
     (decision 52), so the index lists a dataset once per major, and a fix release replaces the
     package every Rock on that major gets. A hosted entry from before rockMajor counts as the major of its
     rockVersion. Entries for other majors stay. Packages already published stay at their versioned paths;
@@ -131,6 +131,7 @@ function toEntry( folder, rockFolder, receiptFile, version, commit ) {
         households: manifest.households,
         campuses: manifest.campuses,
         typicalInstallSeconds: manifest.typicalInstallSeconds,
+        databaseSpaceMegabytes: manifest.databaseSpaceMegabytes,
         version,
         url: `v${version}/${rockFolder}/${receipt.package.file}`,
         sha256: receipt.package.sha256,

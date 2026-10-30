@@ -289,6 +289,8 @@ namespace RockSampleData.Loader.Model
         public int Campuses { get; set; }
 
         public int TypicalInstallSeconds { get; set; }
+
+        public int DatabaseSpaceMegabytes { get; set; }
     }
 
     /// <summary>
