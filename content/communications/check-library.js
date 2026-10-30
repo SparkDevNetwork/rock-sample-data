@@ -38,17 +38,17 @@ const OCCASIONS = [
     "giving-statement", "commitment-sunday", "campaign-update", "baptism-sunday", "starting-point",
     "foundations", "student-camp", "mission-trip", "vbs", "group-launch", "serve-sunday", "weather",
     "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit",
-    "baptized", "after-starting-point"
+    "baptized", "after-starting-point", "after-foundations"
 ];
 
 // One-to-one occasions send to one person, and only they use the 'person' audience.
-const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point" ];
+const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point", "after-foundations" ];
 
 // The 'class' audience is the people in the class or course the occasion names.
 const CLASS_OCCASIONS = [ "starting-point", "foundations" ];
 
-// The flow's daysBefore counts days after the class ends, so it is negative.
-const FLOW_OCCASION = "after-starting-point";
+// A flow's daysBefore counts days after the class or course ends, so it is negative.
+const FLOW_OCCASIONS = [ "after-starting-point", "after-foundations" ];
 
 const LIST_KEYS = configuration.lists.lists.map( l => l.key );
 const AUDIENCES = [ "newsletter", "everyone", "students-and-parents", "class", "person" ].concat( LIST_KEYS.map( k => `list:${k}` ) );
@@ -358,8 +358,8 @@ function checkOccasion( at, entry ) {
     if ( entry.audience === "class" && !CLASS_OCCASIONS.includes( entry.occasion ) ) {
         errors.push( `${at}: the 'class' audience needs a class occasion (${CLASS_OCCASIONS.join( ", " )}).` );
     }
-    if ( Number.isInteger( entry.daysBefore ) && entry.occasion === FLOW_OCCASION && entry.daysBefore >= 0 ) {
-        errors.push( `${at}: ${FLOW_OCCASION} counts days after the class, so daysBefore must be negative.` );
+    if ( Number.isInteger( entry.daysBefore ) && FLOW_OCCASIONS.includes( entry.occasion ) && entry.daysBefore >= 0 ) {
+        errors.push( `${at}: ${entry.occasion} counts days after the class or course, so daysBefore must be negative.` );
     }
 }
 

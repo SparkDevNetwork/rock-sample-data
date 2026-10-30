@@ -415,7 +415,7 @@ static (CheckResult Check, Dictionary<string, int> Counts) DataViewsCheck( RockR
 }
 
 /// <summary>
-/// Checks each path metric (decision D-reporting-12) against Rock. Its stage view counts active people with a completed
+/// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
 /// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
 /// value must be Rock's count of the view today less those people. The same rule read in SQL must also give Rock's count,
 /// so the subtraction uses the view's own rule.

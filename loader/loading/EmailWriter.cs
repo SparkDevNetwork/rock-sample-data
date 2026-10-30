@@ -196,6 +196,18 @@ VALUES ( @Name, @Data, @ClientType, @Os, @Application, NEWID(), GETDATE(), GETDA
         }
 
         /// <summary>
+        /// Takes a communication Id and a run of recipient Ids for a send another writer adds, such as a flow's text,
+        /// so the Ids never collide with the ones this writer gives out.
+        /// </summary>
+        public (int CommunicationId, int FirstRecipientId) Reserve( int recipients )
+        {
+            var communicationId = _nextCommunicationId++;
+            var firstRecipientId = _nextRecipientId;
+            _nextRecipientId += recipients;
+            return (communicationId, firstRecipientId);
+        }
+
+        /// <summary>
         /// Writes the last chunk and ends this writer's deferral of the index rebuilds. Nothing reads these tables before
         /// the last deferral ends.
         /// </summary>

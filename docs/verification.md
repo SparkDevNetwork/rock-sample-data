@@ -74,7 +74,7 @@ These need only Node.js, so every contributor runs them.
 
 ### Reporting check
 
-**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision D-reporting-5). Every access row names a Cast person, a real category or view, and a Rock action.
+**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision 227). Every access row names a Cast person, a real category or view, and a Rock action.
 
 **Why it's there.** Rock checks none of this when a view runs: a report or data view built on a locked view is open to anyone who can see its own category (section 1.4 of the design).
 
@@ -183,8 +183,9 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `unsubscribe-matches-the-person` | Decision 131: a list unsubscribe leaves the person Inactive in that list, and a Bulk one leaves them on "No mass emails" or stricter. |
 | `sent-email-has-its-history` | Every sent email recipient has Rock's "Sent" line on their History. |
 | `sent-text-is-delivered-with-its-text`, `sent-text-has-its-history` | SMS Conversations shows a text only when it is Delivered and reads its words from SentMessage, and Rock writes a "SMS message" History line for each text it sends. A text Rock could not send failed with its note. |
-| `no-active-flow-instance` | Decisions 95 and 96. Every flow instance is complete and each of its emails went out before install day, so Rock's flow job has nothing left to send. |
-| `flow-email-reaches-its-instance` | Each flow email is a bulk email from its message's flow template, to exactly the instance's people. |
+| `open-flow-run-is-allowed` | Decision 220. A flow run still sending at install is in an active On-Demand flow, its next message is due today or later, and every message the load wrote went out before install day. |
+| `open-flow-run-reaches-only-reserved-contact-points` | Decision 220. Everyone still Active in an open run has an email on example.org or none, and only reserved 555-01xx phones, because Rock's job sends their remaining messages after install. |
+| `flow-send-reaches-its-instance` | Each flow email or text is a bulk send from its message's flow template, to people in the run: every one of them when the exit rule is the last message, and never a person who already left. |
 | `sent-push-is-delivered-with-its-history` | Rock Mobile Push marks a sent push Delivered with its times and writes a "Push Notification" History line, and a person with no device that takes notifications fails with Rock's note. |
 | `push-goes-to-a-device-that-takes-notifications` | A delivered push had an active device with notifications on and a token when it went out, and a failed one had none. |
 | `app-devices-never-reach-a-phone` | Decision 95. Every device token starts with `sample-data-`, which Firebase never issues. |
@@ -265,13 +266,13 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** `verify/rock-runner` runs every data view in the load, the church's and Rock's own, through Rock's own engine (`DataViewCache.GetEntityIds`), the call Rock's data view screens and jobs make. Any error fails the check, and each church view's count and time are printed. A persisted view runs live, since Rock's job has not persisted it yet.
 
-**Why it's there.** The loader writes each filter's selection string itself. Only Rock can prove it reads every one, on both Rock builds (decision D-reporting-7).
+**Why it's there.** The loader writes each filter's selection string itself. Only Rock can prove it reads every one, on both Rock builds (decision 229).
 
 ### Metrics
 
 **What it does.** For each path metric in `configuration/reporting.json`, reads its newest value and when it was taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value. The SQL count must equal Rock's count of the stage view from the data views check, and the newest value must equal Rock's count less the later ones.
 
-**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest value to Rock's own count proves the loader used the view's rule (decision D-reporting-12).
+**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest value to Rock's own count proves the loader used the view's rule (decision 234).
 
 ### Access
 
@@ -283,7 +284,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** `verify/rock-runner` checks every report the way Rock's report grid reads it: a property column names one of Rock's reportable fields for the entity, an attribute column's attribute exists, and a data select column's component builds its expression from the stored selection. Each Lava column is rendered through Rock's own Lava engine, with the first row its data view finds, and any Lava error fails the check.
 
-**Why it's there.** A property or attribute Rock cannot find is quietly left out of the grid, and a component that cannot read its selection stops the whole report. Only Rock can say which, on both builds (decision D-reporting-9).
+**Why it's there.** A property or attribute Rock cannot find is quietly left out of the grid, and a component that cannot read its selection stops the whole report. Only Rock can say which, on both builds (decision 231).
 
 ### Anchor sweep
 

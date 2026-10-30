@@ -1,5 +1,5 @@
 {
-  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup. A category can carry 'security': for each action, the Rock roles allowed (Rock's role names, mapped to Guids in security-roles.json) and whether All Users are denied after them, written as Rock's security editor saves them. Data views and reports inherit their category's security (decision D-reporting-1). 'rockShips' marks a category Rock ships: the loader finds it by Guid and changes only its name and description.",
+  "$comment": "Every category the sample church adds to Rock, in one tree per kind of thing it holds (decision 185). The church's own data views live under one parent, Rock Solid Church, with a child for each purpose, so they never mix with the views Rock ships. Add a child here (for example Communications, Care, or Reporting) before adding data views for a new purpose. Communication list categories stay flat, like Rock's own Public category. 'entityType' is the Rock entity the category holds. 'qualifierGroupType' limits a Group category to one group type, the way Rock's category picker on Communication Lists does. 'parent' is another category's key. Categories always load, with the church setup. A category can carry 'security': for each action, the Rock roles allowed (Rock's role names, mapped to Guids in security-roles.json) and whether All Users are denied after them, written as Rock's security editor saves them. Data views and reports inherit their category's security (decision 223). 'rockShips' marks a category Rock ships: the loader finds it by Guid and changes only its name and description.",
   "categories": [
     {
       "key": "church-data-views",
@@ -382,6 +382,68 @@
       "description": "What the church shows about each staff member, such as on a staff page: their staff photo, title, department, campus, bio, and favorite quote, plus their supervisor and start date for staff only.",
       "iconCssClass": "ti ti-id-badge-2",
       "guid": "6A3F015A-6CE1-401F-9C5F-8F29D33C99E9"
+    },
+    {
+      "key": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Rock Solid Church",
+      "description": "The church's own Communication Flows. Each child category is the Ministry by Design system a flow serves first.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "810E2296-25BF-443E-AF1E-C2467B2D5269"
+    },
+    {
+      "key": "flows-notice",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Notice",
+      "description": "Flows that help first-time guests and the friends people invite become known.",
+      "iconCssClass": "ti ti-eye",
+      "guid": "17E4ED96-7F5F-4A6B-B5B4-926FA3424AD4"
+    },
+    {
+      "key": "flows-belong",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Belong",
+      "description": "Flows that help people find a place: a class, a small group, or camp.",
+      "iconCssClass": "ti ti-users",
+      "guid": "FC4AD396-E36A-49E3-97D0-C0508D2D31B7"
+    },
+    {
+      "key": "flows-equip",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Equip",
+      "description": "Flows that help people grow as followers of Jesus: baptism, Foundations, and retreats.",
+      "iconCssClass": "ti ti-book",
+      "guid": "12050135-49F9-4CED-A85F-6060365AE516"
+    },
+    {
+      "key": "flows-contribute",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Contribute",
+      "description": "Flows that invite people to take part in the church's mission by serving and giving.",
+      "iconCssClass": "ti ti-heart-handshake",
+      "guid": "A8332C7A-E301-4292-9D14-2C3F796474F8"
+    },
+    {
+      "key": "flows-lead",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Lead",
+      "description": "Flows that invite people who are growing and serving to lead others.",
+      "iconCssClass": "ti ti-flag",
+      "guid": "1926BAFF-DE02-4FE2-AD41-64A3663D4D35"
+    },
+    {
+      "key": "flows-re-engage",
+      "parent": "church-flows",
+      "entityType": "Rock.Model.CommunicationFlow",
+      "name": "Re-engage",
+      "description": "Flows that reach people who have stopped coming, with care.",
+      "iconCssClass": "ti ti-refresh",
+      "guid": "9C7F0035-51FE-49EA-8C60-6973E4B1D393"
     }
   ]
 }

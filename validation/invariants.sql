@@ -923,28 +923,60 @@ SELECT COUNT(*)
 FROM [PersonalDevice] AS [pd]
 WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
 
--- check: no-active-flow-instance
--- why: Decisions 95 and 96. Rock's Process Communication Flows job sends the next message of any instance that is not complete, so every sample flow instance is complete and each of its emails already went out.
-SELECT ( SELECT COUNT(*) FROM [CommunicationFlowInstance] AS [i] WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 )
+-- check: open-flow-run-is-allowed
+-- why: Decision 220, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
+SELECT ( SELECT COUNT(*)
+        FROM [CommunicationFlowInstance] AS [i]
+        INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
+        OUTER APPLY ( SELECT TOP 1 [fc].[Order], [c].[SendDateTime]
+            FROM [CommunicationFlowInstanceCommunication] AS [ic]
+            INNER JOIN [CommunicationFlowCommunication] AS [fc] ON [fc].[Id] = [ic].[CommunicationFlowCommunicationId]
+            INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
+            WHERE [ic].[CommunicationFlowInstanceId] = [i].[Id]
+            ORDER BY [fc].[Order] DESC ) AS [last]
+        OUTER APPLY ( SELECT TOP 1 [fc].[DaysToWait]
+            FROM [CommunicationFlowCommunication] AS [fc]
+            WHERE [fc].[CommunicationFlowId] = [f].[Id] AND [fc].[Order] > ISNULL( [last].[Order], -1 )
+            ORDER BY [fc].[Order] ) AS [next]
+        WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0
+            AND ( [f].[IsActive] = 0 OR [f].[TriggerType] <> 2 OR [next].[DaysToWait] IS NULL
+                OR DATEADD( DAY, [next].[DaysToWait], CAST( ISNULL( [last].[SendDateTime], [i].[StartDate] ) AS DATE ) ) < CAST( GETDATE() AS DATE ) ) )
     + ( SELECT COUNT(*)
         FROM [CommunicationFlowInstanceCommunication] AS [ic]
         INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
         WHERE [ic].[ForeignKey] = @ForeignKey AND ( [c].[SendDateTime] IS NULL OR [c].[SendDateTime] > GETDATE() ) );
 
--- check: flow-email-reaches-its-instance
--- why: Decision 96. The job writes each flow message as a bulk email from its message's flow template, to exactly the instance's recipients.
+-- check: open-flow-run-reaches-only-reserved-contact-points
+-- why: Decision 220. Rock's job sends a run's remaining messages after install, so everyone still Active in an open run has an email on example.org or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on rocksolidchurchdemo.com, a real domain that receives mail.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceRecipient] AS [r]
+INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [r].[CommunicationFlowInstanceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 AND [r].[Status] = 1
+    AND ( ( ISNULL( [p].[Email], '' ) <> '' AND [p].[Email] NOT LIKE '%@example.org' )
+        OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [ph] WHERE [ph].[PersonId] = [p].[Id] AND [ph].[Number] NOT LIKE '___55501__' ) );
+
+-- check: flow-send-reaches-its-instance
+-- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
 INNER JOIN [CommunicationFlowCommunication] AS [fc] ON [fc].[Id] = [ic].[CommunicationFlowCommunicationId]
+INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [fc].[CommunicationFlowId]
 INNER JOIN [CommunicationTemplate] AS [t] ON [t].[Id] = [fc].[CommunicationTemplateId]
 WHERE [ic].[ForeignKey] = @ForeignKey
-    AND ( [c].[CommunicationType] <> 1 OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
-        OR ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
-            <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] )
+    AND ( [c].[CommunicationType] <> [fc].[CommunicationType] OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
+        OR ( [fc].[CommunicationType] = 2 AND ( [t].[SmsFromSystemPhoneNumberId] IS NULL OR ISNULL( [c].[SmsFromSystemPhoneNumberId], 0 ) <> [t].[SmsFromSystemPhoneNumberId] ) )
+        OR ( [f].[ExitConditionType] = 0
+            AND ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
+                <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] ) )
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             WHERE [cr].[CommunicationId] = [c].[Id]
-                AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) ) );
+                AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) )
+        OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
+            INNER JOIN [CommunicationFlowInstanceRecipient] AS [r] ON [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId]
+            WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) ) );
 
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
@@ -1860,7 +1892,7 @@ WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [gm].[ForeignKey]
         WHERE [sa].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [sv].[EntityId] = [gm].[PersonId] );
 
 -- check: data-view-filter-names-its-related-view
--- why: Decision D-reporting-3. Rock's data view editor saves the view a filter points at in RelatedDataViewId, and Rock's data view page lists the views built on this one from it. An Existing Data View filter whose related view is missing or differs from its selection would leave Active People showing no views that use it.
+-- why: Decision 225. Rock's data view editor saves the view a filter points at in RelatedDataViewId, and Rock's data view page lists the views built on this one from it. An Existing Data View filter whose related view is missing or differs from its selection would leave Active People showing no views that use it.
 SELECT COUNT(*)
 FROM [DataViewFilter] AS [f]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
@@ -1869,7 +1901,7 @@ WHERE [f].[ForeignKey] = @ForeignKey
     AND ISNULL( CASE WHEN ISJSON( [f].[Selection] ) = 1 THEN TRY_CAST( JSON_VALUE( [f].[Selection], '$.DataViewId' ) AS int ) END, -1 ) <> ISNULL( [f].[RelatedDataViewId], -2 );
 
 -- check: reporting-run-history-is-whole
--- why: Decision D-reporting-11. Rock shows "Runs Since" and "Last Run" on each data view and report. Every report, and each data view with a history, has run at least once after it was made, and a view's run count starts when it was made, as Rock's save hook sets it. A view with half a history, or a last run before it existed, would read as broken.
+-- why: Decision 233. Rock shows "Runs Since" and "Last Run" on each data view and report. Every report, and each data view with a history, has run at least once after it was made, and a view's run count starts when it was made, as Rock's save hook sets it. A view with half a history, or a last run before it existed, would read as broken.
 SELECT
     ( SELECT COUNT(*) FROM [Report]
       WHERE [ForeignKey] = @ForeignKey
@@ -1881,7 +1913,7 @@ SELECT
                 OR [RunCountLastRefreshDateTime] IS NULL OR [RunCountLastRefreshDateTime] <> [CreatedDateTime] ) );
 
 -- check: reporting-made-after-what-it-uses
--- why: Decision D-reporting-11. Staff build a view after the views it points at, and a report after its view. A view older than the view it uses would show a history no church could have.
+-- why: Decision 233. Staff build a view after the views it points at, and a report after its view. A view older than the view it uses would show a history no church could have.
 SELECT
     ( SELECT COUNT(*)
       FROM [DataViewFilter] AS [f]
@@ -1895,7 +1927,7 @@ SELECT
         WHERE [r].[ForeignKey] = @ForeignKey AND [dv].[LastRunDateTime] IS NOT NULL AND [r].[CreatedDateTime] <= [dv].[CreatedDateTime] );
 
 -- check: one-retired-data-view
--- why: Decision D-reporting-11. Exactly one church data view has not run in over a year, so Rock's advice to remove unused data views has one clear example. Every other view ran in the two weeks before install. The year counts back from the newest run, which is the install's last few days.
+-- why: Decision 233. Exactly one church data view has not run in over a year, so Rock's advice to remove unused data views has one clear example. Every other view ran in the two weeks before install. The year counts back from the newest run, which is the install's last few days.
 SELECT CASE WHEN (
         SELECT COUNT(*) FROM [DataView]
         WHERE [ForeignKey] = @ForeignKey

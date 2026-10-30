@@ -31,7 +31,7 @@ namespace RockSampleData.Loader.Loading
         itself, from the steps: a week's value is the active people with a completed step of the stage by that week.
         That is the stage view's own rule, so the newest value is the view's count less anyone whose first step of the
         stage came after it. Values start the week the stage view was made, as a real church's would. Record status is
-        today's, because Rock keeps no history of it (decision D-reporting-12).
+        today's, because Rock keeps no history of it (decision 234).
 
         Reason: Question 15 in docs/reporting.md, settled yes. Dashboards show the trend on install day.
     */

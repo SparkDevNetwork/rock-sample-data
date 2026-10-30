@@ -31,7 +31,7 @@ namespace RockSampleData.Loader.Loading
         every view ("12 Runs Since 3/2/2025", "Last Run"), and an install where nothing was ever run does not look real.
         A view is made after the views it points at, and a report after its view. Run time stays empty: Rock measures it
         the first time the view runs on this server. One view in the configuration has not run in over a year, so Rock's
-        advice to remove unused data views has an example (decision D-reporting-11).
+        advice to remove unused data views has an example (decision 233).
 
         Reason: Question 9 in docs/reporting.md, settled yes.
     */
