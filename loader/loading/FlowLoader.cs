@@ -251,7 +251,7 @@ VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @Sche
                 var isOpen = lastSend >= _dates.Anchor;
 
                 // A flow can leave out people who already met its goal, as the workflow that adds them would check.
-                var candidates = flow.Entry.SkipIfGoalMet
+                var candidates = flow.Entry?.SkipIfGoalMet == true
                     ? joined.Where( p => !( goal.Dates.TryGetValue( p.PersonId, out var met ) && met.Any( d => d < start ) ) ).ToList()
                     : joined;
 

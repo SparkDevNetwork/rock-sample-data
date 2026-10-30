@@ -75,14 +75,6 @@ namespace RockSampleData.Loader.Loading
         private List<(DateTime Start, List<EmailPerson> People)> RecurringRuns( FlowDefinition flow, FlowContext context, DateTime firstDay )
         {
             var facts = AudienceFacts( context );
-            var rule = flow.Audience?.Rule switch
-            {
-                "firstVisitLastWeek" => ( Func<AudiencePerson, DateTime, bool> ) ( ( p, d ) => p.IsAdult && p.AcceptsMassEmail && p.FirstVisit.HasValue && p.FirstVisit.Value >= d.AddDays( -7 ) && p.FirstVisit.Value < d ),
-                "newlyMissed" => ( p, d ) => p.IsAdult && p.AcceptsMassEmail && p.Count( d.AddMonths( -18 ), d ) >= 10 && p.Count( d.AddDays( -90 ), d ) == 0 && p.Count( d.AddDays( -120 ), d ) >= 1,
-                "unbaptizedRegularAttenders" => ( p, d ) => p.IsAdult && p.Count( d.AddDays( -84 ), d ) >= 4 && !( p.Baptized.HasValue && p.Baptized.Value < d ),
-                _ => throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has audience rule '{flow.Audience?.Rule}', which the loader does not know." )
-            };
-
             var runs = new List<(DateTime Start, List<EmailPerson> People)>();
             foreach ( var day in RunDates( flow, firstDay, _dates.Anchor.Date.AddDays( -1 ) ) )
             {
@@ -91,8 +83,7 @@ namespace RockSampleData.Loader.Loading
                     continue;
                 }
 
-                // Every audience view carries the reserved-email guard, so the rule does too.
-                var people = facts.Where( p => p.IsActive && p.IsReserved && rule( p, day ) && context.ByAlias.ContainsKey( p.AliasId ) )
+                var people = AudienceOn( flow, facts, day ).Where( p => context.ByAlias.ContainsKey( p.AliasId ) )
                     .Select( p => context.ByAlias[p.AliasId] ).OrderBy( p => p.PersonId ).ToList();
                 if ( people.Count > 0 )
                 {
@@ -101,6 +92,58 @@ namespace RockSampleData.Loader.Loading
             }
 
             return runs;
+        }
+
+        /*
+            10/30/26 - CLAUDE
+
+            Each rule is the audience view's filters, with Rock's own sliding date ranges. "Last N days" runs from
+            N-1 days before through the day itself, "last N weeks" from the start of the week N-1 weeks back (Rock's
+            weeks start on Monday), and "last N months" from the first of the month N-1 months back, each up to the
+            end of the day. Rock's job fills a run from the view early on its start day, so the day is the moment.
+            Every audience view carries the reserved-email guard, so the rule does too. Verify runs the same rule as
+            of install day and checks it finds the same people as Rock's own engine running the view.
+
+            Reason: the coordinator's guardrail that the loader's copy of a rule and Rock's view never drift apart.
+        */
+
+        /// <summary>
+        /// Who a recurring flow's audience view finds on a day, by its rule.
+        /// </summary>
+        private static IEnumerable<AudiencePerson> AudienceOn( FlowDefinition flow, List<AudiencePerson> facts, DateTime day )
+        {
+            var end = day.Date.AddDays( 1 );
+            DateTime LastDays( int n ) => end.AddDays( -n );
+            DateTime LastWeeks( int n ) => end.AddDays( -( ( ( int ) day.DayOfWeek + 6 ) % 7 ) - 1 ).AddDays( 7 ).AddDays( -7 * n );
+            DateTime LastMonths( int n ) => new DateTime( day.Year, day.Month, 1 ).AddMonths( 1 - n );
+            Func<AudiencePerson, bool> rule = flow.Audience?.Rule switch
+            {
+                "firstVisitLastWeek" => p => p.IsAdult && p.AcceptsMassEmail && p.FirstVisit.HasValue && p.FirstVisit.Value >= LastDays( 7 ) && p.FirstVisit.Value < end,
+                "newlyMissed" => p => p.IsAdult && p.AcceptsMassEmail && p.Count( LastMonths( 18 ), end ) >= 10 && p.Count( LastDays( 90 ), end ) == 0 && p.Count( LastDays( 120 ), end ) >= 1,
+                "unbaptizedRegularAttenders" => p => p.IsAdult && p.Count( LastWeeks( 12 ), end ) >= 4 && !( p.Baptized.HasValue && p.Baptized.Value < end ),
+                _ => throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has audience rule '{flow.Audience?.Rule}', which the loader does not know." )
+            };
+
+            return facts.Where( p => p.IsActive && p.IsReserved && rule( p ) );
+        }
+
+        /// <summary>
+        /// Who each recurring flow's audience view finds on install day, by the loader's rule, for verify to compare with
+        /// Rock's own engine running the view.
+        /// </summary>
+        internal static Dictionary<Guid, HashSet<int>> AudiencesOnInstallDay( RockDatabase db, SampleDataSource source, DateTime anchor, string foreignKey, string seed )
+        {
+            var loader = new FlowLoader( db, source, new AnchorDates( anchor ), foreignKey, seed );
+            var context = new FlowContext
+            {
+                ReservedEmailSuffix = "@" + ( source.Flows?.ReservedEmailDomain ?? "example.org" ),
+                EmailAddresses = db.Query( "SELECT [Id], [Email] FROM [Person] WHERE [ForeignKey] = @ForeignKey OR [Id] = 1", P( "@ForeignKey", foreignKey ) )
+                    .ToDictionary( r => ( int ) r["Id"], r => r["Email"] as string )
+            };
+            var facts = loader.AudienceFacts( context );
+            return ( source.Flows?.Flows ?? new List<FlowDefinition>() )
+                .Where( f => f.Trigger == "recurring" && source.Reporting?.DataViews.Any( v => v.Key == f.Audience?.View ) == true )
+                .ToDictionary( f => source.Reporting.DataViews.First( v => v.Key == f.Audience.View ).Guid, f => AudienceOn( f, facts, anchor.Date ).Select( p => p.PersonId ).ToHashSet() );
         }
 
         /// <summary>
@@ -247,7 +290,7 @@ WHERE [wt].[Guid] = @Type AND [w].[CompletedDateTime] IS NOT NULL", P( "@Type", 
                 SettingsJson = JsonSerializer.Serialize( new { ConversionGoalSettings = new { EnteredDataViewSettings = new { DataViewGuid = viewGuid } } } ),
                 Dates = checkIns,
                 WindowEnd = ( start, days ) => start.AddDays( days ),
-                PreMet = ( dates, start ) => dates.Any( d => d >= start.AddDays( -30 ) && d < start )
+                PreMet = ( dates, start ) => dates.Any( d => d >= start.AddDays( -29 ) && d < start.AddDays( 1 ) )
             };
         }
 

@@ -21,6 +21,7 @@ using Microsoft.Data.SqlClient;
 
 using RockSampleData.Loader;
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Loading;
 using RockSampleData.Loader.Model;
 using RockSampleData.Loader.Packages;
 using RockSampleData.Loader.Validation;
@@ -220,6 +221,8 @@ try
             stage = "data-views";
             var source = new SampleDataSource( package );
             checks.Add( DataViewsCheck( rock, sql, database, source ) );
+            stage = "flow-audiences";
+            checks.Add( FlowAudienceCheck( rock, sql, database, connection, source, anchor, foreignKey, seed ) );
             stage = "access";
             checks.Add( AccessCheck( rock, sql, database, source ) );
             stage = "reports";
@@ -381,6 +384,64 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 /// Runs every data view in the load, the church's and Rock's own, through Rock's own engine. A filter whose selection Rock
 /// cannot read fails here, the way it would for a person opening the view. Prints each church view's count and time.
 /// </summary>
+/*
+    10/30/26 - CLAUDE
+
+    A recurring flow's past runs come from the loader's copy of its audience view's rule, since Rock cannot run a
+    data view as of a past day. So the loader's rule, run as of install day, must find the same people as Rock's own
+    engine running the guarded view, or the two copies have drifted apart. The views count from today, so it is
+    judged only when the loads are anchored to today.
+
+    Reason: the coordinator's guardrail for decision D-comm-flows-6.
+*/
+static CheckResult FlowAudienceCheck( RockRelease rock, SqlServer sql, string database, string connection, SampleDataSource source, DateTime anchor, string foreignKey, string seed )
+{
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "flow-audiences", "Flow audiences were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. The audience views count from today, so run it again on one day."
+        } );
+    }
+
+    Dictionary<Guid, HashSet<int>> expected;
+    using ( var db = new RockDatabase( connection ) )
+    {
+        expected = FlowLoader.AudiencesOnInstallDay( db, source, anchor, foreignKey, seed );
+    }
+
+    if ( expected.Count == 0 )
+    {
+        return CheckResult.From( "flow-audiences", "No recurring flow has an audience view in this load", new List<string>() );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "data-view-people", expected.Keys.Select( g => g.ToString() ) )
+        .Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    foreach ( var (guid, loaderIds) in expected )
+    {
+        var name = source.Reporting.DataViews.First( v => v.Guid == guid ).Name;
+        var line = lines.FirstOrDefault( l => l.StartsWith( guid.ToString(), StringComparison.OrdinalIgnoreCase ) );
+        if ( line == null )
+        {
+            problems.Add( $"Rock did not run {name}." );
+            continue;
+        }
+
+        var rockIds = ( line.Split( '\t' ).ElementAtOrDefault( 1 ) ?? string.Empty ).Split( ',', StringSplitOptions.RemoveEmptyEntries ).Select( int.Parse ).ToHashSet();
+        var onlyLoader = loaderIds.Except( rockIds ).OrderBy( i => i ).ToList();
+        var onlyRock = rockIds.Except( loaderIds ).OrderBy( i => i ).ToList();
+        if ( onlyLoader.Count + onlyRock.Count > 0 )
+        {
+            problems.Add( $"{name}: the loader's rule finds {loaderIds.Count:N0} people and Rock finds {rockIds.Count:N0}. Only the loader: {onlyLoader.Count:N0} (such as {string.Join( ", ", onlyLoader.Take( 5 ) )}). Only Rock: {onlyRock.Count:N0} (such as {string.Join( ", ", onlyRock.Take( 5 ) )})." );
+        }
+    }
+
+    return CheckResult.From( "flow-audiences", problems.Count == 0
+        ? $"The loader's rule and Rock's own engine find the same {expected.Values.Sum( v => v.Count ):N0} people in {expected.Count} recurring flow audiences"
+        : "The loader's audience rules and Rock's views disagree", problems );
+}
+
 static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
     var names = ( source.Reporting?.DataViews ?? new List<DataViewDefinition>() )
