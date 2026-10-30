@@ -63,7 +63,9 @@ namespace RockSampleData.Loader.Loading
     {
         private static readonly Guid GlobalConnectorGroupGuid = new Guid( "7A2AFC10-BCFA-4CCF-9B6C-C2367D6BE7BE" );
         private static readonly Guid PersonConnectionRequestHistoryCategoryGuid = new Guid( "4B472C6A-1ACF-481E-A2D4-9C44436BBCF5" );
+        private static readonly Guid CelebrationNoteTypeGuid = new Guid( "A480E95A-F941-473E-B200-50D2658C9417" );
 
+        private const int NoteApproved = 1;
         private const int StateActive = 0;
         private const int StateInactive = 1;
         private const int StateFutureFollowUp = 2;
@@ -112,7 +114,13 @@ namespace RockSampleData.Loader.Loading
             var statusDue = _source.Connections.ConnectionType.DueDateCalculationMode == "DurationPerStatus"
                 ? _source.Connections.RequestStatuses.Where( s => s.DueInDays.HasValue ).ToDictionary( s => s.Name, s => (Due: s.DueInDays.Value, DueSoon: s.DueSoonInDays ?? s.DueInDays.Value) )
                 : new Dictionary<string, (int Due, int DueSoon)>();
-            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90, statusDue ) { StaffConnectors = StaffConnectors( people ) };
+            var context = new RequestContext( rules, today, activityTypeIds, leaders, monthIndex, p50, p90, statusDue )
+            {
+                StaffConnectors = StaffConnectors( people ),
+                CelebrationNoteTypeId = rules.Celebrations != null || people.Households.SelectMany( h => h.Members ).Any( m => m.Cast.ConnectionRequests.Any( r => r.Celebration != null ) )
+                    ? _db.RequireIdByGuid( "NoteType", CelebrationNoteTypeGuid )
+                    : null
+            };
             var monthStart = new DateTime( today.Year, today.Month, 1 );
             var workedStatuses = rules.ActiveStatuses.Where( s => s.Key != "No Contact" ).ToDictionary( s => s.Key, s => s.Value );
 
@@ -123,6 +131,7 @@ namespace RockSampleData.Loader.Loading
             foreach ( var campusKey in plans.Select( p => p.Campus ).Distinct() )
             {
                 var random = new SeededRandom( $"{_seed}:connections:{campusKey}" );
+                var celebrationRandom = new SeededRandom( $"{_seed}:celebrations:{campusKey}" );
                 var campusId = people.Households.First( h => h.CampusKey == campusKey ).Members.First().CampusId;
                 var requests = new List<PlannedRequest>();
 
@@ -211,12 +220,12 @@ namespace RockSampleData.Loader.Loading
                 {
                     request.Campus = campusKey;
                     request.CampusId = campusId;
-                    AddRequest( tables, context, random, request );
+                    AddRequest( tables, context, random, celebrationRandom, request );
                 }
             }
 
             tables.Write( _db );
-            _db.Log.Write( $"  Connection requests: {tables.Requests.Rows.Count:N0} with {tables.Activities.Rows.Count:N0} activities; {tables.Members.Rows.Count:N0} new volunteers waiting as Pending" );
+            _db.Log.Write( $"  Connection requests: {tables.Requests.Rows.Count:N0} with {tables.Activities.Rows.Count:N0} activities and {tables.Celebrations.Rows.Count:N0} celebrations; {tables.Members.Rows.Count:N0} new volunteers waiting as Pending" );
         }
 
         /// <summary>
@@ -367,7 +376,9 @@ namespace RockSampleData.Loader.Loading
                             IsPending = state == StateConnected,
                             WantsConnector = cast.Connector,
                             BackgroundCheck = cast.BackgroundCheck,
-                            Comment = cast.Comment
+                            Comment = cast.Comment,
+                            IsCastStory = true,
+                            Celebration = cast.Celebration
                         } );
                     }
                 }
@@ -380,7 +391,7 @@ namespace RockSampleData.Loader.Loading
         /// Adds the request, its activity history, any background check it records, and the Pending
         /// membership of someone who just connected.
         /// </summary>
-        private void AddRequest( Tables tables, RequestContext context, SeededRandom random, PlannedRequest request )
+        private void AddRequest( Tables tables, RequestContext context, SeededRandom random, SeededRandom celebrationRandom, PlannedRequest request )
         {
             var rules = context.Rules;
             var opportunityId = _connections.OpportunityIds[request.Team];
@@ -447,6 +458,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             AddPersonHistory( tables, random, request, requestId, connector, statusChanged, end );
+            AddCelebration( tables, context, celebrationRandom, request, requestId, connector, statusChanged, end );
 
             if ( request.BackgroundCheck != null )
             {
@@ -491,6 +503,63 @@ namespace RockSampleData.Loader.Loading
             {
                 History( "CONNECTIONREQUESTSTATEMODIFY", request.Created.AddDays( random.Between( 1, Math.Max( 1, ( int ) ( end - request.Created ).TotalDays ) ) ), connector );
             }
+        }
+
+        /*
+            10/30/26 - CLAUDE
+
+            A celebration is a Celebration Note on the request, the note the Connections Hub writes when a connector
+            adds one: Rock shows the first one on the request's card and panel, and the Celebrations Report lists every
+            one whose request was made in its date range, with the note's author and date. Only a connector writes one,
+            so a request with no connector has none, and neither does a No Contact request, which nobody has reached
+            yet. The Cast's come from their files; a generated request gets one by its connections.json share, drawn
+            from its own seeded stream so no other row changes.
+
+            Reason: Jon asked for celebrations on the requests Alisha Marble sees when she signs in, and in the report
+            (decision 219).
+        */
+
+        /// <summary>
+        /// Adds the celebration the connector recorded on a request: the Cast's own story, or, on a generated request
+        /// a connector has worked, a story from connections.json by its share. Dated after the last status change for
+        /// an open request, and within a few days of connecting for a connected one.
+        /// </summary>
+        private void AddCelebration( Tables tables, RequestContext context, SeededRandom random, PlannedRequest request, int requestId, int? connector, DateTime? statusChanged, DateTime end )
+        {
+            var rules = context.Rules.Celebrations;
+            var isWorked = statusChanged.HasValue && request.State is StateActive or StateConnected;
+            if ( !connector.HasValue || !context.CelebrationNoteTypeId.HasValue || ( request.Celebration == null && ( request.IsCastStory || rules == null || !isWorked ) ) )
+            {
+                return;
+            }
+
+            var text = request.Celebration;
+            if ( text == null )
+            {
+                var isStaff = context.StaffConnectors.TryGetValue( request.Campus, out var staff ) && staff.AliasId == connector.Value;
+                var isConnected = request.State == StateConnected;
+                if ( !random.Chance( rules.Percent.GetValueOrDefault( isStaff ? "staff" : isConnected ? "Connected" : "Active" ) / 100.0 ) )
+                {
+                    return;
+                }
+
+                var pools = isConnected ? rules.Connected : rules.Active;
+                var stories = pools.GetValueOrDefault( "any", new List<string>() ).Concat( pools.GetValueOrDefault( request.Team, new List<string>() ) ).ToList();
+                if ( stories.Count == 0 )
+                {
+                    return;
+                }
+
+                var cast = request.Person.Cast;
+                text = random.Pick( stories ).Replace( "{first}", string.IsNullOrEmpty( cast.NickName ) ? cast.FirstName : cast.NickName );
+            }
+
+            var from = request.State == StateConnected ? end : statusChanged ?? request.Created;
+            var to = request.State == StateConnected ? end.AddDays( 3 ) : context.Today;
+            to = to > context.Today ? context.Today : to;
+            var written = from.AddDays( random.Between( 0, Math.Max( 0, ( int ) ( to - from ).TotalDays ) ) );
+            tables.Celebrations.Rows.Add( false, context.CelebrationNoteTypeId.Value, requestId, string.Empty, false, text, Guid.NewGuid(), written, written, connector.Value, connector.Value, _foreignKey, false,
+                NoteApproved, true, true, written, connector.Value, false );
         }
 
         /// <summary>
@@ -650,6 +719,13 @@ WHERE [pa].[Id] = @AliasId
             public string BackgroundCheck { get; set; }
 
             public string Comment { get; set; }
+
+            /// <summary>
+            /// True for a request from a Cast household file, which has a celebration only when its file gives one.
+            /// </summary>
+            public bool IsCastStory { get; set; }
+
+            public string Celebration { get; set; }
         }
 
         /// <summary>
@@ -689,6 +765,11 @@ WHERE [pa].[Id] = @AliasId
             /// The Cast staff connector at each campus that has one, by campus key.
             /// </summary>
             public Dictionary<string, StaffConnector> StaffConnectors { get; set; } = new Dictionary<string, StaffConnector>();
+
+            /// <summary>
+            /// Rock's Celebration Note type, or null when this package has no celebrations.
+            /// </summary>
+            public int? CelebrationNoteTypeId { get; set; }
 
             /// <summary>
             /// Each status's due and due-soon days, when due dates run from the last status change. Empty otherwise.
@@ -758,6 +839,9 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
             public DataTable Activities { get; } = TableFactory.Create( "ConnectionRequestId:int", "ConnectionActivityTypeId:int", "ConnectorPersonAliasId:int", "ConnectionOpportunityId:int", "Note:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
+            public DataTable Celebrations { get; } = TableFactory.Create( "IsSystem:bool", "NoteTypeId:int", "EntityId:int", "Caption:string", "IsAlert:bool", "Text:string", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date",
+                "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int", "ForeignKey:string", "IsPrivateNote:bool", "ApprovalStatus:int", "NotificationsSent:bool", "ApprovalsSent:bool", "EditedDateTime:date", "EditedByPersonAliasId:int", "IsPinned:bool" );
+
             public DataTable Members { get; } = TableFactory.Create( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable MemberHistory { get; } = TableFactory.Create( "GroupMemberId:int", "GroupId:int", "GroupRoleId:int", "GroupRoleName:string", "IsLeader:bool", "GroupMemberStatus:int", "IsArchived:bool",
@@ -772,6 +856,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             {
                 db.BulkInsert( "ConnectionRequest", Requests, keepIdentity: true );
                 db.BulkInsert( "ConnectionRequestActivity", Activities, keepIdentity: false );
+                db.BulkInsert( "Note", Celebrations, keepIdentity: false );
                 db.BulkInsert( "GroupMember", Members, keepIdentity: true );
                 db.BulkInsert( "GroupMemberHistorical", MemberHistory, keepIdentity: false );
                 db.BulkInsert( "AttributeValue", PersonValues, keepIdentity: false );
