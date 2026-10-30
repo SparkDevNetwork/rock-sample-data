@@ -390,7 +390,7 @@ Every one of these reaches only reserved contact points. The large ones are why 
 
 We Miss You keeps its guarded view while paused, so a church that turns it on later is still safe. The reports work agreed: every recurring flow keeps its guarded view, paused ones included.
 
-**Proposed decision** (placeholder D-comm-flows-1, numbered at merge). It retires decision 95's rule that nothing a load writes can ever send:
+**Proposed decision** (placeholder 220, numbered at merge). It retires decision 95's rule that nothing a load writes can ever send:
 
 > Things may send after install, only to reserved contact points. What a load writes is history: every communication it writes is Approved with a `SendDateTime`, and no recipient it writes is Pending or Sending, so Rock never re-sends the past. The one exception is the scheduled communication, which is written to send in the future. After install, Rock may send: flow runs that were mid-flow at install send their remaining messages, recurring flows named in `configuration/` start new runs on their dates, On-Demand flows add people when a workflow is launched, and the one scheduled communication named in `configuration/communications.json` sends on its date. Everything that can send after install reaches only `example.org` emails or none, 555-0100 to 555-0199 phones, and `sample-data-` push tokens. Each recurring flow's audience includes the "Reserved or No Email" view, and every person in a run that is open at install has only reserved contact points.
 >
@@ -424,7 +424,7 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 
 | Slice | What it adds | Size |
 |---|---|---|
-| 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule D-comm-flows-1, with invariants for open runs and reserved contact points | Small to medium |
+| 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule 220, with invariants for open runs and reserved contact points | Small to medium |
 | 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3a. Recurring flows, first three (built) | The recurring machinery (schedules, a run per date with each run's audience worked out by its view's rule, paused flows, the audience link after the reports views load), the Entered Data View and Completed Form goals, opened and clicked exits, verify's flow-audiences check, and First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation | Medium |
 | 3b. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
@@ -436,7 +436,7 @@ Every question is answered. The details Jon wants to work out later are in Secti
 
 **Answered by Jon, 2026-10-29** (his words in quotes):
 
-1. **What can still run after install?** "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." And on decision 95: "I don't think nothing sends after install rule is valid. I think I do want things to send." So First-Time Guest Welcome and Baptism Sunday Invitation ship Active, We Miss You ships paused (question 12), and decision D-comm-flows-1 in Section 6 replaces decision 95's rule.
+1. **What can still run after install?** "I'd rather not ship them paused. If one's paused to show that pausing is a feature, that's fine, but not all of them." And on decision 95: "I don't think nothing sends after install rule is valid. I think I do want things to send." So First-Time Guest Welcome and Baptism Sunday Invitation ship Active, We Miss You ships paused (question 12), and decision 220 in Section 6 replaces decision 95's rule.
 2. **Add the Baptism Interest workflow?** "Two is yes." One workflow type with a form and the Activate Communication Flow action, plus a finished workflow for each person who entered the Baptism flow. Wiring After Starting Point to a workflow can wait.
 3. **Baptism flow shape?** "I think the baptism flow shape is probably a few too many messages. Let's limit it to four." It is now four messages over six weeks (email, text, email, text), with a 180-day window and a 50% target. See Section 4.
 4. **Mid-flow people on install day?** "I would want people to be in mid-flow on install day. You're right." Runs that started in the weeks before install are still under way, and Rock's job sends their remaining messages to reserved contact points.
