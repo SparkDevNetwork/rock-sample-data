@@ -167,7 +167,7 @@ zip( "staff", "rock-solid-church-staff-photos.zip", [
 copy( path.join( brandDir, "rock-solid-church-symbol.svg" ), path.join( dist, "assets/favicon.svg" ) );
 
 // Pages.
-const builders = [ "home", "why", "church", "cast", "datasets", "how", "brand", "contribute" ].map( name => require( `./src/pages/${name}` ) );
+const builders = [ "home", "why", "church", "cast", "features", "datasets", "how", "brand", "contribute" ].map( name => require( `./src/pages/${name}` ) );
 let pageCount = 0;
 for ( const build of builders ) {
     const result = build( { model, r: relativeTo( 0 ), relativeTo, downloads } );

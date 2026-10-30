@@ -534,6 +534,30 @@ a.link-arrow:hover::after, a:hover .link-arrow::after { transform: translateX(4p
 .panel p { color: var(--ink-2); font-size: 0.96rem; margin-bottom: 10px; }
 .panel-title { font-family: var(--sans); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .panel-quiet { background: transparent; box-shadow: none; border: 1px dashed var(--line); }
+
+/* Features page */
+
+.feature-index { display: flex; flex-wrap: wrap; gap: 8px; }
+.feature-index a { padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--ink-2); font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
+.feature-index a:hover { border-color: var(--ink); color: var(--ink); }
+.feature-area { align-items: start; }
+.feature-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 20px; }
+.look-list { gap: 10px; }
+.look-list li { color: var(--ink-2); padding-left: 16px; position: relative; }
+.look-list li::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; border-radius: 2px; background: var(--rock); }
+.look-list a { font-weight: 700; }
+.split-top { align-items: start; }
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree ul { margin: 6px 0 0 6px; padding-left: 16px; border-left: 1px solid var(--line); display: grid; gap: 6px; }
+.tree li { color: var(--ink-2); overflow-wrap: anywhere; }
+.tree-name { font-weight: 700; color: var(--ink); }
+.tree .tag { margin-left: 4px; white-space: normal; border-radius: var(--radius-sm); }
+.access-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.access-list li { position: relative; padding-left: 34px; color: var(--ink-2); }
+.access-list li a { font-weight: 700; }
+.access-list li::before { position: absolute; left: 0; top: 2px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; }
+.access-list .can::before { content: "\2713"; background: var(--teal-soft); color: var(--teal-ink); }
+.access-list .cannot::before { content: "\2715"; background: rgba(224, 123, 95, 0.18); color: var(--coral); }
 .pager { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 80px; }
 .pager a { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); font-family: var(--serif); font-size: 1.25rem; padding: 18px 24px; border-radius: var(--radius); border: 1px solid var(--line); min-width: 0; }
 .pager a:last-child { text-align: right; }

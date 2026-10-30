@@ -220,7 +220,10 @@ try
 
             stage = "data-views";
             var source = new SampleDataSource( package );
-            checks.Add( DataViewsCheck( rock, sql, database, source ) );
+            var (dataViews, counts) = DataViewsCheck( rock, sql, database, source );
+            checks.Add( dataViews );
+            stage = "metrics";
+            checks.Add( MetricsCheck( sql, database, source, counts ) );
             stage = "flow-audiences";
             checks.Add( FlowAudienceCheck( rock, sql, database, connection, source, anchor, foreignKey, seed ) );
             stage = "access";
@@ -382,7 +385,8 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
 
 /// <summary>
 /// Runs every data view in the load, the church's and Rock's own, through Rock's own engine. A filter whose selection Rock
-/// cannot read fails here, the way it would for a person opening the view. Prints each church view's count and time.
+/// cannot read fails here, the way it would for a person opening the view. Prints each church view's count and time, and
+/// returns the counts by key.
 /// </summary>
 /*
     10/30/26 - CLAUDE
@@ -442,8 +446,9 @@ static CheckResult FlowAudienceCheck( RockRelease rock, SqlServer sql, string da
         : "The loader's audience rules and Rock's views disagree", problems );
 }
 
-static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+static (CheckResult Check, Dictionary<string, int> Counts) DataViewsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
+    var counts = new Dictionary<string, int>();
     var names = ( source.Reporting?.DataViews ?? new List<DataViewDefinition>() )
         .Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
         .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() )
@@ -462,11 +467,80 @@ static CheckResult DataViewsCheck( RockRelease rock, SqlServer sql, string datab
         else if ( known )
         {
             church++;
-            Console.WriteLine( $"    {name}: {int.Parse( parts[2] ):N0} in {parts[3]} ms" );
+            counts[name] = int.Parse( parts[2] );
+            Console.WriteLine( $"    {name}: {counts[name]:N0} in {parts[3]} ms" );
         }
     }
 
-    return CheckResult.From( "data-views", problems.Count == 0 ? $"Rock ran all {lines.Length} data views, {church} of them the church's" : "Rock could not run every data view", problems );
+    return (CheckResult.From( "data-views", problems.Count == 0 ? $"Rock ran all {lines.Length} data views, {church} of them the church's" : "Rock could not run every data view", problems ), counts);
+}
+
+/// <summary>
+/// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
+/// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
+/// value must be Rock's count of the view today less those people. The same rule read in SQL must also give Rock's count,
+/// so the subtraction uses the view's own rule.
+/// </summary>
+static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSource source, Dictionary<string, int> counts )
+{
+    var problems = new List<string>();
+    var metrics = source.Reporting?.Metrics ?? new List<MetricDefinition>();
+    foreach ( var metric in metrics )
+    {
+        var latest = sql.Query( database, @"
+SELECT TOP 1 [mv].[YValue], [mv].[MetricValueDateTime]
+FROM [MetricValue] AS [mv]
+INNER JOIN [Metric] AS [m] ON [m].[Id] = [mv].[MetricId]
+WHERE [m].[Guid] = @Guid
+ORDER BY [mv].[MetricValueDateTime] DESC", new SqlParameter( "@Guid", metric.Guid ) ).FirstOrDefault();
+        if ( latest == null || !counts.TryGetValue( metric.DataView, out var rockCount ) )
+        {
+            problems.Add( $"{metric.Key}: no values, or Rock did not run {metric.DataView}" );
+            continue;
+        }
+
+        var view = source.Reporting.DataViews.First( v => v.Key == metric.DataView );
+        var matches = string.Join( " OR ", Leaves( view.Filter ).Where( f => f.Steps != null ).Select( f =>
+        {
+            var program = source.Steps.Programs.First( p => p.Key == f.Steps.Program );
+            var types = program.StepTypes.Where( t => f.Steps.StepType != null ? t.Key == f.Steps.StepType : f.Steps.Stage == null || t.Stage == f.Steps.Stage );
+            return $"( [st].[Guid] = '{program.Statuses.Complete}' AND [t].[Guid] IN ( {string.Join( ", ", types.Select( t => $"'{t.Guid}'" ) )} ) )";
+        } ) );
+        var row = sql.Query( database, $@"
+SELECT COUNT(*) AS [Now], SUM( CASE WHEN [First] > @Taken THEN 1 ELSE 0 END ) AS [Later]
+FROM (
+    SELECT MIN( COALESCE( [s].[CompletedDateTime], [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [First]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [t] ON [t].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [st] ON [st].[Id] = [s].[StepStatusId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    INNER JOIN [DefinedValue] AS [status] ON [status].[Id] = [p].[RecordStatusValueId]
+    LEFT JOIN [DefinedValue] AS [type] ON [type].[Id] = [p].[RecordTypeValueId]
+    WHERE ( {matches} ) AND [p].[IsDeceased] = 0 AND [status].[Guid] = '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E'
+        AND ISNULL( [type].[Guid], '00000000-0000-0000-0000-000000000000' ) <> '721300ED-1267-4DA0-B4F2-6C6B5B17B1C5'
+    GROUP BY [pa].[PersonId] ) AS [people]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) ).Single();
+        var now = Convert.ToInt32( row["Now"] );
+        var later = Convert.ToInt32( row["Later"] ?? 0 );
+        var value = Convert.ToInt32( latest["YValue"] );
+        if ( now != rockCount )
+        {
+            problems.Add( $"{metric.Key}: the stage rule finds {now:N0} people, but Rock's {metric.DataView} finds {rockCount:N0}" );
+        }
+        else if ( value != rockCount - later )
+        {
+            problems.Add( $"{metric.Key}: its newest value, {value:N0} on {latest["MetricValueDateTime"]:g}, should be {rockCount - later:N0}: Rock's {rockCount:N0} less {later:N0} who reached the stage since" );
+        }
+        else
+        {
+            Console.WriteLine( $"    {metric.Key}: {value:N0} on {latest["MetricValueDateTime"]:g}, and {rockCount:N0} today" );
+        }
+    }
+
+    return CheckResult.From( "metrics", problems.Count == 0 ? $"Each of the {metrics.Count} path metrics' newest value matches Rock's count of its stage view" : "A path metric does not match its stage view", problems );
+
+    static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter ) =>
+        filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
 }
 
 /// <summary>

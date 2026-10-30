@@ -1953,3 +1953,46 @@ WHERE [gt].[Guid] = 'AAB2E9F4-E828-4FEE-8467-73DC9DAB784C' AND [gm].[ForeignKey]
         INNER JOIN [GroupMember] AS [lead] ON [lead].[GroupId] = [gm].[GroupId] AND [lead].[PersonId] = [sv].[ValueAsPersonId]
         INNER JOIN [GroupTypeRole] AS [lr] ON [lr].[Id] = [lead].[GroupRoleId] AND [lr].[IsLeader] = 1
         WHERE [sa].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' ) AND [sv].[EntityId] = [gm].[PersonId] );
+
+-- check: data-view-filter-names-its-related-view
+-- why: Decision 225. Rock's data view editor saves the view a filter points at in RelatedDataViewId, and Rock's data view page lists the views built on this one from it. An Existing Data View filter whose related view is missing or differs from its selection would leave Active People showing no views that use it.
+SELECT COUNT(*)
+FROM [DataViewFilter] AS [f]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [f].[EntityTypeId]
+WHERE [f].[ForeignKey] = @ForeignKey
+    AND [et].[Name] IN ( 'Rock.Reporting.DataFilter.OtherDataViewFilter', 'Rock.Reporting.DataFilter.NotInOtherDataViewFilter' )
+    AND ISNULL( CASE WHEN ISJSON( [f].[Selection] ) = 1 THEN TRY_CAST( JSON_VALUE( [f].[Selection], '$.DataViewId' ) AS int ) END, -1 ) <> ISNULL( [f].[RelatedDataViewId], -2 );
+
+-- check: reporting-run-history-is-whole
+-- why: Decision 233. Rock shows "Runs Since" and "Last Run" on each data view and report. Every report, and each data view with a history, has run at least once after it was made, and a view's run count starts when it was made, as Rock's save hook sets it. A view with half a history, or a last run before it existed, would read as broken.
+SELECT
+    ( SELECT COUNT(*) FROM [Report]
+      WHERE [ForeignKey] = @ForeignKey
+        AND ( [RunCount] IS NULL OR [RunCount] < 1 OR [LastRunDateTime] IS NULL OR [LastRunDateTime] < [CreatedDateTime] ) )
+    + ( SELECT COUNT(*) FROM [DataView]
+        WHERE [ForeignKey] = @ForeignKey
+            AND ( [RunCount] IS NOT NULL OR [LastRunDateTime] IS NOT NULL )
+            AND ( [RunCount] IS NULL OR [RunCount] < 1 OR [LastRunDateTime] IS NULL OR [LastRunDateTime] < [CreatedDateTime]
+                OR [RunCountLastRefreshDateTime] IS NULL OR [RunCountLastRefreshDateTime] <> [CreatedDateTime] ) );
+
+-- check: reporting-made-after-what-it-uses
+-- why: Decision 233. Staff build a view after the views it points at, and a report after its view. A view older than the view it uses would show a history no church could have.
+SELECT
+    ( SELECT COUNT(*)
+      FROM [DataViewFilter] AS [f]
+      INNER JOIN [DataView] AS [dv] ON [dv].[Id] = [f].[DataViewId]
+      INNER JOIN [DataView] AS [used] ON [used].[Id] = [f].[RelatedDataViewId]
+      WHERE [dv].[ForeignKey] = @ForeignKey AND [dv].[LastRunDateTime] IS NOT NULL AND [used].[LastRunDateTime] IS NOT NULL
+        AND [dv].[CreatedDateTime] <= [used].[CreatedDateTime] )
+    + ( SELECT COUNT(*)
+        FROM [Report] AS [r]
+        INNER JOIN [DataView] AS [dv] ON [dv].[Id] = [r].[DataViewId]
+        WHERE [r].[ForeignKey] = @ForeignKey AND [dv].[LastRunDateTime] IS NOT NULL AND [r].[CreatedDateTime] <= [dv].[CreatedDateTime] );
+
+-- check: one-retired-data-view
+-- why: Decision 233. Exactly one church data view has not run in over a year, so Rock's advice to remove unused data views has one clear example. Every other view ran in the two weeks before install. The year counts back from the newest run, which is the install's last few days.
+SELECT CASE WHEN (
+        SELECT COUNT(*) FROM [DataView]
+        WHERE [ForeignKey] = @ForeignKey
+            AND [LastRunDateTime] < DATEADD( day, -365, ( SELECT MAX( [LastRunDateTime] ) FROM [DataView] WHERE [ForeignKey] = @ForeignKey ) ) ) = 1
+    THEN 0 ELSE 1 END;

@@ -47,15 +47,28 @@ namespace RockSampleData.Loader.Loading
             ["Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter"] = new Guid( "1F51DA3B-22FE-4093-9DAA-5492B5FB17DA" )
         };
 
+        /// <summary>
+        /// The filters whose selection is Rock's JSON with the other view's Id. Every other filter that points at a view
+        /// holds its Guid.
+        /// </summary>
+        private static readonly HashSet<string> IdSelectionFilters = new HashSet<string>
+        {
+            "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "Rock.Reporting.DataFilter.NotInOtherDataViewFilter"
+        };
+
         private readonly RockDatabase _db;
         private readonly CategoryConfiguration _categories;
         private readonly string _foreignKey;
+        private readonly IReadOnlyDictionary<string, DataViewDefinition> _views;
 
-        public DataViewWriter( RockDatabase db, CategoryConfiguration categories, string foreignKey )
+        /// <param name="views">The views a leaf may point at, by key, when any leaf does.</param>
+        public DataViewWriter( RockDatabase db, CategoryConfiguration categories, string foreignKey, IReadOnlyDictionary<string, DataViewDefinition> views = null )
         {
             _db = db;
             _categories = categories;
             _foreignKey = foreignKey;
+            _views = views;
         }
 
         /// <summary>
@@ -131,13 +144,43 @@ VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Inte
             return viewId;
         }
 
+        /// <summary>
+        /// The selection of a leaf that points at another data view, which this load must have written by now.
+        /// </summary>
+        public string ViewSelection( DataViewFilterDefinition filter )
+        {
+            if ( !IdSelectionFilters.Contains( filter.Component ) )
+            {
+                // A related data view filter's settings start with the view's Guid. A filter with more settings, such as
+                // Rock's group data view filter (Guid, member status, role type), gives them with a {dataView} placeholder.
+                var guid = View( filter ).Guid.ToString();
+                return filter.Selection?.Replace( "{dataView}", guid ) ?? guid;
+            }
+
+            // Rock's data view editor saves "Use Persisted" on by default.
+            return $"{{\"DataViewId\":{RelatedId( filter )},\"UsePersisted\":true}}";
+        }
+
+        private DataViewDefinition View( DataViewFilterDefinition filter )
+        {
+            return _views != null && _views.TryGetValue( filter.DataView, out var view ) ? view
+                : throw new InvalidDataException( $"A data view points at {filter.DataView}, which is not a data view in any configuration file." );
+        }
+
+        private int RelatedId( DataViewFilterDefinition filter )
+        {
+            return _db.IdByGuid( "DataView", View( filter ).Guid )
+                ?? throw new InvalidDataException( $"A data view points at {filter.DataView}, which this load has not written yet." );
+        }
+
         private int WriteFilter( DataViewFilterDefinition filter, int? parentId, int viewId, SeededRandom random, DateTime now, Func<DataViewFilterDefinition, string> selection )
         {
             var id = ( int ) _db.Scalar( @"
-INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [RelatedDataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @RelatedId, @Guid, @ForeignKey, @Now, @Now )",
                 P( "@ExpressionType", filter.ExpressionType ), P( "@ParentId", parentId ), P( "@Component", filter.Component ), P( "@Selection", filter.Component == null ? null : selection( filter ) ),
+                P( "@RelatedId", filter.DataView == null ? null : RelatedId( filter ) ),
                 P( "@DataViewId", viewId ), P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
             foreach ( var child in filter.Children )
             {

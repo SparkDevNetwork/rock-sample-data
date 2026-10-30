@@ -206,7 +206,7 @@ See Section 4.
 
 - **Purpose.** Before each small group launch, invite people who are growing in a group and serving to lead one. This is Contribute to Lead.
 - **Trigger.** Recurring, 6 weeks before each group launch: the fall launch on the second Sunday of September and the spring launch on the third Sunday of January (`configuration/communications.json`). So it runs in early August and early December. The audience is the reports work's Ready to Lead view (adults with an Equip step who serve on a team now, are in a small group, and have no Lead step), with the guard. The framework grows leaders from people who have been formed and who serve, so this audience needs both. Giving alone does not count.
-- **Messages.** Email from the campus pastor ("Have you thought about leading?"). SMS 7 days later, with the Group Leader Training date. Email 14 days later: what leaders get, from training to the Leader Huddle.
+- **Messages.** Email from the church ("Have you thought about leading?"). SMS 7 days later, with the Group Leader Training date. Email 14 days later: what leaders get, from training to the Leader Huddle.
 - **Goal.** Took Step: Lead, within 60 days, so it covers the launch.
 - **Exit.** Conversion Achieved.
 - **History.** The runs before each launch in the last 2 years, about four.
@@ -427,7 +427,8 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 | 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule 220, with invariants for open runs and reserved contact points | Small to medium |
 | 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
 | 3a. Recurring flows, first three (built) | The recurring machinery (schedules, a run per date with each run's audience worked out by its view's rule, paused flows, the audience link after the reports views load), the Entered Data View and Completed Form goals, opened and clicked exits, verify's flow-audiences check, and First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation | Medium |
-| 3b. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
+| 3b-1. Women's Retreat and Lead a Group (built) | Specific-date schedules for some months and for the group launches, the Registered goal, the Women Who Attend and Ready to Lead rules, and registrations loading before communications | Medium |
+| 3b-2. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
 | 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
 ## 8. Questions and answers

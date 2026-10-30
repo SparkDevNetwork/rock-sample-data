@@ -19,7 +19,8 @@
 // Guids across every configuration file, real categories and security roles, views that point only at views that exist
 // and never loop, steps filters that name real programs, stages, and step types, persisted views with one real schedule,
 // the consumer rule (a view built on a locked view sits under the same lock), the Sample Data guard on every flow
-// audience in its category, and access rows that name Cast people and real items. Run: node validation/check-reporting.js
+// audience in its category, run history overrides that make sense, metrics on a stage view with a metric schedule, and
+// access rows that name Cast people and real items. Run: node validation/check-reporting.js
 
 const fs = require( "fs" );
 const path = require( "path" );
@@ -90,7 +91,26 @@ for ( const [ file, list ] of Object.entries( files ) ) {
 
 const leaves = filter => filter.component ? [ filter ] : ( filter.all || filter.any || filter.none || [] ).flatMap( leaves );
 const references = view => leaves( view.filter ).filter( f => f.dataView ).map( f => f.dataView );
-const schedules = new Set( ( reporting.namedSchedules || [] ).map( s => s.key ) );
+const schedules = new Set( ( reporting.namedSchedules || [] ).filter( s => !s.forMetrics ).map( s => s.key ) );
+const metricSchedules = new Set( ( reporting.namedSchedules || [] ).filter( s => s.forMetrics ).map( s => s.key ) );
+const days = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+for ( const schedule of reporting.namedSchedules || [] ) {
+    if ( schedule.weekday != null && !days.includes( schedule.weekday ) ) {
+        problems.push( `named schedule ${schedule.key}: ${schedule.weekday} is not a day of the week` );
+    }
+}
+
+// A run history override: whole days, and a last run no earlier than when it was made.
+const checkUsage = ( name, usage ) => {
+    if ( !usage ) {
+        return;
+    }
+
+    const values = [ usage.createdDaysAgo, usage.runs, usage.lastRunDaysAgo ].filter( v => v != null );
+    if ( values.some( v => !Number.isInteger( v ) || v < 1 ) || ( usage.createdDaysAgo != null && usage.lastRunDaysAgo != null && usage.lastRunDaysAgo > usage.createdDaysAgo ) ) {
+        problems.push( `${name}: its usage needs whole numbers of 1 or more, and a last run no earlier than when it was made` );
+    }
+};
 
 for ( const view of reporting.dataViews ) {
     const name = `data view ${view.key}`;
@@ -126,12 +146,23 @@ for ( const view of reporting.dataViews ) {
     }
 
     if ( view.persisted && view.persisted.schedule && !schedules.has( view.persisted.schedule ) ) {
-        problems.push( `${name}: persisted on ${view.persisted.schedule}, which is not a named schedule` );
+        problems.push( `${name}: persisted on ${view.persisted.schedule}, which is not a named schedule for persisted views` );
     }
+
+    checkUsage( name, view.usage );
 
     // A flow audience in Sample Data must carry the guard, so no flow emails a real staff address (question 18).
     if ( view.category === "sample-data-data-views" && view.key !== "reserved-or-no-email" && !references( view ).includes( "reserved-or-no-email" ) ) {
         problems.push( `${name}: a Sample Data audience must include reserved-or-no-email` );
+    }
+}
+
+// A group sync or registration view may be built on the foundations (slice 6), so its views must exist too.
+for ( const [ file, list ] of Object.entries( files ).filter( ( [ file ] ) => file !== "configuration/reporting.json" ) ) {
+    for ( const view of list ) {
+        for ( const key of references( view ).filter( k => !views.has( k ) ) ) {
+            problems.push( `${file}: data view ${view.key} points at ${key}, which is not a data view in any configuration file` );
+        }
     }
 }
 
@@ -165,6 +196,8 @@ for ( const report of reporting.reports || [] ) {
         }
     }
 
+    checkUsage( name, report.usage );
+
     for ( const column of report.columns ) {
         const kinds = [ column.property, column.attribute, column.component, column.lava ].filter( k => k != null );
         if ( kinds.length !== 1 || !column.header ) {
@@ -174,6 +207,32 @@ for ( const report of reporting.reports || [] ) {
         if ( column.dataView && !views.has( column.dataView ) ) {
             problems.push( `${name}: column ${column.header} names data view ${column.dataView}, which does not exist` );
         }
+    }
+}
+
+// Metrics: a metric category, a stage view of the church's, and a metric schedule.
+for ( const metric of reporting.metrics || [] ) {
+    const name = `metric ${metric.key}`;
+    for ( const guid of [ metric.guid, metric.partitionGuid ] ) {
+        if ( !guidPattern.test( guid ) || guids.has( guid ) ) {
+            problems.push( `${name}: needs its own upper-case Guids` );
+        }
+
+        guids.add( guid );
+    }
+
+    const category = categoryByKey.get( metric.category );
+    if ( !category || category.entityType !== "Rock.Model.MetricCategory" ) {
+        problems.push( `${name}: category ${metric.category} is not a metric category` );
+    }
+
+    const view = reporting.dataViews.find( v => v.key === metric.dataView );
+    if ( !view || !leaves( view.filter ).some( l => l.steps ) ) {
+        problems.push( `${name}: ${metric.dataView} is not a reporting view built from steps, the only kind whose past weeks the loader can count` );
+    }
+
+    if ( !metricSchedules.has( metric.schedule ) ) {
+        problems.push( `${name}: ${metric.schedule} is not a named schedule for metrics` );
     }
 }
 
@@ -195,7 +254,7 @@ const visit = key => {
     visiting.delete( key );
     done.add( key );
 };
-reporting.dataViews.forEach( v => visit( v.key ) );
+[ ...views.keys() ].forEach( visit );
 
 // Access rows: Cast people, real items, and Rock's actions.
 const castPeople = new Set();
@@ -226,7 +285,7 @@ for ( const row of reporting.access || [] ) {
     }
 }
 
-console.log( `Reporting: ${reporting.dataViews.length} data views, ${reports.size} reports, ${( reporting.access || [] ).length} access rows, ${categories.length} categories. ${problems.length} problems.` );
+console.log( `Reporting: ${reporting.dataViews.length} data views, ${reports.size} reports, ${( reporting.metrics || [] ).length} metrics, ${( reporting.access || [] ).length} access rows, ${categories.length} categories. ${problems.length} problems.` );
 for ( const problem of problems ) {
     console.log( `  ${problem}` );
 }
