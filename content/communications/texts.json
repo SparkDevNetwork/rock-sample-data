@@ -441,6 +441,40 @@
       "topic": "groups",
       "asksReply": true,
       "text": "Rock Solid: {{ Person.NickName }}, Group Leader Training is coming up before our next launch. Want a seat? Reply YES and we'll save you one."
+    },
+    {
+      "key": "camp-text",
+      "medium": "sms",
+      "occasion": "camp-invitation",
+      "daysBefore": -5,
+      "hour": 16,
+      "audience": "person",
+      "line": "students",
+      "topic": "students",
+      "asksReply": true,
+      "text": "Rock Solid Students: {{ Person.NickName }}! Camp spots are filling up. Want us to send your parents the sign-up link? Reply YES."
+    },
+    {
+      "key": "christmas-who-will-you-invite",
+      "medium": "push",
+      "occasion": "christmas-invitation",
+      "daysBefore": -19,
+      "hour": 12,
+      "audience": "person",
+      "topic": "events",
+      "title": "Who will you invite?",
+      "text": "Christmas Eve is in four days. Send a friend the service times from the app."
+    },
+    {
+      "key": "christmas-see-you-tonight",
+      "medium": "sms",
+      "occasion": "christmas-invitation",
+      "daysBefore": -23,
+      "hour": 9,
+      "audience": "person",
+      "line": "main",
+      "topic": "events",
+      "text": "Rock Solid: Merry Christmas Eve, {{ Person.NickName }}! See you tonight. Come early for a seat, and bring a friend."
     }
   ],
   "replies": {

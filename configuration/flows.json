@@ -152,8 +152,45 @@
       ],
       "goal": { "type": "tookStep", "stepType": "lead", "days": 60, "targetPercent": 3 },
       "exit": "conversionAchieved"
+    },
+    {
+      "key": "student-camp-registration",
+      "name": "Student Camp Registration",
+      "publicName": "Student Camp",
+      "description": "On the first Monday of March, invites students in grades 7 to 12 who come to the student service and have not registered for camp: an email, a text on the student line five days later, and an email about the early bird two weeks after that. It stops for each student who registers.",
+      "category": "flows-belong",
+      "trigger": "recurring",
+      "schedule": { "kind": "monthly", "months": [ 3 ], "weekday": "Monday", "week": 1, "time": "16:00" },
+      "audience": { "view": "students-not-registered-for-camp-reserved-email", "rule": "studentsNotRegisteredForCamp" },
+      "historyMonths": 24,
+      "messages": [
+        { "key": "camp-invite", "name": "Save Your Spot", "daysToWait": 0, "time": "16:00" },
+        { "key": "camp-text", "name": "Spots Are Filling", "daysToWait": 5, "time": "16:00" },
+        { "key": "camp-early-bird", "name": "Early Bird", "daysToWait": 14, "time": "16:00" }
+      ],
+      "goal": { "type": "joinedGroup", "registration": "student-camp", "days": 60, "targetPercent": 40 },
+      "exit": "conversionAchieved"
+    },
+    {
+      "key": "christmas-at-rock-solid",
+      "name": "Christmas at Rock Solid",
+      "publicName": "Christmas at Rock Solid",
+      "description": "Every December 1, helps involved adults invite a friend to Christmas Eve: an email with the service times, a push on December 20 to people with the app, and a text the morning of Christmas Eve. It has no goal, since inviting a friend leaves no record.",
+      "category": "flows-notice",
+      "trigger": "recurring",
+      "schedule": { "kind": "yearly", "month": 12, "day": 1, "time": "09:00" },
+      "audience": { "view": "involved-adults-reserved-email", "rule": "involvedAdults" },
+      "historyMonths": 24,
+      "messages": [
+        { "key": "christmas-invite-a-friend", "name": "Who Will You Bring?", "daysToWait": 0, "time": "09:00" },
+        { "key": "christmas-who-will-you-invite", "name": "Who Will You Invite?", "daysToWait": 19, "time": "12:00" },
+        { "key": "christmas-see-you-tonight", "name": "See You Tonight", "daysToWait": 4, "time": "09:00" }
+      ],
+      "goal": { "type": "none" },
+      "exit": "lastMessageSent"
     }
   ],
+  "unsubscribesPerThousand": 3,
   "workflows": [
     {
       "key": "baptism-interest",

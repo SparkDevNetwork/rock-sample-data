@@ -48,6 +48,10 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid ActiveRecordStatusGuid = new Guid( "618F906C-C33D-4FA3-8AEF-E58CB7B63F1E" );
         private static readonly Guid SmallGroupTypeGuid = new Guid( "50FCFB30-F51A-49DF-86F4-2B176EA1820B" );
         private static readonly Guid ServingTeamTypeGuid = new Guid( "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4" );
+        private static readonly Guid[] StudentServiceTypeGuids = { new Guid( "7A17235B-69AD-439B-BAB0-1A0A472DB96F" ), new Guid( "9A88743B-F336-4404-B877-2A623689195D" ) };
+        private static readonly Guid SeventhGradeGuid = new Guid( "3FE728AC-BE25-409A-98CB-3CFCE5FA063B" );
+        private static readonly Guid LastGaveAttributeGuid = new Guid( "02F64263-E290-399E-4487-FC236F4DE81F" );
+        private const string CampTemplate = "student-camp";
 
         /// <summary>
         /// Points each recurring flow at its guarded audience view, once the reports part has written it. A flow whose
@@ -125,10 +129,22 @@ namespace RockSampleData.Loader.Loading
                 "unbaptizedRegularAttenders" => p => p.IsAdult && p.Count( LastWeeks( 12 ), end ) >= 4 && !( p.Baptized.HasValue && p.Baptized.Value < end ),
                 "womenWhoAttend" => p => p.IsAdult && p.AcceptsMassEmail && p.IsFemale && p.AgeOn( day ) is int age && age >= 25 && age <= 75 && p.Count( LastMonths( 12 ), end ) >= 1,
                 "readyToLead" => p => p.IsAdult && p.Equipped < end && p.InGroup( p.SmallGroups, end ) && p.InGroup( p.ServingTeams, end ) && !( p.Leading < end ),
+                "studentsNotRegisteredForCamp" => p => p.GradeOffsetOn( day ) is int offset && offset >= 0 && offset <= p.SeventhGradeOffset
+                    && AudiencePerson.Count( p.StudentCheckIns, LastDays( 120 ), end ) >= 2 && !p.CampRegistrations.Any( r => r.Closes >= day.Date && r.Created < end ),
+                "involvedAdults" => p => IsInvolved( p, day, end, LastMonths( 12 ) ),
                 _ => throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has audience rule '{flow.Audience?.Rule}', which the loader does not know." )
             };
 
             return facts.Where( p => p.IsActive && p.IsReserved && rule( p ) );
+        }
+
+        /// <summary>
+        /// Involved Adults: adults who came to worship, were in a small group or on a serving team, or gave in the last 12 months.
+        /// </summary>
+        private static bool IsInvolved( AudiencePerson p, DateTime day, DateTime end, DateTime lastTwelveMonths )
+        {
+            return p.IsAdult && ( p.Count( lastTwelveMonths, end ) >= 1 || p.InGroup( p.SmallGroups, end ) || p.InGroup( p.ServingTeams, end )
+                || ( p.LastGaveOn( day ) is DateTime gave && gave >= day.Date.AddDays( -365 ) ) );
         }
 
         /// <summary>
@@ -188,6 +204,17 @@ namespace RockSampleData.Loader.Loading
                     }
 
                     dates.Sort();
+                    break;
+                case "yearly":
+                    for ( var year = from.Year; year <= until.Year; year++ )
+                    {
+                        var date = new DateTime( year, schedule.Month, schedule.Day );
+                        if ( date >= from && date <= until )
+                        {
+                            dates.Add( date );
+                        }
+                    }
+
                     break;
                 case "beforeGroupLaunches":
                     var events = _source.Communications?.Events
@@ -323,6 +350,35 @@ WHERE [r].[RegistrationInstanceId] = @Instance AND [rr].[CreatedDateTime] IS NOT
                 };
             }
 
+            // Joined Group: the camp's group for the summer whose registration is open on install day. Each past run's joins are to its own summer's group.
+            if ( flow.Goal.Type == "joinedGroup" )
+            {
+                var groups = _db.Query( @"
+SELECT [g].[Id], [g].[Guid], [ri].[StartDateTime]
+FROM [RegistrationInstance] AS [ri]
+INNER JOIN [RegistrationTemplate] AS [rt] ON [rt].[Id] = [ri].[RegistrationTemplateId]
+INNER JOIN [EventItemOccurrenceGroupMap] AS [m] ON [m].[RegistrationInstanceId] = [ri].[Id]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [m].[GroupId]
+WHERE [rt].[Guid] = @Template AND [ri].[StartDateTime] <= @Anchor", P( "@Template", SeededRandom.StableGuid( $"registration-template:{flow.Goal.Registration}" ) ), P( "@Anchor", _dates.Anchor ) );
+                if ( groups.Count == 0 )
+                {
+                    return null;
+                }
+
+                var newest = groups.OrderByDescending( r => ( DateTime ) r["StartDateTime"] ).First();
+                var joins = _db.Query( $"SELECT [PersonId], [DateTimeAdded] FROM [GroupMember] WHERE [DateTimeAdded] IS NOT NULL AND [GroupId] IN ( {string.Join( ",", groups.Select( r => ( int ) r["Id"] ).Distinct() )} )" )
+                    .GroupBy( r => ( int ) r["PersonId"] )
+                    .ToDictionary( g => g.Key, g => g.Select( r => ( DateTime ) r["DateTimeAdded"] ).OrderBy( d => d ).ToList() );
+                return new GoalPlan
+                {
+                    TypeValue = type,
+                    SettingsJson = JsonSerializer.Serialize( new { ConversionGoalSettings = new { JoinedGroupSettings = new { GroupGuid = ( Guid ) newest["Guid"] } } } ),
+                    Dates = joins,
+                    WindowEnd = ( start, days ) => start.AddDays( days ),
+                    FirstRun = groups.Min( r => ( DateTime ) r["StartDateTime"] ).Date
+                };
+            }
+
             // Entered Data View: a person is in "came to worship in the last 30 days" from each check-in on, so each check-in is a date that meets it.
             if ( flow.Goal.Rule != "backInLast30Days" )
             {
@@ -378,9 +434,19 @@ GROUP BY [pa].[PersonId]", P( "@Type", baptismType.Guid ) )
             var leading = StageSteps( "Lead" );
             var smallGroups = Memberships( SmallGroupTypeGuid );
             var servingTeams = Memberships( ServingTeamTypeGuid );
+            var studentCheckIns = CheckIns( StudentServiceTypeGuids );
+            var gifts = GiftDays();
+            var lastGave = _db.Query( @"
+SELECT [av].[EntityId], [av].[ValueAsDateTime]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [a].[Guid] = @Attribute AND [av].[ValueAsDateTime] IS NOT NULL", P( "@Attribute", LastGaveAttributeGuid ) ).ToDictionary( r => ( int ) r["EntityId"], r => ( DateTime ) r["ValueAsDateTime"] );
+            var campRegistrations = CampRegistrations();
+            var seventhGrade = Convert.ToInt32( _db.Scalar( "SELECT [Value] FROM [DefinedValue] WHERE [Guid] = @Guid", P( "@Guid", SeventhGradeGuid ) ) );
+            var transition = ( _db.Scalar( "SELECT ISNULL( NULLIF( [av].[Value], '' ), [a].[DefaultValue] ) FROM [Attribute] AS [a] LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id] WHERE [a].[Key] = 'GradeTransitionDate' AND [a].[EntityTypeId] IS NULL" ) as string ?? "6/1" ).Split( '/' );
 
             context.Audience = _db.Query( @"
-SELECT [p].[Id], [p].[RecordStatusValueId], [p].[AgeClassification], [p].[EmailPreference], [p].[Email], [p].[Gender], [p].[BirthDate], [pa].[Id] AS [AliasId]
+SELECT [p].[Id], [p].[RecordStatusValueId], [p].[AgeClassification], [p].[EmailPreference], [p].[Email], [p].[Gender], [p].[BirthDate], [p].[GraduationYear], [p].[GivingId], [pa].[Id] AS [AliasId]
 FROM [Person] AS [p]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [p].[Id] AND [pa].[AliasPersonId] = [p].[Id]
 WHERE [p].[ForeignKey] = @ForeignKey OR [p].[Id] = 1", P( "@ForeignKey", _foreignKey ) )
@@ -405,7 +471,15 @@ WHERE [p].[ForeignKey] = @ForeignKey OR [p].[Id] = 1", P( "@ForeignKey", _foreig
                         Equipped = equipped.TryGetValue( id, out var e ) ? e : DateTime.MaxValue,
                         Leading = leading.TryGetValue( id, out var l ) ? l : DateTime.MaxValue,
                         SmallGroups = smallGroups.GetValueOrDefault( id ) ?? new List<(DateTime From, DateTime Until)>(),
-                        ServingTeams = servingTeams.GetValueOrDefault( id ) ?? new List<(DateTime From, DateTime Until)>()
+                        ServingTeams = servingTeams.GetValueOrDefault( id ) ?? new List<(DateTime From, DateTime Until)>(),
+                        StudentCheckIns = studentCheckIns.GetValueOrDefault( id ) ?? Array.Empty<int>(),
+                        GraduationYear = r["GraduationYear"] as int?,
+                        SeventhGradeOffset = seventhGrade,
+                        GradeTransition = (int.Parse( transition[0], CultureInfo.InvariantCulture ), int.Parse( transition[1], CultureInfo.InvariantCulture )),
+                        Gifts = gifts.GetValueOrDefault( r["GivingId"] as string ?? string.Empty ) ?? Array.Empty<int>(),
+                        LastGave = lastGave.TryGetValue( id, out var g ) ? g : null,
+                        InstallDay = _dates.Anchor.Date,
+                        CampRegistrations = campRegistrations.GetValueOrDefault( id ) ?? new List<(DateTime Closes, DateTime Created)>()
                     };
                 } )
                 .ToList();
@@ -421,6 +495,55 @@ WHERE [p].[ForeignKey] = @ForeignKey OR [p].[Id] = 1", P( "@ForeignKey", _foreig
             membership counts from when it was added until the first of these: the member went inactive or was archived,
             or the group did. On install day that is exactly Rock's rule.
         */
+
+        /// <summary>
+        /// Each person's check-ins to groups of these types, as day numbers in order.
+        /// </summary>
+        private Dictionary<int, int[]> CheckIns( Guid[] groupTypeGuids )
+        {
+            return _db.Query( $@"
+SELECT [pa].[PersonId], CAST( [o].[OccurrenceDate] AS DATE ) AS [Day]
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+WHERE [gt].[Guid] IN ( {string.Join( ",", groupTypeGuids.Select( g => $"'{g}'" ) )} ) AND [a].[DidAttend] = 1" )
+                .GroupBy( r => ( int ) r["PersonId"] )
+                .ToDictionary( g => g.Key, g => g.Select( r => ToDay( ( DateTime ) r["Day"] ) ).OrderBy( d => d ).ToArray() );
+        }
+
+        /// <summary>
+        /// Each giving unit's gift days, in order.
+        /// </summary>
+        private Dictionary<string, int[]> GiftDays()
+        {
+            return _db.Query( @"
+SELECT DISTINCT [p].[GivingId], CAST( [t].[TransactionDateTime] AS DATE ) AS [Day]
+FROM [FinancialTransaction] AS [t]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [t].[TransactionDateTime] IS NOT NULL AND [p].[GivingId] IS NOT NULL" )
+                .GroupBy( r => ( string ) r["GivingId"] )
+                .ToDictionary( g => g.Key, g => g.Select( r => ToDay( ( DateTime ) r["Day"] ) ).OrderBy( d => d ).ToArray() );
+        }
+
+        /// <summary>
+        /// Each person's camp registrations: when their instance's registration closes, and when they were added.
+        /// </summary>
+        private Dictionary<int, List<(DateTime Closes, DateTime Created)>> CampRegistrations()
+        {
+            return _db.Query( @"
+SELECT [pa].[PersonId], [ri].[EndDateTime], [rr].[CreatedDateTime]
+FROM [RegistrationRegistrant] AS [rr]
+INNER JOIN [Registration] AS [r] ON [r].[Id] = [rr].[RegistrationId]
+INNER JOIN [RegistrationInstance] AS [ri] ON [ri].[Id] = [r].[RegistrationInstanceId]
+INNER JOIN [RegistrationTemplate] AS [rt] ON [rt].[Id] = [ri].[RegistrationTemplateId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [rr].[PersonAliasId]
+WHERE [rt].[Guid] = @Template AND [ri].[EndDateTime] IS NOT NULL AND [rr].[CreatedDateTime] IS NOT NULL", P( "@Template", SeededRandom.StableGuid( $"registration-template:{CampTemplate}" ) ) )
+                .GroupBy( r => ( int ) r["PersonId"] )
+                .ToDictionary( g => g.Key, g => g.Select( r => (( DateTime ) r["EndDateTime"], ( DateTime ) r["CreatedDateTime"]) ).ToList() );
+        }
 
         /// <summary>
         /// When each person first completed a step in a Ministry by Design stage, in any program.
@@ -500,6 +623,74 @@ WHERE [gt].[Guid] = @Type", P( "@Type", groupTypeGuid ) )
 
             public bool IsFemale { get; set; }
 
+            /// <summary>
+            /// Each student service check-in, as a day number, in order.
+            /// </summary>
+            public int[] StudentCheckIns { get; set; } = Array.Empty<int>();
+
+            public int? GraduationYear { get; set; }
+
+            /// <summary>
+            /// The grade offset of 7th grade in Rock's School Grades.
+            /// </summary>
+            public int SeventhGradeOffset { get; set; }
+
+            /// <summary>
+            /// Rock's GradeTransitionDate, as a month and day.
+            /// </summary>
+            public (int Month, int Day) GradeTransition { get; set; }
+
+            /// <summary>
+            /// The giving unit's gift days, in order.
+            /// </summary>
+            public int[] Gifts { get; set; } = Array.Empty<int>();
+
+            /// <summary>
+            /// The Last Gave date Rock's giving job wrote, as of install day.
+            /// </summary>
+            public DateTime? LastGave { get; set; }
+
+            public DateTime InstallDay { get; set; }
+
+            public List<(DateTime Closes, DateTime Created)> CampRegistrations { get; set; } = new List<(DateTime Closes, DateTime Created)>();
+
+            /// <summary>
+            /// Their grade offset on a day, as Rock's grade filter counts it: years until graduation, from the next
+            /// grade transition date that has not passed.
+            /// </summary>
+            public int? GradeOffsetOn( DateTime day )
+            {
+                if ( !GraduationYear.HasValue )
+                {
+                    return null;
+                }
+
+                var transition = new DateTime( day.Year, GradeTransition.Month, GradeTransition.Day );
+                return GraduationYear.Value - ( transition < day.Date ? transition.Year + 1 : transition.Year );
+            }
+
+            /// <summary>
+            /// Their Last Gave date on a day: Rock's own value on install day, and the unit's newest gift before it on a past day.
+            /// </summary>
+            public DateTime? LastGaveOn( DateTime day )
+            {
+                if ( day.Date >= InstallDay )
+                {
+                    return LastGave;
+                }
+
+                var index = FirstAtOrAfter( Gifts, ToDay( day.Date.AddDays( 1 ) ) );
+                return index > 0 ? FromDay( Gifts[index - 1] ) : ( DateTime? ) null;
+            }
+
+            /// <summary>
+            /// How many of these check-ins fall from <paramref name="from"/> up to <paramref name="until"/>.
+            /// </summary>
+            public static int Count( int[] checkIns, DateTime from, DateTime until )
+            {
+                return CountIn( checkIns, ToDay( from ), ToDay( until ) );
+            }
+
             public DateTime? BirthDate { get; set; }
 
             /// <summary>
@@ -544,18 +735,25 @@ WHERE [gt].[Guid] = @Type", P( "@Type", groupTypeGuid ) )
             /// <summary>
             /// How many weekend service check-ins fall from <paramref name="from"/> up to <paramref name="until"/>.
             /// </summary>
-            public int Count( DateTime from, DateTime until )
-            {
-                var low = Array.BinarySearch( CheckIns, ToDay( from ) );
-                var high = Array.BinarySearch( CheckIns, ToDay( until ) );
-                low = low < 0 ? ~low : FirstIndex( low );
-                high = high < 0 ? ~high : FirstIndex( high );
-                return high - low;
-            }
+            public int Count( DateTime from, DateTime until ) => CountIn( CheckIns, ToDay( from ), ToDay( until ) );
 
-            private int FirstIndex( int index )
+            /// <summary>
+            /// How many days in a sorted list fall from <paramref name="from"/> up to <paramref name="until"/>.
+            /// </summary>
+            private static int CountIn( int[] days, int from, int until ) => FirstAtOrAfter( days, until ) - FirstAtOrAfter( days, from );
+
+            /// <summary>
+            /// The index of the first day in a sorted list on or after <paramref name="day"/>.
+            /// </summary>
+            private static int FirstAtOrAfter( int[] days, int day )
             {
-                while ( index > 0 && CheckIns[index - 1] == CheckIns[index] )
+                var index = Array.BinarySearch( days, day );
+                if ( index < 0 )
+                {
+                    return ~index;
+                }
+
+                while ( index > 0 && days[index - 1] == day )
                 {
                     index--;
                 }

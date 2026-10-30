@@ -971,6 +971,52 @@
         { "p": "Register together and use the code FRIEND for 10 percent off. Bring your sister, your neighbor, or a friend from your small group." },
         { "button": "Register for the retreat", "href": "/women" }
       ]
+    },
+    {
+      "key": "camp-invite",
+      "occasion": "camp-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Save your spot at Student Camp",
+      "preheader": "Five days of games, friends, and Jesus. Grades 7 to 12.",
+      "body": [
+        { "p": "Hey {{ Person.NickName }}! Student Camp is this summer, and we want you there." },
+        { "p": "Five days at the lake with your friends: games, worship every night, and time to talk about what matters. Register now while spots are open." },
+        { "button": "Register for camp", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "camp-early-bird",
+      "occasion": "camp-invitation",
+      "daysBefore": -19,
+      "audience": "person",
+      "topic": "students",
+      "sender": "students",
+      "subject": "The camp early bird price ends soon",
+      "preheader": "Register by April 30 to save on Student Camp.",
+      "body": [
+        { "p": "Hey {{ Person.NickName }}, the early bird price for Student Camp ends April 30." },
+        { "p": "Grab a spot now and bring a friend. Need help with the cost? Ask a student leader on Sunday. Nobody misses camp because of money." },
+        { "button": "Register for camp", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "christmas-invite-a-friend",
+      "occasion": "christmas-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Who will you bring to Christmas Eve?",
+      "preheader": "Christmas Eve is the easiest night of the year to invite a friend.",
+      "body": [
+        { "h": "Christmas Eve at Rock Solid" },
+        { "p": "Hi {{ Person.NickName }}, Christmas Eve is the night more people say yes to church than any other. Think of one friend, neighbor, or coworker you could invite." },
+        { "p": "Services run all afternoon and evening at every campus, with candles, carols, and a short message for the whole family." },
+        { "button": "See Christmas Eve times", "href": "/christmas" }
+      ]
     }
   ]
 }

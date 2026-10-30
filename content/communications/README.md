@@ -54,6 +54,8 @@ Each message names the occasion it belongs to. The loader dates every occasion f
 | `baptism-invitation` | The "Baptism Sunday Invitation" Communication Flow. `daysBefore` is 0 or negative: days after its run, five weeks before a baptism Sunday. |
 | `lead-invitation` | The "Lead a Group" Communication Flow. `daysBefore` is 0 or negative: days after its run, six weeks before a group launch. |
 | `womens-retreat-invitation` | The "Women's Retreat Early Bird" Communication Flow. `daysBefore` is 0 or negative: days after its May or September run. |
+| `camp-invitation` | The "Student Camp Registration" Communication Flow, to students. `daysBefore` is 0 or negative: days after its March run. |
+| `christmas-invitation` | The "Christmas at Rock Solid" Communication Flow. `daysBefore` is 0 or negative: days after its December 1 run. |
 
 ## Audiences
 

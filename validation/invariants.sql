@@ -794,7 +794,25 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [cr].[ForeignKey] = @ForeignKey
     AND ( ( [cr].[UnsubscribeDateTime] IS NULL AND [cr].[UnsubscribeLevel] IS NOT NULL ) OR ( [cr].[UnsubscribeDateTime] IS NOT NULL AND [cr].[UnsubscribeLevel] IS NULL )
         OR ( [cr].[UnsubscribeLevel] = 3 AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [c].[ListGroupId] AND [gm].[PersonId] = [p].[Id] AND [gm].[GroupMemberStatus] = 0 ) )
-        OR ( [cr].[UnsubscribeLevel] = 2 AND [p].[EmailPreference] = 0 ) );
+        OR ( [cr].[UnsubscribeLevel] = 2 AND [p].[EmailPreference] = 0 )
+        OR ( [cr].[UnsubscribeLevel] = 4 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [fr] WHERE [fr].[UnsubscribeCommunicationRecipientId] = [cr].[Id] AND [fr].[Status] = 2 AND [fr].[InactiveReason] = 1 ) ) );
+
+-- check: flow-unsubscribe-leaves-the-flow
+-- why: Decision D-comm-flows-16. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceRecipient] AS [fr]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[Id] = [fr].[UnsubscribeCommunicationRecipientId]
+INNER JOIN [CommunicationFlowInstance] AS [fi] ON [fi].[Id] = [fr].[CommunicationFlowInstanceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [fr].[RecipientPersonAliasId]
+WHERE [fr].[ForeignKey] = @ForeignKey
+    AND ( [cr].[UnsubscribeLevel] <> 4 OR [fr].[Status] <> 2 OR [fr].[InactiveReason] <> 1
+        OR EXISTS (
+            SELECT 1
+            FROM [CommunicationFlowInstanceRecipient] AS [later]
+            INNER JOIN [CommunicationFlowInstance] AS [li] ON [li].[Id] = [later].[CommunicationFlowInstanceId]
+            INNER JOIN [PersonAlias] AS [lpa] ON [lpa].[Id] = [later].[RecipientPersonAliasId]
+            WHERE [li].[CommunicationFlowId] = [fi].[CommunicationFlowId] AND [lpa].[PersonId] = [pa].[PersonId] AND [li].[StartDate] > [cr].[UnsubscribeDateTime]
+                AND NOT ( [later].[Status] = 2 AND [later].[InactiveReason] = 7 ) ) );
 
 -- check: sent-email-has-its-history
 -- why: Rock's email transport writes a "Sent" line on the person's History tab for every email it sends, so every sent email recipient has one.

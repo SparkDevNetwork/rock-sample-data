@@ -39,6 +39,11 @@ namespace RockSampleData.Loader.Model
         /// The workflow types that put people in On-Demand flows.
         /// </summary>
         public List<FlowWorkflowDefinition> Workflows { get; set; } = new List<FlowWorkflowDefinition>();
+
+        /// <summary>
+        /// How many of every thousand delivered flow emails end with the person leaving the flow from its unsubscribe link.
+        /// </summary>
+        public double UnsubscribesPerThousand { get; set; }
     }
 
     /// <summary>
@@ -103,7 +108,7 @@ namespace RockSampleData.Loader.Model
         public string Category { get; set; }
 
         /// <summary>
-        /// onDemand. Recurring and one-time flows come in later slices.
+        /// onDemand or recurring.
         /// </summary>
         public string Trigger { get; set; }
 
@@ -148,9 +153,16 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowSchedule
     {
         /// <summary>
-        /// weekly, monthly, beforeBaptismSundays, or beforeGroupLaunches.
+        /// weekly, monthly, yearly, beforeBaptismSundays, or beforeGroupLaunches.
         /// </summary>
         public string Kind { get; set; }
+
+        /// <summary>
+        /// For yearly: the month and day.
+        /// </summary>
+        public int Month { get; set; }
+
+        public int Day { get; set; }
 
         /// <summary>
         /// For monthly: only these months, 1 to 12. Empty means every month.
@@ -190,7 +202,8 @@ namespace RockSampleData.Loader.Model
         public string View { get; set; }
 
         /// <summary>
-        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, or readyToLead.
+        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, readyToLead,
+        /// studentsNotRegisteredForCamp, or involvedAdults.
         /// </summary>
         public string Rule { get; set; }
     }
@@ -293,7 +306,7 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowGoal
     {
         /// <summary>
-        /// joinedGroupType, tookStep, completedForm, enteredDataView, or registered.
+        /// joinedGroupType, joinedGroup, tookStep, completedForm, enteredDataView, registered, or none.
         /// </summary>
         public string Type { get; set; }
 
@@ -323,8 +336,8 @@ namespace RockSampleData.Loader.Model
         public string Workflow { get; set; }
 
         /// <summary>
-        /// For registered: the registration template's key in configuration/registrations.json. The goal names the
-        /// template's newest instance whose registration opened by install day.
+        /// For registered and joinedGroup: the registration template's key in configuration/registrations.json. The goal
+        /// names the template's newest instance whose registration opened by install day, or that instance's linked group.
         /// </summary>
         public string Registration { get; set; }
 

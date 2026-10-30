@@ -58,6 +58,9 @@ namespace RockSampleData.Loader.Loading
     internal sealed partial class FlowLoader
     {
         private const int OnDemand = 2;
+        private const int Unsubscribed = 1;
+        private const int UnsubscribedFromFlow = 7;
+        private const int FlowsUnsubscribeLevel = 4;
         private const int EmailType = 1;
         private const int SmsType = 2;
         private const int ActiveRecipient = 1;
@@ -82,6 +85,7 @@ namespace RockSampleData.Loader.Loading
             ["completedForm"] = 1,
             ["registered"] = 2,
             ["joinedGroupType"] = 3,
+            ["joinedGroup"] = 4,
             ["enteredDataView"] = 5,
             ["tookStep"] = 6
         };
@@ -121,7 +125,7 @@ namespace RockSampleData.Loader.Loading
         private readonly string _seed;
 
         private readonly DataTable _links = TableFactory.Create( "CommunicationFlowInstanceId:int", "CommunicationFlowCommunicationId:int", "CommunicationId:int", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
-        private readonly DataTable _recipients = TableFactory.Create( "CommunicationFlowInstanceId:int", "RecipientPersonAliasId:int", "Status:int", "InactiveReason:int", "WasConversionGoalPreMet:bool", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
+        private readonly DataTable _recipients = TableFactory.Create( "CommunicationFlowInstanceId:int", "RecipientPersonAliasId:int", "Status:int", "InactiveReason:int", "UnsubscribeCommunicationRecipientId:int", "WasConversionGoalPreMet:bool", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
         private readonly DataTable _conversions = TableFactory.Create( "CommunicationFlowInstanceCommunicationId:int", "Date:date", "PersonAliasId:int", "CommunicationRecipientId:int", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
         private readonly DataTable _texts = TableFactory.Create( "Id:int", "Name:string", "CommunicationType:int", "Status:int", "IsBulkCommunication:bool", "SenderPersonAliasId:int", "ReviewerPersonAliasId:int",
             "ReviewedDateTime:date", "SegmentCriteria:int", "CommunicationTemplateId:int", "SMSMessage:string", "SmsFromSystemPhoneNumberId:int", "SendDateTime:date", "SendDateKey:int",
@@ -165,6 +169,8 @@ namespace RockSampleData.Loader.Loading
                 ReservedEmailSuffix = "@" + ( _source.Flows?.ReservedEmailDomain ?? "example.org" ),
                 EmailLibrary = _source.ReadEmailLibrary().Emails.ToDictionary( e => e.Key ),
                 TextLibrary = _source.ReadTextLibrary().Texts.Where( t => t.Medium == "sms" ).ToDictionary( t => t.Key ),
+                PushLibrary = _source.ReadTextLibrary().Texts.Where( t => t.Medium == "push" ).ToDictionary( t => t.Key ),
+                App = _source.ChurchApp?.IsComplete == true ? _source.ChurchApp : null,
                 SenderAliasId = people.People[configuration.Senders.Church.Sender].AliasId,
                 ByAlias = emails.EmailPeople.GroupBy( p => p.AliasId ).ToDictionary( g => g.Key, g => g.First() ),
                 Template = _db.Query( "SELECT [LogoBinaryFileId], [CategoryId], [LavaFieldsJson] FROM [CommunicationTemplate] WHERE [Guid] = @Guid", P( "@Guid", templateGuid ) ).First(),
@@ -176,8 +182,10 @@ namespace RockSampleData.Loader.Loading
                 .ToDictionary( r => ( int ) r["Id"], r => r["Email"] as string );
             context.Mobiles = Mobiles();
             context.NickNames = people.People.Values.GroupBy( p => p.PersonId ).ToDictionary( g => g.Key, g => g.First().Cast.NickName ?? g.First().Cast.FirstName );
-            var mainNumber = configuration.PhoneNumbers.Numbers.FirstOrDefault( n => n.Key == "main" );
-            context.MainNumberId = mainNumber == null ? null : _db.IdByGuid( "SystemPhoneNumber", mainNumber.Guid );
+            context.NumberIds = configuration.PhoneNumbers.Numbers.Select( n => (n.Key, Id: _db.IdByGuid( "SystemPhoneNumber", n.Guid )) ).Where( n => n.Id.HasValue ).ToDictionary( n => n.Key, n => n.Id.Value );
+            context.MainNumberId = context.NumberIds.TryGetValue( "main", out var mainNumberId ) ? mainNumberId : null;
+            context.Devices = Devices( context );
+            context.PushData = PushData( context );
             _nextLinkId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [CommunicationFlowInstanceCommunication]" ) );
 
             foreach ( var flow in flows )
@@ -186,6 +194,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             context.Writer.Finish();
+            FinishPushes( context );
             _db.BulkInsert( "Communication", _texts, keepIdentity: true );
             _db.BulkInsert( "CommunicationRecipient", _textRecipients, keepIdentity: true );
             _db.BulkInsert( "History", _textHistory, keepIdentity: false );
@@ -200,7 +209,7 @@ namespace RockSampleData.Loader.Loading
             var goal = Goal( flow, context );
             if ( goal == null )
             {
-                _db.Log.Write( $"  Communication flow: {flow.Name} skipped, this load has no {flow.Goal.Registration} registration instance" );
+                _db.Log.Write( $"  Communication flow: {flow.Name} skipped, this load has no {flow.Goal.Registration} registration instance or group" );
                 return;
             }
 
@@ -212,8 +221,9 @@ namespace RockSampleData.Loader.Loading
             var workflow = flow.Entry?.Workflow == null ? null : _source.Flows.Workflows.FirstOrDefault( w => w.Key == flow.Entry.Workflow )
                 ?? throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} enters from workflow '{flow.Entry.Workflow}', which the file does not define." );
             var formEntries = workflow == null ? null : FormEntries( flow, context, goal, firstDay );
-            var entries = flow.Trigger == "recurring" ? null : formEntries?.Select( e => (Day: e.At.Date, e.Person) ).ToList() ?? StepEntries( flow, context );
-            var entrants = flow.Trigger == "recurring" ? RecurringRuns( flow, context, firstDay ) : entries
+            var isScheduled = flow.Trigger == "recurring";
+            var entries = isScheduled ? null : formEntries?.Select( e => (Day: e.At.Date, e.Person) ).ToList() ?? StepEntries( flow, context );
+            var entrants = isScheduled ? RecurringRuns( flow, context, firstDay ) : entries
                 .Where( e => e.Day >= firstDay && ( context.AllowOpenRuns ? e.Day < _dates.Anchor.Date : LastSend( flow, e.Day ) < _dates.Anchor ) )
                 .GroupBy( e => e.Day )
                 .OrderBy( g => g.Key )
@@ -225,8 +235,8 @@ namespace RockSampleData.Loader.Loading
             }
 
             var launched = entrants[0].Start.AddDays( -14 ).AddHours( 11 );
-            var scheduleId = flow.Trigger == "recurring" ? WriteSchedule( flow, entrants[0].Start, launched ) : ( int? ) null;
-            var trackingClosed = entrants.All( e => TrackingDone( flow, e.Start ) );
+            var scheduleId = isScheduled ? WriteSchedule( flow, entrants[0].Start, launched ) : ( int? ) null;
+            var trackingClosed = goal.TypeValue.HasValue && entrants.All( e => TrackingDone( flow, e.Start ) );
             var categoryId = flow.Category == null ? ( int? ) null : _db.RequireIdByGuid( "Category", _source.Categories.Get( flow.Category ).Guid );
             var flowId = Convert.ToInt32( _db.Scalar( @"
 INSERT INTO [CommunicationFlow] ( [Name], [Description], [CategoryId], [PublicName], [IsActive], [TriggerType], [ScheduleId], [ConversionGoalType], [ConversionGoalTargetPercent], [ConversionGoalTimeframeInDays],
@@ -234,8 +244,9 @@ INSERT INTO [CommunicationFlow] ( [Name], [Description], [CategoryId], [PublicNa
 OUTPUT INSERTED.[Id]
 VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @ScheduleId, @Goal, @Target, @Days, @Exit, @Settings, 0, @TrackingClosed, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
                 P( "@Name", flow.Name ), P( "@Description", flow.Description ), P( "@CategoryId", ( object ) categoryId ?? DBNull.Value ), P( "@PublicName", ( object ) flow.PublicName ?? DBNull.Value ),
-                P( "@Active", flow.IsActive ), P( "@Trigger", flow.Trigger == "recurring" ? Recurring : OnDemand ), P( "@ScheduleId", ( object ) scheduleId ?? DBNull.Value ), P( "@Goal", goal.TypeValue ), P( "@Target", flow.Goal.TargetPercent ), P( "@Days", flow.Goal.Days ), P( "@Exit", exitType ),
-                P( "@Settings", goal.SettingsJson ), P( "@TrackingClosed", trackingClosed ), P( "@Guid", SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}" ) ), P( "@Launched", launched ),
+                P( "@Active", flow.IsActive ), P( "@Trigger", flow.Trigger == "recurring" ? Recurring : OnDemand ), P( "@ScheduleId", ( object ) scheduleId ?? DBNull.Value ),
+                P( "@Goal", ( object ) goal.TypeValue ?? DBNull.Value ), P( "@Target", goal.TypeValue.HasValue ? flow.Goal.TargetPercent : DBNull.Value ), P( "@Days", goal.TypeValue.HasValue ? flow.Goal.Days : DBNull.Value ), P( "@Exit", exitType ),
+                P( "@Settings", ( object ) goal.SettingsJson ?? DBNull.Value ), P( "@TrackingClosed", trackingClosed ), P( "@Guid", SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}" ) ), P( "@Launched", launched ),
                 P( "@Sender", context.SenderAliasId ), P( "@ForeignKey", _foreignKey ) ) );
 
             foreach ( var message in messages )
@@ -252,6 +263,8 @@ VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @Sche
             }
 
             var stats = new FlowStats();
+            var unsubscribed = new Dictionary<int, (DateTime When, object InstanceId)>();
+            var rowsBefore = _recipients.Rows.Count;
             foreach ( var (start, joined) in entrants )
             {
                 var lastSend = LastSend( flow, start );
@@ -270,10 +283,24 @@ VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @Sche
                     continue;
                 }
 
-                WriteRun( flow, context, messages, goal, exitType, flowId, start, isOpen, members, stats );
+                WriteRun( flow, context, messages, goal, exitType, flowId, start, isOpen, members, stats, unsubscribed );
             }
 
-            _db.Log.Write( $"  Communication flow: {flow.Name}, {stats.Runs:N0} runs ({stats.OpenRuns:N0} still sending) for {stats.People:N0} people, {stats.Sends:N0} sends, {stats.Conversions:N0} reached the goal"
+            // Leaving a flow from an email's link takes the person out of every other run of the flow they were still Active in.
+            for ( var i = rowsBefore; i < _recipients.Rows.Count; i++ )
+            {
+                var row = _recipients.Rows[i];
+                var personId = context.ByAlias[( int ) row["RecipientPersonAliasId"]].PersonId;
+                if ( unsubscribed.TryGetValue( personId, out var unsubscribe ) && !Equals( row["CommunicationFlowInstanceId"], unsubscribe.InstanceId )
+                    && ( DateTime ) row["CreatedDateTime"] < unsubscribe.When && ( ( int ) row["Status"] == ActiveRecipient || ( DateTime ) row["ModifiedDateTime"] > unsubscribe.When ) )
+                {
+                    row["Status"] = InactiveRecipient;
+                    row["InactiveReason"] = UnsubscribedFromFlow;
+                    row["ModifiedDateTime"] = unsubscribe.When;
+                }
+            }
+
+            _db.Log.Write( $"  Communication flow: {flow.Name}, {stats.Runs:N0} runs ({stats.OpenRuns:N0} still sending) for {stats.People:N0} people, {stats.Sends:N0} sends, {stats.Conversions:N0} reached the goal, {unsubscribed.Count:N0} unsubscribed"
                 + ( stats.LeftOutOfOpenRuns > 0 ? $", {stats.LeftOutOfOpenRuns:N0} left out of open runs for a real email address" : string.Empty ) );
         }
 
@@ -390,7 +417,7 @@ WHERE [a].[Guid] = @Attribute AND [av].[Value] = 'True'", P( "@Attribute", bapti
                 .ToList();
         }
 
-        private void WriteRun( FlowDefinition flow, FlowContext context, List<MessageBlueprint> messages, GoalPlan goal, int exitType, int flowId, DateTime start, bool isOpen, List<EmailPerson> members, FlowStats stats )
+        private void WriteRun( FlowDefinition flow, FlowContext context, List<MessageBlueprint> messages, GoalPlan goal, int exitType, int flowId, DateTime start, bool isOpen, List<EmailPerson> members, FlowStats stats, Dictionary<int, (DateTime When, object InstanceId)> unsubscribed )
         {
             stats.Runs++;
             stats.People += members.Count;
@@ -439,9 +466,17 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
 
             // When each person left by the exit rule, and why. Rock's job notices it on its next run while the run is still sending.
             var left = new Dictionary<int, (DateTime When, int Reason)>();
+
+            // Rock adds a person who left the flow earlier to each new run as Inactive, so nothing reaches them.
+            foreach ( var person in members.Where( p => unsubscribed.TryGetValue( p.PersonId, out var u ) && u.When < start ) )
+            {
+                left[person.PersonId] = (start.AddHours( 6 ), UnsubscribedFromFlow);
+            }
+
+            var unsubscribeRecipientIds = new Dictionary<int, int>();
             if ( exitType == ExitTypes["conversionAchieved"] )
             {
-                foreach ( var (personId, when) in converted )
+                foreach ( var (personId, when) in converted.Where( c => !left.ContainsKey( c.Key ) ) )
                 {
                     left[personId] = (when, ConversionGoalMet);
                 }
@@ -454,7 +489,22 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 var to = members.Where( p => !left.TryGetValue( p.PersonId, out var l ) || l.When.Date >= at.Date ).ToList();
                 var key = $"flow:{flow.Key}:{message.Key}:{start:yyyyMMdd}";
                 var engaged = new Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)>();
-                var (communicationId, recipientIds) = message.IsText ? WriteText( flow, message, context, key, at, to ) : WriteEmail( flow, message, context, key, at, to, engaged );
+                var unsubscribes = new Dictionary<int, (DateTime When, int RecipientId)>();
+                var (communicationId, recipientIds) = message.IsText ? WriteText( flow, message, context, key, at, to )
+                    : message.IsPush ? WritePush( flow, message, context, key, at, to )
+                    : WriteEmail( flow, message, context, key, at, to, engaged, unsubscribes );
+
+                // Rock's email preference page takes a person who unsubscribes out of the flow, and the job marks this run's row.
+                foreach ( var (personId, (when, recipientId)) in unsubscribes )
+                {
+                    if ( !left.TryGetValue( personId, out var earlier ) || earlier.When > when )
+                    {
+                        left[personId] = (when, Unsubscribed);
+                    }
+
+                    unsubscribeRecipientIds[personId] = recipientId;
+                    unsubscribed[personId] = (when, instanceId);
+                }
                 stats.Sends++;
 
                 // An open or a click on any of the run's emails takes the person out, when that is the exit rule.
@@ -495,14 +545,22 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 }
 
                 // Rock's job prunes on each run while the run is still sending, so only an exit before the last send takes the person out.
-                var hasLeft = left.TryGetValue( person.PersonId, out var exitAt ) && ( isOpen || exitAt.When.Date < lastMessageDay );
-                _recipients.Rows.Add( instanceId, person.AliasId, hasLeft ? InactiveRecipient : ActiveRecipient, hasLeft ? exitAt.Reason : ( object ) DBNull.Value, preMet,
+                // An unsubscribe counts whenever it happened, as Rock's job updates every run of an active flow.
+                var hasLeft = left.TryGetValue( person.PersonId, out var exitAt ) && ( isOpen || exitAt.When.Date < lastMessageDay || exitAt.Reason == UnsubscribedFromFlow );
+                if ( unsubscribeRecipientIds.TryGetValue( person.PersonId, out var unsubscribeRecipientId ) )
+                {
+                    hasLeft = true;
+                    exitAt = (unsubscribed[person.PersonId].When, Unsubscribed);
+                }
+
+                _recipients.Rows.Add( instanceId, person.AliasId, hasLeft ? InactiveRecipient : ActiveRecipient, hasLeft ? exitAt.Reason : ( object ) DBNull.Value,
+                    unsubscribeRecipientIds.ContainsKey( person.PersonId ) ? unsubscribeRecipientId : ( object ) DBNull.Value, preMet,
                     SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:recipient:{start:yyyyMMdd}:{person.Guid}" ), start.AddHours( 6 ), hasLeft ? exitAt.When : start.AddHours( 6 ), _foreignKey );
             }
         }
 
         private (int CommunicationId, Dictionary<int, int> RecipientIds) WriteEmail( FlowDefinition flow, MessageBlueprint message, FlowContext context, string key, DateTime at, List<EmailPerson> to,
-            Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)> engaged )
+            Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)> engaged, Dictionary<int, (DateTime When, int RecipientId)> unsubscribes )
         {
             var main = context.Emails.CampusList.First();
             var tokens = MessageRenderer.Tokens( at, at, main.Name, main.Key, main.ServiceTimes, null );
@@ -524,6 +582,18 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 context.Emails.Planner.PlanOneToOne( send, person, $"{_seed}:flow:{send.Key}:{person.Guid}" );
             }
 
+            // A few people who open a flow email leave the flow from its unsubscribe link. The Cast never does at random.
+            foreach ( var recipient in send.Recipients.Where( r => r.OpenedDateTime.HasValue && !r.Person.IsCast ) )
+            {
+                var random = new SeededRandom( $"{recipient.Seed}:unsubscribe" );
+                var when = recipient.OpenedDateTime.Value.AddMinutes( random.Between( 1, 20 ) );
+                if ( random.Chance( ( _source.Flows?.UnsubscribesPerThousand ?? 0 ) / 1000 ) && when < _dates.Anchor )
+                {
+                    recipient.UnsubscribeLevel = FlowsUnsubscribeLevel;
+                    recipient.UnsubscribeDateTime = when;
+                }
+            }
+
             var (communicationId, firstRecipientId) = context.Writer.Add( send, new EmailSendContext
             {
                 SenderAliasId = context.SenderAliasId,
@@ -543,6 +613,11 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 if ( send.Recipients[i].DeliveredDateTime.HasValue )
                 {
                     ids[send.Recipients[i].Person.PersonId] = firstRecipientId + i;
+                }
+
+                if ( send.Recipients[i].UnsubscribeDateTime.HasValue )
+                {
+                    unsubscribes[send.Recipients[i].Person.PersonId] = (send.Recipients[i].UnsubscribeDateTime.Value, firstRecipientId + i);
                 }
 
                 var opens = send.Recipients[i].Interactions.Where( x => x.Operation == "Opened" ).Select( x => x.When ).ToList();
@@ -568,7 +643,7 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
             var personTypeId = _db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid );
             var historyCategoryId = _db.RequireIdByGuid( "Category", CommunicationHistoryCategoryGuid );
             _texts.Rows.Add( communicationId, $"{flow.Name} – {message.Name}", SmsType, ApprovedStatus, true, context.SenderAliasId, context.SenderAliasId, at.AddMinutes( -5 ), 0, message.TemplateId,
-                message.Text.Text, context.MainNumberId, at, DateKey( at ), false,
+                message.Text.Text, message.NumberId, at, DateKey( at ), false,
                 context.TopicIds.TryGetValue( message.Text.Topic ?? string.Empty, out var topic ) ? topic : DBNull.Value,
                 SeededRandom.StableGuid( $"{_seed}:{key}:communication" ), at.AddMinutes( -5 ), at, context.SenderAliasId, context.SenderAliasId, _foreignKey );
 
@@ -618,13 +693,18 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
             {
                 blueprint.Email = email;
             }
-            else if ( context.TextLibrary.TryGetValue( message.Key, out var text ) && context.MainNumberId.HasValue )
+            else if ( context.TextLibrary.TryGetValue( message.Key, out var text ) && context.NumberIds.TryGetValue( text.Line ?? "main", out var numberId ) )
             {
                 blueprint.Text = text;
+                blueprint.NumberId = numberId;
+            }
+            else if ( context.PushLibrary.TryGetValue( message.Key, out var push ) )
+            {
+                blueprint.Push = push;
             }
             else
             {
-                throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} sends '{message.Key}', which is neither an email in emails.json nor a text in texts.json." );
+                throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} sends '{message.Key}', which is not an email in emails.json, or a text or push in texts.json." );
             }
 
             return blueprint;
@@ -636,12 +716,18 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
         /// </summary>
         private GoalPlan Goal( FlowDefinition flow, FlowContext context )
         {
+            // A flow with no goal shows Not Tracked: nothing converts, and nothing is met before a run.
+            if ( flow.Goal?.Type == "none" )
+            {
+                return new GoalPlan { Dates = new Dictionary<int, List<DateTime>>(), WindowEnd = ( start, days ) => start, PreMet = ( dates, start ) => false };
+            }
+
             if ( !GoalTypes.TryGetValue( flow.Goal?.Type ?? string.Empty, out var type ) )
             {
                 throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has goal '{flow.Goal?.Type}', which is not one this slice writes." );
             }
 
-            if ( flow.Goal.Type == "completedForm" || flow.Goal.Type == "enteredDataView" || flow.Goal.Type == "registered" )
+            if ( flow.Goal.Type == "completedForm" || flow.Goal.Type == "enteredDataView" || flow.Goal.Type == "registered" || flow.Goal.Type == "joinedGroup" )
             {
                 return RecurringGoal( flow, context, type );
             }
@@ -717,7 +803,7 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
             return day.Add( TimeSpan.Parse( flow.Messages.Last().Time ?? "10:00", System.Globalization.CultureInfo.InvariantCulture ) );
         }
 
-        private bool TrackingDone( FlowDefinition flow, DateTime start ) => start.AddDays( flow.Goal.Days ) < _dates.Anchor.Date;
+        private bool TrackingDone( FlowDefinition flow, DateTime start ) => flow.Goal?.Type != "none" && start.AddDays( flow.Goal.Days ) < _dates.Anchor.Date;
 
         private static int DateKey( DateTime date ) => ( date.Year * 10000 ) + ( date.Month * 100 ) + date.Day;
 
@@ -736,6 +822,22 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
             public Dictionary<string, LibraryEmail> EmailLibrary { get; set; }
 
             public Dictionary<string, LibraryText> TextLibrary { get; set; }
+
+            public Dictionary<string, LibraryText> PushLibrary { get; set; }
+
+            /// <summary>
+            /// The church app, when this load has it.
+            /// </summary>
+            public ChurchAppConfiguration App { get; set; }
+
+            public Dictionary<int, FlowDevice> Devices { get; set; }
+
+            public string PushData { get; set; }
+
+            /// <summary>
+            /// Each texting number's Id, by its key in configuration/communications.json.
+            /// </summary>
+            public Dictionary<string, int> NumberIds { get; set; }
 
             public int SenderAliasId { get; set; }
 
@@ -765,7 +867,10 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
 
         private sealed class GoalPlan
         {
-            public int TypeValue { get; set; }
+            /// <summary>
+            /// Rock's goal type, or null for a flow with no goal.
+            /// </summary>
+            public int? TypeValue { get; set; }
 
             public string SettingsJson { get; set; }
 
@@ -830,7 +935,16 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
 
             public LibraryText Text { get; set; }
 
+            public LibraryText Push { get; set; }
+
+            /// <summary>
+            /// The texting number a text goes out on: its library line.
+            /// </summary>
+            public int? NumberId { get; set; }
+
             public bool IsText => Text != null;
+
+            public bool IsPush => Push != null;
 
             public int Id { get; private set; }
 
@@ -853,7 +967,17 @@ INSERT INTO [CommunicationTemplate] ( [Name], [Description], [IsSystem], [Sender
     [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
 OUTPUT INSERTED.[Id]
 VALUES ( @Name, '', 0, @Sender, @Message, @Number, 1, @CategoryId, 1, 0, 1, 1, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
-                        P( "@Name", $"{Flow.Name} - {Name}" ), P( "@Sender", Context.SenderAliasId ), P( "@Message", Text.Text ), P( "@Number", Context.MainNumberId.Value ),
+                        P( "@Name", $"{Flow.Name} - {Name}" ), P( "@Sender", Context.SenderAliasId ), P( "@Message", Text.Text ), P( "@Number", NumberId.Value ),
+                        P( "@CategoryId", Context.Template["CategoryId"] ), P( "@Guid", templateGuid ), P( "@Launched", launched ), P( "@ForeignKey", Loader._foreignKey ) ) );
+                }
+                else if ( IsPush )
+                {
+                    TemplateId = Convert.ToInt32( db.Scalar( @"
+INSERT INTO [CommunicationTemplate] ( [Name], [Description], [IsSystem], [SenderPersonAliasId], [PushTitle], [PushMessage], [PushData], [PushOpenAction], [IsActive], [CategoryId], [CssInliningEnabled], [IsStarter], [Version], [UsageType],
+    [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
+OUTPUT INSERTED.[Id]
+VALUES ( @Name, '', 0, @Sender, @Title, @Message, @Data, 0, 1, @CategoryId, 1, 0, 1, 1, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
+                        P( "@Name", $"{Flow.Name} - {Name}" ), P( "@Sender", Context.SenderAliasId ), P( "@Title", Push.Title ), P( "@Message", Push.Text ), P( "@Data", Context.PushData ),
                         P( "@CategoryId", Context.Template["CategoryId"] ), P( "@Guid", templateGuid ), P( "@Launched", launched ), P( "@ForeignKey", Loader._foreignKey ) ) );
                 }
                 else
@@ -875,7 +999,7 @@ VALUES ( @Name, '', 0, @Subject, @FromName, @FromEmail, @Sender, @Message, 1, @L
 INSERT INTO [CommunicationFlowCommunication] ( [Name], [DaysToWait], [TimeToSend], [CommunicationType], [CommunicationFlowId], [CommunicationTemplateId], [Order], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
 OUTPUT INSERTED.[Id]
 VALUES ( @Name, @Days, @Time, @Type, @FlowId, @TemplateId, @Order, @Guid, @Launched, @Launched, @ForeignKey )",
-                    P( "@Name", Name ), P( "@Days", DaysToWait ), P( "@Time", TimeToSend ), P( "@Type", IsText ? SmsType : EmailType ), P( "@FlowId", flowId ), P( "@TemplateId", TemplateId ), P( "@Order", Order ),
+                    P( "@Name", Name ), P( "@Days", DaysToWait ), P( "@Time", TimeToSend ), P( "@Type", IsText ? SmsType : IsPush ? PushType : EmailType ), P( "@FlowId", flowId ), P( "@TemplateId", TemplateId ), P( "@Order", Order ),
                     P( "@Guid", SeededRandom.StableGuid( $"{Loader._seed}:flow:message:{Key}" ) ), P( "@Launched", launched ), P( "@ForeignKey", Loader._foreignKey ) ) );
             }
         }
