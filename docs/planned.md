@@ -22,6 +22,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations**: one cancelled mission trip spot with a refunded deposit, financial batch history for registration payments, and the registration emails (confirmations, reminders, payment reminders, and signature receipts) as communication history. Everything else is built: the setup, the students, kids, and adults who registered, their payments, payment plans, wait lists, and placements, the signed camp and mission trip releases, the notes and history, reminders, and data views. See [Event registrations](registrations.md).
 - **Event images:** a titled design or a photo for each of the calendar's 51 events. The calendar itself is built (see [Calendar](calendar.md)), and each image loads as it arrives.
+- **Data views and reports:** a layered set of foundation data views, ministry data views, and reports, with category security that locks finance and safety to their own roles. It is a proposal waiting for approval. See [Data views and reports](reporting.md).
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 
