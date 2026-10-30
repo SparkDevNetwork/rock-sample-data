@@ -76,6 +76,95 @@
       "time": "15:00",
       "text": "Met with Bill about the stress of growing his business. Talked through limits on work hours and protecting time at home. Meeting again in three weeks.",
       "testPurpose": "A Counseling note, seen only by pastoral workers and Rock administrators."
+    },
+    {
+      "key": "alisha-rock-go-to",
+      "guid": "E9A4B619-C39C-49BA-837D-AF558F5BBA1C",
+      "about": "alisha",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 900
+      },
+      "time": "10:15",
+      "text": "Alisha is the person to ask about anything in Rock: security roles, reports, check-in, and the connections board. Please check with her before changing a setting or adding a page.",
+      "isPinned": true,
+      "testPurpose": "A pinned Personal Note on the Rock administrator, the profile many people open first."
+    },
+    {
+      "key": "alisha-tucson-follow-up-visit",
+      "guid": "13200F05-3FE6-46CF-85F9-205FEA97B57C",
+      "about": "alisha",
+      "type": "phone",
+      "author": "ted",
+      "written": {
+        "daysAgo": 286
+      },
+      "time": "15:40",
+      "text": "Alisha called from the road. Her dad's follow-up visit in Tucson went well, and the doctor is happy with how he is healing. She will be back in the office Thursday and is answering email in the meantime.",
+      "testPurpose": "A Phone Note that follows her dad's heart procedure, two weeks after the Pastoral note."
+    },
+    {
+      "key": "alisha-womens-group-growing",
+      "guid": "A3EC837B-85CA-4AF2-BE90-48B010C99F04",
+      "about": "alisha",
+      "type": "personal",
+      "author": "jamal",
+      "written": {
+        "daysAgo": 64
+      },
+      "time": "13:20",
+      "text": "More women keep asking to join Alisha's Wednesday group than her living room can hold. Two women in the group are ready to co-lead a second one. Meeting with the three of them next week to plan it.",
+      "testPurpose": "A Personal Note with a reply on a staff member who also leads a women's small group.",
+      "replies": [
+        {
+          "guid": "5198694E-4738-4844-9345-B457E7D08DBD",
+          "author": "pete",
+          "written": {
+            "daysAgo": 63
+          },
+          "time": "08:30",
+          "text": "Love this. Let me know what the new group needs to get started."
+        }
+      ]
+    },
+    {
+      "key": "alisha-workload",
+      "guid": "8DF46C9B-FAFD-4B7E-9697-F187B218F58E",
+      "about": "alisha",
+      "type": "personal",
+      "author": "pete",
+      "written": {
+        "daysAgo": 41
+      },
+      "time": "17:05",
+      "text": "Alisha is carrying the connections board and Rock training on top of the front office. Talk with Greg about moving the weekly bulletin to Daniel's team before the holiday season.",
+      "isPrivate": true,
+      "testPurpose": "A private note from her supervisor: only Pete sees it, not Alisha when she signs in."
+    },
+    {
+      "key": "alisha-office-hours-cover",
+      "guid": "DD2D4809-659D-4762-BD88-6E495CA884A9",
+      "about": "alisha",
+      "type": "followUp",
+      "author": "pete",
+      "written": {
+        "daysAgo": 16
+      },
+      "time": "11:45",
+      "text": "Alisha is training the campus office volunteers on check-in the same morning as Rock Office Hours. {@daniel} can you host Office Hours that day so she can stay with the training?",
+      "testPurpose": "A Follow-up note with a mention and a reply, about the Rock Office Hours she leads.",
+      "replies": [
+        {
+          "guid": "FBFA694C-1568-4B92-B575-B25D8B52C69E",
+          "author": "daniel",
+          "written": {
+            "daysAgo": 16
+          },
+          "time": "13:10",
+          "text": "Happy to. I'll grab her list of open questions the day before."
+        }
+      ]
     }
   ]
 }
