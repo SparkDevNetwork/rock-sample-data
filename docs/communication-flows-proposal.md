@@ -101,25 +101,25 @@ See Section 4.
 ### Flow 3. First-Time Guest Welcome
 
 - **Purpose.** Welcome every adult first-time guest and help them come back.
-- **Trigger.** Recurring, every Monday at 9 a.m., to a new data view: adults who accept email and came to worship for the first time in the last 7 days.
+- **Trigger.** Recurring, every Monday at 9 a.m., to the First Visit Last Week data view: adults who accept mass email and came to worship for the first time in the last 7 days.
 - **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
-- **Goal.** Entered Data View: "Coming Regularly," adults who came to worship 3 or more times in the last 8 weeks. Window 56 days. Target 25%.
+- **Goal.** Entered Data View: Regular Attenders, 4 or more worship check-ins in 12 weeks, the reports work's shared rule. Window 84 days, so a guest has time to reach it. The target is set from what that view finds, about 25%.
 - **Exit.** Last Message Sent.
 - **Cast.** Jordan and Hannah Ellis, who first came 120 days ago. They are in the run for the Monday after, both converted, and Hannah clicked the Starting Point link.
 
 ### Flow 4. We Miss You
 
 - **Purpose.** Reach regulars who have stopped coming, before they drift away for good.
-- **Trigger.** Recurring, the first Tuesday of each month, to a new data view: "Newly Missed," the people on the existing We Miss You view whose 90 days without a visit ran out in the last month. So no one gets it twice.
+- **Trigger.** Recurring, the first Tuesday of each month, to the Newly Missed data view: Drifting Adults (the We Miss You rule) who accept mass email and came at least once in the last 120 days. So a person qualifies for about one month, and no one gets it twice.
 - **Messages.** Email ("We miss you, and we're praying for you"). SMS 7 days later, only to those still in the flow.
-- **Goal.** Entered Data View: came to worship in the last 30 days. Window 60 days. Target 15%.
+- **Goal.** Entered Data View: Back in the Last 30 Days. Window 60 days. Target 15%.
 - **Exit.** Any Email Opened. The point is to be seen once, so people who open the email do not get the text.
 - **Cast.** Luis and Teresa Ortiz, who stopped coming about six months ago. Teresa opened the email and left the flow. Luis did not open it, so he got the text. Neither has come back, so their run shows the goal missed.
 
 ### Flow 5. Baptism Sunday Invitation
 
 - **Purpose.** Before each baptism Sunday, invite regular attenders who have not been baptized.
-- **Trigger.** Recurring, on specific dates: 5 weeks before Easter and 5 weeks before the July baptism Sunday. Audience: a new data view of adults who came to worship 6 or more times in the last 3 months and have no Baptism step.
+- **Trigger.** Recurring, on specific dates: 5 weeks before Easter and 5 weeks before the July baptism Sunday. Audience: the Unbaptized Regular Attenders data view, adults who are Regular Attenders and have no Baptism step.
 - **Messages.** Email ("Is it time?") with a button to the Baptism Interest form. SMS 7 days later.
 - **Goal.** Completed Form: the Baptism Interest workflow (open question 2). Window 35 days. Target 5%.
 - **Exit.** Any Email Clicked. A person who clicked has the form in front of them, so the text would only nag.
@@ -137,7 +137,7 @@ See Section 4.
 ### Flow 7. Women's Retreat Early Bird
 
 - **Purpose.** Invite women to the Women's Retreat before the early bird ends October 31.
-- **Trigger.** One-Time, in early September, to a new data view: women 25 to 75 who accept email and came in the last year.
+- **Trigger.** One-Time, in early September, to the Women Who Attend data view: adult women 25 to 75 who accept mass email and came to worship in the last 12 months.
 - **Messages.** Email. Email 14 days later ("Bring a friend: use code FRIEND").
 - **Goal.** Registered: the next Women's Retreat registration instance. Window 60 days. Target 10%.
 - **Exit.** Conversion Achieved.
@@ -146,13 +146,25 @@ See Section 4.
 ### Flow 8. Christmas at Rock Solid
 
 - **Purpose.** Help the church invite friends to Christmas Eve.
-- **Trigger.** One-Time, last December 1, to a new data view of involved adults (attended, gave, or were in a group in the last year).
+- **Trigger.** One-Time, last December 1, to the Involved Adults data view: adults who came to worship, gave (Rock's Last Gave attribute), or were in a small group or on a serving team in the last 12 months.
 - **Messages.** Email with service times on December 1. Push on December 20 ("Who will you invite?"), to people with the app. SMS the morning of December 24 ("See you tonight").
 - **Goal.** None. Goal progress shows Not Tracked.
 - **Exit.** Last Message Sent.
 - **Cast.** The Deckers and the other involved Cast adults get it. Ted Decker opens it on his phone.
 
-**Data views.** Seven, built with Rock's own filters: First Visit Last Week, Coming Regularly, Newly Missed, Back in the Last 30 Days, Unbaptized Regular Attenders, Women Who Attend, and Involved Adults. Each reuses a view the reports and data views work plans, where one fits, and the rest go in its category tree under the church's Rock Solid Church data view category (decision 185). See open question 7.
+**Data views.** The flows use seven views from the reports and data views proposal (`docs/reporting.md` Section 3.8 on its branch), built with Rock's own filters on its shared foundation views. They are filed by subject in its tree under the church's Rock Solid Church category (decision 185), not by the flow that uses them:
+
+| View | Key | Category | Used by |
+|---|---|---|---|
+| First Visit Last Week | `first-visit-last-week` | Care | Flow 3 audience |
+| Regular Attenders (reused) | `regular-attenders` | Foundations | Flow 3 goal |
+| Newly Missed | `newly-missed` | Care | Flow 4 audience |
+| Back in the Last 30 Days | `back-in-the-last-30-days` | Care | Flow 4 goal |
+| Unbaptized Regular Attenders | `unbaptized-regular-attenders` | Care | Flow 5 audience |
+| Women Who Attend | `women-who-attend` | Registrations | Flow 7 audience |
+| Involved Adults | `involved-adults` | Foundations | Flow 8 audience |
+
+The views are in the reports work's slice 2. If flows slice 1 lands first, it adds them to `configuration/reporting.json` with these keys, plus the foundation views they build on, as that proposal describes them. Rock's flow job checks no person's security, so a view's category limits only who can open it, not whether the flow works.
 
 **Message text.** New entries in the message library in `content/communications`, about 22 messages in all, in the church's voice. No images are needed: the emails use the branded template's logo.
 
@@ -267,4 +279,4 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10.
 
 5. **History length.** 18 months for the new flows, inside the 2-year communication window. After Starting Point stays at 2 years.
 6. **Datasets.** All three (Core 1, Core 3, and Full 7), scaled, like every other communication.
-7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. The names and keys are being checked with that session before slice 1.
+7. **Data views.** Reuse any view the reports and data views session plans, and file the flow audiences and goals in its layered category tree where they fit, not in a separate "Communication Flows" category. Done: the names, keys, and categories are in Section 3. Two choices there are open questions in the reports proposal (its 13 and 14): one shared "regular attender" rule for Flows 3 and 5, and "gave" from Rock's Last Gave attribute in Involved Adults. The flows work with either answer.
