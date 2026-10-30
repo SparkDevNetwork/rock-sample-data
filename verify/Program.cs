@@ -171,6 +171,7 @@ try
                     RockWebConfigPath = rock.WebConfigPath,
                     RockVersion = builtRockVersion,
                     LoginPasswordHash = loginPasswordHash,
+                    IsCastExpectationsChecked = true,
                     Recorder = recorder
                 } );
             }
