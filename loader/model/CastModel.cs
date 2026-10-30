@@ -285,6 +285,13 @@ namespace RockSampleData.Loader.Model
 
         public int? SpecialGiftPercent { get; set; }
 
+        /// <summary>
+        /// Optional: true keeps a monthly giver's gift in the first week of every month. One who gives at church gives on
+        /// the month's first Sunday, or mails the check that week after missing it, and a year-end gift comes with
+        /// December's gift. For a Cast story whose expected frequency must hold on every install day (decision 218).
+        /// </summary>
+        public bool IsOnTime { get; set; }
+
         public RelativeDate Started { get; set; }
 
         public RelativeDate Ended { get; set; }
@@ -452,6 +459,11 @@ namespace RockSampleData.Loader.Model
         /// The fewest active requests this person connects in every dataset, checked after every load, or null.
         /// </summary>
         public int? Minimum { get; set; }
+
+        /// <summary>
+        /// The fewest of those requests with a celebration this person wrote, checked after every load, or null.
+        /// </summary>
+        public int? CelebrationMinimum { get; set; }
     }
 
     /// <summary>
@@ -488,6 +500,11 @@ namespace RockSampleData.Loader.Model
         public string BackgroundCheck { get; set; }
 
         public string Comment { get; set; }
+
+        /// <summary>
+        /// The story the connector recorded as a celebration on this request, or null. The connector is its author.
+        /// </summary>
+        public string Celebration { get; set; }
     }
 
     /// <summary>

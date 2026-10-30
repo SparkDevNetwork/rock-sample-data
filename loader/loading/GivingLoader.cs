@@ -694,6 +694,17 @@ INNER JOIN (
                             {
                                 // A month with no Sunday at church is often made up the next month.
                                 var sunday = attended.Where( s => s.Year == month.Year && s.Month == month.Month ).OrderBy( s => s ).FirstOrDefault();
+
+                                // A giver who keeps her date gives on the month's first Sunday, or mails the check that week when
+                                // she misses it, so a missed Sunday never moves her gift.
+                                var firstSunday = month.AddDays( ( 7 - ( int ) month.DayOfWeek ) % 7 );
+                                if ( pattern.IsOnTime && sunday != firstSunday )
+                                {
+                                    Add( firstSunday.AddDays( 2 ).AddHours( 10 ), false, channel.Currency, null );
+                                    missedMonth = false;
+                                    continue;
+                                }
+
                                 if ( sunday != default )
                                 {
                                     Add( sunday.Add( plan.Services[0].Start ).AddMinutes( 30 ), true, channel.Currency, null, missedMonth && catchesUp ? 2 : 1 );
@@ -808,6 +819,19 @@ INNER JOIN (
                 {
                     if ( !random.Chance( pattern.SpecialGiftPercent.Value / 100.0 ) )
                     {
+                        continue;
+                    }
+
+                    // A giver who keeps her date gives the year-end gift with December's gift, on the same day, so Rock
+                    // still sees one gift a month.
+                    if ( pattern.IsOnTime )
+                    {
+                        var december = gifts.Where( g => g.When.Year == year && g.When.Month == 12 && !g.ScheduleIndex.HasValue ).OrderBy( g => g.When ).FirstOrDefault();
+                        if ( december != null )
+                        {
+                            Add( december.When, december.Onsite, december.Currency, null, ( decimal ) random.Between( 0.5, 1.8 ) * yearly / 12 / Math.Max( 1, pattern.Funds[generalFund] ), generalFund );
+                        }
+
                         continue;
                     }
 

@@ -135,7 +135,8 @@
           "No Contact",
           "In Progress"
         ],
-        "minimum": 8
+        "minimum": 8,
+        "celebrationMinimum": 6
       },
       "securityRoles": [
         "Finance Administrators",

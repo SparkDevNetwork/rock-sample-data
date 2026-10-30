@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, communications, calendar, Cast and business expectations, and check images. Configuration, people, and the Cast expectations always run. The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, communications, calendar, Cast and business expectations, and check images. Configuration and people always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -134,6 +134,7 @@ DatasetLoader.Load( connectionString, package, new DatasetLoadOptions
 | `LoginPasswordHash` | The password hash every sample login uses. Inside Rock, pass Rock's Database authentication component's `EncodePassword` of the password the person installing typed, so the loader never sees the password. It must be a BCrypt hash. Null loads no logins (see [How logins load](#how-logins-load)). |
 | `RockVersion` | The database's Rock version, for example `21.0.2`. Rock passes `VersionInfo.GetRockSemanticVersionNumber()`. Null reads it from the `Rock.Version` assembly in this process, which works only inside Rock. |
 | `IsAnyRockVersionAllowed` | Loads on another Rock major release, or an unknown Rock, with a warning. `CheckDatabase` never honors it. Rock's block leaves it false. |
+| `IsCastExpectationsChecked` | Checks the Cast and business expectations at the end of the load and reports each result. The CLI and the verify tool set it. Rock's block leaves it false, so the step is skipped without a word and left out of the step count. |
 
 `Load` throws `DatabaseNotReadyException` (with every problem in `Problems` and the message) when the database has people or another load is running, and `RockVersionMismatchException` when the only problem is the Rock major release. Nothing is written in either case. The loader bulk-copies past Rock's services, so Rock's caches are stale after a load, and the block clears them.
 

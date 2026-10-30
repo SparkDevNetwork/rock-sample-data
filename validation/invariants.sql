@@ -1033,6 +1033,24 @@ INNER JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
 WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0 AND [cs].[RequestStatusDueDateOffsetInDays] IS NOT NULL
     AND CAST( [cr].[DueDate] AS DATE ) > DATEADD( DAY, [cs].[RequestStatusDueDateOffsetInDays], CAST( GETDATE() AS DATE ) );
 
+-- check: celebration-is-on-a-worked-request
+-- why: Decision 219. A celebration is a Celebration Note the request's connector wrote after reaching the person: on a request of this dataset whose connection type turns celebrations on, with text (the Celebrations Report hides an empty one), by the connector, after the request was made, on an active or connected request past No Contact, the status of a request nobody has reached. The Connections Hub shows only a request's first celebration, so each request has at most one.
+SELECT COUNT(*)
+FROM [Note] AS [n]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+LEFT JOIN [ConnectionRequest] AS [cr] ON [cr].[Id] = [n].[EntityId]
+LEFT JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
+LEFT JOIN [ConnectionType] AS [ct] ON [ct].[Id] = [cr].[ConnectionTypeId]
+WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-50D2658C9417'
+    AND ( [cr].[Id] IS NULL OR ISNULL( [cr].[ForeignKey], '' ) <> @ForeignKey
+        OR [ct].[EnabledFeatures] & 2 <> 2
+        OR LTRIM( RTRIM( ISNULL( [n].[Text], '' ) ) ) = ''
+        OR [n].[CreatedByPersonAliasId] IS NULL OR [n].[CreatedByPersonAliasId] <> ISNULL( [cr].[ConnectorPersonAliasId], -1 )
+        OR [n].[CreatedDateTime] < [cr].[CreatedDateTime]
+        OR [cs].[IsDefault] = 1
+        OR [cr].[ConnectionState] NOT IN ( 0, 3 )
+        OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
+
 -- check: event-occurrence-is-listed
 -- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
 SELECT COUNT(*)

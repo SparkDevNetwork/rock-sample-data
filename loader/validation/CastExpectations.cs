@@ -148,6 +148,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             // Signing in as admin shows Alisha Marble's open requests (decision 178).
             checks += parts.Contains( SampleDataPart.Serving ) ? CheckStaffConnectors( db, source, guids, failures ) : 0;
 
+            // Rock shows the Cast's celebrations on their requests and in the Celebrations Report (decision 219).
+            checks += parts.Contains( SampleDataPart.Serving ) ? CheckCelebrations( db, source, guids, failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckUnsubscribes( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckThreads( db, source, guids, failures ) : 0;
@@ -410,6 +413,8 @@ WHERE [s].[Id] = @Id", P( "@Id", planId ) ).Single();
         }
 
         private static readonly Guid MonthlyFrequencyGuid = new Guid( "1400753C-A0F9-4A45-8A1D-81C98450BD1F" );
+
+        private static readonly Guid CelebrationNoteTypeGuid = new Guid( "A480E95A-F941-473E-B200-50D2658C9417" );
 
         /// <summary>
         /// Checks each calendar event's Cast stories: the event has a start at the story's campus on the days the story
@@ -693,6 +698,75 @@ WHERE [p].[Guid] = @Guid AND [cr].[ConnectionState] = 0", P( "@Guid", guids.Valu
                 {
                     failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected to connect at least {person.Connects.Minimum} active requests, Rock shows {count}" );
                 }
+
+                if ( person.Connects.CelebrationMinimum == null )
+                {
+                    continue;
+                }
+
+                // Signing in as admin shows Alisha's celebrations on her requests (decision 219).
+                checks++;
+                var celebrated = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT( DISTINCT [cr].[Id] )
+FROM [ConnectionRequest] AS [cr]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[ConnectorPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+INNER JOIN [Note] AS [n] ON [n].[EntityId] = [cr].[Id] AND [n].[CreatedByPersonAliasId] = [pa].[Id]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] AND [nt].[Guid] = @CelebrationNoteType
+WHERE [p].[Guid] = @Guid AND [cr].[ConnectionState] = 0 AND LTRIM( RTRIM( [n].[Text] ) ) <> ''", P( "@Guid", guids.Value( person.Guid ) ), P( "@CelebrationNoteType", CelebrationNoteTypeGuid ) ) );
+                if ( celebrated < person.Connects.CelebrationMinimum.Value )
+                {
+                    failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected celebrations they wrote on at least {person.Connects.CelebrationMinimum} of the active requests they connect, Rock shows {celebrated}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Checks each Cast celebration (a connection request's celebration): the person's request for that team
+        /// has a Celebration Note with the story, written by the request's connector, and Rock's Celebrations Report
+        /// lists it in its default view, so its connection type has celebrations on and the request was made in the
+        /// report's default range, the last 8 months.
+        /// </summary>
+        private static int CheckCelebrations( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ) )
+            {
+                foreach ( var request in person.ConnectionRequests.Where( r => r.Celebration != null ) )
+                {
+                    var personId = db.Scalar( "SELECT [Id] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", guids.Value( person.Guid ) ) );
+                    if ( personId == null || personId == DBNull.Value )
+                    {
+                        continue;
+                    }
+
+                    checks++;
+                    var opportunityGuid = source.Connections.Opportunities.Single( o => o.Team == request.Opportunity ).Guid;
+                    var row = db.Query( @"
+SELECT TOP 1
+    CASE WHEN [n].[CreatedByPersonAliasId] = [cr].[ConnectorPersonAliasId] THEN 1 ELSE 0 END AS [ByConnector],
+    CASE WHEN [cr].[CreatedDateTime] >= DATEADD( month, -8, CAST( GETDATE() AS date ) ) THEN 1 ELSE 0 END AS [InReportRange],
+    CASE WHEN [ct].[EnabledFeatures] & 2 = 2 AND [ct].[IsActive] = 1 THEN 1 ELSE 0 END AS [IsEnabled]
+FROM [ConnectionRequest] AS [cr]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+INNER JOIN [ConnectionOpportunity] AS [o] ON [o].[Id] = [cr].[ConnectionOpportunityId]
+INNER JOIN [ConnectionType] AS [ct] ON [ct].[Id] = [o].[ConnectionTypeId]
+INNER JOIN [Note] AS [n] ON [n].[EntityId] = [cr].[Id]
+INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] AND [nt].[Guid] = @CelebrationNoteType
+WHERE [pa].[PersonId] = @PersonId AND [o].[Guid] = @Opportunity AND [n].[Text] = @Text", P( "@PersonId", personId ), P( "@Opportunity", opportunityGuid ),
+                        P( "@CelebrationNoteType", CelebrationNoteTypeGuid ), P( "@Text", request.Celebration ) ).FirstOrDefault();
+                    var name = $"{person.NickName ?? person.FirstName} {person.LastName}";
+                    if ( row == null )
+                    {
+                        failures.Add( $"{name}: expected a celebration on their {request.Opportunity} request, Rock has none" );
+                    }
+                    else if ( Convert.ToInt32( row["ByConnector"] ) == 0 || Convert.ToInt32( row["InReportRange"] ) == 0 || Convert.ToInt32( row["IsEnabled"] ) == 0 )
+                    {
+                        failures.Add( $"{name}: expected their {request.Opportunity} celebration written by the connector and in the Celebrations Report's default view, Rock shows by connector {row["ByConnector"]}, in range {row["InReportRange"]}, celebrations on {row["IsEnabled"]}" );
+                    }
+                }
             }
 
             return checks;
@@ -959,7 +1033,7 @@ WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
         /// </summary>
         /// <summary>
         /// Checks that each Cast person with an allergy in their file shows it in Rock's Allergy person attribute, which
-        /// check-in labels print (Alex Decker is the example). People always load, so this runs on every load. A person
+        /// check-in labels print (Alex Decker is the example). People always load, so this runs whenever the expectations are checked. A person
         /// whose household is not in the dataset is skipped.
         /// </summary>
         private static int CheckAllergies( RockDatabase db, SampleDataSource source, List<string> failures )
