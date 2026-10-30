@@ -767,17 +767,50 @@
       ]
     },
     {
-      "key": "after-starting-point-serve",
+      "key": "after-starting-point-grow",
       "occasion": "after-starting-point",
       "daysBefore": -21,
       "audience": "person",
+      "topic": "general",
+      "sender": "church",
+      "subject": "Your next step: Foundations",
+      "preheader": "Six Tuesday nights on what Christians believe, the Bible, and prayer.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, three weeks ago you finished Starting Point. If you're ready to go deeper, Foundations is a great next step." },
+        { "p": "Foundations is six Tuesday nights at Rock Solid {campus} on what Christians believe, how to read the Bible, and how to pray. Bring your questions." },
+        { "p": "Thinking about baptism? We'd love to talk with you about that too. Just reply to this email." },
+        { "button": "About Foundations", "href": "/foundations" }
+      ]
+    },
+    {
+      "key": "after-foundations-next",
+      "occasion": "after-foundations",
+      "daysBefore": -1,
+      "audience": "person",
       "topic": "serving",
       "sender": "church",
-      "subject": "Ready to serve? There's a team for you",
-      "preheader": "Use your gifts to make Sunday great for someone else.",
+      "subject": "You finished Foundations. What's next?",
+      "preheader": "Six weeks of growing together. Here's a way to put it into practice.",
       "body": [
-        { "p": "Hi {{ Person.NickName }}, now that you've finished Starting Point, you can join any serving team at Rock Solid {campus}." },
-        { "p": "Greet guests, rock babies, run a camera, or serve coffee. Most teams serve once or twice a month, and we'll train you." },
+        { "h": "Congratulations!" },
+        { "p": "Hi {{ Person.NickName }}, you finished Foundations last night. Thank you for showing up, asking good questions, and growing with us." },
+        { "p": "Many people take their next step by serving. Greet guests, serve coffee, run a camera, or care for kids at Rock Solid {campus}. Most teams serve once or twice a month, and we'll train you." },
+        { "button": "Find a team", "href": "/serve" }
+      ]
+    },
+    {
+      "key": "after-foundations-stories",
+      "occasion": "after-foundations",
+      "daysBefore": -20,
+      "audience": "person",
+      "topic": "serving",
+      "sender": "church",
+      "subject": "Why our volunteers keep coming back",
+      "preheader": "Three volunteers share what serving has meant to them.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, we asked a few volunteers why they serve. Here's what they said." },
+        { "list": [ "\"I came to greet people, and I ended up with friends.\" (Guest Services)", "\"Holding babies on Sunday is the best part of my week.\" (Nursery)", "\"I learned more about worship running slides than I ever did sitting in a seat.\" (Production)" ] },
+        { "p": "Every team has room for you, and we'll train you. Find a team online today, or stop by the Connect Center on Sunday." },
         { "button": "Find a team", "href": "/serve" }
       ]
     }
