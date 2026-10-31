@@ -244,7 +244,7 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @Now, @Now
         /// The ValueAs columns Rock's save hook would set for a value (AttributeValue.UpdateValueAsProperties): a
         /// date, a number for a short value, and a boolean for a value of up to five characters.
         /// </summary>
-        private static (decimal? Numeric, DateTime? DateTime, bool? Boolean) ValueAs( string value )
+        internal static (decimal? Numeric, DateTime? DateTime, bool? Boolean) ValueAs( string value )
         {
             DateTime? dateTime = DateTime.TryParse( value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed ) ? parsed : null;
             decimal? numeric = value.Length <= 24 && decimal.TryParse( value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var number ) ? number : null;

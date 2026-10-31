@@ -338,6 +338,9 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public int Days { get; set; }
 
-        public int TargetPercent { get; set; }
+        /// <summary>
+        /// The target conversion rate, in percent. Rock stores it with two decimal places.
+        /// </summary>
+        public decimal TargetPercent { get; set; }
     }
 }
