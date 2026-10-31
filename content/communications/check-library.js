@@ -39,11 +39,11 @@ const OCCASIONS = [
     "foundations", "student-camp", "mission-trip", "vbs", "group-launch", "serve-sunday", "weather",
     "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit",
     "baptized", "after-starting-point", "after-foundations", "baptism-interest",
-    "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "campaign-follow-up"
+    "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "camp-invitation", "christmas-invitation", "campaign-follow-up"
 ];
 
 // One-to-one occasions send to one person, and only they use the 'person' audience.
-const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point", "after-foundations", "baptism-interest", "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "campaign-follow-up" ];
+const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point", "after-foundations", "baptism-interest", "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "camp-invitation", "christmas-invitation", "campaign-follow-up" ];
 
 // The 'class' audience is the people in the class or course the occasion names.
 const CLASS_OCCASIONS = [ "starting-point", "foundations" ];
