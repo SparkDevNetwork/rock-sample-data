@@ -312,7 +312,7 @@ Left out from the first draft: a push with a story video, which reaches only peo
 | 8 Christmas at Rock Solid | None | Not Tracked |
 | 9 After Foundations | 15%, set from the data | 18% on Full 7, recent runs Pending |
 | 10 Lead a Group | Set from the data, about 3% | Whatever each launch's new leaders give |
-| 11 Built on the Rock Follow-Up | 0.5%, set from the data | 0.58% on Full 7. Most families pledge on Commitment Sunday or before |
+| 11 Built on the Rock Follow-Up | 0.5%, set from the data | 0.56% on Full 7. Most families pledge on Commitment Sunday or before |
 
 **Targets from the data.** Flow 5 uses the church's one "regular attender" rule, 4 or more worship check-ins in the last 12 weeks, through the views built on Regular Attenders (coordinator decision, 2026-10-29), and adds no threshold of its own. Flows 3, 9, and 10 have step goals, and their steps come from the steps plan. So for Flows 3, 5, 9, 10, and 11 the build measures the share of each flow's people who reach the goal on Full 7, and sets the target just under it, rounded down to a whole 5% for Flows 3 and 9, a whole 1% for Flows 5 and 10, and a whole half percent for Flow 11. So most runs show Achieved and a few show Missed, and the targets are recorded in `configuration/` with the measured share beside them.
 

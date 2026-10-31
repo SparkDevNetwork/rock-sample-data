@@ -206,7 +206,7 @@
         { "key": "built-on-the-rock-follow-up-story", "name": "Student Center", "daysToWait": 6, "time": "09:00" },
         { "key": "built-on-the-rock-follow-up-last", "name": "Last Call", "daysToWait": 4, "time": "09:00" }
       ],
-      "goal": { "type": "enteredDataView", "view": "built-on-the-rock-pledge-households", "rule": "pledgeHouseholds", "days": 42, "targetPercent": 0.5, "$targetPercentComment": "Set from the data: on Full 7, 42 of the 7,209 involved adults whose family had not pledged by Commitment Sunday had a family pledge within 42 days (0.58%), rounded down to a whole half percent. Most families who pledge do it on Commitment Sunday or before (configuration/campaign.json), so few are left to convert." },
+      "goal": { "type": "enteredDataView", "view": "built-on-the-rock-pledge-households", "rule": "pledgeHouseholds", "days": 42, "targetPercent": 0.5, "$targetPercentComment": "Set from the data: on Full 7, 40 of the 7,206 involved adults whose family had not pledged by Commitment Sunday had a family pledge within 42 days (0.56%), rounded down to a whole half percent. Most families who pledge do it on Commitment Sunday or before (configuration/campaign.json), so few are left to convert." },
       "exit": "conversionAchieved"
     }
   ],
