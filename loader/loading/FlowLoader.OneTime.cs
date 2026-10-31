@@ -54,7 +54,6 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid LastGaveAttributeGuid = new Guid( "02F64263-E290-399E-4487-FC236F4DE81F" );
         private static readonly Guid FamilyAdultRoleGuid = new Guid( "2639F9A5-2AAE-4E48-A8C3-4FFE86681E42" );
         private static readonly Guid FamilyChildRoleGuid = new Guid( "C8B1814F-6AA7-4055-B2D7-48FE20429CB9" );
-        private static readonly Guid BusinessRecordTypeGuid = new Guid( "BF64ADD3-E70A-44CE-9C4B-E76BBED37550" );
 
         /// <summary>
         /// When each person's family first pledged to the campaign, loaded the first time a rule needs it.
@@ -145,14 +144,13 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// The Involved Adults view on a day: an adult who came to worship in Rock's "last 12 months", is in a small
-        /// group or on a serving team, or whose Last Gave falls in the last 365 days. A business is never in a person
-        /// data view.
+        /// group or on a serving team, or whose Last Gave falls in the last 365 days.
         /// </summary>
         private static bool IsInvolvedAdult( AudiencePerson p, DateTime day )
         {
             var end = day.Date.AddDays( 1 );
             var lastTwelveMonths = new DateTime( day.Year, day.Month, 1 ).AddMonths( -11 );
-            return p.IsAdult && !p.IsBusiness && (p.Count( lastTwelveMonths, end ) >= 1 || p.InGroup( p.SmallGroups, end ) || p.InGroup( p.ServingTeams, end )
+            return p.IsAdult && ( p.Count( lastTwelveMonths, end ) >= 1 || p.InGroup( p.SmallGroups, end ) || p.InGroup( p.ServingTeams, end )
                 || p.GaveSince( day.Date.AddDays( -365 ), end ) );
         }
 
@@ -232,12 +230,8 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [type].[Guid] = @Contribution AND [ft].[TransactionDateTime] IS NOT NULL AND [p].[GivingId] IS NOT NULL", P( "@Contribution", ContributionGuid ) )
                 .GroupBy( r => ( string ) r["GivingId"] )
                 .ToDictionary( g => g.Key, g => g.Select( r => ToDay( ( DateTime ) r["Day"] ) ).OrderBy( d => d ).ToArray() );
-            var people = _db.Query( @"
-SELECT [p].[Id], [p].[GivingId], CASE WHEN [rt].[Guid] = @Business THEN 1 ELSE 0 END AS [IsBusiness]
-FROM [Person] AS [p]
-LEFT JOIN [DefinedValue] AS [rt] ON [rt].[Id] = [p].[RecordTypeValueId]
-WHERE [p].[ForeignKey] = @ForeignKey OR [p].[Id] = 1", P( "@ForeignKey", _foreignKey ), P( "@Business", BusinessRecordTypeGuid ) )
-                .ToDictionary( r => ( int ) r["Id"], r => (GivingId: r["GivingId"] as string, IsBusiness: Convert.ToInt32( r["IsBusiness"] ) == 1) );
+            var givingIds = _db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [ForeignKey] = @ForeignKey OR [Id] = 1", P( "@ForeignKey", _foreignKey ) )
+                .ToDictionary( r => ( int ) r["Id"], r => r["GivingId"] as string );
             var lastGave = _db.Query( @"
 SELECT [av].[EntityId], [av].[Value]
 FROM [AttributeValue] AS [av]
@@ -248,9 +242,7 @@ WHERE [a].[Guid] = @Attribute AND ISNULL( [av].[Value], '' ) <> ''", P( "@Attrib
             foreach ( var person in facts )
             {
                 person.InstallDay = _dates.Anchor.Date;
-                var record = people.GetValueOrDefault( person.PersonId );
-                person.IsBusiness = record.IsBusiness;
-                person.GiftDays = record.GivingId is string givingId && gifts.TryGetValue( givingId, out var days ) ? days : Array.Empty<int>();
+                person.GiftDays = givingIds.GetValueOrDefault( person.PersonId ) is string givingId && gifts.TryGetValue( givingId, out var days ) ? days : Array.Empty<int>();
                 person.LastGave = lastGave.TryGetValue( person.PersonId, out var last ) ? last : null;
             }
         }
@@ -258,11 +250,6 @@ WHERE [a].[Guid] = @Attribute AND ISNULL( [av].[Value], '' ) <> ''", P( "@Attrib
         private sealed partial class AudiencePerson
         {
             public DateTime InstallDay { get; set; }
-
-            /// <summary>
-            /// A business, which Rock's person data views leave out, even when it gave.
-            /// </summary>
-            public bool IsBusiness { get; set; }
 
             /// <summary>
             /// Each day the person's giving unit gave, as a day number, in order.
