@@ -242,12 +242,15 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @Now, @Now
 
         /// <summary>
         /// The ValueAs columns Rock's save hook would set for a value (AttributeValue.UpdateValueAsProperties): a
-        /// date, a number for a short value, and a boolean for a value of up to five characters.
+        /// date that SQL Server can store, a number for a short value that fits decimal(18,2), and a boolean for a value
+        /// of up to five characters.
         /// </summary>
         internal static (decimal? Numeric, DateTime? DateTime, bool? Boolean) ValueAs( string value )
         {
-            DateTime? dateTime = DateTime.TryParse( value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed ) ? parsed : null;
-            decimal? numeric = value.Length <= 24 && decimal.TryParse( value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var number ) ? number : null;
+            DateTime? dateTime = DateTime.TryParse( value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed )
+                && parsed >= new DateTime( 1753, 1, 1 ) ? parsed : null;
+            decimal? numeric = value.Length <= 24 && decimal.TryParse( value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var number )
+                && Math.Abs( number ) <= 9_999_999_999_999_999.99m ? number : null;
             bool? boolean = value.Length > 0 && value.Length <= 5 ? new[] { "1", "y", "t", "yes", "true" }.Contains( value.ToLowerInvariant() ) : null;
             return (numeric, dateTime, boolean);
         }
