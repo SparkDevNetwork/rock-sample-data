@@ -250,9 +250,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "communication-flows", eyebrow: "Communication flows", title: "Follow-up that runs on its own.", sand: true,
-            text: html`${flowNames.length ? html`${flowNames.length} communication ${flowNames.length === 1 ? "flow" : "flows"}: ${esc( flowNames.join( " and " ) )}. ` : ""}Each follows up with people after a step, in Ministry by Design order, with its messages, its goal, and the people who finished it.`,
-            checks: [ "Flows filed by Ministry by Design stage", "Each flow's messages, sent on their days", "Conversions, when someone meets the flow's goal" ],
-            look: [ "Rock's Communication Flows page", "A flow's instances and their messages" ],
+            text: html`${flowNames.length ? html`${flowNames.length} communication ${flowNames.length === 1 ? "flow" : "flows"}: ${esc( flowNames.length > 1 ? `${flowNames.slice( 0, -1 ).join( ", " )}, and ${flowNames[flowNames.length - 1]}` : flowNames[0] )}. ` : ""}Each serves a Ministry by Design stage. Some follow up after a step or a form, and some run on a schedule to a data view. Each has its messages, its goal, and the people who met it, and runs still going on install day keep sending, only to reserved addresses.`,
+            checks: [ "Flows filed by Ministry by Design stage", "Each flow's messages, sent on their days", "Conversions, when someone meets the flow's goal", "On-Demand, recurring, and paused flows", "A recurring flow's audience matches its Rock data view" ],
+            look: [ "Rock's Communication Flows page", "A flow's instances and their messages", "The Baptism Interest workflow, which starts Baptism Next Steps" ],
             links: [ { label: "Communication flows", href: doc( "docs/communications.md#communication-flows" ) } ]
         },
         {

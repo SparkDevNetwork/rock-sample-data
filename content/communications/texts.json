@@ -370,6 +370,77 @@
       "topic": "serving",
       "asksReply": true,
       "text": "Rock Solid: Congrats again on finishing Foundations, {{ Person.NickName }}! Want help finding a serving team that fits you? Just reply and we'll connect you."
+    },
+    {
+      "key": "baptism-interest-questions",
+      "medium": "sms",
+      "occasion": "baptism-interest",
+      "daysBefore": -2,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "general",
+      "asksReply": true,
+      "text": "Rock Solid: Hi {{ Person.NickName }}, thanks for your interest in baptism! Any questions about it? Just reply to this text and a pastor will get back to you."
+    },
+    {
+      "key": "baptism-interest-spot",
+      "medium": "sms",
+      "occasion": "baptism-interest",
+      "daysBefore": -42,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "events",
+      "asksReply": true,
+      "text": "Rock Solid: Hi {{ Person.NickName }}, our next baptism Sunday is coming up. Want us to save you a spot? Reply YES and we'll be in touch."
+    },
+    {
+      "key": "guest-welcome-text",
+      "medium": "sms",
+      "occasion": "guest-welcome",
+      "daysBefore": -3,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "general",
+      "asksReply": true,
+      "text": "Rock Solid: Hi {{ Person.NickName }}, we're so glad you visited! Any questions before Sunday? Just reply and a real person will text you back."
+    },
+    {
+      "key": "we-miss-you-text",
+      "medium": "sms",
+      "occasion": "we-miss-you",
+      "daysBefore": -7,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "general",
+      "asksReply": true,
+      "text": "Rock Solid: We've missed you lately, {{ Person.NickName }}, and we're praying for you. Anything we can pray about? Just reply."
+    },
+    {
+      "key": "baptism-invitation-text",
+      "medium": "sms",
+      "occasion": "baptism-invitation",
+      "daysBefore": -7,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "events",
+      "text": "Rock Solid: Hi {{ Person.NickName }}, baptism Sunday is four weeks away. Thinking about it? Fill out the short form on our website and a pastor will reach out."
+    },
+    {
+      "key": "lead-invitation-training",
+      "medium": "sms",
+      "occasion": "lead-invitation",
+      "daysBefore": -7,
+      "hour": 10,
+      "audience": "person",
+      "line": "main",
+      "topic": "groups",
+      "asksReply": true,
+      "text": "Rock Solid: {{ Person.NickName }}, Group Leader Training is coming up before our next launch. Want a seat? Reply YES and we'll save you one."
     }
   ],
   "replies": {

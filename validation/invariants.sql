@@ -924,7 +924,7 @@ FROM [PersonalDevice] AS [pd]
 WHERE [pd].[ForeignKey] = @ForeignKey AND ISNULL( [pd].[DeviceRegistrationId], '' ) NOT LIKE 'sample-data-%';
 
 -- check: open-flow-run-is-allowed
--- why: Decision 220, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
+-- why: Decision 220, which retires decision 95's rule that nothing sends after install. A flow run may still be sending at install only in an active On-Demand or recurring flow, and its next message is due today or later, so Rock's Process Communication Flows job sends no backlog on its first run. Every message a load writes already went out.
 SELECT ( SELECT COUNT(*)
         FROM [CommunicationFlowInstance] AS [i]
         INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
@@ -939,7 +939,7 @@ SELECT ( SELECT COUNT(*)
             WHERE [fc].[CommunicationFlowId] = [f].[Id] AND [fc].[Order] > ISNULL( [last].[Order], -1 )
             ORDER BY [fc].[Order] ) AS [next]
         WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0
-            AND ( [f].[IsActive] = 0 OR [f].[TriggerType] <> 2 OR [next].[DaysToWait] IS NULL
+            AND ( [f].[IsActive] = 0 OR [f].[TriggerType] NOT IN ( 1, 2 ) OR [next].[DaysToWait] IS NULL
                 OR DATEADD( DAY, [next].[DaysToWait], CAST( ISNULL( [last].[SendDateTime], [i].[StartDate] ) AS DATE ) ) < CAST( GETDATE() AS DATE ) ) )
     + ( SELECT COUNT(*)
         FROM [CommunicationFlowInstanceCommunication] AS [ic]
@@ -956,6 +956,19 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [i].[ForeignKey] = @ForeignKey AND [i].[IsMessagingCompleted] = 0 AND [r].[Status] = 1
     AND ( ( ISNULL( [p].[Email], '' ) <> '' AND [p].[Email] NOT LIKE '%@example.org' )
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [ph] WHERE [ph].[PersonId] = [p].[Id] AND [ph].[Number] NOT LIKE '___55501__' ) );
+
+-- check: recurring-flow-audience-has-the-guard
+-- why: Decision 220. Rock's job starts a recurring flow's next run on its schedule date after install, from its audience view, and a paused flow can be turned on with one click. So every recurring flow has a schedule and an audience view that includes Reserved or No Email directly, which keeps every real address, such as staff on rocksolidchurchdemo.com, out of every future run.
+SELECT COUNT(*)
+FROM [CommunicationFlow] AS [f]
+WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
+    AND ( [f].[ScheduleId] IS NULL OR [f].[TargetAudienceDataViewId] IS NULL
+        OR NOT EXISTS ( SELECT 1
+            FROM [DataViewFilter] AS [df]
+            INNER JOIN [EntityType] AS [et] ON [et].[Id] = [df].[EntityTypeId]
+            INNER JOIN [DataView] AS [guard] ON [guard].[Guid] = '7440C1BC-57B1-4B18-BAD5-40EDEFFF6779'
+            WHERE [df].[DataViewId] = [f].[TargetAudienceDataViewId] AND [et].[Name] = 'Rock.Reporting.DataFilter.OtherDataViewFilter'
+                AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
 -- check: flow-send-reaches-its-instance
 -- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
@@ -977,6 +990,38 @@ WHERE [ic].[ForeignKey] = @ForeignKey
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             INNER JOIN [CommunicationFlowInstanceRecipient] AS [r] ON [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId]
             WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) ) );
+
+-- check: flow-form-entry-has-its-workflow
+-- why: Decision 235. The only way into an On-Demand flow is Rock's Activate Communication Flow workflow action. In a flow a workflow type activates (its Communication Flow attribute names the flow), every person in a run started that workflow themselves and it finished on the run's start date.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceRecipient] AS [r]
+INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [r].[CommunicationFlowInstanceId]
+INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
+INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[Key] = 'CommunicationFlow' AND TRY_CAST( CASE WHEN LEN( [a].[DefaultValue] ) = 36 THEN [a].[DefaultValue] END AS UNIQUEIDENTIFIER ) = [f].[Guid]
+INNER JOIN [PersonAlias] AS [rpa] ON [rpa].[Id] = [r].[RecipientPersonAliasId]
+WHERE [i].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1
+        FROM [Workflow] AS [w]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [w].[InitiatorPersonAliasId]
+        WHERE [w].[WorkflowTypeId] = TRY_CAST( [a].[EntityTypeQualifierValue] AS INT ) AND [pa].[PersonId] = [rpa].[PersonId]
+            AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
+
+-- check: workflow-is-finished-as-rock-leaves-it
+-- why: Decision 235. Each sample workflow is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow.
+SELECT COUNT(*)
+FROM [Workflow] AS [w]
+WHERE [w].[ForeignKey] = @ForeignKey
+    AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] IS NULL OR [w].[InitiatorPersonAliasId] IS NULL OR [w].[CompletedDateTime] > GETDATE()
+        OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NOT NULL ) <> 1
+        OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act]
+            INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [act].[ActivityTypeId]
+            WHERE [act].[WorkflowId] = [w].[Id]
+                AND NOT EXISTS ( SELECT 1 FROM [WorkflowAction] AS [ac] WHERE [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id] AND [ac].[CompletedDateTime] IS NOT NULL ) )
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av]
+            INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
+            WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
+                AND [pa].[Id] = [w].[InitiatorPersonAliasId] ) );
 
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.

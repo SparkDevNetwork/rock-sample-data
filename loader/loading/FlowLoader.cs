@@ -55,7 +55,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// Loads the church's On-Demand Communication Flows, each with a run for every day people entered it.
     /// </summary>
-    internal sealed class FlowLoader
+    internal sealed partial class FlowLoader
     {
         private const int OnDemand = 2;
         private const int EmailType = 1;
@@ -63,6 +63,8 @@ namespace RockSampleData.Loader.Loading
         private const int ActiveRecipient = 1;
         private const int InactiveRecipient = 2;
         private const int ConversionGoalMet = 2;
+        private const int OpenedCommunication = 3;
+        private const int ClickedCommunication = 4;
         private const int ApprovedStatus = 3;
         private const int DeliveredStatus = 1;
         private const int FailedStatus = 2;
@@ -77,7 +79,10 @@ namespace RockSampleData.Loader.Loading
 
         private static readonly Dictionary<string, int> GoalTypes = new Dictionary<string, int>
         {
+            ["completedForm"] = 1,
+            ["registered"] = 2,
             ["joinedGroupType"] = 3,
+            ["enteredDataView"] = 5,
             ["tookStep"] = 6
         };
 
@@ -191,25 +196,28 @@ namespace RockSampleData.Loader.Loading
 
         private void LoadFlow( FlowDefinition flow, FlowContext context )
         {
-            var entryType = _source.Steps.StepTypes.FirstOrDefault( t => t.Key == flow.Entry?.StepType )
-                ?? throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} enters from step type '{flow.Entry?.StepType}', which configuration/steps.json does not have." );
             var messages = flow.Messages.Select( ( m, order ) => Blueprint( flow, m, order, context ) ).ToList();
             var goal = Goal( flow, context );
+            if ( goal == null )
+            {
+                _db.Log.Write( $"  Communication flow: {flow.Name} skipped, this load has no {flow.Goal.Registration} registration instance" );
+                return;
+            }
+
             var exitType = ExitTypes.TryGetValue( flow.Exit ?? string.Empty, out var exit ) ? exit
                 : throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has exit '{flow.Exit}', which is not one this slice writes." );
-            var firstDay = _dates.Anchor.AddMonths( -flow.HistoryMonths ).Date;
+            var firstDay = new[] { _dates.Anchor.AddMonths( -flow.HistoryMonths ).Date, goal.FirstRun }.Max();
 
-            // Everyone who completed the entry step, by the day after, when they joined the flow.
-            var entrants = _db.Query( @"
-SELECT [s].[PersonAliasId], [s].[CompletedDateTime]
-FROM [Step] AS [s]
-INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
-WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", entryType.Guid ) )
-                .Where( r => context.ByAlias.ContainsKey( ( int ) r["PersonAliasId"] ) )
-                .GroupBy( r => (( DateTime ) r["CompletedDateTime"]).Date.AddDays( 1 ) )
-                .Where( g => g.Key >= firstDay && ( context.AllowOpenRuns ? g.Key < _dates.Anchor.Date : LastSend( flow, g.Key ) < _dates.Anchor ) )
+            // A person joins the run for the day they entered: the day after their entry step, or the day they filled out the form.
+            var workflow = flow.Entry?.Workflow == null ? null : _source.Flows.Workflows.FirstOrDefault( w => w.Key == flow.Entry.Workflow )
+                ?? throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} enters from workflow '{flow.Entry.Workflow}', which the file does not define." );
+            var formEntries = workflow == null ? null : FormEntries( flow, context, goal, firstDay );
+            var entries = flow.Trigger == "recurring" ? null : formEntries?.Select( e => (Day: e.At.Date, e.Person) ).ToList() ?? StepEntries( flow, context );
+            var entrants = flow.Trigger == "recurring" ? RecurringRuns( flow, context, firstDay ) : entries
+                .Where( e => e.Day >= firstDay && ( context.AllowOpenRuns ? e.Day < _dates.Anchor.Date : LastSend( flow, e.Day ) < _dates.Anchor ) )
+                .GroupBy( e => e.Day )
                 .OrderBy( g => g.Key )
-                .Select( g => (Start: g.Key, People: g.Select( r => context.ByAlias[( int ) r["PersonAliasId"]] ).GroupBy( p => p.PersonId ).Select( p => p.First() ).OrderBy( p => p.PersonId ).ToList()) )
+                .Select( g => (Start: g.Key, People: g.Select( e => e.Person ).GroupBy( p => p.PersonId ).Select( p => p.First() ).OrderBy( p => p.PersonId ).ToList()) )
                 .ToList();
             if ( entrants.Count == 0 )
             {
@@ -217,21 +225,30 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", 
             }
 
             var launched = entrants[0].Start.AddDays( -14 ).AddHours( 11 );
+            var scheduleId = flow.Trigger == "recurring" ? WriteSchedule( flow, entrants[0].Start, launched ) : ( int? ) null;
             var trackingClosed = entrants.All( e => TrackingDone( flow, e.Start ) );
             var categoryId = flow.Category == null ? ( int? ) null : _db.RequireIdByGuid( "Category", _source.Categories.Get( flow.Category ).Guid );
             var flowId = Convert.ToInt32( _db.Scalar( @"
-INSERT INTO [CommunicationFlow] ( [Name], [Description], [CategoryId], [PublicName], [IsActive], [TriggerType], [ConversionGoalType], [ConversionGoalTargetPercent], [ConversionGoalTimeframeInDays],
+INSERT INTO [CommunicationFlow] ( [Name], [Description], [CategoryId], [PublicName], [IsActive], [TriggerType], [ScheduleId], [ConversionGoalType], [ConversionGoalTargetPercent], [ConversionGoalTimeframeInDays],
     [ExitConditionType], [AdditionalSettingsJson], [IsMessagingClosed], [IsConversionGoalTrackingClosed], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
 OUTPUT INSERTED.[Id]
-VALUES ( @Name, @Description, @CategoryId, @PublicName, 1, @Trigger, @Goal, @Target, @Days, @Exit, @Settings, 0, @TrackingClosed, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
+VALUES ( @Name, @Description, @CategoryId, @PublicName, @Active, @Trigger, @ScheduleId, @Goal, @Target, @Days, @Exit, @Settings, 0, @TrackingClosed, @Guid, @Launched, @Launched, @Sender, @Sender, @ForeignKey )",
                 P( "@Name", flow.Name ), P( "@Description", flow.Description ), P( "@CategoryId", ( object ) categoryId ?? DBNull.Value ), P( "@PublicName", ( object ) flow.PublicName ?? DBNull.Value ),
-                P( "@Trigger", OnDemand ), P( "@Goal", goal.TypeValue ), P( "@Target", flow.Goal.TargetPercent ), P( "@Days", flow.Goal.Days ), P( "@Exit", exitType ),
+                P( "@Active", flow.IsActive ), P( "@Trigger", flow.Trigger == "recurring" ? Recurring : OnDemand ), P( "@ScheduleId", ( object ) scheduleId ?? DBNull.Value ), P( "@Goal", goal.TypeValue ), P( "@Target", flow.Goal.TargetPercent ), P( "@Days", flow.Goal.Days ), P( "@Exit", exitType ),
                 P( "@Settings", goal.SettingsJson ), P( "@TrackingClosed", trackingClosed ), P( "@Guid", SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}" ) ), P( "@Launched", launched ),
                 P( "@Sender", context.SenderAliasId ), P( "@ForeignKey", _foreignKey ) ) );
 
             foreach ( var message in messages )
             {
                 message.Write( flowId, launched );
+            }
+
+            // Each person who filled out the form has the finished workflow that put them in the flow.
+            if ( workflow != null )
+            {
+                var writer = new FlowWorkflowWriter( _db, _source, _foreignKey, _seed );
+                var rows = writer.WriteType( workflow, SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}" ), context.SenderAliasId, launched.AddDays( -1 ) );
+                writer.WriteRuns( rows, formEntries.Where( e => e.At.Date >= firstDay && e.At.Date < _dates.Anchor.Date ).Select( e => (e.Person.PersonId, e.Person.AliasId, e.Person.Guid, e.At) ) );
             }
 
             var stats = new FlowStats();
@@ -241,7 +258,7 @@ VALUES ( @Name, @Description, @CategoryId, @PublicName, 1, @Trigger, @Goal, @Tar
                 var isOpen = lastSend >= _dates.Anchor;
 
                 // A flow can leave out people who already met its goal, as the workflow that adds them would check.
-                var candidates = flow.Entry.SkipIfGoalMet
+                var candidates = flow.Entry?.SkipIfGoalMet == true
                     ? joined.Where( p => !( goal.Dates.TryGetValue( p.PersonId, out var met ) && met.Any( d => d < start ) ) ).ToList()
                     : joined;
 
@@ -258,6 +275,119 @@ VALUES ( @Name, @Description, @CategoryId, @PublicName, 1, @Trigger, @Goal, @Tar
 
             _db.Log.Write( $"  Communication flow: {flow.Name}, {stats.Runs:N0} runs ({stats.OpenRuns:N0} still sending) for {stats.People:N0} people, {stats.Sends:N0} sends, {stats.Conversions:N0} reached the goal"
                 + ( stats.LeftOutOfOpenRuns > 0 ? $", {stats.LeftOutOfOpenRuns:N0} left out of open runs for a real email address" : string.Empty ) );
+        }
+
+        /// <summary>
+        /// Everyone who completed the flow's entry step, on the day after.
+        /// </summary>
+        private List<(DateTime Day, EmailPerson Person)> StepEntries( FlowDefinition flow, FlowContext context )
+        {
+            var entryType = _source.Steps.StepTypes.FirstOrDefault( t => t.Key == flow.Entry?.StepType )
+                ?? throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} enters from step type '{flow.Entry?.StepType}', which configuration/steps.json does not have." );
+            return _db.Query( @"
+SELECT [s].[PersonAliasId], [s].[CompletedDateTime]
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL", P( "@Type", entryType.Guid ) )
+                .Where( r => context.ByAlias.ContainsKey( ( int ) r["PersonAliasId"] ) )
+                .Select( r => ((( DateTime ) r["CompletedDateTime"]).Date.AddDays( 1 ), context.ByAlias[( int ) r["PersonAliasId"]]) )
+                .ToList();
+        }
+
+        /*
+            10/30/26 - CLAUDE
+
+            Who filled out a form that puts people in a flow comes from the Baptism steps the steps part already
+            wrote, never the other way round. Most people baptized here in the window filled it out 1 to 16
+            weeks before, so their flow ends on its own with the goal met. As many people again who are not
+            baptized filled it out at any time, and their runs end after the last message, or are still Pending.
+            The pins are Cast stories. A person whose run would still be sending on install day must have
+            reserved contact points, so the plan leaves out anyone else in those weeks.
+
+            Reason: Jon's Baptism flow, and decision 220.
+        */
+
+        /// <summary>
+        /// Who filled out the flow's form, and when: in the morning, before the first message goes out.
+        /// </summary>
+        private List<(DateTime At, EmailPerson Person)> FormEntries( FlowDefinition flow, FlowContext context, GoalPlan goal, DateTime firstDay )
+        {
+            var entry = flow.Entry;
+            var baptismType = _source.Steps.StepTypes.Single( t => t.Source?.Kind == "baptism" );
+            var here = _db.Query( @"
+SELECT [av].[EntityId] AS [PersonId]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [a].[Guid] = @Attribute AND [av].[Value] = 'True'", P( "@Attribute", baptismType.Source.BaptizedHerePersonAttributeGuid ) )
+                .Select( r => ( int ) r["PersonId"] ).ToHashSet();
+            var byPerson = context.ByAlias.Values.GroupBy( p => p.PersonId ).ToDictionary( g => g.Key, g => g.First() );
+            var byGuid = context.ByAlias.Values.GroupBy( p => p.Guid ).ToDictionary( g => g.Key, g => g.First() );
+            var entries = new Dictionary<int, (DateTime At, EmailPerson Person)>();
+            DateTime Morning( DateTime day, string seed ) => day.Date.AddMinutes( new SeededRandom( seed ).Between( 6 * 60, 9 * 60 + 45 ) );
+
+            // The Cast's stories come first, so the plan never moves them.
+            foreach ( var pin in entry.Pins )
+            {
+                var person = pin.Person.HasValue
+                    ? byGuid.GetValueOrDefault( pin.Person.Value )
+                    : byPerson.Values.Where( p => p.IsCast && p.IsAdult && p.IsInvolved && p.HasEmail && IsReserved( p.PersonId, context ) && !goal.Dates.ContainsKey( p.PersonId ) && !entries.ContainsKey( p.PersonId ) )
+                        .OrderBy( p => p.PersonId ).FirstOrDefault();
+                if ( person != null )
+                {
+                    var at = _dates.Anchor.Date.AddDays( -pin.DaysAgo ).Add( TimeSpan.Parse( pin.Time ?? "08:00", System.Globalization.CultureInfo.InvariantCulture ) );
+                    entries[person.PersonId] = (at, person);
+                    _db.Log.Write( $"  {flow.Name}: {context.NickNames.GetValueOrDefault( person.PersonId )} (person {person.PersonId}) filled out the form {pin.DaysAgo} days before install" );
+                }
+            }
+
+            // People baptized here in the window, most of whom filled out the form 1 to 16 weeks before.
+            var baptized = 0;
+            foreach ( var (personId, dates) in goal.Dates.OrderBy( d => d.Key ) )
+            {
+                var baptism = dates.FirstOrDefault( d => d >= firstDay && d < _dates.Anchor );
+                if ( baptism == default || !here.Contains( personId ) || !byPerson.TryGetValue( personId, out var person ) || entries.ContainsKey( personId ) )
+                {
+                    continue;
+                }
+
+                var seed = $"{_seed}:flow:{flow.Key}:entry:{person.Guid}";
+                var random = new SeededRandom( seed );
+                if ( !random.Chance( entry.BaptizedShare / 100.0 ) )
+                {
+                    continue;
+                }
+
+                var day = baptism.Date.AddDays( -random.Between( entry.WeeksBeforeBaptismMin * 7, entry.WeeksBeforeBaptismMax * 7 ) );
+                if ( day < firstDay || day < person.Since.Date )
+                {
+                    continue;
+                }
+
+                entries[personId] = (Morning( day, seed ), person);
+                baptized++;
+            }
+
+            // As many again who are not baptized, at any time in the window after they started coming.
+            var unbaptized = byPerson.Values
+                .Where( p => p.IsAdult && p.IsInvolved && !goal.Dates.ContainsKey( p.PersonId ) && !entries.ContainsKey( p.PersonId ) )
+                .OrderBy( p => SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:pick:{p.Guid}" ) )
+                .Take( ( int ) Math.Round( baptized * entry.NotBaptizedPerBaptized ) );
+            foreach ( var person in unbaptized )
+            {
+                var seed = $"{_seed}:flow:{flow.Key}:entry:{person.Guid}";
+                var from = person.Since.Date > firstDay ? person.Since.Date : firstDay;
+                var days = ( int ) ( _dates.Anchor.Date - from ).TotalDays;
+                if ( days > 0 )
+                {
+                    entries[person.PersonId] = (Morning( from.AddDays( new SeededRandom( seed ).Between( 0, days - 1 ) ), seed ), person);
+                }
+            }
+
+            // Rock's job sends the rest of a run that is still going on install day, so only reserved contact points are in one.
+            return entries.Values
+                .Where( e => LastSend( flow, e.At.Date ) < _dates.Anchor || IsReserved( e.Person.PersonId, context ) )
+                .OrderBy( e => e.At )
+                .ToList();
         }
 
         private void WriteRun( FlowDefinition flow, FlowContext context, List<MessageBlueprint> messages, GoalPlan goal, int exitType, int flowId, DateTime start, bool isOpen, List<EmailPerson> members, FlowStats stats )
@@ -307,15 +437,35 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 P( "@Guid", SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:instance:{start:yyyyMMdd}" ) ), P( "@Created", start.AddHours( 6 ) ),
                 P( "@Modified", due.Count > 0 ? due[due.Count - 1].At : start.AddHours( 6 ) ), P( "@ForeignKey", _foreignKey ) ) );
 
-            var leavesOnConversion = exitType == ExitTypes["conversionAchieved"];
+            // When each person left by the exit rule, and why. Rock's job notices it on its next run while the run is still sending.
+            var left = new Dictionary<int, (DateTime When, int Reason)>();
+            if ( exitType == ExitTypes["conversionAchieved"] )
+            {
+                foreach ( var (personId, when) in converted )
+                {
+                    left[personId] = (when, ConversionGoalMet);
+                }
+            }
+
             var sent = new List<(int LinkId, int Order, DateTime Sent, Dictionary<int, int> RecipientIds)>();
             foreach ( var (message, at) in due )
             {
                 // Rock makes each send early on its day, from the people still Active then.
-                var to = leavesOnConversion ? members.Where( p => !converted.TryGetValue( p.PersonId, out var c ) || c.Date >= at.Date ).ToList() : members;
+                var to = members.Where( p => !left.TryGetValue( p.PersonId, out var l ) || l.When.Date >= at.Date ).ToList();
                 var key = $"flow:{flow.Key}:{message.Key}:{start:yyyyMMdd}";
-                var (communicationId, recipientIds) = message.IsText ? WriteText( flow, message, context, key, at, to ) : WriteEmail( flow, message, context, key, at, to );
+                var engaged = new Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)>();
+                var (communicationId, recipientIds) = message.IsText ? WriteText( flow, message, context, key, at, to ) : WriteEmail( flow, message, context, key, at, to, engaged );
                 stats.Sends++;
+
+                // An open or a click on any of the run's emails takes the person out, when that is the exit rule.
+                foreach ( var (personId, (firstOpen, firstClick)) in engaged )
+                {
+                    var when = exitType == ExitTypes["anyEmailOpened"] ? firstOpen : exitType == ExitTypes["anyEmailClicked"] ? firstClick : null;
+                    if ( when.HasValue && !left.ContainsKey( personId ) )
+                    {
+                        left[personId] = (when.Value, exitType == ExitTypes["anyEmailOpened"] ? OpenedCommunication : ClickedCommunication);
+                    }
+                }
 
                 var linkId = _nextLinkId++;
                 _links.Rows.Add( instanceId, message.Id, communicationId, SeededRandom.StableGuid( $"{_seed}:{key}:link" ), at.AddMinutes( -5 ), at.AddMinutes( -5 ), _foreignKey );
@@ -326,8 +476,7 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
             var lastMessageDay = sent.Count > 0 ? sent[sent.Count - 1].Sent.Date : start;
             foreach ( var person in members )
             {
-                var preMet = goal.Dates.TryGetValue( person.PersonId, out var dates ) && dates.Any( d => d < start );
-                var leftOnGoal = false;
+                var preMet = goal.Dates.TryGetValue( person.PersonId, out var dates ) && goal.PreMet( dates, start );
                 if ( converted.TryGetValue( person.PersonId, out var when ) )
                 {
                     var credited = sent.Where( s => s.RecipientIds.ContainsKey( person.PersonId ) && ( s.Sent <= when || s.Sent.Date == when.Date ) )
@@ -337,18 +486,23 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                         _conversions.Rows.Add( credited.LinkId, when, person.AliasId, credited.RecipientIds[person.PersonId], SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:conversion:{start:yyyyMMdd}:{person.Guid}" ),
                             when, when, _foreignKey );
                         stats.Conversions++;
-
-                        // Rock's job prunes on each run while the run is still sending, so only a goal met before the last send takes the person out.
-                        leftOnGoal = leavesOnConversion && ( isOpen || when.Date < lastMessageDay );
+                    }
+                    else if ( left.TryGetValue( person.PersonId, out var l ) && l.Reason == ConversionGoalMet )
+                    {
+                        // Rock records no conversion for someone no message reached, so nothing takes them out.
+                        left.Remove( person.PersonId );
                     }
                 }
 
-                _recipients.Rows.Add( instanceId, person.AliasId, leftOnGoal ? InactiveRecipient : ActiveRecipient, leftOnGoal ? ConversionGoalMet : ( object ) DBNull.Value, preMet,
-                    SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:recipient:{start:yyyyMMdd}:{person.Guid}" ), start.AddHours( 6 ), leftOnGoal ? when : start.AddHours( 6 ), _foreignKey );
+                // Rock's job prunes on each run while the run is still sending, so only an exit before the last send takes the person out.
+                var hasLeft = left.TryGetValue( person.PersonId, out var exitAt ) && ( isOpen || exitAt.When.Date < lastMessageDay );
+                _recipients.Rows.Add( instanceId, person.AliasId, hasLeft ? InactiveRecipient : ActiveRecipient, hasLeft ? exitAt.Reason : ( object ) DBNull.Value, preMet,
+                    SeededRandom.StableGuid( $"{_seed}:flow:{flow.Key}:recipient:{start:yyyyMMdd}:{person.Guid}" ), start.AddHours( 6 ), hasLeft ? exitAt.When : start.AddHours( 6 ), _foreignKey );
             }
         }
 
-        private (int CommunicationId, Dictionary<int, int> RecipientIds) WriteEmail( FlowDefinition flow, MessageBlueprint message, FlowContext context, string key, DateTime at, List<EmailPerson> to )
+        private (int CommunicationId, Dictionary<int, int> RecipientIds) WriteEmail( FlowDefinition flow, MessageBlueprint message, FlowContext context, string key, DateTime at, List<EmailPerson> to,
+            Dictionary<int, (DateTime FirstOpen, DateTime? FirstClick)> engaged )
         {
             var main = context.Emails.CampusList.First();
             var tokens = MessageRenderer.Tokens( at, at, main.Name, main.Key, main.ServiceTimes, null );
@@ -389,6 +543,13 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
                 if ( send.Recipients[i].DeliveredDateTime.HasValue )
                 {
                     ids[send.Recipients[i].Person.PersonId] = firstRecipientId + i;
+                }
+
+                var opens = send.Recipients[i].Interactions.Where( x => x.Operation == "Opened" ).Select( x => x.When ).ToList();
+                if ( opens.Count > 0 )
+                {
+                    var clicks = send.Recipients[i].Interactions.Where( x => x.Operation == "Click" ).Select( x => x.When ).ToList();
+                    engaged[send.Recipients[i].Person.PersonId] = (opens.Min(), clicks.Count > 0 ? clicks.Min() : ( DateTime? ) null);
                 }
             }
 
@@ -470,13 +631,19 @@ VALUES ( @FlowId, @Start, @Done, @TrackingDone, @Guid, @Created, @Modified, @For
         }
 
         /// <summary>
-        /// The goal's type, its settings as Rock's flow editor stores them, and each person's dates that meet it.
+        /// The goal's type, its settings as Rock's flow editor stores them, and each person's dates that meet it. Null when
+        /// the goal names a registration instance this load did not write.
         /// </summary>
         private GoalPlan Goal( FlowDefinition flow, FlowContext context )
         {
             if ( !GoalTypes.TryGetValue( flow.Goal?.Type ?? string.Empty, out var type ) )
             {
                 throw new InvalidOperationException( $"configuration/flows.json: flow {flow.Key} has goal '{flow.Goal?.Type}', which is not one this slice writes." );
+            }
+
+            if ( flow.Goal.Type == "completedForm" || flow.Goal.Type == "enteredDataView" || flow.Goal.Type == "registered" )
+            {
+                return RecurringGoal( flow, context, type );
             }
 
             if ( flow.Goal.Type == "joinedGroupType" )
@@ -589,6 +756,11 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
             public Dictionary<int, string> NickNames { get; set; }
 
             public int? MainNumberId { get; set; }
+
+            /// <summary>
+            /// What the recurring flows' audience rules read, loaded the first time one needs it.
+            /// </summary>
+            public List<AudiencePerson> Audience { get; set; }
         }
 
         private sealed class GoalPlan
@@ -606,6 +778,16 @@ WHERE [st].[Guid] = @Type AND [s].[CompletedDateTime] IS NOT NULL AND [ss].[IsCo
             /// The first moment after a run's goal window, from its start date and length in days.
             /// </summary>
             public Func<DateTime, int, DateTime> WindowEnd { get; set; }
+
+            /// <summary>
+            /// Whether a person had met the goal before a run started, from their dates, as Rock checks when it seeds the run.
+            /// </summary>
+            public Func<List<DateTime>, DateTime, bool> PreMet { get; set; } = ( dates, start ) => dates.Any( d => d < start );
+
+            /// <summary>
+            /// The first day a run can start, when the goal names something that did not exist before it.
+            /// </summary>
+            public DateTime FirstRun { get; set; } = DateTime.MinValue;
         }
 
         private sealed class FlowStats

@@ -34,6 +34,51 @@ namespace RockSampleData.Loader.Model
         public string ReservedEmailDomain { get; set; } = "example.org";
 
         public List<FlowDefinition> Flows { get; set; } = new List<FlowDefinition>();
+
+        /// <summary>
+        /// The workflow types that put people in On-Demand flows.
+        /// </summary>
+        public List<FlowWorkflowDefinition> Workflows { get; set; } = new List<FlowWorkflowDefinition>();
+    }
+
+    /// <summary>
+    /// A workflow type with a form and Rock's Activate Communication Flow action: a person fills out the form, and the
+    /// workflow adds them to the flow.
+    /// </summary>
+    internal sealed class FlowWorkflowDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The workflow type's category key in configuration/categories.json.
+        /// </summary>
+        public string Category { get; set; }
+
+        public string WorkTerm { get; set; }
+
+        public string IconCssClass { get; set; }
+
+        /// <summary>
+        /// The key of the flow the workflow adds people to.
+        /// </summary>
+        public string Flow { get; set; }
+
+        public string FormHeader { get; set; }
+
+        public string FormFooter { get; set; }
+
+        public string CommentsLabel { get; set; }
+
+        /// <summary>
+        /// The percent of people who write something in the comments box.
+        /// </summary>
+        public int CommentShare { get; set; }
+
+        public List<string> Comments { get; set; } = new List<string>();
     }
 
     /// <summary>
@@ -80,6 +125,74 @@ namespace RockSampleData.Loader.Model
         /// lastMessageSent, anyEmailOpened, anyEmailClicked, or conversionAchieved.
         /// </summary>
         public string Exit { get; set; }
+
+        /// <summary>
+        /// For a recurring flow: when each run starts.
+        /// </summary>
+        public FlowSchedule Schedule { get; set; }
+
+        /// <summary>
+        /// For a recurring flow: who each run reaches.
+        /// </summary>
+        public FlowAudience Audience { get; set; }
+
+        /// <summary>
+        /// False ships the flow paused. Only a recurring flow can be paused.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+    }
+
+    /// <summary>
+    /// When a recurring flow's runs start.
+    /// </summary>
+    internal sealed class FlowSchedule
+    {
+        /// <summary>
+        /// weekly, monthly, beforeBaptismSundays, or beforeGroupLaunches.
+        /// </summary>
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// For monthly: only these months, 1 to 12. Empty means every month.
+        /// </summary>
+        public List<int> Months { get; set; } = new List<int>();
+
+        /// <summary>
+        /// The day of the week, such as Wednesday.
+        /// </summary>
+        public string Weekday { get; set; }
+
+        /// <summary>
+        /// For monthly: which of the month's weekdays, counted from 1.
+        /// </summary>
+        public int Week { get; set; }
+
+        /// <summary>
+        /// For beforeBaptismSundays and beforeGroupLaunches: how many days before each baptism Sunday or small group launch.
+        /// </summary>
+        public int DaysBefore { get; set; }
+
+        /// <summary>
+        /// The time of day, as HH:mm.
+        /// </summary>
+        public string Time { get; set; }
+    }
+
+    /// <summary>
+    /// Who a recurring flow's runs reach: its guarded data view, and the same rule worked out for each past run date,
+    /// since Rock cannot run a data view as of a past day.
+    /// </summary>
+    internal sealed class FlowAudience
+    {
+        /// <summary>
+        /// The data view's key in configuration/reporting.json.
+        /// </summary>
+        public string View { get; set; }
+
+        /// <summary>
+        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, or readyToLead.
+        /// </summary>
+        public string Rule { get; set; }
     }
 
     /// <summary>
@@ -98,6 +211,54 @@ namespace RockSampleData.Loader.Model
         /// Foundations asks people to serve, so it skips anyone already serving.
         /// </summary>
         public bool SkipIfGoalMet { get; set; }
+
+        /// <summary>
+        /// The workflow whose form puts people in the flow, by its key in this file. Its people are planned from the
+        /// Baptism steps: <see cref="BaptizedShare"/> and the settings after it.
+        /// </summary>
+        public string Workflow { get; set; }
+
+        /// <summary>
+        /// The percent of people baptized here in the history window who filled out the form before their baptism.
+        /// </summary>
+        public int BaptizedShare { get; set; }
+
+        public int WeeksBeforeBaptismMin { get; set; }
+
+        public int WeeksBeforeBaptismMax { get; set; }
+
+        /// <summary>
+        /// How many people who are not baptized filled out the form, for each baptized person who did.
+        /// </summary>
+        public double NotBaptizedPerBaptized { get; set; }
+
+        /// <summary>
+        /// Cast stories: a person who filled out the form on a day.
+        /// </summary>
+        public List<FlowEntryPin> Pins { get; set; } = new List<FlowEntryPin>();
+    }
+
+    /// <summary>
+    /// A Cast person who entered a flow on a day.
+    /// </summary>
+    internal sealed class FlowEntryPin
+    {
+        /// <summary>
+        /// The Cast person, or null with <see cref="UnbaptizedCastAdult"/>.
+        /// </summary>
+        public Guid? Person { get; set; }
+
+        /// <summary>
+        /// The loader picks one Cast adult who is not baptized and has a reserved email or none.
+        /// </summary>
+        public bool UnbaptizedCastAdult { get; set; }
+
+        public int DaysAgo { get; set; }
+
+        /// <summary>
+        /// The time of day they filled out the form, as HH:mm.
+        /// </summary>
+        public string Time { get; set; }
     }
 
     /// <summary>
@@ -132,7 +293,7 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowGoal
     {
         /// <summary>
-        /// joinedGroupType or tookStep. The other goal types come in later slices.
+        /// joinedGroupType, tookStep, completedForm, enteredDataView, or registered.
         /// </summary>
         public string Type { get; set; }
 
@@ -145,6 +306,27 @@ namespace RockSampleData.Loader.Model
         /// For tookStep: the step type's key in configuration/steps.json.
         /// </summary>
         public string StepType { get; set; }
+
+        /// <summary>
+        /// For enteredDataView: the data view's key in configuration/reporting.json.
+        /// </summary>
+        public string View { get; set; }
+
+        /// <summary>
+        /// For enteredDataView: backInLast30Days, the rule the view holds, worked out for each person's dates.
+        /// </summary>
+        public string Rule { get; set; }
+
+        /// <summary>
+        /// For completedForm: the workflow's key in this file.
+        /// </summary>
+        public string Workflow { get; set; }
+
+        /// <summary>
+        /// For registered: the registration template's key in configuration/registrations.json. The goal names the
+        /// template's newest instance whose registration opened by install day.
+        /// </summary>
+        public string Registration { get; set; }
 
         /// <summary>
         /// The goal's window, in days from the run's start date.

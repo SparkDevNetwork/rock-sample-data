@@ -48,6 +48,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
 | `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
+| `flow-audiences` | Each recurring Communication Flow's audience rule, as the loader runs it for past runs, finds on install day exactly the people Rock's own engine finds in the flow's guarded data view. Judged only when today is the anchor. |
 | `metrics` | Each path metric's newest value equals Rock's count of its stage view, less the people who first reached the stage after that value. A SQL count of the stage rule must also equal Rock's count. |
 | `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`): which Cast person may view or edit which category, data view, or report. |
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |

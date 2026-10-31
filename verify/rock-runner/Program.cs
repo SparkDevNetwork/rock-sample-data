@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|reports|authorize --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -45,6 +45,8 @@ namespace RockSampleData.RockRunner
     ///            each warning.
     ///   data-views  Runs every data view through Rock's own engine (DataViewCache.GetEntityIds) and prints, for each,
     ///            "ok", its Guid, how many it found, and its milliseconds, or "error", its Guid, and Rock's message.
+    ///   data-view-people  Runs each data view whose Guid is a line of the input file through Rock's own engine
+    ///            (DataViewCache.GetEntityIds) and prints its Guid, a tab, and the Ids it found, separated by commas.
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
@@ -64,10 +66,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "reports", "authorize" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|reports|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -100,6 +102,7 @@ namespace RockSampleData.RockRunner
                     "sign-in" => worker.SignIn( lines ),
                     "group-sync" => worker.GroupSync(),
                     "data-views" => worker.DataViews(),
+                    "data-view-people" => worker.DataViewPeople( lines ),
                     "reports" => worker.Reports(),
                     "authorize" => worker.Authorize( lines ),
                     _ => worker.Cleanup()
@@ -332,6 +335,30 @@ namespace RockSampleData.RockRunner
                 {
                     lines.Add( $"error\t{guid}\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
                 }
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Runs each data view the input names through Rock's own engine and returns the Ids it finds, so verify can compare
+        /// them with the loader's own copy of the view's rule.
+        /// </summary>
+        public string DataViewPeople( string[] guids )
+        {
+            Start();
+            StartMessageBus();
+            var cache = _rock.GetType( "Rock.Web.Cache.DataViewCache", true );
+            var get = cache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                ?? throw new InvalidOperationException( "This Rock has no DataViewCache.Get( Guid ). The runner needs updating for this Rock." );
+            var getEntityIds = cache.GetMethod( "GetEntityIds", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no DataViewCache.GetEntityIds(). The runner needs updating for this Rock." );
+            var lines = new List<string>();
+            foreach ( var line in guids.Where( l => Guid.TryParse( l.Trim(), out _ ) ) )
+            {
+                var view = get.Invoke( null, new object[] { Guid.Parse( line.Trim() ) } );
+                var ids = view == null ? Enumerable.Empty<int>() : ( ( System.Collections.IEnumerable ) getEntityIds.Invoke( view, null ) ).Cast<int>();
+                lines.Add( $"{line.Trim()}\t{string.Join( ",", ids.OrderBy( i => i ) )}" );
             }
 
             return string.Join( "\n", lines );

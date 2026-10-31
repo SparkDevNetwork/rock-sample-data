@@ -35,6 +35,146 @@
       ],
       "goal": { "type": "tookStep", "stepType": "serve", "days": 90, "targetPercent": 15, "$targetPercentComment": "Set from the data: on Full 7, 11 of the 60 people not yet serving when they entered took the Serve step within 90 days (18%), rounded down to a whole 5%." },
       "exit": "conversionAchieved"
+    },
+    {
+      "key": "baptism-next-steps",
+      "name": "Baptism Next Steps",
+      "publicName": "Baptism Next Steps",
+      "description": "Walks with anyone thinking about baptism, from the day they fill out the Baptism Interest form: a welcome email, a text offering to answer questions, an email about baptism Sunday, and a text offering to save them a spot. It stops for each person the day their Baptism step is recorded.",
+      "category": "flows-equip",
+      "trigger": "onDemand",
+      "entry": {
+        "workflow": "baptism-interest",
+        "$comment": "Who filled out the form. 'baptizedShare' percent of the people baptized here in the history window filled it out 1 to 16 weeks before their baptism; the rest signed up on the day. 'notBaptizedPerBaptized' as many people again, who are not baptized, filled it out at any time in the window. The pins are Cast stories: Josh Sanders filled it out 66 days before install, six days before his baptism, and one unbaptized Cast adult with a reserved email, picked by the loader, filled it out 30 days before install, so they are mid-flow.",
+        "baptizedShare": 70,
+        "weeksBeforeBaptismMin": 1,
+        "weeksBeforeBaptismMax": 16,
+        "notBaptizedPerBaptized": 1.0,
+        "pins": [
+          { "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB", "daysAgo": 66, "time": "08:10" },
+          { "unbaptizedCastAdult": true, "daysAgo": 30, "time": "07:45" }
+        ]
+      },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "baptism-interest-welcome", "name": "Welcome", "daysToWait": 0, "time": "10:00" },
+        { "key": "baptism-interest-questions", "name": "Any Questions", "daysToWait": 2, "time": "10:00" },
+        { "key": "baptism-interest-sunday", "name": "Baptism Sunday", "daysToWait": 12, "time": "10:00" },
+        { "key": "baptism-interest-spot", "name": "Save a Spot", "daysToWait": 28, "time": "10:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "baptism", "days": 180, "targetPercent": 35, "$targetPercentComment": "Set from the data: on Full 7, 403 of the 1,034 people who filled out the form were baptized within 180 days (39%), rounded down to a whole 5%. Some people never got a message they could open, such as people on No mass emails with no mobile that takes texts, and Rock counts a conversion only for someone a message reached." },
+      "exit": "conversionAchieved"
+    },
+    {
+      "key": "first-time-guest-welcome",
+      "name": "First-Time Guest Welcome",
+      "publicName": "Welcome to Rock Solid",
+      "description": "Every Wednesday, welcomes the adults who came to worship for the first time in the past week: what to expect when they come back, a text before Sunday, and an invitation to Starting Point a week later. Their campus pastor's personal welcome goes out on Monday, before this flow starts.",
+      "category": "flows-notice",
+      "trigger": "recurring",
+      "schedule": { "kind": "weekly", "weekday": "Wednesday", "time": "09:00" },
+      "audience": { "view": "first-visit-last-week-reserved-email", "rule": "firstVisitLastWeek" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "guest-welcome-next-sunday", "name": "Next Sunday", "daysToWait": 0, "time": "09:00" },
+        { "key": "guest-welcome-text", "name": "Before Sunday", "daysToWait": 3, "time": "10:00" },
+        { "key": "guest-welcome-starting-point", "name": "Starting Point", "daysToWait": 4, "time": "09:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "starting-point-class", "days": 84, "targetPercent": 2, "$targetPercentComment": "Set from the data: on Full 7, 17 of 787 first-time guests took the Starting Point Class within 84 days (2.2%), rounded down to a whole 1%." },
+      "exit": "lastMessageSent"
+    },
+    {
+      "key": "we-miss-you",
+      "name": "We Miss You",
+      "publicName": "We Miss You",
+      "description": "On the first Tuesday of each month, reaches adults who came regularly and stopped in the past month: a note that we miss them and are praying, and a text a week later to anyone who did not open it. Paused, to show what a paused flow looks like.",
+      "category": "flows-re-engage",
+      "trigger": "recurring",
+      "isActive": false,
+      "schedule": { "kind": "monthly", "weekday": "Tuesday", "week": 1, "time": "10:00" },
+      "audience": { "view": "newly-missed-reserved-email", "rule": "newlyMissed" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "we-miss-you-note", "name": "We Miss You", "daysToWait": 0, "time": "10:00" },
+        { "key": "we-miss-you-text", "name": "Praying for You", "daysToWait": 7, "time": "10:00" }
+      ],
+      "goal": { "type": "enteredDataView", "view": "back-in-the-last-30-days", "rule": "backInLast30Days", "days": 60, "targetPercent": 50, "$targetPercentComment": "Set from the data: on Full 7, 254 of 504 people came back to worship within 60 days (50.4%), rounded down to a whole 5%." },
+      "exit": "anyEmailOpened"
+    },
+    {
+      "key": "baptism-sunday-invitation",
+      "name": "Baptism Sunday Invitation",
+      "publicName": "Baptism Sunday",
+      "description": "Five weeks before each baptism Sunday, invites regular attenders who have not been baptized to fill out the Baptism Interest form, with a text a week later to anyone who has not clicked through.",
+      "category": "flows-equip",
+      "trigger": "recurring",
+      "schedule": { "kind": "beforeBaptismSundays", "daysBefore": 35, "time": "09:00" },
+      "audience": { "view": "unbaptized-regular-attenders-reserved-email", "rule": "unbaptizedRegularAttenders" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "baptism-invitation-email", "name": "Is It Time?", "daysToWait": 0, "time": "09:00" },
+        { "key": "baptism-invitation-text", "name": "Four Weeks Away", "daysToWait": 7, "time": "10:00" }
+      ],
+      "goal": { "type": "completedForm", "workflow": "baptism-interest", "days": 35, "targetPercent": 2, "$targetPercentComment": "Set from the data: on Full 7, 65 of 2,890 people filled out the Baptism Interest form within 35 days (2.2%), rounded down to a whole 1%." },
+      "exit": "anyEmailClicked"
+    },
+    {
+      "key": "womens-retreat-early-bird",
+      "name": "Women's Retreat Early Bird",
+      "publicName": "Women's Retreat",
+      "description": "On the first Tuesday of May, once registration opens, and of September, before the early bird ends, invites women who come to worship to the Women's Retreat, with a bring-a-friend email two weeks later. It stops for each woman who registers.",
+      "category": "flows-equip",
+      "trigger": "recurring",
+      "schedule": { "kind": "monthly", "months": [ 5, 9 ], "weekday": "Tuesday", "week": 1, "time": "10:00" },
+      "audience": { "view": "women-who-attend-reserved-email", "rule": "womenWhoAttend" },
+      "historyMonths": 18,
+      "messages": [
+        { "key": "womens-retreat-invite", "name": "Save Your Spot", "daysToWait": 0, "time": "10:00" },
+        { "key": "womens-retreat-friend", "name": "Bring a Friend", "daysToWait": 14, "time": "10:00" }
+      ],
+      "goal": { "type": "registered", "registration": "womens-retreat", "days": 60, "targetPercent": 10 },
+      "exit": "conversionAchieved"
+    },
+    {
+      "key": "lead-a-group",
+      "name": "Lead a Group",
+      "publicName": "Lead a Group",
+      "description": "Six weeks before each small group launch, invites people who are growing in a group and serving on a team to lead a group: an invitation, a text offering a seat at Group Leader Training, and an email about the support leaders get.",
+      "category": "flows-contribute",
+      "trigger": "recurring",
+      "schedule": { "kind": "beforeGroupLaunches", "daysBefore": 42, "time": "09:00" },
+      "audience": { "view": "ready-to-lead-reserved-email", "rule": "readyToLead" },
+      "historyMonths": 24,
+      "messages": [
+        { "key": "lead-invitation-ask", "name": "Have You Thought About Leading?", "daysToWait": 0, "time": "09:00" },
+        { "key": "lead-invitation-training", "name": "Group Leader Training", "daysToWait": 7, "time": "10:00" },
+        { "key": "lead-invitation-support", "name": "What Leaders Get", "daysToWait": 14, "time": "09:00" }
+      ],
+      "goal": { "type": "tookStep", "stepType": "lead", "days": 60, "targetPercent": 3 },
+      "exit": "conversionAchieved"
+    }
+  ],
+  "workflows": [
+    {
+      "key": "baptism-interest",
+      "name": "Baptism Interest",
+      "description": "The \"I'm interested in baptism\" form on the church website. It puts the person in the Baptism Next Steps Communication Flow.",
+      "category": "workflows-equip",
+      "workTerm": "Interest",
+      "iconCssClass": "ti ti-droplet",
+      "flow": "baptism-next-steps",
+      "formHeader": "<h2>Thinking about baptism?</h2><p>We'd love to walk with you. Tell us a little about where you are, and a pastor will be in touch.</p>",
+      "formFooter": "<p>Questions? Talk with a pastor at any campus on Sunday.</p>",
+      "commentsLabel": "Anything you want us to know?",
+      "commentShare": 35,
+      "comments": [
+        "I've been thinking about this for a while.",
+        "I was baptized as a baby. Should I be baptized again?",
+        "Can my daughter and I be baptized together?",
+        "I'm a little nervous about getting up in front of people.",
+        "My small group leader encouraged me to sign up.",
+        "I made a decision at Easter and want to take the next step."
+      ]
     }
   ]
 }

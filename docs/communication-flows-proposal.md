@@ -131,8 +131,8 @@ See Section 4.
 ### Flow 3. First-Time Guest Welcome
 
 - **Purpose.** Welcome every adult first-time guest and help them come back.
-- **Trigger.** Recurring, every Monday at 9 a.m., to the First Visit Last Week data view: adults who accept mass email and came to worship for the first time in the last 7 days.
-- **Messages.** Email the Monday after the first visit, from the campus pastor's name. SMS 3 days later ("Glad you came! Any questions? Just reply."). Email 7 days later, inviting them to the next Starting Point Class.
+- **Trigger.** Recurring, every Wednesday at 9 a.m., to First Visit Last Week, Reserved Email: adults who accept mass email and came to worship for the first time in the last 7 days. It starts Wednesday because each guest's campus pastor sends a personal welcome on Monday (decision 159).
+- **Messages.** Email that Wednesday about coming back (parking, kids, coffee). SMS 3 days later, before Sunday ("Any questions before Sunday? Just reply."). Email 4 days after that, inviting them to the next Starting Point Class.
 - **Goal.** Took Step: Starting Point Class, the first Belong step. Window 84 days, long enough for the next four-week class to start and finish. The target is set from what the data finds, likely about 10% (see Section 5).
 - **Exit.** Last Message Sent. A guest gets all three messages, because the welcome matters even after they sign up.
 - **On install day.** Active. Its audience includes the "Reserved or No Email" guard. The runs from the last two Mondays are mid-flow, so their remaining messages go out after install (Section 6, "After install").
@@ -146,7 +146,7 @@ See Section 4.
 - **Goal.** Entered Data View: Back in the Last 30 Days. Window 60 days. Target 15%.
 - **Exit.** Any Email Opened. The point is to be seen once, so people who open the email do not get the text.
 - **On install day.** Paused, as the pause example. Its audience still includes the "Reserved or No Email" guard, so turning it on is safe (Section 6, "After install").
-- **Cast.** Luis and Teresa Ortiz, who stopped coming about six months ago. Teresa opened the email and left the flow. Luis did not open it, so he got the text. Neither has come back, so their run shows the goal missed.
+- **Cast.** Luis and Teresa Ortiz, who stopped coming about six months ago. They are in a run about three months before install, and each leaves when they open the note. Neither has come back, so their run shows the goal missed.
 
 ### Flow 5. Baptism Sunday Invitation
 
@@ -206,7 +206,7 @@ See Section 4.
 
 - **Purpose.** Before each small group launch, invite people who are growing in a group and serving to lead one. This is Contribute to Lead.
 - **Trigger.** Recurring, 6 weeks before each group launch: the fall launch on the second Sunday of September and the spring launch on the third Sunday of January (`configuration/communications.json`). So it runs in early August and early December. The audience is the reports work's Ready to Lead view (adults with an Equip step who serve on a team now, are in a small group, and have no Lead step), with the guard. The framework grows leaders from people who have been formed and who serve, so this audience needs both. Giving alone does not count.
-- **Messages.** Email from the campus pastor ("Have you thought about leading?"). SMS 7 days later, with the Group Leader Training date. Email 14 days later: what leaders get, from training to the Leader Huddle.
+- **Messages.** Email from the church ("Have you thought about leading?"). SMS 7 days later, with the Group Leader Training date. Email 14 days later: what leaders get, from training to the Leader Huddle.
 - **Goal.** Took Step: Lead, within 60 days, so it covers the launch.
 - **Exit.** Conversion Achieved.
 - **History.** The runs before each launch in the last 2 years, about four.
@@ -277,7 +277,7 @@ The views are in the reports work's slice 2. If flows slice 1 lands first, it ad
 
 Left out from the first draft: a push with a story video, which reaches only people with the app; a second stories email; a questions email; and a "whenever you're ready" email. Message 3 carries the stories, and message 4 asks for the decision. Push stays covered by the Christmas flow.
 
-**The goal.** Took Step: Baptism, within 180 days, target 50%. The window runs well past the last message, so a person baptized a few months after the reminders end still counts. Runs from 6 weeks to 6 months ago show Pending on install day. Staff can put a person back in for another round at any time.
+**The goal.** Took Step: Baptism, within 180 days. Target 35%, set from the data: on Full 7, 39% of the people who filled out the form were baptized in the window. The window runs well past the last message, so a person baptized a few months after the reminders end still counts. Runs from 6 weeks to 6 months ago show Pending on install day. Staff can put a person back in for another round at any time.
 
 **Who is in it.** The flow reads the Baptism steps the steps part already wrote. It never changes them.
 
@@ -303,10 +303,10 @@ Left out from the first draft: a push with a story video, which reaches only peo
 
 | Flow | Target | Designed result |
 |---|---|---|
-| 2 Baptism Next Steps | 50% | About 55%, recent runs Pending |
-| 3 First-Time Guest Welcome | Set from the data, about 10% | A little above the target, most runs Achieved |
-| 4 We Miss You | 15% | About 10%, most runs Missed |
-| 5 Baptism Sunday Invitation | Set from the data, about 5% | A little above the target |
+| 2 Baptism Next Steps | 35%, set from the data | 39% on Full 7, recent runs Pending |
+| 3 First-Time Guest Welcome | 2%, set from the data | 2.2% on Full 7 |
+| 4 We Miss You | 50%, set from the data | 50.4% on Full 7 |
+| 5 Baptism Sunday Invitation | 2%, set from the data | 2.2% on Full 7 |
 | 6 Student Camp Registration | 40% | About 45% |
 | 7 Women's Retreat Early Bird | 10% | About 8%, Missed |
 | 8 Christmas at Rock Solid | None | Not Tracked |
@@ -425,8 +425,10 @@ Each slice lands on its own and passes verify on Rock 21.0.2 and Rock 20.0.10. S
 | Slice | What it adds | Size |
 |---|---|---|
 | 1. Flow setup and the class flows (built) | The flow categories, `configuration/flows.json`, After Starting Point's category, public name, new third email, and open runs, and After Foundations with its history and open runs. The send rule 220, with invariants for open runs and reserved contact points | Small to medium |
-| 2. The Baptism flow | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
-| 3. Recurring flows | The data views they need (from the reports work, or added under its keys), First-Time Guest Welcome, We Miss You, Baptism Sunday Invitation, Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, with the Ellis and Ortiz stories | Medium to large |
+| 2. The Baptism flow (built) | The Baptism Interest workflow type and its finished workflows, Baptism Next Steps with its history, its open runs, and Josh's story, and verify running Rock's flow job as referee | Medium |
+| 3a. Recurring flows, first three (built) | The recurring machinery (schedules, a run per date with each run's audience worked out by its view's rule, paused flows, the audience link after the reports views load), the Entered Data View and Completed Form goals, opened and clicked exits, verify's flow-audiences check, and First-Time Guest Welcome, We Miss You, and Baptism Sunday Invitation | Medium |
+| 3b-1. Women's Retreat and Lead a Group (built) | Specific-date schedules for some months and for the group launches, the Registered goal, the Women Who Attend and Ready to Lead rules, and registrations loading before communications | Medium |
+| 3b-2. Recurring flows, the rest | Student Camp Registration, Women's Retreat Early Bird, Christmas at Rock Solid, and Lead a Group, on the reports work's guarded views | Medium to large |
 | 4. One-Time flow, scheduled send, and finish | Built on the Rock Follow-Up, the scheduled Christmas Eve email, pushes, flow unsubscribes, people made inactive, the docs, the site, and the roadmap | Small to medium |
 
 ## 8. Questions and answers
