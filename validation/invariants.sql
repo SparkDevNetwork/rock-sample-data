@@ -2029,3 +2029,20 @@ SELECT CASE WHEN (
         WHERE [ForeignKey] = @ForeignKey
             AND [LastRunDateTime] < DATEADD( day, -365, ( SELECT MAX( [LastRunDateTime] ) FROM [DataView] WHERE [ForeignKey] = @ForeignKey ) ) ) = 1
     THEN 0 ELSE 1 END;
+
+-- check: attribute-value-has-rock-derived-columns
+-- why: Decision D-comm-flows-slice4-3. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [FieldType] AS [ft] ON [ft].[Id] = [a].[FieldTypeId]
+LEFT JOIN [PersonAlias] AS [pa] ON [ft].[Guid] = 'E4EAB7B2-0B76-429B-AFE4-AD86D7428C70' AND [pa].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
+CROSS APPLY ( SELECT
+    CASE WHEN DATALENGTH( [av].[Value] ) BETWEEN 2 AND 10 THEN CASE WHEN LOWER( [av].[Value] ) IN ( '1', 'y', 't', 'yes', 'true' ) THEN 1 ELSE 0 END END AS [Boolean],
+    CASE WHEN LEN( [av].[Value] ) <= 24 THEN TRY_CONVERT( DECIMAL( 18, 2 ), [av].[Value] ) END AS [Numeric],
+    CASE WHEN [av].[Value] LIKE '[12][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]%' THEN TRY_CONVERT( DATETIME2, [av].[Value] ) END AS [Date] ) AS [rock]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( CAST( [av].[ValueAsBoolean] AS INT ), -1 ) <> ISNULL( [rock].[Boolean], -1 )
+        OR ( [rock].[Numeric] IS NOT NULL AND ( [av].[ValueAsNumeric] IS NULL OR [av].[ValueAsNumeric] <> [rock].[Numeric] ) )
+        OR ( [rock].[Date] IS NOT NULL AND ( [av].[ValueAsDateTime] IS NULL OR ABS( DATEDIFF_BIG( MILLISECOND, [av].[ValueAsDateTime], [rock].[Date] ) ) > 4 ) )
+        OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );

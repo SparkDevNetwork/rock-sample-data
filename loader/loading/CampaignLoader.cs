@@ -149,8 +149,8 @@ IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] WHERE [AttributeId] = @AttributeI
     INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [IsPersistedValueDirty], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
     VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, GETDATE(), GETDATE() )
 ELSE
-    UPDATE [AttributeValue] SET [Value] = @Value, [IsPersistedValueDirty] = 1 WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId",
-                    P( "@AttributeId", attributeId ), P( "@EntityId", block["Id"] ), P( "@Value", value.Value ), P( "@ForeignKey", _foreignKey ) );
+    UPDATE [AttributeValue] SET [Value] = @Value, [ValueAsNumeric] = @ValueAsNumeric, [ValueAsDateTime] = @ValueAsDateTime, [ValueAsBoolean] = @ValueAsBoolean, [IsPersistedValueDirty] = 1 WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId",
+                    new[] { P( "@AttributeId", attributeId ), P( "@EntityId", block["Id"] ), P( "@Value", value.Value ), P( "@ForeignKey", _foreignKey ) }.Concat( AttributeValueHook.Parameters( value.Value, DateTime.Today.Year ) ).ToArray() );
             }
         }
 

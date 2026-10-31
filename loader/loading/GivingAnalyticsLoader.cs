@@ -214,7 +214,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
             // Rock's save hook fills the ValueAs columns, and a data view filter on a date attribute, such as Last Gave, reads ValueAsDateTime.
             void Add( IEnumerable<int> personIds, Guid attributeGuid, string value, DateTime created, DateTime modified )
             {
-                var (numeric, dateTime, boolean) = StaffLoader.ValueAs( value ?? string.Empty );
+                var (numeric, dateTime, boolean) = AttributeValueHook.ValueAs( value, modified.Year );
                 foreach ( var personId in personIds )
                 {
                     values.Rows.Add( false, _attributeIds[attributeGuid], personId, value, ( object ) numeric ?? DBNull.Value, ( object ) dateTime ?? DBNull.Value, ( object ) boolean ?? DBNull.Value,
