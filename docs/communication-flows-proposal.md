@@ -284,7 +284,7 @@ Left out from the first draft: a push with a story video, which reaches only peo
 - **People baptized here** in the last 18 months: about 70% of them entered the flow first, from 1 to 16 weeks before their baptism. The rest signed up on the day. Each one who entered converts, credited to the newest message before their baptism, and gets no more reminders.
 - **People not baptized:** about as many again entered and are not baptized. They got all four messages and left after the last one, or they are still Pending. So the flow converts about half of the people who enter, a little above its 50% target.
 - **People mid-flow:** everyone who entered in the 6 weeks before install is still in it, with messages left. Rock's job sends those after install (see "On install day" below).
-- **A few** unsubscribe from the flow (decision D-comm-flows-15). Rock never marks a flow recipient as made inactive, so none are.
+- **A few** unsubscribe from the flow (decision 246). Rock never marks a flow recipient as made inactive, so none are.
 
 **Cast stories.**
 

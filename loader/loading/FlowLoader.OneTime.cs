@@ -43,7 +43,7 @@ namespace RockSampleData.Loader.Loading
         pledge was made. Involved Adults reads Rock's Last Gave attribute, which the giving job writes. On
         install day the rule reads that value. Before then, the rule rebuilds it from the giving unit's gifts.
 
-        Reason: decisions D-comm-flows-slice4-1 and 220.
+        Reason: decisions 247 and 220.
     */
 
     internal sealed partial class FlowLoader

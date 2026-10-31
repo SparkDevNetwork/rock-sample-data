@@ -604,7 +604,7 @@ namespace RockSampleData.Loader
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
             db.RebuildDeferredIndexes( "History" );
 
-            // Every part has written its attribute values, so Rock's save hook runs over them once (decision D-comm-flows-slice4-3).
+            // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
             log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor ):N0} values set" );
 
             /*

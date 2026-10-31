@@ -749,7 +749,7 @@ WHERE [spn].[ForeignKey] = @ForeignKey
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
 
 -- check: communication-is-sent-and-never-sends-again
--- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it. The one scheduled communication, which waits for a future send date (decision D-comm-flows-slice4-2), is checked by scheduled-communication-waits-for-its-date.
+-- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it. The one scheduled communication, which waits for a future send date (decision 248), is checked by scheduled-communication-waits-for-its-date.
 SELECT COUNT(*)
 FROM [Communication] AS [c]
 WHERE [c].[ForeignKey] = @ForeignKey
@@ -758,7 +758,7 @@ WHERE [c].[ForeignKey] = @ForeignKey
         OR [c].[SendDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [c].[SendDateTime], 112 ) ) );
 
 -- check: no-recipient-waits-to-send
--- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to. Only the scheduled communication's recipients wait, as Pending (decision D-comm-flows-slice4-2).
+-- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to. Only the scheduled communication's recipients wait, as Pending (decision 248).
 SELECT COUNT(*)
 FROM [CommunicationRecipient] AS [cr]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
@@ -766,7 +766,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 )
     AND NOT ( [cr].[Status] = 0 AND [c].[SendDateTime] IS NULL AND [c].[FutureSendDateTime] > GETDATE() );
 
 -- check: scheduled-communication-waits-for-its-date
--- why: Decisions 220 and D-comm-flows-slice4-2. A load writes at most one communication that sends after install. It is a bulk email, Approved and reviewed, with a future send date, no send date, and no communication list, so Rock's Send Communications job sends it on its date to exactly these people. Every recipient is Pending with no send times, and has an email on example.org or none, so it can never reach a real address.
+-- why: Decisions 220 and 248. A load writes at most one communication that sends after install. It is a bulk email, Approved and reviewed, with a future send date, no send date, and no communication list, so Rock's Send Communications job sends it on its date to exactly these people. Every recipient is Pending with no send times, and has an email on example.org or none, so it can never reach a real address.
 SELECT CASE WHEN ( SELECT COUNT(*) FROM [Communication] AS [c] WHERE [c].[ForeignKey] = @ForeignKey AND [c].[SendDateTime] IS NULL ) > 1 THEN 1 ELSE 0 END
     + ( SELECT COUNT(*)
         FROM [Communication] AS [c]
@@ -818,7 +818,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey
         OR ( [cr].[UnsubscribeLevel] = 4 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [fr] WHERE [fr].[UnsubscribeCommunicationRecipientId] = [cr].[Id] AND [fr].[Status] = 2 AND [fr].[InactiveReason] = 1 ) ) );
 
 -- check: flow-unsubscribe-leaves-the-flow
--- why: Decision D-comm-flows-15. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
+-- why: Decision 246. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceRecipient] AS [fr]
 INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[Id] = [fr].[UnsubscribeCommunicationRecipientId]
@@ -1009,7 +1009,7 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
                 AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
 -- check: one-time-flow-is-finished
--- why: Decision D-comm-flows-slice4-1. A one-time flow ran once, from its single-date schedule and its audience view, and that run finished long before install. Rock's job closes a one-time flow's messaging once its one run is done, so the flow shows Completed and the job never reads it again. That is why its audience view carries no guard.
+-- why: Decision 247. A one-time flow ran once, from its single-date schedule and its audience view, and that run finished long before install. Rock's job closes a one-time flow's messaging once its one run is done, so the flow shows Completed and the job never reads it again. That is why its audience view carries no guard.
 SELECT COUNT(*)
 FROM [CommunicationFlow] AS [f]
 LEFT JOIN [Schedule] AS [s] ON [s].[Id] = [f].[ScheduleId]
@@ -1022,7 +1022,7 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 3
                 AND ( [i].[IsMessagingCompleted] = 0 OR [i].[IsConversionGoalTrackingCompleted] = 0 OR [i].[StartDate] <> [s].[EffectiveStartDate] OR [i].[StartDate] >= CAST( GETDATE() AS DATE ) ) ) );
 
 -- check: flow-send-reaches-its-instance
--- why: Decision 96, decision 220, and decision D-comm-flows-15. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
+-- why: Decision 96, decision 220, and decision 246. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
@@ -2031,7 +2031,7 @@ SELECT CASE WHEN (
     THEN 0 ELSE 1 END;
 
 -- check: attribute-value-has-rock-derived-columns
--- why: Decision D-comm-flows-slice4-3. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
+-- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]

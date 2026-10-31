@@ -288,7 +288,7 @@ Each verify receipt records how much database space its load needs (`load.space`
 
 | Dataset | Data file after the load | Log file after the load | Both | On the card |
 |---|---|---|---|---|
-| Core 1 | 840 MB | 520 MB | 1,360 MB | 1,400 MB, about 1.4 GB |
+| Core 1 | 840 MB | 520 MB | 1,360 MB (1,424 MB in a later run) | 1,500 MB, about 1.5 GB |
 | Core 3 | 1,032 MB | 648 MB | 1,680 MB | 1,700 MB, about 1.7 GB |
 | Full 7 | 5,896 MB | 7,816 MB | 13,712 MB | 13,800 MB, about 13 GB |
 

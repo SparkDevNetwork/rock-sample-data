@@ -196,7 +196,7 @@
       "description": "The Monday after Commitment Sunday, invites involved adults whose family has not pledged to Built on the Rock: an email that day, a text, the students' story, and a last call for commitment cards two weeks later. It ran once, so it shows Completed.",
       "category": "flows-contribute",
       "trigger": "oneTime",
-      "$triggerComment": "One run, on one date, to a data view. Its run finished long before install, so Rock's job never reads it again, and its audience needs no guard (decision D-comm-flows-slice4-1).",
+      "$triggerComment": "One run, on one date, to a data view. Its run finished long before install, so Rock's job never reads it again, and its audience needs no guard (decision 247).",
       "schedule": { "kind": "afterCommitmentSunday", "daysAfter": 1, "time": "09:00" },
       "audience": { "view": "involved-adults-not-yet-pledged", "rule": "involvedAdultsNotYetPledged" },
       "historyMonths": 24,

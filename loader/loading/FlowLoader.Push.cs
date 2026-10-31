@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Loading
         writes, so most of an audience shows Failed. A delivered push opens at the church app's designed rate, with
         the same interaction, session, and History line the app's other pushes have.
 
-        Reason: Christmas at Rock Solid sends a push (decision D-comm-flows-14).
+        Reason: Christmas at Rock Solid sends a push (decision 245).
     */
 
     internal sealed partial class FlowLoader

@@ -143,7 +143,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Giving ) ? CheckCampaign( db, source, guids, failures ) : 0;
 
-            // The Built on the Rock Follow-Up agrees with the Cast's pledges (decision D-comm-flows-slice4-1).
+            // The Built on the Rock Follow-Up agrees with the Cast's pledges (decision 247).
             checks += parts.Contains( SampleDataPart.Giving ) && parts.Contains( SampleDataPart.Communications ) ? CheckCampaignFollowUp( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;

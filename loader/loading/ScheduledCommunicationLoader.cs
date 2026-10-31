@@ -38,7 +38,7 @@ namespace RockSampleData.Loader.Loading
         on one campus, so it can reach only example.org addresses or none. It names no communication list,
         because Rock can refresh a list's recipients when it sends, and the newsletter lists include staff.
 
-        Reason: decisions D-comm-flows-slice4-2 and 220. Jon chose a scheduled communication to show a
+        Reason: decisions 248 and 220. Jon chose a scheduled communication to show a
         future send date.
     */
 
