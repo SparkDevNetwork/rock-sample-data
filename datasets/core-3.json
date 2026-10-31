@@ -13,7 +13,7 @@
   "households": 252,
   "campuses": 3,
   "typicalInstallSeconds": 17,
-  "databaseSpaceMegabytes": 1700,
+  "databaseSpaceMegabytes": 1800,
   "checkImages": {
     "$comment": "Every check gets images; Core 3 is still small.",
     "months": 0
