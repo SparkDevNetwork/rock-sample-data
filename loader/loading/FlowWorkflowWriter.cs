@@ -42,7 +42,7 @@ namespace RockSampleData.Loader.Loading
         type before the loader runs, but a database made only by migrations does not, so the loader adds
         whatever is missing the way Rock would, and Rock updates the rows the next time it starts.
 
-        Reason: Jon approved the Baptism Interest workflow (decision D-comm-flows-4).
+        Reason: Jon approved the Baptism Interest workflow (decision 235).
     */
 
     /// <summary>

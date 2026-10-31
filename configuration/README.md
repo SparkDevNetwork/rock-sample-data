@@ -50,7 +50,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Metrics | Ministry Path | The four stage metrics in `reporting.json`, Belong Stage to Lead Stage |
 | Communication lists | Care | The New Here and We Miss You lists |
 | Person attributes | Staff | The eight staff attributes (decision 201) |
-| Workflow types | Rock Solid Church, then Equip | The Baptism Interest workflow (decision D-comm-flows-4) |
+| Workflow types | Rock Solid Church, then Equip | The Baptism Interest workflow (decision 235) |
 | Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
 
 To add rows of a new kind or for a new purpose:

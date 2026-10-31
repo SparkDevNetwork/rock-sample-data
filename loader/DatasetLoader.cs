@@ -555,7 +555,7 @@ namespace RockSampleData.Loader
             // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
             // who is involved enough for a newsletter comes from the attendance and giving plans. Registrations come
             // first, because the Women's Retreat flow's goal names the retreat's registration instance (decision
-            // D-comm-flows-11).
+            // 242).
             if ( steps.Begin( "Communications" ) )
             {
                 new CommunicationsLoader( db, source, profile, dates, dataset, foreignKey, seed )

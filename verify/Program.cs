@@ -396,7 +396,7 @@ static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, str
     engine running the guarded view, or the two copies have drifted apart. The views count from today, so it is
     judged only when the loads are anchored to today.
 
-    Reason: the coordinator's guardrail for decision D-comm-flows-6.
+    Reason: the coordinator's guardrail for decision 237.
 */
 static CheckResult FlowAudienceCheck( RockRelease rock, SqlServer sql, string database, string connection, SampleDataSource source, DateTime anchor, string foreignKey, string seed )
 {
