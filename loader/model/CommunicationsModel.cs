@@ -35,6 +35,11 @@ namespace RockSampleData.Loader.Model
         public CommunicationSenders Senders { get; set; } = new CommunicationSenders();
 
         /// <summary>
+        /// The one communication that waits to send after install, or null.
+        /// </summary>
+        public ScheduledCommunication Scheduled { get; set; }
+
+        /// <summary>
         /// Rock's communication topic defined value Guids, by key.
         /// </summary>
         public Dictionary<string, Guid> Topics { get; set; } = new Dictionary<string, Guid>();
@@ -54,6 +59,50 @@ namespace RockSampleData.Loader.Model
         /// The Cast people whose stories include an unsubscribe.
         /// </summary>
         public List<CastUnsubscribe> CastUnsubscribes { get; set; } = new List<CastUnsubscribe>();
+    }
+
+    /// <summary>
+    /// A communication written to send after install: Approved, with a future send date and Pending recipients.
+    /// </summary>
+    internal sealed class ScheduledCommunication
+    {
+        /// <summary>
+        /// The library email's key in emails.json. Its audience is 'scheduled'.
+        /// </summary>
+        public string Email { get; set; }
+
+        /// <summary>
+        /// church, pastor, or students: who it is from.
+        /// </summary>
+        public string Sender { get; set; }
+
+        public int Month { get; set; }
+
+        public int Day { get; set; }
+
+        /// <summary>
+        /// The time of day it sends, as HH:mm.
+        /// </summary>
+        public string Time { get; set; }
+
+        public ScheduledAudience Audience { get; set; }
+    }
+
+    /// <summary>
+    /// Who a scheduled communication reaches: a flow audience rule as of install day, on one campus, with a reserved
+    /// email or none.
+    /// </summary>
+    internal sealed class ScheduledAudience
+    {
+        /// <summary>
+        /// involvedAdults.
+        /// </summary>
+        public string Rule { get; set; }
+
+        /// <summary>
+        /// The campus key in configuration/campuses.json.
+        /// </summary>
+        public string Campus { get; set; }
     }
 
     /// <summary>

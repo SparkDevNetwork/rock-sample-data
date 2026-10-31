@@ -141,16 +141,20 @@ namespace RockSampleData.Loader.Loading
             }
 
             // Everyone who finishes a Starting Point Class or Foundations goes through that class's flow.
+            var flows = new FlowLoader( _db, _source, _dates, _foreignKey, _seed );
             using ( _db.Log.TimePart( "Flows" ) )
             {
                 var groupTypeIds = new Dictionary<string, int> { ["small-groups"] = smallGroupTypeId, ["serving-teams"] = servingTypeId };
-                new FlowLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, configuration.Template.Guid, groupTypeIds );
+                flows.Load( configuration, people, emails, configuration.Template.Guid, groupTypeIds );
             }
 
             using ( _db.Log.TimePart( "Rebuild indexes" ) )
             {
                 _db.RebuildDeferredIndexes( EmailWriter.LargeTables );
             }
+
+            // The one communication that waits to send after install reaches the involved adults the flows' rule finds.
+            new ScheduledCommunicationLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, templateId, campusIds, flows );
 
             WriteMembers( plan, listIds );
             var moved = MoveTextPreferencesWithoutPhones();

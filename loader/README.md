@@ -284,13 +284,13 @@ The numbers were measured with the CLI: the default seed, 3 years of history, an
 
 Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
-Each verify receipt records how much database space its load needs (`load.space`), and each card's `databaseSpaceMegabytes` comes from it: the data and log files at their largest, added together, and rounded up to the next 100 MB. The trusted base starts at 392 MB of data and a 520 MB log, so the numbers include the new Rock install. A load runs in one transaction, so the log holds the whole load until it commits. Verify measured these on Rock 21.0.2 on 2026-10-29, on the data in main `42f09cd`, with check images:
+Each verify receipt records how much database space its load needs (`load.space`), and each card's `databaseSpaceMegabytes` comes from it: the data and log files at their largest, added together, and rounded up to the next 100 MB. The trusted base starts at 392 MB of data and a 520 MB log, so the numbers include the new Rock install. A load runs in one transaction, so the log holds the whole load until it commits. Verify measured these on Rock 21.0.2 on 2026-10-31, on the data in the alpha.17 landing (communication flows and reporting included), with check images:
 
 | Dataset | Data file after the load | Log file after the load | Both | On the card |
 |---|---|---|---|---|
-| Core 1 | 840 MB | 520 MB | 1,360 MB | 1,400 MB, about 1.4 GB |
-| Core 3 | 1,032 MB | 648 MB | 1,680 MB | 1,700 MB, about 1.7 GB |
-| Full 7 | 5,896 MB | 7,816 MB | 13,712 MB | 13,800 MB, about 13 GB |
+| Core 1 | 904 MB | 520 MB | 1,424 MB | 1,500 MB, about 1.5 GB |
+| Core 3 | 1,096 MB | 648 MB | 1,744 MB | 1,800 MB, about 1.8 GB |
+| Full 7 | 6,088 MB | 8,200 MB | 14,288 MB | 14,300 MB, about 14 GB |
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 

@@ -6,6 +6,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 - **Women's groups,** led by women, with a women's Bible study topic.
 - **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
+- **New small group leaders from Ready to Lead,** planned for alpha.18. The small group data should draw most new leaders from people who are Ready to Lead (an Equip step, serving on a team now, and in a small group), so the Lead a Group flow shows real conversions. Today most new leaders had left their group or were not serving, so the flow's goal shows Missed. It changes the groups in every dataset, so it needs its own verify.
 
 ## People and attendance
 

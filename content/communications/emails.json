@@ -971,6 +971,115 @@
         { "p": "Register together and use the code FRIEND for 10 percent off. Bring your sister, your neighbor, or a friend from your small group." },
         { "button": "Register for the retreat", "href": "/women" }
       ]
+    },
+    {
+      "key": "camp-invite",
+      "occasion": "camp-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "students",
+      "sender": "students",
+      "subject": "Save your spot at Student Camp",
+      "preheader": "Five days of games, friends, and Jesus. Grades 7 to 12.",
+      "body": [
+        { "p": "Hey {{ Person.NickName }}! Student Camp is this summer, and we want you there." },
+        { "p": "Five days at the lake with your friends: games, worship every night, and time to talk about what matters. Register now while spots are open." },
+        { "button": "Register for camp", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "camp-early-bird",
+      "occasion": "camp-invitation",
+      "daysBefore": -19,
+      "audience": "person",
+      "topic": "students",
+      "sender": "students",
+      "subject": "The camp early bird price ends soon",
+      "preheader": "Register by April 30 to save on Student Camp.",
+      "body": [
+        { "p": "Hey {{ Person.NickName }}, the early bird price for Student Camp ends April 30." },
+        { "p": "Grab a spot now and bring a friend. Need help with the cost? Ask a student leader on Sunday. Nobody misses camp because of money." },
+        { "button": "Register for camp", "href": "/students/camp" }
+      ]
+    },
+    {
+      "key": "christmas-invite-a-friend",
+      "occasion": "christmas-invitation",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "events",
+      "sender": "church",
+      "subject": "Who will you bring to Christmas Eve?",
+      "preheader": "Christmas Eve is the easiest night of the year to invite a friend.",
+      "body": [
+        { "h": "Christmas Eve at Rock Solid" },
+        { "p": "Hi {{ Person.NickName }}, Christmas Eve is the night more people say yes to church than any other. Think of one friend, neighbor, or coworker you could invite." },
+        { "p": "Services run all afternoon and evening at every campus, with candles, carols, and a short message for the whole family." },
+        { "button": "See Christmas Eve times", "href": "/christmas" }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-invite",
+      "occasion": "campaign-follow-up",
+      "daysBefore": 0,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Missed Commitment Sunday? There's still time",
+      "preheader": "Every family can be part of Built on the Rock. Here's how to make your commitment.",
+      "body": [
+        { "h": "There's still time" },
+        { "p": "Hi {{ Person.NickName }}, yesterday families across our campuses brought their commitment cards for Built on the Rock. If you weren't there, we saved a place for you." },
+        { "p": "Built on the Rock will build a Student Center at the Phoenix campus and new kids rooms at every campus. Pray about what you can give over the next two years, then make your commitment online." },
+        { "button": "Make a commitment", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-story",
+      "occasion": "campaign-follow-up",
+      "daysBefore": -10,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Why a Student Center? Hear from our students",
+      "preheader": "What a place of their own will mean for the students at Rock Solid.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, our students meet in rooms that were built for something else. We asked a few of them what a place of their own would mean." },
+        { "list": [ "\"A place I can bring my friends who don't go to church.\" (a high school junior)", "\"Somewhere to hang out after school that isn't my phone.\" (an eighth grader)", "\"A room that feels like it's ours.\" (a student leader)" ] },
+        { "p": "Built on the Rock gives them that place, and new kids rooms at every campus. Your commitment helps build it." },
+        { "button": "See the plans", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "built-on-the-rock-follow-up-last",
+      "occasion": "campaign-follow-up",
+      "daysBefore": -14,
+      "audience": "person",
+      "topic": "giving",
+      "sender": "church",
+      "subject": "Bring your commitment card this Sunday",
+      "preheader": "Make your Built on the Rock commitment online, or bring your card this weekend.",
+      "body": [
+        { "p": "Hi {{ Person.NickName }}, this Sunday we're collecting the last commitment cards for Built on the Rock at every campus." },
+        { "p": "Whatever you give, you'll help build something that lasts for the next generation. You can also make your commitment online in a few minutes." },
+        { "button": "Make a commitment", "href": "/built-on-the-rock" }
+      ]
+    },
+    {
+      "key": "christmas-eve-see-you-tomorrow",
+      "occasion": "christmas",
+      "daysBefore": 1,
+      "audience": "scheduled",
+      "topic": "events",
+      "sender": "church",
+      "subject": "See you tomorrow for Christmas Eve at Rock Solid",
+      "preheader": "Parking, kids, and a few tips for the night.",
+      "body": [
+        { "h": "See you tomorrow night" },
+        { "p": "Hi {{ Person.NickName }}, Christmas Eve is {eventDate}, and we can't wait to celebrate with you at Rock Solid {campus}." },
+        { "list": [ "Come early. Parking fills up fast.", "Nursery is open for kids under 3.", "Every service ends with candles and Silent Night." ] },
+        { "button": "See service times", "href": "/christmas" }
+      ]
     }
   ]
 }

@@ -291,11 +291,11 @@ VALUES ( @AchievementTypeId, @PrerequisiteAchievementTypeId, NEWID(), @CreatedDa
             var value = string.Join( ",", definitions.Select( d => d.Guid.ToString() ) );
 
             _db.Execute( @"
-UPDATE [AttributeValue] SET [Value] = @Value, [ModifiedDateTime] = @Now WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId;
+UPDATE [AttributeValue] SET [Value] = @Value, [ValueAsNumeric] = @ValueAsNumeric, [ValueAsDateTime] = @ValueAsDateTime, [ValueAsBoolean] = @ValueAsBoolean, [ModifiedDateTime] = @Now WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId;
 IF @@ROWCOUNT = 0
     INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
     VALUES ( 0, @AttributeId, @EntityId, @Value, NEWID(), @Now, @Now, @ForeignKey );",
-                P( "@Value", value ), P( "@AttributeId", attributeId ), P( "@EntityId", templateId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
+                new[] { P( "@Value", value ), P( "@AttributeId", attributeId ), P( "@EntityId", templateId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) }.Concat( AttributeValueHook.Parameters( value, now.Year ) ).ToArray() );
         }
 
         /// <summary>

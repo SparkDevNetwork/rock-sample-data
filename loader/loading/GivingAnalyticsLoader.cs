@@ -208,13 +208,17 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
             Gifts = gifts;
             var people = PeopleByGivingId();
             var definedValueGuids = _db.Query( "SELECT [Id], [Guid] FROM [DefinedValue]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
-            var values = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
+            var values = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "ValueAsNumeric:decimal", "ValueAsDateTime:date", "ValueAsBoolean:bool",
+                "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
 
+            // Rock's save hook fills the ValueAs columns, and a data view filter on a date attribute, such as Last Gave, reads ValueAsDateTime.
             void Add( IEnumerable<int> personIds, Guid attributeGuid, string value, DateTime created, DateTime modified )
             {
+                var (numeric, dateTime, boolean) = AttributeValueHook.ValueAs( value, modified.Year );
                 foreach ( var personId in personIds )
                 {
-                    values.Rows.Add( false, _attributeIds[attributeGuid], personId, value, Guid.NewGuid(), created, modified, _foreignKey );
+                    values.Rows.Add( false, _attributeIds[attributeGuid], personId, value, ( object ) numeric ?? DBNull.Value, ( object ) dateTime ?? DBNull.Value, ( object ) boolean ?? DBNull.Value,
+                        Guid.NewGuid(), created, modified, _foreignKey );
                 }
             }
 

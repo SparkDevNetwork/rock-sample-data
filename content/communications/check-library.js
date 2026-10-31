@@ -39,11 +39,11 @@ const OCCASIONS = [
     "foundations", "student-camp", "mission-trip", "vbs", "group-launch", "serve-sunday", "weather",
     "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit",
     "baptized", "after-starting-point", "after-foundations", "baptism-interest",
-    "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation"
+    "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "camp-invitation", "christmas-invitation", "campaign-follow-up"
 ];
 
 // One-to-one occasions send to one person, and only they use the 'person' audience.
-const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point", "after-foundations", "baptism-interest", "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation" ];
+const PERSON_OCCASIONS = [ "serving-scheduled", "serving-reminder", "connection", "prayer-answered", "first-visit", "baptized", "after-starting-point", "after-foundations", "baptism-interest", "guest-welcome", "we-miss-you", "baptism-invitation", "lead-invitation", "womens-retreat-invitation", "camp-invitation", "christmas-invitation", "campaign-follow-up" ];
 
 // The 'class' audience is the people in the class or course the occasion names.
 const CLASS_OCCASIONS = [ "starting-point", "foundations" ];
@@ -52,7 +52,9 @@ const CLASS_OCCASIONS = [ "starting-point", "foundations" ];
 const FLOW_OCCASIONS = [ "after-starting-point", "after-foundations" ];
 
 const LIST_KEYS = configuration.lists.lists.map( l => l.key );
-const AUDIENCES = [ "newsletter", "everyone", "students-and-parents", "class", "person" ].concat( LIST_KEYS.map( k => `list:${k}` ) );
+// The 'scheduled' audience belongs to the one email configuration/communications.json schedules to send after install.
+const SCHEDULED_EMAIL = configuration.scheduled ? configuration.scheduled.email : null;
+const AUDIENCES = [ "newsletter", "everyone", "students-and-parents", "class", "person", "scheduled" ].concat( LIST_KEYS.map( k => `list:${k}` ) );
 const TOPICS = Object.keys( configuration.topics ).filter( k => k !== "$comment" );
 const SENDERS = [ "church", "pastor", "students" ];
 const LINES = configuration.phoneNumbers.numbers.map( n => n.key ).filter( k => k === "main" || k === "students" );
@@ -355,6 +357,9 @@ function checkOccasion( at, entry ) {
     const isPersonOccasion = PERSON_OCCASIONS.includes( entry.occasion );
     if ( isPersonOccasion !== ( entry.audience === "person" ) ) {
         errors.push( `${at}: the 'person' audience goes with the one-to-one occasions, and only with them.` );
+    }
+    if ( ( entry.audience === "scheduled" ) !== ( SCHEDULED_EMAIL !== null && entry.key === SCHEDULED_EMAIL ) ) {
+        errors.push( `${at}: the 'scheduled' audience goes with the one email configuration/communications.json schedules, and only with it.` );
     }
     if ( entry.audience === "class" && !CLASS_OCCASIONS.includes( entry.occasion ) ) {
         errors.push( `${at}: the 'class' audience needs a class occasion (${CLASS_OCCASIONS.join( ", " )}).` );

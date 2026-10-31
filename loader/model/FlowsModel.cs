@@ -39,6 +39,11 @@ namespace RockSampleData.Loader.Model
         /// The workflow types that put people in On-Demand flows.
         /// </summary>
         public List<FlowWorkflowDefinition> Workflows { get; set; } = new List<FlowWorkflowDefinition>();
+
+        /// <summary>
+        /// How many of every thousand delivered flow emails end with the person leaving the flow from its unsubscribe link.
+        /// </summary>
+        public double UnsubscribesPerThousand { get; set; }
     }
 
     /// <summary>
@@ -103,7 +108,7 @@ namespace RockSampleData.Loader.Model
         public string Category { get; set; }
 
         /// <summary>
-        /// onDemand. Recurring and one-time flows come in later slices.
+        /// onDemand, recurring, or oneTime.
         /// </summary>
         public string Trigger { get; set; }
 
@@ -127,12 +132,12 @@ namespace RockSampleData.Loader.Model
         public string Exit { get; set; }
 
         /// <summary>
-        /// For a recurring flow: when each run starts.
+        /// For a recurring or one-time flow: when each run starts.
         /// </summary>
         public FlowSchedule Schedule { get; set; }
 
         /// <summary>
-        /// For a recurring flow: who each run reaches.
+        /// For a recurring or one-time flow: who each run reaches.
         /// </summary>
         public FlowAudience Audience { get; set; }
 
@@ -148,9 +153,16 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowSchedule
     {
         /// <summary>
-        /// weekly, monthly, beforeBaptismSundays, or beforeGroupLaunches.
+        /// weekly, monthly, yearly, beforeBaptismSundays, or beforeGroupLaunches.
         /// </summary>
         public string Kind { get; set; }
+
+        /// <summary>
+        /// For yearly: the month and day.
+        /// </summary>
+        public int Month { get; set; }
+
+        public int Day { get; set; }
 
         /// <summary>
         /// For monthly: only these months, 1 to 12. Empty means every month.
@@ -173,6 +185,11 @@ namespace RockSampleData.Loader.Model
         public int DaysBefore { get; set; }
 
         /// <summary>
+        /// For afterCommitmentSunday, a one-time flow's date: how many days after Built on the Rock's Commitment Sunday.
+        /// </summary>
+        public int DaysAfter { get; set; }
+
+        /// <summary>
         /// The time of day, as HH:mm.
         /// </summary>
         public string Time { get; set; }
@@ -190,7 +207,8 @@ namespace RockSampleData.Loader.Model
         public string View { get; set; }
 
         /// <summary>
-        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, or readyToLead.
+        /// firstVisitLastWeek, newlyMissed, unbaptizedRegularAttenders, womenWhoAttend, readyToLead,
+        /// studentsNotRegisteredForCamp, or involvedAdults.
         /// </summary>
         public string Rule { get; set; }
     }
@@ -293,7 +311,7 @@ namespace RockSampleData.Loader.Model
     internal sealed class FlowGoal
     {
         /// <summary>
-        /// joinedGroupType, tookStep, completedForm, enteredDataView, or registered.
+        /// joinedGroupType, joinedGroup, tookStep, completedForm, enteredDataView, registered, or none.
         /// </summary>
         public string Type { get; set; }
 
@@ -313,7 +331,7 @@ namespace RockSampleData.Loader.Model
         public string View { get; set; }
 
         /// <summary>
-        /// For enteredDataView: backInLast30Days, the rule the view holds, worked out for each person's dates.
+        /// For enteredDataView: backInLast30Days or pledgeHouseholds, the rule the view holds, worked out for each person's dates.
         /// </summary>
         public string Rule { get; set; }
 
@@ -323,8 +341,8 @@ namespace RockSampleData.Loader.Model
         public string Workflow { get; set; }
 
         /// <summary>
-        /// For registered: the registration template's key in configuration/registrations.json. The goal names the
-        /// template's newest instance whose registration opened by install day.
+        /// For registered and joinedGroup: the registration template's key in configuration/registrations.json. The goal
+        /// names the template's newest instance whose registration opened by install day, or that instance's linked group.
         /// </summary>
         public string Registration { get; set; }
 
@@ -333,6 +351,9 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public int Days { get; set; }
 
-        public int TargetPercent { get; set; }
+        /// <summary>
+        /// The target conversion rate, in percent. Rock stores it with two decimal places.
+        /// </summary>
+        public decimal TargetPercent { get; set; }
     }
 }

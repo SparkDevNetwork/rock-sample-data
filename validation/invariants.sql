@@ -749,18 +749,38 @@ WHERE [spn].[ForeignKey] = @ForeignKey
         OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [pn] INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId] WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [pn].[Number] = SUBSTRING( [spn].[Number], 3, 10 ) ) );
 
 -- check: communication-is-sent-and-never-sends-again
--- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it.
+-- why: Decision 95. Rock's send job picks up any communication that is not Approved with a send time, so every sample communication is Approved, has its send time, and has the date key Rock fills from it. The one scheduled communication, which waits for a future send date (decision 248), is checked by scheduled-communication-waits-for-its-date.
 SELECT COUNT(*)
 FROM [Communication] AS [c]
 WHERE [c].[ForeignKey] = @ForeignKey
+    AND NOT ( [c].[SendDateTime] IS NULL AND [c].[FutureSendDateTime] > GETDATE() )
     AND ( [c].[Status] <> 3 OR [c].[SendDateTime] IS NULL OR [c].[SendDateKey] IS NULL
         OR [c].[SendDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [c].[SendDateTime], 112 ) ) );
 
 -- check: no-recipient-waits-to-send
--- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to.
+-- why: Decision 95. A Pending or Sending recipient is one Rock's send job would still send to. Only the scheduled communication's recipients wait, as Pending (decision 248).
 SELECT COUNT(*)
 FROM [CommunicationRecipient] AS [cr]
-WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 );
+INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
+WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[Status] IN ( 0, 5 )
+    AND NOT ( [cr].[Status] = 0 AND [c].[SendDateTime] IS NULL AND [c].[FutureSendDateTime] > GETDATE() );
+
+-- check: scheduled-communication-waits-for-its-date
+-- why: Decisions 220 and 248. A load writes at most one communication that sends after install. It is a bulk email, Approved and reviewed, with a future send date, no send date, and no communication list, so Rock's Send Communications job sends it on its date to exactly these people. Every recipient is Pending with no send times, and has an email on example.org or none, so it can never reach a real address.
+SELECT CASE WHEN ( SELECT COUNT(*) FROM [Communication] AS [c] WHERE [c].[ForeignKey] = @ForeignKey AND [c].[SendDateTime] IS NULL ) > 1 THEN 1 ELSE 0 END
+    + ( SELECT COUNT(*)
+        FROM [Communication] AS [c]
+        WHERE [c].[ForeignKey] = @ForeignKey AND [c].[SendDateTime] IS NULL
+            AND ( [c].[Status] <> 3 OR [c].[CommunicationType] <> 1 OR [c].[IsBulkCommunication] = 0 OR [c].[ReviewerPersonAliasId] IS NULL OR [c].[ReviewedDateTime] IS NULL
+                OR [c].[FutureSendDateTime] IS NULL OR [c].[FutureSendDateTime] <= GETDATE() OR [c].[SendDateKey] IS NOT NULL OR [c].[ListGroupId] IS NOT NULL
+                OR NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
+                OR EXISTS ( SELECT 1
+                    FROM [CommunicationRecipient] AS [cr]
+                    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [cr].[PersonAliasId]
+                    INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+                    WHERE [cr].[CommunicationId] = [c].[Id]
+                        AND ( [cr].[Status] <> 0 OR [cr].[SendDateTime] IS NOT NULL OR [cr].[DeliveredDateTime] IS NOT NULL
+                            OR ( ISNULL( [p].[Email], '' ) <> '' AND [p].[Email] NOT LIKE '%@example.org' ) ) ) ) );
 
 -- check: email-recipient-states-agree
 -- why: Communication Detail counts and charts each status from these columns. A delivered or opened email was sent and confirmed, an opened one has its first open after the send, and a failed one says why. Only a bounce fails after Rock sent it.
@@ -794,7 +814,25 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
 WHERE [cr].[ForeignKey] = @ForeignKey
     AND ( ( [cr].[UnsubscribeDateTime] IS NULL AND [cr].[UnsubscribeLevel] IS NOT NULL ) OR ( [cr].[UnsubscribeDateTime] IS NOT NULL AND [cr].[UnsubscribeLevel] IS NULL )
         OR ( [cr].[UnsubscribeLevel] = 3 AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [gm] WHERE [gm].[GroupId] = [c].[ListGroupId] AND [gm].[PersonId] = [p].[Id] AND [gm].[GroupMemberStatus] = 0 ) )
-        OR ( [cr].[UnsubscribeLevel] = 2 AND [p].[EmailPreference] = 0 ) );
+        OR ( [cr].[UnsubscribeLevel] = 2 AND [p].[EmailPreference] = 0 )
+        OR ( [cr].[UnsubscribeLevel] = 4 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [fr] WHERE [fr].[UnsubscribeCommunicationRecipientId] = [cr].[Id] AND [fr].[Status] = 2 AND [fr].[InactiveReason] = 1 ) ) );
+
+-- check: flow-unsubscribe-leaves-the-flow
+-- why: Decision 246. Leaving a flow from an email's link marks that run's row Unsubscribed, as Rock's job does, and every later run of the flow has the person Inactive as Unsubscribed From Flow, so no later send reaches them.
+SELECT COUNT(*)
+FROM [CommunicationFlowInstanceRecipient] AS [fr]
+INNER JOIN [CommunicationRecipient] AS [cr] ON [cr].[Id] = [fr].[UnsubscribeCommunicationRecipientId]
+INNER JOIN [CommunicationFlowInstance] AS [fi] ON [fi].[Id] = [fr].[CommunicationFlowInstanceId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [fr].[RecipientPersonAliasId]
+WHERE [fr].[ForeignKey] = @ForeignKey
+    AND ( [cr].[UnsubscribeLevel] <> 4 OR [fr].[Status] <> 2 OR [fr].[InactiveReason] <> 1
+        OR EXISTS (
+            SELECT 1
+            FROM [CommunicationFlowInstanceRecipient] AS [later]
+            INNER JOIN [CommunicationFlowInstance] AS [li] ON [li].[Id] = [later].[CommunicationFlowInstanceId]
+            INNER JOIN [PersonAlias] AS [lpa] ON [lpa].[Id] = [later].[RecipientPersonAliasId]
+            WHERE [li].[CommunicationFlowId] = [fi].[CommunicationFlowId] AND [lpa].[PersonId] = [pa].[PersonId] AND [li].[StartDate] > [cr].[UnsubscribeDateTime]
+                AND NOT ( [later].[Status] = 2 AND [later].[InactiveReason] = 7 ) ) );
 
 -- check: sent-email-has-its-history
 -- why: Rock's email transport writes a "Sent" line on the person's History tab for every email it sends, so every sent email recipient has one.
@@ -970,8 +1008,21 @@ WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 1
             WHERE [df].[DataViewId] = [f].[TargetAudienceDataViewId] AND [et].[Name] = 'Rock.Reporting.DataFilter.OtherDataViewFilter'
                 AND [df].[Selection] LIKE '{"DataViewId":' + CAST( [guard].[Id] AS NVARCHAR( 20 ) ) + ',%' ) );
 
+-- check: one-time-flow-is-finished
+-- why: Decision 247. A one-time flow ran once, from its single-date schedule and its audience view, and that run finished long before install. Rock's job closes a one-time flow's messaging once its one run is done, so the flow shows Completed and the job never reads it again. That is why its audience view carries no guard.
+SELECT COUNT(*)
+FROM [CommunicationFlow] AS [f]
+LEFT JOIN [Schedule] AS [s] ON [s].[Id] = [f].[ScheduleId]
+WHERE [f].[ForeignKey] = @ForeignKey AND [f].[TriggerType] = 3
+    AND ( [f].[IsMessagingClosed] = 0 OR [f].[IsConversionGoalTrackingClosed] = 0 OR [s].[Id] IS NULL OR [f].[TargetAudienceDataViewId] IS NULL
+        OR [s].[EffectiveEndDate] <> [s].[EffectiveStartDate] OR ISNULL( [s].[iCalendarContent], '' ) LIKE '%RRULE%' OR ISNULL( [s].[iCalendarContent], '' ) LIKE '%RDATE%'
+        OR ( SELECT COUNT(*) FROM [CommunicationFlowInstance] AS [i] WHERE [i].[CommunicationFlowId] = [f].[Id] ) <> 1
+        OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstance] AS [i]
+            WHERE [i].[CommunicationFlowId] = [f].[Id]
+                AND ( [i].[IsMessagingCompleted] = 0 OR [i].[IsConversionGoalTrackingCompleted] = 0 OR [i].[StartDate] <> [s].[EffectiveStartDate] OR [i].[StartDate] >= CAST( GETDATE() AS DATE ) ) ) );
+
 -- check: flow-send-reaches-its-instance
--- why: Decision 96 and decision 220. The job writes each flow message as a bulk email or text from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches every one of them. With another exit rule, a person who left gets no later message.
+-- why: Decision 96, decision 220, and decision 246. The job writes each flow message as a bulk email, text, or push from its message's flow template, to people in the run. With the exit rule "last message sent" it reaches everyone still Active in the run. A person who left, by any exit rule or by unsubscribing, gets no later message.
 SELECT COUNT(*)
 FROM [CommunicationFlowInstanceCommunication] AS [ic]
 INNER JOIN [Communication] AS [c] ON [c].[Id] = [ic].[CommunicationId]
@@ -981,15 +1032,15 @@ INNER JOIN [CommunicationTemplate] AS [t] ON [t].[Id] = [fc].[CommunicationTempl
 WHERE [ic].[ForeignKey] = @ForeignKey
     AND ( [c].[CommunicationType] <> [fc].[CommunicationType] OR [c].[IsBulkCommunication] = 0 OR ISNULL( [c].[CommunicationTemplateId], 0 ) <> [t].[Id] OR [t].[UsageType] <> 1 OR [t].[Version] <> 1
         OR ( [fc].[CommunicationType] = 2 AND ( [t].[SmsFromSystemPhoneNumberId] IS NULL OR ISNULL( [c].[SmsFromSystemPhoneNumberId], 0 ) <> [t].[SmsFromSystemPhoneNumberId] ) )
-        OR ( [f].[ExitConditionType] = 0
-            AND ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] )
-                <> ( SELECT COUNT(*) FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] ) )
+        OR ( [f].[ExitConditionType] = 0 AND EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r]
+            WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[Status] = 1
+                AND NOT EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr] WHERE [cr].[CommunicationId] = [c].[Id] AND [cr].[PersonAliasId] = [r].[RecipientPersonAliasId] ) ) )
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             WHERE [cr].[CommunicationId] = [c].[Id]
                 AND NOT EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] WHERE [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId] ) )
         OR EXISTS ( SELECT 1 FROM [CommunicationRecipient] AS [cr]
             INNER JOIN [CommunicationFlowInstanceRecipient] AS [r] ON [r].[CommunicationFlowInstanceId] = [ic].[CommunicationFlowInstanceId] AND [r].[RecipientPersonAliasId] = [cr].[PersonAliasId]
-            WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) ) );
+            WHERE [cr].[CommunicationId] = [c].[Id] AND [r].[Status] = 2 AND ( [r].[ModifiedDateTime] < CAST( [c].[SendDateTime] AS DATE ) OR ( [r].[InactiveReason] = 7 AND [r].[ModifiedDateTime] < [c].[SendDateTime] ) ) ) );
 
 -- check: flow-form-entry-has-its-workflow
 -- why: Decision 235. The only way into an On-Demand flow is Rock's Activate Communication Flow workflow action. In a flow a workflow type activates (its Communication Flow attribute names the flow), every person in a run started that workflow themselves and it finished on the run's start date.
@@ -1978,3 +2029,20 @@ SELECT CASE WHEN (
         WHERE [ForeignKey] = @ForeignKey
             AND [LastRunDateTime] < DATEADD( day, -365, ( SELECT MAX( [LastRunDateTime] ) FROM [DataView] WHERE [ForeignKey] = @ForeignKey ) ) ) = 1
     THEN 0 ELSE 1 END;
+
+-- check: attribute-value-has-rock-derived-columns
+-- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [FieldType] AS [ft] ON [ft].[Id] = [a].[FieldTypeId]
+LEFT JOIN [PersonAlias] AS [pa] ON [ft].[Guid] = 'E4EAB7B2-0B76-429B-AFE4-AD86D7428C70' AND [pa].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
+CROSS APPLY ( SELECT
+    CASE WHEN DATALENGTH( [av].[Value] ) BETWEEN 2 AND 10 THEN CASE WHEN LOWER( [av].[Value] ) IN ( '1', 'y', 't', 'yes', 'true' ) THEN 1 ELSE 0 END END AS [Boolean],
+    CASE WHEN LEN( [av].[Value] ) <= 24 THEN TRY_CONVERT( DECIMAL( 18, 2 ), [av].[Value] ) END AS [Numeric],
+    CASE WHEN [av].[Value] LIKE '[12][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]%' THEN TRY_CONVERT( DATETIME2, [av].[Value] ) END AS [Date] ) AS [rock]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( CAST( [av].[ValueAsBoolean] AS INT ), -1 ) <> ISNULL( [rock].[Boolean], -1 )
+        OR ( [rock].[Numeric] IS NOT NULL AND ( [av].[ValueAsNumeric] IS NULL OR [av].[ValueAsNumeric] <> [rock].[Numeric] ) )
+        OR ( [rock].[Date] IS NOT NULL AND ( [av].[ValueAsDateTime] IS NULL OR ABS( DATEDIFF_BIG( MILLISECOND, [av].[ValueAsDateTime], [rock].[Date] ) ) > 4 ) )
+        OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );
