@@ -921,6 +921,7 @@
         "ModifiedDateTime",
         "RecipientPersonAliasId",
         "Status",
+        "UnsubscribeCommunicationRecipientId",
         "WasConversionGoalPreMet"
       ],
       "rockColumns": {
@@ -1053,6 +1054,10 @@
         "ModifiedByPersonAliasId",
         "ModifiedDateTime",
         "Name",
+        "PushData",
+        "PushMessage",
+        "PushOpenAction",
+        "PushTitle",
         "SMSMessage",
         "SenderPersonAliasId",
         "SmsFromSystemPhoneNumberId",
@@ -5799,6 +5804,7 @@
       "396B3980-EB66-446F-86B4-6C6E95FC74A7",
       "39F491C5-D6AC-4A9B-8AC0-C431CB17D588",
       "3B8A938D-3E42-4504-87AB-729A2A55FEFB",
+      "3FE728AC-BE25-409A-98CB-3CFCE5FA063B",
       "407E7E45-7B2E-4FCD-9605-ECB1339F2453",
       "41540783-D9EF-4C70-8F1D-C9E83D91ED5F",
       "46B017B1-2232-481D-81C5-A48D9B7CABEE",
