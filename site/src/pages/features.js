@@ -201,7 +201,7 @@ module.exports = function features( { model } ) {
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
-            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too.",
+            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
             checks: [ "Worship attendance for adults, and check-in for kids and students", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
             look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
