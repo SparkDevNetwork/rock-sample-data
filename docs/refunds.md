@@ -87,6 +87,7 @@ His household file names the refund (`refunds` on his giving pattern), and his p
 3. **The refund check and the journey stage check** in every load's log.
 4. **Validation** grades `giving.refundsPerThousandGifts`, which it skipped before refunds existed.
 5. **The anchor sweep** holds the Cast giving stories, Gabriel's refund among them, on 60 install days.
+6. **The Rock version guard** (`validation/rock-lock.json`) fingerprints the Rock code the refund writer copies: `ProcessRefund`, how `FinancialBatchService` names a batch, the Transaction Detail block's refund rules and default suffix, and the Test Gateway's `Credit`. A Rock change to any of them fails `node validation/check-rock-lock.js`.
 
 ## Shared with registrations
 

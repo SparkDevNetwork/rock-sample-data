@@ -89,7 +89,8 @@
       "to": "/// Gets the giving automation monthly account giving history.",
       "why": "Which transactions qualify, and the default filters (contributions to tax-deductible accounts).",
       "mirroredBy": [
-        "loader/loading/GivingAnalyticsLoader.cs"
+        "loader/loading/GivingAnalyticsLoader.cs",
+        "loader/loading/GivingLoader.Refunds.cs"
       ],
       "sha256": "7c3f4c58cdb072b5a7fb2df6bca7d0077fc6e6bfc9b63b9f87aa71215ff197df"
     },
@@ -772,6 +773,74 @@
         "loader/loading/RegistrationsLoader.cs"
       ],
       "sha256": "e27a48d3b75abb148427eb86abde49c5dea6256060d40c90bc5530ed7ff4eb2e"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialTransaction/FinancialTransactionService.cs",
+      "section": "ProcessRefund",
+      "from": "public FinancialTransaction ProcessRefund( FinancialTransaction transaction, decimal? amount, int? reasonValueId, string summary, bool process, string batchNameSuffix, out string errorMessage )",
+      "to": "/// Gets an export of FinancialTransaction Records",
+      "why": "How Rock writes a refund: the transaction it copies from the original, the payment detail, the lines taken in order, the FinancialTransactionRefund row, the batch, and its control amount.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "300d5177399626bbca03e4b387fd03fb82c9f636b0d34ec1fe6f8e61c4c7c545"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialBatch/FinancialBatchService.cs",
+      "section": "GetInternal and GetByNameAndDateInternal",
+      "from": "internal FinancialBatch GetInternal( string namePrefix, string nameSuffix, DefinedValueCache currencyType, DefinedValueCache creditCardType,",
+      "to": "/// Use this to increment <see cref=\"FinancialBatch.ControlAmount\"/>",
+      "why": "How Rock names and dates the batch a new transaction lands in: the prefix, the card type's batch suffix or the currency, and the suffix, in a batch from midnight to midnight.",
+      "mirroredBy": [
+        "loader/loading/PaymentMethods.cs",
+        "loader/loading/RefundWriter.cs",
+        "loader/loading/RegistrantsLoader.cs"
+      ],
+      "sha256": "d56b045ec006ada2094a9482d08979859a8c454c6192bace936724bd9d7f79a7"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "The refund batch suffix settings",
+      "from": "[TextField( \"Refund Batch Name Suffix\",",
+      "to": "Key = AttributeKey.AppendSuffixToBatchName )]",
+      "why": "The Transaction Detail block's default refund batch suffix, \" - Refund\", which names every refund batch.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "8ef06dde0df929a37fbb75ec85449a3375bb76ff5628d04e3b1f5e90b1b22ba3"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "GetMaxRefundAmountForTransaction",
+      "from": "private decimal GetMaxRefundAmountForTransaction( FinancialTransaction transaction )",
+      "to": "#endregion Methods",
+      "why": "The most Rock lets staff refund: the original's total less its earlier refunds.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "566d32dfa97e4c2187203d0bc3bd71c1e0ea1f80adb95fffbad41f6eebeab6e0"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "The Refund block action",
+      "from": "public BlockActionResult Refund( string key, RefundRequestBag bag )",
+      "to": "/// Returns the integer Ids of the previous and next transactions within the same batch,",
+      "why": "What Rock refuses (more than is left, a refund of a refund, a foreign currency gift) and when it credits the gateway.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "25f82825bce68057063c385f38c106374e9c7c444ee3f85589e1d223e4e8c406"
+    },
+    {
+      "path": "Rock/Financial/TestGateway.cs",
+      "section": "Credit",
+      "from": "public override FinancialTransaction Credit( FinancialTransaction transaction, decimal amount, string comment, out string errorMessage )",
+      "to": "/// Adds the scheduled payment.",
+      "why": "The Test Gateway's refund code: T and the time to the millisecond.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "c5bb72ec24948362139191f6bb8fbfb07ee6ffc0e1dc51a1b90dea042c2d43bf"
     }
   ]
 }
