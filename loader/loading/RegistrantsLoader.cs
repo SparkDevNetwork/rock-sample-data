@@ -270,7 +270,6 @@ namespace RockSampleData.Loader.Loading
             var eventRegistrationId = _payments.DefinedValueId( EventRegistrationTypeGuid );
             var websiteId = _payments.DefinedValueId( PaymentMethods.WebsiteSourceGuid );
             var registrationEntityTypeId = _db.RequireIdByGuid( "EntityType", RegistrationEntityTypeGuid );
-            var suffixes = BatchSuffixes();
 
             var batches = TableFactory.Create( "Id:int", "Name:string", "BatchStartDateTime:date", "BatchEndDateTime:date", "Status:int", "ControlAmount:decimal", "IsAutomated:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var paymentDetails = PaymentMethods.PaymentDetailTable();
@@ -320,7 +319,7 @@ namespace RockSampleData.Loader.Loading
                 {
                     var payment = registration.Payments[i];
                     var day = payment.When.Date;
-                    var name = $"{( payment.IsScheduled ? DownloadPaymentsBatchPrefix : ids.BatchPrefix )} {suffixes( registration.Currency, wallet )}";
+                    var name = $"{( payment.IsScheduled ? DownloadPaymentsBatchPrefix : ids.BatchPrefix )} {_payments.BatchSuffix( _payments.CurrencyId( registration.Currency ), _payments.CardType( registration.Currency, wallet ) as int? )}";
                     if ( !batchIds.TryGetValue( (day, name), out var batchId ) )
                     {
                         batchId = nextBatchId++;
@@ -353,23 +352,6 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "FinancialTransaction", transactions, keepIdentity: true );
             _db.BulkInsert( "FinancialTransactionDetail", details, keepIdentity: true );
             return planIds;
-        }
-
-        /// <summary>
-        /// The batch name's suffix for a payment, as FinancialBatchService names a batch: the card type's Batch Name
-        /// Suffix, or its name, or the currency's name.
-        /// </summary>
-        private Func<string, Wallet, string> BatchSuffixes()
-        {
-            var cardSuffixes = _db.Query( @"
-SELECT [dv].[Value], [av].[Value] AS [Suffix]
-FROM [DefinedValue] AS [dv]
-INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId]
-LEFT JOIN [Attribute] AS [a] ON [a].[Key] = 'BatchNameSuffix' AND [a].[EntityTypeQualifierColumn] = 'DefinedTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [dt].[Id] AS NVARCHAR( 200 ) )
-LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id] AND [av].[EntityId] = [dv].[Id]
-WHERE [dt].[Name] = 'Credit Card Type'" )
-                .ToDictionary( r => ( string ) r["Value"], r => r["Suffix"] is string suffix && !string.IsNullOrWhiteSpace( suffix ) ? suffix : ( string ) r["Value"] );
-            return ( currency, wallet ) => currency == "Credit Card" && cardSuffixes.TryGetValue( wallet.CardBrand, out var suffix ) ? suffix : currency;
         }
 
         /// <summary>

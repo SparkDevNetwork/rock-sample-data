@@ -73,6 +73,26 @@ namespace RockSampleData.Loader.Loading
 
         public int CurrencyId( string currency ) => DefinedValueId( CurrencyGuids[currency] );
 
+        private Dictionary<int, string> _batchSuffixes;
+
+        /// <summary>
+        /// The payment part of a batch name, as FinancialBatchService names a batch: a card type's Batch Name Suffix, or
+        /// the card type's name, or else the currency's name.
+        /// </summary>
+        public string BatchSuffix( int currencyTypeValueId, int? creditCardTypeValueId )
+        {
+            _batchSuffixes ??= _db.Query( @"
+SELECT [dv].[Id], CASE WHEN [dt].[Name] = 'Credit Card Type' AND ISNULL( [av].[Value], '' ) <> '' THEN [av].[Value] ELSE [dv].[Value] END AS [Suffix]
+FROM [DefinedValue] AS [dv]
+INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId]
+LEFT JOIN [Attribute] AS [a] ON [a].[Key] = 'BatchNameSuffix' AND [a].[EntityTypeQualifierColumn] = 'DefinedTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [dt].[Id] AS NVARCHAR( 200 ) )
+LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id] AND [av].[EntityId] = [dv].[Id]
+WHERE [dt].[Name] IN ( 'Credit Card Type', 'Currency Type' )" )
+                .ToDictionary( r => ( int ) r["Id"], r => ( string ) r["Suffix"] );
+
+            return creditCardTypeValueId is int cardType && _batchSuffixes.TryGetValue( cardType, out var cardSuffix ) ? cardSuffix : _batchSuffixes[currencyTypeValueId];
+        }
+
         /// <summary>
         /// The card brand's Credit Card Type value for a card, or null for every other currency.
         /// </summary>
