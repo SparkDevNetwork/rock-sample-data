@@ -71,6 +71,7 @@ namespace RockSampleData.Loader.Loading
         }
 
         private HashSet<int> _taxDeductibleAccountIds;
+        private HashSet<int> _campaignAccountIds;
         private RefundWriter _refunds;
         private string _refundLine;
 
@@ -375,8 +376,10 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
                 return null;
             }
 
+            // Every account a gift uses is looked up by now, so the campaign's campus accounts are all known.
+            _campaignAccountIds ??= _accountIds.Where( a => a.Key.Fund == _source.Campaign?.Fund ).Select( a => a.Value ).ToHashSet();
             var amounts = gift.Gift.Amounts.ToList();
-            var isCampaign = amounts.Select( a => FundName( a.Key ) == _source.Campaign?.Fund ).ToList();
+            var isCampaign = amounts.Select( a => _campaignAccountIds.Contains( a.Key ) ).ToList();
             var isEligible = kind switch
             {
                 RefundKind.Duplicate => gift.IsOnline,

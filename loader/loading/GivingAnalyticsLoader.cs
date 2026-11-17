@@ -252,7 +252,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
                 : $"  WARNING: Rock's final journey stage run differed from the replay for {mismatches:N0} people. Check RockGivingAutomation.GetJourneyStage against Rock." );
 
             var refundedUnits = gifts.RefundedGivingIds.Count;
-            if ( refundedUnits > 0 )
+            if ( IsRefundChecked && refundedUnits > 0 )
             {
                 var differing = RefundedUnitsThatDiffer( gifts );
                 _db.Log.Write( differing == 0
@@ -262,12 +262,26 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
         }
 
         /// <summary>
+        /// True to check, after the analytics load, that Rock reads the refunded giving units' gifts as the plan has them.
+        /// The CLI and the verify tool set it with the Cast expectations; Rock's block skips it, so an install does not
+        /// pay for a builder's check (decision 217).
+        /// </summary>
+        public bool IsRefundChecked { get; set; }
+
+        /// <summary>
         /// For each giving unit with a refund, compares the plan's gifts on install day with the gifts Rock reads from the
         /// database, refunds applied. Returns how many units differ.
         /// </summary>
         private int RefundedUnitsThatDiffer( GiftTimeline gifts )
         {
-            var fromDatabase = QualifyingGifts( gifts.RefundedGivingIds );
+            // The units' aliases go in a temp table first, so the query reads only their gifts.
+            _db.Execute( @"
+DROP TABLE IF EXISTS #RefundCheckAliases;
+SELECT [pa].[Id] INTO #RefundCheckAliases
+FROM [PersonAlias] AS [pa]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [p].[GivingId] IN ( SELECT [value] FROM STRING_SPLIT( @GivingIds, ',' ) );", P( "@GivingIds", string.Join( ",", gifts.RefundedGivingIds ) ) );
+            var fromDatabase = QualifyingGifts( "#RefundCheckAliases" );
             static string Shape( IEnumerable<RockGift> unitGifts ) => string.Join( ";", unitGifts.Select( g =>
                 $"{g.Id}@{g.When:yyyy-MM-dd HH:mm:ss}:{string.Join( ",", g.Details.Select( d => $"{d.AccountId}={d.Amount:0.00}" ) )}" ) );
 
@@ -280,10 +294,11 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
         /// filter Rock's job and procedures use (GetGivingAutomationSourceTransactionQuery): contributions to at
         /// least one tax-deductible account, with a positive line, that are not fully refunded. Each gift carries
         /// its amount per account with refunds applied, as Rock's FinancialTransactionView does. With
-        /// <paramref name="givingIds"/>, only those giving units.
+        /// <paramref name="aliasTable"/>, a temp table of person alias Ids, only those people's gifts.
         /// </summary>
-        private Dictionary<string, List<RockGift>> QualifyingGifts( IReadOnlyCollection<string> givingIds = null )
+        private Dictionary<string, List<RockGift>> QualifyingGifts( string aliasTable = null )
         {
+            var onlyAliases = aliasTable == null ? string.Empty : $"INNER JOIN {aliasTable} AS [only] ON [only].[Id] = [ft].[AuthorizedPersonAliasId]";
             var rows = _db.Query( $@"
 WITH [RefundTotals] AS (
     SELECT [ftr].[OriginalTransactionId], SUM( [ftd].[Amount] ) AS [Refunded]
@@ -302,13 +317,13 @@ WITH [RefundTotals] AS (
         [fpd].[CurrencyTypeValueId],
         CASE WHEN [ft].[ScheduledTransactionId] IS NULL THEN 0 ELSE 1 END AS [IsScheduled]
     FROM [FinancialTransaction] AS [ft]
+    {onlyAliases}
     INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ft].[AuthorizedPersonAliasId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
     LEFT JOIN [FinancialPaymentDetail] AS [fpd] ON [fpd].[Id] = [ft].[FinancialPaymentDetailId]
     LEFT JOIN [RefundTotals] AS [rt] ON [rt].[OriginalTransactionId] = [ft].[Id]
     WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
         AND [p].[GivingId] IS NOT NULL AND [p].[GivingId] <> ''
-        AND ( @GivingIds IS NULL OR [p].[GivingId] IN ( SELECT [value] FROM STRING_SPLIT( @GivingIds, ',' ) ) )
         AND [p].[Guid] <> @GiverAnonymous
         AND [ft].[TransactionDateTime] IS NOT NULL
         AND [ft].[TransactionTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = @Contribution )
@@ -332,8 +347,7 @@ INNER JOIN [Lines] AS [l] ON [l].[TransactionId] = [q].[Id]
 GROUP BY [q].[Id], [q].[AuthorizedPersonAliasId], [q].[GivingId], [q].[PrimaryCampusId], [q].[TransactionDateTime], [q].[SourceTypeValueId], [q].[CurrencyTypeValueId], [q].[IsScheduled], [l].[AccountId]
 HAVING SUM( [l].[Amount] ) <> 0
 ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]",
-                P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ),
-                P( "@GivingIds", givingIds == null ? DBNull.Value : string.Join( ",", givingIds ) ) );
+                P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ) );
 
             return rows
                 .GroupBy( r => ( int ) r["Id"] )

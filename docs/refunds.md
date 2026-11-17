@@ -72,7 +72,7 @@ So the loader keeps a timeline of the gifts: what Rock sees on install day, with
 3. **Giving alerts** replay every night with the gifts as of that night.
 4. **Give steps** follow the same weekly journey replay.
 
-Every load checks the plan against Rock. For each giving unit with a refund, the gifts the plan has on install day must equal the gifts Rock reads from the database, with Rock's own refund rule applied. The log says "Refund check" with the result, beside the journey stage check.
+Every load the CLI or the verify tool runs checks the plan against Rock. Rock's installer block skips it, as it skips the Cast expectations (decision 217). For each giving unit with a refund, the gifts the plan has on install day must equal the gifts Rock reads from the database, with Rock's own refund rule applied. The log says "Refund check" with the result, beside the journey stage check.
 
 ## The Cast's story
 

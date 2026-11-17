@@ -486,7 +486,7 @@ namespace RockSampleData.Loader
             GivingAnalyticsLoader analytics = null;
             if ( steps.Begin( "Giving analytics" ) )
             {
-                analytics = new GivingAnalyticsLoader( db, dates, foreignKey );
+                analytics = new GivingAnalyticsLoader( db, dates, foreignKey ) { IsRefundChecked = options.IsCastExpectationsChecked };
                 analytics.Load( giving.Gifts );
             }
 
