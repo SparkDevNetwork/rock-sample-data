@@ -273,6 +273,10 @@ WHERE [EntityTypeId] = @EntityTypeId AND ISNULL( [EntityTypeQualifierColumn], ''
             var people = all.Select( a => a.PersonId ).Distinct().Count();
             _db.Log.Write( $"  Assessments: {all.Count:N0} for {people:N0} of {facts.People.Count:N0} adults: {byType}" );
             _db.Log.Write( $"  By rule: {bySource}; {all.Count( a => a.LastReminder.HasValue ):N0} reminded; {plan.Values.Count:N0} person attribute values" );
+            var completed = all.Where( a => !a.IsPending ).Select( a => (a.PersonId, a.Type) ).ToHashSet();
+            var leaders = facts.Leaders.Select( l => l.PersonId ).Distinct().ToList();
+            var leaderTypes = config.Leaders?.Types ?? new List<string>();
+            _db.Log.Write( $"  Current leaders with {string.Join( " and ", leaderTypes )}: {leaders.Count( id => leaderTypes.All( t => completed.Contains( (id, t) ) ) ):N0} of {leaders.Count:N0}" );
             var profiles = all.Where( a => a.Type == "disc" && a.Score != null ).GroupBy( a => a.Score.Summary ).OrderByDescending( g => g.Count() ).Take( 6 );
             _db.Log.Write( $"  Most common DISC profiles: {string.Join( ", ", profiles.Select( g => $"{g.Key} {g.Count():N0}" ) )}" );
         }

@@ -439,7 +439,8 @@ namespace RockSampleData.Loader.Generation
                         IsRequest = true,
                         RequesterAliasId = Requester( rule.RequestedBy[leader.GroupKind], person ),
                         Due = asked.Date.AddDays( rule.DueInDays ),
-                        Completed = Finishes( person, type, true ) ? Finish( asked, rule.FinishWithinDays, random ) : null,
+                        // A leader always has their results by install day, even one who became an adult just before leading.
+                        Completed = Finishes( person, type, true ) ? Finish( asked, rule.FinishWithinDays, random ) ?? _facts.Anchor.AddDays( -1 ).Add( EveningHours( random ) ) : null,
                         OnlyIfNeverTaken = true
                     };
                 }
@@ -546,13 +547,21 @@ namespace RockSampleData.Loader.Generation
             foreach ( var offer in offers )
             {
                 var lastCompleted = rows.Where( r => r.Completed <= offer.Date ).Select( r => r.Completed ).Max();
-                var waiting = rows.Any( r => r.Created <= offer.Date && ( r.IsPending || r.Completed > offer.Date )
-                    && ( !offer.IsRequest || ( offer.Date - r.Created ).TotalDays <= ReminderCutoffDays ) );
+                var waitingRows = rows.Where( r => r.Created <= offer.Date && ( r.IsPending || r.Completed > offer.Date ) ).ToList();
+                var waiting = waitingRows.Any( r => !offer.IsRequest || ( offer.Date - r.Created ).TotalDays <= ReminderCutoffDays );
                 var tooSoon = lastCompleted.HasValue && ( offer.Date - lastCompleted.Value ).TotalDays < MinimumDaysToRetake;
                 var alreadyTaken = offer.OnlyIfNeverTaken && rows.Any( r => r.Completed <= offer.Date );
-                if ( !offer.IsCastTake && ( waiting || tooSoon || alreadyTaken ) )
+
+                // A leader must have their results before leading, so their request goes out even while another waits, and
+                // they answer it instead of the one waiting, which stays pending.
+                if ( !offer.IsCastTake && ( ( waiting && !offer.OnlyIfNeverTaken ) || tooSoon || alreadyTaken ) )
                 {
                     continue;
+                }
+
+                if ( offer.OnlyIfNeverTaken )
+                {
+                    waitingRows.ForEach( r => r.Completed = null );
                 }
 
                 rows.Add( new PlannedAssessment
@@ -685,8 +694,8 @@ namespace RockSampleData.Loader.Generation
 
         /// <summary>
         /// The person attribute values Rock's service leaves after the person's results, in order: the latest result's
-        /// values, plus its save date. A value that was never set is not saved when it is empty, as Rock's
-        /// SaveAttributeValues adds no empty value, but a value that was set before is cleared.
+        /// values, plus its save date. An empty value is never saved: Rock's SaveAttributeValues adds none, and Rock Cleanup
+        /// removes the one a retake clears.
         /// </summary>
         private IEnumerable<PlannedAssessmentValue> Values( AssessmentPerson person, string type, List<PlannedAssessment> rows )
         {
@@ -713,7 +722,8 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
-            return current.Select( c => new PlannedAssessmentValue( person.PersonId, c.Key, c.Value.Value, c.Value.Created, c.Value.Modified ) );
+            return current.Where( c => !string.IsNullOrWhiteSpace( c.Value.Value ) )
+                .Select( c => new PlannedAssessmentValue( person.PersonId, c.Key, c.Value.Value, c.Value.Created, c.Value.Modified ) );
         }
 
         #endregion
