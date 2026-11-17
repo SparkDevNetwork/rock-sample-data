@@ -274,14 +274,19 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
         /// </summary>
         private int RefundedUnitsThatDiffer( GiftTimeline gifts )
         {
-            // The units' aliases go in a temp table first, so the query reads only their gifts.
-            _db.Execute( @"
-DROP TABLE IF EXISTS #RefundCheckAliases;
-SELECT [pa].[Id] INTO #RefundCheckAliases
+            // The query reads only the gifts of these units' aliases, passed as Rock's IdList type.
+            var units = gifts.RefundedGivingIds.ToHashSet();
+            var aliasIds = TableFactory.Create( "Id:int" );
+            foreach ( var row in _db.Query( $@"
+SELECT [pa].[Id], [p].[GivingId]
 FROM [PersonAlias] AS [pa]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
-WHERE [p].[GivingId] IN ( SELECT [value] FROM STRING_SPLIT( @GivingIds, ',' ) );", P( "@GivingIds", string.Join( ",", gifts.RefundedGivingIds ) ) );
-            var fromDatabase = QualifyingGifts( "#RefundCheckAliases" );
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey ) ).Where( r => units.Contains( r["GivingId"] as string ) ) )
+            {
+                aliasIds.Rows.Add( ( int ) row["Id"] );
+            }
+
+            var fromDatabase = QualifyingGifts( aliasIds );
             static string Shape( IEnumerable<RockGift> unitGifts ) => string.Join( ";", unitGifts.Select( g =>
                 $"{g.Id}@{g.When:yyyy-MM-dd HH:mm:ss}:{string.Join( ",", g.Details.Select( d => $"{d.AccountId}={d.Amount:0.00}" ) )}" ) );
 
@@ -294,11 +299,17 @@ WHERE [p].[GivingId] IN ( SELECT [value] FROM STRING_SPLIT( @GivingIds, ',' ) );
         /// filter Rock's job and procedures use (GetGivingAutomationSourceTransactionQuery): contributions to at
         /// least one tax-deductible account, with a positive line, that are not fully refunded. Each gift carries
         /// its amount per account with refunds applied, as Rock's FinancialTransactionView does. With
-        /// <paramref name="aliasTable"/>, a temp table of person alias Ids, only those people's gifts.
+        /// <paramref name="aliasIds"/>, a table of person alias Ids, only those people's gifts.
         /// </summary>
-        private Dictionary<string, List<RockGift>> QualifyingGifts( string aliasTable = null )
+        private Dictionary<string, List<RockGift>> QualifyingGifts( DataTable aliasIds = null )
         {
-            var onlyAliases = aliasTable == null ? string.Empty : $"INNER JOIN {aliasTable} AS [only] ON [only].[Id] = [ft].[AuthorizedPersonAliasId]";
+            var onlyAliases = aliasIds == null ? string.Empty : "INNER JOIN @AliasIds AS [only] ON [only].[Id] = [ft].[AuthorizedPersonAliasId]";
+            var parameters = new List<SqlParameter> { P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ) };
+            if ( aliasIds != null )
+            {
+                parameters.Add( new SqlParameter( "@AliasIds", SqlDbType.Structured ) { TypeName = "dbo.IdList", Value = aliasIds } );
+            }
+
             var rows = _db.Query( $@"
 WITH [RefundTotals] AS (
     SELECT [ftr].[OriginalTransactionId], SUM( [ftd].[Amount] ) AS [Refunded]
@@ -346,8 +357,7 @@ FROM [Qualifying] AS [q]
 INNER JOIN [Lines] AS [l] ON [l].[TransactionId] = [q].[Id]
 GROUP BY [q].[Id], [q].[AuthorizedPersonAliasId], [q].[GivingId], [q].[PrimaryCampusId], [q].[TransactionDateTime], [q].[SourceTypeValueId], [q].[CurrencyTypeValueId], [q].[IsScheduled], [l].[AccountId]
 HAVING SUM( [l].[Amount] ) <> 0
-ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]",
-                P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ) );
+ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]", parameters.ToArray() );
 
             return rows
                 .GroupBy( r => ( int ) r["Id"] )
