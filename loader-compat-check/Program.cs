@@ -173,7 +173,10 @@ var checks = new (string Name, string Actual, string Expected)[]
         + " | money-matters 2027-01-11 opens 2026-09-21 closes 2027-01-10 pays none open"
         + " | date-night 2027-02-12 opens 2026-10-07 closes 2027-02-09 pays none open"
         + " | womens-retreat 2027-04-23 opens 2026-04-11 closes 2027-04-09 pays 2027-04-09 open"
-        + " | early birds student-camp 2027-04-30, womens-retreat 2026-10-31")
+        + " | early birds student-camp 2027-04-30, womens-retreat 2026-10-31"),
+    ("Assessment answers, scores, and answer data (decision D-assessments-1)",
+        AssessmentScores(),
+        "d2e36917b2d54d9adeaecca8fd828caa6044d9f4aad5c976ec08d27de8327221")
 };
 
 var failures = 0;
@@ -238,6 +241,53 @@ static string RegistrationDates( DateTime anchor )
     {
         return $"{ex.GetType().Name}|{ex.Message}";
     }
+}
+
+/*
+    Answers 40 people on each of Rock's five assessments, with leans drawn from a seeded stream, scores them with the
+    port of Rock's scoring, and hashes every person attribute value and answer data text. Rock's doubles, decimals,
+    rounding, and number text must come out the same on both builds, since Rock runs the .NET Framework one and
+    verify proves the port with the .NET 10 one. The names and keys stand in for Rock's defined values.
+*/
+static string AssessmentScores()
+{
+    var reference = new AssessmentReference();
+    foreach ( var type in new[] { "D", "I", "S", "C", "DI", "DS", "DC", "ID", "IS", "IC", "SD", "SI", "SC", "CD", "CI", "CS" } )
+    {
+        reference.DiscProfiles[type] = SeededRandom.StableGuid( $"disc:{type}" );
+    }
+
+    var definedValues = RockAssessmentTables.SpiritualGifts.Select( g => g.Gift ).Concat( RockAssessmentTables.ConflictModes.Select( m => m.Mode ) ).Concat( RockAssessmentTables.Motivators.Select( m => m.Motivator ) ).ToList();
+    for ( var i = 0; i < definedValues.Count; i++ )
+    {
+        reference.Names[definedValues[i]] = $"Value {i}";
+        reference.ScoreKeys[definedValues[i]] = $"key{i}";
+    }
+
+    var themes = Enumerable.Range( 0, 4 ).Select( i => SeededRandom.StableGuid( $"theme:{i}" ) ).ToList();
+    for ( var i = 0; i < themes.Count; i++ )
+    {
+        reference.ScoreKeys[themes[i]] = $"theme{i}";
+    }
+
+    for ( var i = 0; i < RockAssessmentTables.Motivators.Length - 1; i++ )
+    {
+        reference.Themes[RockAssessmentTables.Motivators[i].Motivator] = themes[i % themes.Count];
+    }
+
+    var random = new SeededRandom( "rock-sample-data:compat-check:assessments" );
+    var text = new StringBuilder();
+    foreach ( var instrument in AssessmentInstrument.All( reference ).Values )
+    {
+        for ( var person = 0; person < 40; person++ )
+        {
+            var leaning = instrument.Dimensions.ToDictionary( d => d, _ => random.Between( -2.0, 2.0 ) );
+            var score = instrument.Score( instrument.Answer( leaning, random ) );
+            text.Append( string.Join( "|", score.Values.Select( v => $"{v.Key}={v.Value}" ) ) ).Append( '\n' ).Append( score.ResultData( Math.Round( random.Between( 300.0, 2000.0 ), 3 ) ) ).Append( '\n' );
+        }
+    }
+
+    return Hex( SHA256.Create().ComputeHash( Encoding.UTF8.GetBytes( text.ToString() ) ) );
 }
 
 static string PublishedFolder( string tag ) => Path.Combine( SampleDataSource.FindRoot( AppContext.BaseDirectory ), "loader-compat-check", "published", tag );
