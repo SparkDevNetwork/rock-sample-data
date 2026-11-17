@@ -48,8 +48,8 @@
   },
   "template": {
     "$comment": "The sample church's branded email template, beside Rock's shipped ones. The HTML is content/communications/email-template.html, and the logo is the approved Rock Solid Church logo, resized for email. It goes in Rock's General template category, like Rock's own.",
-    "name": "Rock Solid Church",
-    "description": "The church's branded email: the Rock Solid Church logo, a clean white body, and a footer with the church address and an unsubscribe link.",
+    "name": "Rock Solid Church (Legacy)",
+    "description": "The church's branded email for Rock's older email editor: the Rock Solid Church logo, a clean white body, and a footer with the church address and an unsubscribe link. Past emails use it.",
     "guid": "78B818CB-391D-4B3F-8665-870F4C99716E",
     "categoryGuid": "A7F79054-5539-4910-A13F-AA5884B8C01D",
     "html": "content/communications/email-template.html",
@@ -61,6 +61,13 @@
       "mutedColor": "#6E6E73",
       "pageColor": "#F5F5F7"
     }
+  },
+  "wizardTemplate": {
+    "$comment": "The same branded email for Rock's newer email editor, which the Communication Entry Wizard lists (decision D-bugs18-3). Rock names its own pair the same way: Blank, and Blank (Legacy). The HTML is content/communications/email-template-wizard.html, in the editor's rows and components. It shares the template above's category and logo, and its colors are the template above's Lava field values, written in, because the newer editor has no Lava fields.",
+    "name": "Rock Solid Church",
+    "description": "The church's branded email: the Rock Solid Church logo, a clean white body, and a footer with the church address and an unsubscribe link.",
+    "guid": "179EBBDF-3BD0-4836-8F67-BCC082BD099C",
+    "html": "content/communications/email-template-wizard.html"
   },
   "lists": {
     "$comment": "Communication lists (Rock's Communication List group type). Public lists appear on Rock's email preference page under its Public category, so people can join and leave them. Private lists are managed by staff. 'campus' true makes one list per campus, named after it. 'members' names the rule that picks members (see Membership below). 'preference' is the member's communication preference on the list: email, or sms for students who can text. Members are never people who chose 'No mass emails' or 'Do not email'. A list whose members are 'group-sync' gets its members from its sync in group-syncs.json, not from a rule here. 'categoryGuid' puts a private list in one of the church's list categories from categories.json.",

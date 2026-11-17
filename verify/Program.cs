@@ -198,16 +198,17 @@ try
             checks.Add( CheckResult.From( "load", $"Loaded into a copy of the trusted base in {load.Elapsed.TotalSeconds:N0} seconds", new List<string>() ) );
 
             stage = "cast-expectations";
+            var source = new SampleDataSource( package );
             using ( var db = new RockDatabase( connection ) )
             {
-                var (expectations, failures) = CastExpectations.Evaluate( db, new SampleDataSource( package ), SampleDataParts.All.Select( p => p.Part ).ToList() );
+                var (expectations, failures) = CastExpectations.Evaluate( db, source, SampleDataParts.All.Select( p => p.Part ).ToList() );
                 checks.Add( CheckResult.From( stage, $"{expectations - failures.Count} of {expectations} Cast expectations hold", failures ) );
             }
 
             stage = "invariants";
             // The dataset card was measured at the default seed, so only a default-seed load is held to its numbers.
             var card = seed == new DatasetLoadOptions().Seed ? SampleDataDatasets.Get( dataset ) : null;
-            checks.Add( Invariants.Run( sql, database, foreignKey, card, Path.Combine( root, "validation", "invariants.sql" ) ) );
+            checks.Add( Invariants.Run( sql, database, foreignKey, card, source.Phones, Path.Combine( root, "validation", "invariants.sql" ) ) );
             stage = "rock-cleanup";
             // Rock Cleanup recomputes ages and daily counts for "today", so it can only judge a load anchored to today.
             // Checked before and after, because the job itself takes minutes and the date can change while it runs.
@@ -219,7 +220,6 @@ try
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
 
             stage = "data-views";
-            var source = new SampleDataSource( package );
             var (dataViews, counts) = DataViewsCheck( rock, sql, database, source );
             checks.Add( dataViews );
             stage = "metrics";

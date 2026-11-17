@@ -487,4 +487,25 @@ namespace RockSampleData.Loader.Model
 
         public string Reason { get; set; }
     }
+
+    /// <summary>
+    /// configuration/phones.json: the area codes of generated phone numbers (content standard 2, decision D-bugs18-1).
+    /// </summary>
+    internal sealed class PhoneConfiguration
+    {
+        /// <summary>
+        /// The Phoenix codes. The Cast and the church use them, and generated numbers use them up first.
+        /// </summary>
+        public List<string> LocalAreaCodes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Other US geographic area codes, by state, for generated numbers after the Phoenix codes run out.
+        /// </summary>
+        public Dictionary<string, List<string>> OtherAreaCodes { get; set; } = new Dictionary<string, List<string>>();
+
+        /// <summary>
+        /// Every area code a loaded phone may have.
+        /// </summary>
+        public IEnumerable<string> AllAreaCodes => LocalAreaCodes.Concat( OtherAreaCodes.Values.SelectMany( c => c ) );
+    }
 }

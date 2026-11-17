@@ -187,7 +187,7 @@ module.exports = function features( { model } ) {
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
-            text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses.`,
+            text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
             checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates to merge, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave" ],
             look: [ html`${person( model, "Jon Smith" )}, with two duplicate records to merge`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
             links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) } ]
@@ -201,7 +201,7 @@ module.exports = function features( { model } ) {
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
-            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too.",
+            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
             checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
             look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
@@ -243,7 +243,7 @@ module.exports = function features( { model } ) {
         },
         {
             id: "communications", eyebrow: "Communications", title: "Two years of messages.",
-            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
+            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template, ready in Rock's email wizard. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
             checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails" ],
             look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number" ],
             links: [ { label: "Communications", href: doc( "docs/communications.md" ) } ]

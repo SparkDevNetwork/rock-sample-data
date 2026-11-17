@@ -20,7 +20,8 @@
     emails.json, texts.json, and conversations.json. For each entry it checks the required and allowed keys, unique
     keys, known occasions, audiences, topics, senders, lines, and mediums, the Lengths table,
     the allowed tokens and the one Lava merge field, links and button paths, email domains,
-    plain characters, and no two entries in one list that start with the same five words.
+    plain characters, and no two entries in one list that start with the same five words. It also checks that the
+    wizard-ready email template keeps the Legacy template's colors, logo, and unsubscribe option.
     Prints a summary and exits with 1 when anything fails.
 
     Usage: node content/communications/check-library.js
@@ -732,6 +733,33 @@ if ( conversationsFile && checkKeys( "conversations.json", conversationsFile, [ 
     const share = entries ? Math.round( 100 * shortEntries / entries ) : 0;
     const where = Object.entries( byNumber ).map( ( [ k, v ] ) => `${v} ${k}` ).join( ", " );
     summary.push( `conversations.json\n    ${topics.length} topics (${where}), ${entries} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
+}
+
+// The wizard-ready template (decision D-bugs18-3) is the Legacy template in Rock's newer editor format. That editor has
+// no Lava fields, so it writes in each Lava field's color, and its logo image component points at the Legacy logo file.
+if ( configuration.wizardTemplate ) {
+    const file = configuration.wizardTemplate.html;
+    const html = fs.readFileSync( path.join( libraryDir, "..", "..", file ), "utf8" );
+    for ( const [ field, color ] of Object.entries( configuration.template.lavaFields ) ) {
+        if ( !html.toUpperCase().includes( color.toUpperCase() ) ) {
+            errors.push( `${file}: does not use the Legacy template's ${field} ${color}.` );
+        }
+    }
+    const required = [
+        [ "the structure dropzone the editor adds rows to", 'class="structure-dropzone"' ],
+        [ "the logo file", `data-image-guid="${configuration.template.logoGuid}"` ],
+        [ "Rock's unsubscribe option", "[[ UnsubscribeOption ]]" ]
+    ];
+    for ( const [ what, text ] of required ) {
+        if ( !html.toUpperCase().includes( text.toUpperCase() ) ) {
+            errors.push( `${file}: has no ${what} (${text}).` );
+        }
+    }
+    const lavaFieldNames = Object.keys( configuration.template.lavaFields ).join( "|" );
+    if ( new RegExp( `\\{\\{\\s*(${lavaFieldNames})\\s*\\}\\}|lava-fields` ).test( html ) ) {
+        errors.push( `${file}: uses Lava fields, which Rock's newer email editor does not have.` );
+    }
+    summary.push( `${path.basename( file )}\n    the Legacy template's ${Object.keys( configuration.template.lavaFields ).length} colors, its logo, and the unsubscribe option` );
 }
 
 for ( const line of summary ) {

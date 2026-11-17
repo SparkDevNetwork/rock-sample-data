@@ -772,6 +772,17 @@
         "loader/loading/RegistrationsLoader.cs"
       ],
       "sha256": "e27a48d3b75abb148427eb86abde49c5dea6256060d40c90bc5530ed7ff4eb2e"
+    },
+    {
+      "path": "Rock/Model/Event/Attendance/Attendance.SaveHook.cs",
+      "section": "Check-in status from dates",
+      "from": "private void UpdateCheckInStatusFromCheckInDates()",
+      "to": "private LaunchMemberAttendedGroupWorkflow.Message GetLaunchMemberAttendedGroupWorkflowMessage()",
+      "why": "The check-in status Rock gives a new attendance row from its end and present times, which every attendance writer sets.",
+      "mirroredBy": [
+        "loader/loading/RockCheckInStatus.cs"
+      ],
+      "sha256": "480e3aa745f61f41eb3ef53766df8e9e92c7b6202aa417ade1140e8b99dac94e"
     }
   ]
 }

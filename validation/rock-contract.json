@@ -119,6 +119,7 @@
       "written": [
         "AttendanceCodeId",
         "CampusId",
+        "CheckInStatus",
         "CheckedInByPersonAliasId",
         "CreatedDateTime",
         "DeclineReasonValueId",
