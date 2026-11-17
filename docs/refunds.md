@@ -76,7 +76,7 @@ Every load the CLI or the verify tool runs checks the plan against Rock. Rock's 
 
 ## The Cast's story
 
-Gabriel Hernandez, the young guitar player on the Phoenix Worship Team, gives every Monday by a scheduled card gift. About seven weeks before install, he also gave the same gift by hand that evening. Priya refunded the second gift the next day, with the reason Duplicate Payment. His story is not about giving, so his journey stage stays Consistent. Every load checks both: the refund, made the next day, of a gift with a twin, and his stage.
+Gabriel Hernandez, the young guitar player on the Phoenix Worship Team, gives every Monday by a scheduled card gift. About seven weeks before install, he also gave the same gift by hand later that day. Priya refunded the second gift the next day, with the reason Duplicate Payment. His story is not about giving, so his journey stage stays Consistent. Every load checks both: the refund, made the next day, of a gift with a twin, and his stage.
 
 His household file names the refund (`refunds` on his giving pattern), and his pattern now names card, so his gifts are online on every install day.
 
