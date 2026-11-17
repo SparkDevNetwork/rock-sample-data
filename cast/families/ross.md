@@ -2,7 +2,7 @@
 
 New household · 2 people · Phoenix campus · [source](../households/ross.json)
 
-Richard and Joan Ross are retired and spend winters in Phoenix and summers in Minnesota.
+Richard and Joan Ross are retired and spend winters in Phoenix and summers in Minnesota. They do not itemize, so Richard asked the church not to send a giving statement.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -25,6 +25,7 @@ Richard and Joan Ross are retired and spend winters in Phoenix and summers in Mi
 
 - Seasonal attenders (winter visitors).
 - Irregular giver.
+- Do Not Send Giving Statement is set on Richard, so a statement run skips him.
 
 ## Activity
 

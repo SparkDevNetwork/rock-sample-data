@@ -14,6 +14,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 8. Parents are 25 to 54. Adults without children take what is left of each adult band after the parents, so about 39% of them are 18 to 24 (decision 166).
 9. A couple is one man and one woman. A single adult's chance of being a woman is set for each age band, so each band's share of women matches the profile (decision 167).
 10. When the person installing gives a password, about 30% of active generated adults have a Rock login, and most people have none. Each adult's chance comes from their strongest reason in `configuration/logins.json`, such as the church app, leading, or giving online, and every campus pastor has one (decision 179). See [How logins load](../loader/README.md#how-logins-load).
+11. Generated people have the person attribute values a church records, each drawn from its own seeded stream, so no other row changes. About 10% of working-age adults have an employer, and a business contact works at their own business. Kids in half the households have a school, from invented schools near their campus. The kids of two single-parent households per campus have a pickup note, some young kids have the ability level of their nursery room, and households that first came inside the history window have their visit information. See [How person attributes load](../loader/README.md#how-person-attributes-load).
 
 ## How big the Crowd is
 

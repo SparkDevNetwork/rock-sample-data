@@ -178,7 +178,11 @@
           "type": "business",
           "with": "6CE68373-7B38-40DA-B84D-281BEFF41114"
         }
-      ]
+      ],
+      "attributes": {
+        "Employer": "Saguaro Ridge Glass and Screen",
+        "Position": "Owner"
+      }
     }
   ]
 }

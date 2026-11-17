@@ -4,6 +4,7 @@ The words this project uses, in alphabetical order.
 
 | Term | Meaning |
 |---|---|
+| **Ability level** | Rock's setting for a young child, such as Infant or Potty Trained. Rock's nursery and preschool check-in groups each take one, so check-in offers a child with an ability level only the rooms that match it. |
 | **Achievement attempt** | One try at an achievement in Rock. It is open while it can still grow, and closed when it succeeds or a streak breaks. Check-in shows the open ones as in progress. |
 | **Achievement type** | Something a person can earn in Rock, such as Century Club. Each one reads a streak type and has a goal. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day: today on the database server. Tests pin it with `--anchor`. |
@@ -27,6 +28,7 @@ The words this project uses, in alphabetical order.
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
+| **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision D-person-attrs-8). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
@@ -49,11 +51,12 @@ The words this project uses, in alphabetical order.
 | **Payment plan** | A registration's scheduled payments of what is left after the first payment, at a set frequency, ending by the payment deadline. Rock keeps it as a scheduled transaction of type Event Registration. See [Event registrations](registrations.md#payments). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
+| **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
 | **Placement group** | A group that registrants are placed in after they register, such as a camp bus or cabin. It belongs to one placement of the template and is linked to each instance that uses it. |
-| **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
+| **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. Rock's Position person attribute is something else: a job title, beside Employer. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
 | **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision 209). See [Event registrations](registrations.md). |

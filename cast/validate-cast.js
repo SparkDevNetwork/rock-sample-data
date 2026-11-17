@@ -250,6 +250,51 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Person attributes (configuration/person-attributes.json, decisions D-person-attrs-1 and D-person-attrs-9): every Cast
+// attribute key is a Rock person attribute the file lists, a staff attribute, or Date Engaged, which the loader adds.
+// Exactly two givers ask for no giving statement, and every business contact works at their own business.
+{
+    const configuration = path.join( castDir, "..", "configuration" );
+    const personAttributes = JSON.parse( fs.readFileSync( path.join( configuration, "person-attributes.json" ), "utf8" ) );
+    const staffAttributes = JSON.parse( fs.readFileSync( path.join( configuration, "staff.json" ), "utf8" ) ).attributes || [];
+    const knownKeys = new Set( personAttributes.rockAttributes.map( a => a.key ).concat( staffAttributes.map( a => a.key ), [ personAttributes.dateEngaged.key ] ) );
+    for ( const key of personAttributes.castLoaded ) {
+        if ( !knownKeys.has( key ) ) {
+            errors.push( `configuration/person-attributes.json: castLoaded names ${key}, which rockAttributes does not list.` );
+        }
+    }
+    const businessNames = new Map( households.filter( h => h.data.kind === "business" ).flatMap( h => h.data.members.map( m => [ m.guid, m.lastName ] ) ) );
+    const noStatement = [];
+    for ( const { file, data } of households ) {
+        const givers = new Set( ( data.giving || [] ).map( g => g.person ) );
+        for ( const p of data.members ) {
+            const owner = `${file} ${p.key}`;
+            for ( const [ key, value ] of Object.entries( p.attributes || {} ) ) {
+                if ( !knownKeys.has( key ) ) {
+                    errors.push( `${owner}: attribute "${key}" is not a Rock person attribute in configuration/person-attributes.json, a staff attribute, or Date Engaged.` );
+                }
+                if ( personAttributes.castLoaded.includes( key ) && typeof value !== "string" && typeof value !== "boolean" ) {
+                    errors.push( `${owner}: attribute "${key}" loads into Rock, so it must be text or true or false.` );
+                }
+            }
+            if ( p.attributes?.DoNotSendGivingStatement === true ) {
+                noStatement.push( owner );
+                if ( !givers.has( p.key ) ) {
+                    errors.push( `${owner}: has Do Not Send Giving Statement but gives nothing in the household file.` );
+                }
+            }
+            for ( const r of ( p.relationships || [] ).filter( r => r.type === "business" ) ) {
+                if ( businessNames.has( r.with ) && p.attributes?.Employer !== businessNames.get( r.with ) ) {
+                    errors.push( `${owner}: is a contact for ${businessNames.get( r.with )}, so their Employer must be that business (decision D-person-attrs-4).` );
+                }
+            }
+        }
+    }
+    if ( noStatement.length !== 2 ) {
+        errors.push( `Exactly two Cast givers have Do Not Send Giving Statement (decision D-person-attrs-9), but ${noStatement.length} do: ${noStatement.join( ", " ) || "none"}.` );
+    }
+}
+
 // The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {

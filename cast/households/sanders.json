@@ -69,7 +69,6 @@
         "ethnicity": "black"
       },
       "attributes": {
-        "Baptized": "Yes",
         "BaptismDate": {
           "daysAgo": 60
         },

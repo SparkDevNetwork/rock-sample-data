@@ -7,10 +7,11 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Richard and Joan Ross are retired and spend winters in Phoenix and summers in Minnesota.",
+  "story": "Richard and Joan Ross are retired and spend winters in Phoenix and summers in Minnesota. They do not itemize, so Richard asked the church not to send a giving statement.",
   "testPurposes": [
     "Seasonal attenders (winter visitors).",
-    "Irregular giver."
+    "Irregular giver.",
+    "Do Not Send Giving Statement is set on Richard, so a statement run skips him."
   ],
   "address": {
     "type": "home",
@@ -74,6 +75,9 @@
       },
       "photo": {
         "ethnicity": "hispanic-latino"
+      },
+      "attributes": {
+        "DoNotSendGivingStatement": true
       }
     },
     {

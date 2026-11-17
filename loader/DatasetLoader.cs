@@ -60,6 +60,7 @@ namespace RockSampleData.Loader
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
+            ("Person attributes", null),
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Logins", null),
@@ -269,6 +270,13 @@ namespace RockSampleData.Loader
             if ( staffLoader.HasOrgChart )
             {
                 log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
+            }
+
+            // Rock's person attributes the sample data fills, the Date Engaged attribute, and the schools near each campus.
+            var personAttributes = new PersonAttributesLoader( db, source, dates, foreignKey, options.Seed );
+            if ( personAttributes.HasConfiguration )
+            {
+                log.Write( $"  Person attributes: {personAttributes.LoadSetup( configuration.CampusIds.Keys )}" );
             }
 
             var profile = source.ReadProfile();
@@ -549,6 +557,30 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Registrations" ) )
             {
                 new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
+            }
+
+            // Rock's person attributes: the Cast's own values, drawn values for generated people, and Date Engaged and
+            // envelopes from the rows. A kid's allergy from a registration form comes first, so this follows registrations,
+            // and nothing after it reads these values.
+            steps.Begin( "Person attributes" );
+            if ( personAttributes.HasConfiguration )
+            {
+                log.Write( "  " + personAttributes.LoadValues( new PersonAttributesLoader.Inputs
+                {
+                    People = people,
+                    CastHouseholdKeys = castHouseholdKeys,
+                    Attendance = attendance,
+                    CheckInGroupIds = configuration.CheckInGroupIdsByKey,
+                    LastSunday = calendar.Sundays.Last(),
+                    HistoryStart = calendar.HistoryStart,
+                    CheckGifts = isGivingLoaded ? giving.CheckGifts : null,
+                    SmallGroupTypeId = smallGroupSetup.GroupTypeId,
+                    ServingTypeId = servingSetup.GroupTypeId
+                } ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/person-attributes.json)" );
             }
 
             // The church's texting numbers, its branded template, and its communication lists. The lists copy the

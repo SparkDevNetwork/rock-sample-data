@@ -142,7 +142,7 @@ Every Cast story fits the family's existing giving. The Cast validator and the l
 |---|---|---|
 | Saguaro Ridge Glass and Screen | $16,000, quarterly, by check | A business lead gift on pace. Its owner, Bill Marble, also pledged at home. |
 | Mesquite Tree Bookkeeping | $10,000, one-time | Paid in full the week after Commitment Sunday. |
-| Desert Bloom Landscaping | $4,800, monthly, by bank transfer | A small business on pace. |
+| Desert Thistle Landscaping | $4,800, monthly, by bank transfer | A small business on pace. |
 | Cholla Creek Hardware | No pledge | One $500 campaign gift by check. |
 | Copper Canyon Video | No pledge | A new giver that did not pledge. |
 

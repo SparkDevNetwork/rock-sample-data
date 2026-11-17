@@ -167,7 +167,16 @@ namespace RockSampleData.Loader
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            PersonAttributes = Files.Exists( PersonAttributesConfigurationPath ) ? Read<PersonAttributesConfiguration>( PersonAttributesConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built
+        /// before them, which fills only the Cast's allergies.
+        /// </summary>
+        public PersonAttributesConfiguration PersonAttributes { get; }
+
+        public const string PersonAttributesConfigurationPath = "configuration/person-attributes.json";
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were
