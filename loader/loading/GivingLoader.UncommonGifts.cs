@@ -142,8 +142,8 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// The giving patterns whose winter checks are in the foreign currency: the checks of a few generated retirees
-        /// who give on Sundays and do not take part in the building campaign, chosen in a stable shuffled order. Also
-        /// finds the currency's Rock Id.
+        /// who give on Sundays and do not take part in the building campaign, chosen in a stable shuffled order, those
+        /// who give at least monthly first. Also finds the currency's Rock Id.
         /// </summary>
         private HashSet<CastGiving> ForeignCurrencyPatterns( IEnumerable<PatternPlan> plans, List<LoadedHousehold> households, HashSet<string> castHouseholdKeys )
         {
@@ -166,10 +166,15 @@ namespace RockSampleData.Loader.Loading
                 .ToList();
             var generated = households.Count( h => !castHouseholdKeys.Contains( h.Cast.Key ) );
             var count = generated == 0 ? 0 : Math.Max( config.MinimumHouseholds, ( int ) Math.Round( generated * config.HouseholdsPerThousand / 1000, MidpointRounding.AwayFromZero ) );
+
+            // Households that give every week, every other week, or every month come first, so their checks run
+            // through the winter. A dataset with none takes other check writers.
+            var rhythmic = eligible.Where( p => p.Pattern.Persona is "weekly" or "bi-weekly" or "monthly" ).Select( p => p.Household ).ToHashSet();
             var families = eligible
                 .Select( p => p.Household )
                 .Distinct()
-                .OrderBy( h => SeededRandom.StableGuid( $"{_seed}:foreign-currency:{h.Cast.Guid}" ) )
+                .OrderBy( h => rhythmic.Contains( h ) ? 0 : 1 )
+                .ThenBy( h => SeededRandom.StableGuid( $"{_seed}:foreign-currency:{h.Cast.Guid}" ) )
                 .Take( count )
                 .Select( h => h.FamilyId )
                 .ToHashSet();

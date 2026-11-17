@@ -2231,6 +2231,7 @@
         "CreatedDateTime",
         "FinancialGatewayId",
         "FinancialPaymentDetailId",
+        "ForeignCurrencyCodeValueId",
         "ForeignKey",
         "Guid",
         "Id",
@@ -2238,6 +2239,7 @@
         "MICRStatus",
         "ModifiedByPersonAliasId",
         "ModifiedDateTime",
+        "NonCashAssetTypeValueId",
         "ScheduledTransactionId",
         "SettledDate",
         "ShowAsAnonymous",
@@ -2404,6 +2406,7 @@
         "CreatedDateTime",
         "EntityId",
         "EntityTypeId",
+        "ForeignCurrencyAmount",
         "ForeignKey",
         "Guid",
         "Id",
@@ -6037,7 +6040,9 @@
     "BlockType": [
       "0455ECBD-D54D-4485-BF4D-F469048AE10F",
       "19B61D65-37E3-459F-A44F-DEF0089118A3",
-      "D70A59DC-16BE-43BE-9880-59598FA7A94C"
+      "1DE16F87-4A49-4A3C-A03E-B8488ECBEEBE",
+      "D70A59DC-16BE-43BE-9880-59598FA7A94C",
+      "E04320BC-67C3-452D-9EF6-D74D8C177154"
     ],
     "Campus": [
       "76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8"
@@ -6095,9 +6100,11 @@
       "354715FA-564A-420A-8324-0411988AE7AB",
       "576FF1E2-6225-4565-A16D-230E26167A3D",
       "61FE3A58-9F4F-472F-A4E0-5116EB90A323",
+      "6B19C65E-FF8F-4ADD-9DA0-48E53FC074A6",
       "70C9F9C4-20CC-43DD-888D-9243853A0E52",
       "9D9628F0-7FC5-411E-B9DF-740AA17689A0",
       "B23F1E45-BC26-4E82-BEB3-9B191FE5CCC3",
+      "B9F3D359-4365-4594-BCEE-D23FA824FB81",
       "D4111631-6B42-1CBD-4019-427D6BC6F475",
       "EB5D9839-F770-4E22-8B56-0B09397307D9",
       "EE7E089E-DF81-4407-8BFA-AD865FA5427A",
@@ -6151,6 +6158,7 @@
       "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303",
       "AC88C37A-901E-4CBB-947B-11348C208192",
       "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022",
+      "B29D7D89-357F-47F9-BE7B-52AFF3892007",
       "B91BA046-BC1E-400C-B85D-638C1F4E0CE2",
       "BE7ECF50-52BC-4774-808D-574BA842DB98",
       "BF08EA03-C52A-4364-B142-12EBCA7CA14A",

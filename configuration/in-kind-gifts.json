@@ -13,7 +13,7 @@
     {
       "key": "vehicle",
       "assetType": "Vehicles",
-      "perThousandGivingHouseholdsPerYear": 0.3,
+      "perThousandGivingHouseholdsPerYear": 1.0,
       "fund": "General Fund",
       "items": [
         { "summary": "Minivan for the benevolence car ministry. Sent Form 1098-C.", "value": { "min": 3500, "max": 9000 } },
@@ -25,7 +25,7 @@
     {
       "key": "equipment",
       "assetType": "Other",
-      "perThousandGivingHouseholdsPerYear": 0.6,
+      "perThousandGivingHouseholdsPerYear": 1.5,
       "fund": "General Fund",
       "items": [
         { "summary": "Upright piano for the kids worship room.", "value": { "min": 1200, "max": 4000 } },

@@ -52,10 +52,10 @@ Staff enter an in-kind gift in the Transaction Detail block. It is paid with the
 | Kind | Asset type | Who gives | Value |
 |---|---|---|---|
 | stock | Stocks And Bonds | The largest givers now and then, mostly in the fall (decision 43), and stock gifts to the building campaign | Set by the giving pattern or the pledge |
-| vehicle | Vehicles | Generated households that give, at 0.3 per 1,000 households each year | $800 to $12,000, by the vehicle |
-| equipment | Other | Generated households that give, at 0.6 per 1,000 households each year | $500 to $4,000, by the item, such as a piano, a refrigerator for the food pantry, or a sound mixer |
+| vehicle | Vehicles | Generated households that give, at 1 per 1,000 households each year | $800 to $12,000, by the vehicle |
+| equipment | Other | Generated households that give, at 1.5 per 1,000 households each year | $500 to $4,000, by the item, such as a piano, a refrigerator for the food pantry, or a sound mixer |
 
-Vehicles and equipment go to the General Fund at the giver's campus, on a weekday during office hours. Calibration measures non-cash gifts at 1.3% of dollars and under 0.1% of gifts. The largest givers' stock gives about that, and the few vehicles and pieces of equipment keep it close. Calibration has no rate for vehicles or equipment, so those counts are designed. Rock's fourth type, Property, is left out, since a gift of land is rare and large.
+Vehicles and equipment go to the General Fund at the giver's campus, on a weekday during office hours. Calibration measures non-cash gifts at 1.3% of dollars and under 0.1% of gifts. The largest givers' stock gives about that. Vehicles and equipment add a little: about three vehicles and five pieces of equipment a year in Full 7, and few or none in Core 3, which has about a hundred giving households. Calibration has no rate for vehicles or equipment, so those counts are designed. Rock's fourth type, Property, is left out, since a gift of land is rare and large.
 
 No in-kind gift is ever refunded, because it was never cash. The Cast gets only the in-kind gifts its household files design.
 
@@ -73,7 +73,7 @@ No gateway that ships with Rock takes a gift in another currency online. Rock's 
 
 ### How they are made
 
-A few generated households are Canadian winter visitors. Each is a retiree, 60 or older, who gives by check on Sundays and does not take part in the building campaign. From November through March, their checks are drawn on a Canadian bank, in Canadian dollars.
+A few generated households are Canadian winter visitors. Each is a retiree, 60 or older, who gives by check on Sundays and does not take part in the building campaign. Those who give every week, every other week, or every month come first, so their checks run through the winter. From November through March, their checks are drawn on a Canadian bank, in Canadian dollars.
 
 1. **How many.** 0.3 households for every 1,000 generated households, and at least one in a dataset with generated households: 5 in Full 7 and 1 in Core 3. The Cast has no Canadian, so Core 1 has none. Calibration has no measure for this, so the count is designed.
 2. **The amounts.** The giver writes a round Canadian amount, close to their usual gift. The bank credits it at its rate that day, between 0.70 and 0.76 US dollars for each Canadian dollar. Staff enter both: the Canadian amount on each line, and the dollars the bank credited as the line's amount.
