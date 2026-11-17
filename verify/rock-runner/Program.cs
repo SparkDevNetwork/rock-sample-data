@@ -50,8 +50,14 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, or Report), its Guid, an action, and a person's Guid, separated by tabs. Prints True or
-    ///            False for each, in order.
+    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            separated by tabs. Prints True or False for each, in order.
+    ///   segments  Runs Rock's own segment update (PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment,
+    ///            what the Update Personalization Data job calls) on every personalization segment, and prints each
+    ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
+    ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
+    ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
+    ///            separated by a tab, or an empty line when it shows none.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -66,10 +72,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "segments", "adaptive-messages" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -105,6 +111,8 @@ namespace RockSampleData.RockRunner
                     "data-view-people" => worker.DataViewPeople( lines ),
                     "reports" => worker.Reports(),
                     "authorize" => worker.Authorize( lines ),
+                    "segments" => worker.Segments(),
+                    "adaptive-messages" => worker.AdaptiveMessages( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -503,13 +511,79 @@ namespace RockSampleData.RockRunner
                 }
                 else
                 {
-                    var cache = _rock.GetType( parts[0] == "Category" ? "Rock.Web.Cache.CategoryCache" : "Rock.Web.Cache.DataViewCache", true );
+                    var cacheName = parts[0] switch
+                    {
+                        "Category" => "Rock.Web.Cache.CategoryCache",
+                        "PersonalizationSegment" => "Rock.Web.Cache.PersonalizationSegmentCache",
+                        "Page" => "Rock.Web.Cache.PageCache",
+                        _ => "Rock.Web.Cache.DataViewCache"
+                    };
+                    var cache = _rock.GetType( cacheName, true );
                     item = cache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
                         .Invoke( null, new object[] { new Guid( parts[1] ) } );
                 }
 
                 var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
                 results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Runs Rock's own segment update on every personalization segment, the call Rock's Update Personalization Data job
+        /// makes for a segment that is due, and reports what each one changed. The job itself would skip a segment refreshed
+        /// today, so the runner hands Rock every segment.
+        /// </summary>
+        public string Segments()
+        {
+            Start();
+            StartMessageBus();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.PersonalizationSegmentService", true );
+            var segmentCache = _rock.GetType( "Rock.Web.Cache.PersonalizationSegmentCache", true );
+            var update = serviceType.GetMethod( "UpdatePersonAliasPersonalizationDataForSegment", Hidden, null, new[] { segmentCache }, null )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment. The runner needs updating for this Rock." );
+            var all = ( System.Collections.IEnumerable ) segmentCache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var lines = new List<string>();
+            foreach ( var segment in all.Cast<object>().ToList() )
+            {
+                // Each segment gets its own context, as the job gives each one.
+                var service = Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) );
+                var result = update.Invoke( service, new[] { segment } );
+                var resultType = result.GetType();
+                lines.Add( $"{segmentCache.GetProperty( "Guid" ).GetValue( segment )}\t{resultType.GetField( "CountAddedSegment" ).GetValue( result )}\t{resultType.GetField( "CountRemovedFromSegment" ).GetValue( result )}" );
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Renders Rock's adaptivemessage Lava command for each person and message, as a page with the command enabled
+        /// renders it for that person, and returns the adaptation it shows. Views are not tracked, so nothing is written.
+        /// </summary>
+        public string AdaptiveMessages( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( string ), typeof( bool ), typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no ResolveMergeFields( string, IDictionary, string, bool, bool ). The runner needs updating for this Rock." );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, createContext.Invoke( null, new[] { app } ) ), new object[] { new Guid( parts[0] ) } );
+                var lava = $"{{% adaptivemessage messagekey:'{parts[1]}' trackviews:'false' %}}{{{{ messageAdaptation.Id }}}}\t{{{{ messageAdaptation | Attribute:'CallToAction' }}}}{{% endadaptivemessage %}}";
+                var output = ( string ) resolve.Invoke( null, new object[] { lava, new Dictionary<string, object> { ["Person"] = person }, "AdaptiveMessage", false, true } );
+                results.Add( output.Trim() );
             }
 
             return string.Join( "\n", results );

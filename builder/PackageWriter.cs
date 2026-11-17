@@ -179,6 +179,7 @@ namespace RockSampleData.Builder
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".json" );
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".html" );
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".png" );
+            AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".json" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what

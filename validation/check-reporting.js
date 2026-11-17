@@ -19,8 +19,9 @@
 // Guids across every configuration file, real categories and security roles, views that point only at views that exist
 // and never loop, steps filters that name real programs, stages, and step types, persisted views with one real schedule,
 // the consumer rule (a view built on a locked view sits under the same lock), the Sample Data guard on every flow
-// audience in its category, run history overrides that make sense, metrics on a stage view with a metric schedule, and
-// access rows that name Cast people and real items. Run: node validation/check-reporting.js
+// audience in its category, run history overrides that make sense, metrics on a stage view with a metric schedule,
+// access rows that name Cast people and real items, and the personalization segments in adaptive-messages.json, each on
+// a real person view and locked like it. Run: node validation/check-reporting.js
 
 const fs = require( "fs" );
 const path = require( "path" );
@@ -42,8 +43,12 @@ for ( const category of categories ) {
         problems.push( `category ${category.key}: parent ${category.parent} is not a category` );
     }
 
-    if ( category.rockShips && category.parent ) {
+    if ( category.rockShips && ( category.parent || category.parentGuid ) ) {
         problems.push( `category ${category.key}: a category Rock ships keeps Rock's place in the tree, so it has no parent here` );
+    }
+
+    if ( category.parent && category.parentGuid ) {
+        problems.push( `category ${category.key}: name a parent by key or a Rock category by parentGuid, not both` );
     }
 
     for ( const rule of category.security || [] ) {
@@ -285,7 +290,67 @@ for ( const row of reporting.access || [] ) {
     }
 }
 
-console.log( `Reporting: ${reporting.dataViews.length} data views, ${reports.size} reports, ${( reporting.metrics || [] ).length} metrics, ${( reporting.access || [] ).length} access rows, ${categories.length} categories. ${problems.length} problems.` );
+// Personalization segments (configuration/adaptive-messages.json): each is a person data view, and the consumer rule
+// applies to it as to a report. Rock secures a segment by its own rules only, never by a category, so a segment on a
+// locked view carries that lock's View rule itself. Rock's segment Results page lists any segment's people without
+// checking the segment, so when any segment is locked, the page is locked to no more than every such lock allows.
+const adaptive = read( "configuration/adaptive-messages.json" );
+const viewRule = rules => ( rules || [] ).find( r => r.action === "View" );
+const allowsNoMore = ( rule, lock ) => rule && rule.denyAllUsers && ( rule.allow || [] ).every( role => ( lock.allow || [] ).includes( role ) );
+const segmentKeys = new Set();
+const segmentLocks = [];
+for ( const segment of adaptive.segments || [] ) {
+    const name = `segment ${segment.key}`;
+    if ( segmentKeys.has( segment.key ) || !guidPattern.test( segment.guid ) || guids.has( segment.guid ) ) {
+        problems.push( `${name}: needs its own key and upper-case Guid` );
+    }
+
+    segmentKeys.add( segment.key );
+    guids.add( segment.guid );
+    for ( const rule of segment.security || [] ) {
+        for ( const role of rule.allow || [] ) {
+            if ( !roles.has( role ) ) {
+                problems.push( `${name}: ${rule.action} allows ${role}, which is not a role in configuration/security-roles.json` );
+            }
+        }
+    }
+
+    const view = views.get( segment.dataView );
+    if ( !view || ( view.entityType && view.entityType !== "Rock.Model.Person" ) ) {
+        problems.push( `${name}: ${segment.dataView} is not a person data view in any configuration file` );
+        continue;
+    }
+
+    const lockKey = viewLock( view.category );
+    if ( lockKey && lockKey !== "church-data-views" ) {
+        const lock = viewRule( categoryByKey.get( lockKey ).security );
+        segmentLocks.push( lock );
+        if ( !allowsNoMore( viewRule( segment.security ), lock ) ) {
+            problems.push( `${name}: its data view ${view.key} is locked to ${lockKey}, so the segment needs a View rule that allows no more than that lock and denies All Users (docs/reporting.md section 1.8)` );
+        }
+    }
+}
+
+if ( segmentLocks.length > 0 && !segmentLocks.every( lock => allowsNoMore( viewRule( adaptive.resultsPage && adaptive.resultsPage.security ), lock ) ) ) {
+    problems.push( "adaptive-messages.json: a segment is locked, so resultsPage needs a View rule that allows no more than every segment lock and denies All Users" );
+}
+
+for ( const row of adaptive.access || [] ) {
+    const name = `adaptive message access row for ${row.name}`;
+    if ( !castPeople.has( row.person ) ) {
+        problems.push( `${name}: ${row.person} is not a Cast person` );
+    }
+
+    if ( [ row.segment, row.page ].filter( k => k != null ).length !== 1 || ( row.segment && !segmentKeys.has( row.segment ) ) || ( row.page && !guidPattern.test( row.page ) ) ) {
+        problems.push( `${name}: name exactly one segment of the file, or one page by upper-case Guid` );
+    }
+
+    if ( ![ "View", "Edit", "Administrate" ].includes( row.action ) ) {
+        problems.push( `${name}: ${row.action} is not a Rock action` );
+    }
+}
+
+console.log( `Reporting: ${reporting.dataViews.length} data views, ${reports.size} reports, ${( reporting.metrics || [] ).length} metrics, ${( reporting.access || [] ).length} access rows, ${segmentKeys.size} personalization segments, ${categories.length} categories. ${problems.length} problems.` );
 for ( const problem of problems ) {
     console.log( `  ${problem}` );
 }

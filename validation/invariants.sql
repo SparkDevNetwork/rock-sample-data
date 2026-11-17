@@ -2046,3 +2046,20 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR ( [rock].[Numeric] IS NOT NULL AND ( [av].[ValueAsNumeric] IS NULL OR [av].[ValueAsNumeric] <> [rock].[Numeric] ) )
         OR ( [rock].[Date] IS NOT NULL AND ( [av].[ValueAsDateTime] IS NULL OR ABS( DATEDIFF_BIG( MILLISECOND, [av].[ValueAsDateTime], [rock].[Date] ) ) > 4 ) )
         OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );
+
+-- check: segment-holds-primary-aliases
+-- why: Issue 6. Rock's Update Personalization Data job puts each person in a segment by their primary alias, and Rock's adaptivemessage command looks a person up by it. A row for any other alias, or the same person twice, would show a message to the wrong alias or make the job's first run change the segment.
+SELECT COUNT(*)
+FROM [PersonAliasPersonalization] AS [pap]
+INNER JOIN [PersonalizationSegment] AS [s] ON [s].[Id] = [pap].[PersonalizationEntityId] AND [pap].[PersonalizationType] = 0
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pap].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [s].[ForeignKey] = @ForeignKey AND [p].[PrimaryAliasId] <> [pap].[PersonAliasId];
+
+-- check: adaptation-fallback-is-last
+-- why: Issue 6. Rock shows each person the first adaptation that fits, and an adaptation with no segments fits everyone. So in each message only the last adaptation may have no segments, or every adaptation after it would never show.
+SELECT COUNT(*)
+FROM [AdaptiveMessageAdaptation] AS [a]
+WHERE [a].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptationSegment] AS [s] WHERE [s].[AdaptiveMessageAdaptationId] = [a].[Id] )
+    AND EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptation] AS [later] WHERE [later].[AdaptiveMessageId] = [a].[AdaptiveMessageId] AND [later].[Order] > [a].[Order] );

@@ -32,6 +32,7 @@
   "giving": [
     {
       "persona": "bi-weekly",
+      "currency": "cash",
       "person": "jordan",
       "funds": {
         "General Fund": 40

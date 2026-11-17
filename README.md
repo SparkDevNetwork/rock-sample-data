@@ -166,6 +166,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Connections have celebrations.** Connectors record the story behind a request, so the Connections Hub and the Celebrations Report show them. Sign in as `admin` to see the ones Alisha Marble wrote.
 - **Group sync keeps lists current.** Five data views, filed in the church's own category tree, keep the Volunteers and Small Group Leaders lists, the RSR - Prayer Access role, and the New Here and We Miss You care lists in step. See [Group sync](docs/communications.md#group-sync).
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
+- **Each person sees a next step.** Five adaptive messages, from Your Next Step to Giving, show each signed-in person the version that fits them, chosen by Rock from 16 personalization segments on the church's own data views. See [Adaptive messages](docs/adaptive-messages.md).
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 
 ## What is where

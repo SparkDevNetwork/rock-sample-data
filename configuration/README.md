@@ -29,6 +29,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
 | `reporting.json` | The church's layered data views: foundations, the Ministry by Design stage views built from steps, next-step views filed by Ministry System, the communication flows' audiences, Safety, and Finance, with the named schedules that persist the slow ones and run the metrics, the 25 reports with their columns, a `usage` run history where one must differ from the usual rule, the four path metrics, and the security walkthrough verify asks Rock. See [Data views and reports](../docs/reporting.md). |
 | `flows.json` | The church's Communication Flows: each flow's Ministry by Design category, how people enter, its messages from the message library, its goal, its exit rule, and how far back its runs reach, plus the one email domain that can be in a run Rock still sends after install, and the workflow types whose forms put people in a flow. See [Communication flows](../docs/communications.md#communication-flows). |
+| `adaptive-messages.json` | The church's 16 personalization segments, each on a person data view, with the Finance lock on the ones built on Finance views; its five adaptive messages with their adaptations in order, dates rules, and saturation; the External Website pages a link may name; the lock on Rock's segment Results page; the access questions verify asks Rock; and the Cast people each adaptation must reach. The text is in `content/adaptive-messages`. See [Adaptive messages](../docs/adaptive-messages.md). |
 | `group-syncs.json` | The church's group sync data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
 
 ## Categories
@@ -43,7 +44,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule, and Women Who Attend |
 | Data views | Rock Solid Church, then Sample Data | Reserved or No Email, and each recurring flow's guarded audience |
 | Data views | Rock Solid Church, then Safety, locked to the safety and background check roles | Kids and Student Teams, Kids and Student Volunteers, and Kids With an Allergy |
-| Data views | Rock Solid Church, then Finance, locked to the finance roles | The Built on the Rock pledge views |
+| Data views | Rock Solid Church, then Finance, locked to the finance roles | The giving and pledge views, including the Giving message's layers |
 | Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Men's Retreat Invites, which no one has run in over a year, and room for staff to build |
 | Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision 224) | Rock's 8 shipped example views, unchanged |
 | Reports | Rock Solid Church, locked to staff, then Leadership (locked to pastors), Notice, Belong, Equip, Contribute, Lead, Re-engage, Safety and Finance (each locked to its roles), and Staff Workspace | The 25 reports in `reporting.json`; Staff Workspace is empty |
@@ -52,6 +53,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Person attributes | Staff | The eight staff attributes (decision 201) |
 | Workflow types | Rock Solid Church, then Equip | The Baptism Interest workflow (decision 235) |
 | Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
+| Adaptive messages | Rock Solid Church, under Rock's All Church category (`parentGuid`) | The five adaptive messages in `adaptive-messages.json` |
 
 To add rows of a new kind or for a new purpose:
 
@@ -60,7 +62,7 @@ To add rows of a new kind or for a new purpose:
 3. **Person attributes.** Keep attribute categories flat, as Rock's own Employment and Membership are. Give the category `qualifierEntityType` (such as `Rock.Model.Person`), which Rock stores as its EntityTypeId qualifier. The person profile shows a category only through an Attribute Values block, so add one, as `staff.json` does for Staff.
 4. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
 
-Each category names the Rock entity it holds, its parent's key, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
+Each category names the Rock entity it holds, its parent's key or, under a category Rock ships, that category's Guid as `parentGuid`, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
 
 ## Service times
 

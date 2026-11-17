@@ -208,7 +208,8 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// One answer Rock's security check must give: whether a Cast person may take an action on a category or data view.
+    /// One answer Rock's security check must give: whether a Cast person may take an action on a category, data view,
+    /// report, personalization segment, or page.
     /// </summary>
     internal sealed class AccessExpectation
     {
@@ -236,6 +237,16 @@ namespace RockSampleData.Loader.Model
         /// A report's key, or null when the item is not a report.
         /// </summary>
         public string Report { get; set; }
+
+        /// <summary>
+        /// A personalization segment's key in configuration/adaptive-messages.json, or null when the item is not a segment.
+        /// </summary>
+        public string Segment { get; set; }
+
+        /// <summary>
+        /// A Rock page's Guid, or null when the item is not a page.
+        /// </summary>
+        public Guid? Page { get; set; }
 
         /// <summary>
         /// Rock's action, such as View or Edit.

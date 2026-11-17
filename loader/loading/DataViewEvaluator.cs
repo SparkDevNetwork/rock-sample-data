@@ -15,6 +15,7 @@
 // </copyright>
 //
 
+using System.Globalization;
 using System.Text.Json;
 
 using Microsoft.Data.SqlClient;
@@ -45,6 +46,14 @@ namespace RockSampleData.Loader.Loading
     {
         private static readonly Guid NamelessRecordTypeGuid = new Guid( "721300ED-1267-4DA0-B4F2-6C6B5B17B1C5" );
         private static readonly Guid SchoolGradesGuid = new Guid( "24E5A79F-1E62-467A-AD5D-0D10A2328B4D" );
+        private static readonly Guid FamilyAdultRoleGuid = new Guid( "2639F9A5-2AAE-4E48-A8C3-4FFE86681E42" );
+        private static readonly Guid FamilyChildRoleGuid = new Guid( "C8B1814F-6AA7-4055-B2D7-48FE20429CB9" );
+        private const string FamilyMembersTransform = "Rock.Reporting.DataTransform.Person.FamilyMembersTransform";
+
+        /// <summary>
+        /// Rock's weeks start on Monday unless a site changes its first day of the week, which a new install does not.
+        /// </summary>
+        private const DayOfWeek FirstDayOfWeek = DayOfWeek.Monday;
 
         /// <summary>
         /// Rock's ComparisonType values a count can use.
@@ -88,17 +97,40 @@ namespace RockSampleData.Loader.Loading
         private readonly RockDatabase _db;
         private readonly DateTime _today;
         private readonly IReadOnlyDictionary<string, DataViewDefinition> _views;
+        private readonly Func<DataViewFilterDefinition, string> _selection;
         private readonly Dictionary<string, Dictionary<int, DateTime?>> _viewResults = new Dictionary<string, Dictionary<int, DateTime?>>();
         private HashSet<int> _people;
 
         /// <param name="db">The database being loaded.</param>
         /// <param name="today">The day the data view runs: the install day.</param>
         /// <param name="views">The views an Existing Data View filter may point at, by key.</param>
-        public DataViewEvaluator( RockDatabase db, DateTime today, IReadOnlyDictionary<string, DataViewDefinition> views = null )
+        /// <param name="selection">A leaf's Rock selection when the configuration builds it at load, such as a steps
+        /// filter's. Null, or a null answer, reads the leaf's own selection.</param>
+        public DataViewEvaluator( RockDatabase db, DateTime today, IReadOnlyDictionary<string, DataViewDefinition> views = null, Func<DataViewFilterDefinition, string> selection = null )
         {
             _db = db;
             _today = today.Date;
             _views = views;
+            _selection = selection;
+        }
+
+        /// <summary>
+        /// Every person in a whole data view: its filters, then its post-filter transformation, as Rock's engine runs it.
+        /// </summary>
+        public Dictionary<int, DateTime?> EvaluateView( DataViewDefinition view )
+        {
+            if ( !_viewResults.TryGetValue( view.Key, out var result ) )
+            {
+                result = Evaluate( view.Filter );
+                if ( view.Transform != null )
+                {
+                    result = Transform( view, result );
+                }
+
+                _viewResults[view.Key] = result;
+            }
+
+            return new Dictionary<int, DateTime?>( result );
         }
 
         /// <summary>
@@ -109,7 +141,7 @@ namespace RockSampleData.Loader.Loading
             switch ( filter.ExpressionType )
             {
                 case 0:
-                    return filter.DataView != null ? OtherView( filter ) : Leaf( filter.Component, filter.Selection );
+                    return filter.DataView != null ? OtherView( filter ) : Leaf( filter.Component, _selection?.Invoke( filter ) ?? filter.Selection );
 
                 case 1:
                     return filter.Children.Select( Evaluate ).Aggregate( ( all, next ) => all.Keys.Where( next.ContainsKey ).ToDictionary( id => id, id => Latest( all[id], next[id] ) ) );
@@ -168,21 +200,130 @@ GROUP BY [pa].[PersonId]" ) )
         }
 
         /// <summary>
-        /// Rock's OtherDataViewFilter: everyone in the other view, each since they first matched it.
+        /// A filter that points at another data view: Rock's Existing Data View filter (everyone in it, each since they first
+        /// matched it), its Not in Existing Data View filter, and the person filters that take a pledge or scheduled gift view.
         /// </summary>
         private Dictionary<int, DateTime?> OtherView( DataViewFilterDefinition filter )
         {
-            if ( filter.Component != "Rock.Reporting.DataFilter.OtherDataViewFilter" || _views == null || !_views.TryGetValue( filter.DataView, out var view ) )
+            if ( _views == null || !_views.TryGetValue( filter.DataView, out var view ) )
             {
-                throw new InvalidDataException( $"configuration/group-syncs.json points at data view {filter.DataView} with {filter.Component}. The loader evaluates only Rock's Existing Data View filter, on a view in a configuration file." );
+                throw new InvalidDataException( $"A data view points at {filter.DataView} with {filter.Component}, but that is not a data view in any configuration file." );
             }
 
-            if ( !_viewResults.TryGetValue( view.Key, out var result ) )
+            switch ( filter.Component )
             {
-                result = _viewResults[view.Key] = Evaluate( view.Filter );
+                case "Rock.Reporting.DataFilter.OtherDataViewFilter":
+                    return EvaluateView( view );
+
+                case "Rock.Reporting.DataFilter.NotInOtherDataViewFilter":
+                    var inView = EvaluateView( view );
+                    return People().Where( id => !inView.ContainsKey( id ) ).ToDictionary( id => id, id => ( DateTime? ) null );
+
+                case "Rock.Reporting.DataFilter.Person.FinancialPledgeDataViewFilter":
+                    // Rock matches the person named on each pledge, by any of their aliases, and not their spouse.
+                    return Ids( $@"
+SELECT DISTINCT [pa].[PersonId] AS [Id]
+FROM [FinancialPledge] AS [e]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [e].[PersonAliasId]
+WHERE {EntityWhere( view, "FinancialPledge" )}" );
+
+                case "Rock.Reporting.DataFilter.Person.FinancialScheduledTransactionDataViewFilter":
+                    // Rock's Combine Giving option also matches everyone in the giving group of each gift's person.
+                    var combineGiving = ( filter.Selection ?? string.Empty ).Split( '|' ).ElementAtOrDefault( 1 ) is string combine
+                        && combine.Equals( "True", StringComparison.OrdinalIgnoreCase );
+                    var where = EntityWhere( view, "FinancialScheduledTransaction" );
+                    var givingGroups = !combineGiving ? string.Empty : $@"
+UNION
+SELECT [p].[Id]
+FROM [Person] AS [p]
+WHERE [p].[GivingGroupId] IN (
+    SELECT [gp].[GivingGroupId]
+    FROM [FinancialScheduledTransaction] AS [e]
+    INNER JOIN [PersonAlias] AS [gpa] ON [gpa].[Id] = [e].[AuthorizedPersonAliasId]
+    INNER JOIN [Person] AS [gp] ON [gp].[Id] = [gpa].[PersonId]
+    WHERE [gp].[GivingGroupId] IS NOT NULL AND {where} )";
+                    return Ids( $@"
+SELECT [pa].[PersonId] AS [Id]
+FROM [FinancialScheduledTransaction] AS [e]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [e].[AuthorizedPersonAliasId]
+WHERE {where}{givingGroups}" );
+
+                default:
+                    throw new InvalidDataException( $"A data view points at {filter.DataView} with {filter.Component}, which the loader cannot evaluate." );
+            }
+        }
+
+        /// <summary>
+        /// A SQL condition on [e], a row of the table, from the filters of a pledge or scheduled gift data view.
+        /// </summary>
+        private string EntityWhere( DataViewDefinition view, string table )
+        {
+            var entity = view.EntityType ?? "Rock.Model.Person";
+            if ( entity != $"Rock.Model.{table}" || view.Transform != null )
+            {
+                throw new InvalidDataException( $"Data view {view.Key} returns {entity}, but the filter that points at it needs plain Rock.Model.{table} rows." );
             }
 
-            return new Dictionary<int, DateTime?>( result );
+            return EntityCondition( view, view.Filter );
+        }
+
+        private string EntityCondition( DataViewDefinition view, DataViewFilterDefinition filter )
+        {
+            var children = filter.Children.Select( c => EntityCondition( view, c ) ).ToList();
+            return filter.ExpressionType switch
+            {
+                0 => EntityLeaf( view, filter.Component, filter.Selection ),
+                1 => "( " + string.Join( " AND ", children ) + " )",
+                2 => "( " + string.Join( " OR ", children ) + " )",
+                _ => "NOT ( " + string.Join( " OR ", children ) + " )"
+            };
+        }
+
+        /// <summary>
+        /// One filter of a pledge or scheduled gift view: Rock's pledge Account filter (any of the accounts), or a property
+        /// filter on IsActive (Rock's selection: the property, Equal To or Not Equal To, and True or False).
+        /// </summary>
+        private string EntityLeaf( DataViewDefinition view, string component, string selection )
+        {
+            if ( component == "Rock.Reporting.DataFilter.FinancialPledge.AccountFilter" )
+            {
+                var accountIds = selection.Split( '|' )[0].Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
+                    .Select( g => _db.IdByGuid( "FinancialAccount", Guid.Parse( g ) ) ).Where( id => id.HasValue ).Select( id => id.Value ).ToList();
+                return accountIds.Count == 0 ? "1 = 0" : $"[e].[AccountId] IN ( {string.Join( ", ", accountIds )} )";
+            }
+
+            if ( component == "Rock.Reporting.DataFilter.PropertyFilter" )
+            {
+                var values = JsonSerializer.Deserialize<List<string>>( selection );
+                if ( values != null && values.Count == 3 && values[0] == "IsActive" && bool.TryParse( values[2], out var flag ) && ( values[1] == "1" || values[1] == "2" ) )
+                {
+                    return $"[e].[IsActive] = {( flag == ( values[1] == "1" ) ? 1 : 0 )}";
+                }
+            }
+
+            throw new InvalidDataException( $"Data view {view.Key} uses {component} with {selection}, which the loader cannot evaluate." );
+        }
+
+        /// <summary>
+        /// Rock's Family Members transformation: everyone who is an adult or child in a family with someone the filters found.
+        /// </summary>
+        private Dictionary<int, DateTime?> Transform( DataViewDefinition view, Dictionary<int, DateTime?> found )
+        {
+            if ( view.Transform != FamilyMembersTransform )
+            {
+                throw new InvalidDataException( $"Data view {view.Key} uses the transformation {view.Transform}, which the loader cannot evaluate." );
+            }
+
+            var roles = $"{_db.RequireIdByGuid( "GroupTypeRole", FamilyAdultRoleGuid )}, {_db.RequireIdByGuid( "GroupTypeRole", FamilyChildRoleGuid )}";
+            var memberships = _db.Query( $"SELECT [GroupId], [PersonId], [IsArchived] FROM [GroupMember] WHERE [GroupRoleId] IN ( {roles} )" )
+                .Select( r => (Group: ( int ) r["GroupId"], Person: ( int ) r["PersonId"], IsArchived: ( bool ) r["IsArchived"]) )
+                .ToList();
+
+            // Rock finds each family through any family member row, archived or not, and returns only current members.
+            var families = memberships.Where( m => found.ContainsKey( m.Person ) ).Select( m => m.Group ).ToHashSet();
+            var people = People();
+            return memberships.Where( m => !m.IsArchived && families.Contains( m.Group ) && people.Contains( m.Person ) )
+                .Select( m => m.Person ).Distinct().ToDictionary( id => id, id => ( DateTime? ) null );
         }
 
         private Dictionary<int, DateTime?> Leaf( string component, string selection )
@@ -210,6 +351,9 @@ GROUP BY [pa].[PersonId]" ) )
                 case "Rock.Reporting.DataSelect.Person.InRegistrationInstanceFilter":
                     return RegistrationFilter( selection );
 
+                case "Rock.Reporting.DataFilter.Person.StepsTakenFilter":
+                    return StepsTakenFilter( selection );
+
                 default:
                     throw new InvalidDataException( $"configuration/group-syncs.json uses the data filter {component}, which the loader cannot evaluate." );
             }
@@ -221,6 +365,12 @@ GROUP BY [pa].[PersonId]" ) )
         private Dictionary<int, DateTime?> PropertyFilter( string selection )
         {
             var values = JsonSerializer.Deserialize<List<string>>( selection );
+
+            // A name that is a person attribute's key filters on that attribute.
+            if ( values != null && values.Count >= 2 && AttributeFilter( values ) is Dictionary<int, DateTime?> byAttribute )
+            {
+                return byAttribute;
+            }
 
             // A text property "is not blank" (Rock's ComparisonType.IsNotBlank): not null, and not empty once trimmed.
             if ( values != null && values.Count >= 2 && TextProperties.Contains( values[0] ) && values[1] == "64" )
@@ -391,6 +541,86 @@ INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = {person}
 WHERE [ri].[RegistrationTemplateId] = {templateId}{instanceRule}{waitListRule}" );
         }
 
+        /*
+            11/16/26 - CLAUDE
+
+            Rock's property filter reads a person attribute through its field type. A single select matches the chosen
+            values. A date compares the attribute's date with a date, or with "CURRENT:<days>", today moved by that many
+            days, using Rock's comparison numbers. Rock reads the date from ValueAsDateTime, which the loader's attribute
+            value hook fills after the last part, so this reads Value, the text that column comes from.
+
+            Reason: The personalization segments rest on giving views that filter Rock's giving journey stage and Last
+            Gave attributes. Verify runs Rock's own segment update to catch any difference.
+        */
+
+        /// <summary>
+        /// Rock's PropertyFilter on a person attribute, or null when the name is not a person attribute's key.
+        /// </summary>
+        private Dictionary<int, DateTime?> AttributeFilter( List<string> values )
+        {
+            var attribute = _db.Query( @"
+SELECT TOP 1 [a].[Id], [ft].[Class]
+FROM [Attribute] AS [a]
+INNER JOIN [FieldType] AS [ft] ON [ft].[Id] = [a].[FieldTypeId]
+WHERE [a].[Key] = @Key AND ISNULL( [a].[EntityTypeQualifierColumn], '' ) = ''
+    AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )", P( "@Key", values[0] ) ).FirstOrDefault();
+            if ( attribute == null )
+            {
+                return null;
+            }
+
+            var people = People();
+            var stored = _db.Query( "SELECT [EntityId], [Value] FROM [AttributeValue] WHERE [AttributeId] = @Id AND [Value] IS NOT NULL AND [Value] <> ''", P( "@Id", attribute["Id"] ) )
+                .Select( r => (Person: ( int ) r["EntityId"], Value: ( ( string ) r["Value"] ).Trim()) )
+                .Where( s => people.Contains( s.Person ) )
+                .ToList();
+            var fieldType = ( string ) attribute["Class"];
+            if ( fieldType == "Rock.Field.Types.SelectSingleFieldType" && values.Count == 2 )
+            {
+                var chosen = values[1].Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).Select( v => v.Trim() ).ToHashSet( StringComparer.OrdinalIgnoreCase );
+                return stored.Where( s => chosen.Contains( s.Value ) ).Select( s => s.Person ).Distinct().ToDictionary( id => id, id => ( DateTime? ) null );
+            }
+
+            if ( fieldType == "Rock.Field.Types.DateFieldType" && values.Count == 3 && int.TryParse( values[1], out var comparison ) && Comparisons.TryGetValue( comparison, out var compare ) )
+            {
+                var compareTo = values[2].StartsWith( "CURRENT", StringComparison.OrdinalIgnoreCase )
+                    ? _today.AddDays( int.TryParse( values[2].Split( ':' ).ElementAtOrDefault( 1 ), out var offset ) ? offset : 0 )
+                    : DateTime.Parse( values[2], CultureInfo.InvariantCulture ).Date;
+                int Day( DateTime date ) => ( int ) ( date.Date - DateTime.MinValue ).TotalDays;
+                return stored.Where( s => DateTime.TryParse( s.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var date ) && compare( Day( date ), Day( compareTo ) ) )
+                    .Select( s => s.Person ).Distinct().ToDictionary( id => id, id => ( DateTime? ) null );
+            }
+
+            throw new InvalidDataException( $"A data view filters the person attribute {values[0]} ({fieldType}) with {JsonSerializer.Serialize( values )}, which the loader cannot evaluate." );
+        }
+
+        /// <summary>
+        /// Rock's StepsTakenFilter: program|step types|statuses|started in|completed in|campuses. Everyone with a step of one
+        /// of the types, in one of the statuses, in the program. The loader evaluates only steps started and completed any
+        /// time, at any campus.
+        /// </summary>
+        private Dictionary<int, DateTime?> StepsTakenFilter( string selection )
+        {
+            var parts = ( selection ?? string.Empty ).Split( '|' );
+            if ( parts.Length < 5 || !Guid.TryParse( parts[0], out var program ) || !parts[3].StartsWith( "All", StringComparison.Ordinal )
+                || !parts[4].StartsWith( "All", StringComparison.Ordinal ) || ( parts.Length > 5 && parts[5].Trim().Length > 0 ) )
+            {
+                throw new InvalidDataException( $"The steps filter {selection} needs a program, and steps started and completed any time at any campus. The loader evaluates nothing else." );
+            }
+
+            string Guids( string list ) => string.Join( ", ", list.Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).Select( g => $"'{Guid.Parse( g )}'" ) );
+            var types = parts[1].Trim().Length == 0 ? string.Empty : $" AND [st].[Guid] IN ( {Guids( parts[1] )} )";
+            var statuses = parts[2].Trim().Length == 0 ? string.Empty : $" AND [ss].[Guid] IN ( {Guids( parts[2] )} )";
+            return Ids( $@"
+SELECT DISTINCT [pa].[PersonId] AS [Id]
+FROM [Step] AS [s]
+INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+INNER JOIN [StepProgram] AS [sp] ON [sp].[Id] = [st].[StepProgramId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+LEFT JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+WHERE [sp].[Guid] = '{program}'{types}{statuses}" );
+        }
+
         /// <summary>
         /// Everyone a Person data view starts from: Rock's default person query leaves out the deceased and nameless people.
         /// </summary>
@@ -484,8 +714,8 @@ WHERE [p].[IsDeceased] = 0 AND ( [p].[RecordTypeValueId] IS NULL OR [p].[RecordT
             }
 
             /// <summary>
-            /// RockDateTimeHelper.CalculateDateRangeFromDelimitedValues for "Last" and "Previous" in days, months, or years,
-            /// saved with commas for pipes. Weeks are left out, because they depend on the site's first day of the week.
+            /// RockDateTimeHelper.CalculateDateRangeFromDelimitedValues for "Last" and "Previous" in days, weeks, months, or
+            /// years, saved with commas for pipes. A week starts on Rock's first day of the week.
             /// </summary>
             private static (DateTime Start, DateTime End) SlidingRange( string range, DateTime today, string selection )
             {
@@ -518,8 +748,14 @@ WHERE [p].[IsDeceased] = 0 AND ( [p].[RecordTypeValueId] IS NULL OR [p].[RecordT
                         start = end.AddYears( -units );
                         break;
 
+                    case "Week":
+                        var intoWeek = ( ( int ) today.DayOfWeek - ( int ) FirstDayOfWeek + 7 ) % 7;
+                        end = today.AddDays( -intoWeek ).AddDays( 7 * roundUp );
+                        start = end.AddDays( -7 * units );
+                        break;
+
                     default:
-                        throw new InvalidDataException( $"configuration/group-syncs.json: the date range in {selection} must count days, months, or years." );
+                        throw new InvalidDataException( $"configuration/group-syncs.json: the date range in {selection} must count days, weeks, months, or years." );
                 }
 
                 // Rock never lets Last or Previous reach past tomorrow.

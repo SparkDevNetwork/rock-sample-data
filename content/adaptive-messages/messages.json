@@ -1,0 +1,178 @@
+{
+  "$comment": "The text of each adaptation in configuration/adaptive-messages.json, by message key and adaptation key. Each field fills one of Rock's own adaptation attributes: callToAction is Call To Action Text, link is Call To Action Link, summary is Summary, details is Details (one paragraph each), and image is Summary Image, an approved event image from photos/events/manifest.json by event key. An adaptation with no image leaves Summary Image empty until its image brief is done. A link is one of the External Website's routes, or page:<key> for a page in the configuration's 'pages'. README.md has the rules, and check-messages.js checks them.",
+  "messages": {
+    "your-next-step": {
+      "lead": {
+        "callToAction": "Lead a group",
+        "link": "page:small-groups",
+        "summary": "You're growing, you serve on a team, and you're in a group. Would you lead one? Group Leader Training gets you ready.",
+        "details": [
+          "Leading a group starts with people you already know. Invite a few friends, pick a study, and open your home or a table at a coffee shop.",
+          "Group Leader Training covers the basics in one evening, and a coach checks in with you all season."
+        ],
+        "image": "group-leader-training"
+      },
+      "serve": {
+        "callToAction": "Find a team",
+        "link": "page:serve",
+        "summary": "You've taken a step to grow. Now find a team where your gifts make a difference on Sunday mornings.",
+        "details": [
+          "Greeters, kids, students, worship, production, and more. Most teams serve once or twice a month.",
+          "Pick a team that sounds fun, and a team leader will reach out to set up your first Sunday."
+        ],
+        "image": "serve-sunday"
+      },
+      "grow": {
+        "callToAction": "Take Foundations",
+        "link": "page:calendar",
+        "summary": "You've found your people. Foundations is the next step: six weeks on what we believe and why it matters.",
+        "details": [
+          "Foundations covers what Christians believe, how to read the Bible, and how to pray. Bring your questions.",
+          "You will leave with a clear picture of the faith, and friends who are growing right beside you."
+        ],
+        "image": "foundations"
+      },
+      "belong": {
+        "callToAction": "Find a group",
+        "link": "/GroupFinder",
+        "summary": "Sundays are better with friends. Join a small group near you and get to know a few people well.",
+        "details": [
+          "Groups meet in homes all over the Valley, most of them once a week. Many offer child care.",
+          "Not sure where to start? Small Group Connect introduces you to several leaders in one night."
+        ],
+        "image": "group-connect"
+      },
+      "starting-point": {
+        "callToAction": "Save a seat",
+        "link": "page:calendar",
+        "summary": "We're glad you keep coming back. Starting Point is a four-week class on who we are and how to get connected.",
+        "details": [
+          "Starting Point meets on Wednesday nights, and dinner is on us.",
+          "You will hear our story, meet a few staff, and find the next step that fits you."
+        ],
+        "image": "starting-point"
+      },
+      "plan-a-visit": {
+        "callToAction": "Plan a visit",
+        "link": "page:new-here",
+        "summary": "We'd love to meet you. Find a service time, what to expect, and where to park.",
+        "details": [
+          "Come as you are. Services last about an hour, and kids have their own rooms with safe check-in.",
+          "Look for the welcome tent when you arrive, and we will walk you in."
+        ]
+      }
+    },
+    "built-on-the-rock": {
+      "thank-you": {
+        "callToAction": "See your giving",
+        "link": "page:giving-history",
+        "summary": "Thank you for your Built on the Rock commitment. Together we are building a Student Center and new kids rooms.",
+        "details": [
+          "Your gifts are already at work. Plans for the Student Center are drawn, and the first kids rooms come next.",
+          "You can see your gifts toward your commitment any time on your giving page."
+        ],
+        "image": "commitment-sunday"
+      },
+      "commit": {
+        "callToAction": "Make a commitment",
+        "link": "page:pledge",
+        "summary": "Built on the Rock is our two-year campaign for a Student Center and new kids rooms. Pray about what you can give.",
+        "details": [
+          "Like the wise builder in Matthew 7, we want to build on a foundation that lasts for the next generation.",
+          "Every commitment counts, whatever its size. Make yours online in a minute."
+        ],
+        "image": "commitment-sunday"
+      }
+    },
+    "baptism-sunday": {
+      "invitation": {
+        "callToAction": "Be baptized",
+        "link": "page:calendar",
+        "summary": "Baptism Sunday is coming. If you have decided to follow Jesus, take the next step with your church family.",
+        "details": [
+          "Baptism is a public way to say that Jesus changed your life. Your friends and family can cheer you on.",
+          "Sign up, and a pastor will call to talk it through and answer your questions."
+        ],
+        "image": "baptism-sunday"
+      }
+    },
+    "student-camp": {
+      "register": {
+        "callToAction": "Register for camp",
+        "link": "page:students",
+        "summary": "A week in the pines with your friends, great teaching, and plenty of fun. Camp spots fill fast, so sign up early.",
+        "details": [
+          "Camp is for students in grades 7 to 12. Your leaders come too, and you ride the buses together.",
+          "Payment plans and scholarships are open to anyone who asks."
+        ],
+        "image": "student-camp"
+      }
+    },
+    "giving": {
+      "scheduled": {
+        "callToAction": "Manage your gift",
+        "link": "page:manage-giving",
+        "summary": "Thank you for giving faithfully. This year your gifts sent students to camp and filled food boxes for neighbors.",
+        "details": [
+          "Your scheduled gift helps us plan with confidence, week after week.",
+          "You can change the amount, the date, or your card at any time."
+        ]
+      },
+      "first-gift": {
+        "callToAction": "See your giving",
+        "link": "page:giving-history",
+        "summary": "Thank you for your first gift! Here is what happens next: a thank you note, and a giving statement each January.",
+        "details": [
+          "Every gift is counted with care by our finance team, and it goes to the ministry you chose.",
+          "Your giving page shows every gift, so you never have to keep track yourself."
+        ]
+      },
+      "make-it-automatic": {
+        "callToAction": "Set up a recurring gift",
+        "link": "/Give",
+        "summary": "You give faithfully. A recurring gift makes it automatic, so it happens even on the weeks you are away.",
+        "details": [
+          "Pick an amount and a day, and use a card or a bank account. You can change it any time.",
+          "Many people find that giving first, instead of last, makes it easier to plan the month."
+        ]
+      },
+      "give-online": {
+        "callToAction": "Give online",
+        "link": "/Give",
+        "summary": "Give online any time, from any phone or computer. Or set up a recurring gift that fits your own rhythm.",
+        "details": [
+          "Online gifts take a minute, and they count toward your giving statement each January.",
+          "A recurring gift can be monthly, quarterly, or on the Sunday after each payday."
+        ]
+      },
+      "this-year": {
+        "callToAction": "Watch a message",
+        "link": "/watch",
+        "summary": "We're glad you're part of this church. This year we baptized new believers, sent students to camp, and served our city.",
+        "details": [
+          "None of it happens alone. Thank you for every way you have been part of it.",
+          "Catch up on a recent message any time, and come back on Sunday. We saved you a seat."
+        ]
+      },
+      "generosity": {
+        "callToAction": "Join Money Matters",
+        "link": "page:calendar",
+        "summary": "Generosity starts with a plan. Money Matters is a class on budgeting, getting out of debt, and giving with joy.",
+        "details": [
+          "Money Matters meets for five Monday nights, with a coach at every table. Couples and singles are both welcome.",
+          "You will build a simple budget and leave with a plan for what comes next."
+        ],
+        "image": "money-matters"
+      },
+      "ways-to-give": {
+        "callToAction": "Ways to give",
+        "link": "/Give",
+        "summary": "Give online, set up a recurring gift, or drop a check in the offering. Every gift helps our church serve the Valley.",
+        "details": [
+          "Online giving is safe and takes a minute. You can give to the General Fund, Missions, or Built on the Rock.",
+          "Every gift gets a giving statement each January."
+        ]
+      }
+    }
+  }
+}

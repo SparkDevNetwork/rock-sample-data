@@ -21,7 +21,8 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Cast validator](#cast-validator) | Before every pull request | The Cast files are complete and consistent. |
 | [Content standards check](#content-standards-check) | Before every pull request | The data follows the content standards a script can check. |
 | [Registrations check](#registrations-check) | Before every pull request that changes registrations | Every registration names real events, templates, and groups, makes valid unique slugs, every feature has an always-open home, every registrants rule is one the template allows, releases use only the Lava the loader renders, and data views are filed and replayable. |
-| [Reporting check](#reporting-check) | Before every pull request that changes data views or categories | Every data view is filed under a church category, points only at views that exist, never loops, names real step types, and sits under the same lock as any locked view it builds on, and every flow audience in Sample Data carries the email guard. |
+| [Reporting check](#reporting-check) | Before every pull request that changes data views or categories | Every data view is filed under a church category, points only at views that exist, never loops, names real step types, and sits under the same lock as any locked view it builds on, every flow audience in Sample Data carries the email guard, and every personalization segment on a locked view is locked the same way. |
+| [Adaptive messages check](#adaptive-messages-check) | Before every pull request that changes adaptive messages | Every adaptation names real segments, only a message's last one has none, and its text has the right fields, lengths, links, and approved images. |
 | [Package self-check](#package-self-check) | Every time the builder writes a package | A package that would fail to load is never written. |
 | [Trusted base](#trusted-base) | Verify tool, before publishing | Every load starts from a clean copy of exactly this Rock release. |
 | [Contract schema](#contract-schema) | Verify tool | Everything the loader depends on still exists in this Rock, unchanged. |
@@ -35,6 +36,8 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Metrics](#metrics) | Verify tool | Each path metric's newest value matches Rock's count of its stage view. |
 | [Access](#access) | Verify tool | Rock's own security check gives every answer in the security walkthrough. |
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
+| [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
+| [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
@@ -74,9 +77,15 @@ These need only Node.js, so every contributor runs them.
 
 ### Reporting check
 
-**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision 227). Every access row names a Cast person, a real category or view, and a Rock action.
+**What it does.** `node validation/check-reporting.js` reads `configuration/reporting.json` with the categories, security roles, steps, Cast, and the other files that hold data views. Data view keys and Guids are unique across every file. Every view sits in a church data view category, and every category's roles are real. A view points only at views that exist, and no views loop. A steps filter names a real program and matches at least one step type by stage or key. A persisted view names one real schedule or one interval. A view built on a view under a lock, such as Finance, sits under the same lock (the consumer rule, docs/reporting.md section 1.8). Every flow audience in Sample Data includes Reserved or No Email (decision 227). Every access row names a Cast person, a real category or view, and a Rock action. Each personalization segment in `configuration/adaptive-messages.json` has its own key and Guid and a real person data view. A segment on a locked view carries a View rule that allows no more than that lock and denies All Users, because Rock secures a segment only by its own rules. When any segment is locked, the segment Results page carries such a rule too, because Rock's Results page checks no segment's security (decision D-adaptive-4).
 
 **Why it's there.** Rock checks none of this when a view runs: a report or data view built on a locked view is open to anyone who can see its own category (section 1.4 of the design).
+
+### Adaptive messages check
+
+**What it does.** `node content/adaptive-messages/check-messages.js` reads `configuration/adaptive-messages.json` and the text in `content/adaptive-messages/messages.json`. Keys and Guids are unique. Every adaptation names segments the file has, and only a message's last adaptation has none, since Rock shows the first adaptation that fits and one with no segments fits everyone. Every segment is used. Dates rules, saturation, pages, and Cast rows are real. Every adaptation has text and no text is left over. A call to action is 3 to 30 characters, a summary 40 to 160, and each of one to three details paragraphs 20 to 200. A link is a route Rock ships on its External Website or a page in the configuration. An image is an approved calendar event image. Text uses plain characters, no Lava, no full web addresses, and reserved email domains, and no two summaries in one message start with the same five words. It also lists the adaptations that wait for an image brief.
+
+**Why it's there.** An adaptation with no segments placed early would hide every adaptation after it, and Rock would never say so. A broken link or a missing image only shows on a page after someone installs the data.
 
 ## When packages are built
 
@@ -263,6 +272,18 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** The loader writes the hash with SQL, so only Rock itself can prove the hash is one it accepts, and that a person installing could sign in as the Cast.
 
+### Adaptive messages
+
+**What it does.** `verify/rock-runner` renders Rock's own `{% adaptivemessage %}` Lava command, with the command enabled and views not tracked, for each Cast row in `configuration/adaptive-messages.json`: the person and the message. Rock finds the person's segments in the database, as it does on a page with no segment cookie, and shows the first adaptation that fits. Each must be the row's adaptation, with its call to action. Rock's answer for Ted Decker, Jordan Ellis, Margaret Carter, and the other Giving layer stories proves each lands in its layer by Rock's own rule.
+
+**Why it's there.** The loader writes the segments, adaptations, and attribute values with SQL. Only Rock's own Lava engine proves a page shows each person what the design says.
+
+### Segments
+
+**What it does.** `verify/rock-runner` runs Rock's own segment update (`PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment`, what the Update Personalization Data job calls) on every personalization segment, whatever its schedule. Rock evaluates each segment's data view with its real filters and compares it with the segment's people. The check passes when Rock updates every segment the load wrote and adds and removes nobody. Like group sync, it is judged only when today is the loads' anchor.
+
+**Why it's there.** The loader finds each segment's people with its own data view evaluator, which follows Rock's filters in SQL (decision D-adaptive-2). Only Rock's own update proves the loader picked exactly the people Rock picks.
+
 ### Group sync
 
 **What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
@@ -283,7 +304,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Access
 
-**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`: may this Cast person view or edit this category or data view. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
 

@@ -37,7 +37,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--login-password <password>` | Loads logins, every one with this password, hashed the way Rock's Database login does (see [How logins load](#how-logins-load)). Without it, no logins load. |
 | `--dry-run` | Do everything, then roll it all back. |
 
-The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` rows, which have no such column (see [How people load](#how-people-load)).
+The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` and `PersonAliasPersonalization` rows, which have no such column (see [How people load](#how-people-load) and [Adaptive messages](#adaptive-messages)).
 
 ## Which Rock a package is for
 
@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, data views, calendar, registrations, communications (with the Communication Flows), reports, Cast and business expectations, and check images. Configuration and people always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges and campaign gifts), giving analytics, giving alerts, prayer, notes, steps, data views, calendar, registrations, communications (with the Communication Flows), reports, adaptive messages, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -600,6 +600,16 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 6. **Run history.** `loading/UsageHistoryWriter.cs` gives each view and report the day staff made it, its run count since, and its last run, with each view made after the views it points at (decision 233). A `usage` entry gives one its own history, as for the retired Men's Retreat Invites.
 7. **Metrics.** `loading/MetricsWriter.cs` writes each metric with Rock's one default partition, filed in its metric category, and a value for each scheduled run from the week its stage view was made to install: the active people with a completed step of the stage by then (decision 234).
 8. **Parts left out.** A view that points at a view this load did not write, or matches a step type it did not write, is skipped, and so is every view and report built on it.
+
+## Adaptive messages
+
+`loading/AdaptiveMessagesLoader.cs` writes the church's personalization segments and adaptive messages from `../configuration/adaptive-messages.json`, with each adaptation's text from `../content/adaptive-messages/messages.json`. Its step runs after the Reports step, when every data view is written. The design is in [Adaptive messages](../docs/adaptive-messages.md).
+
+1. **Segments.** Each segment whose data view this load wrote, as Rock's segment editor saves one: active, refreshed daily, last refreshed now, not dirty, and with the editor's empty additional filters, which Rock's segment update needs. A segment built on a Finance view gets Finance's View rule, and Rock's segment Results page gets it too. `loading/DataViewEvaluator.cs` finds the people in each view, and each person goes in by their primary alias, as Rock's Update Personalization Data job puts them. `PersonAliasPersonalization` has no `ForeignKey` column; each row points at a segment that has one.
+2. **Messages.** Each message, in the church's adaptive message category, then its adaptations in order with their segments, dates, saturation, and Rock's adaptation attributes: Call To Action Text and Link, Summary, Details as Rock's structured content, and a copy of an approved event image as Summary Image. A link to `page:key` becomes Rock's `/page/Id` link to that page.
+3. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
+
+`AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees.
 
 ## Calendar
 

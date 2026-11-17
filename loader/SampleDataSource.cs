@@ -167,7 +167,18 @@ namespace RockSampleData.Loader
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.
+        /// </summary>
+        public AdaptiveMessagesConfiguration AdaptiveMessages { get; }
+
+        /// <summary>
+        /// Reads each adaptation's text, from content/adaptive-messages/messages.json.
+        /// </summary>
+        public AdaptiveMessageText ReadAdaptiveMessageText() => Read<AdaptiveMessageText>( AdaptiveMessageTextPath );
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were
@@ -273,6 +284,15 @@ namespace RockSampleData.Loader
 
         public const string ReportingConfigurationPath = "configuration/reporting.json";
         public const string FlowsConfigurationPath = "configuration/flows.json";
+
+        public const string AdaptiveMessagesConfigurationPath = "configuration/adaptive-messages.json";
+
+        /// <summary>
+        /// The text of each adaptation.
+        /// </summary>
+        public const string AdaptiveMessagesContentFolder = "content/adaptive-messages";
+
+        public const string AdaptiveMessageTextPath = AdaptiveMessagesContentFolder + "/messages.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

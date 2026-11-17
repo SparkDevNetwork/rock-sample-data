@@ -387,26 +387,36 @@ VALUES ( @Name, @Description, @Calendar, @First, @CategoryId, 1, 0, 0, 0, @Guid,
         /// Rock's StepsTakenFilter settings: the program, its step types, its Complete status, when they started (any time),
         /// when they were completed, and the campuses (any).
         /// </summary>
-        private string StepsSelection( StepsFilterRule rule )
+        private string StepsSelection( StepsFilterRule rule ) => StepsSelection( _source.Steps, rule );
+
+        /// <summary>
+        /// Rock's StepsTakenFilter settings for a steps rule, the selection the reporting views save. The data view evaluator
+        /// reads the same selection.
+        /// </summary>
+        internal static string StepsSelection( StepsConfiguration steps, StepsFilterRule rule )
         {
-            var program = Program( rule );
-            var types = StepTypes( rule, null ).Select( t => t.Guid.ToString() );
+            var program = Program( steps, rule );
+            var types = StepTypes( steps, rule, null ).Select( t => t.Guid.ToString() );
             var completed = rule.CompletedInLastDays.HasValue ? $"Last,{rule.CompletedInLastDays},Day,," : "All,,,,";
             return $"{program.Guid}|{string.Join( ",", types )}|{program.Statuses.Complete}|All,,,,|{completed}|";
         }
 
-        private StepProgramDefinition Program( StepsFilterRule rule )
+        private StepProgramDefinition Program( StepsFilterRule rule ) => Program( _source.Steps, rule );
+
+        private static StepProgramDefinition Program( StepsConfiguration steps, StepsFilterRule rule )
         {
-            return _source.Steps?.Programs.FirstOrDefault( p => p.Key == rule.Program )
+            return steps?.Programs.FirstOrDefault( p => p.Key == rule.Program )
                 ?? throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: a steps filter names program {rule.Program}, which is not in configuration/steps.json." );
         }
+
+        private List<StepTypeDefinition> StepTypes( StepsFilterRule rule, DataViewDefinition view ) => StepTypes( _source.Steps, rule, view );
 
         /// <summary>
         /// The step types a steps filter matches: one step type, every type in a stage, or every type in the program.
         /// </summary>
-        private List<StepTypeDefinition> StepTypes( StepsFilterRule rule, DataViewDefinition view )
+        private static List<StepTypeDefinition> StepTypes( StepsConfiguration steps, StepsFilterRule rule, DataViewDefinition view )
         {
-            var types = Program( rule ).StepTypes
+            var types = Program( steps, rule ).StepTypes
                 .Where( t => rule.StepType != null ? t.Key == rule.StepType : rule.Stage == null || t.Stage == rule.Stage )
                 .ToList();
             return types.Count > 0 ? types

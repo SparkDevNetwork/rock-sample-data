@@ -1136,6 +1136,141 @@
       }
     },
     {
+      "key": "active-scheduled-gifts",
+      "name": "Active Scheduled Gifts",
+      "category": "finance-data-views",
+      "guid": "97C7DBE4-64EB-40CD-8789-667F96C1C37D",
+      "entityType": "Rock.Model.FinancialScheduledTransaction",
+      "description": "Every scheduled gift that is still active. Scheduled Givers finds the people who give through them.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"IsActive\",\"1\",\"True\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "scheduled-givers",
+      "name": "Scheduled Givers",
+      "category": "finance-data-views",
+      "guid": "A754F419-9CAC-4F53-A71A-9BC2083E1D39",
+      "description": "Active people whose giving unit has an active scheduled gift. Rock's Combine Giving option counts a spouse who gives with them, so a couple is in it together. The Giving message's first layer.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.FinancialScheduledTransactionDataViewFilter",
+            "dataView": "active-scheduled-gifts",
+            "selection": "{dataView}|True"
+          }
+        ]
+      }
+    },
+    {
+      "key": "new-givers",
+      "name": "New Givers",
+      "category": "finance-data-views",
+      "guid": "61002D62-9251-4F25-82D4-93C7FDCB7FFA",
+      "description": "Active people Rock's giving journey shows as New Givers: a first gift in the last 150 days, and five gifts or fewer.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"1\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "consistent-givers-without-a-schedule",
+      "name": "Consistent Givers Without a Schedule",
+      "category": "finance-data-views",
+      "guid": "790D539C-0B66-42E9-AB8E-06A3D46CAA2F",
+      "description": "Active people Rock's giving journey shows as Consistent Givers who are not in Scheduled Givers. They give often by hand, so a recurring gift would make it automatic.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"2\"]"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "scheduled-givers"
+          }
+        ]
+      }
+    },
+    {
+      "key": "occasional-givers",
+      "name": "Occasional Givers",
+      "category": "finance-data-views",
+      "guid": "325E6050-1E85-47DC-B196-D19DD89B58D2",
+      "description": "Active people Rock's giving journey shows as Occasional Givers: a gift in the last 150 days, about every three months or less often.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"3\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "former-givers",
+      "name": "Former Givers",
+      "category": "finance-data-views",
+      "guid": "13E80780-9CE8-4DE1-A628-0D88EE45E51C",
+      "description": "Active people Rock's giving journey shows as Former Givers: people who gave before but fit no other stage, most often because their gifts were rare and stopped long ago.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"5\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "involved-adults-who-never-gave",
+      "name": "Involved Adults Who Never Gave",
+      "category": "finance-data-views",
+      "guid": "FAF21ECA-D60A-45F7-8AA7-356DDD3FB173",
+      "description": "Involved Adults whom Rock's giving journey shows as Non-Givers: they came to worship, joined a group, or served this year, and have never given. It tells who does not give, so it lives in Finance.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "involved-adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.PropertyFilter",
+            "selection": "[\"CurrentJourneyGivingStage\",\"0\"]"
+          }
+        ]
+      }
+    },
+    {
       "key": "top-givers",
       "name": "Top Givers",
       "category": "finance-data-views",
