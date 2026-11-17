@@ -289,7 +289,7 @@ namespace RockSampleData.Loader.Loading
                         familyAttended[familyId] = didAttend;
                     }
 
-                    tables.Attendance.Rows.Add( occurrenceId, member.Person.AliasId, group.CampusId, start, didAttend, Guid.NewGuid(), _foreignKey, start, start );
+                    tables.Attendance.Rows.Add( occurrenceId, member.Person.AliasId, group.CampusId, start, didAttend, RockCheckInStatus.NotPresent, Guid.NewGuid(), _foreignKey, start, start );
                 }
             }
         }
@@ -384,7 +384,7 @@ namespace RockSampleData.Loader.Loading
 
             public DataTable Occurrences { get; } = TableFactory.Create( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "DidNotOccur:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
-            public DataTable Attendance { get; } = TableFactory.Create( "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            public DataTable Attendance { get; } = TableFactory.Create( "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "CheckInStatus:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             /// <summary>
             /// Bulk-copies every table, parents before the rows that point to them.

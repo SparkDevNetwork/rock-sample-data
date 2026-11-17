@@ -147,7 +147,7 @@ namespace RockSampleData.Loader.Loading
             _now = DateTime.Now;
             _searchTypeId = _db.IdByGuid( "DefinedValue", PhoneSearchTypeGuid );
             _occurrences = NewTable( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            _attendance = NewTable( "Id:int", "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "DeviceId:int", "SearchTypeValueId:int", "AttendanceCodeId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "IsFirstTime:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            _attendance = NewTable( "Id:int", "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "DeviceId:int", "SearchTypeValueId:int", "AttendanceCodeId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "IsFirstTime:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             _codes = NewTable( "Id:int", "IssueDateTime:date", "Code:string", "Guid:guid", "ForeignKey:string" );
             _nextOccurrenceId = NextId( "AttendanceOccurrence" );
             _nextAttendanceId = NextId( "Attendance" );
@@ -446,7 +446,7 @@ namespace RockSampleData.Loader.Loading
         private void AddWorship( LoadedPerson adult, CampusPlan plan, ServicePlan service, DateTime sunday, DateTime start )
         {
             var occurrenceId = Occurrence( _configuration.WorshipGroupIdValue, plan.LocationId, service.ScheduleId, sunday );
-            _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, adult.AliasId, plan.CampusId, start, true, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, _attendedBefore.Add( adult.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
+            _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, adult.AliasId, plan.CampusId, start, true, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, RockCheckInStatus.NotPresent, _attendedBefore.Add( adult.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
         }
 
         /// <summary>
@@ -456,7 +456,7 @@ namespace RockSampleData.Loader.Loading
         {
             var occurrenceId = Occurrence( _configuration.CheckInGroupIdsByKey[groupKey], plan.RoomIds[groupKey], service.ScheduleId, sunday );
             _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, person.AliasId, plan.CampusId, start, true,
-                ( object ) _configuration.KioskDeviceId ?? DBNull.Value, ( object ) _searchTypeId ?? DBNull.Value, codeId, checkedInByAliasId, start,
+                ( object ) _configuration.KioskDeviceId ?? DBNull.Value, ( object ) _searchTypeId ?? DBNull.Value, codeId, checkedInByAliasId, start, RockCheckInStatus.Present,
                 _attendedBefore.Add( person.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
 
             if ( !CheckInSundaysByAlias.TryGetValue( person.AliasId, out var checkedIn ) )

@@ -344,7 +344,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
             tables.Attendance.Rows.Add( occurrenceId, person.AliasId, campusId, start, didAttend, rsvp, true, scheduled, confirmationSent, reminderSent, answered, declineReason,
                 scheduledByAliasId.HasValue ? scheduledByAliasId.Value : ( object ) DBNull.Value,
-                checkedIn ? _kioskDeviceId.Value : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present,
+                checkedIn ? _kioskDeviceId.Value : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present, RockCheckInStatus.For( checkedIn ),
                 Guid.NewGuid(), _foreignKey, requested, modified );
         }
 
@@ -394,7 +394,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             public DataTable Occurrences { get; } = TableFactory.Create( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "DidNotOccur:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable Attendance { get; } = TableFactory.Create( "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "RSVP:int", "RequestedToAttend:bool", "ScheduledToAttend:bool",
-                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "DeviceId:int", "SearchTypeValueId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "DeviceId:int", "SearchTypeValueId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             /// <summary>
             /// The team's occurrence for one room, service, and Sunday, added the first time it is needed.

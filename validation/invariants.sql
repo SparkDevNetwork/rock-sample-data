@@ -519,6 +519,13 @@ WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] 
             INNER JOIN [Attribute] AS [at] ON [at].[Id] = [av].[AttributeId]
             WHERE [at].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [s].[Id] AND [av].[Value] = 'True' ) );
 
+-- check: attendance-check-in-status-follows-its-dates
+-- why: Decision D-bugs18-2. Rock's attendance save hook sets the check-in status from the row's dates: Checked Out with an end time, Present with a present time, and Not Present otherwise. Check-in screens read it to show who is in a room, and Rock never leaves it Unknown.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+WHERE [a].[ForeignKey] = @ForeignKey
+    AND [a].[CheckInStatus] <> CASE WHEN [a].[EndDateTime] IS NOT NULL THEN 4 WHEN [a].[PresentDateTime] IS NOT NULL THEN 3 ELSE 2 END;
+
 -- check: young-kid-checks-in-with-the-family
 -- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
