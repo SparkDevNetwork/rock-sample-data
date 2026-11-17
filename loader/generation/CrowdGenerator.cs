@@ -85,13 +85,20 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private readonly HashSet<string> _churchNumbers;
 
+        /// <summary>
+        /// The numbers generated people and businesses get, each once, or null for a package without
+        /// configuration/phones.json, which draws them as before (decision D-bugs18-1).
+        /// </summary>
+        private readonly PhoneNumberPool _phones;
+
         public CrowdGenerator( ProfileTargets profile, SampleDataSource source, string seed, DateTime anchor )
         {
             _profile = profile;
             _source = source;
             _seed = seed;
             _anchor = anchor;
-            _addresses = AddressPool.Load( source.Files, seed, source.ReadHouseholds().Select( h => h.Address ) );
+            var cast = source.ReadHouseholds();
+            _addresses = AddressPool.Load( source.Files, seed, cast.Select( h => h.Address ) );
             _adultAges = PlanAdultAges();
 
             var numbers = source.Communications?.PhoneNumbers;
@@ -99,6 +106,12 @@ namespace RockSampleData.Loader.Generation
                 .Concat( numbers?.CampusPastors.Numbers.Values.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
                 .Select( n => n.StartsWith( "+1", StringComparison.Ordinal ) ? n.Substring( 2 ) : n )
                 .ToHashSet();
+
+            if ( source.Phones != null )
+            {
+                var castNumbers = cast.SelectMany( h => h.Members ).Where( m => m.Phones != null ).SelectMany( m => new[] { m.Phones.Home, m.Phones.Mobile, m.Phones.Work } );
+                _phones = new PhoneNumberPool( source.Phones, seed, castNumbers.Where( n => n != null ).Concat( _churchNumbers ) );
+            }
         }
 
         /// <summary>
@@ -297,18 +310,20 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// A reserved phone number that is not one of the church's texting numbers.
+        /// A reserved phone number no one else has (decision D-bugs18-1). A package without configuration/phones.json
+        /// keeps the number drawn here, a Phoenix number that is not one of the church's texting numbers.
         /// </summary>
         private string PhoneNumber( SeededRandom random )
         {
-            string number;
+            // The household's stream still takes this draw, so every later choice in the household stays where it was.
+            string drawn;
             do
             {
-                number = $"{random.Pick( AreaCodes )}5550{random.Between( 100, 199 )}";
+                drawn = $"{random.Pick( AreaCodes )}5550{random.Between( 100, 199 )}";
             }
-            while ( _churchNumbers.Contains( number ) );
+            while ( _churchNumbers.Contains( drawn ) );
 
-            return number;
+            return _phones?.Next() ?? drawn;
         }
 
         /// <summary>

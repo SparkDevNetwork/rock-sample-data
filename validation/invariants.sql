@@ -8,7 +8,8 @@
     are the dataset card's numbers from datasets/{key}.json, or null when the load used another seed than the
     default, which the card was not measured at. @AdminPersonId is Rock's admin person (Person Id 1), which the load
     turns into a Cast person but leaves without the dataset's ForeignKey (decision 177), so rules about this
-    dataset's people name it alongside @ForeignKey.
+    dataset's people name it alongside @ForeignKey. @AreaCodes is every area code in the package's
+    configuration/phones.json, separated by commas.
 
     Rules that a foreign key or unique index already enforces are left out: the bulk copy checks those.
     "Every family has an adult" is left out on purpose: kids whose parents are not in Rock, and Jenny Greggs's
@@ -99,12 +100,32 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR [p].[BirthDateKey] <> YEAR( [p].[BirthDate] ) * 10000 + MONTH( [p].[BirthDate] ) * 100 + DAY( [p].[BirthDate] ) );
 
 -- check: phones-use-the-reserved-range
--- why: Content standard 2. Phones are 555-0100 to 555-0199 in a Phoenix-area code, so no real person gets a call.
+-- why: Content standard 2. Phones are 555-0100 to 555-0199, which is fictional in every area code, so no real person gets a call. The area code is a US geographic code from configuration/phones.json, never toll-free or special use.
 SELECT COUNT(*)
 FROM [PhoneNumber] AS [pn]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [pn].[PersonId]
 WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
-    AND ( LEN( [pn].[Number] ) <> 10 OR LEFT( [pn].[Number], 3 ) NOT IN ( '602', '480', '623' ) OR SUBSTRING( [pn].[Number], 4, 5 ) <> '55501' );
+    AND ( LEN( [pn].[Number] ) <> 10 OR SUBSTRING( [pn].[Number], 4, 5 ) <> '55501'
+        OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
+
+-- check: phones-are-not-shared-across-households
+-- why: Content standard 2 and decision D-bugs18-1. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+SELECT COUNT( DISTINCT [a].[Number] )
+FROM [PhoneNumber] AS [a]
+INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
+INNER JOIN [PhoneNumber] AS [b] ON [b].[Number] = [a].[Number] AND [b].[PersonId] > [a].[PersonId]
+INNER JOIN [Person] AS [pb] ON [pb].[Id] = [b].[PersonId]
+WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
+    AND ( [pb].[ForeignKey] = @ForeignKey OR [pb].[Id] = @AdminPersonId )
+    AND NOT ( [a].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' )
+        AND [b].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' ) )
+    AND NOT ( [pa].[LastName] = [pb].[LastName] AND [pa].[Email] = [pb].[Email] )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [ga]
+        INNER JOIN [GroupMember] AS [gb] ON [gb].[GroupId] = [ga].[GroupId]
+        WHERE [ga].[PersonId] = [pa].[Id] AND [gb].[PersonId] = [pb].[Id]
+            AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
 
 -- check: emails-use-reserved-domains
 -- why: Content standard 3. Emails use example.org, or rocksolidchurchdemo.com for the sample church's staff.

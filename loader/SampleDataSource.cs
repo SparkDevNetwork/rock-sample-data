@@ -138,6 +138,12 @@ namespace RockSampleData.Loader
         public FlowsConfiguration Flows { get; }
 
         /// <summary>
+        /// The area codes of generated phone numbers, or null in a package built before every generated number was its
+        /// own (decision D-bugs18-1), whose generated numbers are drawn as they were then.
+        /// </summary>
+        public PhoneConfiguration Phones { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -167,6 +173,7 @@ namespace RockSampleData.Loader
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -273,6 +280,8 @@ namespace RockSampleData.Loader
 
         public const string ReportingConfigurationPath = "configuration/reporting.json";
         public const string FlowsConfigurationPath = "configuration/flows.json";
+
+        public const string PhonesConfigurationPath = "configuration/phones.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

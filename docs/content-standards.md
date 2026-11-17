@@ -5,7 +5,7 @@ Every piece of data in this repository follows these rules. Read them before you
 ## Everything is fictional
 
 1. **People, churches, and organizations are fictional.** Employers and businesses use invented names, for example Sonoran Systems or Cholla Creek Hardware. Never name a real church.
-2. **Phones use the reserved range** 555-0100 to 555-0199, with Phoenix-area codes (602, 480, 623). Each person's number is unique unless the story says it is shared (for example, a couple's home phone, or duplicate records).
+2. **Phones use the reserved range** 555-0100 to 555-0199, which is fictional in every area code. The Cast and the church's texting numbers use Phoenix-area codes (602, 480, 623). Generated people and businesses may use any US geographic area code in `configuration/phones.json`, never a toll-free or special-use code. Each person's number is unique unless the story says it is shared: within a household (for example, a couple's home phone), as an office's main line, or between duplicate records of one person.
 3. **Emails use `example.org`.** Staff of the sample church use `rocksolidchurchdemo.com`.
 4. **Addresses use real streets with house numbers that do not exist.** No made-up number may match a real address on any street with that name in that ZIP code. Only `addresses/build-pool.js` makes addresses.
 
@@ -35,7 +35,7 @@ A rule a script can check is a check, not a reminder. Run `node cast/validate-ca
 | Rule | Checked by |
 |---|---|
 | 1. Fictional people and organizations | A reviewer. |
-| 2. Reserved phone numbers | `check-standards.js` (the Cast, including when a number may be shared) and `validation/invariants.sql` (every loaded phone, generated households too). |
+| 2. Reserved phone numbers | `check-standards.js` (the Cast, including when a number may be shared, the church's texting numbers, and every area code in `configuration/phones.json`) and `validation/invariants.sql` (every loaded phone is in the reserved range and a listed area code, and no number is shared across families except as the rule allows). |
 | 3. Reserved email domains | `validate-cast.js`, `check-standards.js` (every data file), and `validation/invariants.sql` (every loaded email). |
 | 4. Addresses with house numbers that do not exist | `addresses/build-pool.js`, the only thing that makes addresses. It needs the county data in `addresses/raw/`, so it runs when the pool is rebuilt. |
 | 5. No raw church data in git | `check-standards.js` (the raw folders hold only their README and `.gitignore`). |

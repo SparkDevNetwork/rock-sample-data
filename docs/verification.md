@@ -59,7 +59,7 @@ These need only Node.js, so every contributor runs them.
 
 **What it does.** `node validation/check-standards.js` checks the [content standards](content-standards.md) that span folders:
 
-- **Rule 2.** Every Cast phone is in the reserved range (555-0100 to 555-0199 in 602, 480, or 623). A number is shared only within a household, as an office line, or between duplicate records. The church's texting numbers in `configuration/communications.json` are reserved too, each is unique, and none is a Cast person's number.
+- **Rule 2.** Every Cast phone is in the reserved range (555-0100 to 555-0199 in 602, 480, or 623, the local codes in `configuration/phones.json`). A number is shared only within a household, as an office line, or between duplicate records. The church's texting numbers in `configuration/communications.json` are reserved too, each is unique, and none is a Cast person's number. Every area code in `configuration/phones.json` is a geographic code, never toll-free or special use, listed once, under a US state or Washington, D.C.
 - **Rule 3.** Every email anywhere in the data uses `example.org` or `rocksolidchurchdemo.com`.
 - **Rule 5.** The raw data folders hold nothing in git but their README and `.gitignore`.
 - **Rule 6.** Calibration sources are named `source-N`, and every source's description is exactly "Calibration source". When it finds a description, it never repeats it, so the check itself cannot leak one.
@@ -145,7 +145,8 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `giving-id-matches-giving-group` | Rock groups gifts by giving Id. A wrong one splits or merges giving units. |
 | `giving-leader-is-in-the-giving-unit` | The giving leader receives the statement. |
 | `birth-date-parts-agree` | Rock stores a birth date three ways, and reports read all three. |
-| `phones-use-the-reserved-range` | Content standard 2, for every loaded phone, generated people too. |
+| `phones-use-the-reserved-range` | Content standard 2, for every loaded phone, generated people too: 555-0100 to 555-0199 in an area code from the package's `configuration/phones.json`. |
+| `phones-are-not-shared-across-households` | Each number belongs to one family. People in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number (decision D-bugs18-1). |
 | `emails-use-reserved-domains` | Content standard 3, for every loaded email. |
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
