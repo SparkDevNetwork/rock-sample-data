@@ -48,7 +48,8 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 - Monthly giver by recurring credit card, with a building campaign line on each gift.
 - Small group leader and serving team member.
 - Completes the whole Discipleship Path, with a program completion.
-- Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert.
+- Staff member with many security roles, logins, all five assessments, and personal notes including an alert. Ted's DISC result is from before the church used Rock's assessments.
+- Cindy has an old Spiritual Gifts result and a pending retake that the Groups Pastor asked for.
 
 ## Activity
 

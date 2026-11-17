@@ -78,7 +78,18 @@ A Cast household's `campaign` entries say how each Built on the Rock pledge must
 
 The check reads the pledge and the campaign gifts of the person's giving unit, and works out the state with the rules in `loader/model/PledgeProgress.cs`: complete, ahead, on pace, behind, stopped, not started, or gifts only. The state must match `expect`, or the state `followThrough` leads to when `expect` is left out.
 
-Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, and step expectations the steps part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
+A Cast person can also say what their assessments should show, with the type keys from `configuration/assessments.json`:
+
+```json
+"expect": { "assessments": { "complete": [ "spiritual-gifts" ], "pending": [ "spiritual-gifts" ] } }
+```
+
+- `complete` lists the types the person has a completed result of, with its values on the person.
+- `pending` lists the types whose latest request is still pending, with a requester.
+
+A story's `leaning` in `assessments` must come out on top, such as Bri Hall's gifts among her dominant gifts, and each legacy DISC result must show exactly the scores in the file (see [Assessments](../docs/assessments.md#the-casts-stories)).
+
+Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step expectations the steps part, and assessment expectations the assessments part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast giving expectations hold on every install day: the verify tool's anchor sweep checks the 60 days from each run's anchor, and `--anchor-sweep 365` a full year (decision 218). They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
@@ -111,7 +122,7 @@ Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 has
 
 ## Rock version guard
 
-The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, and the streak and achievement math. If Rock changes that code, the port goes stale. Two checks catch it.
+The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, the streak and achievement math, and the five assessment scoring services with the reminder job's rules. Verify also scores every assessment answer set with Rock's own services (see [Assessments](../docs/assessments.md#how-it-is-checked)). If Rock changes that code, the port goes stale. Two checks catch it.
 
 ### The lock check (any time)
 

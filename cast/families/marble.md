@@ -34,6 +34,7 @@ Bill owns a local business and leads a small group for people who are new to fai
 - Business owner linked to a business record.
 - Weekly giver with year-end gifts and check images.
 - Leads one small group and belongs to another.
+- Has taken all five assessments.
 
 ## Activity
 

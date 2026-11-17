@@ -2240,3 +2240,126 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR ( [rock].[Numeric] IS NOT NULL AND ( [av].[ValueAsNumeric] IS NULL OR [av].[ValueAsNumeric] <> [rock].[Numeric] ) )
         OR ( [rock].[Date] IS NOT NULL AND ( [av].[ValueAsDateTime] IS NULL OR ABS( DATEDIFF_BIG( MILLISECOND, [av].[ValueAsDateTime], [rock].[Date] ) ) > 4 ) )
         OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );
+
+-- check: assessment-row-has-its-state
+-- why: Decision D-assessments-2. A pending assessment was requested by someone and has no result yet: a requester, a request date, and no completion or answers. A completed one has its completion date. Every completed one has its answers, except a legacy DISC result taken outside Rock's own DISC, with no request.
+SELECT COUNT(*)
+FROM [Assessment] AS [a]
+INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]
+WHERE [a].[ForeignKey] = @ForeignKey
+    AND ( ( [a].[Status] = 0 AND ( [a].[RequesterPersonAliasId] IS NULL OR [a].[RequestedDateTime] IS NULL OR [a].[CompletedDateTime] IS NOT NULL OR [a].[AssessmentResultData] IS NOT NULL ) )
+        OR ( [a].[Status] = 1 AND [a].[CompletedDateTime] IS NULL )
+        OR ( [a].[Status] = 1 AND [a].[AssessmentResultData] IS NULL AND ( [at].[Guid] <> 'A5CB2E3D-118A-41F2-972B-325A328B0B54' OR [a].[RequestedDateTime] IS NOT NULL ) )
+        OR [a].[Status] NOT IN ( 0, 1 ) );
+
+-- check: assessment-results-are-the-persons-attributes
+-- why: Decision D-assessments-1. Rock's assessment pages read a person's results from their person attributes. A person has a type's results exactly when they completed that type, and the save date Rock keeps (DISC and Spiritual Gifts) is their latest completion. The verify tool also scores every answer set with Rock's own services and compares each value.
+WITH [Latest] AS (
+    SELECT [pa].[PersonId], [at].[Guid] AS [TypeGuid], MAX( [a].[CompletedDateTime] ) AS [Completed]
+    FROM [Assessment] AS [a]
+    INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[ForeignKey] = @ForeignKey AND [a].[Status] = 1
+    GROUP BY [pa].[PersonId], [at].[Guid]
+),
+[ResultKeys] AS (
+    SELECT * FROM ( VALUES
+        ( CAST( 'A5CB2E3D-118A-41F2-972B-325A328B0B54' AS UNIQUEIDENTIFIER ), 'PersonalityType', 'LastSaveDate' ),
+        ( CAST( 'B8FBD371-6B32-4BE5-872F-51400D16EC5D' AS UNIQUEIDENTIFIER ), 'core_DominantGifts', 'core_SpiritualGiftsLastSaveDate' ),
+        ( CAST( 'CE7E1986-FDC3-4A3F-9464-26A65D684E29' AS UNIQUEIDENTIFIER ), 'core_ConflictThemeSolving', NULL ),
+        ( CAST( 'DE2D65A3-FC36-4472-B5DF-FAD30EEC27A0' AS UNIQUEIDENTIFIER ), 'core_EQSelfAwareness', NULL ),
+        ( CAST( 'EABE1ABA-4A23-44FF-8C7F-6B71383BED09' AS UNIQUEIDENTIFIER ), 'core_MotivatorsTop5Motivators', NULL ) ) AS [k]( [TypeGuid], [ResultKey], [SaveDateKey] )
+),
+[Values] AS (
+    SELECT [av].[EntityId] AS [PersonId], [a].[Key], [av].[Value]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
+    WHERE [av].[ForeignKey] = @ForeignKey AND [a].[Key] IN ( SELECT [ResultKey] FROM [ResultKeys] UNION SELECT [SaveDateKey] FROM [ResultKeys] WHERE [SaveDateKey] IS NOT NULL )
+)
+SELECT ( SELECT COUNT(*) FROM [Latest] AS [l] INNER JOIN [ResultKeys] AS [k] ON [k].[TypeGuid] = [l].[TypeGuid]
+        WHERE NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[PersonId] = [l].[PersonId] AND [v].[Key] = [k].[ResultKey] AND [v].[Value] <> '' )
+            OR ( [k].[SaveDateKey] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[PersonId] = [l].[PersonId] AND [v].[Key] = [k].[SaveDateKey]
+                AND ABS( DATEDIFF_BIG( MILLISECOND, TRY_CONVERT( DATETIME2, [v].[Value] ), [l].[Completed] ) ) <= 4 ) ) )
+    + ( SELECT COUNT(*) FROM [Values] AS [v] INNER JOIN [ResultKeys] AS [k] ON [k].[ResultKey] = [v].[Key]
+        WHERE NOT EXISTS ( SELECT 1 FROM [Latest] AS [l] WHERE [l].[PersonId] = [v].[PersonId] AND [l].[TypeGuid] = [k].[TypeGuid] ) );
+
+-- check: assessment-retake-waits-its-minimum-days
+-- why: Decision D-assessments-2. Rock lets a person retake an assessment only after its type's MinimumDaysToRetake (365 days for all five), so a person's completed results of one type are at least that far apart.
+WITH [Completed] AS (
+    SELECT [pa].[PersonId], [a].[AssessmentTypeId], [at].[MinimumDaysToRetake], [a].[CompletedDateTime],
+        LAG( [a].[CompletedDateTime] ) OVER ( PARTITION BY [pa].[PersonId], [a].[AssessmentTypeId] ORDER BY [a].[CompletedDateTime] ) AS [Previous]
+    FROM [Assessment] AS [a]
+    INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[ForeignKey] = @ForeignKey AND [a].[Status] = 1
+)
+SELECT COUNT(*) FROM [Completed] WHERE [Previous] IS NOT NULL AND DATEDIFF( DAY, [Previous], [CompletedDateTime] ) < [MinimumDaysToRetake];
+
+-- check: assessment-only-adults
+-- why: Decision D-assessments-2. Only adults take assessments: an adult in their family, 18 or older, and out of high school (the day after June 1 of their graduation year) on the day it was requested or taken. No student or child has one.
+SELECT COUNT(*)
+FROM [Assessment] AS [a]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+CROSS APPLY ( SELECT CAST( ISNULL( [a].[RequestedDateTime], [a].[CompletedDateTime] ) AS DATE ) AS [Day] ) AS [d]
+WHERE [a].[ForeignKey] = @ForeignKey
+    AND ( ( [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [d].[Day] )
+        OR ( [p].[GraduationYear] IS NOT NULL AND [d].[Day] < DATEFROMPARTS( [p].[GraduationYear], 6, 2 ) )
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [GroupMember] AS [gm]
+            INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+            WHERE [gm].[PersonId] = [p].[Id] AND [r].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42' ) );
+
+-- check: assessment-not-after-install-day
+-- why: Every assessment was requested, taken, and reminded on or before the install day, and never taken before it was requested. Only a due date can come later.
+SELECT COUNT(*)
+FROM [Assessment]
+WHERE [ForeignKey] = @ForeignKey
+    AND ( [RequestedDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) OR [CompletedDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) )
+        OR [LastReminderDate] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) OR [CreatedDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) )
+        OR [CompletedDateTime] < [RequestedDateTime] );
+
+-- check: assessment-reminder-follows-the-job
+-- why: Decision D-assessments-3. Rock's Send Assessment Reminders job runs at 8 AM and stamps LastReminderDate on the latest pending requests of each person it emails. A reminder is on a request, at 8 AM, after the day it was requested and before install day, while the request was still pending. And no latest pending request is left overdue: one within its first 60 days was reminded, or requested, less than 8 days before the install day.
+SELECT ( SELECT COUNT(*)
+        FROM [Assessment]
+        WHERE [ForeignKey] = @ForeignKey AND [LastReminderDate] IS NOT NULL
+            AND ( [RequestedDateTime] IS NULL OR CAST( [LastReminderDate] AS TIME ) <> '08:00' OR CAST( [LastReminderDate] AS DATE ) <= CAST( [RequestedDateTime] AS DATE )
+                OR CAST( [LastReminderDate] AS DATE ) >= CAST( GETDATE() AS DATE ) OR [CompletedDateTime] <= [LastReminderDate] ) )
+    + ( SELECT COUNT(*)
+        FROM [Assessment] AS [a]
+        WHERE [a].[ForeignKey] = @ForeignKey AND [a].[Status] = 0
+            AND [a].[Id] = ( SELECT MAX( [b].[Id] ) FROM [Assessment] AS [b] WHERE [b].[PersonAliasId] = [a].[PersonAliasId] AND [b].[AssessmentTypeId] = [a].[AssessmentTypeId] )
+            AND DATEADD( DAY, 60, [a].[RequestedDateTime] ) >= DATEADD( DAY, -1, CAST( GETDATE() AS DATE ) )
+            AND DATEADD( DAY, -1, CAST( GETDATE() AS DATE ) ) >= DATEADD( DAY, 7, CAST( ISNULL( [a].[LastReminderDate], [a].[RequestedDateTime] ) AS DATE ) ) );
+
+-- check: leader-has-disc-and-conflict-profile
+-- why: Decision D-assessments-2. Every current small group and serving team leader who is an adult took DISC and Conflict Profile before leading.
+SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT [gm].[PersonId]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+    WHERE [gm].[ForeignKey] = @ForeignKey
+        AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
+        AND [r].[IsLeader] = 1 AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 AND [g].[IsActive] = 1 AND [g].[IsArchived] = 0
+        AND EXISTS ( SELECT 1 FROM [GroupMember] AS [f] INNER JOIN [GroupTypeRole] AS [fr] ON [fr].[Id] = [f].[GroupRoleId] WHERE [f].[PersonId] = [gm].[PersonId] AND [fr].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42' )
+) AS [leader]
+CROSS JOIN ( VALUES ( CAST( 'A5CB2E3D-118A-41F2-972B-325A328B0B54' AS UNIQUEIDENTIFIER ) ), ( CAST( 'CE7E1986-FDC3-4A3F-9464-26A65D684E29' AS UNIQUEIDENTIFIER ) ) ) AS [t]( [TypeGuid] )
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Assessment] AS [a]
+    INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [pa].[PersonId] = [leader].[PersonId] AND [at].[Guid] = [t].[TypeGuid] AND [a].[Status] = 1 );
+
+-- check: assessment-has-no-workflow
+-- why: Decision D-assessments-2. The Assessment rows fill every screen, so Rock's DISC Request and Request Assessment workflow types stay unused.
+SELECT COUNT(*)
+FROM [Workflow] AS [w]
+INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [w].[WorkflowTypeId]
+WHERE [wt].[Guid] IN ( '885CBA61-44EA-4B4A-B6E1-289041B6A195', '31DDC001-C91A-4418-B375-CAB1475F7A62' );

@@ -81,7 +81,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Event registrations linked to calendar events, with their templates, fees, discounts, and groups.
         /// </summary>
-        Registrations
+        Registrations,
+
+        /// <summary>
+        /// DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators: requests, answers, and results.
+        /// </summary>
+        Assessments
     }
 
     /// <summary>
@@ -158,6 +163,10 @@ namespace RockSampleData.Loader
             every load makes, not from the steps part's rows, so last summer's campers match the camp steps without
             registrations needing steps (decision 206).
 
+            Assessments need steps. Starting Point and Foundations ask their classes to take assessments on the class's
+            own nights, read from the steps part's class steps, and every current leader takes theirs before leading,
+            from the memberships the steps part read back.
+
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
 
@@ -174,6 +183,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
+            new SampleDataPartInfo( SampleDataPart.Assessments, "Assessments", "DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators results for staff, leaders, and class members, with the answers behind them and the requests still waiting.", SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),
             new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),

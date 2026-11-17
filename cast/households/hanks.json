@@ -59,21 +59,7 @@
           "day": 24
         },
         "Employer": "Sonorell Systems",
-        "Position": "Developer",
-        "AdaptiveD": "54",
-        "AdaptiveI": "21",
-        "AdaptiveS": "79",
-        "AdaptiveC": "69",
-        "NaturalD": "42",
-        "NaturalI": "10",
-        "NaturalS": "98",
-        "NaturalC": "98",
-        "LastSaveDate": {
-          "yearsAgo": 6,
-          "month": 7,
-          "day": 4
-        },
-        "PersonalityType": "CS"
+        "Position": "Developer"
       },
       "logins": [
         "shanks"
@@ -89,7 +75,35 @@
           "connector": false,
           "comment": "I'm a developer and happy to help with tech on Sundays."
         }
-      ]
+      ],
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 6,
+                "month": 7,
+                "day": 4
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 54,
+                  "I": 21,
+                  "S": 79,
+                  "C": 69
+                },
+                "natural": {
+                  "D": 42,
+                  "I": 10,
+                  "S": 98,
+                  "C": 98
+                },
+                "personalityType": "CS"
+              }
+            }
+          ]
+        }
+      }
     }
   ]
 }

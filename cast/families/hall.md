@@ -2,7 +2,7 @@
 
 New household · 1 person · Phoenix campus · [source](../households/hall.json)
 
-Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet. She took the Starting Point class on Wednesday nights last month, and now waits as a Pending greeter.
+Brianna Hall is a college freshman. She helped at a community serve day this fall but has not come on a Sunday yet. She took the Starting Point class on Wednesday nights last month, took the Spiritual Gifts assessment it asked for, and now waits as a Pending greeter.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -20,6 +20,7 @@ Brianna Hall is a college freshman. She helped at a community serve day this fal
 - Participant: one in-person touch (a serve day), no Sunday attendance.
 - Young adult living alone.
 - Starting Point Class complete last month and a Serve step In Progress while she waits as a Pending greeter.
+- Spiritual Gifts taken last month, from her Starting Point class, with gifts that fit a greeter: Hospitality, Encouragement, and Service are among her dominant gifts.
 
 ## Activity
 

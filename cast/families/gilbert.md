@@ -30,6 +30,7 @@ Wendy is a district manager at the Greywash Water District, Brian's employer as 
 - Couple with matching connection requests to serve together.
 - Small group that meets in their home.
 - Starting Point Class In Progress, which Serve requires first, so the requests to serve wait on it.
+- Spiritual Gifts requests from their current Starting Point class, still pending, so the assessment badge shows them.
 
 ## Activity
 

@@ -783,6 +783,67 @@
         "loader/loading/RockCheckInStatus.cs"
       ],
       "sha256": "480e3aa745f61f41eb3ef53766df8e9e92c7b6202aa417ade1140e8b99dac94e"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/DiscService.cs",
+      "why": "Rock's DISC scoring: the Most and Least counts, the adaptive and natural constants, the z-score to percentage table, and the personality type. The loader's port scores every DISC answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "1c2a94a78e40cdc09499f576d575cde598e906c80dd72da1571282398e2b8070"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/SpiritualGiftsService.cs",
+      "why": "Rock's Spiritual Gifts scoring: each gift's questions, mean, and standard deviation, and the dominant, supportive, and other gifts. The loader's port scores every Spiritual Gifts answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "536426607a3d3a24a91ed50cfa2b6a4904f9758e05808737f1be9378713a5418"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/ConflictProfileService.cs",
+      "why": "Rock's Conflict Profile scoring: each mode's share of the answers and the three engagement themes. The loader's port scores every Conflict Profile answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "6831aa126d95d9bcbb204b91ac80ef841e16fbcdecc9bb801229ba47322e1343"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/EQInventoryService.cs",
+      "why": "Rock's Emotional Intelligence scoring: each scale's questions, mean, and standard deviation. The loader's port scores every EQ answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "ec8a36015dd25f7645032ed44782f3ad11809f5b1dcb009883651df92ef928da"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/MotivatorService.cs",
+      "why": "Rock's Motivators scoring: each motivator's questions, mean, and standard deviation, the top five, and the theme averages. The loader's port scores every Motivators answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "dc605af1be66199b4395aaacf589b14ae4bf1842a8789a18dbf5e1d494071b3a"
+    },
+    {
+      "path": "Rock/Jobs/SendAssessmentReminders.cs",
+      "why": "Rock's Send Assessment Reminders job: which pending requests it reminds, how often, and for how long. The loader replays it to set each request's LastReminderDate.",
+      "mirroredBy": [
+        "loader/generation/AssessmentPlanner.cs"
+      ],
+      "sha256": "04cb168d317e032c973b3a0d30fff5b4f67fd2f3eb142ad87da63853cf73256d"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/AssessmentService.cs",
+      "why": "The latest assessment of each type, and the latest pending ones the reminder job stamps. The loader's reminder replay follows them.",
+      "mirroredBy": [
+        "loader/generation/AssessmentPlanner.cs"
+      ],
+      "sha256": "1ef65031f055eae5e33ffdb2c0dcb6da0361efd0cb7b8ad06ad5dbf92c115d69"
     }
   ]
 }

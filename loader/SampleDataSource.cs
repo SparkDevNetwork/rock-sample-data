@@ -175,6 +175,7 @@ namespace RockSampleData.Loader
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
             PersonAttributes = Files.Exists( PersonAttributesConfigurationPath ) ? Read<PersonAttributesConfiguration>( PersonAttributesConfigurationPath ) : null;
             Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
+            Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -184,6 +185,13 @@ namespace RockSampleData.Loader
         public PersonAttributesConfiguration PersonAttributes { get; }
 
         public const string PersonAttributesConfigurationPath = "configuration/person-attributes.json";
+
+        /// <summary>
+        /// Who takes Rock's assessments, or null in a package built before assessments.
+        /// </summary>
+        public AssessmentsConfiguration Assessments { get; }
+
+        public const string AssessmentsConfigurationPath = "configuration/assessments.json";
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were

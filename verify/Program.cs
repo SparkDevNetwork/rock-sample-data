@@ -230,6 +230,8 @@ try
             checks.Add( AccessCheck( rock, sql, database, source ) );
             stage = "reports";
             checks.Add( ReportsCheck( rock, sql, database, source ) );
+            stage = "assessment-scores";
+            checks.Add( AssessmentScoresCheck( rock, sql, database, connection ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -559,6 +561,75 @@ static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string databas
 
     // A link column (Person Link, Group Link) builds its URL from the web site's root, which only IIS has.
     return CheckResult.From( "reports", problems.Count == 0 ? $"Rock reads every column of all {lines.Count} reports and renders every Lava column ({webOnly} link columns need the web site)" : "Rock cannot read every report column", problems );
+}
+
+/// <summary>
+/// Scores every assessment's saved answers with Rock's own scoring services (decision D-assessments-1). Each person's latest
+/// result of each type must give exactly the person attribute values the load wrote, and Rock must write the same answer
+/// data. A legacy DISC result has no answers, so the Cast expectations check it instead.
+/// </summary>
+static CheckResult AssessmentScoresCheck( RockRelease rock, SqlServer sql, string database, string connection )
+{
+    var problems = new List<string>();
+    var scored = new Dictionary<int, Dictionary<string, string>>();
+    foreach ( var parts in RockRunner.Run( rock, sql, database, "assessment-scores" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ) )
+    {
+        var id = int.Parse( parts[0] );
+        if ( parts[1] == "error" )
+        {
+            problems.Add( $"Rock could not score assessment {id}: {parts.ElementAtOrDefault( 2 )}" );
+            continue;
+        }
+
+        if ( parts[1] != "same" )
+        {
+            problems.Add( $"Assessment {id}'s answer data is not what Rock's block writes for the same answers" );
+        }
+
+        scored[id] = parts.Skip( 2 ).Select( p => p.Split( '=', 2 ) ).ToDictionary( p => p[0], p => p[1] );
+    }
+
+    using var db = new RockDatabase( connection );
+    var completed = db.Query( @"
+SELECT [a].[Id], [pa].[PersonId], [a].[AssessmentTypeId], [a].[CompletedDateTime], CASE WHEN [a].[AssessmentResultData] IS NULL THEN 0 ELSE 1 END AS [HasAnswers]
+FROM [Assessment] AS [a]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+WHERE [a].[Status] = 1" );
+    var withAnswers = completed.Count( r => Convert.ToInt32( r["HasAnswers"] ) == 1 );
+    if ( withAnswers != scored.Count + problems.Count( p => p.StartsWith( "Rock could not score", StringComparison.Ordinal ) ) )
+    {
+        problems.Add( $"Rock scored {scored.Count} answer sets, but {withAnswers} completed assessments have answers" );
+    }
+
+    var stored = db.Query( @"
+SELECT [av].[EntityId], [a].[Key], [av].[Value]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] AND [et].[Name] = 'Rock.Model.Person'
+WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'NaturalD', 'NaturalI', 'NaturalS', 'NaturalC', 'PersonalityType', 'core_DISCDISCProfile' )
+    OR [a].[Key] LIKE 'core[_]%Gifts' OR [a].[Key] LIKE 'core[_]Conflict%' OR [a].[Key] LIKE 'core[_]EQ%' OR [a].[Key] LIKE 'core[_]Motivator%'" )
+        .ToDictionary( r => (( int ) r["EntityId"], ( string ) r["Key"]), r => r["Value"] as string ?? string.Empty );
+    var latest = completed.GroupBy( r => (( int ) r["PersonId"], ( int ) r["AssessmentTypeId"]) )
+        .Select( g => g.OrderByDescending( r => ( DateTime ) r["CompletedDateTime"] ).ThenByDescending( r => ( int ) r["Id"] ).First() )
+        .Where( r => Convert.ToInt32( r["HasAnswers"] ) == 1 && scored.ContainsKey( ( int ) r["Id"] ) )
+        .ToList();
+    foreach ( var row in latest )
+    {
+        var personId = ( int ) row["PersonId"];
+        foreach ( var (key, value) in scored[( int ) row["Id"]] )
+        {
+            // Rock saves no empty value it had not saved before.
+            var saved = stored.TryGetValue( (personId, key), out var text ) ? text : string.Empty;
+            if ( saved != value && problems.Count < 25 )
+            {
+                problems.Add( $"Person {personId}: Rock scores {key} as \"{value}\" from assessment {row["Id"]}'s answers, the load saved \"{saved}\"" );
+            }
+        }
+    }
+
+    return CheckResult.From( "assessment-scores", problems.Count == 0
+        ? $"Rock's own scoring gives all {scored.Count:N0} saved answer sets the answer data the load wrote, and the latest {latest.Count:N0} results the person attribute values it wrote"
+        : "Rock's own scoring does not agree with the assessments the load wrote", problems );
 }
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )

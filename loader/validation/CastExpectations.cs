@@ -135,6 +135,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
+
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
             checks += CheckPersonAttributes( db, source, failures );
