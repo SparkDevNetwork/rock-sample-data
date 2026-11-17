@@ -167,6 +167,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Group sync keeps lists current.** Five data views, filed in the church's own category tree, keep the Volunteers and Small Group Leaders lists, the RSR - Prayer Access role, and the New Here and We Miss You care lists in step. See [Group sync](docs/communications.md#group-sync).
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
+- **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
 
 ## What is where
 

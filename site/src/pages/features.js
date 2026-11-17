@@ -292,6 +292,17 @@ module.exports = function features( { model } ) {
         }
     ];
 
+    // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
+    const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
+    const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );
+    const assessmentsArea = {
+        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.", sand: true,
+        text: html`Rock's ${assessments.types.length} assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators. Most staff took all of them, every leader took DISC and Conflict Profile before leading, and each Starting Point class asks for Spiritual Gifts, which ${startingPoint.percentFinished}% finish. Every result comes from a full set of answers, scored the way Rock scores them.`,
+        checks: [ "Requests still pending from the current classes, with reminders where Rock's job would leave them", "Answers and results that always agree, checked against Rock's own scoring", "Results as person attributes, ready for data views" ],
+        look: [ html`The Assessments badge on ${person( model, "Ted Decker" )}'s profile`, html`${person( model, "Bri Hall" )}'s Spiritual Gifts, which fit a greeter`, html`${person( model, "Ty McClintock" )} and ${person( model, "Paul Smith" )}'s DISC results, side by side` ],
+        links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
+    };
+
     return {
         file: "features.html",
         active: "features",
@@ -311,11 +322,13 @@ module.exports = function features( { model } ) {
     <nav class="feature-index" aria-label="Features on this page">
       ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
       <a href="#data-views-and-reports">Data views and reports</a>
+      <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
     </nav>
   </div>
 </section>
 ${areas.map( area )}
 ${reporting( model )}
+${area( assessmentsArea )}
 `
     };
 };

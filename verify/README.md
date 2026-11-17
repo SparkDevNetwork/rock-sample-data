@@ -52,6 +52,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `metrics` | Each path metric's newest value equals Rock's count of its stage view, less the people who first reached the stage after that value. A SQL count of the stage rule must also equal Rock's count. |
 | `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`): which Cast person may view or edit which category, data view, or report. |
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
+| `assessment-scores` | Rock's own five assessment scoring services score every saved answer set, and give each person's latest results exactly the person attribute values the load wrote. Rock's own serializer writes the same answer data ([Assessments](../docs/assessments.md#how-it-is-checked)). |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
 

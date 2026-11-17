@@ -7,6 +7,7 @@ The words this project uses, in alphabetical order.
 | **Achievement attempt** | One try at an achievement in Rock. It is open while it can still grow, and closed when it succeeds or a streak breaks. Check-in shows the open ones as in progress. |
 | **Achievement type** | Something a person can earn in Rock, such as Century Club. Each one reads a streak type and has a goal. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day: today on the database server. Tests pin it with `--anchor`. |
+| **Assessment** | One of Rock's five personal assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, or Motivators. A request waits as Pending, a result is Complete with its answers, and the scores are person attributes. See [Assessments](assessments.md). |
 | **Built on the Rock** | The sample church's two-year building campaign, about 38% through on install day. Its fund has a campus account per campus. See [Pledges](pledges.md). |
 | **Business contact** | A person linked to a business record in Rock's Known Relationships. Business Detail lists the contacts, and each contact's Known Relationships shows the business. |
 | **Blackout date** | Days a volunteer is away, set in Rock's schedule toolbox. Nobody is scheduled to serve inside them. |
