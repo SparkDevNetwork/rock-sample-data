@@ -56,9 +56,9 @@ namespace RockSampleData.Loader.Loading
         private readonly SampleDataSource _source;
         private readonly string _foreignKey;
         private readonly DateTime _runAt;
-        private readonly Dictionary<string, List<RockGift>> _gifts;
+        private readonly GiftTimeline _gifts;
 
-        public GivingAlertsLoader( RockDatabase db, SampleDataSource source, string foreignKey, DateTime runAt, Dictionary<string, List<RockGift>> gifts )
+        public GivingAlertsLoader( RockDatabase db, SampleDataSource source, string foreignKey, DateTime runAt, GiftTimeline gifts )
         {
             _db = db;
             _source = source;
@@ -144,24 +144,26 @@ VALUES ( @Name, @AlertType, @ContinueIfMatched, @RepeatPreventionDuration, @Freq
         private List<Alert> Replay( List<(string Name, AlertTypeRules Rules, bool IsLate)> alertTypes, DateTime firstNight )
         {
             var allAlerts = new List<Alert>();
-            var alertsByUnit = _gifts.Keys.ToDictionary( k => k, _ => new List<Alert>() );
-            var metricsCache = new Dictionary<(string Unit, int AlertTypeId), (int Lo, int Hi, AlertMetrics Metrics)>();
+            var units = _gifts.GivingIds.ToList();
+            var alertsByUnit = units.ToDictionary( k => k, _ => new List<Alert>() );
+            var metricsCache = new Dictionary<(string Unit, int AlertTypeId), (List<RockGift> Gifts, int Lo, int Hi, AlertMetrics Metrics)>();
 
-            // The night each gift is first seen: Rock's 10pm run on or after it.
-            var unitsByNight = _gifts
-                .SelectMany( u => u.Value.Select( g => (Unit: u.Key, Night: g.When <= g.When.Date.AddHours( 22 ) ? g.When.Date.AddHours( 22 ) : g.When.Date.AddDays( 1 ).AddHours( 22 )) ) )
+            // The night each gift is first seen: Rock's 10pm run on or after it. Each night reads the gifts as they
+            // stood then, so a gift refunded later still counts on the nights before its refund.
+            var unitsByNight = units
+                .SelectMany( u => _gifts.Arrived( u ).Select( g => (Unit: u, Night: GiftTimeline.NightOf( g.When )) ) )
                 .GroupBy( x => x.Night )
                 .ToDictionary( g => g.Key, g => g.Select( x => x.Unit ).Distinct().ToList() );
 
             AlertMetrics Metrics( string unit, AlertTypeRules alertType, List<RockGift> unitGifts, int lo, int hi )
             {
-                if ( metricsCache.TryGetValue( (unit, alertType.Id), out var cached ) && cached.Lo == lo && cached.Hi == hi )
+                if ( metricsCache.TryGetValue( (unit, alertType.Id), out var cached ) && ReferenceEquals( cached.Gifts, unitGifts ) && cached.Lo == lo && cached.Hi == hi )
                 {
                     return cached.Metrics;
                 }
 
                 var metrics = ComputeMetricsForAlertType( alertType, unitGifts.GetRange( lo, hi - lo ) );
-                metricsCache[(unit, alertType.Id)] = (lo, hi, metrics);
+                metricsCache[(unit, alertType.Id)] = (unitGifts, lo, hi, metrics);
                 return metrics;
             }
 
@@ -183,7 +185,7 @@ VALUES ( @Name, @AlertType, @ContinueIfMatched, @RepeatPreventionDuration, @Freq
                 // Recent gifts: units with a gift since last night (ProcessRecentTxnAlertsPerGivingId).
                 foreach ( var unit in unitsByNight.GetValueOrDefault( now ) ?? new List<string>() )
                 {
-                    var unitGifts = _gifts[unit];
+                    var unitGifts = _gifts.AsOf( unit, now );
                     var (lo, hi) = Window( unitGifts, oneYearAgo, now );
                     var recentAlerts = alertsByUnit[unit].Where( a => a.AlertDateTime > oneYearAgo ).ToList();
                     var window = unitGifts.GetRange( lo, hi - lo );
@@ -229,8 +231,9 @@ VALUES ( @Name, @AlertType, @ContinueIfMatched, @RepeatPreventionDuration, @Freq
                 var excluded = new HashSet<string>();
                 foreach ( var (_, alertType, _) in alertTypes.Where( t => t.IsLate ) )
                 {
-                    foreach ( var (unit, unitGifts) in _gifts )
+                    foreach ( var unit in units )
                     {
+                        var unitGifts = _gifts.AsOf( unit, now );
                         var (lo, hi) = Window( unitGifts, oneYearAgo, now );
                         if ( hi == lo || excluded.Contains( unit ) )
                         {

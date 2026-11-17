@@ -71,7 +71,7 @@ namespace RockSampleData.Loader.Loading
         /// Sets up the programs and their step types, plans every step from what earlier steps wrote, and writes it.
         /// </summary>
         /// <param name="studentPath">The Student Path planned for this load, whose camp, trip, decision, and Student Leader steps are copied.</param>
-        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, GiftTimeline gifts, DateTime finalJourneyRun )
         {
             var config = _source.Steps;
             if ( config == null )
@@ -279,7 +279,7 @@ VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now
 
         #region Facts
 
-        private StepFacts ReadFacts( StepsConfiguration config, PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        private StepFacts ReadFacts( StepsConfiguration config, PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, GiftTimeline gifts, DateTime finalJourneyRun )
         {
             var yearAgo = _dates.Anchor.AddMonths( -12 );
             var facts = new StepFacts
@@ -288,7 +288,7 @@ VALUES ( @Name, @ProgramId, @IsComplete, @Color, 1, @Order, 0, @Guid, @Now, @Now
                 HistoryStart = _historyStart,
                 FinalJourneyRun = finalJourneyRun,
                 Memberships = ReadMemberships(),
-                GiftDatesByGivingId = gifts.ToDictionary( g => g.Key, g => g.Value.Select( gift => gift.When ).OrderBy( d => d ).ToList() ),
+                Gifts = gifts,
                 OpenServeRequests = _db.Query( @"
 SELECT DISTINCT [pa].[PersonId]
 FROM [ConnectionRequest] AS [cr]
@@ -302,7 +302,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
             {
                 var isCast = castHouseholdKeys.Contains( household.Cast.Key );
                 var attended = attendance.FamilySundays.TryGetValue( household.FamilyId, out var sundays ) && sundays.Any( s => s >= yearAgo );
-                var gave = person.GivingId != null && gifts.TryGetValue( person.GivingId, out var unitGifts ) && unitGifts.Any( g => g.When >= yearAgo );
+                var gave = person.GivingId != null && gifts.Now.TryGetValue( person.GivingId, out var unitGifts ) && unitGifts.Any( g => g.When >= yearAgo );
                 var stepPerson = StepPerson.From( household, person, isCast );
                 stepPerson.GivingId = person.GivingId;
                 stepPerson.IsActiveAdult = person.IsAdult && person.CanAttend && person.BirthDate.HasValue && ( attended || gave || inSmallGroup.Contains( person.PersonId ) );

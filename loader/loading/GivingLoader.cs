@@ -38,7 +38,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// Generates batches, transactions, transaction details, payment details, and scheduled transactions.
     /// </summary>
-    internal sealed class GivingLoader
+    internal sealed partial class GivingLoader
     {
         private static readonly Guid ContributionGuid = new Guid( "2D607262-52D6-4724-910D-5C6E8FB89ACC" );
 
@@ -141,10 +141,11 @@ namespace RockSampleData.Loader.Loading
         private string _openBatchLine;
 
         /// <summary>
-        /// Plans every gift and fills <see cref="CheckGifts"/> and <see cref="QualifyingGifts"/>. Prayer reads
-        /// the plan even when giving is not written, so planning never depends on the parts chosen.
+        /// Plans every gift and refund, and fills <see cref="CheckGifts"/>, <see cref="QualifyingGifts"/>, and
+        /// <see cref="Gifts"/>. Prayer reads the plan even when giving is not written, so planning never depends on
+        /// the parts chosen. <paramref name="castHouseholdKeys"/> are the Cast's households, whose refunds are designed.
         /// </summary>
-        public void Plan( List<LoadedHousehold> households )
+        public void Plan( List<LoadedHousehold> households, HashSet<string> castHouseholdKeys )
         {
             var now = DateTime.Now;
             var contributionId = DefinedValueId( ContributionGuid );
@@ -165,8 +166,9 @@ namespace RockSampleData.Loader.Loading
             var nextDetailId = NextId( "FinancialTransactionDetail" );
             var batchIds = new Dictionary<(DateTime Date, int Campus, string Kind), int>();
             var batchTotals = new Dictionary<int, (decimal Amount, int Count)>();
-            var taxDeductibleAccountIds = _db.Query( "SELECT [Id] FROM [FinancialAccount] WHERE [IsTaxDeductible] = 1" ).Select( r => ( int ) r["Id"] ).ToHashSet();
+            _taxDeductibleAccountIds = _db.Query( "SELECT [Id] FROM [FinancialAccount] WHERE [IsTaxDeductible] = 1" ).Select( r => ( int ) r["Id"] ).ToHashSet();
             var qualifying = new List<RockGift>();
+            var plannedGifts = new List<PlannedGift>();
 
             foreach ( var household in households )
             {
@@ -249,20 +251,18 @@ namespace RockSampleData.Loader.Loading
                             !isManual, isManual ? DBNull.Value : ( object ) date.AddDays( 1 ), false, SundayCalendar.SundayOnOrAfter( date ), int.Parse( date.ToString( "yyyyMMdd" ) ),
                             Guid.NewGuid(), _foreignKey, gift.When, gift.When );
 
+                        var lines = new List<DataRow>();
                         foreach ( var amount in gift.Amounts )
                         {
-                            details.Rows.Add( nextDetailId++, transactionId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gift.When, gift.When );
+                            lines.Add( details.Rows.Add( nextDetailId++, transactionId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gift.When, gift.When ) );
                         }
 
-                        // The same rule as Rock's GetGivingAutomationSourceTransactionQuery: a contribution with a line in a
-                        // tax-deductible account and a positive line. Amounts get the database's two decimal places, so
-                        // values Rock prints from them (median, IQR) read the same as when read back from the database.
-                        if ( gift.Amounts.Keys.Any( taxDeductibleAccountIds.Contains ) && gift.Amounts.Values.Any( a => a > 0 ) )
+                        if ( RockGiftFor( transactionId, giver, gift.When, !isManual, gift.Currency, gift.ScheduleIndex.HasValue, gift.Amounts ) is { } rockGift )
                         {
-                            qualifying.Add( new RockGift( transactionId, giver.AliasId, giver.GivingId, giver.CampusId, gift.When,
-                                DefinedValueId( isManual ? OnsiteSourceGuid : PaymentMethods.WebsiteSourceGuid ), _payments.CurrencyId( gift.Currency ), gift.ScheduleIndex.HasValue,
-                                gift.Amounts.Where( a => a.Value != 0 ).OrderBy( a => a.Key ).Select( a => (a.Key, a.Value + 0.00m) ).ToList() ) );
+                            qualifying.Add( rockGift );
                         }
+
+                        plannedGifts.Add( new PlannedGift( transactionId, transactionRow, lines, batchId, household, giver, pattern, wallet, gift, !isManual ) );
 
                         if ( gift.Currency == "Check" )
                         {
@@ -276,10 +276,16 @@ namespace RockSampleData.Loader.Loading
             var unmatched = LeaveRecentCheckBatchUnmatched( batches, batchIds );
             qualifying.RemoveAll( g => unmatched.Contains( g.Id ) );
 
+            // Refunds come after every gift, from streams of their own, so the gifts are the same with or without them.
+            var ids = new GiftIds { Batch = nextBatchId, PaymentDetail = nextPaymentId, Transaction = nextTransactionId, Detail = nextDetailId };
+            var refunded = PlanRefunds( households, plannedGifts.Where( g => !unmatched.Contains( g.TransactionId ) ).ToList(), castHouseholdKeys, ids,
+                paymentDetails, transactions, details, batchTotals, gatewayId as int?, contributionId, qualifying );
+
             // By giving unit and in date order, the way giving analytics reads them from the database.
             QualifyingGifts = qualifying
                 .GroupBy( g => g.GivingId )
                 .ToDictionary( g => g.Key, g => g.OrderBy( x => x.When ).ThenBy( x => x.Id ).ToList() );
+            Gifts = new GiftTimeline( QualifyingGifts, refunded );
 
             AssignCheckNumbers();
             var bankAccounts = CheckWriterBankAccounts( now );
@@ -300,6 +306,11 @@ namespace RockSampleData.Loader.Loading
                 ("FinancialTransaction", transactions),
                 ("FinancialTransactionDetail", details)
             };
+            if ( _refunds != null )
+            {
+                _planned.AddRange( _refunds.Tables );
+            }
+
             if ( bankAccounts != null )
             {
                 _planned.Add( ("FinancialPersonBankAccount", bankAccounts) );
@@ -321,9 +332,14 @@ namespace RockSampleData.Loader.Loading
                 _db.BulkInsert( table, rows, keepIdentity: true );
             }
 
-            var tables = _planned.ToDictionary( p => p.Table, p => p.Rows );
+            // The gifts' own tables come first; the refunds' tables follow them.
+            var tables = _planned.GroupBy( p => p.Table ).ToDictionary( g => g.Key, g => g.First().Rows );
             var dollars = tables["FinancialTransactionDetail"].AsEnumerable().Sum( r => ( decimal ) r["Amount"] );
             _db.Log.Write( $"  Gifts: {tables["FinancialTransaction"].Rows.Count:N0} (${dollars:N0}) in {tables["FinancialBatch"].Rows.Count:N0} batches, scheduled gifts: {tables["FinancialScheduledTransaction"].Rows.Count:N0}" );
+            if ( _refundLine != null )
+            {
+                _db.Log.Write( _refundLine );
+            }
         }
 
         /*

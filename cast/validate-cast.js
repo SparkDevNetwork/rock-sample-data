@@ -63,6 +63,7 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
 const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.giving.properties.expect.properties;
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
 const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "giving-alert-types.json" ), "utf8" ) ).alertTypes.map( t => t.key );
+const REFUND_KIND_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "refunds.json" ), "utf8" ) ).kinds.map( k => k.key );
 const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
 const CAMPAIGN_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.campaign.properties;
 const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campaign.json" ), "utf8" ) ).commitmentSundayWeeksBeforeInstall;
@@ -486,6 +487,20 @@ for ( const { file, data: h } of households ) {
         for ( const alert of expect.alerts || [] ) {
             if ( !ALERT_TYPE_KEYS.includes( alert ) ) {
                 errors.push( `${file}: giving for "${gv.person}" expects alert "${alert}", which is not in configuration/giving-alert-types.json.` );
+            }
+        }
+
+        // A designed refund names a kind in configuration/refunds.json and a day. A refund of an online gift needs a
+        // pattern that gives online on every install day, so it names card or ach.
+        for ( const refund of gv.refunds || [] ) {
+            if ( !REFUND_KIND_KEYS.includes( refund.kind ) ) {
+                errors.push( `${file}: a refund for "${gv.person}" has kind "${refund.kind}", which is not in configuration/refunds.json.` );
+            }
+            if ( [ "duplicate", "incorrect-amount" ].includes( refund.kind ) && ![ "card", "ach" ].includes( gv.currency ) ) {
+                errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds an online gift, so the pattern's currency must be card or ach.` );
+            }
+            if ( refund.near === undefined ) {
+                errors.push( `${file}: a refund for "${gv.person}" needs a near date.` );
             }
         }
     }
