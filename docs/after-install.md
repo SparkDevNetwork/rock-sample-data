@@ -10,7 +10,7 @@ It covers Rock 21.0.2 and Rock 20.0.10. Both ship the same 56 jobs, with the sam
 2. **Run Family Analytics once if you want eRA.** It ships turned off, and the load does not fill eRA yet. Turn off its Set Visit Dates setting first. See [Run after install](#run-after-install).
 3. **Run Calculate Person Duplicates, Calculate Peer Network, and Process BI Analytics now** if you want the Duplicate Finder, peer networks, or Rock's analytics tables on day one. They are on, but their first run is that night or later.
 4. **Turn off Location Services Verify** on a sample site. Otherwise it sends the sample addresses to an address service every night. See [Be careful](#be-careful).
-5. **Keep real email and texting off** unless you mean to send. A few reminders reach Cast staff at `rocksolidchurchdemo.com`, a real domain.
+5. **Keep real email and texting off** unless you mean to send. Reminders that do send reach only `example.org` and the Cast staff's `rocksolidchurchdemo.com`, a domain Spark owns for the sample church with no mailbox attached.
 
 ## How a sample database ages
 
@@ -60,7 +60,7 @@ These jobs fill something the load leaves empty. Each one says whether it is on 
    - Run it now, or wait for 3 AM. Issue [#1](https://github.com/SparkDevNetwork/rock-sample-data/issues/1) would score the Cast's pairs during the load and add merges and merge requests.
 3. **Calculate Peer Network.** On by default, at 2:05 AM on the 1st of each month. It fills each person's peer network from the groups they share with others.
    - **History: yes.** It reads each membership's start and end dates, so years of shared groups count.
-   - Without a run, profiles show no peer network until the 1st of next month. No issue covers loading it yet.
+   - Without a run, profiles show no peer network until the 1st of next month. Issue [#17](https://github.com/SparkDevNetwork/rock-sample-data/issues/17) would load it.
 4. **Process BI Analytics.** On by default, every night at 5 AM. It fills Rock's analytics tables, which analytics reports and outside reporting tools read.
    - **History: partly.** Gifts and attendance are copied for all of history. People and families get a snapshot as of the day it runs, so their history starts that day.
    - Run it now only if you need these tables before morning.
@@ -82,7 +82,7 @@ These jobs are on. They fill or refresh data on their schedule, with nothing nee
 
 ## Be careful
 
-These jobs can send email, texts, or push, or reach an outside service. The sample data keeps people on reserved contact points: emails on `example.org`, phones in the 555-0100 to 555-0199 range, and push tokens that start with `sample-data-` (decisions 13 and 95, and [content standards](content-standards.md) rules 2 and 3). The exception is the Cast staff, whose emails are on `rocksolidchurchdemo.com`, a real domain with live mail servers (decision 220).
+These jobs can send email, texts, or push, or reach an outside service. The sample data keeps people on reserved contact points: emails on `example.org`, phones in the 555-0100 to 555-0199 range, and push tokens that start with `sample-data-` (decisions 13 and 95, and [content standards](content-standards.md) rules 2 and 3). Cast staff use `rocksolidchurchdemo.com`, a domain Spark owns for the sample church, with no mailbox attached.
 
 > **Warning:** A message leaves Rock only through the email, SMS, or push transport your Rock uses. On a sample site, leave real transports off, or use a test transport that keeps the mail.
 
@@ -99,7 +99,7 @@ These jobs can send email, texts, or push, or reach an outside service. The samp
 8. **Spark Link.** On, every 7 hours. Every Rock sends Spark its organization name, address, public URL, and count of person records. A sample database sends the sample people's count.
 9. **Only if you set them up.** Chat Sync reaches Rock's chat service only when chat is configured. Sync Media reaches a media account only when one is added. Download Payments is off, and the sample's scheduled gifts use Rock's Test Gateway. Send Following Event Notification and Send Following Suggestion Notification email staff, and Communication Queue Alert emails its recipients. All four are off by default, so leave them off.
 
-If your site can send real email, turn off items 2 to 4, or keep its email on a test transport.
+Items 2 to 4 reach only `example.org` and the staff domain, so no real person gets them. If your site can send real email, you can still turn them off, or keep its email on a test transport.
 
 ## Nothing to do yet
 
