@@ -179,6 +179,8 @@ namespace RockSampleData.Builder
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".json" );
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".html" );
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".png" );
+            AddFolder( EmailSectionLibrary.Folder, ".html" );
+            AddFolder( EmailSectionLibrary.Folder, ".png" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".json" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".lava" );
             AddFile( "LICENSE.md" );
@@ -290,6 +292,17 @@ namespace RockSampleData.Builder
             foreach ( var path in new[] { template?.Html, template?.Logo, source.Communications?.WizardTemplate?.Html }.Where( p => p != null && !files.Exists( p ) ) )
             {
                 throw new InvalidOperationException( $"configuration/communications.json names {path}, but the file is missing." );
+            }
+
+            // Each email section's markup and thumbnails, which make-sections.js builds (decision D-snippets-3).
+            var datasets = source.Campuses.Campuses.SelectMany( c => c.Datasets ).Distinct();
+            foreach ( var section in source.ReadEmailSectionLibrary()?.Sections ?? new List<EmailSectionDefinition>() )
+            {
+                var thumbnails = section.ServiceTimes ? datasets.Select( d => $"{section.Key}-{d}.png" ) : new[] { $"{section.Key}.png" };
+                foreach ( var path in thumbnails.Prepend( $"{section.Key}.html" ).Select( f => $"{EmailSectionLibrary.Folder}/{f}" ).Where( p => !files.Exists( p ) ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.EmailSectionsPath} has the section {section.Key}, but {path} is missing. Run content/communications/email-sections/make-sections.js." );
+                }
             }
 
             source.ReadProfile();

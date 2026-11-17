@@ -510,6 +510,14 @@
       "description": "Replies about what is coming up: baptism Sunday, sign-ups, and event details.",
       "iconCssClass": "ti ti-calendar-event",
       "guid": "1F1E1072-E746-4D71-B5BC-22FDCDF415BF"
+    },
+    {
+      "key": "church-email-sections",
+      "entityType": "Rock.Model.EmailSection",
+      "name": "Rock Solid Church",
+      "description": "The church's own email sections for Rock's email editor, styled like its branded template.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "C01161FA-7738-43C2-AC85-321AD5AB145D"
     }
   ]
 }

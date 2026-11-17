@@ -125,6 +125,10 @@ namespace RockSampleData.Loader.Loading
                 emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
             }
 
+            // The email editor's sections list each campus's service times, which bulk email worked out.
+            var church = people.People.TryGetValue( configuration.Senders.Church.Sender, out var sender ) ? sender.AliasId : ( int? ) null;
+            new EmailSectionsLoader( _db, _source, _dataset, _foreignKey ).Load( emails.CampusList, church );
+
             // Snippets are made before the texts that use their words. Texts reach list members who did not leave from
             // an email, so they follow email.
             var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );

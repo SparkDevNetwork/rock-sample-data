@@ -365,6 +365,13 @@ namespace RockSampleData.Loader
         /// </summary>
         public SnippetLibrary ReadSnippetLibrary() => Files.Exists( SnippetsPath ) ? Read<SnippetLibrary>( SnippetsPath ) : null;
 
+        public const string EmailSectionsPath = CommunicationsContentFolder + "/email-sections.json";
+
+        /// <summary>
+        /// Reads the church's email sections, or null for a package built before they existed.
+        /// </summary>
+        public EmailSectionLibrary ReadEmailSectionLibrary() => Files.Exists( EmailSectionsPath ) ? Read<EmailSectionLibrary>( EmailSectionsPath ) : null;
+
         public const string CastThreadsPath = "cast/sms-threads.json";
 
         /// <summary>

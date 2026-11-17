@@ -304,6 +304,66 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// content/communications/email-sections.json: the church's sections for Rock's newer email editor. Their markup is in
+    /// content/communications/email-sections/, built from this file by make-sections.js.
+    /// </summary>
+    internal sealed class EmailSectionLibrary
+    {
+        /// <summary>
+        /// The folder that holds each section's markup and thumbnail.
+        /// </summary>
+        public const string Folder = SampleDataSource.CommunicationsContentFolder + "/email-sections";
+
+        /// <summary>
+        /// The token a section's markup holds where each of the dataset's campuses and its service times go.
+        /// </summary>
+        public const string CampusServiceTimesToken = "{campusServiceTimes}";
+
+        /// <summary>
+        /// A Rock.Model.EmailSection category's key in configuration/categories.json.
+        /// </summary>
+        public string Category { get; set; }
+
+        public List<EmailSectionDefinition> Sections { get; set; } = new List<EmailSectionDefinition>();
+    }
+
+    internal sealed class EmailSectionDefinition
+    {
+        public string Key { get; set; }
+
+        public string Name { get; set; }
+
+        public string UsageSummary { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public Guid ThumbnailGuid { get; set; }
+
+        /// <summary>
+        /// The calendar event photo the section shows, or null.
+        /// </summary>
+        public EmailSectionImage Image { get; set; }
+
+        /// <summary>
+        /// The section lists each of the dataset's campuses with its service times, so it has a thumbnail per dataset.
+        /// </summary>
+        public bool ServiceTimes { get; set; }
+    }
+
+    internal sealed class EmailSectionImage
+    {
+        /// <summary>
+        /// The calendar event whose approved photo it shows, in photos/events/manifest.json.
+        /// </summary>
+        public string Event { get; set; }
+
+        /// <summary>
+        /// The Guid of the Rock file the section's image component points at.
+        /// </summary>
+        public Guid Guid { get; set; }
+    }
+
+    /// <summary>
     /// cast/staff-emails.json: personal emails from Cast staff to Cast people.
     /// </summary>
     internal sealed class CastStaffEmailFile

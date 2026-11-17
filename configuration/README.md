@@ -59,6 +59,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
 | Adaptive messages | Rock Solid Church, under Rock's All Church category (`parentGuid`) | The five adaptive messages in `adaptive-messages.json` |
 | SMS snippets | Guests, Kids Check-in, Students, Care, and Events, each at the top level, as SMS Conversations' snippet picker groups them | The snippets in `content/communications/snippets.json` (decision D-snippets-1) |
+| Email sections | Rock Solid Church, beside Rock's Starter Sections | The four sections in `content/communications/email-sections.json` (decision D-snippets-3) |
 
 To add rows of a new kind or for a new purpose:
 

@@ -38,6 +38,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
+| [Email sections](#email-sections) | Verify tool | Rock's own save rules accept every email section the load wrote. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
@@ -302,6 +303,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** `verify/rock-runner` renders Rock's own `{% adaptivemessage %}` Lava command, with the command enabled and views not tracked, for each Cast row in `configuration/adaptive-messages.json`: the person and the message. Rock finds the person's segments in the database, as it does on a page with no segment cookie, and shows the first adaptation that fits. Each must be the row's adaptation, with its call to action. Rock's answer for Ted Decker, Jordan Ellis, Margaret Carter, and the other Giving layer stories proves each lands in its layer by Rock's own rule. Then it renders the External Website homepage block for each of them, as the block renders it for the signed-in person, and the page must show the row's call to action.
 
 **Why it's there.** The loader writes the segments, adaptations, and attribute values with SQL. Only Rock's own Lava engine proves a page shows each person what the design says.
+
+### Email sections
+
+**What it does.** `verify/rock-runner` loads every email section with Rock's own EmailSectionService and checks it the way Rock saves one from its email editor: the model's own validation, such as a name of at most 100 characters, then the string validation Rock's editor runs on a section's markup, with Rock's Lava and basic HTML rules. Each section must pass, and every section in `content/communications/email-sections.json` must be there (decision D-snippets-3).
+
+**Why it's there.** The loader writes a section's markup with SQL, and Rock never checks it then. A section Rock would refuse to save could not be edited and saved again in the editor. Only Rock's own rules prove a staff member can change it.
 
 ### Segments
 

@@ -17,7 +17,7 @@
 
 /*
     Checks the message library in this folder against README.md: series.json, newsletter.json,
-    emails.json, texts.json, conversations.json, and snippets.json. For each entry it checks the required and allowed keys, unique
+    emails.json, texts.json, conversations.json, snippets.json, and email-sections.json. For each entry it checks the required and allowed keys, unique
     keys, known occasions, audiences, topics, senders, lines, and mediums, the Lengths table,
     the allowed tokens and the one Lava merge field, links and button paths, email domains,
     plain characters, and no two entries in one list that start with the same five words. It also checks that the
@@ -84,8 +84,16 @@ const LENGTHS = {
     pushText: { min: 20, max: 120 },
     reply: { min: 2, max: 120 },
     conversation: { min: 2, max: 300 },
-    snippetName: { min: 3, max: 100 }
+    snippetName: { min: 3, max: 100 },
+    sectionName: { min: 3, max: 100 },
+    usageSummary: { min: 20, max: 500 }
 };
+
+// email-sections.json: the site the markup's links point at (loader/generation/MessageRenderer.cs), and the token the
+// loader fills with each of the dataset's campuses and its service times.
+const SITE = "https://rocksolidchurchdemo.com";
+const CAMPUS_SERVICE_TIMES = "{campusServiceTimes}";
+const EVENT_PHOTOS = JSON.parse( fs.readFileSync( path.join( libraryDir, "..", "..", "photos", "events", "manifest.json" ), "utf8" ) ).images;
 
 // snippets.json: its own tokens, filled at load, and the owner that gives each campus pastor a copy.
 const SNIPPET_TOKENS = [ "{campus}", "{serviceTimes}", "{staff}" ];
@@ -893,6 +901,112 @@ if ( snippetsFile && checkKeys( "snippets.json", snippetsFile, [ "replyShare", "
     summary.push( `snippets.json\n    ${snippets.length} snippets (${snippets.length - personal} shared, ${personal} personal, ${perCampus} once per campus) in ${usedCategories.size} categories, ${withTopics} used in generated replies (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
 }
 
+// email-sections.json: the church's sections for Rock's newer email editor (decision D-snippets-3). Each section's
+// markup and thumbnails in email-sections/ come from make-sections.js, so a section whose markup no longer holds its
+// own words, Guids, and link was changed without running it again.
+const sectionsFile = readFile( "email-sections.json" );
+if ( sectionsFile && checkKeys( "email-sections.json", sectionsFile, [ "category", "sections" ] ) ) {
+    checkCharacters( "email-sections.json", sectionsFile );
+    const sectionCategories = CATEGORIES.filter( c => c.entityType === "Rock.Model.EmailSection" ).map( c => c.key );
+    if ( !sectionCategories.includes( sectionsFile.category ) ) {
+        errors.push( `email-sections.json category: "${sectionsFile.category}" is not a Rock.Model.EmailSection category in configuration/categories.json.` );
+    }
+    const approvedPhotos = Object.fromEntries( EVENT_PHOTOS.filter( p => p.status.startsWith( "approved" ) ).map( p => [ p.event, p.file ] ) );
+    const datasets = [ ...new Set( CAMPUSES.flatMap( c => c.datasets ) ) ];
+    const keys = new Map();
+    const guids = new Map();
+    let thumbnails = 0;
+    const sections = checkArray( "email-sections.json sections", sectionsFile.sections );
+    for ( const [ index, section ] of sections.entries() ) {
+        const at = `email-sections.json sections[${index}]`;
+        if ( !checkKeys( at, section, [ "key", "name", "usageSummary", "guid", "thumbnailGuid", "title", "text", "button" ], [ "card", "eyebrow", "serviceTimes", "image" ] ) ) {
+            continue;
+        }
+        const label = `${at} (${section.key})`;
+        checkKey( at, section.key, keys );
+        checkGuid( `${label} guid`, section.guid, guids );
+        checkGuid( `${label} thumbnailGuid`, section.thumbnailGuid, guids );
+        for ( const field of [ "name", "usageSummary", "title", "text" ].concat( "eyebrow" in section ? [ "eyebrow" ] : [] ) ) {
+            if ( checkString( `${label} ${field}`, section[field] ) ) {
+                checkText( `${label} ${field}`, section[field], { allowed: [], known: [], lava: false } );
+            }
+        }
+        checkLength( `${label} name`, section.name, LENGTHS.sectionName, "a section name" );
+        checkLength( `${label} usageSummary`, section.usageSummary, LENGTHS.usageSummary, "a usage summary" );
+        if ( "card" in section && section.card !== "light" && section.card !== "accent" ) {
+            errors.push( `${label} card: must be "light" or "accent".` );
+        }
+        if ( "serviceTimes" in section && section.serviceTimes !== true ) {
+            errors.push( `${label} serviceTimes: may only be true.` );
+        }
+        if ( "image" in section && checkKeys( `${label} image`, section.image, [ "event", "guid", "alt" ] ) ) {
+            checkGuid( `${label} image guid`, section.image.guid, guids );
+            if ( !approvedPhotos[section.image.event] ) {
+                errors.push( `${label} image: event "${section.image.event}" has no approved photo in photos/events/manifest.json.` );
+            }
+            if ( checkString( `${label} image alt`, section.image.alt ) ) {
+                checkText( `${label} image alt`, section.image.alt, { allowed: [], known: [], lava: false } );
+            }
+        }
+        if ( checkKeys( `${label} button`, section.button, [ "text", "href" ] ) ) {
+            if ( checkString( `${label} button text`, section.button.text ) ) {
+                checkText( `${label} button text`, section.button.text, { allowed: [], known: [], lava: false } );
+            }
+            checkPath( `${label} button`, section.button.href );
+        }
+
+        // The markup make-sections.js built from this entry, with Rock's editor code.
+        const markupFile = `email-sections/${section.key}.html`;
+        let markup = null;
+        try {
+            markup = fs.readFileSync( path.join( libraryDir, markupFile ), "utf8" );
+        }
+        catch {
+            errors.push( `${label}: ${markupFile} is missing. Run email-sections/make-sections.js.` );
+        }
+        if ( markup !== null ) {
+            const html = text => text.replace( /&/g, "&amp;" ).replace( /</g, "&lt;" ).replace( />/g, "&gt;" );
+            const expected = [
+                [ "a section component", 'class="margin-wrapper margin-wrapper-for-section component component-section"' ],
+                [ "its Guid", `data-email-section-guid="${String( section.guid ).toLowerCase()}"` ],
+                [ "its title", `>${html( section.title )}</h2>` ],
+                [ "its text", `>${html( section.text )}</p>` ],
+                [ "its button's link", `href="${SITE}${section.button.href}"` ],
+                [ "its button's text", `>${html( section.button.text )}</a>` ]
+            ];
+            if ( section.image ) {
+                expected.push( [ "its image", `data-image-guid="${section.image.guid}"` ] );
+            }
+            for ( const [ what, text ] of expected ) {
+                if ( !markup.includes( text ) ) {
+                    errors.push( `${label}: ${markupFile} does not have ${what} (${text}). Run email-sections/make-sections.js.` );
+                }
+            }
+            if ( ( markup.split( CAMPUS_SERVICE_TIMES ).length - 1 ) !== ( section.serviceTimes ? 1 : 0 ) ) {
+                errors.push( `${label}: ${markupFile} must hold ${CAMPUS_SERVICE_TIMES} once when the section lists service times, and never otherwise.` );
+            }
+            if ( /<script|\son[a-z]+\s*=|javascript:/i.test( markup ) ) {
+                errors.push( `${label}: ${markupFile} has a script, an event attribute, or a javascript: link, which Rock's editor does not save in a section.` );
+            }
+        }
+
+        for ( const thumbnail of section.serviceTimes ? datasets.map( d => `${section.key}-${d}.png` ) : [ `${section.key}.png` ] ) {
+            let bytes = null;
+            try {
+                bytes = fs.readFileSync( path.join( libraryDir, "email-sections", thumbnail ) );
+            }
+            catch {
+                errors.push( `${label}: email-sections/${thumbnail} is missing. Run email-sections/make-sections.js.` );
+            }
+            if ( bytes && bytes.subarray( 0, 8 ).toString( "hex" ) !== "89504e470d0a1a0a" ) {
+                errors.push( `${label}: email-sections/${thumbnail} is not a PNG.` );
+            }
+            thumbnails += bytes ? 1 : 0;
+        }
+    }
+    summary.push( `email-sections.json\n    ${sections.length} sections (${sections.filter( s => s && s.image ).length} with a photo, ${sections.filter( s => s && s.card ).length} cards), their markup, and ${thumbnails} thumbnails` );
+}
+
 // The wizard-ready template (decision 269) is the Legacy template in Rock's newer editor format. That editor has
 // no Lava fields, so it writes in each Lava field's color, and its logo image component points at the Legacy logo file.
 if ( configuration.wizardTemplate ) {
@@ -926,5 +1040,5 @@ for ( const line of summary ) {
 for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
-console.log( `\nMessage library: 6 files checked. ${errors.length} errors.` );
+console.log( `\nMessage library: 7 files checked. ${errors.length} errors.` );
 process.exit( errors.length ? 1 : 0 );

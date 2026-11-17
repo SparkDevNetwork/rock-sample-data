@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -62,6 +62,8 @@ namespace RockSampleData.RockRunner
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
     ///            place of the key, it renders that block's content for the person instead, on one line.
+    ///   email-sections  Checks every email section the way Rock's email editor saves one: the model's validation and the
+    ///            markup's string validation. Prints "ok" and its Guid, or "error", its Guid, and Rock's message.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -76,10 +78,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +120,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "email-sections" => worker.EmailSections(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -372,6 +375,53 @@ namespace RockSampleData.RockRunner
                 var view = get.Invoke( null, new object[] { Guid.Parse( line.Trim() ) } );
                 var ids = view == null ? Enumerable.Empty<int>() : ( ( System.Collections.IEnumerable ) getEntityIds.Invoke( view, null ) ).Cast<int>();
                 lines.Add( $"{line.Trim()}\t{string.Join( ",", ids.OrderBy( i => i ) )}" );
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Checks every email section the way Rock saves one from its email editor: the model's own validation, then the
+        /// string validation the editor's save endpoint runs on the markup (Rock.Rest/v2/ControlsController.cs, Lava and
+        /// basic HTML). Prints "ok" and each section's Guid, or "error", its Guid, and Rock's message, separated by tabs.
+        /// </summary>
+        public string EmailSections()
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.EmailSectionService", true );
+            var sections = ( ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), null ) ).ToList();
+            var enums = Assembly.Load( "Rock.Enums" );
+            var profileType = enums.GetType( "Rock.Enums.Security.StringValidationProfile", true );
+            var ruleType = enums.GetType( "Rock.Enums.Security.StringValidationRule", true );
+            var validator = _rock.GetType( "Rock.Security.StringValueValidator", true );
+            var rules = validator.GetMethod( "GetEffectiveRules", new[] { profileType, ruleType, ruleType } )
+                .Invoke( null, new[] { Enum.Parse( profileType, "LavaAndBasicHtml" ), Enum.ToObject( ruleType, 0 ), Enum.ToObject( ruleType, 0 ) } );
+            var validate = validator.GetMethod( "Validate", new[] { typeof( string ), ruleType, typeof( Type ), typeof( string ) } );
+
+            var lines = new List<string>();
+            foreach ( var section in sections )
+            {
+                var type = section.GetType();
+                var guid = type.GetProperty( "Guid" ).GetValue( section );
+                var problems = new List<string>();
+                if ( !( bool ) type.GetProperty( "IsValid" ).GetValue( section ) )
+                {
+                    problems.AddRange( ( ( System.Collections.IEnumerable ) type.GetProperty( "ValidationResults" ).GetValue( section ) ).Cast<object>().Select( r => r.ToString() ) );
+                }
+
+                try
+                {
+                    validate.Invoke( null, new[] { type.GetProperty( "SourceMarkup" ).GetValue( section ), rules, _rock.GetType( "Rock.Model.EmailSection", true ), "SourceMarkup" } );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    problems.Add( ex.InnerException?.Message ?? ex.Message );
+                }
+
+                lines.Add( problems.Count == 0 ? $"ok\t{guid}" : $"error\t{guid}\t{string.Join( " ", problems )}" );
             }
 
             return string.Join( "\n", lines );

@@ -234,6 +234,8 @@ try
             checks.Add( AssessmentScoresCheck( rock, sql, database, connection ) );
             stage = "adaptive-messages";
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
+            stage = "email-sections";
+            checks.Add( EmailSectionsCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
 
@@ -684,6 +686,27 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
+}
+
+/// <summary>
+/// Rock's own save rules accept every email section the load wrote, as they are: the model's validation, and the string
+/// validation Rock's email editor runs on a section's markup when staff save it (decision D-snippets-3).
+/// </summary>
+static CheckResult EmailSectionsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.ReadEmailSectionLibrary()?.Sections ?? new List<EmailSectionDefinition>() ).ToDictionary( s => s.Guid, s => s.Name );
+    if ( names.Count == 0 )
+    {
+        return CheckResult.From( "email-sections", "This package has no email sections", new List<string>() );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "email-sections" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var found = lines.Select( p => Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) ? guid : Guid.Empty ).ToHashSet();
+    var problems = lines.Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) && names.TryGetValue( guid, out var name ) ? name : $"Email section {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .Concat( names.Where( n => !found.Contains( n.Key ) ).Select( n => $"{n.Value}: the load did not write it." ) )
+        .ToList();
+    return CheckResult.From( "email-sections", problems.Count == 0 ? $"Rock's email editor would save all {lines.Count} email sections as they are" : "Rock's email editor would refuse an email section", problems );
 }
 
 /// <summary>

@@ -33,6 +33,7 @@ The words this project uses, in alphabetical order.
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
+| **Email section** | A saved block staff drag into an email in Rock's newer email editor, such as Service Times. Rock keeps its markup, a usage summary, and a thumbnail, and the editor's Sections panel lists it by category. See [Email sections](communications.md#email-sections). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Fee item** | One choice of a registration fee, such as a single room or one child of childcare, with its cost. An item can have a usage limit, and Rock hides it once every use is taken. |
