@@ -172,7 +172,7 @@ namespace RockSampleData.Loader.Generation
         public abstract AssessmentScore Score( AssessmentAnswers answers );
 
         /// <summary>
-        /// A result kept from before the church used Rock's assessments, exactly as given, with no answers behind it.
+        /// A result taken outside Rock's own assessment, exactly as given, with no answers behind it.
         /// Only DISC has them.
         /// </summary>
         public virtual AssessmentScore Legacy( CastDiscScores scores ) => throw new InvalidDataException( $"Only a DISC result can be a legacy result, not {Key}." );

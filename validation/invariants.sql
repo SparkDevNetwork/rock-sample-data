@@ -2048,7 +2048,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );
 
 -- check: assessment-row-has-its-state
--- why: Decision D-assessments-2. A pending assessment was requested by someone and has no result yet: a requester, a request date, and no completion or answers. A completed one has its completion date. Every completed one has its answers, except a legacy DISC result from before the church used Rock's assessments, which was taken on the person's own.
+-- why: Decision D-assessments-2. A pending assessment was requested by someone and has no result yet: a requester, a request date, and no completion or answers. A completed one has its completion date. Every completed one has its answers, except a legacy DISC result taken outside Rock's own DISC, with no request.
 SELECT COUNT(*)
 FROM [Assessment] AS [a]
 INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]

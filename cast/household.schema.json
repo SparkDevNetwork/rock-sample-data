@@ -295,7 +295,7 @@
                       "type": "object",
                       "required": [ "adaptive", "natural", "personalityType" ],
                       "additionalProperties": false,
-                      "description": "DISC only: scores kept from before the church used Rock's assessments, exactly as Rock shows them, with no answers behind them.",
+                      "description": "DISC only: scores from a test taken outside Rock's own DISC, exactly as Rock shows them, with no answers behind them.",
                       "properties": {
                         "adaptive": { "$ref": "#/$defs/discScores" },
                         "natural": { "$ref": "#/$defs/discScores" },

@@ -187,7 +187,7 @@ namespace RockSampleData.Loader.Model
         public RelativeDate Completed { get; set; }
 
         /// <summary>
-        /// DISC scores kept from before the church used Rock's assessments, with no answers behind them.
+        /// DISC scores from a test taken outside Rock's own DISC, with no answers behind them.
         /// </summary>
         public CastDiscScores Legacy { get; set; }
     }

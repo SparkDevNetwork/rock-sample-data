@@ -310,6 +310,11 @@ namespace RockSampleData.Loader.Generation
                             throw new InvalidDataException( $"{person.Name}'s {type} story is dated after the install day." );
                         }
 
+                        if ( ( requested ?? completed ) < person.AdultSince )
+                        {
+                            throw new InvalidDataException( $"{person.Name}'s {type} story is dated before they were an adult out of high school, and only adults take assessments." );
+                        }
+
                         yield return new Offer
                         {
                             Person = person,
