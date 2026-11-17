@@ -658,29 +658,24 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
 
         /// <summary>
         /// Checks that each Cast person configuration/adaptive-messages.json names sees their adaptation of a message, by
-        /// the rule Rock's adaptivemessage command follows, such as Ted Decker's thanks for his scheduled gift. A message a
-        /// load of some parts left out is not checked; a load of every part must have it.
+        /// the rule Rock's adaptivemessage command follows, such as Ted Decker's thanks for his scheduled gift. The
+        /// segments' views read attendance, groups, serving, steps, and giving, so only a load of every data part is
+        /// checked. Check images change no view.
         /// </summary>
         private static int CheckAdaptiveMessages( RockDatabase db, SampleDataSource source, CastPersonGuids guids, IReadOnlyCollection<SampleDataPart> parts, List<string> failures )
         {
             var configuration = source.AdaptiveMessages;
-            if ( configuration == null )
+            if ( configuration == null || !SampleDataParts.All.Where( p => p.Part != SampleDataPart.CheckImages ).All( p => parts.Contains( p.Part ) ) )
             {
                 return 0;
             }
 
-            var everyPart = SampleDataParts.All.All( p => parts.Contains( p.Part ) );
             var messages = configuration.Messages.ToDictionary( m => m.Key );
             var checks = 0;
             foreach ( var expectation in configuration.Cast )
             {
                 var message = messages[expectation.Message];
                 var isWritten = db.IdByGuid( "AdaptiveMessage", message.Guid ) != null;
-                if ( !isWritten && !everyPart )
-                {
-                    continue;
-                }
-
                 checks++;
                 var expected = expectation.Adaptation == null ? null : message.Adaptations.First( a => a.Key == expectation.Adaptation );
                 var shown = isWritten ? AdaptiveMessagesLoader.ShownAdaptation( db, message.Guid, guids.Value( expectation.Person ), DateTime.Today ) : null;
