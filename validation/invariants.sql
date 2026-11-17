@@ -1890,16 +1890,13 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, assessment results, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and assessments are their own work.
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
 WHERE [av].[ForeignKey] = @ForeignKey
     AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
-    AND ( [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'FirstVisit', 'SecondVisit', 'core_SpecialNeeds',
-            'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'NaturalD', 'NaturalI', 'NaturalS', 'NaturalC', 'LastSaveDate', 'PersonalityType', 'LastDiscRequestDate' )
-        OR [a].[Key] LIKE 'core[_]Motivator%' OR [a].[Key] LIKE 'core[_]EQ%' OR [a].[Key] LIKE 'core[_]Conflict%' OR [a].[Key] LIKE 'core[_]DISC%'
-        OR [a].[Key] IN ( 'core_DominantGifts', 'core_SupportiveGifts', 'core_OtherGifts', 'core_SpiritualGiftsLastSaveDate' ) );
+    AND [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'FirstVisit', 'SecondVisit', 'core_SpecialNeeds', 'LastDiscRequestDate' );
 
 -- check: adult-attributes-are-on-adults
 -- why: Decisions 253, 256, 257, and 258. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.

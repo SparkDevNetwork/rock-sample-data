@@ -392,7 +392,7 @@ The person attributes step runs after registrations and writes every value in on
 | Envelope Number | 40% of the people who wrote a check gift, Cast or generated, when giving loads. Numbers are unique and count up from 1001 with small gaps. | 258 |
 | Do Not Send Giving Statement | Two Cast givers, Steve Morgan and Richard Ross, from their files. | 258 |
 
-Each drawn value comes from its own stream, seeded by the person or household, so a change to one rule changes no other row. The Cast gets no drawn employer, school, note, visit, or allergy, because its stories are written by hand. Ability Level, Date Engaged, and envelopes follow the Cast's records too. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, assessment results, or Special Needs, and an invariant checks it.
+Each drawn value comes from its own stream, seeded by the person or household, so a change to one rule changes no other row. The Cast gets no drawn employer, school, note, visit, or allergy, because its stories are written by hand. Ability Level, Date Engaged, and envelopes follow the Cast's records too. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, or Special Needs, and an invariant checks it. Assessment results come only from the assessments step (see [Assessments](../docs/assessments.md)).
 
 ## How logins load
 

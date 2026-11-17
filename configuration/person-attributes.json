@@ -112,7 +112,7 @@
     "LegalNotes",
     "DoNotSendGivingStatement"
   ],
-  "$excludedComment": "Nothing writes these. Membership Date stays empty. A social media link or driver's license number could reach a real person. First Visit and Second Visit are written by Rock's Family Analytics job (issue 11). Assessment results come with issue 3. Special Needs is left out.",
+  "$excludedComment": "Nothing writes these. Membership Date stays empty. A social media link or driver's license number could reach a real person. First Visit and Second Visit are written by Rock's Family Analytics job (issue 11). Special Needs is left out. Assessment results are not here, because the assessments step writes them (decision 265).",
   "excluded": [
     "MembershipDate",
     "Facebook",
@@ -122,17 +122,7 @@
     "com.sparkdevnetwork.DLNumber",
     "FirstVisit",
     "SecondVisit",
-    "core_SpecialNeeds",
-    "AdaptiveD",
-    "AdaptiveI",
-    "AdaptiveS",
-    "AdaptiveC",
-    "NaturalD",
-    "NaturalI",
-    "NaturalS",
-    "NaturalC",
-    "LastSaveDate",
-    "PersonalityType"
+    "core_SpecialNeeds"
   ],
   "dateEngaged": {
     "$comment": "A Date attribute in Rock's Membership category: the day an Engaged or Leading adult first was in a small group, on a serving team, or giving. It is the earliest of their first small group or serving team membership that was not pending and their giving unit's first contribution. An adult with none of those became engaged before the records the sample data keeps, so the date is a day drawn from the years before the history window, and never before they turned 18.",
