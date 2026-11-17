@@ -460,7 +460,13 @@ namespace RockSampleData.Loader.Generation
                 var pool = i == 0 ? topic.Openers
                     : isStaff ? ( i == 1 ? topic.StaffReplies : topic.StaffFollowUps )
                     : i == length - 1 && length >= 4 && topic.Closings.Count > 0 && random.Chance( 0.6 ) ? topic.Closings : topic.PersonFollowUps;
-                messages.Add( (isStaff, when, MessageRenderer.Fill( random.Pick( pool ), tokens )) );
+                var text = MessageRenderer.Fill( random.Pick( pool ), tokens );
+                if ( isStaff && i == 1 )
+                {
+                    text = SnippetReply( $"{seed}:snippet", person, number, topic, when ) ?? text;
+                }
+
+                messages.Add( (isStaff, when, text) );
             }
 
             var lastStaff = messages.FindLastIndex( m => m.IsStaff );
@@ -479,6 +485,44 @@ namespace RockSampleData.Loader.Generation
                 }
             }
         }
+
+        /*
+            11/17/26 - CLAUDE
+
+            Staff answer a common question with a saved snippet now and then. In about the library's reply share of
+            the threads in a snippet's topics, the staff's first reply is the text of a snippet that staff member
+            could insert in SMS Conversations: a shared one, or their own, made before that day. A shared snippet
+            for one campus answers only that campus's people. The choice draws from its own stream, after the
+            thread's own draws, so every thread keeps its length, times, and texts, and only that reply's words change.
+
+            Reason: The SMS history shows the snippets in use (decision D-snippets-2).
+        */
+
+        /// <summary>
+        /// A snippet's text, with the person's nickname, for the staff's first reply in a thread, or null to keep the
+        /// reply the thread drew.
+        /// </summary>
+        private string SnippetReply( string seed, TextPerson person, TextNumber number, ConversationTopic topic, DateTime when )
+        {
+            var choices = _inputs.Snippets
+                .Where( s => s.Topics.Contains( topic.Key ) && s.Made <= when
+                    && ( s.OwnerAliasId == null || s.OwnerAliasId == number.StaffAliasId )
+                    && ( s.CampusKey == null || s.CampusKey == person.CampusKey ) )
+                .ToList();
+            var random = new SeededRandom( seed );
+            if ( choices.Count == 0 || !random.Chance( _inputs.SnippetReplyShare ) )
+            {
+                return null;
+            }
+
+            SnippetReplies++;
+            return random.Pick( choices ).Text.Replace( "{{ Person.NickName }}", person.NickName );
+        }
+
+        /// <summary>
+        /// How many staff replies in generated threads are a snippet's text.
+        /// </summary>
+        public int SnippetReplies { get; private set; }
 
         private static double Delay( SeededRandom random, IReadOnlyDictionary<string, double> mix )
         {
@@ -649,6 +693,46 @@ namespace RockSampleData.Loader.Generation
         public int StudentSenderAliasId { get; set; }
 
         public TextDesign Design { get; set; }
+
+        /// <summary>
+        /// The SMS snippets the load wrote, which staff reply with now and then.
+        /// </summary>
+        public List<TextSnippet> Snippets { get; set; } = new List<TextSnippet>();
+
+        /// <summary>
+        /// The share of threads in a snippet's topics whose first staff reply is a snippet's text.
+        /// </summary>
+        public double SnippetReplyShare { get; set; }
+    }
+
+    /// <summary>
+    /// An SMS snippet as loaded: its text with the load's tokens filled and Rock's nickname Lava left in.
+    /// </summary>
+    internal sealed class TextSnippet
+    {
+        public string Key { get; set; }
+
+        public string Text { get; set; }
+
+        /// <summary>
+        /// The owner of a personal snippet, or null for a shared one.
+        /// </summary>
+        public int? OwnerAliasId { get; set; }
+
+        /// <summary>
+        /// The campus a shared snippet is for, or null.
+        /// </summary>
+        public string CampusKey { get; set; }
+
+        /// <summary>
+        /// The conversation topics where staff reply with it.
+        /// </summary>
+        public List<string> Topics { get; set; } = new List<string>();
+
+        /// <summary>
+        /// When it was made. No reply uses it before then.
+        /// </summary>
+        public DateTime Made { get; set; }
     }
 
     /// <summary>

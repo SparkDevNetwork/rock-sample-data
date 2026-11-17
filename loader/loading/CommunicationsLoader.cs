@@ -125,18 +125,22 @@ namespace RockSampleData.Loader.Loading
                 emails.Load( configuration, people, candidates, plan, listIds, templateId, templateHtml, mainCampusKey, campusIds );
             }
 
-            // Texts reach list members who did not leave from an email, so they follow email.
+            // Snippets are made before the texts that use their words. Texts reach list members who did not leave from
+            // an email, so they follow email.
+            var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
+            var campusPastors = CampusPastors.Pick( people, generated, mainCampusKey, _source.Staff );
             using ( _db.Log.TimePart( "Texts" ) )
             {
-                new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople ).WithClassRosters( rosters )
+                var (snippets, snippetReplyShare) = new SnippetsLoader( _db, _source, _dates, _foreignKey )
+                    .Load( people, emails.CampusList, campusPastors, configuration.Senders.Church.Sender, _dates.Anchor.AddYears( -TextLoader.HistoryYears ) );
+                new TextLoader( _db, _source, _profile, _dates, _foreignKey, _seed ).WithCast( castPeople ).WithClassRosters( rosters ).WithSnippets( snippets, snippetReplyShare )
                     .Load( configuration, people, candidates, plan, listIds, mainCampusKey, campusIds, emails.Calendar, emails.CampusList );
             }
 
             // One-to-one emails follow bulk email, so a bounced address fails them too.
-            var generated = people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" );
             using ( _db.Log.TimePart( "One-to-one" ) )
             {
-                new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, CampusPastors.Pick( people, generated, mainCampusKey, _source.Staff ) );
+                new OneToOneLoader( _db, _source, _dates, _foreignKey, _seed ).Load( configuration, people, emails, campusIds, campusPastors );
             }
 
             // The app and its pushes reach the same active adults.

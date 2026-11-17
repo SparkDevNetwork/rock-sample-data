@@ -58,6 +58,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Workflow types | Rock Solid Church, then Equip | The Baptism Interest workflow (decision 235) |
 | Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
 | Adaptive messages | Rock Solid Church, under Rock's All Church category (`parentGuid`) | The five adaptive messages in `adaptive-messages.json` |
+| SMS snippets | Guests, Kids Check-in, Students, Care, and Events, each at the top level, as SMS Conversations' snippet picker groups them | The snippets in `content/communications/snippets.json` (decision D-snippets-1) |
 
 To add rows of a new kind or for a new purpose:
 

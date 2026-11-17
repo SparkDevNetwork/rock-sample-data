@@ -243,9 +243,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "communications", eyebrow: "Communications", title: "Two years of messages.",
-            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template, ready in Rock's email wizard. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
-            checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails" ],
-            look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number" ],
+            text: html`Texting numbers, ${model.communicationLists.length} communication lists, SMS snippets staff reply with, and a branded email template, ready in Rock's email wizard. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
+            checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails", "Shared SMS snippets, and personal ones only their owner sees" ],
+            look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number", "The snippet picker in SMS Conversations" ],
             links: [ { label: "Communications", href: doc( "docs/communications.md" ) } ]
         },
         {

@@ -1,0 +1,198 @@
+{
+  "$comment": "The SMS snippets staff insert in SMS Conversations instead of retyping (README.md, snippets.json, decision D-snippets-1). A snippet with no owner is shared, so every staff member sees it. An owner is a staff key in configuration/staff.json, and only that person sees the snippet, or 'campus-pastor', which gives each campus pastor in the dataset their own copy. 'category' is a Rock.Model.Snippet category's key in configuration/categories.json. A snippet with 'campusGuids' loads once per campus in the dataset, with {campus} and {serviceTimes} filled for that campus and {staff} for its campus pastor. Rock fills {{ Person.NickName }} when staff insert it. 'topics' are the topics in conversations.json where staff reply with it: in about 'replyShare' of the generated threads in those topics, the staff's first reply is the snippet's text.",
+  "replyShare": 0.25,
+  "snippets": [
+    {
+      "key": "service-times",
+      "name": "{campus} Service Times",
+      "description": "Sunday service times at Rock Solid {campus}.",
+      "category": "snippets-guests",
+      "campusGuids": {
+        "phoenix": "2EC33B5A-F220-4A6C-BCE6-F23F0A5C085D",
+        "peoria": "D22A3995-4E9E-4EE0-A3E2-F58D91F555A5",
+        "gilbert": "19E54869-9A47-4158-B41D-EB6165331BFA",
+        "scottsdale": "DBB7C1E1-D4A4-4AFF-9599-62E3486905EC",
+        "chandler": "B68549F4-F9E4-4CE7-8FAB-B15B2C85EAFE",
+        "goodyear": "980C9036-5BF0-47AE-B889-AA79E3F9C9D2",
+        "tempe": "893DE6D4-BCA6-4899-994C-005751B201CE"
+      },
+      "topics": [ "service-times" ],
+      "text": "Hi {{ Person.NickName }}! Sunday services at {campus} are at {serviceTimes}. Every service has the same message and kids rooms."
+    },
+    {
+      "key": "first-visit",
+      "name": "First Visit",
+      "description": "What to expect on a first Sunday.",
+      "category": "snippets-guests",
+      "guid": "70ED572D-E646-45D6-AF44-C407CD206F40",
+      "topics": [ "first-visit-question" ],
+      "text": "Hi {{ Person.NickName }}! Come as you are. Look for the welcome tent by the front doors, and a greeter will show you around and help check in your kids."
+    },
+    {
+      "key": "small-groups",
+      "name": "Find a Small Group",
+      "description": "How to find a small group and meet its leader.",
+      "category": "snippets-guests",
+      "guid": "83507E48-691A-4AD4-8B1E-3D32CD8C6336",
+      "topics": [ "small-group-question" ],
+      "text": "Hi {{ Person.NickName }}! The group finder on our website shows every small group and the night it meets. Pick one, and I'll connect you with the leader."
+    },
+    {
+      "key": "giving",
+      "name": "Giving Help",
+      "description": "Where to give, set up a recurring gift, and find a giving statement.",
+      "category": "snippets-guests",
+      "guid": "748602F1-2B1F-4D7B-81B9-65CBA21D7332",
+      "topics": [ "giving-question" ],
+      "text": "Hi {{ Person.NickName }}! You can give, set up a recurring gift, and get your giving statement on the Give page of our website. Happy to walk you through it."
+    },
+    {
+      "key": "lost-pickup-tag",
+      "name": "Lost Pickup Tag",
+      "description": "How a parent picks up their kids without the pickup tag.",
+      "category": "snippets-kids-check-in",
+      "guid": "893E0FFA-B4A7-4EED-8F58-4E987F3C7D3D",
+      "topics": [ "kids-check-in" ],
+      "text": "Hi {{ Person.NickName }}! No problem. Bring a photo ID to the kids check-in desk, and our team will match it to your family and bring your kids out."
+    },
+    {
+      "key": "camp-forms",
+      "name": "Camp Forms",
+      "description": "Where the camp form and its medical release are.",
+      "category": "snippets-students",
+      "guid": "344F3F89-6033-4812-AF8E-981585DA6750",
+      "topics": [ "camp-form-student", "camp-form-parent" ],
+      "text": "Hi {{ Person.NickName }}! The camp form is on the Students page of our website. A parent or guardian signs the medical release as part of it."
+    },
+    {
+      "key": "praying",
+      "name": "Praying for You",
+      "description": "A reply to a prayer request that asks before sharing it.",
+      "category": "snippets-care",
+      "guid": "B961233F-BA44-47E2-8211-52CB8678F867",
+      "topics": [ "prayer-request" ],
+      "text": "Thank you for trusting me with this, {{ Person.NickName }}. I'm praying for you now. Is it okay to share with our prayer team, or keep it between us?"
+    },
+    {
+      "key": "baptism",
+      "name": "Baptism Next Steps",
+      "description": "When the church baptizes and how to start.",
+      "category": "snippets-events",
+      "guid": "B9735C04-F6C3-45F3-B1D7-15E0EE2FF4B3",
+      "topics": [ "baptism-interest" ],
+      "text": "{{ Person.NickName }}, that's amazing! We baptize at Easter and in July. Fill out the baptism interest form on our website, and we'll reach out."
+    },
+    {
+      "key": "event-details",
+      "name": "Event Details",
+      "description": "Where to find event times, places, and sign-ups.",
+      "category": "snippets-events",
+      "guid": "C9144F42-6223-43A4-A6FF-78FDC929A353",
+      "topics": [ "event-details" ],
+      "text": "Hi {{ Person.NickName }}! Times, places, and sign-ups for every event are on the Events page of our website. Text me if you can't find something."
+    },
+    {
+      "key": "camp-packing-list",
+      "name": "Camp Packing List",
+      "description": "What to bring to Student Camp.",
+      "owner": "isaac",
+      "category": "snippets-students",
+      "guid": "77E5B81F-FB4E-41FA-95D2-6C93B422C8BF",
+      "topics": [ "camp-form-student", "camp-form-parent" ],
+      "text": "Hey {{ Person.NickName }}! Pack a Bible, water bottle, sunscreen, sleeping bag, towel, swimsuit, and clothes that can get messy. See you on the bus!"
+    },
+    {
+      "key": "coffee-this-week",
+      "name": "Coffee This Week?",
+      "description": "An invitation to coffee with Ted.",
+      "owner": "ted",
+      "category": "snippets-guests",
+      "guid": "7903FDD0-A43F-4CCD-85AC-6EDB3D4EE530",
+      "topics": [ "first-visit-question", "small-group-question", "baptism-interest" ],
+      "text": "Hi {{ Person.NickName }}, it's Ted. I'd love to buy you a coffee this week and hear more of your story. Would a morning or a lunch work better for you?"
+    },
+    {
+      "key": "office-hours",
+      "name": "Office Hours",
+      "description": "Points a Rock question to Rock Office Hours.",
+      "owner": "alisha",
+      "guid": "CD25662C-92AD-41D0-A7A7-414E027F16D8",
+      "topics": [],
+      "text": "Hi {{ Person.NickName }}! Bring that one to Rock Office Hours this month. It's on the staff calendar, and we'll work through it together."
+    },
+    {
+      "key": "pastor-welcome",
+      "name": "Welcome to {campus}",
+      "description": "A personal welcome from the {campus} campus pastor.",
+      "owner": "campus-pastor",
+      "category": "snippets-guests",
+      "campusGuids": {
+        "phoenix": "372668C0-D1FF-44B5-A788-9C3B41E10D8C",
+        "peoria": "7CD35A7C-BFCD-476B-BB22-CA0D64784FE2",
+        "gilbert": "C338662F-8D57-4D48-AB6C-18DD8BE956A3",
+        "scottsdale": "F6FC2451-5A63-4CFE-8122-8F072077FAC7",
+        "chandler": "0FF6993C-FCFB-4F19-8371-DB557EA6B0F5",
+        "goodyear": "40AB07F0-DF23-4BC4-908B-285F435093C0",
+        "tempe": "D538265C-A923-40E4-ADFF-373F3B6ECE83"
+      },
+      "topics": [ "first-visit-question" ],
+      "text": "Hi {{ Person.NickName }}, it's Pastor {staff} at Rock Solid {campus}. I'd love to meet you this Sunday. Come find me in the lobby after the service."
+    },
+    {
+      "key": "pastor-praying",
+      "name": "Praying for Your Family",
+      "description": "A personal reply from the {campus} campus pastor to a prayer request.",
+      "owner": "campus-pastor",
+      "category": "snippets-care",
+      "campusGuids": {
+        "phoenix": "869A1241-BA30-4843-86E4-7217569833E1",
+        "peoria": "6A6BF999-709F-4C79-81EE-1BB91893AA9A",
+        "gilbert": "C8520F83-D073-4925-9FDD-7A39CC6AD8EB",
+        "scottsdale": "70565D06-7A52-45BC-BE67-58AC1B711CE0",
+        "chandler": "B3B6BB51-B4F5-4DB0-909A-DB7F69EC937E",
+        "goodyear": "4852705B-7BAD-4742-AFD1-33BB590C5EAE",
+        "tempe": "70F5A241-5743-4681-A8EC-7157BF4DFBC4"
+      },
+      "topics": [ "prayer-request" ],
+      "text": "{{ Person.NickName }}, thank you for telling me. I'm praying for you and your family, and I'll check in later this week. You're not alone in this."
+    }
+  ],
+  "$accessComment": "Who may see which snippet in SMS Conversations. The verify tool asks Rock each question through the snippet's own security check, which shows a personal snippet only to its owner, even to Rock's administrator. Main campus snippets only, so every dataset has them.",
+  "access": [
+    {
+      "person": "581C940E-A788-4F32-BCF3-33F4D1948390",
+      "name": "Isaac Silva",
+      "snippet": "77E5B81F-FB4E-41FA-95D2-6C93B422C8BF",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "snippet": "77E5B81F-FB4E-41FA-95D2-6C93B422C8BF",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "snippet": "70ED572D-E646-45D6-AF44-C407CD206F40",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+      "name": "Aaron Mitchell",
+      "snippet": "372668C0-D1FF-44B5-A788-9C3B41E10D8C",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "snippet": "372668C0-D1FF-44B5-A788-9C3B41E10D8C",
+      "action": "View",
+      "allowed": false
+    }
+  ]
+}

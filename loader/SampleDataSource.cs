@@ -358,6 +358,13 @@ namespace RockSampleData.Loader
         /// </summary>
         public ConversationLibrary ReadConversationLibrary() => Read<ConversationLibrary>( $"{CommunicationsContentFolder}/conversations.json" );
 
+        public const string SnippetsPath = CommunicationsContentFolder + "/snippets.json";
+
+        /// <summary>
+        /// Reads the SMS snippets, or null for a package built before they existed.
+        /// </summary>
+        public SnippetLibrary ReadSnippetLibrary() => Files.Exists( SnippetsPath ) ? Read<SnippetLibrary>( SnippetsPath ) : null;
+
         public const string CastThreadsPath = "cast/sms-threads.json";
 
         /// <summary>

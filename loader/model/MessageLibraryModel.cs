@@ -242,6 +242,68 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// content/communications/snippets.json: the SMS snippets staff insert in SMS Conversations.
+    /// </summary>
+    internal sealed class SnippetLibrary
+    {
+        /// <summary>
+        /// The owner that gives each campus pastor in the dataset their own copy of a snippet.
+        /// </summary>
+        public const string CampusPastorOwner = "campus-pastor";
+
+        /// <summary>
+        /// About this share of generated threads in a snippet's topics have its text as the staff's first reply.
+        /// </summary>
+        public double ReplyShare { get; set; }
+
+        public List<SnippetDefinition> Snippets { get; set; } = new List<SnippetDefinition>();
+
+        /// <summary>
+        /// Who may see which snippet, which the verify tool asks Rock (decision D-snippets-1).
+        /// </summary>
+        public List<AccessExpectation> Access { get; set; } = new List<AccessExpectation>();
+    }
+
+    internal sealed class SnippetDefinition
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// The name in the snippet picker. {campus} is filled for a snippet that loads once per campus.
+        /// </summary>
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// A staff key in configuration/staff.json, <see cref="SnippetLibrary.CampusPastorOwner"/>, or null for a shared snippet.
+        /// </summary>
+        public string Owner { get; set; }
+
+        /// <summary>
+        /// A Rock.Model.Snippet category's key in configuration/categories.json, or null.
+        /// </summary>
+        public string Category { get; set; }
+
+        /// <summary>
+        /// The snippet's Guid, when it loads once.
+        /// </summary>
+        public Guid? Guid { get; set; }
+
+        /// <summary>
+        /// The snippet's Guid at each campus, when it loads once per campus in the dataset.
+        /// </summary>
+        public Dictionary<string, Guid> CampusGuids { get; set; }
+
+        /// <summary>
+        /// The conversation topics where staff reply with it.
+        /// </summary>
+        public List<string> Topics { get; set; } = new List<string>();
+
+        public string Text { get; set; }
+    }
+
+    /// <summary>
     /// cast/staff-emails.json: personal emails from Cast staff to Cast people.
     /// </summary>
     internal sealed class CastStaffEmailFile

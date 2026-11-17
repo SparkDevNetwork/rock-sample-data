@@ -329,7 +329,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Access
 
-**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. It asks an SMS snippet in `access` in `content/communications/snippets.json` through the snippet's own check, as SMS Conversations does, which shows a personal snippet only to its owner (decision D-snippets-1). Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
 

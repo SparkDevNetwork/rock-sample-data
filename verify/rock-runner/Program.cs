@@ -50,7 +50,7 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, or Snippet), its Guid, an action, and a person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
@@ -488,6 +488,7 @@ namespace RockSampleData.RockRunner
         /// <summary>
         /// Asks Rock's own security check whether each person may take each action on each category or data view. Rock walks
         /// the item's parent authorities (a data view's category, then its parent categories) as it does on every page.
+        /// A snippet answers for itself, as SMS Conversations asks it.
         /// </summary>
         public string Authorize( string[] lines )
         {
@@ -507,6 +508,19 @@ namespace RockSampleData.RockRunner
             {
                 var parts = line.Split( '\t' );
                 object item;
+                if ( parts[0] == "Snippet" )
+                {
+                    // SMS Conversations asks each snippet itself, whose own check lets only its owner see a personal one
+                    // (Rock.Blocks/Communication/SmsConversations.cs and Snippet.Logic.cs).
+                    var snippetService = _rock.GetType( "Rock.Model.SnippetService", true );
+                    var snippet = snippetService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( snippetService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    var snippetPerson = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                    results.Add( snippet == null || snippetPerson == null ? "missing"
+                        : snippet.GetType().GetMethod( "IsAuthorized", new[] { typeof( string ), _rock.GetType( "Rock.Model.Person", true ) } ).Invoke( snippet, new[] { parts[2], snippetPerson } ).ToString() );
+                    continue;
+                }
+
                 if ( parts[0] == "Report" )
                 {
                     // Rock keeps no cache of reports; its report screens load the report and check it.

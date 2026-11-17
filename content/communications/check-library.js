@@ -17,7 +17,7 @@
 
 /*
     Checks the message library in this folder against README.md: series.json, newsletter.json,
-    emails.json, texts.json, and conversations.json. For each entry it checks the required and allowed keys, unique
+    emails.json, texts.json, conversations.json, and snippets.json. For each entry it checks the required and allowed keys, unique
     keys, known occasions, audiences, topics, senders, lines, and mediums, the Lengths table,
     the allowed tokens and the one Lava merge field, links and button paths, email domains,
     plain characters, and no two entries in one list that start with the same five words. It also checks that the
@@ -31,7 +31,16 @@ const fs = require( "fs" );
 const path = require( "path" );
 
 const libraryDir = __dirname;
-const configuration = JSON.parse( fs.readFileSync( path.join( libraryDir, "..", "..", "configuration", "communications.json" ), "utf8" ) );
+const configurationDir = path.join( libraryDir, "..", "..", "configuration" );
+const readConfiguration = file => JSON.parse( fs.readFileSync( path.join( configurationDir, file ), "utf8" ) );
+const configuration = readConfiguration( "communications.json" );
+const CATEGORIES = readConfiguration( "categories.json" ).categories;
+const CAMPUSES = readConfiguration( "campuses.json" ).campuses;
+const CAMPUS_KEYS = CAMPUSES.map( c => c.key );
+const CAMPUS_NAMES = Object.fromEntries( CAMPUSES.map( c => [ c.key, c.name ] ) );
+const STAFF = readConfiguration( "staff.json" ).staff;
+const STAFF_KEYS = STAFF.map( s => s.key );
+const STAFF_PEOPLE = STAFF.map( s => s.person );
 
 // The occasions in the README. 'newsletter' belongs only to newsletter.json.
 const OCCASIONS = [
@@ -74,8 +83,14 @@ const LENGTHS = {
     pushTitle: { min: 5, max: 40 },
     pushText: { min: 20, max: 120 },
     reply: { min: 2, max: 120 },
-    conversation: { min: 2, max: 300 }
+    conversation: { min: 2, max: 300 },
+    snippetName: { min: 3, max: 100 }
 };
+
+// snippets.json: its own tokens, filled at load, and the owner that gives each campus pastor a copy.
+const SNIPPET_TOKENS = [ "{campus}", "{serviceTimes}", "{staff}" ];
+const CAMPUS_PASTOR = "campus-pastor";
+const GUID_PATTERN = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
 
 // conversations.json: where a topic happens, who texts, its own tokens, and how many entries each list needs
 // so a generated thread rarely repeats. Every entry stands alone.
@@ -207,6 +222,22 @@ function checkKey( at, key, seen ) {
     }
     else {
         seen.set( key, at );
+    }
+}
+
+/**
+ * Checks an uppercase Guid and that no other entry in the file has it.
+ */
+function checkGuid( at, guid, seen ) {
+    if ( typeof guid !== "string" || !GUID_PATTERN.test( guid ) ) {
+        errors.push( `${at}: "${guid}" must be an uppercase Guid.` );
+        return;
+    }
+    if ( seen.has( guid ) ) {
+        errors.push( `${at}: Guid ${guid} is already used by ${seen.get( guid )}.` );
+    }
+    else {
+        seen.set( guid, at );
     }
 }
 
@@ -735,6 +766,133 @@ if ( conversationsFile && checkKeys( "conversations.json", conversationsFile, [ 
     summary.push( `conversations.json\n    ${topics.length} topics (${where}), ${entries} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
 }
 
+// snippets.json: the SMS snippets staff insert in SMS Conversations (decision D-snippets-1). A shared snippet has a
+// category so staff find it in the picker. An owned one belongs to a staff member, or to each campus pastor. A snippet
+// with campusGuids loads once per campus, so it may use the campus tokens. Every one fills in the person's nickname.
+const snippetsFile = readFile( "snippets.json" );
+if ( snippetsFile && checkKeys( "snippets.json", snippetsFile, [ "replyShare", "snippets", "access" ], [ "$accessComment" ] ) ) {
+    checkCharacters( "snippets.json", snippetsFile );
+    if ( typeof snippetsFile.replyShare !== "number" || !( snippetsFile.replyShare > 0 && snippetsFile.replyShare <= 1 ) ) {
+        errors.push( "snippets.json replyShare: must be a share above 0 and up to 1." );
+    }
+    const topicKeys = conversationsFile && Array.isArray( conversationsFile.topics ) ? conversationsFile.topics.map( t => t && t.key ) : [];
+    const snippetCategories = CATEGORIES.filter( c => c.entityType === "Rock.Model.Snippet" ).map( c => c.key );
+    const longestCampus = CAMPUS_KEYS.map( k => CAMPUS_NAMES[k] ).reduce( ( a, b ) => b.length > a.length ? b : a, "" );
+    const keys = new Map();
+    const guids = new Map();
+    const usedCategories = new Set();
+    const snippets = checkArray( "snippets.json snippets", snippetsFile.snippets );
+    let personal = 0;
+    let perCampus = 0;
+    let withTopics = 0;
+    let short = 0;
+    for ( const [ index, snippet ] of snippets.entries() ) {
+        const at = `snippets.json snippets[${index}]`;
+        if ( !checkKeys( at, snippet, [ "key", "name", "description", "topics", "text" ], [ "owner", "category", "guid", "campusGuids" ] ) ) {
+            continue;
+        }
+        const label = `${at} (${snippet.key})`;
+        checkKey( at, snippet.key, keys );
+
+        const isPerCampus = "campusGuids" in snippet;
+        if ( isPerCampus === ( "guid" in snippet ) ) {
+            errors.push( `${label}: needs a guid, or campusGuids with one per campus, but not both.` );
+        }
+        if ( isPerCampus ) {
+            perCampus++;
+            if ( checkKeys( `${label} campusGuids`, snippet.campusGuids, CAMPUS_KEYS ) ) {
+                for ( const [ campus, guid ] of Object.entries( snippet.campusGuids ) ) {
+                    checkGuid( `${label} campusGuids.${campus}`, guid, guids );
+                }
+            }
+        }
+        else if ( "guid" in snippet ) {
+            checkGuid( `${label} guid`, snippet.guid, guids );
+        }
+
+        if ( "owner" in snippet ) {
+            personal++;
+            if ( snippet.owner === CAMPUS_PASTOR && !isPerCampus ) {
+                errors.push( `${label}: a campus pastor's snippet needs campusGuids, one per campus.` );
+            }
+            else if ( snippet.owner !== CAMPUS_PASTOR && !STAFF_KEYS.includes( snippet.owner ) ) {
+                errors.push( `${label}: owner "${snippet.owner}" is not a staff key in configuration/staff.json or "${CAMPUS_PASTOR}".` );
+            }
+        }
+        else if ( !( "category" in snippet ) ) {
+            errors.push( `${label}: a shared snippet needs a category, so staff find it in the snippet picker.` );
+        }
+        if ( "category" in snippet ) {
+            if ( snippetCategories.includes( snippet.category ) ) {
+                usedCategories.add( snippet.category );
+            }
+            else {
+                errors.push( `${label}: category "${snippet.category}" is not a Rock.Model.Snippet category in configuration/categories.json.` );
+            }
+        }
+
+        if ( !Array.isArray( snippet.topics ) ) {
+            errors.push( `${label} topics: must be a list of topic keys from conversations.json, or empty.` );
+        }
+        else {
+            withTopics += snippet.topics.length ? 1 : 0;
+            for ( const topic of snippet.topics ) {
+                if ( !topicKeys.includes( topic ) ) {
+                    errors.push( `${label}: topic "${topic}" is not a topic in conversations.json.` );
+                }
+            }
+            if ( new Set( snippet.topics ).size !== snippet.topics.length ) {
+                errors.push( `${label}: lists a topic twice.` );
+            }
+        }
+
+        // The campus tokens belong to a snippet that loads once per campus, and {staff} to a campus pastor's.
+        const campusTokens = isPerCampus ? [ "{campus}" ] : [];
+        const textTokens = campusTokens.concat( isPerCampus ? [ "{serviceTimes}" ] : [], snippet.owner === CAMPUS_PASTOR ? [ "{staff}" ] : [] );
+        if ( checkString( `${label} name`, snippet.name ) ) {
+            checkText( `${label} name`, snippet.name, { allowed: campusTokens, known: SNIPPET_TOKENS, lava: false } );
+            checkLength( `${label} name`, snippet.name.split( "{campus}" ).join( longestCampus ), LENGTHS.snippetName, "a snippet name" );
+        }
+        if ( checkString( `${label} description`, snippet.description ) ) {
+            checkText( `${label} description`, snippet.description, { allowed: campusTokens, known: SNIPPET_TOKENS, lava: false } );
+        }
+        if ( checkString( `${label} text`, snippet.text ) ) {
+            checkText( `${label} text`, snippet.text, { allowed: textTokens, known: SNIPPET_TOKENS } );
+            checkLength( `${label} text`, snippet.text, LENGTHS.sms, "a snippet" );
+            if ( snippet.text.split( LAVA ).length !== 2 ) {
+                errors.push( `${label} text: must fill in the person's nickname with ${LAVA} once.` );
+            }
+            short += snippet.text.length <= SMS_TYPICAL_MAX ? 1 : 0;
+        }
+    }
+    for ( const category of snippetCategories.filter( c => !usedCategories.has( c ) ) ) {
+        errors.push( `snippets.json: no snippet is in the ${category} category.` );
+    }
+
+    // The access walkthrough: each question names a staff member, one of this file's snippets, and Rock's answer.
+    for ( const [ index, row ] of checkArray( "snippets.json access", snippetsFile.access ).entries() ) {
+        const at = `snippets.json access[${index}]`;
+        if ( !checkKeys( at, row, [ "person", "name", "snippet", "action", "allowed" ] ) ) {
+            continue;
+        }
+        if ( !STAFF_PEOPLE.includes( row.person ) ) {
+            errors.push( `${at}: person ${row.person} is not a staff member in configuration/staff.json.` );
+        }
+        if ( !guids.has( row.snippet ) ) {
+            errors.push( `${at}: snippet ${row.snippet} is not a snippet Guid in this file.` );
+        }
+        if ( row.action !== "View" && row.action !== "Edit" ) {
+            errors.push( `${at}: action must be View or Edit.` );
+        }
+        if ( typeof row.allowed !== "boolean" ) {
+            errors.push( `${at}: allowed must be true or false.` );
+        }
+    }
+    checkOpenings( "snippets.json", snippets.map( ( s, i ) => [ `snippets[${i}]`, s && s.text ] ) );
+    const share = snippets.length ? Math.round( 100 * short / snippets.length ) : 0;
+    summary.push( `snippets.json\n    ${snippets.length} snippets (${snippets.length - personal} shared, ${personal} personal, ${perCampus} once per campus) in ${usedCategories.size} categories, ${withTopics} used in generated replies (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
+}
+
 // The wizard-ready template (decision 269) is the Legacy template in Rock's newer editor format. That editor has
 // no Lava fields, so it writes in each Lava field's color, and its logo image component points at the Legacy logo file.
 if ( configuration.wizardTemplate ) {
@@ -768,5 +926,5 @@ for ( const line of summary ) {
 for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
-console.log( `\nMessage library: 5 files checked. ${errors.length} errors.` );
+console.log( `\nMessage library: 6 files checked. ${errors.length} errors.` );
 process.exit( errors.length ? 1 : 0 );
