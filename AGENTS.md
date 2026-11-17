@@ -25,7 +25,7 @@ The first line turns on the hooks that guard `main`. The second makes every merg
 
 ## Generated files
 
-7. **Never hand-merge a generated file.** `validation/rock-contract.json` is recorded by the verify tool from real loads. On a conflict, take either side, then re-record it with the verify tool's `--record-contract` after the merge. The same goes for packages, receipts, and `cast/families/` pages: rebuild them, never merge them.
+7. **Never hand-merge a generated file.** `validation/rock-contract.json` is recorded by the verify tool from real loads. On a conflict, take either side, then re-record it with the verify tool's `--record-contract` after the merge. The same goes for packages, receipts, `cast/families/` pages, and the email sections' markup and thumbnails in `content/communications/email-sections/`: rebuild them, never merge them.
 
 ## Shared machine resources
 
