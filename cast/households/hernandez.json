@@ -10,7 +10,8 @@
   "story": "Gabriel Hernandez plays guitar on the worship team and almost never misses a Sunday.",
   "testPurposes": [
     "Young single volunteer on the Phoenix Worship Team.",
-    "Weekly online giver."
+    "Weekly online giver.",
+    "A duplicate online gift, refunded the next day, that leaves his journey stage unchanged."
   ],
   "address": {
     "type": "home",
@@ -34,6 +35,7 @@
     {
       "persona": "weekly",
       "person": "gabriel",
+      "currency": "card",
       "funds": {
         "General Fund": 50
       },
@@ -42,7 +44,18 @@
         "yearsAgo": 3,
         "month": 12,
         "day": 4
-      }
+      },
+      "expect": {
+        "journeyStage": "consistent"
+      },
+      "refunds": [
+        {
+          "kind": "duplicate",
+          "near": {
+            "daysAgo": 45
+          }
+        }
+      ]
     }
   ],
   "campaign": [

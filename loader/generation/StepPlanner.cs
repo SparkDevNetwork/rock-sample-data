@@ -167,9 +167,10 @@ namespace RockSampleData.Loader.Generation
                 runs.Insert( 0, run );
             }
 
+            var givingIds = _facts.Gifts.GivingIds.ToHashSet();
             foreach ( var unit in _facts.People.Where( p => p.GivingId != null ).GroupBy( p => p.GivingId ) )
             {
-                if ( !_facts.GiftDatesByGivingId.TryGetValue( unit.Key, out var dates ) )
+                if ( !givingIds.Contains( unit.Key ) )
                 {
                     continue;
                 }
@@ -178,7 +179,7 @@ namespace RockSampleData.Loader.Generation
                 var spans = new List<(DateTime Start, DateTime? End)>();
                 foreach ( var run in runs )
                 {
-                    var stage = GetJourneyStage( dates, run );
+                    var stage = GetJourneyStage( _facts.Gifts.DatesAsOf( unit.Key, run ), run );
                     if ( open == null && stage == startsAt )
                     {
                         open = run.Date;
@@ -819,9 +820,9 @@ namespace RockSampleData.Loader.Generation
         public List<MembershipFact> Memberships { get; set; } = new List<MembershipFact>();
 
         /// <summary>
-        /// Each giving unit's qualifying gift dates, in order.
+        /// Each giving unit's qualifying gifts, as Rock's weekly journey run saw them.
         /// </summary>
-        public Dictionary<string, List<DateTime>> GiftDatesByGivingId { get; set; } = new Dictionary<string, List<DateTime>>();
+        public GiftTimeline Gifts { get; set; } = new GiftTimeline( new Dictionary<string, List<RockGift>>(), new List<RefundedGift>() );
 
         /// <summary>
         /// People with an open request to serve.

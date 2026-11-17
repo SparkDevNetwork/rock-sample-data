@@ -47,21 +47,35 @@
       },
       "attributes": {
         "Employer": "Sonoran Valley University",
-        "Position": "Teacher",
-        "AdaptiveD": "14",
-        "AdaptiveI": "27",
-        "AdaptiveS": "69",
-        "AdaptiveC": "76",
-        "NaturalD": "62",
-        "NaturalI": "10",
-        "NaturalS": "76",
-        "NaturalC": "79",
-        "LastSaveDate": {
-          "yearsAgo": 9,
-          "month": 12,
-          "day": 2
-        },
-        "PersonalityType": "SC"
+        "Position": "Teacher"
+      },
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 1,
+                "month": 12,
+                "day": 2
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 14,
+                  "I": 27,
+                  "S": 69,
+                  "C": 76
+                },
+                "natural": {
+                  "D": 62,
+                  "I": 10,
+                  "S": 76,
+                  "C": 79
+                },
+                "personalityType": "SC"
+              }
+            }
+          ]
+        }
       }
     }
   ]

@@ -28,7 +28,6 @@ const path = require( "path" );
 const { execFileSync } = require( "child_process" );
 
 const root = path.join( __dirname, ".." );
-const PHONE = /^(602|480|623)55501\d\d$/;
 const EMAIL = /[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
 const EMAIL_DOMAINS = [ "example.org", "rocksolidchurchdemo.com" ];
 const DATA_FOLDERS = [ "cast", "configuration", "datasets", "content", "calibration/profiles", "photos" ];
@@ -63,6 +62,48 @@ function* strings( value, at = "" ) {
     }
 }
 
+// Rule 2 for the area codes in configuration/phones.json: each is a US geographic code, listed once, under a state
+// or Washington, D.C. Geographic codes are NXX with a middle digit from 0 to 8. NOT_GEOGRAPHIC holds the rest: N11
+// service codes, N00 codes, toll-free codes, personal communications codes, codes held for expansion, and special uses.
+const phonesFile = "configuration/phones.json";
+const US_STATES = [ "AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS",
+    "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VT", "WA", "WI", "WV", "WY" ];
+const GEOGRAPHIC = /^[2-9][0-8]\d$/;
+const NOT_GEOGRAPHIC = /^(\d11|[2-9]00|8(22|33|44|55|66|77|88)|88\d|5(2[1-9]|33|44|55|66|77|88)|37\d|96\d|456|622|710|950)$/;
+const areaCodes = JSON.parse( fs.readFileSync( path.join( root, phonesFile ), "utf8" ) );
+const listedAreaCodes = new Map();
+function checkAreaCode( code, at ) {
+    checked++;
+    if ( !GEOGRAPHIC.test( code ) || NOT_GEOGRAPHIC.test( code ) ) {
+        problems.push( `Rule 2: ${phonesFile} ${at} lists ${code}, which is not a geographic area code.` );
+    }
+    if ( listedAreaCodes.has( code ) ) {
+        problems.push( `Rule 2: ${phonesFile} lists ${code} under both ${listedAreaCodes.get( code )} and ${at}.` );
+    }
+    listedAreaCodes.set( code, at );
+}
+const LOCAL_AREA_CODES = areaCodes.localAreaCodes || [];
+if ( !LOCAL_AREA_CODES.length ) {
+    problems.push( `Rule 2: ${phonesFile} has no localAreaCodes, which the Cast and the church use.` );
+}
+for ( const code of LOCAL_AREA_CODES ) {
+    checkAreaCode( code, "localAreaCodes" );
+}
+for ( const [ state, codes ] of Object.entries( areaCodes.otherAreaCodes || {} ) ) {
+    if ( !US_STATES.includes( state ) ) {
+        problems.push( `Rule 2: ${phonesFile} otherAreaCodes has ${state}, which is not a US state or DC.` );
+    }
+    for ( const code of codes ) {
+        checkAreaCode( code, `otherAreaCodes.${state}` );
+    }
+}
+
+// The Cast and the church keep the local codes. Only generated people and businesses use the others (decision 259).
+const PHONE = new RegExp( `^(${LOCAL_AREA_CODES.join( "|" )})55501\\d\\d$` );
+const LOCAL_TEXT = LOCAL_AREA_CODES.length > 1
+    ? `${LOCAL_AREA_CODES.slice( 0, -1 ).join( ", " )}, or ${LOCAL_AREA_CODES[ LOCAL_AREA_CODES.length - 1 ]}`
+    : LOCAL_AREA_CODES.join( "" );
+
 // Rule 2: phones use the reserved range, and a number is shared only when the story says so:
 // within one household, as an office's main line (work phones only), or between duplicate records.
 const households = readJson( "cast/households" ).filter( h => h.data.key );
@@ -74,7 +115,7 @@ for ( const { file, data: h } of households ) {
         for ( const [ type, number ] of Object.entries( p.phones || {} ) ) {
             checked++;
             if ( !PHONE.test( number ) ) {
-                problems.push( `Rule 2: ${file} (${p.key}) ${type} phone ${number} is not 555-0100 to 555-0199 in 602, 480, or 623.` );
+                problems.push( `Rule 2: ${file} (${p.key}) ${type} phone ${number} is not 555-0100 to 555-0199 in ${LOCAL_TEXT}.` );
             }
             if ( !phones.has( number ) ) {
                 phones.set( number, [] );
@@ -104,7 +145,7 @@ if ( fs.existsSync( path.join( root, communicationsFile ) ) ) {
         checked++;
         const number = String( e164 ).replace( /^\+1/, "" );
         if ( !/^\+1\d{10}$/.test( e164 ) || !PHONE.test( number ) ) {
-            problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is not +1 and 555-0100 to 555-0199 in 602, 480, or 623.` );
+            problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is not +1 and 555-0100 to 555-0199 in ${LOCAL_TEXT}.` );
         }
         if ( phones.has( number ) ) {
             problems.push( `Rule 2: ${communicationsFile} ${key} number ${e164} is a Cast person's number (${phones.get( number ).map( u => `${u.household}/${u.person}` ).join( ", " )}).` );

@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -50,8 +50,18 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, or Report), its Guid, an action, and a person's Guid, separated by tabs. Prints True or
-    ///            False for each, in order.
+    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            separated by tabs. Prints True or False for each, in order.
+    ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
+    ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
+    ///            data, and the person attribute values Rock's service would save, as key=value, separated by tabs.
+    ///   segments  Runs Rock's own segment update (PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment,
+    ///            what the Update Personalization Data job calls) on every personalization segment, and prints each
+    ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
+    ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
+    ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
+    ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
+    ///            place of the key, it renders that block's content for the person instead, on one line.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -66,10 +76,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -105,6 +115,9 @@ namespace RockSampleData.RockRunner
                     "data-view-people" => worker.DataViewPeople( lines ),
                     "reports" => worker.Reports(),
                     "authorize" => worker.Authorize( lines ),
+                    "assessment-scores" => worker.AssessmentScores(),
+                    "segments" => worker.Segments(),
+                    "adaptive-messages" => worker.AdaptiveMessages( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -503,13 +516,290 @@ namespace RockSampleData.RockRunner
                 }
                 else
                 {
-                    var cache = _rock.GetType( parts[0] == "Category" ? "Rock.Web.Cache.CategoryCache" : "Rock.Web.Cache.DataViewCache", true );
+                    var cacheName = parts[0] switch
+                    {
+                        "Category" => "Rock.Web.Cache.CategoryCache",
+                        "PersonalizationSegment" => "Rock.Web.Cache.PersonalizationSegmentCache",
+                        "Page" => "Rock.Web.Cache.PageCache",
+                        _ => "Rock.Web.Cache.DataViewCache"
+                    };
+                    var cache = _rock.GetType( cacheName, true );
                     item = cache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
                         .Invoke( null, new object[] { new Guid( parts[1] ) } );
                 }
 
                 var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
                 results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Scores every assessment's saved answers with Rock's own scoring services, and writes the answer data again with
+        /// Rock's own serializer, the way each assessment block saves it. Prints one line per assessment with answers: its
+        /// Id, "same" or "differs" for the answer data, then each person attribute value Rock's service would save, as
+        /// key=value, separated by tabs.
+        /// </summary>
+        public string AssessmentScores()
+        {
+            Start();
+            StartMessageBus();
+            var common = Assembly.Load( "Rock.Common" );
+            var json = common.GetType( "Rock.JsonExtensions", true );
+            var toJson = json.GetMethod( "ToJson", new[] { typeof( object ) } );
+            T FromJson<T>( string text ) => ( T ) json.GetMethod( "FromJsonOrThrow" ).MakeGenericMethod( typeof( T ) ).Invoke( null, new object[] { text } );
+            object Get( object item, string name ) => item.GetType().GetProperty( name )?.GetValue( item ) ?? item.GetType().GetField( name )?.GetValue( item );
+            string Join( object guids ) => string.Join( ",", ( ( IEnumerable<Guid> ) guids ).Select( g => g.ToString() ) );
+
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.AssessmentService", true );
+            var assessments = ( ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), null ) )
+                .Where( a => Get( a, "AssessmentResultData" ) != null )
+                .ToList();
+            var typeCache = _rock.GetType( "Rock.Web.Cache.AssessmentTypeCache", true ).GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            var disc = _rock.GetType( "Rock.Model.DiscService", true );
+            var gifts = _rock.GetType( "Rock.Model.SpiritualGiftsService", true );
+            var conflict = _rock.GetType( "Rock.Model.ConflictProfileService", true );
+            var eq = _rock.GetType( "Rock.Model.EQInventoryService", true );
+            var motivators = _rock.GetType( "Rock.Model.MotivatorService", true );
+            var discTexts = ( ( System.Collections.IEnumerable ) disc.GetMethod( "GetResponses" ).Invoke( null, null ) ).Cast<object>()
+                .ToDictionary( r => $"{Get( r, "QuestionNumber" )}:{Get( r, "MostScore" )}", r => ( string ) Get( r, "ResponseText" ) );
+
+            var lines = new List<string>();
+            foreach ( var assessment in assessments )
+            {
+                var data = ( string ) Get( assessment, "AssessmentResultData" );
+                var typeGuid = ( ( Guid ) Get( typeCache.Invoke( null, new[] { Get( assessment, "AssessmentTypeId" ) } ), "Guid" ) ).ToString().ToUpperInvariant();
+                var values = new List<string>();
+                string rewritten;
+                try
+                {
+                    var timeToTake = FromJson<TimedData>( data ).TimeToTake;
+                    switch ( typeGuid )
+                    {
+                        case "A5CB2E3D-118A-41F2-972B-325A328B0B54":
+                            {
+                                var result = FromJson<DiscData>( data ).Result;
+                                var letters = new[] { "D", "I", "S", "C" };
+                                var counts = letters.Select( l => result.Values.Count( q => q["Most"][0] == l ) ).Concat( letters.Select( l => result.Values.Count( q => q["Least"][0] == l ) ) ).Cast<object>().ToArray();
+                                var scores = disc.GetMethod( "Score" ).Invoke( null, counts );
+                                foreach ( var l in letters )
+                                {
+                                    values.Add( $"Adaptive{l}={Get( scores, "AdaptiveBehavior" + l )}" );
+                                }
+
+                                foreach ( var l in letters )
+                                {
+                                    values.Add( $"Natural{l}={Get( scores, "NaturalBehavior" + l )}" );
+                                }
+
+                                values.Add( $"PersonalityType={Get( scores, "PersonalityType" )}" );
+                                values.Add( $"core_DISCDISCProfile={Get( Get( scores, "DISCProfile" ), "Guid" )}" );
+                                var answers = result.ToDictionary( q => q.Key, q => new Dictionary<string, string[]>
+                                {
+                                    ["Most"] = new[] { q.Value["Most"][0], discTexts[$"{q.Key}:{q.Value["Most"][0]}"] },
+                                    ["Least"] = new[] { q.Value["Least"][0], discTexts[$"{q.Key}:{q.Value["Least"][0]}"] }
+                                } );
+                                rewritten = ( string ) toJson.Invoke( null, new object[] { new Dictionary<string, object> { ["Result"] = answers, ["TimeToTake"] = timeToTake } } );
+                                break;
+                            }
+
+                        case "B8FBD371-6B32-4BE5-872F-51400D16EC5D":
+                            {
+                                var responses = FromJson<GiftsData>( data ).Result;
+                                var result = gifts.GetMethod( "GetResult" ).Invoke( null, new object[] { responses } );
+                                values.Add( $"core_DominantGifts={Join( Get( result, "DominantGifts" ) )}" );
+                                values.Add( $"core_SupportiveGifts={Join( Get( result, "SupportiveGifts" ) )}" );
+                                values.Add( $"core_OtherGifts={Join( Get( result, "OtherGifts" ) )}" );
+                                var resultData = Activator.CreateInstance( gifts.GetNestedType( "AssessmentResultData" ) );
+                                resultData.GetType().GetProperty( "Result" ).SetValue( resultData, responses );
+                                resultData.GetType().GetProperty( "ResultScores" ).SetValue( resultData, Get( result, "SpiritualGiftScores" ) );
+                                resultData.GetType().GetProperty( "TimeToTake" ).SetValue( resultData, timeToTake );
+                                rewritten = ( string ) toJson.Invoke( null, new[] { resultData } );
+                                break;
+                            }
+
+                        case "CE7E1986-FDC3-4A3F-9464-26A65D684E29":
+                            {
+                                var result = conflict.GetMethod( "GetResult" ).Invoke( null, new object[] { Flatten( FromJson<GroupedData>( data ) ) } );
+                                foreach ( var (key, property) in new[] { ("core_ConflictModeWinning", "ModeWinningScore"), ("core_ConflictModeResolving", "ModeResolvingScore"), ("core_ConflictModeCompromising", "ModeCompromisingScore"),
+                                    ("core_ConflictModeAvoiding", "ModeAvoidingScore"), ("core_ConflictModeYielding", "ModeYieldingScore"), ("core_ConflictThemeAccommodating", "EngagementAccommodatingScore"),
+                                    ("core_ConflictThemeWinning", "EngagementWinningScore"), ("core_ConflictThemeSolving", "EngagementSolvingScore") } )
+                                {
+                                    values.Add( $"{key}={Get( result, property )}" );
+                                }
+
+                                rewritten = ( string ) toJson.Invoke( null, new object[] { new Dictionary<string, object> { ["Result"] = Get( result, "AssessmentData" ), ["TimeToTake"] = timeToTake } } );
+                                break;
+                            }
+
+                        case "DE2D65A3-FC36-4472-B5DF-FAD30EEC27A0":
+                            {
+                                var result = eq.GetMethod( "GetResult" ).Invoke( null, new object[] { Flatten( FromJson<GroupedData>( data ) ) } );
+                                foreach ( var (key, property) in new[] { ("core_EQSelfAwareness", "SelfAwareConstruct"), ("core_EQSelfRegulating", "SelfRegulatingConstruct"), ("core_EQOthersAwareness", "OtherAwarenessContruct"),
+                                    ("core_EQOthersRegulating", "OthersRegulatingConstruct"), ("core_EQProblemSolving", "EQ_ProblemSolvingScale"), ("core_EQUnderStress", "EQ_UnderStressScale") } )
+                                {
+                                    values.Add( $"{key}={Get( result, property )}" );
+                                }
+
+                                rewritten = ( string ) toJson.Invoke( null, new object[] { new Dictionary<string, object> { ["Result"] = Get( result, "AssessmentData" ), ["TimeToTake"] = timeToTake } } );
+                                break;
+                            }
+
+                        case "EABE1ABA-4A23-44FF-8C7F-6B71383BED09":
+                            {
+                                var result = motivators.GetMethod( "GetResult" ).Invoke( null, new object[] { Flatten( FromJson<GroupedData>( data ) ) } );
+                                string ScoreKey( object definedValue ) => ( string ) definedValue.GetType().GetMethod( "GetAttributeValue", new[] { typeof( string ) } ).Invoke( definedValue, new object[] { "AttributeScoreKey" } );
+                                var scores = ( ( System.Collections.IEnumerable ) Get( result, "MotivatorScores" ) ).Cast<object>().ToList();
+                                values.Add( $"core_MotivatorsTop5Motivators={string.Join( ",", scores.Take( 5 ).Select( s => Get( Get( s, "DefinedValue" ), "Guid" ).ToString() ) )}" );
+                                foreach ( var score in scores.Concat( ( ( System.Collections.IEnumerable ) Get( result, "MotivatorThemeScores" ) ).Cast<object>() ) )
+                                {
+                                    values.Add( $"{ScoreKey( Get( score, "DefinedValue" ) )}={Get( score, "Value" )}" );
+                                }
+
+                                rewritten = ( string ) toJson.Invoke( null, new object[] { new Dictionary<string, object> { ["Result"] = Get( result, "AssessmentData" ), ["TimeToTake"] = timeToTake } } );
+                                break;
+                            }
+
+                        default:
+                            continue;
+                    }
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    lines.Add( $"{Get( assessment, "Id" )}\terror\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                    continue;
+                }
+
+                lines.Add( $"{Get( assessment, "Id" )}\t{( rewritten == data ? "same" : "differs" )}\t{string.Join( "\t", values )}" );
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Every answer of a Conflict Profile, EQ, or Motivators answer set, which Rock saves grouped by what each scores.
+        /// </summary>
+        private static Dictionary<string, int> Flatten( GroupedData data )
+        {
+            return data.Result.Values.SelectMany( group => group ).ToDictionary( answer => answer.Key, answer => int.Parse( answer.Value ) );
+        }
+
+        /// <summary>
+        /// Rock's DISC answer data: each question number's Most and Least, each a letter and its response's text.
+        /// </summary>
+        public sealed class DiscData
+        {
+            public Dictionary<string, Dictionary<string, string[]>> Result { get; set; }
+        }
+
+        /// <summary>
+        /// Rock's Spiritual Gifts answer data: each question's answer.
+        /// </summary>
+        public sealed class GiftsData
+        {
+            public Dictionary<string, int> Result { get; set; }
+        }
+
+        /// <summary>
+        /// Rock's Conflict Profile, EQ, and Motivators answer data: each answer, grouped by what it scores.
+        /// </summary>
+        public sealed class GroupedData
+        {
+            public Dictionary<string, Dictionary<string, string>> Result { get; set; }
+        }
+
+        public sealed class TimedData
+        {
+            public double TimeToTake { get; set; }
+        }
+
+        /// <summary>
+        /// Runs Rock's own segment update on every personalization segment, the call Rock's Update Personalization Data job
+        /// makes for a segment that is due, and reports what each one changed. The job itself would skip a segment refreshed
+        /// today, so the runner hands Rock every segment.
+        /// </summary>
+        public string Segments()
+        {
+            Start();
+            StartMessageBus();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.PersonalizationSegmentService", true );
+            var segmentCache = _rock.GetType( "Rock.Web.Cache.PersonalizationSegmentCache", true );
+            var update = serviceType.GetMethod( "UpdatePersonAliasPersonalizationDataForSegment", Hidden, null, new[] { segmentCache }, null )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment. The runner needs updating for this Rock." );
+            var all = ( System.Collections.IEnumerable ) segmentCache.GetMethod( "All", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, Type.EmptyTypes, null ).Invoke( null, null );
+            var lines = new List<string>();
+            foreach ( var segment in all.Cast<object>().ToList() )
+            {
+                // Each segment gets its own context, as the job gives each one.
+                var service = Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) );
+                var result = update.Invoke( service, new[] { segment } );
+                var resultType = result.GetType();
+                lines.Add( $"{segmentCache.GetProperty( "Guid" ).GetValue( segment )}\t{resultType.GetField( "CountAddedSegment" ).GetValue( result )}\t{resultType.GetField( "CountRemovedFromSegment" ).GetValue( result )}" );
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Renders Rock's adaptivemessage Lava command for each person and message, as a page with the command enabled
+        /// renders it for that person, and returns the adaptation it shows. Views are not tracked, so nothing is written.
+        /// </summary>
+        public string AdaptiveMessages( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( string ), typeof( bool ), typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no ResolveMergeFields( string, IDictionary, string, bool, bool ). The runner needs updating for this Rock." );
+            var htmlContentService = _rock.GetType( "Rock.Model.HtmlContentService", true );
+            var getActiveContent = htmlContentService.GetMethod( "GetActiveContentHtml", new[] { typeof( int ), typeof( string ) } );
+            var blockCache = _rock.GetType( "Rock.Web.Cache.BlockCache", true );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var context = createContext.Invoke( null, new[] { app } );
+                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, context ), new object[] { new Guid( parts[0] ) } );
+                string lava;
+                if ( parts[1].StartsWith( "block:", StringComparison.Ordinal ) )
+                {
+                    // An HTML Content block's active content, rendered as the block renders it for the signed-in person.
+                    var block = blockCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                        .Invoke( null, new object[] { new Guid( parts[1].Substring( "block:".Length ) ) } );
+                    lava = block == null ? null : ( string ) getActiveContent.Invoke( Activator.CreateInstance( htmlContentService, context ), new object[] { ( int ) blockCache.GetProperty( "Id" ).GetValue( block ), string.Empty } );
+                    if ( lava == null )
+                    {
+                        results.Add( "error\tthe block or its content is missing" );
+                        continue;
+                    }
+                }
+                else
+                {
+                    lava = $"{{% adaptivemessage messagekey:'{parts[1]}' trackviews:'false' %}}{{{{ messageAdaptation.Id }}}}\t{{{{ messageAdaptation | Attribute:'CallToAction' }}}}{{% endadaptivemessage %}}";
+                }
+
+                try
+                {
+                    var mergeFields = new Dictionary<string, object> { ["Person"] = person, ["CurrentPerson"] = person };
+                    var output = ( string ) resolve.Invoke( null, new object[] { lava, mergeFields, "AdaptiveMessage", false, true } );
+                    results.Add( parts[1].StartsWith( "block:", StringComparison.Ordinal ) ? string.Join( " ", output.Split( new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries ).Select( s => s.Trim() ) ) : output.Trim() );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"error\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                }
             }
 
             return string.Join( "\n", results );

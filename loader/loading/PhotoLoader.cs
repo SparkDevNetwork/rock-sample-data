@@ -276,6 +276,28 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// Stores one copy of a calendar event's image (photos/events/manifest.json) for each event key, the way Rock's
+        /// image picker stores an upload (a Default file, not temporary), so each adaptation that shows it owns its own
+        /// file. Returns each file's Guid, in the keys' order.
+        /// </summary>
+        /// <param name="eventKeys">The event of each image, in order. An event may repeat.</param>
+        public List<Guid> LoadEventImageCopies( IReadOnlyList<string> eventKeys )
+        {
+            if ( eventKeys.Count == 0 )
+            {
+                return new List<Guid>();
+            }
+
+            var photos = _source.ReadEventPhotoManifest().Images.ToDictionary( p => p.Event, p => p.File, StringComparer.Ordinal );
+            var files = eventKeys.Select( k => photos.TryGetValue( k, out var file ) ? file
+                : throw new InvalidDataException( $"{SampleDataSource.EventPhotoManifestPath} has no image for event {k}." ) ).ToList();
+            var ids = WriteFiles( DefaultFileTypeGuid, files, SampleDataSource.EventPhotoManifestPath );
+            var guids = _db.Query( $"SELECT [Id], [Guid] FROM [BinaryFile] WHERE [Id] IN ( {string.Join( ", ", ids )} )" )
+                .ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
+            return ids.Select( id => guids[id] ).ToList();
+        }
+
+        /// <summary>
         /// Stores each calendar event's photo the way Rock stores one uploaded on the event's page (a Default file, not
         /// temporary) and sets it as the event item's photo. Events with no photo in photos/events/manifest.json get
         /// none. Returns how many events got a photo.

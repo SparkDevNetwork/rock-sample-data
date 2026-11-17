@@ -1,16 +1,16 @@
-# Desert Bloom Landscaping
+# Desert Thistle Landscaping
 
 New household · Business · Phoenix campus · [source](../households/desert-bloom-landscaping.json)
 
-Daniel and Maria Garcia run Desert Bloom Landscaping together. The business gives by bank transfer on a monthly schedule.
+Daniel and Maria Garcia run Desert Thistle Landscaping together. The business gives by bank transfer on a monthly schedule.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
-| (business) | Desert Bloom Landscaping | ? | business | Prospect |
+| (business) | Desert Thistle Landscaping | ? | business | Prospect |
 
 ## People
 
-### Desert Bloom Landscaping
+### Desert Thistle Landscaping
 
 - email desertbloomlandscaping@example.org · contacts: Daniel Garcia, Maria Garcia
 - Person Guid `2E987E5A-D257-4147-BD48-140DBB6A8755`
@@ -23,8 +23,8 @@ Daniel and Maria Garcia run Desert Bloom Landscaping together. The business give
 ## Activity
 
 - **Attendance:** none. A business does not attend.
-- **Giving:** **monthly** by Desert Bloom Landscaping: $150 General Fund per gift, by bank transfer, gives in 100% of periods, started 3 years ago.
-- **Built on the Rock:** Desert Bloom Landscaping pledged $4,800 monthly on Commitment Sunday, and the pledge is **on pace**.
+- **Giving:** **monthly** by Desert Thistle Landscaping: $150 General Fund per gift, by bank transfer, gives in 100% of periods, started 3 years ago.
+- **Built on the Rock:** Desert Thistle Landscaping pledged $4,800 monthly on Commitment Sunday, and the pledge is **on pace**.
 
 ## Address
 

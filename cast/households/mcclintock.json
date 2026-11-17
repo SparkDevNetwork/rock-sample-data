@@ -48,21 +48,35 @@
       },
       "attributes": {
         "Employer": "Sonoran Valley University",
-        "Position": "Graduate Assistant",
-        "AdaptiveD": "92",
-        "AdaptiveI": "27",
-        "AdaptiveS": "12",
-        "AdaptiveC": "50",
-        "NaturalD": "76",
-        "NaturalI": "27",
-        "NaturalS": "18",
-        "NaturalC": "84",
-        "LastSaveDate": {
-          "yearsAgo": 9,
-          "month": 12,
-          "day": 2
-        },
-        "PersonalityType": "CD"
+        "Position": "Graduate Assistant"
+      },
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 1,
+                "month": 12,
+                "day": 2
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 92,
+                  "I": 27,
+                  "S": 12,
+                  "C": 50
+                },
+                "natural": {
+                  "D": 76,
+                  "I": 27,
+                  "S": 18,
+                  "C": 84
+                },
+                "personalityType": "CD"
+              }
+            }
+          ]
+        }
       }
     }
   ]

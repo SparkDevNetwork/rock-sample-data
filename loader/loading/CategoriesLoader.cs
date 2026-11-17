@@ -74,7 +74,10 @@ namespace RockSampleData.Loader.Loading
                         : category.QualifierEntityType != null ? Convert.ToString( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", category.QualifierEntityType ) )
                             ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' is for {category.QualifierEntityType}, which this Rock has no entity type for." ) )
                         : null;
-                    int? parentId = category.Parent == null ? null : ids[category.Parent];
+                    int? parentId = category.Parent != null ? ids[category.Parent]
+                        : category.ParentGuid.HasValue ? _db.IdByGuid( "Category", category.ParentGuid.Value )
+                            ?? throw new InvalidDataException( $"configuration/categories.json: category '{category.Key}' has parentGuid {category.ParentGuid}, which this Rock has no category for." )
+                        : null;
 
                     /*
                         10/28/26 - CLAUDE

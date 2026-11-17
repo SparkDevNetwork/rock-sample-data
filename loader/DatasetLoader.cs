@@ -57,11 +57,14 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
+            ("Assessments", SampleDataPart.Assessments),
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
+            ("Person attributes", null),
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
+            ("Adaptive messages", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -232,7 +235,7 @@ namespace RockSampleData.Loader
             Steps are the one exception to planning everything: they plan from rows that small groups,
             serving, and giving wrote, so they plan only when they load, and they need those parts.
             Their student check-ins come from the attendance plan, so they do not need attendance.
-            Nothing after them reads what they plan or write.
+            Only assessments, which need steps, read what they plan, and nothing reads what assessments write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
         */
@@ -269,6 +272,13 @@ namespace RockSampleData.Loader
             if ( staffLoader.HasOrgChart )
             {
                 log.Write( $"  Org chart: {staffLoader.LoadOrgChartSetup()}" );
+            }
+
+            // Rock's person attributes the sample data fills, the Date Engaged attribute, and the schools near each campus.
+            var personAttributes = new PersonAttributesLoader( db, source, dates, foreignKey, options.Seed );
+            if ( personAttributes.HasConfiguration )
+            {
+                log.Write( $"  Person attributes: {personAttributes.LoadSetup( configuration.CampusIds.Keys )}" );
             }
 
             var profile = source.ReadProfile();
@@ -467,7 +477,7 @@ namespace RockSampleData.Loader
                 pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
                 pledges?.WriteGoal();
                 giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving, CheckWeightScale = manifest?.Giving?.CheckWeightScale ?? 1 };
-                giving.Plan( people.Households );
+                giving.Plan( people.Households, castHouseholdKeys );
             }
 
             if ( isGivingLoaded )
@@ -486,8 +496,8 @@ namespace RockSampleData.Loader
             GivingAnalyticsLoader analytics = null;
             if ( steps.Begin( "Giving analytics" ) )
             {
-                analytics = new GivingAnalyticsLoader( db, dates, foreignKey );
-                analytics.Load( giving.QualifyingGifts );
+                analytics = new GivingAnalyticsLoader( db, dates, foreignKey ) { IsRefundChecked = options.IsCastExpectationsChecked };
+                analytics.Load( giving.Gifts );
             }
 
             // The sample church's giving alert types, with the alerts Rock would have raised over the last year.
@@ -517,10 +527,26 @@ namespace RockSampleData.Loader
             // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
             // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
             // steps load. The check-ins come from the plan, so steps do not need the Attendance part.
+            (StepFacts Facts, StepPlan Plan) stepsLoaded = (null, null);
             if ( steps.Begin( "Steps" ) )
             {
-                new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
+                stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+            }
+
+            // Rock's five assessments. Classes ask on their own nights and leaders take theirs before leading, both read
+            // from what the steps step wrote, so assessments need steps (SampleDataParts.All).
+            if ( steps.Begin( "Assessments" ) )
+            {
+                if ( stepsLoaded.Facts == null )
+                {
+                    log.Write( "  Skipped (this package has no steps to follow)" );
+                }
+                else
+                {
+                    var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    new AssessmentsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, stepsLoaded.Facts, stepsLoaded.Plan, campusPastors );
+                }
             }
 
             // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so
@@ -551,6 +577,30 @@ namespace RockSampleData.Loader
                 new RegistrationsLoader( db, source, dates, dataset, foreignKey, seed ).Load( calendarPlan, people, configuration.CampusPlans, studentPath, groupPlans, servingPlans, mainCampusKey, castHouseholdKeys );
             }
 
+            // Rock's person attributes: the Cast's own values, drawn values for generated people, and Date Engaged and
+            // envelopes from the rows. A kid's allergy from a registration form comes first, so this follows registrations,
+            // and nothing after it reads these values.
+            steps.Begin( "Person attributes" );
+            if ( personAttributes.HasConfiguration )
+            {
+                log.Write( "  " + personAttributes.LoadValues( new PersonAttributesLoader.Inputs
+                {
+                    People = people,
+                    CastHouseholdKeys = castHouseholdKeys,
+                    Attendance = attendance,
+                    CheckInGroupIds = configuration.CheckInGroupIdsByKey,
+                    LastSunday = calendar.Sundays.Last(),
+                    HistoryStart = calendar.HistoryStart,
+                    CheckGifts = isGivingLoaded ? giving.CheckGifts : null,
+                    SmallGroupTypeId = smallGroupSetup.GroupTypeId,
+                    ServingTypeId = servingSetup.GroupTypeId
+                } ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/person-attributes.json)" );
+            }
+
             // The church's texting numbers, its branded template, and its communication lists. The lists copy the
             // serving teams, the small group leaders, and the prayer team, so communications need those parts, and
             // who is involved enough for a newsletter comes from the attendance and giving plans. Registrations come
@@ -568,6 +618,11 @@ namespace RockSampleData.Loader
 
             // A recurring flow fills each run after install from its guarded audience view, which exists only now.
             FlowLoader.LinkAudiences( db, source, seed );
+
+            // Personalization segments and adaptive messages. Each segment is a data view, so they follow every step that
+            // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
+            steps.Begin( "Adaptive messages" );
+            new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

@@ -286,6 +286,7 @@ function load() {
         communicationLists: exists( "configuration/communications.json" ) ? readJson( "configuration/communications.json" ).lists.lists : [],
         syncedListKeys: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).syncs.map( s => s.target.list ).filter( Boolean ) : [],
         syncDataViews: exists( "configuration/group-syncs.json" ) ? readJson( "configuration/group-syncs.json" ).dataViews : [],
+        adaptiveMessages: exists( "configuration/adaptive-messages.json" ) ? readJson( "configuration/adaptive-messages.json" ) : { segments: [], messages: [], cast: [] },
         reportingDataViews: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).dataViews : [],
         reports: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).reports || [] : [],
         metrics: exists( "configuration/reporting.json" ) ? readJson( "configuration/reporting.json" ).metrics || [] : [],

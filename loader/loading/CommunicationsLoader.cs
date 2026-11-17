@@ -96,6 +96,11 @@ namespace RockSampleData.Loader.Loading
 
             var (templateId, templateHtml) = AddTemplate( configuration, people );
             _db.Log.Write( $"  Email template: {configuration.Template.Name}" );
+            if ( configuration.WizardTemplate != null )
+            {
+                AddWizardTemplate( configuration, people );
+                _db.Log.Write( $"  Email template: {configuration.WizardTemplate.Name}, for Rock's email wizard" );
+            }
 
             // A Cast story can put a person on a list, or keep them off every list, so their scripted unsubscribe can happen.
             var forced = configuration.CastUnsubscribes.Where( u => u.List != null ).ToLookup( u => u.List, u => u.Person );
@@ -345,6 +350,44 @@ VALUES ( @Name, @Description, 0, @FromName, @FromEmail, @Message, 1, @LogoId, @C
                 P( "@Message", html ), P( "@LogoId", logoId ), P( "@CategoryId", _db.RequireIdByGuid( "Category", template.CategoryGuid ) ),
                 P( "@LavaFields", JsonSerializer.Serialize( template.LavaFields ) ), P( "@Guid", template.Guid ), P( "@Now", now ), P( "@Author", author ), P( "@ForeignKey", _foreignKey ) );
             return (templateId, html);
+        }
+
+        /*
+            11/16/26 - CLAUDE
+
+            Rock's Communication Entry Wizard lists only templates that are not Legacy and have no usage type
+            (Rock.Blocks/Communication/CommunicationEntryWizard.cs), in Rock 20 and Rock 21 alike. Rock's template
+            detail block saves a template made in the newer email editor as Version 1 (Beta, shown as NextGen), with
+            no Lava fields, and keeps a logo file only for a template-logo image. So the wizard version is its own row:
+            Version 1, its colors written in, and the logo as an image component that points at the Legacy
+            template's logo file. Rock ships its own pair the same way, Blank and Blank (Legacy).
+
+            Reason: Staff who start an email in the wizard see the church's brand (decision 269).
+        */
+
+        /// <summary>
+        /// Adds the branded template in the format of Rock's newer email editor, which the Communication Entry Wizard lists.
+        /// </summary>
+        private void AddWizardTemplate( CommunicationsConfiguration configuration, PeopleLoader people )
+        {
+            var template = configuration.WizardTemplate;
+            var html = _source.Files.ReadText( template.Html );
+            if ( html.IndexOf( $"data-image-guid=\"{configuration.Template.LogoGuid}\"", StringComparison.OrdinalIgnoreCase ) < 0 )
+            {
+                throw new InvalidDataException( $"{template.Html} has no image component for the logo file {configuration.Template.LogoGuid}." );
+            }
+
+            var now = DateTime.Now;
+            var church = configuration.Senders.Church;
+            var author = people.People.TryGetValue( church.Sender, out var sender ) ? sender.AliasId : ( int? ) null;
+            _db.Execute( @"
+INSERT INTO [CommunicationTemplate] ( [Name], [Description], [IsSystem], [FromName], [FromEmail], [Message], [IsActive], [CategoryId],
+    [CssInliningEnabled], [IsStarter], [Version], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
+VALUES ( @Name, @Description, 0, @FromName, @FromEmail, @Message, 1, @CategoryId,
+    1, 0, 1, @Guid, @Now, @Now, @Author, @Author, @ForeignKey )",
+                P( "@Name", template.Name ), P( "@Description", template.Description ), P( "@FromName", church.FromName ), P( "@FromEmail", church.FromEmail ),
+                P( "@Message", html ), P( "@CategoryId", _db.RequireIdByGuid( "Category", configuration.Template.CategoryGuid ) ),
+                P( "@Guid", template.Guid ), P( "@Now", now ), P( "@Author", author ), P( "@ForeignKey", _foreignKey ) );
         }
 
         #endregion Template

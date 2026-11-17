@@ -174,7 +174,7 @@ Resolved:
 - Legacy addresses were real Phoenix homes. Every Cast home now uses a house number that does not exist, and households that shared an address (Helen Evans and the Simmonses, Nancy Turner and Dan Richards) are now neighbors on the same block.
 - Every Cast adult has `photo.ethnicity`, and every Cast person has a delivered photo except those left without one on purpose.
 - Every phone number now uses the reserved 555-0100 to 555-0199 range, keeping its area code. Numbers that were shared (spouses, duplicate records, the church office) are still shared.
-- Every organization is fictional. "Ace Hardware" is now "Cholla Creek Hardware," and "Copper State Glass and Screen" is now "Saguaro Ridge Glass and Screen." Employers are now Sonoran Valley University, Sonoran Systems, Mesa Ridge Electronics, Palo Verde Technical College, Ocotillo Market, Valley Water District, and Valley Philharmonic. The ASU student group is now the Sonoran Valley University Student Group.
+- Every organization is fictional. "Ace Hardware" is now "Cholla Creek Hardware," and "Copper State Glass and Screen" is now "Saguaro Ridge Glass and Screen." Employers are now Sonoran Valley University, Sonorell Systems, Mesa Ridge Electronics, Palo Verde Technical College, Ocotillo Market, Greywash Water District, and Valley Philharmonic. The ASU student group is now the Sonoran Valley University Student Group.
 
 ## Gaps
 

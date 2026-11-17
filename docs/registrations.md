@@ -229,7 +229,7 @@ Kids and adults go through the same steps as students: dated, registered, priced
 - **VBS crews.** Once registration closes, each kid is in the crew for their grade on the first day of VBS, from the Pre-K crew to the 5th grade crew. A kid with no grade yet is in the Pre-K crew.
 - **Serve Day teams.** Everyone on one registration is on one project team, and the teams fill evenly.
 - **Answers.** VBS asks who will pick up each child, answered with a parent or guardian. Serve Day asks for a shirt size. 70% of Women's Retreat guests who came with friends ask for one of them as a roommate.
-- **Allergies.** VBS and Parents' Night Out ask Rock's Allergy person attribute, which Rock saves to the child, so kids check-in prints it. About 6% of generated kids answer it, from a short list such as "Allergic to peanuts." Each child's answer is drawn once, so every form shows the same value, and it is saved once, from the first registration that asked. A child who already has a value, written by an earlier step, keeps it, so nothing is written twice. A Cast child answers only with the allergy their household file holds, such as Alex Decker's peanut allergy. The Parents' Night Out question is not required, so most families leave it blank (decision 211).
+- **Allergies.** VBS and Parents' Night Out ask Rock's Allergy person attribute, which Rock saves to the child, so kids check-in prints it. About 6% of generated kids answer it, from a short list such as "Allergic to peanuts." Each child's answer is drawn once, so every form shows the same value, and it is saved once, from the first registration that asked. A child who already has a value, written by an earlier step, keeps it, so nothing is written twice. A Cast child answers only with the allergy their household file holds, such as Alex Decker's peanut allergy. The Parents' Night Out question is not required, so most families leave it blank (decision 211). A generated kid who never answered the question gets the same draw later, in the person attributes step, so the share is the same for every kid, and a kid who answered keeps exactly what the form saved (decision 251).
 
 ### Cast stories
 
@@ -353,6 +353,6 @@ Registrations are their own loader part, `Registrations` ("Event registrations")
 
 ## Later
 
-1. **Refunds.** One cancelled mission trip spot with a refunded deposit.
+1. **Refunds.** One cancelled mission trip spot with a refunded deposit. The refund writer that giving refunds use is built for this too (see [Refunds](refunds.md)), so it needs only the cancellation and the registration's "Refund" history line.
 2. **Batch history.** Rock writes financial batch history when a registration payment lands in a batch. The loader does not write it yet.
 3. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision 214).

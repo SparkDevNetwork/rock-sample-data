@@ -46,6 +46,11 @@ namespace RockSampleData.Loader.Model
 
         public EmailTemplateDefinition Template { get; set; } = new EmailTemplateDefinition();
 
+        /// <summary>
+        /// The branded template for Rock's newer email editor, or null in a package built before it (decision 269).
+        /// </summary>
+        public WizardEmailTemplateDefinition WizardTemplate { get; set; }
+
         public CommunicationListConfiguration Lists { get; set; } = new CommunicationListConfiguration();
 
         public CommunicationEvents Events { get; set; } = new CommunicationEvents();
@@ -266,6 +271,24 @@ namespace RockSampleData.Loader.Model
         /// The template's Lava fields and their defaults, which Rock's template editor shows.
         /// </summary>
         public Dictionary<string, string> LavaFields { get; set; } = new Dictionary<string, string>();
+    }
+
+    /// <summary>
+    /// The church's branded email template in the format of Rock's newer email editor, which the Communication Entry
+    /// Wizard lists. It shares the Legacy template's category and logo.
+    /// </summary>
+    internal sealed class WizardEmailTemplateDefinition
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public Guid Guid { get; set; }
+
+        /// <summary>
+        /// The template's HTML, as a package path.
+        /// </summary>
+        public string Html { get; set; }
     }
 
     /// <summary>

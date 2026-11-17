@@ -138,6 +138,12 @@ namespace RockSampleData.Loader
         public FlowsConfiguration Flows { get; }
 
         /// <summary>
+        /// The area codes of generated phone numbers, or null in a package built before every generated number was its
+        /// own (decision 259), whose generated numbers are drawn as they were then.
+        /// </summary>
+        public PhoneConfiguration Phones { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -167,7 +173,44 @@ namespace RockSampleData.Loader
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            PersonAttributes = Files.Exists( PersonAttributesConfigurationPath ) ? Read<PersonAttributesConfiguration>( PersonAttributesConfigurationPath ) : null;
+            Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
+            Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
+            Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
+            AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built
+        /// before them, which fills only the Cast's allergies.
+        /// </summary>
+        public PersonAttributesConfiguration PersonAttributes { get; }
+
+        public const string PersonAttributesConfigurationPath = "configuration/person-attributes.json";
+
+        /// <summary>
+        /// Who takes Rock's assessments, or null in a package built before assessments.
+        /// </summary>
+        public AssessmentsConfiguration Assessments { get; }
+
+        public const string AssessmentsConfigurationPath = "configuration/assessments.json";
+
+        /// <summary>
+        /// The refunds staff make on generated households' gifts, or null in a package built before refunds, which has none.
+        /// </summary>
+        public RefundsConfiguration Refunds { get; }
+
+        public const string RefundsConfigurationPath = "configuration/refunds.json";
+
+        /// <summary>
+        /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.
+        /// </summary>
+        public AdaptiveMessagesConfiguration AdaptiveMessages { get; }
+
+        /// <summary>
+        /// Reads each adaptation's text, from content/adaptive-messages/messages.json.
+        /// </summary>
+        public AdaptiveMessageText ReadAdaptiveMessageText() => Read<AdaptiveMessageText>( AdaptiveMessageTextPath );
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were
@@ -273,6 +316,17 @@ namespace RockSampleData.Loader
 
         public const string ReportingConfigurationPath = "configuration/reporting.json";
         public const string FlowsConfigurationPath = "configuration/flows.json";
+
+        public const string PhonesConfigurationPath = "configuration/phones.json";
+
+        public const string AdaptiveMessagesConfigurationPath = "configuration/adaptive-messages.json";
+
+        /// <summary>
+        /// The text of each adaptation, and the Lava of the block that shows them.
+        /// </summary>
+        public const string AdaptiveMessagesContentFolder = "content/adaptive-messages";
+
+        public const string AdaptiveMessageTextPath = AdaptiveMessagesContentFolder + "/messages.json";
 
         /// <summary>
         /// The message library, the email template, and its logo.

@@ -16,12 +16,13 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Giving
 
-- **Refunds** and other uncommon transactions.
+- **Other uncommon transactions,** such as a gift in a foreign currency, a returned check, or an in-kind gift. Refunds are built (see [Refunds](refunds.md)).
 
 ## Other Rock features
 
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations**: one cancelled mission trip spot with a refunded deposit, financial batch history for registration payments, and the registration emails (confirmations, reminders, payment reminders, and signature receipts) as communication history. Everything else is built: the setup, the students, kids, and adults who registered, their payments, payment plans, wait lists, and placements, the signed camp and mission trip releases, the notes and history, reminders, and data views. See [Event registrations](registrations.md).
+- **Adaptive message view history.** A year of "Viewed" interactions in Rock's Adaptive Messages channel, so each adaptation shows its views and saturation works on install day. The segments, messages, and adaptations are built (see [Adaptive messages](adaptive-messages.md)). It waits for Interaction Data's website sessions.
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 

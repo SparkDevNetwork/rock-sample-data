@@ -12,23 +12,28 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
+| `refunds.json` | The refunds staff make on generated households' gifts: who refunds them, the rate when the profile has none, and four kinds, each with a Rock refund reason, a share, a delay, and the summaries staff type. See [Refunds](../docs/refunds.md). |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 | `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
 | `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve and their celebrations. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
-| `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template, the communication lists with the rules for who is on them, and the one communication scheduled to send after install. See [Communications](../docs/communications.md#the-setup). |
+| `phones.json` | The area codes of generated phone numbers: the Phoenix codes the Cast and the church use, which generated numbers use up first, then other US geographic codes by state. Every number is 555-0100 to 555-0199, and each generated person and business gets one no one else has (content standard 2, decision 259). |
+| `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template in both of Rock's formats, the communication lists with the rules for who is on them, and the one communication scheduled to send after install. See [Communications](../docs/communications.md#the-setup). |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
 | `campaign.json` | The Built on the Rock building campaign: its fund, description, and dates, and the Rock settings that point at it. See [Pledges](../docs/pledges.md). |
 | `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
 | `logins.json` | Who among generated adults has a Rock Database login: each reason and its designed chance, the inactive and older-adult shares, and the unconfirmed share (decision 179). The Cast's logins are in their own files. Logins load only when the person installing gives a password. See [How logins load](../loader/README.md#how-logins-load). |
 | `calendar.json` | The church's calendar: its events on Rock's Public and Internal calendars, with audiences, campuses, places, contacts, and the rule for each event's dates. See [Calendar](../docs/calendar.md). |
 | `staff.json` | The church's 23 staff, every one a Cast person, with their title, department, campus, supervisor, start date, bio, and favorite quote, and the named campus pastor of every campus (decision 198). It also defines the eight Staff person attributes, their security, and the block that shows them (decision 201), and the org chart in Rock's Organization Unit groups (decision 202). Notes, the calendar, first-visit welcomes, and campus texting numbers read the campus pastors from it. |
+| `person-attributes.json` | The person attributes Rock ships that the sample data fills, by key and Guid, with the keys Cast files load and the ones nothing writes. It defines the Date Engaged attribute the loader adds, the invented schools near each campus, the invented employers, and the rules that fill School, Employer, Position, Legal Notes, Ability Level, Source of Visit, Previous Church, and Envelope Number for generated people (decisions 250 to 258). See [How person attributes load](../loader/README.md#how-person-attributes-load). |
 | `registrations.json` | The church's event registrations: template categories, group types for linked and placement groups, templates with forms, fees, discounts, placements, and eligibility, the rules that make each year's instances from calendar events and who registers, the camp and mission trip releases, and the data views about registrations. See [Event registrations](../docs/registrations.md). |
 | `church-app.json` | The Rock Solid Church App, the sample church's mobile app: its site and layouts, the share of active adults with it and their devices, and how often pushes are opened. See [Communications](../docs/communications.md#push). |
 | `categories.json` | Every category the church adds to Rock, in one tree per kind of thing it holds. See [Categories](#categories). |
 | `reporting.json` | The church's layered data views: foundations, the Ministry by Design stage views built from steps, next-step views filed by Ministry System, the communication flows' audiences, Safety, and Finance, with the named schedules that persist the slow ones and run the metrics, the 25 reports with their columns, a `usage` run history where one must differ from the usual rule, the four path metrics, and the security walkthrough verify asks Rock. See [Data views and reports](../docs/reporting.md). |
 | `flows.json` | The church's Communication Flows: each flow's Ministry by Design category, how people enter, its messages from the message library, its goal, its exit rule, and how far back its runs reach, plus the one email domain that can be in a run Rock still sends after install, and the workflow types whose forms put people in a flow. See [Communication flows](../docs/communications.md#communication-flows). |
+| `assessments.json` | Rock's five assessments: when the church adopted them, how long each takes, and who takes them. Staff take all five when they start, Starting Point and Foundations ask their classes on the first night, every current leader takes DISC and Conflict Profile before leading, and some active adults take one on their own, with who asks, when each is due, how many finish, and what leaders' answers lean toward. See [Assessments](../docs/assessments.md). |
+| `adaptive-messages.json` | The church's 16 personalization segments, each on a person data view, with the Finance lock on the ones built on Finance views; its five adaptive messages with their adaptations in order, dates rules, and saturation; the External Website pages a link may name; the lock on Rock's segment Results page; the access questions verify asks Rock; and the Cast people each adaptation must reach. The text is in `content/adaptive-messages`. See [Adaptive messages](../docs/adaptive-messages.md). |
 | `group-syncs.json` | The church's group sync data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
 
 ## Categories
@@ -43,7 +48,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Registrations | The three registration data views, one of them the mission trip's eligibility rule, and Women Who Attend |
 | Data views | Rock Solid Church, then Sample Data | Reserved or No Email, and each recurring flow's guarded audience |
 | Data views | Rock Solid Church, then Safety, locked to the safety and background check roles | Kids and Student Teams, Kids and Student Volunteers, and Kids With an Allergy |
-| Data views | Rock Solid Church, then Finance, locked to the finance roles | The Built on the Rock pledge views |
+| Data views | Rock Solid Church, then Finance, locked to the finance roles | The giving and pledge views, including the Giving message's layers |
 | Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Men's Retreat Invites, which no one has run in over a year, and room for staff to build |
 | Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision 224) | Rock's 8 shipped example views, unchanged |
 | Reports | Rock Solid Church, locked to staff, then Leadership (locked to pastors), Notice, Belong, Equip, Contribute, Lead, Re-engage, Safety and Finance (each locked to its roles), and Staff Workspace | The 25 reports in `reporting.json`; Staff Workspace is empty |
@@ -52,6 +57,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Person attributes | Staff | The eight staff attributes (decision 201) |
 | Workflow types | Rock Solid Church, then Equip | The Baptism Interest workflow (decision 235) |
 | Communication Flows | Rock Solid Church, then Notice, Belong, Equip, Contribute, Lead, and Re-engage | Each flow, filed by the Ministry by Design system it serves first (decision 221) |
+| Adaptive messages | Rock Solid Church, under Rock's All Church category (`parentGuid`) | The five adaptive messages in `adaptive-messages.json` |
 
 To add rows of a new kind or for a new purpose:
 
@@ -60,7 +66,7 @@ To add rows of a new kind or for a new purpose:
 3. **Person attributes.** Keep attribute categories flat, as Rock's own Employment and Membership are. Give the category `qualifierEntityType` (such as `Rock.Model.Person`), which Rock stores as its EntityTypeId qualifier. The person profile shows a category only through an Attribute Values block, so add one, as `staff.json` does for Staff.
 4. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
 
-Each category names the Rock entity it holds, its parent's key, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
+Each category names the Rock entity it holds, its parent's key or, under a category Rock ships, that category's Guid as `parentGuid`, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
 
 ## Service times
 

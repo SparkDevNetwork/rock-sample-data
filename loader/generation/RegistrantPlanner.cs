@@ -1023,7 +1023,17 @@ namespace RockSampleData.Loader.Generation
                 return CastValue( person.Cast.Attributes, fill.CastKey );
             }
 
-            var random = new SeededRandom( $"{_seed}:person-attribute:{field.PersonAttribute}:{person.Cast.Guid}" );
+            return DrawPersonAnswer( _seed, field.PersonAttribute.Value, person.Cast.Guid, fill );
+        }
+
+        /// <summary>
+        /// A generated person's own value for a person attribute a registration form asks, drawn once by the person:
+        /// the fill's share of a weighted choice, or null. The people attributes step draws the same value for a kid
+        /// who never answered the form, so a kid's allergy is the same whichever wrote it (decision 211).
+        /// </summary>
+        internal static string DrawPersonAnswer( string seed, Guid attribute, Guid person, RegistrationAttributeFill fill )
+        {
+            var random = new SeededRandom( $"{seed}:person-attribute:{attribute}:{person}" );
             if ( !random.Chance( fill.Percent / 100 ) )
             {
                 return null;

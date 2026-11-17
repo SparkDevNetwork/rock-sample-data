@@ -63,6 +63,10 @@ A person's `connectionRequests` in their household file tell their story of aski
 
 A staff person's `connects` rule names the active request statuses they connect at their campus instead of the team leader, an optional `minimum`, and an optional `celebrationMinimum`. Alisha Marble connects the main campus's No Contact and In Progress requests, at least 8 in every dataset (decision 178), with at least 6 celebrations (decision 219). `validate-cast.js` checks that the Cast's own requests and celebrations reach both, so a Cast change cannot leave her board thin.
 
+## Assessments
+
+A person's `assessments` in their household file tell their assessment story, by type key from `configuration/assessments.json`: `leaning` names the gifts or DISC letters their answers lean toward, which must come out on top; `requests` says whether they complete or leave pending every request the rules make; and `takes` sets their own history of that type, which replaces the rules for it. A DISC take can hold a `legacy` result: scores from a DISC test taken outside Rock, loaded exactly, with no answers. Only adults have assessment stories. See [Assessments](../docs/assessments.md#the-casts-stories).
+
 ## Rock's admin person
 
 Exactly one Cast person sets `replacesAdmin`: Alisha Marble. The loader writes her over the admin person a new Rock creates (Person Id 1) instead of adding her, so the `admin` login signs in as her. She keeps Rock's Id, Guid, login, roles, and empty ForeignKey, so her Rock Guid is not the Guid in her household file, and she lists no logins of her own (decision 177). The Cast expectations look her up through Person 1. `validate-cast.js` checks there is exactly one, an active adult in Rock Administrators.

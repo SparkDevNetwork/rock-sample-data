@@ -12,9 +12,9 @@ Sam Hanks is a developer who is not on staff. He is waiting for someone to invit
 
 ### Sam (Samuel) Hanks
 
-Sam is a developer at Sonoran Systems who is not on staff. A staff member has asked about him volunteering on tech projects, but no one has followed up.
+Sam is a developer at Sonorell Systems who is not on staff. A staff member has asked about him volunteering on tech projects, but no one has followed up.
 
-- Age 28 · single · Developer, Sonoran Systems · email sam.hanks@example.org · groups: Wright Group, Lee Group (left)
+- Age 28 · single · Developer, Sonorell Systems · email sam.hanks@example.org · groups: Wright Group, Lee Group (left)
 - Person Guid `1E6E66C7-A487-48E6-B064-7F9F4DDE6680`
 
 ## What this family tests

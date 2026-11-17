@@ -187,22 +187,22 @@ module.exports = function features( { model } ) {
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
-            text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses.`,
-            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates to merge, and an allergy that prints on check-in labels" ],
+            text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
+            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates to merge, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave" ],
             look: [ html`${person( model, "Jon Smith" )}, with two duplicate records to merge`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
             links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) } ]
         },
         {
             id: "giving", eyebrow: "Giving and check images", title: "Gifts on each giver's rhythm.", sand: true,
             text: "Each giver has a pattern and a channel: scheduled, online, the Sunday offering, or a mailed check. Gifts land in batches by day, campus, and channel, and Rock's giving analytics are filled in as its nightly job would leave them.",
-            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Scanned check fronts and backs that match each check gift, when you ask for them" ],
-            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
-            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) } ]
+            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Refunds at a real church's rate, each with Rock's reason, in a refund batch", "Scanned check fronts and backs that match each check gift, when you ask for them" ],
+            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, html`${person( model, "Gabe Hernandez" )}'s duplicate gift, refunded the next day`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
+            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) }, { label: "Refunds", href: doc( "docs/refunds.md" ) } ]
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
-            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too.",
-            checks: [ "Worship attendance for adults, and check-in for kids and students", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
+            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
+            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
             look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
         },
@@ -243,7 +243,7 @@ module.exports = function features( { model } ) {
         },
         {
             id: "communications", eyebrow: "Communications", title: "Two years of messages.",
-            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
+            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template, ready in Rock's email wizard. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
             checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails" ],
             look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number" ],
             links: [ { label: "Communications", href: doc( "docs/communications.md" ) } ]
@@ -289,8 +289,26 @@ module.exports = function features( { model } ) {
             checks: [ "New Here and We Miss You are built on the foundation views", "Welcome and exit emails only for people who join or leave later" ],
             look: [ html`${person( model, "Luis Ortiz" )} and ${person( model, "Teresa Ortiz" )} on We Miss You`, html`${person( model, "Jordan Ellis" )} and ${person( model, "Hannah Ellis" )} on New Here` ],
             links: [ { label: "Group sync", href: doc( "docs/communications.md#group-sync" ) } ]
+        },
+        {
+            id: "adaptive-messages", eyebrow: "Adaptive messages", title: "A next step for each person.", sand: true,
+            text: html`${model.adaptiveMessages.messages.length} adaptive messages, from ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[0].name : "Your Next Step" )} to ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[model.adaptiveMessages.messages.length - 1].name : "Giving" )}, each with versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
+            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
+            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
+            links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
         }
     ];
+
+    // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
+    const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
+    const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );
+    const assessmentsArea = {
+        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.", sand: true,
+        text: html`Rock's ${assessments.types.length} assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators. Most staff took all of them, every leader took DISC and Conflict Profile before leading, and each Starting Point class asks for Spiritual Gifts, which ${startingPoint.percentFinished}% finish. Every result comes from a full set of answers, scored the way Rock scores them.`,
+        checks: [ "Requests still pending from the current classes, with reminders where Rock's job would leave them", "Answers and results that always agree, checked against Rock's own scoring", "Results as person attributes, ready for data views" ],
+        look: [ html`The Assessments badge on ${person( model, "Ted Decker" )}'s profile`, html`${person( model, "Bri Hall" )}'s Spiritual Gifts, which fit a greeter`, html`${person( model, "Ty McClintock" )} and ${person( model, "Paul Smith" )}'s DISC results, side by side` ],
+        links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
+    };
 
     return {
         file: "features.html",
@@ -311,11 +329,13 @@ module.exports = function features( { model } ) {
     <nav class="feature-index" aria-label="Features on this page">
       ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
       <a href="#data-views-and-reports">Data views and reports</a>
+      <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
     </nav>
   </div>
 </section>
 ${areas.map( area )}
 ${reporting( model )}
+${area( assessmentsArea )}
 `
     };
 };

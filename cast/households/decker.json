@@ -14,7 +14,8 @@
     "Monthly giver by recurring credit card, with a building campaign line on each gift.",
     "Small group leader and serving team member.",
     "Completes the whole Discipleship Path, with a program completion.",
-    "Staff member with many security roles, logins, a DISC assessment, and personal notes including an alert."
+    "Staff member with many security roles, logins, all five assessments, and personal notes including an alert. Ted's DISC result is from before the church used Rock's assessments.",
+    "Cindy has an old Spiritual Gifts result and a pending retake that the Groups Pastor asked for."
   ],
   "address": {
     "type": "home",
@@ -124,25 +125,39 @@
           "yearsAgo": 13,
           "month": 10,
           "day": 4
-        },
-        "AdaptiveD": "62",
-        "AdaptiveI": "79",
-        "AdaptiveS": "42",
-        "AdaptiveC": "12",
-        "NaturalD": "76",
-        "NaturalI": "79",
-        "NaturalS": "18",
-        "NaturalC": "16",
-        "LastSaveDate": {
-          "yearsAgo": 10,
-          "month": 2,
-          "day": 2
-        },
-        "PersonalityType": "ID"
+        }
       },
       "steps": {
         "foundations": {
           "taken": true
+        }
+      },
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 10,
+                "month": 2,
+                "day": 2
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 62,
+                  "I": 79,
+                  "S": 42,
+                  "C": 12
+                },
+                "natural": {
+                  "D": 76,
+                  "I": 79,
+                  "S": 18,
+                  "C": 16
+                },
+                "personalityType": "ID"
+              }
+            }
+          ]
         }
       },
       "expect": {
@@ -158,6 +173,15 @@
           ],
           "programCompletions": [
             "discipleship-path"
+          ]
+        },
+        "assessments": {
+          "complete": [
+            "disc",
+            "spiritual-gifts",
+            "conflict-profile",
+            "emotional-intelligence",
+            "motivators"
           ]
         }
       },
@@ -242,7 +266,36 @@
         "Prayer Team",
         "Staff-Like Users",
         "Website Content Editors"
-      ]
+      ],
+      "assessments": {
+        "spiritual-gifts": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 3,
+                "month": 2,
+                "day": 22
+              }
+            },
+            {
+              "requested": {
+                "daysAgo": 18
+              },
+              "requestedBy": "jamal"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "assessments": {
+          "complete": [
+            "spiritual-gifts"
+          ],
+          "pending": [
+            "spiritual-gifts"
+          ]
+        }
+      }
     },
     {
       "key": "noah",

@@ -30,7 +30,7 @@ Jordan and Hannah Ellis married last year and visited for the first time this su
 ## Activity
 
 - **Attendance:** regular, 75% of Sundays, since about 4 months ago.
-- **Giving:** **bi-weekly** by Jordan Ellis: $40 General Fund per gift, gives in 90% of periods, started about 2 months ago, and Rock shows the new journey stage.
+- **Giving:** **bi-weekly** by Jordan Ellis: $40 General Fund per gift, in cash, gives in 90% of periods, started about 2 months ago, and Rock shows the new journey stage.
 - **Giving units:** the couple gives together as one giving unit.
 
 ## Address

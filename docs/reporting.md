@@ -175,7 +175,7 @@ Rock's reporting guide says: build data views that "extend and build off of each
 3. **Ministry data views.** Each answers one staff question, filed in its Ministry System. Most are **next-step** views: people in one stage who are ready for the next.
 4. **Reports.** Each shows the columns a staff member needs for that question. Several reports can share one data view.
 
-Every data view in the tree below is used by another data view, a report, a group sync, a registration's eligibility rule, or a communication flow. None stands alone.
+Every data view in the tree below is used by another data view, a report, a group sync, a registration's eligibility rule, a communication flow, or a personalization segment. None stands alone.
 
 ```
 Person data views
@@ -192,6 +192,7 @@ Active People (F1)
 │   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
 │   ├── Women Who Attend (RG1)                          = F2 + F6 + women 25 to 75
 │   ├── Involved Adults (F10)                           = F2 + (worship, F7, F8, or Last Gave)
+│   │   └── Involved Adults Who Never Gave (FN18)  [Finance]  = F10 + Non-Giver stage
 │   └── Money Matters Invite List (FN8)  [Finance]      = F2 + F4 − FN2
 ├── Children (F3)
 │   └── Kids Checked In Recently (K1)
@@ -213,6 +214,9 @@ Active People (F1)
 ├── Baptized This Year (C2)
 ├── First-Time Givers (FN3)  [Finance]
 ├── Lapsed Givers (FN4)  [Finance]
+├── New Givers (FN14), Occasional Givers (FN16), Former Givers (FN17)  [Finance]
+├── Scheduled Givers (FN13)  [Finance]                  = F1 + FN12, Combine Giving
+│   └── Consistent Givers Without a Schedule (FN15)  [Finance]  = F1 + Consistent stage − FN13
 └── Top Givers (FN5)  [Finance, item locked]
 
 Gifts in the Last 12 Months (FN1, financial transactions)
@@ -226,6 +230,7 @@ Built on the Rock Pledges (FN6, pledges)  [Finance]
     └── Built on the Rock Pledge Households (FN10, Family Members transformation)
         └── Involved Adults Not Yet Pledged (FN11)     = F10 − FN10
 Event Registration Payments (FN7, financial transactions)  [Finance]
+Active Scheduled Gifts (FN12, scheduled transactions)  [Finance]
 ```
 
 The minus sign means "not in that data view" (Rock's "Not in Existing Data View" filter).
@@ -366,9 +371,18 @@ R11 also shows how Rock's shipped "Background check about to expire" data view (
 | FN8 | Money Matters Invite List | Person | In F2, in F4, not in FN2 (use persisted) | F2, F4, FN2 | No | R17 |
 | FN9 | Built on the Rock Pledgers | Person | Has a pledge in FN6 (Rock's Financial Pledge Data View filter) | FN6 | No | FN10 |
 | FN10 | Built on the Rock Pledge Households | Person | In FN9, then Rock's Family Members post-filter transformation | FN9 | No | FN11, and the Built on the Rock Follow-Up flow's goal |
-| FN11 | Involved Adults Not Yet Pledged | Person | In F10, not in FN10 | F10, FN10 | No | The Built on the Rock Follow-Up flow's audience. One-Time, and its run is finished, so it needs no email guard |
+| FN11 | Involved Adults Not Yet Pledged | Person | In F10, not in FN10 | F10, FN10 | No | The Built on the Rock Follow-Up flow's audience. One-Time, and its run is finished, so it needs no email guard. The Built on the Rock message's commitment segment |
+| FN12 | Active Scheduled Gifts | Financial Scheduled Transaction | Is Active is Yes | None | No | FN13 |
+| FN13 | Scheduled Givers | Person | In F1, and has a scheduled gift in FN12, with Rock's Combine Giving option, so a spouse who gives with them counts | F1, FN12 | No | FN15, and the Giving message's first layer |
+| FN14 | New Givers | Person | In F1, and Current Journey Giving Stage is New Giver | F1 | No | The Giving message's second layer |
+| FN15 | Consistent Givers Without a Schedule | Person | In F1, Current Journey Giving Stage is Consistent Giver, and not in FN13 | F1, FN13 | No | The Giving message's third layer |
+| FN16 | Occasional Givers | Person | In F1, and Current Journey Giving Stage is Occasional Giver | F1 | No | The Giving message's fourth layer |
+| FN17 | Former Givers | Person | In F1, and Current Journey Giving Stage is Former Giver | F1 | No | The Giving message's fifth layer, with FN4 |
+| FN18 | Involved Adults Who Never Gave | Person | In F10, and Current Journey Giving Stage is Non-Giver | F10 | No | The Giving message's sixth layer. It tells who does not give, so it lives in Finance (design rule 4) |
 
 FN9 to FN11 exist because a flow needs people, and FN6 holds pledges. Rock's pledge filter matches only the person named on the pledge (`Rock/Reporting/DataFilter/Person/FinancialPledgeDataViewFilter.cs:69-72`, the same in both builds), not their spouse. So FN10 uses Rock's Family Members transformation: a household that pledged counts as pledged, and the flow never asks the spouse of a pledger to pledge. The transformation also applies when another view nests FN10 (`Rock/Model/Reporting/DataView/DataView.Logic.cs:280-283`; Rock 20 `:328-331`). It is the design's one post-filter transformation, so it teaches that feature too.
+
+FN12 to FN18 are the Giving message's layers ([Adaptive messages](adaptive-messages.md)). Rock gives every person with a giving Id a journey stage, and Non-Giver to anyone with no gift, so FN18 needs no Finance transaction view. FN4 Lapsed Givers also feeds the fifth layer.
 
 FN8 shows design rule 4. Its name and filters look harmless, but because it builds on FN2 it tells anyone who can see it who does **not** give. So it lives in Finance.
 
@@ -687,6 +701,7 @@ The build follows the design, with these differences. Each was found by running 
   - **The three registration views** use their own windows and grades. The mission trip eligibility rule is replayed on every registration day (decision 215), and Students Attending (K3) counts a different window.
 - **Run history (slice 7).** A view that points at no other view was made 700 to 1,095 days before install, and a view or report built on others 1 to 120 days after the newest of them. Each ran 0.2 to 3 times a week since then, and last ran in the two weeks before install, in office hours. Run time stays empty until Rock first runs the view. Men's Retreat Invites, in Staff Workspace, was made 450 days ago, ran 5 times, and last ran 420 days ago, so it is the one view not run in over a year (decision 233).
 - **Path metrics (slice 8).** Belong Stage, Equip Stage, Contribute Stage, and Lead Stage are Rock Metrics in a new Ministry Path metric category. Each counts its stage view on a named schedule, "Weekly on Monday at 3 AM", in Rock's Metrics schedule category. Values start the week the stage view was made, not at the start of the history window, because a church cannot count a view before it exists. Each week's value is the active people with a completed step of the stage by then. Record status is today's, because Rock keeps no history of it (decision 234).
+- **Personalization segments (issue 6).** A segment is a consumer too, under rule 4 in section 1.8. Rock secures a segment by its own rules only, never by a category, so each segment on a Finance view carries Finance's View rule. Rock's segment Results page lists any segment's people and checks no segment, so it carries the same rule (decision 273). The Giving segments use seven new Finance views, FN12 to FN18. See [Adaptive messages](adaptive-messages.md).
 
 Verify checks each metric's newest value against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
 

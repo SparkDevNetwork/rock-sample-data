@@ -89,7 +89,8 @@
       "to": "/// Gets the giving automation monthly account giving history.",
       "why": "Which transactions qualify, and the default filters (contributions to tax-deductible accounts).",
       "mirroredBy": [
-        "loader/loading/GivingAnalyticsLoader.cs"
+        "loader/loading/GivingAnalyticsLoader.cs",
+        "loader/loading/GivingLoader.Refunds.cs"
       ],
       "sha256": "7c3f4c58cdb072b5a7fb2df6bca7d0077fc6e6bfc9b63b9f87aa71215ff197df"
     },
@@ -772,6 +773,146 @@
         "loader/loading/RegistrationsLoader.cs"
       ],
       "sha256": "e27a48d3b75abb148427eb86abde49c5dea6256060d40c90bc5530ed7ff4eb2e"
+    },
+    {
+      "path": "Rock/Model/Event/Attendance/Attendance.SaveHook.cs",
+      "section": "Check-in status from dates",
+      "from": "private void UpdateCheckInStatusFromCheckInDates()",
+      "to": "private LaunchMemberAttendedGroupWorkflow.Message GetLaunchMemberAttendedGroupWorkflowMessage()",
+      "why": "The check-in status Rock gives a new attendance row from its end and present times, which every attendance writer sets.",
+      "mirroredBy": [
+        "loader/loading/RockCheckInStatus.cs"
+      ],
+      "sha256": "480e3aa745f61f41eb3ef53766df8e9e92c7b6202aa417ade1140e8b99dac94e"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/DiscService.cs",
+      "why": "Rock's DISC scoring: the Most and Least counts, the adaptive and natural constants, the z-score to percentage table, and the personality type. The loader's port scores every DISC answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "1c2a94a78e40cdc09499f576d575cde598e906c80dd72da1571282398e2b8070"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/SpiritualGiftsService.cs",
+      "why": "Rock's Spiritual Gifts scoring: each gift's questions, mean, and standard deviation, and the dominant, supportive, and other gifts. The loader's port scores every Spiritual Gifts answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "536426607a3d3a24a91ed50cfa2b6a4904f9758e05808737f1be9378713a5418"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/ConflictProfileService.cs",
+      "why": "Rock's Conflict Profile scoring: each mode's share of the answers and the three engagement themes. The loader's port scores every Conflict Profile answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "6831aa126d95d9bcbb204b91ac80ef841e16fbcdecc9bb801229ba47322e1343"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/EQInventoryService.cs",
+      "why": "Rock's Emotional Intelligence scoring: each scale's questions, mean, and standard deviation. The loader's port scores every EQ answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "ec8a36015dd25f7645032ed44782f3ad11809f5b1dcb009883651df92ef928da"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/MotivatorService.cs",
+      "why": "Rock's Motivators scoring: each motivator's questions, mean, and standard deviation, the top five, and the theme averages. The loader's port scores every Motivators answer set with it.",
+      "mirroredBy": [
+        "loader/generation/AssessmentScoring.cs",
+        "loader/generation/RockAssessmentTables.cs"
+      ],
+      "sha256": "dc605af1be66199b4395aaacf589b14ae4bf1842a8789a18dbf5e1d494071b3a"
+    },
+    {
+      "path": "Rock/Jobs/SendAssessmentReminders.cs",
+      "why": "Rock's Send Assessment Reminders job: which pending requests it reminds, how often, and for how long. The loader replays it to set each request's LastReminderDate.",
+      "mirroredBy": [
+        "loader/generation/AssessmentPlanner.cs"
+      ],
+      "sha256": "04cb168d317e032c973b3a0d30fff5b4f67fd2f3eb142ad87da63853cf73256d"
+    },
+    {
+      "path": "Rock/Model/CRM/Assessment/AssessmentService.cs",
+      "why": "The latest assessment of each type, and the latest pending ones the reminder job stamps. The loader's reminder replay follows them.",
+      "mirroredBy": [
+        "loader/generation/AssessmentPlanner.cs"
+      ],
+      "sha256": "1ef65031f055eae5e33ffdb2c0dcb6da0361efd0cb7b8ad06ad5dbf92c115d69"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialTransaction/FinancialTransactionService.cs",
+      "section": "ProcessRefund",
+      "from": "public FinancialTransaction ProcessRefund( FinancialTransaction transaction, decimal? amount, int? reasonValueId, string summary, bool process, string batchNameSuffix, out string errorMessage )",
+      "to": "/// Gets an export of FinancialTransaction Records",
+      "why": "How Rock writes a refund: the transaction it copies from the original, the payment detail, the lines taken in order, the FinancialTransactionRefund row, the batch, and its control amount.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "300d5177399626bbca03e4b387fd03fb82c9f636b0d34ec1fe6f8e61c4c7c545"
+    },
+    {
+      "path": "Rock/Model/Finance/FinancialBatch/FinancialBatchService.cs",
+      "section": "GetInternal and GetByNameAndDateInternal",
+      "from": "internal FinancialBatch GetInternal( string namePrefix, string nameSuffix, DefinedValueCache currencyType, DefinedValueCache creditCardType,",
+      "to": "/// Use this to increment <see cref=\"FinancialBatch.ControlAmount\"/>",
+      "why": "How Rock names and dates the batch a new transaction lands in: the prefix, the card type's batch suffix or the currency, and the suffix, in a batch from midnight to midnight.",
+      "mirroredBy": [
+        "loader/loading/PaymentMethods.cs",
+        "loader/loading/RefundWriter.cs",
+        "loader/loading/RegistrantsLoader.cs"
+      ],
+      "sha256": "d56b045ec006ada2094a9482d08979859a8c454c6192bace936724bd9d7f79a7"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "The refund batch suffix settings",
+      "from": "[TextField( \"Refund Batch Name Suffix\",",
+      "to": "Key = AttributeKey.AppendSuffixToBatchName )]",
+      "why": "The Transaction Detail block's default refund batch suffix, \" - Refund\", which names every refund batch.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "8ef06dde0df929a37fbb75ec85449a3375bb76ff5628d04e3b1f5e90b1b22ba3"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "GetMaxRefundAmountForTransaction",
+      "from": "private decimal GetMaxRefundAmountForTransaction( FinancialTransaction transaction )",
+      "to": "#endregion Methods",
+      "why": "The most Rock lets staff refund: the original's total less its earlier refunds.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "566d32dfa97e4c2187203d0bc3bd71c1e0ea1f80adb95fffbad41f6eebeab6e0"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "The Refund block action",
+      "from": "public BlockActionResult Refund( string key, RefundRequestBag bag )",
+      "to": "/// Returns the integer Ids of the previous and next transactions within the same batch,",
+      "why": "What Rock refuses (more than is left, a refund of a refund, a foreign currency gift) and when it credits the gateway.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "25f82825bce68057063c385f38c106374e9c7c444ee3f85589e1d223e4e8c406"
+    },
+    {
+      "path": "Rock/Financial/TestGateway.cs",
+      "section": "Credit",
+      "from": "public override FinancialTransaction Credit( FinancialTransaction transaction, decimal amount, string comment, out string errorMessage )",
+      "to": "/// Adds the scheduled payment.",
+      "why": "The Test Gateway's refund code: T and the time to the millisecond.",
+      "mirroredBy": [
+        "loader/loading/RefundWriter.cs"
+      ],
+      "sha256": "c5bb72ec24948362139191f6bb8fbfb07ee6ffc0e1dc51a1b90dea042c2d43bf"
     }
   ]
 }

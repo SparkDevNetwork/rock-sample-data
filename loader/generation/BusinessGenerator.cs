@@ -93,7 +93,7 @@ namespace RockSampleData.Loader.Generation
         private readonly Func<SeededRandom, string> _phoneNumber;
         private readonly HashSet<string> _usedNames = new HashSet<string>();
 
-        /// <param name="phoneNumber">Draws a reserved phone number that is not one of the church's own.</param>
+        /// <param name="phoneNumber">Gives a reserved phone number no one else has, the same draw as generated people's.</param>
         public BusinessGenerator( ProfileTargets profile, string seed, AddressPool addresses, Func<double, double> annualTotal, Func<SeededRandom, string> phoneNumber )
         {
             _profile = profile;

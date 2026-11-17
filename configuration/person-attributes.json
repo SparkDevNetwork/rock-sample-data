@@ -1,0 +1,643 @@
+{
+  "$comment": "The person attributes Rock ships that the sample data fills, and the Date Engaged attribute the loader adds (decisions 250 to 258). rockAttributes lists every Rock person attribute the sample data reads or writes, or that a Cast file holds, by key and Guid. Every load checks that Rock has each one under its key, and cast/validate-cast.js checks that every Cast attribute key is one of them, a staff attribute, or Date Engaged. castLoaded names the keys the loader writes from Cast files. Allergy has its own writer (decision 211), BaptismDate and BaptizedHere come from the Baptism step, and the rest a Cast file holds wait for their own work: FirstVisit and SecondVisit for Rock's Family Analytics (issue 11), BackgroundCheckDate and BackgroundCheckResult for the background checks connection requests make, and the DISC results for assessments (issue 3). The Cast gets no drawn employer, school, note, visit, or allergy: its stories are written by hand. Those rules fill generated people only, each from its own seeded stream. Ability Level, Date Engaged, and envelopes follow everyone's records, the Cast's too.",
+  "rockAttributes": [
+    {
+      "key": "Allergy",
+      "guid": "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31"
+    },
+    {
+      "key": "LegalNotes",
+      "guid": "F832AB6F-B684-4EEA-8DB4-C54B895C79ED"
+    },
+    {
+      "key": "AbilityLevel",
+      "guid": "4ABF0BF2-49BA-4363-9D85-AC48A0F7E92A"
+    },
+    {
+      "key": "School",
+      "guid": "060AD4B5-082E-46BE-82F8-54D19677B589"
+    },
+    {
+      "key": "Employer",
+      "guid": "BF5F86FD-7BFB-491F-91DE-6A2E4E9FD4CC"
+    },
+    {
+      "key": "Position",
+      "guid": "19F67B7E-D568-4D0D-8953-00ADF4AADB49"
+    },
+    {
+      "key": "SourceofVisit",
+      "guid": "3DBF9AC8-3BA2-41FA-8AD0-5BDE65B7FCAB"
+    },
+    {
+      "key": "PreviousChurch",
+      "guid": "5212E7F5-41A1-41F2-80FE-5D971258566D"
+    },
+    {
+      "key": "DoNotSendGivingStatement",
+      "guid": "B767F2CF-A4F0-45AA-A2E9-8270F31B307B"
+    },
+    {
+      "key": "core_GivingEnvelopeNumber",
+      "guid": "76C33FBC-8799-4DF1-B2FE-A6C41AC3DD49"
+    },
+    {
+      "key": "BaptismDate",
+      "guid": "D42763FA-28E9-4A55-A25A-48998D7D7FEF"
+    },
+    {
+      "key": "BaptizedHere",
+      "guid": "87986F92-4AC3-49D2-9753-328588F3BB7A"
+    },
+    {
+      "key": "FirstVisit",
+      "guid": "655D6FBA-F8C0-4919-9E31-C1C936653555"
+    },
+    {
+      "key": "SecondVisit",
+      "guid": "D7EA578F-0132-473E-8338-4A48DDB8BF66"
+    },
+    {
+      "key": "BackgroundCheckDate",
+      "guid": "3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F"
+    },
+    {
+      "key": "BackgroundCheckResult",
+      "guid": "44490089-E02C-4E54-A456-454845ABBC9D"
+    },
+    {
+      "key": "AdaptiveD",
+      "guid": "EDE5E199-37BE-424F-A788-5CDCC064157C"
+    },
+    {
+      "key": "AdaptiveI",
+      "guid": "7F0A1794-0150-413B-9AE1-A6B0D6373DA6"
+    },
+    {
+      "key": "AdaptiveS",
+      "guid": "2512DAC6-BBC4-4D0E-A01D-E92F94C534BD"
+    },
+    {
+      "key": "AdaptiveC",
+      "guid": "4A2E1539-4ECC-40B9-9EBD-C0C84EC8DA36"
+    },
+    {
+      "key": "NaturalD",
+      "guid": "86670F7D-07BA-4ECE-9BB9-9D94B5FB5F26"
+    },
+    {
+      "key": "NaturalI",
+      "guid": "3EFF4FEF-EE4C-40E2-8DBD-80F3276852DA"
+    },
+    {
+      "key": "NaturalS",
+      "guid": "FA4341B4-28C7-409E-A101-548BB5759BE6"
+    },
+    {
+      "key": "NaturalC",
+      "guid": "3A10ECFB-8CAB-4CCA-8B29-298756CD3251"
+    },
+    {
+      "key": "LastSaveDate",
+      "guid": "990275DB-611B-4D2E-94EA-3FFA1186A5E1"
+    },
+    {
+      "key": "PersonalityType",
+      "guid": "C7B529C6-B6C8-45B5-B892-5D9821CEDDCD"
+    }
+  ],
+  "castLoaded": [
+    "Employer",
+    "Position",
+    "LegalNotes",
+    "DoNotSendGivingStatement"
+  ],
+  "$excludedComment": "Nothing writes these. Membership Date stays empty. A social media link or driver's license number could reach a real person. First Visit and Second Visit are written by Rock's Family Analytics job (issue 11). Special Needs is left out. Assessment results are not here, because the assessments step writes them (decision 265).",
+  "excluded": [
+    "MembershipDate",
+    "Facebook",
+    "Twitter",
+    "Instagram",
+    "Snapchat",
+    "com.sparkdevnetwork.DLNumber",
+    "FirstVisit",
+    "SecondVisit",
+    "core_SpecialNeeds"
+  ],
+  "dateEngaged": {
+    "$comment": "A Date attribute in Rock's Membership category: the day an Engaged or Leading adult first was in a small group, on a serving team, or giving. It is the earliest of their first small group or serving team membership that was not pending and their giving unit's first contribution. An adult with none of those became engaged before the records the sample data keeps, so the date is a day drawn from the years before the history window, and never before they turned 18.",
+    "key": "DateEngaged",
+    "guid": "9BD03707-AC33-4B41-A432-E55698FB6A60",
+    "name": "Date Engaged",
+    "description": "The day this person first was in a small group, serving on a team, or giving.",
+    "category": "E919E722-F895-44A4-B86D-38DB8FBA1844",
+    "order": 3,
+    "qualifiers": {
+      "format": "",
+      "displayDiff": "False"
+    },
+    "statuses": [
+      "engaged",
+      "leading"
+    ],
+    "yearsBeforeHistoryWithoutRecords": 5
+  },
+  "schools": {
+    "$comment": "Invented schools, two elementary, one middle, and one high school near each campus, added to Rock's School defined type for the campuses in the dataset. Every name was checked against real Arizona schools. A generated household with kids in school records them by householdPercent, and kids in one grade band go to the same school.",
+    "definedType": "576FF1E2-6225-4565-A16D-230E26167A3D",
+    "householdPercent": 50,
+    "bands": [
+      {
+        "key": "elementary",
+        "minGrade": 0,
+        "maxGrade": 5
+      },
+      {
+        "key": "middle",
+        "minGrade": 6,
+        "maxGrade": 8
+      },
+      {
+        "key": "high",
+        "minGrade": 9,
+        "maxGrade": 12
+      }
+    ],
+    "campuses": {
+      "phoenix": [
+        {
+          "name": "Verdin Hollow Elementary School",
+          "band": "elementary",
+          "guid": "C3D1F5CC-CCFD-46D4-BF0F-DB142E995E32"
+        },
+        {
+          "name": "Wrenhaven Elementary School",
+          "band": "elementary",
+          "guid": "EBB4A455-0319-4067-B1EB-4EB4DA668A1E"
+        },
+        {
+          "name": "Coyote Bend Middle School",
+          "band": "middle",
+          "guid": "8E293B2E-017A-4498-A2EF-F540B446D42E"
+        },
+        {
+          "name": "Cinderbluff High School",
+          "band": "high",
+          "guid": "C1441B0B-861F-44F1-8A6A-EF6D3D625CE2"
+        }
+      ],
+      "peoria": [
+        {
+          "name": "Sparrowfield Elementary School",
+          "band": "elementary",
+          "guid": "1F320F49-2C7A-4D11-800A-020200033614"
+        },
+        {
+          "name": "Juncobrook Elementary School",
+          "band": "elementary",
+          "guid": "87F580E4-4604-490D-932D-13DB3397E894"
+        },
+        {
+          "name": "Owlcrest Middle School",
+          "band": "middle",
+          "guid": "3707A415-FD51-4FF5-9A8E-2E7542029972"
+        },
+        {
+          "name": "Bluffstone High School",
+          "band": "high",
+          "guid": "15E6F746-3F10-4A9A-B985-5C2BDF50E0C4"
+        }
+      ],
+      "gilbert": [
+        {
+          "name": "Haybarn Lane Elementary School",
+          "band": "elementary",
+          "guid": "0BAAAD49-ADAC-4A6B-AEC1-B7923055E050"
+        },
+        {
+          "name": "Citrus Bend Elementary School",
+          "band": "elementary",
+          "guid": "41062350-C053-4A1C-AC4D-2148DABAE7CC"
+        },
+        {
+          "name": "Copperline Middle School",
+          "band": "middle",
+          "guid": "D8F431ED-A8A3-44EC-BB31-6F4CB595404B"
+        },
+        {
+          "name": "Trellis Point High School",
+          "band": "high",
+          "guid": "4A1ACFD2-8FEC-4A01-A210-DDA481A6DFE9"
+        }
+      ],
+      "scottsdale": [
+        {
+          "name": "Desert Lark Elementary School",
+          "band": "elementary",
+          "guid": "D019DA07-E729-4255-9131-57E1B152194D"
+        },
+        {
+          "name": "Granite Fold Elementary School",
+          "band": "elementary",
+          "guid": "2F14A4D3-782E-4C04-B0B3-427E0DCD1D22"
+        },
+        {
+          "name": "Agate Terrace Middle School",
+          "band": "middle",
+          "guid": "26BFDE32-9F3C-4909-874A-30CD9C178F1E"
+        },
+        {
+          "name": "Silver Arroyo High School",
+          "band": "high",
+          "guid": "2CD30553-008E-40D3-9D9B-1A9A72A4DCB1"
+        }
+      ],
+      "chandler": [
+        {
+          "name": "Kestrel Field Elementary School",
+          "band": "elementary",
+          "guid": "5D3C65BD-68BC-4719-9B18-9C2B08C28344"
+        },
+        {
+          "name": "Cottonfield Commons Elementary School",
+          "band": "elementary",
+          "guid": "B3144F2B-6BB7-40AF-AE36-377BEBC87CED"
+        },
+        {
+          "name": "Heron Basin Middle School",
+          "band": "middle",
+          "guid": "D3D0EDD9-FFFC-410C-9374-7CF9D19F8FD0"
+        },
+        {
+          "name": "Brightwater Ranch High School",
+          "band": "high",
+          "guid": "6A9B3004-5F1F-4A2B-B642-23332720C27C"
+        }
+      ],
+      "goodyear": [
+        {
+          "name": "Hawkfeather Elementary School",
+          "band": "elementary",
+          "guid": "91FA8F7E-BEA8-4D8F-A6E4-8BA49DB73FFD"
+        },
+        {
+          "name": "Sundial Grove Elementary School",
+          "band": "elementary",
+          "guid": "79713EFE-0B65-4393-A038-AA30E8854847"
+        },
+        {
+          "name": "Cloudrock Middle School",
+          "band": "middle",
+          "guid": "A9D33CED-407A-4BF1-944A-8D8CAA9873D3"
+        },
+        {
+          "name": "Starfire Ranch High School",
+          "band": "high",
+          "guid": "38993112-BF88-4985-B558-1E972704E97D"
+        }
+      ],
+      "tempe": [
+        {
+          "name": "Mill Creekside Elementary School",
+          "band": "elementary",
+          "guid": "59AA0D67-9E81-4162-BDE4-33B8BB6430BF"
+        },
+        {
+          "name": "Ferrybank Elementary School",
+          "band": "elementary",
+          "guid": "850D47C4-8184-4364-B420-190D002110EC"
+        },
+        {
+          "name": "Butte Hollow Middle School",
+          "band": "middle",
+          "guid": "06EDF635-6490-417E-A287-0DBDFA20DC5C"
+        },
+        {
+          "name": "Lakelight High School",
+          "band": "high",
+          "guid": "E6398B5E-C4C5-4669-871F-2A9374497B3F"
+        }
+      ]
+    }
+  },
+  "employment": {
+    "$comment": "Working-age generated adults have an employer by percent, from invented employers checked against real companies. A business contact always works at their own business: the first contact as its Owner, a spouse as Co-owner.",
+    "percent": 10,
+    "minAge": 18,
+    "maxAge": 64,
+    "contactPositions": [
+      "Owner",
+      "Co-owner"
+    ],
+    "employers": [
+      {
+        "name": "Ridgewren Medical Center",
+        "positions": [
+          "Registered Nurse",
+          "Medical Assistant",
+          "Respiratory Therapist",
+          "Patient Access Representative"
+        ]
+      },
+      {
+        "name": "Sunwick Family Clinic",
+        "positions": [
+          "Family Physician",
+          "Nurse Practitioner",
+          "Medical Receptionist",
+          "Billing Specialist"
+        ]
+      },
+      {
+        "name": "Pebblecrest Dental",
+        "positions": [
+          "Dentist",
+          "Dental Hygienist",
+          "Dental Assistant",
+          "Office Manager"
+        ]
+      },
+      {
+        "name": "Kettlewash Pharmacy",
+        "positions": [
+          "Pharmacist",
+          "Pharmacy Technician",
+          "Cashier",
+          "Store Manager"
+        ]
+      },
+      {
+        "name": "Wrenhaven Elementary School",
+        "positions": [
+          "Teacher",
+          "Teacher's Aide",
+          "Office Manager",
+          "Principal"
+        ]
+      },
+      {
+        "name": "Coyote Bend Middle School",
+        "positions": [
+          "Teacher",
+          "Counselor",
+          "Assistant Principal",
+          "Custodian"
+        ]
+      },
+      {
+        "name": "Starfire Ranch High School",
+        "positions": [
+          "Teacher",
+          "Athletic Director",
+          "Librarian",
+          "School Nurse"
+        ]
+      },
+      {
+        "name": "Palo Verde Technical College",
+        "positions": [
+          "Instructor",
+          "Admissions Advisor",
+          "Financial Aid Officer",
+          "Registrar"
+        ]
+      },
+      {
+        "name": "Sonoran Valley University",
+        "positions": [
+          "Professor",
+          "Research Assistant",
+          "Academic Advisor",
+          "Groundskeeper"
+        ]
+      },
+      {
+        "name": "Copperwren Grocery",
+        "positions": [
+          "Cashier",
+          "Stock Clerk",
+          "Deli Manager",
+          "Store Manager"
+        ]
+      },
+      {
+        "name": "Ocotillo Market",
+        "positions": [
+          "Cashier",
+          "Produce Clerk",
+          "Pharmacist",
+          "Assistant Manager"
+        ]
+      },
+      {
+        "name": "Cholla Creek Hardware",
+        "positions": [
+          "Sales Associate",
+          "Cashier",
+          "Assistant Manager"
+        ]
+      },
+      {
+        "name": "Saltcedar Freight Lines",
+        "positions": [
+          "Truck Driver",
+          "Dispatcher",
+          "Diesel Mechanic",
+          "Safety Manager"
+        ]
+      },
+      {
+        "name": "Ridgeloop Distribution",
+        "positions": [
+          "Warehouse Associate",
+          "Forklift Operator",
+          "Shift Supervisor",
+          "Inventory Analyst"
+        ]
+      },
+      {
+        "name": "Lanternfield Software",
+        "positions": [
+          "Software Engineer",
+          "Product Manager",
+          "QA Analyst",
+          "Support Specialist"
+        ]
+      },
+      {
+        "name": "Sonorell Systems",
+        "positions": [
+          "Software Engineer",
+          "Systems Engineer",
+          "Help Desk Technician",
+          "Project Manager"
+        ]
+      },
+      {
+        "name": "Mesa Ridge Electronics",
+        "positions": [
+          "Electrical Engineer",
+          "Test Engineer",
+          "Assembler",
+          "Buyer"
+        ]
+      },
+      {
+        "name": "Brightvane Microsystems",
+        "positions": [
+          "Process Engineer",
+          "Equipment Technician",
+          "Production Operator",
+          "Quality Engineer"
+        ]
+      },
+      {
+        "name": "Redbrush Construction",
+        "positions": [
+          "Project Manager",
+          "Estimator",
+          "Carpenter",
+          "Site Superintendent"
+        ]
+      },
+      {
+        "name": "Sandwren Heating and Cooling",
+        "positions": [
+          "HVAC Technician",
+          "Installer",
+          "Service Coordinator"
+        ]
+      },
+      {
+        "name": "Greywash Water District",
+        "positions": [
+          "Water Treatment Operator",
+          "Meter Reader",
+          "Civil Engineer",
+          "Customer Service Representative"
+        ]
+      },
+      {
+        "name": "Smokewash Barbecue",
+        "positions": [
+          "Line Cook",
+          "Server",
+          "Pitmaster",
+          "General Manager"
+        ]
+      },
+      {
+        "name": "Javelina Wash Coffee",
+        "positions": [
+          "Barista",
+          "Shift Lead",
+          "Baker"
+        ]
+      },
+      {
+        "name": "Coppervault Credit Union",
+        "positions": [
+          "Teller",
+          "Loan Officer",
+          "Member Service Representative",
+          "Branch Manager"
+        ]
+      },
+      {
+        "name": "Shadeline Insurance Group",
+        "positions": [
+          "Insurance Agent",
+          "Claims Adjuster",
+          "Underwriter",
+          "Customer Service Representative"
+        ]
+      },
+      {
+        "name": "Mesquite Hollow Motors",
+        "positions": [
+          "Sales Consultant",
+          "Service Advisor",
+          "Automotive Technician",
+          "Finance Manager"
+        ]
+      },
+      {
+        "name": "Gearwash Auto Repair",
+        "positions": [
+          "Auto Mechanic",
+          "Service Writer",
+          "Tire Technician"
+        ]
+      },
+      {
+        "name": "Palmwren Resort and Spa",
+        "positions": [
+          "Front Desk Agent",
+          "Housekeeper",
+          "Massage Therapist",
+          "Event Coordinator"
+        ]
+      }
+    ]
+  },
+  "legalNotes": {
+    "$comment": "A few single-parent generated households at each campus have a pickup or custody note on every kid who checks in with the family. Notes name the parent's role, never a person, by the household adult's gender.",
+    "householdsPerCampus": 2,
+    "maxAge": 11,
+    "notes": {
+      "female": [
+        "Only Mom may pick up.",
+        "Only Mom or Grandma may pick up.",
+        "Custody order on file. Release only to Mom.",
+        "Dad may not pick up. A court order is on file at the front desk."
+      ],
+      "male": [
+        "Only Dad may pick up.",
+        "Only Dad or Grandpa may pick up.",
+        "Custody order on file. Release only to Dad.",
+        "Mom may not pick up. A court order is on file at the front desk."
+      ]
+    }
+  },
+  "abilityLevel": {
+    "$comment": "Rock's Nursery, Crawlers/Walkers, and Preschool check-in groups each filter by an ability level. A kid, Cast or generated, whose latest check-in was in one of them, and whose age still puts them there on the last Sunday, has that group's ability level by percent.",
+    "percent": 50,
+    "groups": [
+      "nursery",
+      "crawlers-walkers",
+      "preschool"
+    ]
+  },
+  "visit": {
+    "$comment": "A generated household that first came inside the history window filled out a connection card: Source of Visit from Rock's own values by weight, and sometimes a Previous Church, which describes a church and never names one. Every adult in the household has the same.",
+    "sourcePercent": 65,
+    "sources": {
+      "7737454D-F04E-4DCB-BB94-FC688C71F10A": 45,
+      "4A350000-0BCC-4FAB-968B-B0C9FC6E76FF": 20,
+      "8928572F-E96D-4A17-96FD-3F0F9D369B8D": 10,
+      "CAD1E39F-9A40-4636-B1CA-A42EDD5C32BD": 18,
+      "8972B5C2-47DF-4BAC-AC59-BCEE42753593": 7
+    },
+    "previousChurchPercent": 35,
+    "previousChurches": [
+      "A Baptist church in Mesa",
+      "A small nondenominational church in Ohio",
+      "A Lutheran church in Minnesota",
+      "A Methodist church in Tucson",
+      "A Catholic parish in Chicago",
+      "A Presbyterian church in Colorado",
+      "A large nondenominational church in Texas",
+      "A Spanish-language church in Glendale",
+      "A small rural church in Kansas",
+      "A Nazarene church in Oklahoma",
+      "A church plant that met in a school gym",
+      "An Assemblies of God church in California"
+    ]
+  },
+  "envelopes": {
+    "$comment": "A share of the people who wrote a check gift have an offering Envelope Number, unique, counted up from firstNumber with small gaps.",
+    "percent": 40,
+    "firstNumber": 1001,
+    "maxStep": 4
+  }
+}

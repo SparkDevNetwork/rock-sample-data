@@ -63,12 +63,22 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
 const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.giving.properties.expect.properties;
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
 const ALERT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "giving-alert-types.json" ), "utf8" ) ).alertTypes.map( t => t.key );
+const REFUND_KIND_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "refunds.json" ), "utf8" ) ).kinds.map( k => k.key );
 const ACHIEVEMENT_TYPE_KEYS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "achievements.json" ), "utf8" ) ).achievementTypes.map( t => t.key );
 const CAMPAIGN_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.campaign.properties;
 const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campaign.json" ), "utf8" ) ).commitmentSundayWeeksBeforeInstall;
 const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
 const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
 const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+
+// Assessments: type keys from configuration/assessments.json, who can ask from configuration/staff.json, and the
+// dimensions a story can lean toward, by Rock's names for them (docs/assessments.md).
+const ASSESSMENT_TYPES = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "assessments.json" ), "utf8" ) ).types.map( t => t.key );
+const ASSESSMENT_REQUESTERS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.key );
+const ASSESSMENT_DIMENSIONS = {
+    "disc": [ "D", "I", "S", "C" ],
+    "spiritual-gifts": [ "administration", "apostleship", "discernment", "encouragement", "evangelism", "faith", "giving", "service", "hospitality", "knowledge", "leadership", "mercy", "shepherding", "discipling", "prophecy", "teaching", "wisdom" ]
+};
 const REGISTRATIONS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "registrations.json" ), "utf8" ) );
 const REGISTRATION_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.registration.properties;
 const adultsWithoutPhotoEthnicity = [];
@@ -247,6 +257,51 @@ for ( const h of households.map( x => x.data ) ) {
                 errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
             }
         }
+    }
+}
+
+// Person attributes (configuration/person-attributes.json, decisions 250 and 258): every Cast
+// attribute key is a Rock person attribute the file lists, a staff attribute, or Date Engaged, which the loader adds.
+// Exactly two givers ask for no giving statement, and every business contact works at their own business.
+{
+    const configuration = path.join( castDir, "..", "configuration" );
+    const personAttributes = JSON.parse( fs.readFileSync( path.join( configuration, "person-attributes.json" ), "utf8" ) );
+    const staffAttributes = JSON.parse( fs.readFileSync( path.join( configuration, "staff.json" ), "utf8" ) ).attributes || [];
+    const knownKeys = new Set( personAttributes.rockAttributes.map( a => a.key ).concat( staffAttributes.map( a => a.key ), [ personAttributes.dateEngaged.key ] ) );
+    for ( const key of personAttributes.castLoaded ) {
+        if ( !knownKeys.has( key ) ) {
+            errors.push( `configuration/person-attributes.json: castLoaded names ${key}, which rockAttributes does not list.` );
+        }
+    }
+    const businessNames = new Map( households.filter( h => h.data.kind === "business" ).flatMap( h => h.data.members.map( m => [ m.guid, m.lastName ] ) ) );
+    const noStatement = [];
+    for ( const { file, data } of households ) {
+        const givers = new Set( ( data.giving || [] ).map( g => g.person ) );
+        for ( const p of data.members ) {
+            const owner = `${file} ${p.key}`;
+            for ( const [ key, value ] of Object.entries( p.attributes || {} ) ) {
+                if ( !knownKeys.has( key ) ) {
+                    errors.push( `${owner}: attribute "${key}" is not a Rock person attribute in configuration/person-attributes.json, a staff attribute, or Date Engaged.` );
+                }
+                if ( personAttributes.castLoaded.includes( key ) && typeof value !== "string" && typeof value !== "boolean" ) {
+                    errors.push( `${owner}: attribute "${key}" loads into Rock, so it must be text or true or false.` );
+                }
+            }
+            if ( p.attributes?.DoNotSendGivingStatement === true ) {
+                noStatement.push( owner );
+                if ( !givers.has( p.key ) ) {
+                    errors.push( `${owner}: has Do Not Send Giving Statement but gives nothing in the household file.` );
+                }
+            }
+            for ( const r of ( p.relationships || [] ).filter( r => r.type === "business" ) ) {
+                if ( businessNames.has( r.with ) && p.attributes?.Employer !== businessNames.get( r.with ) ) {
+                    errors.push( `${owner}: is a contact for ${businessNames.get( r.with )}, so their Employer must be that business (decision 253).` );
+                }
+            }
+        }
+    }
+    if ( noStatement.length !== 2 ) {
+        errors.push( `Exactly two Cast givers have Do Not Send Giving Statement (decision 258), but ${noStatement.length} do: ${noStatement.join( ", " ) || "none"}.` );
     }
 }
 
@@ -488,6 +543,20 @@ for ( const { file, data: h } of households ) {
                 errors.push( `${file}: giving for "${gv.person}" expects alert "${alert}", which is not in configuration/giving-alert-types.json.` );
             }
         }
+
+        // A designed refund names a kind in configuration/refunds.json and a day. A refund of an online gift needs a
+        // pattern that gives online on every install day, so it names card or ach.
+        for ( const refund of gv.refunds || [] ) {
+            if ( !REFUND_KIND_KEYS.includes( refund.kind ) ) {
+                errors.push( `${file}: a refund for "${gv.person}" has kind "${refund.kind}", which is not in configuration/refunds.json.` );
+            }
+            if ( [ "duplicate", "incorrect-amount" ].includes( refund.kind ) && ![ "card", "ach" ].includes( gv.currency ) ) {
+                errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds an online gift, so the pattern's currency must be card or ach.` );
+            }
+            if ( refund.near === undefined ) {
+                errors.push( `${file}: a refund for "${gv.person}" needs a near date.` );
+            }
+        }
     }
 
     // Campaign pledges and gifts (docs/pledges.md). A line pledge rides on the giver's usual gifts, so its
@@ -668,6 +737,54 @@ for ( const { file, data: h } of households ) {
                     if ( choice.events.length !== 1 || !went.some( e => e.season === choice.events[0].season && e.yearsAgo === choice.events[0].yearsAgo ) ) {
                         errors.push( `${file}: "${p.key}" step "${key}" must name one event from the person's own ${eventKey} events.` );
                     }
+                }
+            }
+        }
+
+        // Assessments: only adults take them. A story's takes replace the rules for that type, so it cannot also say
+        // how the person answers the rules' requests.
+        for ( const list of [ "complete", "pending" ] ) {
+            for ( const key of p.expect?.assessments?.[list] || [] ) {
+                if ( !ASSESSMENT_TYPES.includes( key ) ) {
+                    errors.push( `${file}: "${p.key}" expects assessment "${key}", which is not in configuration/assessments.json.` );
+                }
+            }
+        }
+        if ( ( p.assessments || p.expect?.assessments ) && p.familyRole !== "adult" ) {
+            errors.push( `${file}: "${p.key}" has an assessment story, but only adults take assessments.` );
+        }
+        for ( const [ key, story ] of Object.entries( p.assessments || {} ) ) {
+            const who = `${file}: "${p.key}" ${key}`;
+            if ( !ASSESSMENT_TYPES.includes( key ) ) {
+                errors.push( `${who} is not an assessment type in configuration/assessments.json.` );
+                continue;
+            }
+            if ( story.requests !== undefined && ![ "complete", "pending" ].includes( story.requests ) ) {
+                errors.push( `${who} requests must be complete or pending.` );
+            }
+            if ( story.requests !== undefined && story.takes ) {
+                errors.push( `${who} sets both requests and takes. Takes replace the rules' requests.` );
+            }
+            for ( const lean of story.leaning || [] ) {
+                if ( ASSESSMENT_DIMENSIONS[key] && !ASSESSMENT_DIMENSIONS[key].includes( lean ) ) {
+                    errors.push( `${who} leans toward "${lean}", which it does not score. It scores ${ASSESSMENT_DIMENSIONS[key].join( ", " )}.` );
+                }
+            }
+            for ( const take of story.takes || [] ) {
+                if ( !take.requested && !take.completed ) {
+                    errors.push( `${who} has a take with neither requested nor completed.` );
+                }
+                if ( take.requestedBy !== undefined && !ASSESSMENT_REQUESTERS.includes( take.requestedBy ) ) {
+                    errors.push( `${who} is requested by "${take.requestedBy}", who is not a staff key in configuration/staff.json.` );
+                }
+                if ( take.requested && !take.requestedBy ) {
+                    errors.push( `${who} has a request with no requestedBy.` );
+                }
+                if ( take.legacy && ( key !== "disc" || !take.completed || take.requested ) ) {
+                    errors.push( `${who} has a legacy result, which only a DISC result taken on the person's own can have.` );
+                }
+                if ( take.legacy && !/^[DISC]{1,2}$/.test( take.legacy.personalityType || "" ) ) {
+                    errors.push( `${who} legacy personalityType must be one or two DISC letters.` );
                 }
             }
         }

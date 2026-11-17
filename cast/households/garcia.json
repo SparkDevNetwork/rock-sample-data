@@ -74,7 +74,11 @@
           "type": "business",
           "with": "2E987E5A-D257-4147-BD48-140DBB6A8755"
         }
-      ]
+      ],
+      "attributes": {
+        "Employer": "Desert Thistle Landscaping",
+        "Position": "Owner"
+      }
     },
     {
       "key": "maria",
@@ -108,7 +112,11 @@
           "type": "business",
           "with": "2E987E5A-D257-4147-BD48-140DBB6A8755"
         }
-      ]
+      ],
+      "attributes": {
+        "Employer": "Desert Thistle Landscaping",
+        "Position": "Co-owner"
+      }
     },
     {
       "key": "olivia",

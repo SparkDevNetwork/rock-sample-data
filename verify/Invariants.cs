@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 using RockSampleData.Loader;
+using RockSampleData.Loader.Model;
 
 namespace RockSampleData.Verify
 {
@@ -33,10 +34,11 @@ namespace RockSampleData.Verify
 
         /// <summary>
         /// Runs every rule. The card is the dataset card the load is held to, or null when the load was not made at
-        /// the default seed the card was measured at.
+        /// the default seed the card was measured at. The phones are the package's area codes, which every loaded phone uses.
         /// </summary>
-        public static CheckResult Run( SqlServer sql, string database, string foreignKey, SampleDataDatasetInfo card, string invariantsPath )
+        public static CheckResult Run( SqlServer sql, string database, string foreignKey, SampleDataDatasetInfo card, PhoneConfiguration phones, string invariantsPath )
         {
+            var areaCodes = string.Join( ",", ( phones ?? throw new InvalidDataException( "The package has no configuration/phones.json, which the phone rules need." ) ).AllAreaCodes );
             var text = File.ReadAllText( invariantsPath );
             var starts = CheckStart.Matches( text ).Cast<Match>().ToList();
             var problems = new List<string>();
@@ -52,7 +54,8 @@ namespace RockSampleData.Verify
                     // The loader turns Rock's admin person into a Cast person and leaves it without the ForeignKey (decision 177).
                     new SqlParameter( "@AdminPersonId", 1 ),
                     new SqlParameter( "@CardPeople", SqlDbType.Int ) { Value = ( object ) card?.People ?? DBNull.Value },
-                    new SqlParameter( "@CardHouseholds", SqlDbType.Int ) { Value = ( object ) card?.Households ?? DBNull.Value } ) );
+                    new SqlParameter( "@CardHouseholds", SqlDbType.Int ) { Value = ( object ) card?.Households ?? DBNull.Value },
+                    new SqlParameter( "@AreaCodes", areaCodes ) ) );
                 if ( violations > 0 )
                 {
                     problems.Add( $"{starts[i].Groups[1].Value}: {violations:N0} rows break it. {why}" );

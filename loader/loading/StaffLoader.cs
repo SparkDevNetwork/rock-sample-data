@@ -30,8 +30,6 @@ namespace RockSampleData.Loader.Loading
     /// </summary>
     internal sealed class StaffLoader
     {
-        private static readonly Guid PersonEntityTypeGuid = new Guid( "72657ED8-D16E-492E-AC12-144C5E7567E7" );
-
         /// <summary>
         /// Rock's field types, by the name staff.json uses.
         /// </summary>
@@ -77,7 +75,6 @@ namespace RockSampleData.Loader.Loading
             var category = _source.Categories?.Categories.FirstOrDefault( c => c.Key == staff.Category )
                 ?? throw new InvalidDataException( $"configuration/staff.json names category '{staff.Category}', which configuration/categories.json does not have." );
             var categoryId = _db.RequireIdByGuid( "Category", category.Guid );
-            var personEntityTypeId = _db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid );
             var attributeEntityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Attribute'" ) );
             var now = DateTime.Now;
 
@@ -90,24 +87,9 @@ namespace RockSampleData.Loader.Loading
 
                 // Public attributes are the ones a website staff page shows, so they are available to public Lava and APIs.
                 var isPublic = attribute.Viewers == null;
-                var id = Convert.ToInt32( _db.Scalar( @"
-INSERT INTO [Attribute] ( [IsSystem], [FieldTypeId], [EntityTypeId], [EntityTypeQualifierColumn], [EntityTypeQualifierValue], [Key], [Name], [Description], [Order], [IsGridColumn], [DefaultValue], [IsMultiValue], [IsRequired],
-    [AllowSearch], [IsIndexEnabled], [IsAnalytic], [IsAnalyticHistory], [IsActive], [EnableHistory], [ShowOnBulk], [IsPublic], [IsDefaultPersistedValueDirty], [IsSuppressHistoryLogging], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-OUTPUT INSERTED.[Id]
-VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), @EntityTypeId, '', '', @Key, @Name, @Description, @Order, 0, '', 0, 0,
-    0, 0, 0, 0, 1, 0, 0, @IsPublic, 1, 0, @Guid, @ForeignKey, @Now, @Now )",
-                    P( "@FieldType", fieldTypeGuid ), P( "@EntityTypeId", personEntityTypeId ), P( "@Key", attribute.Key ), P( "@Name", attribute.Name ),
-                    P( "@Description", attribute.Description ), P( "@Order", attribute.Order ), P( "@IsPublic", isPublic ), P( "@Guid", attribute.Guid ),
-                    P( "@ForeignKey", _foreignKey ), P( "@Now", now ) ) );
+                var id = PersonAttributesLoader.InsertPersonAttribute( _db, fieldTypeGuid, attribute.Key, attribute.Name, attribute.Description, attribute.Order, isPublic, attribute.Guid,
+                    attribute.Qualifiers, categoryId, _foreignKey, now );
                 _attributeIds[attribute.Key] = id;
-
-                foreach ( var qualifier in attribute.Qualifiers )
-                {
-                    _db.Execute( "INSERT INTO [AttributeQualifier] ( [IsSystem], [AttributeId], [Key], [Value], [Guid], [ForeignKey] ) VALUES ( 0, @AttributeId, @Key, @Value, NEWID(), @ForeignKey )",
-                        P( "@AttributeId", id ), P( "@Key", qualifier.Key ), P( "@Value", qualifier.Value ), P( "@ForeignKey", _foreignKey ) );
-                }
-
-                _db.Execute( "INSERT INTO [AttributeCategory] ( [AttributeId], [CategoryId] ) VALUES ( @AttributeId, @CategoryId )", P( "@AttributeId", id ), P( "@CategoryId", categoryId ) );
 
                 if ( attribute.Viewers != null )
                 {
