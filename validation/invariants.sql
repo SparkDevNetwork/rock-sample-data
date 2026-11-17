@@ -249,6 +249,59 @@ INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionI
 WHERE [r].[ForeignKey] = @ForeignKey
     AND [o].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2D607262-52D6-4724-910D-5C6E8FB89ACC' );
 
+-- check: returned-check-is-a-whole-check
+-- why: Decision D-uncommon-1. Staff record a check the bank returned as a refund with Rock's Insufficient Funds or Returned Check reason. The bank returns the whole check, and a check has no gateway, so Rock's refund only records it. So each such refund is of a check, returns all of it, and has no gateway or gateway code.
+SELECT COUNT(*)
+FROM [FinancialTransactionRefund] AS [r]
+INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [r].[Id]
+INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
+INNER JOIN [DefinedValue] AS [reason] ON [reason].[Id] = [r].[RefundReasonValueId]
+LEFT JOIN [FinancialPaymentDetail] AS [op] ON [op].[Id] = [o].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [op].[CurrencyTypeValueId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND [reason].[Guid] IN ( '40248BD5-59C4-48CE-BD21-8CC094F3655C', '8538611D-3624-4CD4-BB74-8CC7861D2ADB' )
+    AND ( [currency].[Guid] IS NULL OR [currency].[Guid] <> '8B086A19-405A-451F-8D44-174E92D6B402'
+        OR [t].[FinancialGatewayId] IS NOT NULL OR [t].[TransactionCode] IS NOT NULL
+        OR ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [r].[Id] )
+            + ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) <> 0 );
+
+-- check: non-cash-gift-is-rocks
+-- why: Decision D-uncommon-2. Staff enter an in-kind gift in Rock's Transaction Detail block: paid with the Non-Cash Asset currency type, with one of Rock's Non-Cash Asset Types, a summary that Rock's statement prints as the gift's description, and no gateway or gateway code. An asset type belongs only on a non-cash gift. An in-kind gift was never cash, so nothing refunds it.
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [t]
+LEFT JOIN [FinancialPaymentDetail] AS [p] ON [p].[Id] = [t].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [p].[CurrencyTypeValueId]
+LEFT JOIN [DefinedValue] AS [asset] ON [asset].[Id] = [t].[NonCashAssetTypeValueId]
+LEFT JOIN [DefinedType] AS [assetType] ON [assetType].[Id] = [asset].[DefinedTypeId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] )
+    AND ( ( [currency].[Guid] = '7950FF66-80EE-E8AB-4A77-4A13EDEB7513'
+            AND ( [assetType].[Guid] IS NULL OR [assetType].[Guid] <> '6B19C65E-FF8F-4ADD-9DA0-48E53FC074A6'
+                OR ISNULL( [t].[Summary], '' ) = '' OR [t].[FinancialGatewayId] IS NOT NULL OR [t].[TransactionCode] IS NOT NULL
+                OR EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[OriginalTransactionId] = [t].[Id] ) ) )
+        OR ( ( [currency].[Guid] IS NULL OR [currency].[Guid] <> '7950FF66-80EE-E8AB-4A77-4A13EDEB7513' ) AND [t].[NonCashAssetTypeValueId] IS NOT NULL ) );
+
+-- check: foreign-currency-gift-is-rocks
+-- why: Decision D-uncommon-3. Rock stores a gift in another currency as the gift in the church's currency, with the currency code on the transaction and the foreign amount on each line. No gateway that ships with Rock takes another currency, so each one is a check that staff entered: no gateway or gateway code. Its code is one of Rock's Currency Codes and not the church's own currency (the OrganizationStandardCurrencyCode global attribute), every line has a positive foreign amount, and no transaction without a code has one. Rock refuses to refund it, which refund-is-rocks checks.
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [t]
+LEFT JOIN [DefinedValue] AS [code] ON [code].[Id] = [t].[ForeignCurrencyCodeValueId]
+LEFT JOIN [DefinedType] AS [codeType] ON [codeType].[Id] = [code].[DefinedTypeId]
+LEFT JOIN [FinancialPaymentDetail] AS [p] ON [p].[Id] = [t].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [p].[CurrencyTypeValueId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ( [t].[ForeignCurrencyCodeValueId] IS NOT NULL
+            AND ( [codeType].[Guid] IS NULL OR [codeType].[Guid] <> 'B9F3D359-4365-4594-BCEE-D23FA824FB81'
+                OR [code].[Guid] = ( SELECT TOP 1 TRY_CONVERT( UNIQUEIDENTIFIER, ISNULL( NULLIF( [av].[Value], '' ), [a].[DefaultValue] ) )
+                    FROM [Attribute] AS [a]
+                    LEFT JOIN [AttributeValue] AS [av] ON [av].[AttributeId] = [a].[Id]
+                    WHERE [a].[Key] = 'OrganizationStandardCurrencyCode' AND [a].[EntityTypeId] IS NULL )
+                OR [currency].[Guid] IS NULL OR [currency].[Guid] <> '8B086A19-405A-451F-8D44-174E92D6B402'
+                OR [t].[FinancialGatewayId] IS NOT NULL OR [t].[TransactionCode] IS NOT NULL
+                OR EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [t].[Id] AND ISNULL( [d].[ForeignCurrencyAmount], 0 ) <= 0 ) ) )
+        OR ( [t].[ForeignCurrencyCodeValueId] IS NULL
+            AND EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [t].[Id] AND [d].[ForeignCurrencyAmount] IS NOT NULL ) ) );
+
 -- check: member-role-belongs-to-the-group-type
 -- why: Rock only lets a member hold a role of their group's type. The database does not enforce it.
 SELECT COUNT(*)

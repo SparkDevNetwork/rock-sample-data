@@ -27,15 +27,19 @@ namespace RockSampleData.Loader.Loading
     /*
         11/16/26 - CLAUDE
 
-        Refunds of gifts (decision 262). Generated households' gifts get refunds at the profile's rate per
-        1,000 gifts, counted in the same 12 month windows calibration counts (each ends on the first of a month). Each
-        refund is one of the four kinds in configuration/refunds.json:
+        Refunds of gifts (decisions 262 and D-uncommon-1). Generated households' gifts get refunds at the profile's rate
+        per 1,000 gifts, counted in the same 12 month windows calibration counts (each ends on the first of a month).
+        Each refund is one of the six kinds in configuration/refunds.json:
 
         1. duplicate: the giver gave the same gift online twice, minutes apart. The second gift is refunded in full.
         2. incorrect-amount: a one-time online gift to one fund was typed with an extra zero. The extra is refunded,
            so the gift nets to what the giver meant.
         3. one-fund: the first line of a gift to two funds is refunded, since Rock's refund takes the lines in order.
         4. earlier-year: a gift from late in one year is refunded in full early in the next.
+        5. insufficient-funds and returned-check: the bank returned a check, and staff refunded it in full with Rock's
+           Insufficient Funds or Returned Check reason. A check has no gateway, so Rock's refund only records it.
+
+        No refund is of an in-kind gift, which was never cash, or of a gift in a foreign currency, which Rock refuses.
 
         A refund never changes what a gift gave to the building campaign, so the pledges stay as planned. Staff refund
         on weekdays. Every refund comes on or before Rock's last weekly journey stage run, because Rock's journey
@@ -59,7 +63,9 @@ namespace RockSampleData.Loader.Loading
             ["duplicate"] = RefundKind.Duplicate,
             ["incorrect-amount"] = RefundKind.IncorrectAmount,
             ["one-fund"] = RefundKind.OneFund,
-            ["earlier-year"] = RefundKind.EarlierYear
+            ["earlier-year"] = RefundKind.EarlierYear,
+            ["insufficient-funds"] = RefundKind.InsufficientFunds,
+            ["returned-check"] = RefundKind.ReturnedCheck
         };
 
         private enum RefundKind
@@ -67,8 +73,20 @@ namespace RockSampleData.Loader.Loading
             Duplicate,
             IncorrectAmount,
             OneFund,
-            EarlierYear
+            EarlierYear,
+            InsufficientFunds,
+            ReturnedCheck
         }
+
+        /// <summary>
+        /// True when a refund kind returns the whole gift, and false when it returns part of it.
+        /// </summary>
+        public static bool IsWholeGiftRefund( string kindKey ) => RefundKinds.TryGetValue( kindKey, out var kind ) && kind is not ( RefundKind.IncorrectAmount or RefundKind.OneFund );
+
+        /// <summary>
+        /// True when a refund kind is a check the bank returned.
+        /// </summary>
+        public static bool IsReturnedCheckRefund( string kindKey ) => RefundKinds.TryGetValue( kindKey, out var kind ) && kind is RefundKind.InsufficientFunds or RefundKind.ReturnedCheck;
 
         private HashSet<int> _taxDeductibleAccountIds;
         private HashSet<int> _campaignAccountIds;
@@ -83,7 +101,8 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// A planned gift, with what a refund of it needs. <see cref="Lines"/> are its detail rows, in Id order.
         /// </summary>
-        private sealed record PlannedGift( int TransactionId, DataRow Row, List<DataRow> Lines, int BatchId, LoadedHousehold Household, LoadedPerson Giver, CastGiving Pattern, Wallet Wallet, Gift Gift, bool IsOnline );
+        private sealed record PlannedGift( int TransactionId, DataRow Row, List<DataRow> Lines, int BatchId, LoadedHousehold Household, LoadedPerson Giver, CastGiving Pattern, Wallet Wallet, Gift Gift, bool IsOnline,
+            int? ForeignCurrencyCodeValueId );
 
         /// <summary>
         /// The next free Ids, which a duplicate gift takes before the refunds do.
@@ -138,11 +157,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             var definitions = config.Kinds.ToDictionary( k => RefundKinds.TryGetValue( k.Key, out var kind ) ? kind : throw new InvalidDataException( $"configuration/refunds.json has the kind {k.Key}, which the loader does not know." ) );
-            var reasonIds = _db.Query( @"
-SELECT [dv].[Id], [dv].[Value]
-FROM [DefinedValue] AS [dv]
-INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId]
-WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).ToDictionary( r => ( string ) r["Value"], r => ( int ) r["Id"] );
+            var reasonIds = DefinedValueIds( RefundReasonTypeGuid );
             var missingReason = config.Kinds.FirstOrDefault( k => !reasonIds.ContainsKey( k.Reason ) );
             if ( missingReason != null )
             {
@@ -166,7 +181,7 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
                 var cardTypeId = _payments.CardType( gift.Gift.Currency, gift.Wallet ) as int?;
                 var sourceId = DefinedValueId( gift.IsOnline ? PaymentMethods.WebsiteSourceGuid : OnsiteSourceGuid );
                 RefundableTransaction Original( int id, DateTime when, IEnumerable<KeyValuePair<int, decimal>> lines ) => new RefundableTransaction( id, gift.Giver.AliasId, when, contributionId, sourceId,
-                    gift.IsOnline ? gatewayId : null, gift.IsOnline ? ( string ) gift.Row["TransactionCode"] : null, null, currencyId, cardTypeId, gift.Wallet.Masked( gift.Gift.Currency ), false,
+                    gift.IsOnline ? gatewayId : null, gift.IsOnline ? ( string ) gift.Row["TransactionCode"] : null, gift.ForeignCurrencyCodeValueId, currencyId, cardTypeId, gift.Wallet.Masked( gift.Gift.Currency ), false,
                     lines.Select( l => new RefundableLine( l.Key, l.Value ) ).ToList() );
                 RockGift Before( IEnumerable<KeyValuePair<int, decimal>> lines ) => RockGiftFor( gift.TransactionId, gift.Giver, gift.Gift.When, gift.IsOnline, gift.Gift.Currency, gift.Gift.ScheduleIndex.HasValue, lines );
 
@@ -231,6 +246,8 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
                     }
 
                     case RefundKind.EarlierYear:
+                    case RefundKind.InsufficientFunds:
+                    case RefundKind.ReturnedCheck:
                     {
                         requests.Add( (choice, Original( gift.TransactionId, gift.Gift.When, amounts ), total, Summary( choice, amounts, total, total )) );
                         if ( Before( amounts ) is { } before )
@@ -362,16 +379,17 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
 
         /// <summary>
         /// A refund of the kind for the gift, or null when the kind cannot refund it: a duplicate needs an online gift,
-        /// an incorrect amount a one-time online gift to one fund, a one-fund refund a gift to two funds, and an earlier
-        /// year refund a gift whose refund falls in the next year. None touches a building campaign line, except a
-        /// duplicate, whose refund takes back exactly what it added. Staff refund on a weekday, during office hours, on
-        /// or before Rock's last journey run.
+        /// an incorrect amount a one-time online gift to one fund, a one-fund refund a gift to two funds, an earlier
+        /// year refund a gift whose refund falls in the next year, and a returned check a check. None touches a building
+        /// campaign line, except a duplicate, whose refund takes back exactly what it added. No kind refunds an in-kind
+        /// gift or a gift in a foreign currency. Staff refund on a weekday, during office hours, on or before Rock's last
+        /// journey run.
         /// </summary>
         private RefundChoice Choose( PlannedGift gift, RefundKind kind, RefundKindDefinition definition, DateTime lastRun, bool isShortestDelay )
         {
             // Cheap tests first: a seeded stream for every gift and kind would slow Full 7.
             var latestDay = gift.Gift.When.Date.AddDays( definition.DelayDays.Max + 2 );
-            if ( gift.Gift.When >= lastRun || ( kind == RefundKind.EarlierYear && latestDay.Year == gift.Gift.When.Year ) )
+            if ( gift.Gift.When >= lastRun || ( kind == RefundKind.EarlierYear && latestDay.Year == gift.Gift.When.Year ) || gift.ForeignCurrencyCodeValueId.HasValue || gift.Gift.Currency == "Non-Cash Asset" )
             {
                 return null;
             }
@@ -385,6 +403,7 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
                 RefundKind.Duplicate => gift.IsOnline,
                 RefundKind.IncorrectAmount => gift.IsOnline && !gift.Gift.ScheduleIndex.HasValue && amounts.Count == 1 && amounts[0].Value <= definition.MaximumIntendedAmount && !isCampaign[0],
                 RefundKind.OneFund => amounts.Count >= 2 && !isCampaign[0],
+                RefundKind.InsufficientFunds or RefundKind.ReturnedCheck => gift.Gift.Currency == "Check" && !isCampaign.Contains( true ),
                 _ => !isCampaign.Contains( true )
             };
             if ( !isEligible )
@@ -406,9 +425,14 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
         /// The day staff refund a gift made at <paramref name="giftAt"/>, <paramref name="delayDays"/> later: moved to the
         /// next weekday when it falls on a weekend, Christmas Day, or New Year's Day, when the office is closed.
         /// </summary>
-        public static DateTime RefundDay( DateTime giftAt, int delayDays )
+        public static DateTime RefundDay( DateTime giftAt, int delayDays ) => OfficeDay( giftAt.Date.AddDays( delayDays ) );
+
+        /// <summary>
+        /// The first day on or after <paramref name="day"/> that the church office is open: a weekday that is not
+        /// Christmas Day or New Year's Day.
+        /// </summary>
+        private static DateTime OfficeDay( DateTime day )
         {
-            var day = giftAt.Date.AddDays( delayDays );
             while ( day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday || ( day.Month, day.Day ) is (12, 25) or (1, 1) )
             {
                 day = day.AddDays( 1 );
@@ -435,8 +459,8 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
         }
 
         /// <summary>
-        /// A summary from the kind's list, with its amounts and funds filled in. A duplicate of a scheduled gift has
-        /// summaries of its own.
+        /// A summary from the kind's list, with its amounts, funds, and check number filled in. A duplicate of a
+        /// scheduled gift has summaries of its own.
         /// </summary>
         private string Summary( RefundChoice choice, List<KeyValuePair<int, decimal>> amounts, decimal entered, decimal refunded )
         {
@@ -450,7 +474,8 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
                 .Replace( "{entered}", Money( entered ) )
                 .Replace( "{refunded}", Money( refunded ) )
                 .Replace( "{fund}", FundName( amounts[0].Key ) )
-                .Replace( "{kept}", string.Join( " and ", amounts.Skip( 1 ).Select( a => FundName( a.Key ) ) ) );
+                .Replace( "{kept}", string.Join( " and ", amounts.Skip( 1 ).Select( a => FundName( a.Key ) ) ) )
+                .Replace( "{check}", choice.Gift.Row["TransactionCode"] as string ?? string.Empty );
         }
 
         /// <summary>

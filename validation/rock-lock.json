@@ -913,6 +913,42 @@
         "loader/loading/RefundWriter.cs"
       ],
       "sha256": "c5bb72ec24948362139191f6bb8fbfb07ee6ffc0e1dc51a1b90dea042c2d43bf"
+    },
+    {
+      "path": "Rock/Financial/GatewayComponent.cs",
+      "section": "IsCurrencyCodeSupported",
+      "from": "public virtual bool IsCurrencyCodeSupported( DefinedValueCache currencyCode, DefinedValueCache creditCardType )",
+      "to": "/// Gets the list of scheduled payment dates",
+      "why": "No gateway that ships with Rock takes a gift in another currency online: the base gateway accepts only the church's own currency. So a gift in Canadian dollars is a check staff enter.",
+      "mirroredBy": [
+        "loader/loading/GivingLoader.UncommonGifts.cs",
+        "configuration/foreign-currency.json"
+      ],
+      "sha256": "2f8aa29b72e0233070e331ddb99d9c57531a675fc0558efbbb47335c6e5569b9"
+    },
+    {
+      "path": "Rock.Blocks/Finance/TransactionDetail.cs",
+      "section": "The Enable Foreign Currency setting",
+      "from": "[BooleanField( \"Enable Foreign Currency\",",
+      "to": "Key = AttributeKey.EnableForeignCurrency )]",
+      "why": "The Transaction Detail block's Enable Foreign Currency setting, off by default, which the church turns on to show and enter Canadian amounts.",
+      "mirroredBy": [
+        "loader/loading/ForeignCurrencySetup.cs",
+        "configuration/foreign-currency.json"
+      ],
+      "sha256": "77b76ae90681c1dd221e946dead105c555bfba6f62eba1a2d84cd47af7d95a35"
+    },
+    {
+      "path": "Rock/Financial/FinancialStatementGeneratorHelper.cs",
+      "section": "The cash and non-cash split",
+      "from": "List<FinancialTransactionDetail> transactionDetailListCash = transactionDetailListAll;",
+      "to": "groomActivity?.Dispose();",
+      "why": "How a statement lists non-cash gifts apart from cash gifts, by the template's currency types, which the in-kind gifts' summaries and the pledge setting rely on.",
+      "mirroredBy": [
+        "loader/loading/GivingLoader.UncommonGifts.cs",
+        "loader/loading/CampaignLoader.cs"
+      ],
+      "sha256": "b769c2049d331de4dfc38cd9ad4e201fc74f2e1c34b1cea608777aecf10e48c5"
     }
   ]
 }

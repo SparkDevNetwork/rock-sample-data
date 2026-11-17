@@ -40,6 +40,7 @@ The words this project uses, in alphabetical order.
 | **Giving alert** | A note Rock raises about a gift: a large gift, a smaller gift than usual, or a gift that is late. |
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
+| **In-kind gift** | A gift of something other than money, such as stock, a vehicle, or a piano. Rock records it with the Non-Cash Asset currency type, one of its Non-Cash Asset Types, a summary, and its fair value. See [Uncommon gifts](uncommon-gifts.md). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
@@ -72,6 +73,7 @@ The words this project uses, in alphabetical order.
 | **Registration placement** | Putting a registrant in a placement group, such as a VBS kid in the crew for their grade or a Serve Day volunteer on a project team. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
+| **Returned check** | A check the bank sent back unpaid, for insufficient funds or another reason. Staff record it as a refund of the whole check, with Rock's Insufficient Funds or Returned Check reason. See [Uncommon gifts](uncommon-gifts.md#returned-checks). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
 | **Rolling registration** | A registration that opens the day after the previous one closed, so its event always has one open (decision 190). |
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |

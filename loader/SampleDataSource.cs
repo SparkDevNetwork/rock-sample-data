@@ -177,6 +177,8 @@ namespace RockSampleData.Loader
             Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
+            InKindGifts = Files.Exists( InKindGiftsConfigurationPath ) ? Read<InKindGiftsConfiguration>( InKindGiftsConfigurationPath ) : null;
+            ForeignCurrency = Files.Exists( ForeignCurrencyConfigurationPath ) ? Read<ForeignCurrencyConfiguration>( ForeignCurrencyConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
         }
 
@@ -201,6 +203,21 @@ namespace RockSampleData.Loader
         public RefundsConfiguration Refunds { get; }
 
         public const string RefundsConfigurationPath = "configuration/refunds.json";
+
+        /// <summary>
+        /// The kinds of in-kind (non-cash) gifts, or null in a package built before them, whose non-cash gifts have no
+        /// asset type or summary.
+        /// </summary>
+        public InKindGiftsConfiguration InKindGifts { get; }
+
+        public const string InKindGiftsConfigurationPath = "configuration/in-kind-gifts.json";
+
+        /// <summary>
+        /// The winter visitors who give checks in a foreign currency, or null in a package built before them, which has none.
+        /// </summary>
+        public ForeignCurrencyConfiguration ForeignCurrency { get; }
+
+        public const string ForeignCurrencyConfigurationPath = "configuration/foreign-currency.json";
 
         /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.

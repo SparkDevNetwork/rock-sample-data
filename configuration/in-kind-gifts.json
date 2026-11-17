@@ -1,0 +1,41 @@
+{
+  "$comment": "In-kind (non-cash) gifts (decision D-uncommon-2). Rock records a gift of stock, a vehicle, or equipment as a gift paid with the Non-Cash Asset currency type, one of Rock's shipped Non-Cash Asset Types, and a summary that says what was given. Its amount is the gift's fair value. Rock's contribution statement lists it under Non-Cash Gifts, with the summary as its description, and Rock's Giving Automation job counts it like any other gift. stock is what the largest givers and the building campaign's stock gifts give (decision 43); their giving patterns size it, so its items have no value. Each other kind comes from generated households that give, at perThousandGivingHouseholdsPerYear in each year a household gives, to the fund it names, with one of its items at a fair value in the item's range. The Cast gets only the in-kind gifts its household files design. A summary is what staff typed in the Transaction Detail block.",
+  "kinds": [
+    {
+      "key": "stock",
+      "assetType": "Stocks And Bonds",
+      "items": [
+        { "summary": "Shares of stock, moved to the church's brokerage account and valued on the day they arrived." },
+        { "summary": "Appreciated stock, given through the giver's financial advisor. Valued at the average of the day's high and low price." },
+        { "summary": "Shares of a mutual fund, valued at the closing price on the day of the transfer." }
+      ]
+    },
+    {
+      "key": "vehicle",
+      "assetType": "Vehicles",
+      "perThousandGivingHouseholdsPerYear": 0.3,
+      "fund": "General Fund",
+      "items": [
+        { "summary": "Minivan for the benevolence car ministry. Sent Form 1098-C.", "value": { "min": 3500, "max": 9000 } },
+        { "summary": "Sedan for the benevolence car ministry. Sent Form 1098-C.", "value": { "min": 2500, "max": 7500 } },
+        { "summary": "Pickup truck for the facilities team. Sent Form 1098-C.", "value": { "min": 4000, "max": 12000 } },
+        { "summary": "Older sedan, sold at auction. The value is what it sold for. Sent Form 1098-C.", "value": { "min": 800, "max": 3000 } }
+      ]
+    },
+    {
+      "key": "equipment",
+      "assetType": "Other",
+      "perThousandGivingHouseholdsPerYear": 0.6,
+      "fund": "General Fund",
+      "items": [
+        { "summary": "Upright piano for the kids worship room.", "value": { "min": 1200, "max": 4000 } },
+        { "summary": "Commercial refrigerator for the food pantry.", "value": { "min": 900, "max": 2500 } },
+        { "summary": "Digital sound mixer for the student room.", "value": { "min": 600, "max": 2000 } },
+        { "summary": "Two laptops for the check-in stations.", "value": { "min": 800, "max": 1600 } },
+        { "summary": "Riding mower for the facilities team.", "value": { "min": 900, "max": 2500 } },
+        { "summary": "Office desks and chairs for the staff offices.", "value": { "min": 600, "max": 1800 } },
+        { "summary": "Folding tables and chairs for the fellowship hall.", "value": { "min": 500, "max": 1500 } }
+      ]
+    }
+  ]
+}
