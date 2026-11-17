@@ -392,6 +392,71 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
+    /// configuration/refunds.json: the refunds staff make on generated households' gifts (decision D-refunds-2).
+    /// </summary>
+    internal sealed class RefundsConfiguration
+    {
+        /// <summary>
+        /// The staff key, in configuration/staff.json, of the person who refunds gifts in Rock.
+        /// </summary>
+        public string RefundedBy { get; set; }
+
+        /// <summary>
+        /// The refunds per 1,000 gifts when the profile has no giving.refundsPerThousandGifts.
+        /// </summary>
+        public double PerThousandGiftsWithoutProfile { get; set; }
+
+        public List<RefundKindDefinition> Kinds { get; set; } = new List<RefundKindDefinition>();
+    }
+
+    /// <summary>
+    /// One kind of refund: duplicate, incorrect-amount, one-fund, or earlier-year.
+    /// </summary>
+    internal sealed class RefundKindDefinition
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// One of Rock's shipped refund reasons, by its value, such as Duplicate Payment.
+        /// </summary>
+        public string Reason { get; set; }
+
+        /// <summary>
+        /// The kind's percent of refunds.
+        /// </summary>
+        public double Share { get; set; }
+
+        public RefundDelay DelayDays { get; set; } = new RefundDelay();
+
+        /// <summary>
+        /// incorrect-amount only: what the typed amount is, as a multiple of the intended one.
+        /// </summary>
+        public decimal MistakeFactor { get; set; } = 10;
+
+        /// <summary>
+        /// incorrect-amount only: the largest intended gift the mistake happens to.
+        /// </summary>
+        public decimal MaximumIntendedAmount { get; set; } = 500;
+
+        public List<string> Summaries { get; set; } = new List<string>();
+
+        /// <summary>
+        /// duplicate only: the summaries when the first gift was a scheduled gift and the giver gave again by hand.
+        /// </summary>
+        public List<string> ScheduledSummaries { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// How many days after the gift a refund comes, at least and at most.
+    /// </summary>
+    internal sealed class RefundDelay
+    {
+        public int Min { get; set; }
+
+        public int Max { get; set; }
+    }
+
+    /// <summary>
     /// configuration/achievements.json: the kids check-in streak type and the achievement types that read it.
     /// </summary>
     internal sealed class AchievementConfiguration

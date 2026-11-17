@@ -164,10 +164,11 @@ SELECT ( SELECT COUNT(*) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND 
     + ( SELECT COUNT(*) FROM [StepProgramCompletion] WHERE [ForeignKey] = @ForeignKey AND [EndDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) ) );
 
 -- check: transaction-has-positive-details
--- why: Rock totals a gift from its details. A gift with no detail, or a zero or negative one, breaks statements.
+-- why: Rock totals a gift from its details. A gift with no detail, or a zero or negative one, breaks statements. A refund is the one transaction whose details are negative, and refund-returns-what-was-paid checks those.
 SELECT COUNT(*)
 FROM [FinancialTransaction] AS [t]
 WHERE [t].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] )
     AND ( NOT EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [t].[Id] )
         OR EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [t].[Id] AND [d].[Amount] <= 0 ) );
 
@@ -178,6 +179,75 @@ FROM [FinancialTransaction] AS [t]
 INNER JOIN [FinancialBatch] AS [b] ON [b].[Id] = [t].[BatchId]
 WHERE [t].[ForeignKey] = @ForeignKey
     AND ( [t].[TransactionDateTime] < [b].[BatchStartDateTime] OR [t].[TransactionDateTime] >= [b].[BatchEndDateTime] );
+
+-- check: batch-control-amount-is-its-total
+-- why: Rock adds each gift, payment, and refund to its batch's control amount as it saves (FinancialBatchService.IncrementControlAmount), so a batch balances in Rock's batch list. A refund batch's control amount is negative.
+SELECT COUNT(*)
+FROM [FinancialBatch] AS [b]
+WHERE [b].[ForeignKey] = @ForeignKey
+    AND [b].[ControlAmount] <> ISNULL( ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [d].[TransactionId] WHERE [t].[BatchId] = [b].[Id] ), 0 );
+
+-- check: refund-is-rocks
+-- why: Decision D-refunds-1. Rock's refund (FinancialTransactionService.ProcessRefund) is a transaction with its original's type, person, gateway, source, and payment method, a reason from Rock's refund reasons, and at least one line. It comes after the original and by install day. Rock refuses a refund of a refund, and of a gift in a foreign currency, so the data never shows one.
+SELECT COUNT(*)
+FROM [FinancialTransactionRefund] AS [r]
+INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [r].[Id]
+LEFT JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
+LEFT JOIN [DefinedValue] AS [reason] ON [reason].[Id] = [r].[RefundReasonValueId]
+LEFT JOIN [DefinedType] AS [reasonType] ON [reasonType].[Id] = [reason].[DefinedTypeId]
+LEFT JOIN [FinancialPaymentDetail] AS [tp] ON [tp].[Id] = [t].[FinancialPaymentDetailId]
+LEFT JOIN [FinancialPaymentDetail] AS [op] ON [op].[Id] = [o].[FinancialPaymentDetailId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [o].[Id] IS NULL OR [o].[AuthorizedPersonAliasId] IS NULL
+        OR [reasonType].[Guid] IS NULL OR [reasonType].[Guid] <> '61FE3A58-9F4F-472F-A4E0-5116EB90A323'
+        OR NOT EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [t].[Id] )
+        OR [t].[TransactionTypeValueId] <> [o].[TransactionTypeValueId]
+        OR ISNULL( [t].[AuthorizedPersonAliasId], 0 ) <> [o].[AuthorizedPersonAliasId]
+        OR ISNULL( [t].[FinancialGatewayId], 0 ) <> ISNULL( [o].[FinancialGatewayId], 0 )
+        OR ISNULL( [t].[SourceTypeValueId], 0 ) <> ISNULL( [o].[SourceTypeValueId], 0 )
+        OR ISNULL( [tp].[CurrencyTypeValueId], 0 ) <> ISNULL( [op].[CurrencyTypeValueId], 0 )
+        OR ISNULL( [tp].[CreditCardTypeValueId], 0 ) <> ISNULL( [op].[CreditCardTypeValueId], 0 )
+        OR ISNULL( [tp].[AccountNumberMasked], '' ) <> ISNULL( [op].[AccountNumberMasked], '' )
+        OR [t].[TransactionDateTime] <= [o].[TransactionDateTime]
+        OR [t].[TransactionDateTime] >= DATEADD( DAY, 1, CAST( GETDATE() AS DATE ) )
+        OR EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [refundOfRefund] WHERE [refundOfRefund].[Id] = [o].[Id] )
+        OR [o].[ForeignCurrencyCodeValueId] IS NOT NULL OR [t].[ForeignCurrencyCodeValueId] IS NOT NULL );
+
+-- check: refund-returns-what-was-paid
+-- why: Decision D-refunds-1. Rock's refund takes each of the original's lines in order, up to the line's amount, as a negative line on the same account (and registration), and refuses more than is left to refund. So every refund line is negative and on a line of its original, and on each account the original and all its refunds never total below zero.
+SELECT ( SELECT COUNT(*)
+        FROM [FinancialTransactionDetail] AS [d]
+        INNER JOIN [FinancialTransactionRefund] AS [r] ON [r].[Id] = [d].[TransactionId]
+        WHERE [r].[ForeignKey] = @ForeignKey
+            AND ( [d].[Amount] >= 0
+                OR NOT EXISTS ( SELECT 1 FROM [FinancialTransactionDetail] AS [od] WHERE [od].[TransactionId] = [r].[OriginalTransactionId] AND [od].[AccountId] = [d].[AccountId]
+                    AND ISNULL( [od].[EntityTypeId], 0 ) = ISNULL( [d].[EntityTypeId], 0 ) AND ISNULL( [od].[EntityId], 0 ) = ISNULL( [d].[EntityId], 0 ) ) ) )
+    + ( SELECT COUNT(*)
+        FROM (
+            SELECT [r].[OriginalTransactionId], [d].[AccountId], SUM( [d].[Amount] ) AS [Refunded]
+            FROM [FinancialTransactionRefund] AS [r]
+            INNER JOIN [FinancialTransactionDetail] AS [d] ON [d].[TransactionId] = [r].[Id]
+            WHERE [r].[ForeignKey] = @ForeignKey
+            GROUP BY [r].[OriginalTransactionId], [d].[AccountId]
+        ) AS [x]
+        WHERE [x].[Refunded] + ISNULL( ( SELECT SUM( [od].[Amount] ) FROM [FinancialTransactionDetail] AS [od] WHERE [od].[TransactionId] = [x].[OriginalTransactionId] AND [od].[AccountId] = [x].[AccountId] ), 0 ) < 0 );
+
+-- check: refund-batch-holds-only-refunds
+-- why: Decision D-refunds-1. Rock's Transaction Detail block puts a refund in the day's batch named with its " - Refund" suffix, and nothing else lands in one. A refund in a gift batch, or a gift in a refund batch, would change that batch's total.
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [t]
+INNER JOIN [FinancialBatch] AS [b] ON [b].[Id] = [t].[BatchId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ( EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] ) AND [b].[Name] NOT LIKE '% - Refund' )
+        OR ( NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] ) AND [b].[Name] LIKE '% - Refund' ) );
+
+-- check: refund-is-of-a-gift
+-- why: Decision D-refunds-2. Giving refunds return gifts. A refund of an Event Registration payment changes a registration's balance and history, and only Registration Follow-ups may make one.
+SELECT COUNT(*)
+FROM [FinancialTransactionRefund] AS [r]
+INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND [o].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2D607262-52D6-4724-910D-5C6E8FB89ACC' );
 
 -- check: member-role-belongs-to-the-group-type
 -- why: Rock only lets a member hold a role of their group's type. The database does not enforce it.

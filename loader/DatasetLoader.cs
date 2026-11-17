@@ -476,7 +476,7 @@ namespace RockSampleData.Loader
                 pledges?.Plan( people.Households, castHouseholdKeys, profile.Number( "giving.pctUnitsWithPledge", 12 ) / 100 );
                 pledges?.WriteGoal();
                 giving = new GivingLoader( db, source, profile, calendar, dates, configuration, attendance.FamilySundays, foreignKey, seed ) { Keys = keys, Campaign = pledges?.Giving, CheckWeightScale = manifest?.Giving?.CheckWeightScale ?? 1 };
-                giving.Plan( people.Households );
+                giving.Plan( people.Households, castHouseholdKeys );
             }
 
             if ( isGivingLoaded )
@@ -495,8 +495,8 @@ namespace RockSampleData.Loader
             GivingAnalyticsLoader analytics = null;
             if ( steps.Begin( "Giving analytics" ) )
             {
-                analytics = new GivingAnalyticsLoader( db, dates, foreignKey );
-                analytics.Load( giving.QualifyingGifts );
+                analytics = new GivingAnalyticsLoader( db, dates, foreignKey ) { IsRefundChecked = options.IsCastExpectationsChecked };
+                analytics.Load( giving.Gifts );
             }
 
             // The sample church's giving alert types, with the alerts Rock would have raised over the last year.

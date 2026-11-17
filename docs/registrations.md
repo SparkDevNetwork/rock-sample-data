@@ -353,6 +353,6 @@ Registrations are their own loader part, `Registrations` ("Event registrations")
 
 ## Later
 
-1. **Refunds.** One cancelled mission trip spot with a refunded deposit.
+1. **Refunds.** One cancelled mission trip spot with a refunded deposit. The refund writer that giving refunds use is built for this too (see [Refunds](refunds.md)), so it needs only the cancellation and the registration's "Refund" history line.
 2. **Batch history.** Rock writes financial batch history when a registration payment lands in a batch. The loader does not write it yet.
 3. **Registration emails as communication history.** The confirmation, reminder, payment reminder, and signature receipt emails (decision 214).

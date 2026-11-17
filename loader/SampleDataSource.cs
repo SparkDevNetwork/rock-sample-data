@@ -176,6 +176,7 @@ namespace RockSampleData.Loader
             PersonAttributes = Files.Exists( PersonAttributesConfigurationPath ) ? Read<PersonAttributesConfiguration>( PersonAttributesConfigurationPath ) : null;
             Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
+            Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -192,6 +193,13 @@ namespace RockSampleData.Loader
         public AssessmentsConfiguration Assessments { get; }
 
         public const string AssessmentsConfigurationPath = "configuration/assessments.json";
+
+        /// <summary>
+        /// The refunds staff make on generated households' gifts, or null in a package built before refunds, which has none.
+        /// </summary>
+        public RefundsConfiguration Refunds { get; }
+
+        public const string RefundsConfigurationPath = "configuration/refunds.json";
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were

@@ -70,7 +70,7 @@ namespace RockSampleData.Loader.Validation
             var givingHouseholds = parts.Contains( SampleDataPart.Giving ) ? source.ReadHouseholds() : new List<CastHousehold>();
             foreach ( var household in givingHouseholds )
             {
-                foreach ( var pattern in household.Giving.Where( g => g.Expect != null ) )
+                foreach ( var pattern in household.Giving.Where( g => g.Expect != null || g.Refunds.Count > 0 ) )
                 {
                     var giver = household.Members.First( m => m.Key == pattern.Person );
                     var person = db.Query( "SELECT [Id], [GivingId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", guids.Value( giver.Guid ) ) ).FirstOrDefault();
@@ -88,6 +88,21 @@ INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
 WHERE [av].[EntityId] = @PersonId AND [a].[Key] IN ( 'FrequencyLabel', 'CurrentJourneyGivingStage' )
     AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )", P( "@PersonId", person["Id"] ) )
                         .ToDictionary( r => ( string ) r["Key"], r => ( string ) r["Value"] );
+
+                    foreach ( var refund in pattern.Refunds )
+                    {
+                        checks++;
+                        var problem = RefundProblem( db, source, ( int ) person["Id"], refund );
+                        if ( problem != null )
+                        {
+                            failures.Add( $"{name}: {problem}" );
+                        }
+                    }
+
+                    if ( pattern.Expect == null )
+                    {
+                        continue;
+                    }
 
                     if ( pattern.Expect.Frequency != null )
                     {
@@ -174,6 +189,51 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += parts.Contains( SampleDataPart.Registrations ) ? CheckRegistrations( db, source, guids, failures ) : 0;
 
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks one designed refund (decision D-refunds-4): the giver has a refund with the kind's reason, of the whole
+        /// gift for a duplicate or an earlier year, or of part of it otherwise, made the kind's shortest delay after the
+        /// gift on a weekday. A duplicate's gift has a twin: another of the giver's gifts that day, of the same amount.
+        /// Returns what is wrong, or null.
+        /// </summary>
+        private static string RefundProblem( RockDatabase db, SampleDataSource source, int personId, CastRefund refund )
+        {
+            var definition = source.Refunds?.Kinds.FirstOrDefault( k => k.Key == refund.Kind );
+            if ( definition == null )
+            {
+                return $"expected a {refund.Kind} refund, which the package's configuration/refunds.json does not have";
+            }
+
+            var refunds = db.Query( @"
+SELECT [o].[TransactionDateTime] AS [GiftAt], [rt].[TransactionDateTime] AS [RefundAt]
+    , ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) AS [Paid]
+    , ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [r].[Id] ) AS [Refunded]
+    , ( SELECT COUNT(*) FROM [FinancialTransaction] AS [twin]
+        WHERE [twin].[AuthorizedPersonAliasId] = [o].[AuthorizedPersonAliasId] AND [twin].[Id] <> [o].[Id]
+            AND CAST( [twin].[TransactionDateTime] AS DATE ) = CAST( [o].[TransactionDateTime] AS DATE )
+            AND NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [tr] WHERE [tr].[Id] = [twin].[Id] )
+            AND ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [twin].[Id] )
+                = ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) ) AS [Twins]
+FROM [FinancialTransactionRefund] AS [r]
+INNER JOIN [FinancialTransaction] AS [rt] ON [rt].[Id] = [r].[Id]
+INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [o].[AuthorizedPersonAliasId]
+INNER JOIN [DefinedValue] AS [reason] ON [reason].[Id] = [r].[RefundReasonValueId]
+WHERE [pa].[PersonId] = @PersonId AND [reason].[Value] = @Reason", P( "@PersonId", personId ), P( "@Reason", definition.Reason ) );
+
+            var isFull = refund.Kind is "duplicate" or "earlier-year";
+            var matches = refunds.Where( r =>
+            {
+                var refundDay = GivingLoader.RefundDay( ( DateTime ) r["GiftAt"], definition.DelayDays.Min );
+                var paid = ( decimal ) r["Paid"];
+                var refunded = -( decimal ) r["Refunded"];
+                return ( ( DateTime ) r["RefundAt"] ).Date == refundDay
+                    && ( isFull ? refunded == paid : refunded > 0 && refunded < paid )
+                    && ( refund.Kind != "duplicate" || ( int ) r["Twins"] > 0 );
+            } );
+
+            return matches.Any() ? null : $"expected a {refund.Kind} refund ({definition.Reason}) made {definition.DelayDays.Min} day(s) after its gift, Rock has none";
         }
 
         /// <summary>

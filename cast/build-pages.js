@@ -162,6 +162,10 @@ function describeGiving( g, people ) {
     if ( g.ended ) {
         parts.push( `stopped ${ago( g.ended )}` );
     }
+    for ( const refund of g.refunds || [] ) {
+        // A designed refund (docs/refunds.md), made by staff its kind's shortest delay after the gift.
+        parts.push( `a ${refund.kind.replace( /-/g, " " )} refund of a gift from about ${ago( refund.near )}` );
+    }
     if ( g.expect ) {
         // What Rock should show for this giver; the builder checks it on every load.
         const shows = [];

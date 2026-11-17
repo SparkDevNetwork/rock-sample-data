@@ -12,6 +12,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
+| `refunds.json` | The refunds staff make on generated households' gifts: who refunds them, the rate when the profile has none, and four kinds, each with a Rock refund reason, a share, a delay, and the summaries staff type. See [Refunds](../docs/refunds.md). |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
 | `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
 | `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve and their celebrations. These are request statuses, not the person connection statuses in `connection-statuses.json`. |

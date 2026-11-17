@@ -167,6 +167,19 @@
             "journeyStage": { "enum": [ "non-giver", "new", "consistent", "occasional", "lapsed", "former" ], "description": "Rock's current giving journey stage." },
             "alerts": { "type": "array", "items": { "enum": [ "large-gift", "smaller-than-usual", "late-gift" ] }, "description": "Alert types (keys from configuration/giving-alert-types.json) the giver must have at least one of in the alert history." }
           }
+        },
+        "refunds": {
+          "type": "array",
+          "description": "Refunds the story needs (docs/refunds.md). Each refunds the pattern's last gift on or before its day that its kind can refund, the kind's shortest delay later, on a weekday. Every load checks each one.",
+          "items": {
+            "type": "object",
+            "required": [ "kind", "near" ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "enum": [ "duplicate", "incorrect-amount", "one-fund", "earlier-year" ], "description": "A kind key in configuration/refunds.json. A duplicate or incorrect-amount refund needs a currency of card or ach." },
+              "near": { "$ref": "#/$defs/relativeDate" }
+            }
+          }
         }
       }
     },

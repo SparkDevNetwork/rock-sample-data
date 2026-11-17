@@ -169,13 +169,14 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 - **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
+- **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, and gifts from an earlier year, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
 
 ## What is where
 
 | Folder | What it holds |
 |---|---|
 | [site/](site/README.md) | The public site: why the sample data matters, the church, the Cast, the features, the datasets, and the brand kit and photo downloads. GitHub Pages publishes it from `main` at [sampledata.rockrms.com](https://sampledata.rockrms.com/). |
-| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, performance, the Crowd and personas, and the design spec. |
+| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, refunds, performance, the Crowd and personas, and the design spec. |
 | [cast/](cast/README.md) | The hand-designed households and groups, their schemas, the validator, and the [family pages](cast/families/README.md). |
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |

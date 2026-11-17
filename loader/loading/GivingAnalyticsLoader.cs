@@ -77,8 +77,7 @@ namespace RockSampleData.Loader.Loading
             _db = db;
             _foreignKey = foreignKey;
 
-            // Rock's job runs every night at 10pm (its default schedule), so it last ran the night before the anchor.
-            RunAt = dates.Anchor.Date.AddHours( -2 );
+            RunAt = JobRunAt( dates );
         }
 
         /// <summary>
@@ -90,24 +89,31 @@ namespace RockSampleData.Loader.Loading
         /// Rock's last weekly journey stage run: the last Tuesday at 10pm on or before <see cref="RunAt"/>. The stage
         /// Rock shows for each person is the one this run gave them.
         /// </summary>
-        public DateTime FinalJourneyRun
-        {
-            get
-            {
-                var run = RunAt.Date.AddHours( 22 );
-                while ( run.DayOfWeek != DayOfWeek.Tuesday || run > RunAt )
-                {
-                    run = run.AddDays( -1 );
-                }
+        public DateTime FinalJourneyRun => LastJourneyRun( RunAt );
 
-                return run;
+        /// <summary>
+        /// Rock's job runs every night at 10pm (its default schedule), so it last ran the night before the anchor.
+        /// </summary>
+        public static DateTime JobRunAt( AnchorDates dates ) => dates.Anchor.Date.AddHours( -2 );
+
+        /// <summary>
+        /// The last Tuesday at 10pm on or before <paramref name="runAt"/>, the job's last run.
+        /// </summary>
+        public static DateTime LastJourneyRun( DateTime runAt )
+        {
+            var run = runAt.Date.AddHours( 22 );
+            while ( run.DayOfWeek != DayOfWeek.Tuesday || run > runAt )
+            {
+                run = run.AddDays( -1 );
             }
+
+            return run;
         }
 
         /// <summary>
-        /// Every qualifying gift of this dataset's giving units, in date order, after <see cref="Load"/>.
+        /// Every qualifying gift of this dataset's giving units, as Rock's job saw them over time, after <see cref="Load"/>.
         /// </summary>
-        public Dictionary<string, List<RockGift>> Gifts { get; private set; }
+        public GiftTimeline Gifts { get; private set; }
 
         /// <summary>
         /// The giving attributes Rock's job writes when it classifies a unit, in the order the parity report lists them.
@@ -196,15 +202,15 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
         }
 
         /// <summary>
-        /// Fills the giving analytics. <paramref name="gifts"/> are the dataset's qualifying gifts by giving id, in date
-        /// order, as the giving step planned them; when null they are read from the database.
+        /// Fills the giving analytics. <paramref name="gifts"/> are the dataset's qualifying gifts over time, as the giving
+        /// step planned them; when null they are read from the database, as they stand now.
         /// </summary>
-        public void Load( Dictionary<string, List<RockGift>> gifts = null )
+        public void Load( GiftTimeline gifts = null )
         {
             var now = DateTime.Now;
             LoadAttributeIds();
 
-            gifts ??= QualifyingGifts();
+            gifts ??= new GiftTimeline( QualifyingGifts(), new List<RefundedGift>() );
             Gifts = gifts;
             var people = PeopleByGivingId();
             var definedValueGuids = _db.Query( "SELECT [Id], [Guid] FROM [DefinedValue]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
@@ -225,7 +231,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
             var classified = 0;
             foreach ( var (givingId, personIds) in people )
             {
-                if ( gifts.TryGetValue( givingId, out var unitGifts ) && Classify( unitGifts, definedValueGuids, ( guid, value, at ) => Add( personIds, guid, value, at, at ) ) )
+                if ( Classify( gifts, givingId, definedValueGuids, ( guid, value, at ) => Add( personIds, guid, value, at, at ) ) )
                 {
                     classified++;
                 }
@@ -244,16 +250,66 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey 
             _db.Log.Write( mismatches == 0
                 ? $"  Journey stage check: Rock's final run made the {predicted.Count:N0} changes the replay predicted, and no others"
                 : $"  WARNING: Rock's final journey stage run differed from the replay for {mismatches:N0} people. Check RockGivingAutomation.GetJourneyStage against Rock." );
+
+            var refundedUnits = gifts.RefundedGivingIds.Count;
+            if ( IsRefundChecked && refundedUnits > 0 )
+            {
+                var differing = RefundedUnitsThatDiffer( gifts );
+                _db.Log.Write( differing == 0
+                    ? $"  Refund check: Rock reads the gifts of the {refundedUnits:N0} giving unit{( refundedUnits == 1 ? "" : "s" )} with a refund as the plan has them"
+                    : $"  WARNING: Rock reads the gifts of {differing:N0} of {refundedUnits:N0} giving units with a refund differently from the plan. Check GivingLoader.PlanRefunds." );
+            }
+        }
+
+        /// <summary>
+        /// True to check, after the analytics load, that Rock reads the refunded giving units' gifts as the plan has them.
+        /// The CLI and the verify tool set it with the Cast expectations; Rock's block skips it, so an install does not
+        /// pay for a builder's check (decision 217).
+        /// </summary>
+        public bool IsRefundChecked { get; set; }
+
+        /// <summary>
+        /// For each giving unit with a refund, compares the plan's gifts on install day with the gifts Rock reads from the
+        /// database, refunds applied. Returns how many units differ.
+        /// </summary>
+        private int RefundedUnitsThatDiffer( GiftTimeline gifts )
+        {
+            // The query reads only the gifts of these units' aliases, passed as Rock's IdList type.
+            var units = gifts.RefundedGivingIds.ToHashSet();
+            var aliasIds = TableFactory.Create( "Id:int" );
+            foreach ( var row in _db.Query( $@"
+SELECT [pa].[Id], [p].[GivingId]
+FROM [PersonAlias] AS [pa]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )}", P( "@ForeignKey", _foreignKey ) ).Where( r => units.Contains( r["GivingId"] as string ) ) )
+            {
+                aliasIds.Rows.Add( ( int ) row["Id"] );
+            }
+
+            var fromDatabase = QualifyingGifts( aliasIds );
+            static string Shape( IEnumerable<RockGift> unitGifts ) => string.Join( ";", unitGifts.Select( g =>
+                $"{g.Id}@{g.When:yyyy-MM-dd HH:mm:ss}:{string.Join( ",", g.Details.Select( d => $"{d.AccountId}={d.Amount:0.00}" ) )}" ) );
+
+            return gifts.RefundedGivingIds.Count( unit =>
+                Shape( gifts.Now.GetValueOrDefault( unit ) ?? new List<RockGift>() ) != Shape( fromDatabase.GetValueOrDefault( unit ) ?? new List<RockGift>() ) );
         }
 
         /// <summary>
         /// Every qualifying gift of this dataset's people, grouped by giving id and in date order. This is the
         /// filter Rock's job and procedures use (GetGivingAutomationSourceTransactionQuery): contributions to at
         /// least one tax-deductible account, with a positive line, that are not fully refunded. Each gift carries
-        /// its amount per account with refunds applied, as Rock's FinancialTransactionView does.
+        /// its amount per account with refunds applied, as Rock's FinancialTransactionView does. With
+        /// <paramref name="aliasIds"/>, a table of person alias Ids, only those people's gifts.
         /// </summary>
-        private Dictionary<string, List<RockGift>> QualifyingGifts()
+        private Dictionary<string, List<RockGift>> QualifyingGifts( DataTable aliasIds = null )
         {
+            var onlyAliases = aliasIds == null ? string.Empty : "INNER JOIN @AliasIds AS [only] ON [only].[Id] = [ft].[AuthorizedPersonAliasId]";
+            var parameters = new List<SqlParameter> { P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ) };
+            if ( aliasIds != null )
+            {
+                parameters.Add( new SqlParameter( "@AliasIds", SqlDbType.Structured ) { TypeName = "dbo.IdList", Value = aliasIds } );
+            }
+
             var rows = _db.Query( $@"
 WITH [RefundTotals] AS (
     SELECT [ftr].[OriginalTransactionId], SUM( [ftd].[Amount] ) AS [Refunded]
@@ -272,6 +328,7 @@ WITH [RefundTotals] AS (
         [fpd].[CurrencyTypeValueId],
         CASE WHEN [ft].[ScheduledTransactionId] IS NULL THEN 0 ELSE 1 END AS [IsScheduled]
     FROM [FinancialTransaction] AS [ft]
+    {onlyAliases}
     INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ft].[AuthorizedPersonAliasId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
     LEFT JOIN [FinancialPaymentDetail] AS [fpd] ON [fpd].[Id] = [ft].[FinancialPaymentDetailId]
@@ -300,8 +357,7 @@ FROM [Qualifying] AS [q]
 INNER JOIN [Lines] AS [l] ON [l].[TransactionId] = [q].[Id]
 GROUP BY [q].[Id], [q].[AuthorizedPersonAliasId], [q].[GivingId], [q].[PrimaryCampusId], [q].[TransactionDateTime], [q].[SourceTypeValueId], [q].[CurrencyTypeValueId], [q].[IsScheduled], [l].[AccountId]
 HAVING SUM( [l].[Amount] ) <> 0
-ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]",
-                P( "@ForeignKey", _foreignKey ), P( "@GiverAnonymous", GiverAnonymousGuid ), P( "@Contribution", ContributionGuid ) );
+ORDER BY [q].[GivingId], [q].[TransactionDateTime], [q].[Id], [l].[AccountId]", parameters.ToArray() );
 
             return rows
                 .GroupBy( r => ( int ) r["Id"] )
@@ -343,22 +399,23 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
         /// Rock reclassifies a unit only on a night when it has a new gift. So a unit's values are as of the
         /// first 10pm run on or after its last gift; a lapsed giver keeps the values from back then, just as in
         /// a church that has run the job all along. A gift after the job's last run waits for tonight's run.
+        /// A refund is not a new gift, so the run reads the gifts as they stood that night.
         /// </remarks>
-        private bool Classify( List<RockGift> unitGifts, Dictionary<int, Guid> definedValueGuids, Action<Guid, string, DateTime> write )
+        private bool Classify( GiftTimeline gifts, string givingId, Dictionary<int, Guid> definedValueGuids, Action<Guid, string, DateTime> write )
         {
-            var lastGift = unitGifts.Where( g => g.When <= RunAt ).Select( g => g.When ).DefaultIfEmpty().Max();
+            var lastGift = gifts.Arrived( givingId ).Where( g => g.When <= RunAt ).Select( g => g.When ).DefaultIfEmpty().Max();
             if ( lastGift == default )
             {
                 return false;
             }
 
-            var classifiedAt = lastGift <= lastGift.Date.AddHours( 22 ) ? lastGift.Date.AddHours( 22 ) : lastGift.Date.AddDays( 1 ).AddHours( 22 );
+            var classifiedAt = GiftTimeline.NightOf( lastGift );
             if ( classifiedAt > RunAt )
             {
                 classifiedAt = RunAt;
             }
 
-            foreach ( var (attributeGuid, value) in ClassificationValues( unitGifts, classifiedAt, definedValueGuids ) )
+            foreach ( var (attributeGuid, value) in ClassificationValues( gifts.AsOf( givingId, classifiedAt ), classifiedAt, definedValueGuids ) )
             {
                 write( attributeGuid, value, classifiedAt );
             }
@@ -425,7 +482,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
         /// writes each person's current stage, previous stage, and the date it last changed. Returns the stage
         /// changes the last run should make, so Rock's own run can be checked against them.
         /// </summary>
-        private Dictionary<int, int> ReplayJourneys( Dictionary<string, List<RockGift>> gifts, Dictionary<string, List<int>> people, Action<IEnumerable<int>, Guid, string, DateTime, DateTime> add, out DateTime finalRun )
+        private Dictionary<int, int> ReplayJourneys( GiftTimeline gifts, Dictionary<string, List<int>> people, Action<IEnumerable<int>, Guid, string, DateTime, DateTime> add, out DateTime finalRun )
         {
             finalRun = FinalJourneyRun;
             var lastRun = finalRun;
@@ -434,14 +491,13 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
 
             foreach ( var (givingId, personIds) in people )
             {
-                var dates = gifts.TryGetValue( givingId, out var unitGifts ) ? unitGifts.Select( g => g.When ).ToList() : new List<DateTime>();
                 int? current = null;
                 int? previous = null;
                 DateTime currentSince = default, firstRun = default, previousSince = default;
 
                 foreach ( var run in runs )
                 {
-                    var stage = ( int ) GetJourneyStage( dates, run );
+                    var stage = ( int ) GetJourneyStage( gifts.DatesAsOf( givingId, run ), run );
                     if ( stage == current )
                     {
                         continue;
@@ -468,7 +524,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )}
                     add( personIds, PreviousStageGuid, previous.ToString(), previousSince, currentSince );
                 }
 
-                var finalStage = ( int ) GetJourneyStage( dates, finalRun );
+                var finalStage = ( int ) GetJourneyStage( gifts.DatesAsOf( givingId, finalRun ), finalRun );
                 if ( finalStage != current )
                 {
                     foreach ( var personId in personIds )

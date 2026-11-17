@@ -300,6 +300,28 @@ namespace RockSampleData.Loader.Model
         /// Optional: what Rock should show for this giver after a load (see <see cref="CastGivingExpect"/>).
         /// </summary>
         public CastGivingExpect Expect { get; set; }
+
+        /// <summary>
+        /// Optional: refunds the story needs, each of one of the pattern's gifts. Every load checks each one.
+        /// </summary>
+        public List<CastRefund> Refunds { get; set; } = new List<CastRefund>();
+    }
+
+    /// <summary>
+    /// A refund a Cast story needs (decision D-refunds-4).
+    /// </summary>
+    internal sealed class CastRefund
+    {
+        /// <summary>
+        /// A kind key in configuration/refunds.json, such as duplicate.
+        /// </summary>
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// The refunded gift is the pattern's last gift on or before this day that the kind can refund. The refund
+        /// comes the kind's shortest delay after it, on a weekday.
+        /// </summary>
+        public RelativeDate Near { get; set; }
     }
 
     /// <summary>
