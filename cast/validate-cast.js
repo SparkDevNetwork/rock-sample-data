@@ -260,7 +260,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// Person attributes (configuration/person-attributes.json, decisions D-person-attrs-1 and D-person-attrs-9): every Cast
+// Person attributes (configuration/person-attributes.json, decisions 250 and 258): every Cast
 // attribute key is a Rock person attribute the file lists, a staff attribute, or Date Engaged, which the loader adds.
 // Exactly two givers ask for no giving statement, and every business contact works at their own business.
 {
@@ -295,13 +295,13 @@ for ( const h of households.map( x => x.data ) ) {
             }
             for ( const r of ( p.relationships || [] ).filter( r => r.type === "business" ) ) {
                 if ( businessNames.has( r.with ) && p.attributes?.Employer !== businessNames.get( r.with ) ) {
-                    errors.push( `${owner}: is a contact for ${businessNames.get( r.with )}, so their Employer must be that business (decision D-person-attrs-4).` );
+                    errors.push( `${owner}: is a contact for ${businessNames.get( r.with )}, so their Employer must be that business (decision 253).` );
                 }
             }
         }
     }
     if ( noStatement.length !== 2 ) {
-        errors.push( `Exactly two Cast givers have Do Not Send Giving Statement (decision D-person-attrs-9), but ${noStatement.length} do: ${noStatement.join( ", " ) || "none"}.` );
+        errors.push( `Exactly two Cast givers have Do Not Send Giving Statement (decision 258), but ${noStatement.length} do: ${noStatement.join( ", " ) || "none"}.` );
     }
 }
 

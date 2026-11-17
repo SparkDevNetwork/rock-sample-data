@@ -109,7 +109,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
 
 -- check: phones-are-not-shared-across-households
--- why: Content standard 2 and decision D-bugs18-1. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+-- why: Content standard 2 and decision 259. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
 SELECT COUNT( DISTINCT [a].[Number] )
 FROM [PhoneNumber] AS [a]
 INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
@@ -188,7 +188,7 @@ WHERE [b].[ForeignKey] = @ForeignKey
     AND [b].[ControlAmount] <> ISNULL( ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [d].[TransactionId] WHERE [t].[BatchId] = [b].[Id] ), 0 );
 
 -- check: refund-is-rocks
--- why: Decision D-refunds-1. Rock's refund (FinancialTransactionService.ProcessRefund) is a transaction with its original's type, person, gateway, source, and payment method, a reason from Rock's refund reasons, and at least one line. It comes after the original and by install day. Rock refuses a refund of a refund, and of a gift in a foreign currency, so the data never shows one.
+-- why: Decision 261. Rock's refund (FinancialTransactionService.ProcessRefund) is a transaction with its original's type, person, gateway, source, and payment method, a reason from Rock's refund reasons, and at least one line. It comes after the original and by install day. Rock refuses a refund of a refund, and of a gift in a foreign currency, so the data never shows one.
 SELECT COUNT(*)
 FROM [FinancialTransactionRefund] AS [r]
 INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [r].[Id]
@@ -214,7 +214,7 @@ WHERE [r].[ForeignKey] = @ForeignKey
         OR [o].[ForeignCurrencyCodeValueId] IS NOT NULL OR [t].[ForeignCurrencyCodeValueId] IS NOT NULL );
 
 -- check: refund-returns-what-was-paid
--- why: Decision D-refunds-1. Rock's refund takes each of the original's lines in order, up to the line's amount, as a negative line on the same account (and registration), and refuses more than is left to refund. So every refund line is negative and on a line of its original, and on each account the original and all its refunds never total below zero.
+-- why: Decision 261. Rock's refund takes each of the original's lines in order, up to the line's amount, as a negative line on the same account (and registration), and refuses more than is left to refund. So every refund line is negative and on a line of its original, and on each account the original and all its refunds never total below zero.
 SELECT ( SELECT COUNT(*)
         FROM [FinancialTransactionDetail] AS [d]
         INNER JOIN [FinancialTransactionRefund] AS [r] ON [r].[Id] = [d].[TransactionId]
@@ -233,7 +233,7 @@ SELECT ( SELECT COUNT(*)
         WHERE [x].[Refunded] + ISNULL( ( SELECT SUM( [od].[Amount] ) FROM [FinancialTransactionDetail] AS [od] WHERE [od].[TransactionId] = [x].[OriginalTransactionId] AND [od].[AccountId] = [x].[AccountId] ), 0 ) < 0 );
 
 -- check: refund-batch-holds-only-refunds
--- why: Decision D-refunds-1. Rock's Transaction Detail block puts a refund in the day's batch named with its " - Refund" suffix, and nothing else lands in one. A refund in a gift batch, or a gift in a refund batch, would change that batch's total.
+-- why: Decision 261. Rock's Transaction Detail block puts a refund in the day's batch named with its " - Refund" suffix, and nothing else lands in one. A refund in a gift batch, or a gift in a refund batch, would change that batch's total.
 SELECT COUNT(*)
 FROM [FinancialTransaction] AS [t]
 INNER JOIN [FinancialBatch] AS [b] ON [b].[Id] = [t].[BatchId]
@@ -242,7 +242,7 @@ WHERE [t].[ForeignKey] = @ForeignKey
         OR ( NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] ) AND [b].[Name] LIKE '% - Refund' ) );
 
 -- check: refund-is-of-a-gift
--- why: Decision D-refunds-2. Giving refunds return gifts. A refund of an Event Registration payment changes a registration's balance and history, and only Registration Follow-ups may make one.
+-- why: Decision 262. Giving refunds return gifts. A refund of an Event Registration payment changes a registration's balance and history, and only Registration Follow-ups may make one.
 SELECT COUNT(*)
 FROM [FinancialTransactionRefund] AS [r]
 INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
@@ -611,7 +611,7 @@ WHERE [st].[Guid] = '801CC43C-0641-4271-939E-75E428F31D06' AND [s].[ForeignKey] 
             WHERE [at].[Guid] = '343A557E-92CC-4A75-B251-0DA732F5EB4E' AND [av].[EntityId] = [s].[Id] AND [av].[Value] = 'True' ) );
 
 -- check: attendance-check-in-status-follows-its-dates
--- why: Decision D-bugs18-2. Rock's attendance save hook sets the check-in status from the row's dates: Checked Out with an end time, Present with a present time, and Not Present otherwise. Check-in screens read it to show who is in a room, and Rock never leaves it Unknown.
+-- why: Decision 260. Rock's attendance save hook sets the check-in status from the row's dates: Checked Out with an end time, Present with a present time, and Not Present otherwise. Check-in screens read it to show who is in a room, and Rock never leaves it Unknown.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
@@ -1861,7 +1861,7 @@ WHERE [r].[ForeignKey] = @ForeignKey
         WHERE [rr].[RegistrationId] = [r].[Id] ) > 1;
 
 -- check: allergy-and-legal-notes-are-on-kids
--- why: Decisions 211, D-person-attrs-2, and D-person-attrs-5. Kids check-in prints Allergy and shows Legal Notes, so the loader writes them only on a child in a family, or, for Allergy, on a registrant off the wait list of a template whose form asks for it, as Rock's form saves it. A stray value would put a note on a label that no one entered.
+-- why: Decisions 211, 251, and 254. Kids check-in prints Allergy and shows Legal Notes, so the loader writes them only on a child in a family, or, for Allergy, on a registrant off the wait list of a template whose form asks for it, as Rock's form saves it. A stray value would put a note on a label that no one entered.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( 'DBD192C9-0AA1-46EC-92AB-A3DA8E056D31', 'F832AB6F-B684-4EEA-8DB4-C54B895C79ED' )
@@ -1880,7 +1880,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         WHERE [pa].[PersonId] = [av].[EntityId] AND [rr].[OnWaitList] = 0 );
 
 -- check: person-attribute-value-points-at-a-person
--- why: Decision D-person-attrs-1. A person attribute value finds its person by EntityId, which has no foreign key, so a value on a person who is not in the dataset would never show and never go away with its person.
+-- why: Decision 250. A person attribute value finds its person by EntityId, which has no foreign key, so a value on a person who is not in the dataset would never show and never go away with its person.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
@@ -1890,7 +1890,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision D-person-attrs-1. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, assessment results, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and assessments are their own work.
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, assessment results, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and assessments are their own work.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
@@ -1902,7 +1902,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR [a].[Key] IN ( 'core_DominantGifts', 'core_SupportiveGifts', 'core_OtherGifts', 'core_SpiritualGiftsLastSaveDate' ) );
 
 -- check: adult-attributes-are-on-adults
--- why: Decisions D-person-attrs-4, D-person-attrs-7, D-person-attrs-8, and D-person-attrs-9. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.
+-- why: Decisions 253, 256, 257, and 258. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
@@ -1914,7 +1914,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND ( [p].[AgeClassification] <> 1 OR [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' ) );
 
 -- check: defined-value-attribute-names-a-value-of-its-type
--- why: Decisions D-person-attrs-3, D-person-attrs-6, and D-person-attrs-7. School, Ability Level, and Source of Visit store a defined value's Guid, and Rock shows one only when it is an active value of the attribute's defined type.
+-- why: Decisions 252, 255, and 256. School, Ability Level, and Source of Visit store a defined value's Guid, and Rock shows one only when it is an active value of the attribute's defined type.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '060AD4B5-082E-46BE-82F8-54D19677B589', '4ABF0BF2-49BA-4363-9D85-AC48A0F7E92A', '3DBF9AC8-3BA2-41FA-8AD0-5BDE65B7FCAB' )
@@ -1926,7 +1926,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR NOT ( [q].[Value] = CAST( [dt].[Id] AS NVARCHAR(20) ) OR TRY_CONVERT( UNIQUEIDENTIFIER, [q].[Value] ) = [dt].[Guid] ) );
 
 -- check: school-is-on-kids-and-students
--- why: Decision D-person-attrs-3. School belongs to a kid or student in kindergarten to grade 12 on the day it was saved, and names a school for their grade band: an Elementary School for kindergarten to grade 5, a Middle School for grades 6 to 8, and a High School for grades 9 to 12. The grade moves up the day after each June 1, as Rock does (decision 205).
+-- why: Decision 252. School belongs to a kid or student in kindergarten to grade 12 on the day it was saved, and names a school for their grade band: an Elementary School for kindergarten to grade 5, a Middle School for grades 6 to 8, and a High School for grades 9 to 12. The grade moves up the day after each June 1, as Rock does (decision 205).
 SELECT COUNT(*)
 FROM (
     SELECT [dv].[Value] AS [School],
@@ -1943,7 +1943,7 @@ WHERE [x].[Grade] IS NULL OR [x].[School] IS NULL
         OR ( [x].[Grade] BETWEEN 9 AND 12 AND [x].[School] LIKE '% High School' ) );
 
 -- check: ability-level-fits-the-check-in-room
--- why: Decision D-person-attrs-6. Rock's nursery and preschool check-in groups each filter by an ability level, and Rock offers a kid with an ability level only the groups that match it. So an Ability Level is only on a kid whose latest check-in was in a group with that same ability level, and check-in keeps putting them in the room they already use. A load without attendance skips it.
+-- why: Decision 255. Rock's nursery and preschool check-in groups each filter by an ability level, and Rock offers a kid with an ability level only the groups that match it. So an Ability Level is only on a kid whose latest check-in was in a group with that same ability level, and check-in keeps putting them in the room they already use. A load without attendance skips it.
 WITH [Latest] AS (
     SELECT [pa].[PersonId], [o].[GroupId], ROW_NUMBER() OVER ( PARTITION BY [pa].[PersonId] ORDER BY [a].[StartDateTime] DESC ) AS [Row]
     FROM [Attendance] AS [a]
@@ -1965,7 +1965,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         WHERE [gv].[EntityId] = [l].[GroupId] AND LOWER( [gv].[Value] ) = LOWER( [av].[Value] ) );
 
 -- check: date-engaged-is-the-first-group-team-or-gift
--- why: Decision D-person-attrs-8. Date Engaged is on every Engaged or Leading adult and on no one else. It is the day of their first small group or serving team membership that was not pending, or their giving unit's first contribution, whichever came first. An adult with none of those has a day before the first Sunday check-in of the history window and not before they turned 18, or their 18th birthday when they turned 18 inside the window.
+-- why: Decision 257. Date Engaged is on every Engaged or Leading adult and on no one else. It is the day of their first small group or serving team membership that was not pending, or their giving unit's first contribution, whichever came first. An adult with none of those has a day before the first Sunday check-in of the history window and not before they turned 18, or their 18th birthday when they turned 18 inside the window.
 WITH [Engaged] AS (
     SELECT [p].[Id], [p].[GivingId], CAST( DATEADD( YEAR, 18, [p].[BirthDate] ) AS DATE ) AS [Turned18]
     FROM [Person] AS [p]
@@ -2011,7 +2011,7 @@ SELECT ( SELECT COUNT(*) FROM [Dates] AS [d] WHERE NOT EXISTS ( SELECT 1 FROM [E
                     AND [d].[Date] < ISNULL( ( SELECT CAST( MIN( [StartDateTime] ) AS DATE ) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [AttendanceCodeId] IS NOT NULL ), '9999-12-31' ) ) ) ) );
 
 -- check: envelope-number-is-unique-for-a-check-writer
--- why: Decision D-person-attrs-9. Rock finds a giver by envelope number when a gift is entered, so each number belongs to one person, and only a person who wrote a check gift has one.
+-- why: Decision 258. Rock finds a giver by envelope number when a gift is entered, so each number belongs to one person, and only a person who wrote a check gift has one.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = '76C33FBC-8799-4DF1-B2FE-A6C41AC3DD49'
@@ -2027,7 +2027,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
             WHERE [pa].[PersonId] = [av].[EntityId] ) );
 
 -- check: business-contact-works-at-the-business
--- why: Decisions 63 to 65 and D-person-attrs-4. A business contact owns or runs the business, so their Employer is the business, as Rock's Business Detail and the contact's Extended Attributes tab both show.
+-- why: Decisions 63 to 65 and 253. A business contact owns or runs the business, so their Employer is the business, as Rock's Business Detail and the contact's Extended Attributes tab both show.
 SELECT COUNT(*)
 FROM [GroupMember] AS [owner]
 INNER JOIN [GroupMember] AS [contact] ON [contact].[GroupId] = [owner].[GroupId]
@@ -2312,7 +2312,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
         OR ISNULL( [av].[ValueAsPersonId], -1 ) <> ISNULL( [pa].[PersonId], -1 ) );
 
 -- check: assessment-row-has-its-state
--- why: Decision D-assessments-2. A pending assessment was requested by someone and has no result yet: a requester, a request date, and no completion or answers. A completed one has its completion date. Every completed one has its answers, except a legacy DISC result taken outside Rock's own DISC, with no request.
+-- why: Decision 266. A pending assessment was requested by someone and has no result yet: a requester, a request date, and no completion or answers. A completed one has its completion date. Every completed one has its answers, except a legacy DISC result taken outside Rock's own DISC, with no request.
 SELECT COUNT(*)
 FROM [Assessment] AS [a]
 INNER JOIN [AssessmentType] AS [at] ON [at].[Id] = [a].[AssessmentTypeId]
@@ -2323,7 +2323,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
         OR [a].[Status] NOT IN ( 0, 1 ) );
 
 -- check: assessment-results-are-the-persons-attributes
--- why: Decision D-assessments-1. Rock's assessment pages read a person's results from their person attributes. A person has a type's results exactly when they completed that type, and the save date Rock keeps (DISC and Spiritual Gifts) is their latest completion. The verify tool also scores every answer set with Rock's own services and compares each value.
+-- why: Decision 265. Rock's assessment pages read a person's results from their person attributes. A person has a type's results exactly when they completed that type, and the save date Rock keeps (DISC and Spiritual Gifts) is their latest completion. The verify tool also scores every answer set with Rock's own services and compares each value.
 WITH [Latest] AS (
     SELECT [pa].[PersonId], [at].[Guid] AS [TypeGuid], MAX( [a].[CompletedDateTime] ) AS [Completed]
     FROM [Assessment] AS [a]
@@ -2355,7 +2355,7 @@ SELECT ( SELECT COUNT(*) FROM [Latest] AS [l] INNER JOIN [ResultKeys] AS [k] ON 
         WHERE NOT EXISTS ( SELECT 1 FROM [Latest] AS [l] WHERE [l].[PersonId] = [v].[PersonId] AND [l].[TypeGuid] = [k].[TypeGuid] ) );
 
 -- check: assessment-retake-waits-its-minimum-days
--- why: Decision D-assessments-2. Rock lets a person retake an assessment only after its type's MinimumDaysToRetake (365 days for all five), so a person's completed results of one type are at least that far apart.
+-- why: Decision 266. Rock lets a person retake an assessment only after its type's MinimumDaysToRetake (365 days for all five), so a person's completed results of one type are at least that far apart.
 WITH [Completed] AS (
     SELECT [pa].[PersonId], [a].[AssessmentTypeId], [at].[MinimumDaysToRetake], [a].[CompletedDateTime],
         LAG( [a].[CompletedDateTime] ) OVER ( PARTITION BY [pa].[PersonId], [a].[AssessmentTypeId] ORDER BY [a].[CompletedDateTime] ) AS [Previous]
@@ -2367,7 +2367,7 @@ WITH [Completed] AS (
 SELECT COUNT(*) FROM [Completed] WHERE [Previous] IS NOT NULL AND DATEDIFF( DAY, [Previous], [CompletedDateTime] ) < [MinimumDaysToRetake];
 
 -- check: assessment-only-adults
--- why: Decision D-assessments-2. Only adults take assessments: an adult in their family, 18 or older, and out of high school (the day after June 1 of their graduation year) on the day it was requested or taken. No student or child has one.
+-- why: Decision 266. Only adults take assessments: an adult in their family, 18 or older, and out of high school (the day after June 1 of their graduation year) on the day it was requested or taken. No student or child has one.
 SELECT COUNT(*)
 FROM [Assessment] AS [a]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
@@ -2392,7 +2392,7 @@ WHERE [ForeignKey] = @ForeignKey
         OR [CompletedDateTime] < [RequestedDateTime] );
 
 -- check: assessment-reminder-follows-the-job
--- why: Decision D-assessments-3. Rock's Send Assessment Reminders job runs at 8 AM and stamps LastReminderDate on the latest pending requests of each person it emails. A reminder is on a request, at 8 AM, after the day it was requested and before install day, while the request was still pending. And no latest pending request is left overdue: one within its first 60 days was reminded, or requested, less than 8 days before the install day.
+-- why: Decision 267. Rock's Send Assessment Reminders job runs at 8 AM and stamps LastReminderDate on the latest pending requests of each person it emails. A reminder is on a request, at 8 AM, after the day it was requested and before install day, while the request was still pending. And no latest pending request is left overdue: one within its first 60 days was reminded, or requested, less than 8 days before the install day.
 SELECT ( SELECT COUNT(*)
         FROM [Assessment]
         WHERE [ForeignKey] = @ForeignKey AND [LastReminderDate] IS NOT NULL
@@ -2406,7 +2406,7 @@ SELECT ( SELECT COUNT(*)
             AND DATEADD( DAY, -1, CAST( GETDATE() AS DATE ) ) >= DATEADD( DAY, 7, CAST( ISNULL( [a].[LastReminderDate], [a].[RequestedDateTime] ) AS DATE ) ) );
 
 -- check: leader-has-disc-and-conflict-profile
--- why: Decision D-assessments-2. Every current small group and serving team leader who is an adult took DISC and Conflict Profile before leading.
+-- why: Decision 266. Every current small group and serving team leader who is an adult took DISC and Conflict Profile before leading.
 SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [gm].[PersonId]
@@ -2428,7 +2428,7 @@ WHERE NOT EXISTS (
     WHERE [pa].[PersonId] = [leader].[PersonId] AND [at].[Guid] = [t].[TypeGuid] AND [a].[Status] = 1 );
 
 -- check: assessment-has-no-workflow
--- why: Decision D-assessments-2. The Assessment rows fill every screen, so Rock's DISC Request and Request Assessment workflow types stay unused.
+-- why: Decision 266. The Assessment rows fill every screen, so Rock's DISC Request and Request Assessment workflow types stay unused.
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
 INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [w].[WorkflowTypeId]

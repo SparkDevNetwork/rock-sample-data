@@ -308,7 +308,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// A refund a Cast story needs (decision D-refunds-4).
+    /// A refund a Cast story needs (decision 264).
     /// </summary>
     internal sealed class CastRefund
     {

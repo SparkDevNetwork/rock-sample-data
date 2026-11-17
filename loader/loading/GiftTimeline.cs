@@ -26,7 +26,7 @@ namespace RockSampleData.Loader.Loading
         (giving attributes, journey stages, alerts, and Give steps) read the gifts as of each run, not as of install.
 
         Reason: A run between a gift and its refund saw the gift, and Rock kept what that run decided, such as an
-        alert on the duplicate (decision D-refunds-3).
+        alert on the duplicate (decision 263).
     */
 
     /// <summary>

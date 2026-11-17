@@ -98,7 +98,7 @@ for ( const [ state, codes ] of Object.entries( areaCodes.otherAreaCodes || {} )
     }
 }
 
-// The Cast and the church keep the local codes. Only generated people and businesses use the others (decision D-bugs18-1).
+// The Cast and the church keep the local codes. Only generated people and businesses use the others (decision 259).
 const PHONE = new RegExp( `^(${LOCAL_AREA_CODES.join( "|" )})55501\\d\\d$` );
 const LOCAL_TEXT = LOCAL_AREA_CODES.length > 1
     ? `${LOCAL_AREA_CODES.slice( 0, -1 ).join( ", " )}, or ${LOCAL_AREA_CODES[ LOCAL_AREA_CODES.length - 1 ]}`

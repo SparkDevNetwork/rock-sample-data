@@ -44,7 +44,7 @@ namespace RockSampleData.Loader.Loading
         6. The staff member who refunded it is the creator of every row, as Rock's save records the current person.
 
         Reason: Rock's transaction, batch, and statement screens read these rows as if staff had refunded the gift
-        (decision D-refunds-1). Registration Follow-ups reuses the writer for a cancelled registration's refund.
+        (decision 261). Registration Follow-ups reuses the writer for a cancelled registration's refund.
     */
 
     /// <summary>

@@ -45,7 +45,7 @@ namespace RockSampleData.Loader.Loading
         same draw fills the rest, and after giving, because Date Engaged and envelopes read the gifts written.
         Every value gets Rock's derived columns from the attribute value hook at the end of the load.
 
-        Reason: decisions D-person-attrs-1 to D-person-attrs-9.
+        Reason: decisions 250 to 258.
     */
 
     /// <summary>
@@ -279,7 +279,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), @EntityT
             together (decisions 63 to 65). Other working-age generated adults have an employer by the configured share,
             from invented employers. The Cast's employers are in its files.
 
-            Reason: decision D-person-attrs-4.
+            Reason: decision 253.
         */
 
         private void AddEmployment( List<LoadedHousehold> generated, Dictionary<Guid, string> businessNames )
@@ -331,7 +331,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), @EntityT
             A parent fills in School for all their kids or none, so the draw is by household, and kids in one grade band
             go to the same school. Each campus's schools are invented and checked against real Arizona schools.
 
-            Reason: decision D-person-attrs-3.
+            Reason: decision 252.
         */
 
         private void AddSchools( List<LoadedHousehold> generated )
@@ -362,7 +362,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), @EntityT
             few single-parent households at each campus, every kid in the household with the same note. The note names
             the parent's role, never a person.
 
-            Reason: decision D-person-attrs-5.
+            Reason: decision 254.
         */
 
         private void AddLegalNotes( List<LoadedHousehold> generated )
@@ -400,7 +400,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @FieldType ), @EntityT
             Sunday their age still puts them there. The level comes from Rock's own group, so it always fits. The Cast's
             toddlers follow the same rule: the level only names the room they already use, and Core 1 shows it.
 
-            Reason: decision D-person-attrs-6.
+            Reason: decision 255.
         */
 
         private void AddAbilityLevels( List<LoadedHousehold> households, Inputs inputs )
@@ -455,7 +455,7 @@ WHERE [a].[EntityTypeId] = @GroupEntityTypeId AND [a].[Key] = 'AbilityLevel' AND
             every adult in it gets the same. Only households that first came inside the history window have them,
             since the card is a first-visit record. Previous Church describes a church and never names one.
 
-            Reason: decision D-person-attrs-7.
+            Reason: decision 256.
         */
 
         private void AddVisits( List<LoadedHousehold> generated, DateTime historyStart )
@@ -494,7 +494,7 @@ WHERE [a].[EntityTypeId] = @GroupEntityTypeId AND [a].[Key] = 'AbilityLevel' AND
             who never answered that form gets the same draw here, so the share is the same for every kid, and a kid who
             did answer keeps exactly what the form saved. Only kids: adults never get a drawn allergy.
 
-            Reason: decision D-person-attrs-2.
+            Reason: decision 251.
         */
 
         private void AddAllergies( List<LoadedHousehold> generated )
@@ -540,7 +540,7 @@ WHERE [a].[EntityTypeId] = @GroupEntityTypeId AND [a].[Key] = 'AbilityLevel' AND
             none of those still carries the status, so they became engaged before the records the sample data keeps: a day
             from the years before the history window, and never before they turned 18.
 
-            Reason: decision D-person-attrs-8.
+            Reason: decision 257.
         */
 
         /// <summary>
@@ -630,7 +630,7 @@ GROUP BY [p].[Id]",
             have an Envelope Number. Numbers are unique, counted up from the first number with small gaps, as a list kept
             for years has, in an order drawn from the seed.
 
-            Reason: decision D-person-attrs-9.
+            Reason: decision 258.
         */
 
         private void AddEnvelopes( IReadOnlyList<CheckGift> checkGifts )

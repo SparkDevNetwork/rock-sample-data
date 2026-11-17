@@ -174,7 +174,7 @@ var checks = new (string Name, string Actual, string Expected)[]
         + " | date-night 2027-02-12 opens 2026-10-07 closes 2027-02-09 pays none open"
         + " | womens-retreat 2027-04-23 opens 2026-04-11 closes 2027-04-09 pays 2027-04-09 open"
         + " | early birds student-camp 2027-04-30, womens-retreat 2026-10-31"),
-    ("Assessment answers, scores, and answer data (decision D-assessments-1)",
+    ("Assessment answers, scores, and answer data (decision 265)",
         AssessmentScores(),
         "d2e36917b2d54d9adeaecca8fd828caa6044d9f4aad5c976ec08d27de8327221")
 };

@@ -33,7 +33,7 @@ namespace RockSampleData.Loader.Generation
         answer data are formatted the way Rock saves them. The verify tool scores every saved answer set with Rock's
         own services and compares.
 
-        Reason: decision D-assessments-1.
+        Reason: decision 265.
     */
 
     /// <summary>

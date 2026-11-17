@@ -362,7 +362,7 @@ VALUES ( @Name, @Description, 0, @FromName, @FromEmail, @Message, 1, @LogoId, @C
             Version 1, its colors written in, and the logo as an image component that points at the Legacy
             template's logo file. Rock ships its own pair the same way, Blank and Blank (Legacy).
 
-            Reason: Staff who start an email in the wizard see the church's brand (decision D-bugs18-3).
+            Reason: Staff who start an email in the wizard see the church's brand (decision 269).
         */
 
         /// <summary>

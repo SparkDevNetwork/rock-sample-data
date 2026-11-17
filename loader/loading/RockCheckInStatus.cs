@@ -24,7 +24,7 @@ namespace RockSampleData.Loader.Loading
         UpdateCheckInStatusFromCheckInDates). When Rock adds an attendance row with an Unknown status, it sets the
         status from the row's dates: Checked Out with an end time, Present with a present time, and Not Present
         otherwise. Rock 20 and Rock 21 have the same rule. The loader writes no end times, so its rows are Present
-        or Not Present (decision D-bugs18-2).
+        or Not Present (decision 260).
 
         Reason: Check-in screens read the status to show who is in a room, and Rock never leaves it Unknown.
     */

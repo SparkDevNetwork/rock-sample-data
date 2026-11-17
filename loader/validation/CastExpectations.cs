@@ -165,7 +165,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;
 
-            // Rock's email wizard lists the church's branded template (decision D-bugs18-3).
+            // Rock's email wizard lists the church's branded template (decision 269).
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckEmailTemplates( db, source, failures ) : 0;
 
             // Signing in as admin shows Alisha Marble's open requests (decision 178).
@@ -194,7 +194,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
         }
 
         /// <summary>
-        /// Checks one designed refund (decision D-refunds-4): the giver has a refund with the kind's reason, of the whole
+        /// Checks one designed refund (decision 264): the giver has a refund with the kind's reason, of the whole
         /// gift for a duplicate or an earlier year, or of part of it otherwise, made the kind's shortest delay after the
         /// gift on a weekday. A duplicate's gift has a twin: another of the giver's gifts that day, of the same amount.
         /// Returns what is wrong, or null.

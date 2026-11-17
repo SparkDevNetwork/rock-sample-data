@@ -1,6 +1,6 @@
 # Assessments
 
-Rock's five assessments in the sample data, and why. Both slices are built. The decisions are D-assessments-1 to D-assessments-4 in [Decisions](decisions.md). The numbers live in `configuration/assessments.json`, so they can be tuned in one place.
+Rock's five assessments in the sample data, and why. Both slices are built. The decisions are 265 to 268 in [Decisions](decisions.md). The numbers live in `configuration/assessments.json`, so they can be tuned in one place.
 
 ## What Rock ships
 
@@ -16,7 +16,7 @@ Rock's Send Assessment Reminders job emails a person with a pending request ever
 
 The sample church uses assessments more than most real churches do, so every screen has data: the badge, the result pages, the assessment list, and data views on the results. The shares are designed, not measured.
 
-Every result comes from real answers. The loader makes each person's answers, scores them the way Rock does, and saves the answers and the scores from that one score, so they always agree (decision D-assessments-1).
+Every result comes from real answers. The loader makes each person's answers, scores them the way Rock does, and saves the answers and the scores from that one score, so they always agree (decision 265).
 
 ## Who takes them
 
@@ -32,7 +32,7 @@ Every result comes from real answers. The loader makes each person's answers, sc
 - **Adults only.** A person takes an assessment only as an adult in their family, 18 or older, and out of high school. No student or child has one.
 - **The senior pastor,** Pete Foster, has no supervisor, so Pete takes all five without a request.
 - **Nothing before adoption.** The church began using Rock's assessments 4 years before install day. Nothing is requested before then.
-- **Classes ask on night 1.** The issue asked for the request in week 3 of each class. But the current Starting Point class is only in its second week on install day, so a week 3 request would leave nobody pending. So the class asks on its first night, due on its third, when it talks about the results (decision D-assessments-2).
+- **Classes ask on night 1.** The issue asked for the request in week 3 of each class. But the current Starting Point class is only in its second week on install day, so a week 3 request would leave nobody pending. So the class asks on its first night, due on its third, when it talks about the results (decision 266).
 - **No workflows.** Rock's DISC Request and Request Assessment workflow types stay unused. The `Assessment` rows fill every screen.
 
 ## Answers and results
@@ -49,7 +49,7 @@ Each person's answers lean toward a target result:
 ## Requests and reminders
 
 - **Retakes.** Rock lets a person retake an assessment after 365 days (MinimumDaysToRetake, the same for all five). A request is skipped when the person finished that type in the last 365 days, or while another request of the type still waits inside its 60-day reminder window. A request still waiting after that window stays pending when a new one comes, as Rock's own request action leaves it.
-- **Reminders.** Each request's `LastReminderDate` is where Rock's reminder job would have left it. The loader replays the job at 8 AM every day before install day, with Rock's rules, and stamps the latest pending row of every type the person has, as the job does. A request finished after a reminder keeps it. So the job's first run after install sends exactly the reminders a church's would (decision D-assessments-3). Its emails reach only `example.org` and the Spark-owned staff domain.
+- **Reminders.** Each request's `LastReminderDate` is where Rock's reminder job would have left it. The loader replays the job at 8 AM every day before install day, with Rock's rules, and stamps the latest pending row of every type the person has, as the job does. A request finished after a reminder keeps it. So the job's first run after install sends exactly the reminders a church's would (decision 267). Its emails reach only `example.org` and the Spark-owned staff domain.
 
 ## The Cast's stories
 
@@ -63,7 +63,7 @@ Each person's answers lean toward a target result:
 | Bri Hall | Spiritual Gifts from last month's Starting Point class. Hospitality, Encouragement, and Service, gifts that fit a greeter, are among her dominant gifts. | Built, checked every load |
 | Cindy Decker | An old Spiritual Gifts result and a pending retake that Jamal Pierce asked for | Built, checked every load |
 
-A story lives in the person's `assessments` in their household file, by type (decision D-assessments-4):
+A story lives in the person's `assessments` in their household file, by type (decision 268):
 
 - **leaning** names the gifts or letters their answers lean toward, which must come out on top: among the five dominant gifts, or the two DISC letters.
 - **requests** says how the person answers every request the rules make of that type: `complete` or `pending`.

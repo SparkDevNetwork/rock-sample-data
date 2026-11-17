@@ -1,5 +1,5 @@
 {
-  "$comment": "Rock's five assessments (docs/assessments.md, decisions D-assessments-1 to D-assessments-4). Each request and each result is an Assessment row. A result's answers go in the row, and its scores go in the person's attributes, both from one score by the loader's port of Rock's scoring. The shares are designed, not measured: the sample church uses assessments more than most churches do. Only adults out of high school take one, and no workflow rows are written.",
+  "$comment": "Rock's five assessments (docs/assessments.md, decisions 265 to 268). Each request and each result is an Assessment row. A result's answers go in the row, and its scores go in the person's attributes, both from one score by the loader's port of Rock's scoring. The shares are designed, not measured: the sample church uses assessments more than most churches do. Only adults out of high school take one, and no workflow rows are written.",
   "$adoptedComment": "The day the church began using Rock's assessments. Nothing is requested before it. Staff and leaders who came before took theirs in the weeks after it.",
   "adopted": {
     "yearsAgo": 4,

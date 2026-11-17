@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions D-adaptive-1 to D-adaptive-8 record what is built.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -14,7 +14,7 @@ Rock ships no block that shows adaptive messages. A page shows them only through
 
 ## Where the messages show
 
-The External Website homepage has a "Your Next Steps" HTML Content block in its Section A zone, below the feature banner (decision D-adaptive-8). Its Lava, `content/adaptive-messages/homepage.lava`, runs the command on the church's category, one adaptation per message and up to four in all, and shows each as a card with its image, name, summary, and call to action. The block enables the AdaptiveMessage command, and its cache stays off, because each person sees their own cards. A visitor who is not signed in sees each message's fallback: Plan a Visit and Ways to Give. Rock records a view of an adaptation with saturation each time the page shows it.
+The External Website homepage has a "Your Next Steps" HTML Content block in its Section A zone, below the feature banner (decision 277). Its Lava, `content/adaptive-messages/homepage.lava`, runs the command on the church's category, one adaptation per message and up to four in all, and shows each as a card with its image, name, summary, and call to action. The block enables the AdaptiveMessage command, and its cache stays off, because each person sees their own cards. A visitor who is not signed in sees each message's fallback: Plan a Visit and Ways to Give. Rock records a view of an adaptation with saturation each time the page shows it.
 
 Sign in as `tdecker` to see Ted Decker's cards: Plan a Visit, the Built on the Rock thanks, and the thanks for his scheduled gift. The app's Home page waits for the Sample Mobile App (issue 10).
 

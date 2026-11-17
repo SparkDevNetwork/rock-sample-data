@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Generation
         church's texting numbers. It has its own stream, so taking a number moves no other choice in a household.
 
         Reason: Three area codes drawn with replacement gave only 300 numbers, so dozens of people shared each one,
-        and a texted STOP, a check-in phone search, or the duplicate finder reached strangers (decision D-bugs18-1).
+        and a texted STOP, a check-in phone search, or the duplicate finder reached strangers (decision 259).
     */
 
     /// <summary>

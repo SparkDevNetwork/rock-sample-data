@@ -139,7 +139,7 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// The area codes of generated phone numbers, or null in a package built before every generated number was its
-        /// own (decision D-bugs18-1), whose generated numbers are drawn as they were then.
+        /// own (decision 259), whose generated numbers are drawn as they were then.
         /// </summary>
         public PhoneConfiguration Phones { get; }
 

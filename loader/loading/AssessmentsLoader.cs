@@ -32,7 +32,7 @@ namespace RockSampleData.Loader.Loading
         as Rock's services read them. No workflow rows are written: Rock's DISC Request and Request Assessment
         workflows stay unused, and the Assessment rows fill every screen.
 
-        Reason: decisions D-assessments-1 and D-assessments-2.
+        Reason: decisions 265 and 266.
     */
 
     /// <summary>

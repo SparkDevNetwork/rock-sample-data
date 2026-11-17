@@ -568,7 +568,7 @@ static CheckResult ReportsCheck( RockRelease rock, SqlServer sql, string databas
 }
 
 /// <summary>
-/// Scores every assessment's saved answers with Rock's own scoring services (decision D-assessments-1). Each person's latest
+/// Scores every assessment's saved answers with Rock's own scoring services (decision 265). Each person's latest
 /// result of each type must give exactly the person attribute values the load wrote, and Rock must write the same answer
 /// data. A legacy DISC result has no answers, so the Cast expectations check it instead.
 /// </summary>

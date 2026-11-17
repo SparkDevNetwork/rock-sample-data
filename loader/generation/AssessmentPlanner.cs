@@ -165,7 +165,7 @@ namespace RockSampleData.Loader.Generation
         accepted row that finished gets answers and Rock's score, and the person's attributes come from their latest
         result of each type.
 
-        Reason: decision D-assessments-2.
+        Reason: decision 266.
     */
 
     /// <summary>
@@ -739,7 +739,7 @@ namespace RockSampleData.Loader.Generation
             row of every type they have. The loader replays the job for every day before the install day, so its first
             run after install sends exactly the reminders a church's would.
 
-            Reason: decision D-assessments-3.
+            Reason: decision 267.
         */
         private void SetReminders( List<PlannedAssessment> rows )
         {

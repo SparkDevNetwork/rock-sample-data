@@ -63,7 +63,7 @@
     }
   },
   "wizardTemplate": {
-    "$comment": "The same branded email for Rock's newer email editor, which the Communication Entry Wizard lists (decision D-bugs18-3). Rock names its own pair the same way: Blank, and Blank (Legacy). The HTML is content/communications/email-template-wizard.html, in the editor's rows and components. It shares the template above's category and logo, and its colors are the template above's Lava field values, written in, because the newer editor has no Lava fields.",
+    "$comment": "The same branded email for Rock's newer email editor, which the Communication Entry Wizard lists (decision 269). Rock names its own pair the same way: Blank, and Blank (Legacy). The HTML is content/communications/email-template-wizard.html, in the editor's rows and components. It shares the template above's category and logo, and its colors are the template above's Lava field values, written in, because the newer editor has no Lava fields.",
     "name": "Rock Solid Church",
     "description": "The church's branded email: the Rock Solid Church logo, a clean white body, and a footer with the church address and an unsubscribe link.",
     "guid": "179EBBDF-3BD0-4836-8F67-BCC082BD099C",

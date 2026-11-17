@@ -47,7 +47,7 @@ namespace RockSampleData.Loader.Model
         public EmailTemplateDefinition Template { get; set; } = new EmailTemplateDefinition();
 
         /// <summary>
-        /// The branded template for Rock's newer email editor, or null in a package built before it (decision D-bugs18-3).
+        /// The branded template for Rock's newer email editor, or null in a package built before it (decision 269).
         /// </summary>
         public WizardEmailTemplateDefinition WizardTemplate { get; set; }
 

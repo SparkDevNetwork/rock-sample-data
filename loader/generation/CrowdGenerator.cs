@@ -87,7 +87,7 @@ namespace RockSampleData.Loader.Generation
 
         /// <summary>
         /// The numbers generated people and businesses get, each once, or null for a package without
-        /// configuration/phones.json, which draws them as before (decision D-bugs18-1).
+        /// configuration/phones.json, which draws them as before (decision 259).
         /// </summary>
         private readonly PhoneNumberPool _phones;
 
@@ -310,7 +310,7 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// A reserved phone number no one else has (decision D-bugs18-1). A package without configuration/phones.json
+        /// A reserved phone number no one else has (decision 259). A package without configuration/phones.json
         /// keeps the number drawn here, a Phoenix number that is not one of the church's texting numbers.
         /// </summary>
         private string PhoneNumber( SeededRandom random )

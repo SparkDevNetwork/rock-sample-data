@@ -392,7 +392,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// configuration/refunds.json: the refunds staff make on generated households' gifts (decision D-refunds-2).
+    /// configuration/refunds.json: the refunds staff make on generated households' gifts (decision 262).
     /// </summary>
     internal sealed class RefundsConfiguration
     {
@@ -554,7 +554,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// configuration/phones.json: the area codes of generated phone numbers (content standard 2, decision D-bugs18-1).
+    /// configuration/phones.json: the area codes of generated phone numbers (content standard 2, decision 259).
     /// </summary>
     internal sealed class PhoneConfiguration
     {

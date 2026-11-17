@@ -735,7 +735,7 @@ if ( conversationsFile && checkKeys( "conversations.json", conversationsFile, [ 
     summary.push( `conversations.json\n    ${topics.length} topics (${where}), ${entries} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
 }
 
-// The wizard-ready template (decision D-bugs18-3) is the Legacy template in Rock's newer editor format. That editor has
+// The wizard-ready template (decision 269) is the Legacy template in Rock's newer editor format. That editor has
 // no Lava fields, so it writes in each Lava field's color, and its logo image component points at the Legacy logo file.
 if ( configuration.wizardTemplate ) {
     const file = configuration.wizardTemplate.html;
