@@ -69,15 +69,16 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// Sets up the programs and their step types, plans every step from what earlier steps wrote, and writes it.
+        /// Returns what it read and planned, which assessments follow, or nulls when the package has no steps.
         /// </summary>
         /// <param name="studentPath">The Student Path planned for this load, whose camp, trip, decision, and Student Leader steps are copied.</param>
-        public void Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
+        public (StepFacts Facts, StepPlan Plan) Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, Dictionary<string, List<RockGift>> gifts, DateTime finalJourneyRun )
         {
             var config = _source.Steps;
             if ( config == null )
             {
                 _db.Log.Write( "  Skipped (this package has no configuration/steps.json)" );
-                return;
+                return (null, null);
             }
 
             var setup = ConfigurePrograms( config );
@@ -111,6 +112,8 @@ namespace RockSampleData.Loader.Loading
             {
                 _db.Log.Write( $"  Shares (people who took the step of those who could): {string.Join( ", ", plan.Shares.Select( s => $"{s.Key} {s.Value.Chosen} of {s.Value.Candidates}" ) )}" );
             }
+
+            return (facts, plan);
         }
 
         #region Programs and step types

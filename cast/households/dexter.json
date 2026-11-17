@@ -102,21 +102,7 @@
           "month": 10,
           "day": 4
         },
-        "BackgroundCheckResult": "Fail",
-        "AdaptiveD": "92",
-        "AdaptiveI": "34",
-        "AdaptiveS": "31",
-        "AdaptiveC": "12",
-        "NaturalD": "84",
-        "NaturalI": "10",
-        "NaturalS": "3",
-        "NaturalC": "1",
-        "LastSaveDate": {
-          "yearsAgo": 8,
-          "month": 2,
-          "day": 2
-        },
-        "PersonalityType": "D"
+        "BackgroundCheckResult": "Fail"
       },
       "logins": [
         "fdexter"
@@ -133,7 +119,35 @@
           "backgroundCheck": "Fail",
           "comment": "I'd like to help with the elementary kids on Sundays."
         }
-      ]
+      ],
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 8,
+                "month": 2,
+                "day": 2
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 92,
+                  "I": 34,
+                  "S": 31,
+                  "C": 12
+                },
+                "natural": {
+                  "D": 84,
+                  "I": 10,
+                  "S": 3,
+                  "C": 1
+                },
+                "personalityType": "D"
+              }
+            }
+          ]
+        }
+      }
     }
   ]
 }

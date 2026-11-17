@@ -57,6 +57,7 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
+            ("Assessments", SampleDataPart.Assessments),
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
@@ -232,7 +233,7 @@ namespace RockSampleData.Loader
             Steps are the one exception to planning everything: they plan from rows that small groups,
             serving, and giving wrote, so they plan only when they load, and they need those parts.
             Their student check-ins come from the attendance plan, so they do not need attendance.
-            Nothing after them reads what they plan or write.
+            Only assessments, which need steps, read what they plan, and nothing reads what assessments write.
 
             Reason: A person can choose parts, and each chosen part looks the same as in a full load.
         */
@@ -517,10 +518,26 @@ namespace RockSampleData.Loader
             // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
             // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
             // steps load. The check-ins come from the plan, so steps do not need the Attendance part.
+            (StepFacts Facts, StepPlan Plan) stepsLoaded = (null, null);
             if ( steps.Begin( "Steps" ) )
             {
-                new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
+                stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+            }
+
+            // Rock's five assessments. Classes ask on their own nights and leaders take theirs before leading, both read
+            // from what the steps step wrote, so assessments need steps (SampleDataParts.All).
+            if ( steps.Begin( "Assessments" ) )
+            {
+                if ( stepsLoaded.Facts == null )
+                {
+                    log.Write( "  Skipped (this package has no steps to follow)" );
+                }
+                else
+                {
+                    var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    new AssessmentsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, stepsLoaded.Facts, stepsLoaded.Plan, campusPastors );
+                }
             }
 
             // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so

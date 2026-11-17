@@ -65,21 +65,7 @@
           "month": 12,
           "day": 4
         },
-        "BackgroundCheckResult": "Pass",
-        "AdaptiveD": "27",
-        "AdaptiveI": "21",
-        "AdaptiveS": "93",
-        "AdaptiveC": "69",
-        "NaturalD": "6",
-        "NaturalI": "10",
-        "NaturalS": "100",
-        "NaturalC": "96",
-        "LastSaveDate": {
-          "yearsAgo": 8,
-          "month": 5,
-          "day": 6
-        },
-        "PersonalityType": "SC"
+        "BackgroundCheckResult": "Pass"
       },
       "logins": [
         "dpeak"
@@ -88,7 +74,35 @@
         "Communication Administrators",
         "Staff Users",
         "Website Administrators"
-      ]
+      ],
+      "assessments": {
+        "disc": {
+          "takes": [
+            {
+              "completed": {
+                "yearsAgo": 8,
+                "month": 5,
+                "day": 6
+              },
+              "legacy": {
+                "adaptive": {
+                  "D": 27,
+                  "I": 21,
+                  "S": 93,
+                  "C": 69
+                },
+                "natural": {
+                  "D": 6,
+                  "I": 10,
+                  "S": 100,
+                  "C": 96
+                },
+                "personalityType": "SC"
+              }
+            }
+          ]
+        }
+      }
     }
   ]
 }

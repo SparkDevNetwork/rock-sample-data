@@ -72,6 +72,18 @@
       }
     },
     "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" },
+    "discScores": {
+      "type": "object",
+      "required": [ "D", "I", "S", "C" ],
+      "additionalProperties": false,
+      "description": "A DISC percentile for each letter, from 0 to 100.",
+      "properties": {
+        "D": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "I": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "S": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "C": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
     "relativeDate": {
       "type": "object",
       "description": "A calendar date relative to the anchor. Either yearsAgo, month, and day (the year is the anchor year minus yearsAgo; a result after the anchor moves back one year), or daysAgo alone for recent events that must stay recent.",
@@ -246,6 +258,52 @@
                 "complete": { "type": "array", "items": { "type": "string" }, "description": "Types with at least one Complete step." },
                 "inProgress": { "type": "array", "items": { "type": "string" }, "description": "Types with an In Progress step." },
                 "programCompletions": { "type": "array", "items": { "type": "string" }, "description": "The keys of exactly the programs the person has a completion for. An empty list means none." }
+              }
+            },
+            "assessments": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Assessment type keys from configuration/assessments.json.",
+              "properties": {
+                "complete": { "type": "array", "items": { "type": "string" }, "description": "Types with a completed result, whose values Rock shows on the person." },
+                "pending": { "type": "array", "items": { "type": "string" }, "description": "Types whose latest request is still pending, with a requester." }
+              }
+            }
+          }
+        },
+        "assessments": {
+          "type": "object",
+          "description": "Assessment stories, by type key in configuration/assessments.json (docs/assessments.md). Without takes, the usual rules make the person's requests and results of that type.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "leaning": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Dimensions the person's answers lean toward, which must come out on top: in the five dominant gifts, the two DISC letters, or the top two or five of the other types." },
+              "requests": { "enum": [ "complete", "pending" ], "description": "How the person answers every request the rules make of this type. Left out, the rules' shares decide." },
+              "takes": {
+                "type": "array",
+                "minItems": 1,
+                "description": "The person's own history of this type, which replaces the rules for it. A request with no completion stays pending, and a completion with no request was taken on the person's own.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "requested": { "$ref": "#/$defs/relativeDate" },
+                    "requestedBy": { "type": "string", "description": "The staff key in configuration/staff.json of who asked." },
+                    "completed": { "$ref": "#/$defs/relativeDate" },
+                    "legacy": {
+                      "type": "object",
+                      "required": [ "adaptive", "natural", "personalityType" ],
+                      "additionalProperties": false,
+                      "description": "DISC only: scores kept from before the church used Rock's assessments, exactly as Rock shows them, with no answers behind them.",
+                      "properties": {
+                        "adaptive": { "$ref": "#/$defs/discScores" },
+                        "natural": { "$ref": "#/$defs/discScores" },
+                        "personalityType": { "type": "string", "pattern": "^[DISC]{1,2}$" }
+                      }
+                    }
+                  }
+                }
               }
             }
           }

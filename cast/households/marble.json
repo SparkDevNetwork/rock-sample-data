@@ -15,7 +15,8 @@
     "Leap-day birthday (February 29).",
     "Business owner linked to a business record.",
     "Weekly giver with year-end gifts and check images.",
-    "Leads one small group and belongs to another."
+    "Leads one small group and belongs to another.",
+    "Has taken all five assessments."
   ],
   "address": {
     "type": "home",
@@ -146,7 +147,18 @@
         "Staff Users",
         "Website Content Editors",
         "Background Check Administrators"
-      ]
+      ],
+      "expect": {
+        "assessments": {
+          "complete": [
+            "disc",
+            "spiritual-gifts",
+            "conflict-profile",
+            "emotional-intelligence",
+            "motivators"
+          ]
+        }
+      }
     },
     {
       "key": "bill",

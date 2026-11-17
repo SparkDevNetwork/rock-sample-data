@@ -445,6 +445,11 @@ namespace RockSampleData.Loader.Model
         /// Requests to serve that tell this person's story.
         /// </summary>
         public List<CastConnectionRequest> ConnectionRequests { get; set; } = new List<CastConnectionRequest>();
+
+        /// <summary>
+        /// This person's assessment stories, by assessment type key in configuration/assessments.json.
+        /// </summary>
+        public Dictionary<string, CastAssessment> Assessments { get; set; } = new Dictionary<string, CastAssessment>();
     }
 
     /// <summary>
@@ -531,6 +536,8 @@ namespace RockSampleData.Loader.Model
         public CastAchievementExpect Achievements { get; set; }
 
         public CastStepsExpect Steps { get; set; }
+
+        public CastAssessmentsExpect Assessments { get; set; }
     }
 
     /// <summary>

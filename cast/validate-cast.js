@@ -69,6 +69,15 @@ const COMMITMENT_WEEKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", 
 const STEP_PROGRAMS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "steps.json" ), "utf8" ) ).programs;
 const STEP_PROGRAM_KEYS = STEP_PROGRAMS.map( p => p.key );
 const STEP_TYPES = new Map( STEP_PROGRAMS.flatMap( p => p.stepTypes ).map( t => [ t.key, t ] ) );
+
+// Assessments: type keys from configuration/assessments.json, who can ask from configuration/staff.json, and the
+// dimensions a story can lean toward, by Rock's names for them (docs/assessments.md).
+const ASSESSMENT_TYPES = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "assessments.json" ), "utf8" ) ).types.map( t => t.key );
+const ASSESSMENT_REQUESTERS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.key );
+const ASSESSMENT_DIMENSIONS = {
+    "disc": [ "D", "I", "S", "C" ],
+    "spiritual-gifts": [ "administration", "apostleship", "discernment", "encouragement", "evangelism", "faith", "giving", "service", "hospitality", "knowledge", "leadership", "mercy", "shepherding", "discipling", "prophecy", "teaching", "wisdom" ]
+};
 const REGISTRATIONS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "registrations.json" ), "utf8" ) );
 const REGISTRATION_SCHEMA = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.registration.properties;
 const adultsWithoutPhotoEthnicity = [];
@@ -668,6 +677,54 @@ for ( const { file, data: h } of households ) {
                     if ( choice.events.length !== 1 || !went.some( e => e.season === choice.events[0].season && e.yearsAgo === choice.events[0].yearsAgo ) ) {
                         errors.push( `${file}: "${p.key}" step "${key}" must name one event from the person's own ${eventKey} events.` );
                     }
+                }
+            }
+        }
+
+        // Assessments: only adults take them. A story's takes replace the rules for that type, so it cannot also say
+        // how the person answers the rules' requests.
+        for ( const list of [ "complete", "pending" ] ) {
+            for ( const key of p.expect?.assessments?.[list] || [] ) {
+                if ( !ASSESSMENT_TYPES.includes( key ) ) {
+                    errors.push( `${file}: "${p.key}" expects assessment "${key}", which is not in configuration/assessments.json.` );
+                }
+            }
+        }
+        if ( ( p.assessments || p.expect?.assessments ) && p.familyRole !== "adult" ) {
+            errors.push( `${file}: "${p.key}" has an assessment story, but only adults take assessments.` );
+        }
+        for ( const [ key, story ] of Object.entries( p.assessments || {} ) ) {
+            const who = `${file}: "${p.key}" ${key}`;
+            if ( !ASSESSMENT_TYPES.includes( key ) ) {
+                errors.push( `${who} is not an assessment type in configuration/assessments.json.` );
+                continue;
+            }
+            if ( story.requests !== undefined && ![ "complete", "pending" ].includes( story.requests ) ) {
+                errors.push( `${who} requests must be complete or pending.` );
+            }
+            if ( story.requests !== undefined && story.takes ) {
+                errors.push( `${who} sets both requests and takes. Takes replace the rules' requests.` );
+            }
+            for ( const lean of story.leaning || [] ) {
+                if ( ASSESSMENT_DIMENSIONS[key] && !ASSESSMENT_DIMENSIONS[key].includes( lean ) ) {
+                    errors.push( `${who} leans toward "${lean}", which it does not score. It scores ${ASSESSMENT_DIMENSIONS[key].join( ", " )}.` );
+                }
+            }
+            for ( const take of story.takes || [] ) {
+                if ( !take.requested && !take.completed ) {
+                    errors.push( `${who} has a take with neither requested nor completed.` );
+                }
+                if ( take.requestedBy !== undefined && !ASSESSMENT_REQUESTERS.includes( take.requestedBy ) ) {
+                    errors.push( `${who} is requested by "${take.requestedBy}", who is not a staff key in configuration/staff.json.` );
+                }
+                if ( take.requested && !take.requestedBy ) {
+                    errors.push( `${who} has a request with no requestedBy.` );
+                }
+                if ( take.legacy && ( key !== "disc" || !take.completed || take.requested ) ) {
+                    errors.push( `${who} has a legacy result, which only a DISC result taken on the person's own can have.` );
+                }
+                if ( take.legacy && !/^[DISC]{1,2}$/.test( take.legacy.personalityType || "" ) ) {
+                    errors.push( `${who} legacy personalityType must be one or two DISC letters.` );
                 }
             }
         }

@@ -167,7 +167,15 @@ namespace RockSampleData.Loader
             GroupSyncs = Files.Exists( GroupSyncsConfigurationPath ) ? Read<GroupSyncConfiguration>( GroupSyncsConfigurationPath ) : null;
             Reporting = Files.Exists( ReportingConfigurationPath ) ? Read<ReportingConfiguration>( ReportingConfigurationPath ) : null;
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
+            Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// Who takes Rock's assessments, or null in a package built before assessments.
+        /// </summary>
+        public AssessmentsConfiguration Assessments { get; }
+
+        public const string AssessmentsConfigurationPath = "configuration/assessments.json";
 
         /// <summary>
         /// The church staff and each campus's named campus pastor, or null in a package built before staff were
