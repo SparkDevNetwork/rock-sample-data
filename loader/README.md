@@ -292,9 +292,9 @@ Each verify receipt records how much database space its load needs (`load.space`
 |---|---|---|---|---|
 | Core 1 | 904 MB | 520 MB | 1,424 MB | 1,500 MB, about 1.5 GB |
 | Core 3 | 1,096 MB | 648 MB | 1,744 MB | 1,800 MB, about 1.8 GB |
-| Full 7 | 6,088 MB | 8,200 MB | 14,288 MB | 14,400 MB, about 14 GB |
+| Full 7 | 6,088 MB | 8,200 MB | 14,288 MB | 14,800 MB, about 14 GB |
 
-On 2026-11-16, with the adaptive messages, Full 7's data file reached 6,152 MB, one more 64 MB growth, for 14,352 MB with its 8,200 MB log. So its card asks for 14,400 MB, never below a measured run. Core 1 and Core 3 measured the same as above.
+On 2026-11-17, with person attributes, assessments, refunds, and adaptive messages, Full 7's data file reached 6,280 MB on Rock 21.0.2 and Rock 20.0.10. Its log reached 8,392 MB on Rock 21.0.2 and 8,456 MB on Rock 20.0.10, for 14,736 MB at most. So its card asks for 14,800 MB, never below a measured run. Core 1 and Core 3 measured the same as above on both.
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 
