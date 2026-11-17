@@ -99,7 +99,7 @@ namespace RockSampleData.Loader.Loading
         private readonly DataTable _paymentDetails = TableFactory.Create( "Id:int", "CurrencyTypeValueId:int", "CreditCardTypeValueId:int", "AccountNumberMasked:string",
             "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int" );
         private readonly DataTable _transactions = TableFactory.Create( "Id:int", "BatchId:int", "TransactionDateTime:date", "TransactionCode:string", "TransactionTypeValueId:int", "SourceTypeValueId:int",
-            "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "ForeignCurrencyCodeValueId:int", "ShowAsAnonymous:bool", "SundayDate:date", "TransactionDateKey:int",
+            "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "ShowAsAnonymous:bool", "SundayDate:date", "TransactionDateKey:int",
             "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int" );
         private readonly DataTable _details = TableFactory.Create( "Id:int", "TransactionId:int", "AccountId:int", "Amount:decimal", "EntityTypeId:int", "EntityId:int",
             "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int" );
@@ -186,7 +186,7 @@ namespace RockSampleData.Loader.Loading
             var transactionId = _nextTransactionId++;
             _refundIds.Add( transactionId );
             _transactions.Rows.Add( transactionId, batch["Id"], when, code ?? ( object ) DBNull.Value, original.TransactionTypeValueId, original.SourceTypeValueId ?? ( object ) DBNull.Value,
-                original.AuthorizedPersonAliasId, original.GatewayId ?? ( object ) DBNull.Value, paymentDetailId, DBNull.Value, false, SundayCalendar.SundayOnOrAfter( when.Date ),
+                original.AuthorizedPersonAliasId, original.GatewayId ?? ( object ) DBNull.Value, paymentDetailId, false, SundayCalendar.SundayOnOrAfter( when.Date ),
                 int.Parse( when.ToString( "yyyyMMdd", CultureInfo.InvariantCulture ), CultureInfo.InvariantCulture ),
                 Stable( $"transaction:{original.Id}:{when:o}" ), _foreignKey, when, when, by, by );
 
