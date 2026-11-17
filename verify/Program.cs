@@ -628,14 +628,39 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
 
     var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
     var adaptationIds = sql.Query( database, "SELECT [Id], [Guid] FROM [AdaptiveMessageAdaptation]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
-    var lines = RockRunner.Run( rock, sql, database, "adaptive-messages", cast.Select( c => $"{people.Rock( c.Person )}\t{c.Message}" ) ).Split( '\n' );
+
+    // The page block, when the load added one, is rendered for each Cast person too, as the homepage shows it to them.
+    var display = source.AdaptiveMessages.Display;
+    var input = cast.Select( c => $"{people.Rock( c.Person )}\t{c.Message}" ).ToList();
+    if ( display != null )
+    {
+        input.AddRange( cast.Select( c => $"{people.Rock( c.Person )}\tblock:{display.BlockGuid}" ) );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "adaptive-messages", input ).Split( '\n' );
     var problems = new List<string>();
     for ( var i = 0; i < cast.Count; i++ )
     {
         var message = messages[cast[i].Message];
         var expected = cast[i].Adaptation == null ? null : message.Adaptations.First( a => a.Key == cast[i].Adaptation );
         var parts = ( i < lines.Length ? lines[i].Trim() : string.Empty ).Split( '\t' );
+        if ( parts[0] == "error" )
+        {
+            problems.Add( $"{cast[i].Name}: Rock's Lava command failed for {message.Name}: {parts.ElementAtOrDefault( 1 )}" );
+            continue;
+        }
+
         Guid? shown = int.TryParse( parts[0], out var id ) && adaptationIds.TryGetValue( id, out var guid ) ? guid : null;
+        if ( display != null && expected != null )
+        {
+            var page = cast.Count + i < lines.Length ? lines[cast.Count + i].Trim() : string.Empty;
+            var callToAction = source.ReadAdaptiveMessageText().Messages[message.Key][expected.Key].CallToAction;
+            if ( page.StartsWith( "error", StringComparison.Ordinal ) || !page.Contains( $">{callToAction}<", StringComparison.Ordinal ) )
+            {
+                problems.Add( $"{cast[i].Name}: the {display.Name} block did not show \"{callToAction}\" from {expected.Name}. Rock rendered: {( page.Length > 300 ? page.Substring( 0, 300 ) + "..." : page )}" );
+            }
+        }
+
         if ( shown != expected?.Guid )
         {
             var shownName = shown == null ? "no adaptation" : message.Adaptations.FirstOrDefault( a => a.Guid == shown )?.Name ?? shown.ToString();
@@ -647,7 +672,8 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
         }
     }
 
-    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems );
+    var onPage = display == null ? string.Empty : $", and the {display.Name} block showed each one on the page";
+    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems );
 }
 
 /// <summary>

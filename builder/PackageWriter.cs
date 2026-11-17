@@ -37,7 +37,7 @@ namespace RockSampleData.Builder
     {
         private const string PoolSet = "core-3-pool";
 
-        private static readonly string[] TextExtensions = { ".json", ".md", ".txt", ".html" };
+        private static readonly string[] TextExtensions = { ".json", ".md", ".txt", ".html", ".lava" };
 
         /// <summary>
         /// Every zip entry gets this time, so the same inputs always make the same bytes.
@@ -180,6 +180,7 @@ namespace RockSampleData.Builder
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".html" );
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".png" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".json" );
+            AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".lava" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what

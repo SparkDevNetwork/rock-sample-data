@@ -57,7 +57,8 @@ namespace RockSampleData.RockRunner
     ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
     ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
-    ///            separated by a tab, or an empty line when it shows none.
+    ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
+    ///            place of the key, it renders that block's content for the person instead, on one line.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -576,14 +577,43 @@ namespace RockSampleData.RockRunner
             var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
             var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( string ), typeof( bool ), typeof( bool ) } )
                 ?? throw new InvalidOperationException( "This Rock has no ResolveMergeFields( string, IDictionary, string, bool, bool ). The runner needs updating for this Rock." );
+            var htmlContentService = _rock.GetType( "Rock.Model.HtmlContentService", true );
+            var getActiveContent = htmlContentService.GetMethod( "GetActiveContentHtml", new[] { typeof( int ), typeof( string ) } );
+            var blockCache = _rock.GetType( "Rock.Web.Cache.BlockCache", true );
             var results = new List<string>();
             foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
             {
                 var parts = line.Split( '\t' );
-                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, createContext.Invoke( null, new[] { app } ) ), new object[] { new Guid( parts[0] ) } );
-                var lava = $"{{% adaptivemessage messagekey:'{parts[1]}' trackviews:'false' %}}{{{{ messageAdaptation.Id }}}}\t{{{{ messageAdaptation | Attribute:'CallToAction' }}}}{{% endadaptivemessage %}}";
-                var output = ( string ) resolve.Invoke( null, new object[] { lava, new Dictionary<string, object> { ["Person"] = person }, "AdaptiveMessage", false, true } );
-                results.Add( output.Trim() );
+                var context = createContext.Invoke( null, new[] { app } );
+                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, context ), new object[] { new Guid( parts[0] ) } );
+                string lava;
+                if ( parts[1].StartsWith( "block:", StringComparison.Ordinal ) )
+                {
+                    // An HTML Content block's active content, rendered as the block renders it for the signed-in person.
+                    var block = blockCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                        .Invoke( null, new object[] { new Guid( parts[1].Substring( "block:".Length ) ) } );
+                    lava = block == null ? null : ( string ) getActiveContent.Invoke( Activator.CreateInstance( htmlContentService, context ), new object[] { ( int ) blockCache.GetProperty( "Id" ).GetValue( block ), string.Empty } );
+                    if ( lava == null )
+                    {
+                        results.Add( "error\tthe block or its content is missing" );
+                        continue;
+                    }
+                }
+                else
+                {
+                    lava = $"{{% adaptivemessage messagekey:'{parts[1]}' trackviews:'false' %}}{{{{ messageAdaptation.Id }}}}\t{{{{ messageAdaptation | Attribute:'CallToAction' }}}}{{% endadaptivemessage %}}";
+                }
+
+                try
+                {
+                    var mergeFields = new Dictionary<string, object> { ["Person"] = person, ["CurrentPerson"] = person };
+                    var output = ( string ) resolve.Invoke( null, new object[] { lava, mergeFields, "AdaptiveMessage", false, true } );
+                    results.Add( parts[1].StartsWith( "block:", StringComparison.Ordinal ) ? string.Join( " ", output.Split( new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries ).Select( s => s.Trim() ) ) : output.Trim() );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"error\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}" );
+                }
             }
 
             return string.Join( "\n", results );

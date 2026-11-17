@@ -5,6 +5,7 @@ The text of the church's adaptive messages. An adaptive message has several vers
 | File | What it holds |
 |---|---|
 | `messages.json` | Each adaptation's text, by message key and adaptation key. |
+| `homepage.lava` | The Lava of the External Website homepage block that shows each person their cards. The loader fills in the category's Id. |
 | `check-messages.js` | Checks the text and the configuration. Run `node content/adaptive-messages/check-messages.js` after any change. |
 
 ## The fields

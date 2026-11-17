@@ -1,5 +1,5 @@
 {
-  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock.",
+  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names.",
   "category": "church-adaptive-messages",
   "segmentRefreshMinutes": 1440,
   "pages": {
@@ -468,6 +468,15 @@
         "denyAllUsers": true
       }
     ]
+  },
+  "display": {
+    "name": "Your Next Steps",
+    "page": "85F25819-E948-4960-9DDF-00F54D32444E",
+    "zone": "SectionA",
+    "order": 0,
+    "blockGuid": "FB3FBC0D-0C96-4499-A5EB-21E33D594E8C",
+    "contentGuid": "9F76EA5B-5273-46E9-94AC-ED290358EF2A",
+    "content": "content/adaptive-messages/homepage.lava"
   },
   "access": [
     {

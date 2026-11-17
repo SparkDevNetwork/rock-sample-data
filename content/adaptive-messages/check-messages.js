@@ -77,6 +77,25 @@ for ( const [ key, page ] of Object.entries( configuration.pages || {} ) ) {
     }
 }
 
+// The block that shows the messages on a page, when there is one.
+const display = configuration.display;
+if ( display ) {
+    if ( !GUID_PATTERN.test( display.page || "" ) || !/^[A-Za-z]+$/.test( display.zone || "" ) || !Number.isInteger( display.order ) || !display.name ) {
+        errors.push( "display: needs a page Guid, a zone as Rock stores it (letters only, such as SectionA), a whole-number order, and a name." );
+    }
+    checkGuid( "display block", display.blockGuid );
+    checkGuid( "display content", display.contentGuid );
+    const lavaPath = path.join( root, display.content || "" );
+    if ( !display.content || !display.content.endsWith( ".lava" ) || !fs.existsSync( lavaPath ) ) {
+        errors.push( `display: content ${display.content} is not a .lava file in the repository.` );
+    } else {
+        const lava = fs.readFileSync( lavaPath, "utf8" );
+        if ( !/\{% adaptivemessage categoryid:'\{categoryId\}'/.test( lava ) || !lava.includes( "{% endadaptivemessage %}" ) ) {
+            errors.push( `display: ${display.content} must use the adaptivemessage command on categoryid:'{categoryId}', which the loader fills in.` );
+        }
+    }
+}
+
 const segments = new Set();
 for ( const segment of configuration.segments || [] ) {
     if ( !KEY_PATTERN.test( segment.key ) || segments.has( segment.key ) || !segment.name || !segment.dataView ) {

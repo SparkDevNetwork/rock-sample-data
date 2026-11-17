@@ -103,7 +103,13 @@ namespace RockSampleData.Loader.Loading
             }
 
             var (messages, adaptations) = WriteMessages( configuration, segmentIds, now );
-            _db.Log.Write( $"  Adaptive messages: {messages} messages with {adaptations} adaptations" );
+            var display = configuration.Display != null && messages > 0;
+            if ( display )
+            {
+                AddDisplay( configuration.Display, _db.RequireIdByGuid( "Category", _source.Categories.Get( configuration.Category ).Guid ), now );
+            }
+
+            _db.Log.Write( $"  Adaptive messages: {messages} messages with {adaptations} adaptations{( display ? $", shown on the {configuration.Display.Name} block" : string.Empty )}" );
         }
 
         /// <summary>

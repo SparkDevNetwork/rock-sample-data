@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions D-adaptive-1 to D-adaptive-7 record what is built.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions D-adaptive-1 to D-adaptive-8 record what is built.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -11,6 +11,12 @@ An adaptive message is a Rock message with several versions, called adaptations.
 Rock keeps each segment's people in its `PersonAliasPersonalization` table, by each person's primary alias. Its Update Personalization Data job refreshes a segment on the segment's schedule. Rock's segment editor offers a daily refresh by default, so the church's segments refresh daily.
 
 Rock ships no block that shows adaptive messages. A page shows them only through the Lava command, on a block that enables it.
+
+## Where the messages show
+
+The External Website homepage has a "Your Next Steps" HTML Content block in its Section A zone, below the feature banner (decision D-adaptive-8). Its Lava, `content/adaptive-messages/homepage.lava`, runs the command on the church's category, one adaptation per message and up to four in all, and shows each as a card with its image, name, summary, and call to action. The block enables the AdaptiveMessage command, and its cache stays off, because each person sees their own cards. A visitor who is not signed in sees each message's fallback: Plan a Visit and Ways to Give. Rock records a view of an adaptation with saturation each time the page shows it.
+
+Sign in as `tdecker` to see Ted Decker's cards: Plan a Visit, the Built on the Rock thanks, and the thanks for his scheduled gift. The app's Home page waits for the Sample Mobile App (issue 10).
 
 ## The five messages
 
@@ -69,18 +75,19 @@ The Adaptive messages step runs after the Reports step, when every data view is 
 1. **Segments.** Each segment whose data view this load wrote, with its security, and the primary alias of everyone the loader's data view evaluator finds in its view. The evaluator follows Rock's own filters: Existing and Not in Existing Data View, steps taken, attribute values, scheduled gifts with Combine Giving, pledges, and the Family Members transformation. Each segment is stamped as refreshed now, so the job's next run is tomorrow, and carries the empty additional filters Rock's editor saves, which Rock's segment update needs.
 2. **The Results page lock.**
 3. **Messages.** Each message with at least one adaptation this load can write, in the church's category, then its adaptations in order with their segments, dates, saturation, and text. An adaptation whose segment was skipped is skipped too, because without its segment it would show to everyone. A load without registrations has no camp dates, so it leaves out Student Camp.
+4. **The homepage block,** when any message was written.
 
 ## What is checked
 
 - **`check-messages.js` and `check-reporting.js`** check the configuration and the text without a database, including that only a message's last adaptation has no segments, and that every Finance segment and the Results page carry the Finance lock.
 - **Cast expectations.** Every load checks that each Cast row in the configuration sees their adaptation, by Rock's own rule.
 - **Invariants.** Every segment row is a primary alias, and only a message's last adaptation has no segments.
-- **`adaptive-messages` (verify).** Rock's own Lava engine renders the command for each Cast row and must show their adaptation with its call to action.
+- **`adaptive-messages` (verify).** Rock's own Lava engine renders the command for each Cast row and must show their adaptation with its call to action. It also renders the homepage block for each of them, which must show that call to action.
 - **`segments` (verify).** Rock's own segment update runs on every segment and must add and remove nobody.
 - **`access` (verify).** Rock's own security check answers the segment and Results page questions.
 
 ## What comes next
 
 - **View history (slice 2).** A year of "Viewed" interactions in Rock's Adaptive Messages channel, after Interaction Data (issue 12) brings website sessions.
-- **Display.** Where the messages show on Rock's pages is Jon's decision (issue question 1).
+- **The app.** The Rock Solid Church App's Home page waits for the Sample Mobile App (issue 10).
 - **Leaders see the fallback.** Ted Decker and Pete Foster already lead, so no next-step segment fits them and they see Plan a Visit. A Lead Stage layer, such as "invite a friend", would give leaders their own next step.

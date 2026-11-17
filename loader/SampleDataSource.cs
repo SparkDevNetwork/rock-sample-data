@@ -288,7 +288,7 @@ namespace RockSampleData.Loader
         public const string AdaptiveMessagesConfigurationPath = "configuration/adaptive-messages.json";
 
         /// <summary>
-        /// The text of each adaptation.
+        /// The text of each adaptation, and the Lava of the block that shows them.
         /// </summary>
         public const string AdaptiveMessagesContentFolder = "content/adaptive-messages";
 
