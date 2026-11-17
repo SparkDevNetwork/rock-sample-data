@@ -172,8 +172,12 @@ namespace RockSampleData.Loader
             }
             catch ( Exception rollbackError )
             {
+#if NETFRAMEWORK
                 // .NET Framework's Exception.Data takes only serializable values, so any other error is attached as text.
                 error.Data[RollbackErrorKey] = rollbackError.GetType().IsSerializable ? rollbackError : ( object ) rollbackError.ToString();
+#else
+                error.Data[RollbackErrorKey] = rollbackError;
+#endif
             }
         }
 
