@@ -559,6 +559,7 @@
         "Guid",
         "ModifiedDateTime",
         "Order",
+        "PersonAliasId",
         "SpecialRole"
       ],
       "rockColumns": {
@@ -3912,7 +3913,10 @@
         "PrimaryFamilyId",
         "RecordStatusReasonValueId",
         "RecordStatusValueId",
-        "RecordTypeValueId"
+        "RecordTypeValueId",
+        "TopSignalColor",
+        "TopSignalIconCssClass",
+        "TopSignalId"
       ],
       "rockColumns": {
         "AccountProtectionProfile": "int not null",
@@ -4087,6 +4091,37 @@
         "SearchValue": "nvarchar(255) null"
       }
     },
+    "PersonSignal": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ExpirationDate",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Note",
+        "OwnerPersonAliasId",
+        "PersonId",
+        "SignalTypeId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ExpirationDate": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Note": "nvarchar(max) null",
+        "OwnerPersonAliasId": "int not null",
+        "PersonId": "int not null",
+        "SignalTypeId": "int not null"
+      }
+    },
     "PersonalDevice": {
       "written": [
         "CreatedDateTime",
@@ -4136,6 +4171,92 @@
         "PersonalDeviceTypeValueId": "int null",
         "PlatformValueId": "int null",
         "SiteId": "int null"
+      }
+    },
+    "PersonalLink": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "PersonAliasId",
+        "SectionId",
+        "Url"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "PersonAliasId": "int null",
+        "SectionId": "int not null",
+        "Url": "nvarchar(2048) null"
+      }
+    },
+    "PersonalLinkSection": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsShared",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Name",
+        "PersonAliasId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsShared": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "PersonAliasId": "int null"
+      }
+    },
+    "PersonalLinkSectionOrder": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Order",
+        "PersonAliasId",
+        "SectionId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int not null",
+        "PersonAliasId": "int not null",
+        "SectionId": "int not null"
       }
     },
     "PersonalizationSegment": {
@@ -5011,6 +5132,35 @@
         "ScheduleId": "int not null",
         "StartDateKey": "int not null",
         "StartDateTime": "datetime not null"
+      }
+    },
+    "SignalType": {
+      "written": [
+        "CreatedDateTime",
+        "Description",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "SignalColor",
+        "SignalIconCssClass"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "SignalColor": "nvarchar(100) not null",
+        "SignalIconCssClass": "nvarchar(100) null"
       }
     },
     "SignatureDocument": {
@@ -6304,17 +6454,43 @@
       "BBADA8EF-23FC-4B46-B7A7-0F6D31F8C045"
     ],
     "Page": [
+      "002C9991-523A-478C-B19B-E9DF2B977481",
       "08C61FD2-B495-4EC2-8B35-C0D9427E4F46",
+      "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D",
+      "1570D2AF-4FE2-4FC7-BED9-F20EBCBE9867",
+      "1815D8C6-7C4A-4C05-A810-CF23BA937477",
       "1C737278-4CBA-404B-B6B3-E3F0E05AB5FE",
       "21C1D31E-BB66-4050-A2AC-3A057B484596",
+      "275A5175-60E0-40A2-8C63-4E9D9CD39036",
       "2AA719FD-5B9F-4A9A-A8BF-C135EEA02BC8",
+      "2B479B57-EECA-464C-8C19-6373D82D70F8",
+      "2B630A3B-E081-4204-A3E4-17BB3A5F063D",
       "2E6FED28-683F-4726-8CF1-2822E8E73B03",
+      "3149959B-EFAC-4C2D-B0E8-8CF4FA1BB2FF",
+      "4E237286-B715-4109-A578-C1445EC02707",
       "60051DAF-2986-406D-A78B-1609CBF2256D",
+      "614AF351-6C48-4B6B-B50E-9F7E03BC00A4",
       "621E03C5-6586-450B-A340-CC7D9727B69A",
+      "6E46BC35-1FCB-4619-84F0-BB6926D2DDD5",
+      "73112D38-E051-4452-AEF9-E473EEDD0BCB",
+      "78D84825-EB1A-43C6-9AD5-5F0F84CC9A53",
+      "7A3CF259-1090-403C-83B7-2DB3A53DEE26",
       "85F25819-E948-4960-9DDF-00F54D32444E",
+      "8B5F2875-0D36-4625-8EE4-B738AE8E12F5",
+      "905F6132-AE1C-4C85-9752-18D22E604C3A",
+      "9F7AE226-CC95-4E6A-B333-C0294A2024BC",
       "A974A965-414B-47A6-9CC1-D3A175DA965B",
+      "B54725E1-3640-4419-B580-2AF77DAF6568",
+      "BA04BF01-5244-4637-B12D-7A962D2A9E77",
+      "BB8FC981-77EA-4416-B672-6B3969384043",
+      "BDD7B906-4D42-43C0-8DBB-B89A566734D8",
+      "C3909F1A-6908-4035-BB93-EC4FBFDCC536",
+      "CADB44F2-2453-4DB5-AB11-DADA5162AB79",
+      "DA0F647C-5317-4368-9514-E408F2254E24",
       "DB9F7118-6E41-4B36-AA0E-E25942207E4F",
+      "DF014200-72A3-48A0-A953-E594E5410E36",
       "EA515FD1-7D71-4E24-A09D-EA9EC34BEC71",
+      "EF65EFF2-99AC-4081-8E09-32A04518683A",
       "FFFDCE23-7B67-4B0D-8DA0-E44D883708CC"
     ],
     "Person": [
