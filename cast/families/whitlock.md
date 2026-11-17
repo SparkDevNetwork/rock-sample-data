@@ -22,7 +22,7 @@ Dana is the Gilbert Campus Director. She joined staff three years ago and runs t
 
 ### Scott Whitlock
 
-- Age 42 · married · Software Engineer, Sonoran Systems · email scott.whitlock@example.org
+- Age 42 · married · Software Engineer, Sonorell Systems · email scott.whitlock@example.org
 - Person Guid `37E18BFF-C777-42F6-9A40-7599967CA9B7`
 
 ### Harper Whitlock

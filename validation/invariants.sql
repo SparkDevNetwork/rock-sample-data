@@ -1762,12 +1762,17 @@ WHERE [r].[ForeignKey] = @ForeignKey
         INNER JOIN [GroupMember] AS [gm] ON [gm].[GroupId] = [g].[Id] AND [gm].[PersonId] = [pa].[PersonId]
         WHERE [rr].[RegistrationId] = [r].[Id] ) > 1;
 
--- check: person-attribute-answer-comes-from-a-registration
--- why: The loader writes Rock's Allergy person attribute only as a registration form saves it: for a registrant, off the wait list, of a template whose form asks for it. Kids check-in shows it, so a stray value would put an allergy on a child's label that no one entered.
+-- check: allergy-and-legal-notes-are-on-kids
+-- why: Decisions 211, D-person-attrs-2, and D-person-attrs-5. Kids check-in prints Allergy and shows Legal Notes, so the loader writes them only on a child in a family, or, for Allergy, on a registrant off the wait list of a template whose form asks for it, as Rock's form saves it. A stray value would put a note on a label that no one entered.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
-INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = 'DBD192C9-0AA1-46EC-92AB-A3DA8E056D31'
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( 'DBD192C9-0AA1-46EC-92AB-A3DA8E056D31', 'F832AB6F-B684-4EEA-8DB4-C54B895C79ED' )
 WHERE [av].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId] AND [r].[Guid] = 'C8B1814F-6AA7-4055-B2D7-48FE20429CB9'
+        WHERE [gm].[PersonId] = [av].[EntityId] )
     AND NOT EXISTS (
         SELECT 1
         FROM [RegistrationRegistrant] AS [rr]
@@ -1775,6 +1780,167 @@ WHERE [av].[ForeignKey] = @ForeignKey
         INNER JOIN [RegistrationTemplateForm] AS [f] ON [f].[RegistrationTemplateId] = [rr].[RegistrationTemplateId]
         INNER JOIN [RegistrationTemplateFormField] AS [ff] ON [ff].[RegistrationTemplateFormId] = [f].[Id] AND [ff].[FieldSource] = 1 AND [ff].[AttributeId] = [a].[Id]
         WHERE [pa].[PersonId] = [av].[EntityId] AND [rr].[OnWaitList] = 0 );
+
+-- check: person-attribute-value-points-at-a-person
+-- why: Decision D-person-attrs-1. A person attribute value finds its person by EntityId, which has no foreign key, so a value on a person who is not in the dataset would never show and never go away with its person.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    AND ISNULL( [a].[EntityTypeQualifierColumn], '' ) = ''
+    AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
+
+-- check: excluded-person-attributes-stay-empty
+-- why: Decision D-person-attrs-1. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, assessment results, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and assessments are their own work.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    AND ( [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'FirstVisit', 'SecondVisit', 'core_SpecialNeeds',
+            'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'NaturalD', 'NaturalI', 'NaturalS', 'NaturalC', 'LastSaveDate', 'PersonalityType', 'LastDiscRequestDate' )
+        OR [a].[Key] LIKE 'core[_]Motivator%' OR [a].[Key] LIKE 'core[_]EQ%' OR [a].[Key] LIKE 'core[_]Conflict%' OR [a].[Key] LIKE 'core[_]DISC%'
+        OR [a].[Key] IN ( 'core_DominantGifts', 'core_SupportiveGifts', 'core_OtherGifts', 'core_SpiritualGiftsLastSaveDate' ) );
+
+-- check: adult-attributes-are-on-adults
+-- why: Decisions D-person-attrs-4, D-person-attrs-7, D-person-attrs-8, and D-person-attrs-9. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND ( [a].[Guid] IN ( 'BF5F86FD-7BFB-491F-91DE-6A2E4E9FD4CC', '19F67B7E-D568-4D0D-8953-00ADF4AADB49', '3DBF9AC8-3BA2-41FA-8AD0-5BDE65B7FCAB', '5212E7F5-41A1-41F2-80FE-5D971258566D',
+            '76C33FBC-8799-4DF1-B2FE-A6C41AC3DD49', 'B767F2CF-A4F0-45AA-A2E9-8270F31B307B' )
+        OR ( [a].[Key] = 'DateEngaged' AND [a].[ForeignKey] = @ForeignKey ) )
+    AND ( [p].[AgeClassification] <> 1 OR [p].[RecordTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' ) );
+
+-- check: defined-value-attribute-names-a-value-of-its-type
+-- why: Decisions D-person-attrs-3, D-person-attrs-6, and D-person-attrs-7. School, Ability Level, and Source of Visit store a defined value's Guid, and Rock shows one only when it is an active value of the attribute's defined type.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '060AD4B5-082E-46BE-82F8-54D19677B589', '4ABF0BF2-49BA-4363-9D85-AC48A0F7E92A', '3DBF9AC8-3BA2-41FA-8AD0-5BDE65B7FCAB' )
+INNER JOIN [AttributeQualifier] AS [q] ON [q].[AttributeId] = [a].[Id] AND [q].[Key] = 'definedtype'
+LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
+LEFT JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId]
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND ( [dv].[Id] IS NULL OR [dv].[IsActive] = 0
+        OR NOT ( [q].[Value] = CAST( [dt].[Id] AS NVARCHAR(20) ) OR TRY_CONVERT( UNIQUEIDENTIFIER, [q].[Value] ) = [dt].[Guid] ) );
+
+-- check: school-is-on-kids-and-students
+-- why: Decision D-person-attrs-3. School belongs to a kid or student in kindergarten to grade 12 on the day it was saved, and names a school for their grade band: an Elementary School for kindergarten to grade 5, a Middle School for grades 6 to 8, and a High School for grades 9 to 12. The grade moves up the day after each June 1, as Rock does (decision 205).
+SELECT COUNT(*)
+FROM (
+    SELECT [dv].[Value] AS [School],
+        12 - ( [p].[GraduationYear] - CASE WHEN CAST( [av].[CreatedDateTime] AS DATE ) > DATEFROMPARTS( YEAR( [av].[CreatedDateTime] ), 6, 1 ) THEN YEAR( [av].[CreatedDateTime] ) + 1 ELSE YEAR( [av].[CreatedDateTime] ) END ) AS [Grade]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = '060AD4B5-082E-46BE-82F8-54D19677B589'
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+    LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
+    WHERE [av].[ForeignKey] = @ForeignKey
+) AS [x]
+WHERE [x].[Grade] IS NULL OR [x].[School] IS NULL
+    OR NOT ( ( [x].[Grade] BETWEEN 0 AND 5 AND [x].[School] LIKE '% Elementary School' )
+        OR ( [x].[Grade] BETWEEN 6 AND 8 AND [x].[School] LIKE '% Middle School' )
+        OR ( [x].[Grade] BETWEEN 9 AND 12 AND [x].[School] LIKE '% High School' ) );
+
+-- check: ability-level-fits-the-check-in-room
+-- why: Decision D-person-attrs-6. Rock's nursery and preschool check-in groups each filter by an ability level, and Rock offers a kid with an ability level only the groups that match it. So an Ability Level is only on a kid whose latest check-in was in a group with that same ability level, and check-in keeps putting them in the room they already use. A load without attendance skips it.
+WITH [Latest] AS (
+    SELECT [pa].[PersonId], [o].[GroupId], ROW_NUMBER() OVER ( PARTITION BY [pa].[PersonId] ORDER BY [a].[StartDateTime] DESC ) AS [Row]
+    FROM [Attendance] AS [a]
+    INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+    WHERE [a].[ForeignKey] = @ForeignKey AND [a].[AttendanceCodeId] IS NOT NULL AND [a].[DidAttend] = 1
+)
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = '4ABF0BF2-49BA-4363-9D85-AC48A0F7E92A'
+LEFT JOIN [Latest] AS [l] ON [l].[PersonId] = [av].[EntityId] AND [l].[Row] = 1
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND EXISTS ( SELECT 1 FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [AttendanceCodeId] IS NOT NULL )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [AttributeValue] AS [gv]
+        INNER JOIN [Attribute] AS [ga] ON [ga].[Id] = [gv].[AttributeId] AND [ga].[Key] = 'AbilityLevel'
+            AND [ga].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Group' )
+        WHERE [gv].[EntityId] = [l].[GroupId] AND LOWER( [gv].[Value] ) = LOWER( [av].[Value] ) );
+
+-- check: date-engaged-is-the-first-group-team-or-gift
+-- why: Decision D-person-attrs-8. Date Engaged is on every Engaged or Leading adult and on no one else. It is the day of their first small group or serving team membership that was not pending, or their giving unit's first contribution, whichever came first. An adult with none of those has a day before the first Sunday check-in of the history window and not before they turned 18, or their 18th birthday when they turned 18 inside the window.
+WITH [Engaged] AS (
+    SELECT [p].[Id], [p].[GivingId], CAST( DATEADD( YEAR, 18, [p].[BirthDate] ) AS DATE ) AS [Turned18]
+    FROM [Person] AS [p]
+    INNER JOIN [DefinedValue] AS [status] ON [status].[Id] = [p].[ConnectionStatusValueId]
+    WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
+        AND [p].[RecordTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '36CF10D6-C695-413D-8E7C-4546EFEF385E' )
+        AND [p].[AgeClassification] = 1
+        AND [status].[Guid] IN ( '41540783-D9EF-4C70-8F1D-C9E83D91ED5F', '377B6513-5671-4B8B-A520-BFDA739AFCA6' )
+),
+[Firsts] AS (
+    SELECT [gm].[PersonId], [gm].[DateTimeAdded] AS [First]
+    FROM [GroupMember] AS [gm]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId] AND [gt].[Guid] IN ( '50FCFB30-F51A-49DF-86F4-2B176EA1820B', '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' )
+    WHERE [gm].[GroupMemberStatus] <> 2
+    UNION ALL
+    SELECT [e].[Id], [t].[TransactionDateTime]
+    FROM [FinancialTransaction] AS [t]
+    INNER JOIN [DefinedValue] AS [type] ON [type].[Id] = [t].[TransactionTypeValueId] AND [type].[Guid] = '2D607262-52D6-4724-910D-5C6E8FB89ACC'
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId]
+    INNER JOIN [Person] AS [giver] ON [giver].[Id] = [pa].[PersonId]
+    INNER JOIN [Engaged] AS [e] ON [e].[GivingId] = [giver].[GivingId]
+),
+[First] AS (
+    SELECT [e].[Id], [e].[Turned18], CAST( MIN( [f].[First] ) AS DATE ) AS [First]
+    FROM [Engaged] AS [e]
+    LEFT JOIN [Firsts] AS [f] ON [f].[PersonId] = [e].[Id]
+    GROUP BY [e].[Id], [e].[Turned18]
+),
+[Dates] AS (
+    SELECT [av].[EntityId], TRY_CONVERT( DATE, LEFT( [av].[Value], 10 ) ) AS [Date]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Key] = 'DateEngaged' AND [a].[ForeignKey] = @ForeignKey
+)
+SELECT ( SELECT COUNT(*) FROM [Dates] AS [d] WHERE NOT EXISTS ( SELECT 1 FROM [Engaged] AS [e] WHERE [e].[Id] = [d].[EntityId] ) )
+    + ( SELECT COUNT(*)
+        FROM [First] AS [f]
+        LEFT JOIN [Dates] AS [d] ON [d].[EntityId] = [f].[Id]
+        WHERE [d].[Date] IS NULL
+            OR ( [f].[First] IS NOT NULL AND [d].[Date] <> [f].[First] )
+            OR ( [f].[First] IS NULL AND NOT ( [d].[Date] = [f].[Turned18]
+                OR ( [d].[Date] >= ISNULL( [f].[Turned18], '1900-01-01' )
+                    AND [d].[Date] < ISNULL( ( SELECT CAST( MIN( [StartDateTime] ) AS DATE ) FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [AttendanceCodeId] IS NOT NULL ), '9999-12-31' ) ) ) ) );
+
+-- check: envelope-number-is-unique-for-a-check-writer
+-- why: Decision D-person-attrs-9. Rock finds a giver by envelope number when a gift is entered, so each number belongs to one person, and only a person who wrote a check gift has one.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] = '76C33FBC-8799-4DF1-B2FE-A6C41AC3DD49'
+WHERE [av].[ForeignKey] = @ForeignKey
+    AND ( TRY_CONVERT( INT, [av].[Value] ) IS NULL
+        OR EXISTS ( SELECT 1 FROM [AttributeValue] AS [other] WHERE [other].[AttributeId] = [av].[AttributeId] AND [other].[Value] = [av].[Value] AND [other].[Id] <> [av].[Id] )
+        OR NOT EXISTS (
+            SELECT 1
+            FROM [FinancialTransaction] AS [t]
+            INNER JOIN [FinancialPaymentDetail] AS [pd] ON [pd].[Id] = [t].[FinancialPaymentDetailId]
+            INNER JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [pd].[CurrencyTypeValueId] AND [currency].[Guid] = '8B086A19-405A-451F-8D44-174E92D6B402'
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId]
+            WHERE [pa].[PersonId] = [av].[EntityId] ) );
+
+-- check: business-contact-works-at-the-business
+-- why: Decisions 63 to 65 and D-person-attrs-4. A business contact owns or runs the business, so their Employer is the business, as Rock's Business Detail and the contact's Extended Attributes tab both show.
+SELECT COUNT(*)
+FROM [GroupMember] AS [owner]
+INNER JOIN [GroupMember] AS [contact] ON [contact].[GroupId] = [owner].[GroupId]
+    AND [contact].[GroupRoleId] = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '102E6AF5-62C2-4767-B473-C9C228D75FB6' )
+INNER JOIN [Person] AS [business] ON [business].[Id] = [owner].[PersonId]
+LEFT JOIN [AttributeValue] AS [employer] ON [employer].[EntityId] = [contact].[PersonId]
+    AND [employer].[AttributeId] = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = 'BF5F86FD-7BFB-491F-91DE-6A2E4E9FD4CC' )
+WHERE [owner].[GroupRoleId] = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' )
+    AND [business].[RecordTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BF64ADD3-E70A-44CE-9C4B-E76BBED37550' )
+    AND [business].[ForeignKey] = @ForeignKey
+    AND ISNULL( [employer].[Value], '' ) <> [business].[LastName];
 
 -- check: release-is-signed-for-every-registrant
 -- why: Decision 212. Rock's template screen saves the Embed action, so on a template that requires a release, every registrant signs while registering, and Rock links the registrant to that signed release, for that person, from that template. None is left pending.

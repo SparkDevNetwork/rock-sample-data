@@ -18,7 +18,7 @@ Rob and Sheryl Tennant are a married couple who attend and are in a small group.
 
 ### Sheryl Tennant
 
-- Age 58 · married · Art Director, ACME Art · email stennant@example.org · groups: Wright Group (left)
+- Age 58 · married · Art Director, Acmewell Art · email stennant@example.org · groups: Wright Group (left)
 - Person Guid `773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5`
 
 ## What this family tests

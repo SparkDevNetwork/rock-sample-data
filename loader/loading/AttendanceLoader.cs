@@ -616,7 +616,7 @@ namespace RockSampleData.Loader.Loading
         /// The check-in group for a child on a given Sunday, or null when none fits.
         /// Grade wins when known; otherwise age picks the nursery and preschool rooms.
         /// </summary>
-        private static string CheckInGroupFor( LoadedPerson child, DateTime sunday )
+        internal static string CheckInGroupFor( LoadedPerson child, DateTime sunday )
         {
             if ( child.GraduationYear.HasValue )
             {

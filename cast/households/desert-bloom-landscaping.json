@@ -3,11 +3,11 @@
   "schemaVersion": 1,
   "key": "desert-bloom-landscaping",
   "guid": "4B840A55-753B-43EF-A6F9-22326F91982A",
-  "name": "Desert Bloom Landscaping",
+  "name": "Desert Thistle Landscaping",
   "kind": "business",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Daniel and Maria Garcia run Desert Bloom Landscaping together. The business gives by bank transfer on a monthly schedule.",
+  "story": "Daniel and Maria Garcia run Desert Thistle Landscaping together. The business gives by bank transfer on a monthly schedule.",
   "testPurposes": [
     "Business with two contacts, a married couple who own it together.",
     "Scheduled monthly ACH gifts from a business."
@@ -51,7 +51,7 @@
       "key": "business",
       "guid": "2E987E5A-D257-4147-BD48-140DBB6A8755",
       "recordType": "business",
-      "lastName": "Desert Bloom Landscaping",
+      "lastName": "Desert Thistle Landscaping",
       "gender": "unknown",
       "familyRole": "adult",
       "recordStatus": "active",

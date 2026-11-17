@@ -2,7 +2,7 @@
 
 New household · 2 people · Phoenix campus · [source](../households/morgan.json)
 
-Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift.
+Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift. Steve keeps his own giving records, so he asked the church not to send him a giving statement.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -13,7 +13,7 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 
 ### Steve (Steven) Morgan
 
-- Age 58 · married · email steve.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left) · business contact for Mesquite Tree Bookkeeping
+- Age 58 · married · Owner, Mesquite Tree Bookkeeping · email steve.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left) · business contact for Mesquite Tree Bookkeeping
 - Person Guid `26ECA7AC-9EF7-403A-B053-C852CBA7DB4C`
 
 ### Karen Morgan
@@ -25,6 +25,7 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 
 - Quarterly giver with a year-end gift.
 - Empty nesters.
+- Do Not Send Giving Statement is set on Steve, so a statement run skips him.
 
 ## Activity
 

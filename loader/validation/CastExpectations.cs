@@ -137,7 +137,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
-            checks += CheckAllergies( db, source, failures );
+            checks += CheckPersonAttributes( db, source, failures );
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
@@ -1115,32 +1115,50 @@ WHERE [pr].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
         /// Checks the businesses in the loaded database. Returns how many were checked and adds each failure.
         /// </summary>
         /// <summary>
-        /// Checks that each Cast person with an allergy in their file shows it in Rock's Allergy person attribute, which
-        /// check-in labels print (Alex Decker is the example). People always load, so this runs whenever the expectations are checked. A person
-        /// whose household is not in the dataset is skipped.
+        /// Checks that each Cast person shows the person attribute values their file holds: their allergy in Rock's Allergy
+        /// attribute, which check-in labels print (Alex Decker is the example), and each value the people attributes step
+        /// loads from Cast files, such as Employer, Legal Notes, and Do Not Send Giving Statement. People always load, so this
+        /// runs whenever the expectations are checked. A person whose household is not in the dataset is skipped.
         /// </summary>
-        private static int CheckAllergies( RockDatabase db, SampleDataSource source, List<string> failures )
+        private static int CheckPersonAttributes( RockDatabase db, SampleDataSource source, List<string> failures )
         {
             var checks = 0;
-            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( p => !string.IsNullOrWhiteSpace( p.Attributes?.Allergy ) ) )
+            var loaded = source.PersonAttributes?.CastLoaded ?? new List<string>();
+            foreach ( var person in source.ReadHouseholds().SelectMany( h => h.Members ).Where( p => p.Attributes != null ) )
             {
-                var personId = db.Scalar( "SELECT [Id] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", person.Guid ) );
+                var expected = new List<(string Key, Guid Attribute, string Value)>();
+                if ( !string.IsNullOrWhiteSpace( person.Attributes.Allergy ) )
+                {
+                    expected.Add( ("Allergy", PeopleLoader.AllergyAttributeGuid, person.Attributes.Allergy.Trim()) );
+                }
+
+                foreach ( var key in loaded.Where( k => person.Attributes.Others?.ContainsKey( k ) == true ) )
+                {
+                    var element = person.Attributes.Others[key];
+                    var value = element.ValueKind == System.Text.Json.JsonValueKind.True ? "True"
+                        : element.ValueKind == System.Text.Json.JsonValueKind.False ? "False"
+                        : element.ValueKind == System.Text.Json.JsonValueKind.String ? element.GetString().Trim() : element.GetRawText();
+                    expected.Add( (key, source.PersonAttributes.AttributeGuid( key ), value) );
+                }
+
+                var personId = expected.Count == 0 ? null : db.Scalar( "SELECT [Id] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", person.Guid ) );
                 if ( personId == null )
                 {
                     continue;
                 }
 
-                checks++;
-                var value = db.Scalar( @"
+                foreach ( var (key, attribute, value) in expected )
+                {
+                    checks++;
+                    var shown = db.Scalar( @"
 SELECT [av].[Value]
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
-WHERE [a].[Guid] = @Attribute AND [av].[EntityId] = @PersonId", P( "@Attribute", PeopleLoader.AllergyAttributeGuid ), P( "@PersonId", personId ) ) as string;
-                var expected = person.Attributes.Allergy.Trim();
-                if ( value != expected )
-                {
-                    var shown = value == null ? "none" : $"'{value}'";
-                    failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected the allergy '{expected}', Rock shows {shown}" );
+WHERE [a].[Guid] = @Attribute AND [av].[EntityId] = @PersonId", P( "@Attribute", attribute ), P( "@PersonId", personId ) ) as string;
+                    if ( shown != value )
+                    {
+                        failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: expected {key} '{value}', Rock shows {( shown == null ? "none" : $"'{shown}'" )}" );
+                    }
                 }
             }
 

@@ -78,7 +78,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Dawson Family](dawson.md) | new | 3 | Connected | Single dad with every-other-weekend attendance. |
 | [Decker Family](decker.md) | legacy | 4 | Leading, Engaged, Connected | Primary demo family used in documentation and screenshots. |
 | [Delgado Family](delgado.md) | new | 2 | Engaged | Facilities Director with Rock's safety and security role. |
-| [Desert Bloom Landscaping](desert-bloom-landscaping.md) | new | 1 | Prospect | Business with two contacts, a married couple who own it together. |
+| [Desert Thistle Landscaping](desert-bloom-landscaping.md) | new | 1 | Prospect | Business with two contacts, a married couple who own it together. |
 | [Dexter Family](dexter.md) | legacy | 1 | Engaged | Failed background check that needs review. |
 | [Diaz Family](diaz.md) | new | 2 | Known | Holiday-only attenders. |
 | [Ellis Family](ellis.md) | new | 2 | Known | New couple: first visit about four months ago. |

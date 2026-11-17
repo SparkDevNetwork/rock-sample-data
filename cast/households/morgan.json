@@ -7,10 +7,11 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift.",
+  "story": "Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift. Steve keeps his own giving records, so he asked the church not to send him a giving statement.",
   "testPurposes": [
     "Quarterly giver with a year-end gift.",
-    "Empty nesters."
+    "Empty nesters.",
+    "Do Not Send Giving Statement is set on Steve, so a statement run skips him."
   ],
   "address": {
     "type": "home",
@@ -78,7 +79,12 @@
           "type": "business",
           "with": "D166FB37-61DA-4F11-8F91-0591CEA1E99E"
         }
-      ]
+      ],
+      "attributes": {
+        "Employer": "Mesquite Tree Bookkeeping",
+        "Position": "Owner",
+        "DoNotSendGivingStatement": true
+      }
     },
     {
       "key": "karen",

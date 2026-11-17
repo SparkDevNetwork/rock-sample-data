@@ -4,7 +4,7 @@ Every piece of data in this repository follows these rules. Read them before you
 
 ## Everything is fictional
 
-1. **People, churches, and organizations are fictional.** Employers and businesses use invented names, for example Sonoran Systems or Cholla Creek Hardware. Never name a real church.
+1. **People, churches, and organizations are fictional.** Employers and businesses use invented names, for example Sonorell Systems or Cholla Creek Hardware. Never name a real church.
 2. **Phones use the reserved range** 555-0100 to 555-0199, with Phoenix-area codes (602, 480, 623). Each person's number is unique unless the story says it is shared (for example, a couple's home phone, or duplicate records).
 3. **Emails use `example.org`.** Staff of the sample church use `rocksolidchurchdemo.com`.
 4. **Addresses use real streets with house numbers that do not exist.** No made-up number may match a real address on any street with that name in that ZIP code. Only `addresses/build-pool.js` makes addresses.
@@ -34,7 +34,7 @@ A rule a script can check is a check, not a reminder. Run `node cast/validate-ca
 
 | Rule | Checked by |
 |---|---|
-| 1. Fictional people and organizations | A reviewer. |
+| 1. Fictional people and organizations | A reviewer, who also checks the invented schools and employers in `configuration/person-attributes.json` against real ones. |
 | 2. Reserved phone numbers | `check-standards.js` (the Cast, including when a number may be shared) and `validation/invariants.sql` (every loaded phone, generated households too). |
 | 3. Reserved email domains | `validate-cast.js`, `check-standards.js` (every data file), and `validation/invariants.sql` (every loaded email). |
 | 4. Addresses with house numbers that do not exist | `addresses/build-pool.js`, the only thing that makes addresses. It needs the county data in `addresses/raw/`, so it runs when the pool is rebuilt. |
