@@ -251,7 +251,13 @@ try
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
-            checks.Add( CheckResult.From( stage, "Could not finish", new List<string> { ex.Message } ) );
+            var problems = new List<string> { ex.Message };
+            if ( ex.Data[DatasetLoader.RollbackErrorKey] is { } rollbackError )
+            {
+                problems.Add( $"The rollback reported an error too: {( rollbackError as Exception )?.Message ?? rollbackError}" );
+            }
+
+            checks.Add( CheckResult.From( stage, "Could not finish", problems ) );
         }
         finally
         {

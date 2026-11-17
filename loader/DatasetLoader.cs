@@ -71,7 +71,9 @@ namespace RockSampleData.Loader
         };
 
         /// <summary>
-        /// Loads the package. Everything rolls back if any step fails.
+        /// Loads the package. Everything rolls back if any step fails, and the step's error is thrown. When the
+        /// rollback fails too, the step's error is still the one thrown, with the rollback's in its
+        /// <see cref="Exception.Data"/> under <see cref="RollbackErrorKey"/>.
         /// </summary>
         /// <exception cref="DatabaseNotReadyException">The database has people beyond a new Rock install, or another load is running. Nothing was loaded.</exception>
         /// <exception cref="RockVersionMismatchException">The database's Rock is not the package's major release, or is unknown. Nothing was loaded.</exception>
@@ -134,10 +136,44 @@ namespace RockSampleData.Loader
                     log.WriteTiming( $"Done in {total.ElapsedMilliseconds:N0} ms.", new LoadTiming( LoadTimingKind.Load, "Load", null, total.ElapsedMilliseconds ) );
                 }
             }
-            catch
+            catch ( Exception error )
             {
-                db.Rollback();
+                RollBackAfterFailure( error, db.Rollback );
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// The key in a failed load's <see cref="Exception.Data"/> that holds its rollback's error, when the
+        /// rollback failed too. The load's own error keeps its type and message.
+        /// </summary>
+        public const string RollbackErrorKey = "RockSampleData.RollbackError";
+
+        /*
+            11/17/26 - CLAUDE
+
+            A load that failed rolled back and rethrew. When that rollback failed too, its error replaced
+            the load's, so a person saw "This SqlTransaction has completed" instead of what went wrong.
+            A caller such as Rock's installer block may act on the error's type and message, so the load's
+            own error is rethrown as it was, and the rollback's error rides along in its Data.
+
+            Reason: A failed load must show what went wrong, not its rollback's error (decision D-rollback-1).
+        */
+
+        /// <summary>
+        /// Rolls back after a failed load. A rollback that fails too never replaces the load's error: its error
+        /// is attached to the load's error under <see cref="RollbackErrorKey"/>.
+        /// </summary>
+        internal static void RollBackAfterFailure( Exception error, Action rollBack )
+        {
+            try
+            {
+                rollBack();
+            }
+            catch ( Exception rollbackError )
+            {
+                // .NET Framework's Exception.Data takes only serializable values, so any other error is attached as text.
+                error.Data[RollbackErrorKey] = rollbackError.GetType().IsSerializable ? rollbackError : ( object ) rollbackError.ToString();
             }
         }
 

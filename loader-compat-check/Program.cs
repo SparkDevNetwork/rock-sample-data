@@ -46,6 +46,9 @@ using RockSampleData.Loader.Packages;
     one the shipped loader trusts.
     The signature hash checks compare the port of Rock's CalculateSignatureVerificationHash with values computed by
     calling that method in Rock 21's own compiled Rock.dll (Rock 20's gives the same first value).
+    The rollback checks prove that a failed load throws its own error even when its rollback fails too,
+    with the rollback's error attached (decision D-rollback-1). They run on both builds because .NET
+    Framework's Exception.Data holds only serializable values.
     The registration dates check plans the repository's calendar and registrations for install day
     2026-10-28 and compares each instance's dates with the example dates the approved registrations
     proposal lists for that day (decision 190), so a rule change that moves a date fails here.
@@ -176,7 +179,16 @@ var checks = new (string Name, string Actual, string Expected)[]
         + " | early birds student-camp 2027-04-30, womens-retreat 2026-10-31"),
     ("Assessment answers, scores, and answer data (decision 265)",
         AssessmentScores(),
-        "d2e36917b2d54d9adeaecca8fd828caa6044d9f4aad5c976ec08d27de8327221")
+        "d2e36917b2d54d9adeaecca8fd828caa6044d9f4aad5c976ec08d27de8327221"),
+    ("A failed load whose rollback works throws its own error (decision D-rollback-1)",
+        RollbackKeepsError( null ),
+        "True|InvalidDataException|Gift 12 has no batch.|none"),
+    ("A failed load whose rollback fails too throws its own error, with the rollback's attached",
+        RollbackKeepsError( new InvalidOperationException( "This SqlTransaction has completed; it is no longer usable." ) ),
+        "True|InvalidDataException|Gift 12 has no batch.|This SqlTransaction has completed; it is no longer usable."),
+    ("A failed load keeps its own error when the rollback's error cannot be serialized",
+        RollbackKeepsError( new UnserializableException( "The rollback timed out." ) ),
+        "True|InvalidDataException|Gift 12 has no batch.|The rollback timed out.")
 };
 
 var failures = 0;
@@ -194,6 +206,43 @@ var target = ".NET 10";
 #endif
 Console.WriteLine( failures == 0 ? $"All {checks.Length} checks pass on {target}." : $"{failures} of {checks.Length} checks fail on {target}." );
 return failures == 0 ? 0 : 1;
+
+// A failed load, rolled back the way DatasetLoader.Load does. A null rollbackError is a rollback that works. Returns
+// whether the load's own error was thrown, its type and message, and the rollback error's message attached to it, or "none".
+static string RollbackKeepsError( Exception rollbackError )
+{
+    var loadError = new InvalidDataException( "Gift 12 has no batch." );
+    try
+    {
+        try
+        {
+            throw loadError;
+        }
+        catch ( Exception error )
+        {
+            DatasetLoader.RollBackAfterFailure( error, () =>
+            {
+                if ( rollbackError != null )
+                {
+                    throw rollbackError;
+                }
+            } );
+            throw;
+        }
+    }
+    catch ( Exception thrown )
+    {
+        // An error that cannot be serialized is attached as its text, which holds its message.
+        var attached = thrown.Data[DatasetLoader.RollbackErrorKey];
+        var attachedText = ( attached as Exception )?.Message ?? ( attached as string ) ?? "none";
+        if ( rollbackError != null && attachedText.Contains( rollbackError.Message ) )
+        {
+            attachedText = rollbackError.Message;
+        }
+
+        return $"{ReferenceEquals( thrown, loadError )}|{thrown.GetType().Name}|{thrown.Message}|{attachedText}";
+    }
+}
 
 static string Published( string tag )
 {
@@ -363,4 +412,14 @@ static string Entry( SampleDataPackageIndex index )
 {
     var entry = index.Packages.Single();
     return $"{entry.Dataset}|{entry.RockMajor}|{entry.MinimumLoaderVersion}|{entry.Sha256.Substring( 0, 12 )}";
+}
+
+/// <summary>
+/// An error with no [Serializable] mark, which .NET Framework's Exception.Data refuses to hold.
+/// </summary>
+internal sealed class UnserializableException : Exception
+{
+    public UnserializableException( string message ) : base( message )
+    {
+    }
 }

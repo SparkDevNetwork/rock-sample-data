@@ -135,6 +135,11 @@ catch ( ArgumentException ex )
 catch ( Exception ex )
 {
     Console.Error.WriteLine( $"Load failed and was rolled back: {ex.Message}" );
+    if ( ex.Data[DatasetLoader.RollbackErrorKey] is { } rollbackError )
+    {
+        Console.Error.WriteLine( $"The rollback reported an error too: {( rollbackError as Exception )?.Message ?? rollbackError}" );
+    }
+
     return 1;
 }
 
