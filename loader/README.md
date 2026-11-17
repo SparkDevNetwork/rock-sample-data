@@ -583,7 +583,7 @@ Speed: Core 1 plans and writes about 380 steps in about a quarter of a second.
 
 The load prints how many assessments of each type are complete and pending, how many came from each rule, how many were reminded, and the most common DISC profiles.
 
-Speed: Core 1 plans and writes about 170 assessments in about a quarter of a second.
+Speed: Core 1 plans and writes about 170 assessments in about a quarter of a second. Full 7's 5,600 took about 6 seconds on 2026-11-16, while other loads shared the machine.
 
 ## How staff attributes load
 

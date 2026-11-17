@@ -77,9 +77,13 @@ What each dataset loads at the default seed:
 
 | | Core 1 | Core 3 | Full 7 |
 |---|---|---|---|
-| Assessments | 171 | | |
-| Pending | 19 | | |
-| People with at least one | 67 | | |
+| Assessments | 171 | 295 | 5,600 |
+| Pending | 19 | 27 | 704 |
+| Answer sets, which Rock's own scoring checks | 146 | 262 | 4,890 |
+| People with at least one | 67 | 121 | 3,056 |
+| Current leaders, every one with DISC and Conflict Profile | 10 | 32 | 430 |
+
+Measured on 2026-11-16, the install day. Full 7's results by rule: 1,619 from Starting Point, 2,158 from Foundations, 840 from leaders, 865 taken on people's own, 110 from staff, and 8 from Cast stories. 2,120 rows carry a reminder. The six most common DISC profiles are SC, SI, IS, CD, ID, and SD, each about 130 to 160 people.
 
 ## How it is checked
 
