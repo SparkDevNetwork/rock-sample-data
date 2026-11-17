@@ -11,7 +11,8 @@ The hand-written messages the sample church sends: emails, texts, and pushes. Th
 | `emails.json` | Every other email: seasonal sends, ministry sends, pastoral letters, and one-to-one messages. |
 | `texts.json` | Texts and pushes, plus the reply pools for texts that ask for an answer. |
 | `conversations.json` | The pools that generated text conversations are built from. |
-| `email-template.html` | The sample church's branded email template (see [configuration/communications.json](../../configuration/communications.json)). |
+| `email-template.html` | The sample church's branded email template for Rock's older email editor, with its colors as Lava fields (see [configuration/communications.json](../../configuration/communications.json)). |
+| `email-template-wizard.html` | The same template in the rows and components of Rock's newer email editor, which the Communication Entry Wizard lists. Its colors are written in, and `check-library.js` checks they match the Lava fields above (decision D-bugs18-3). |
 | `email-logo.png` | The approved Rock Solid Church logo at 480 by 120 pixels with a transparent background, for the template. |
 | `check-library.js` | Checks every message file. Run `node content/communications/check-library.js` after any change. |
 

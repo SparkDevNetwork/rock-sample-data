@@ -148,6 +148,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Communications ) ? CheckPhoneNumbers( db, source, guids, failures ) : 0;
 
+            // Rock's email wizard lists the church's branded template (decision D-bugs18-3).
+            checks += parts.Contains( SampleDataPart.Communications ) ? CheckEmailTemplates( db, source, failures ) : 0;
+
             // Signing in as admin shows Alisha Marble's open requests (decision 178).
             checks += parts.Contains( SampleDataPart.Serving ) ? CheckStaffConnectors( db, source, guids, failures ) : 0;
 
@@ -803,6 +806,38 @@ WHERE [spn].[Guid] = @Guid", P( "@Guid", number.Guid ) ).FirstOrDefault();
             }
 
             return checks;
+        }
+
+        /// <summary>
+        /// Checks that Rock's Communication Entry Wizard lists the church's branded template: active, not Legacy, and with
+        /// no usage type, the filter in the wizard's template query (Rock.Blocks/Communication/CommunicationEntryWizard.cs).
+        /// The Legacy template stays Legacy, for Rock's older email editor and the emails that used it.
+        /// </summary>
+        private static int CheckEmailTemplates( RockDatabase db, SampleDataSource source, List<string> failures )
+        {
+            var configuration = source.Communications;
+            if ( configuration?.WizardTemplate == null )
+            {
+                return 0;
+            }
+
+            var rows = db.Query( "SELECT [Guid], [IsActive], [Version], [UsageType] FROM [CommunicationTemplate] WHERE [Guid] IN ( @Wizard, @Legacy )",
+                    P( "@Wizard", configuration.WizardTemplate.Guid ), P( "@Legacy", configuration.Template.Guid ) )
+                .ToDictionary( r => ( Guid ) r["Guid"] );
+
+            var wizard = rows.GetValueOrDefault( configuration.WizardTemplate.Guid );
+            if ( wizard == null || !( bool ) wizard["IsActive"] || ( int ) wizard["Version"] == 0 || Nullable( wizard["UsageType"] ) != null )
+            {
+                failures.Add( $"Email template {configuration.WizardTemplate.Name}: expected Rock's email wizard to list it, but {( wizard == null ? "it is missing" : "the wizard's template query leaves it out" )}" );
+            }
+
+            var legacy = rows.GetValueOrDefault( configuration.Template.Guid );
+            if ( legacy == null || ( int ) legacy["Version"] != 0 )
+            {
+                failures.Add( $"Email template {configuration.Template.Name}: expected a Legacy template, Rock shows {( legacy == null ? "none" : "another version" )}" );
+            }
+
+            return 2;
         }
 
         /// <summary>

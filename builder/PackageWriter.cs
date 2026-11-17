@@ -285,7 +285,7 @@ namespace RockSampleData.Builder
             }
 
             var template = source.Communications?.Template;
-            foreach ( var path in new[] { template?.Html, template?.Logo }.Where( p => p != null && !files.Exists( p ) ) )
+            foreach ( var path in new[] { template?.Html, template?.Logo, source.Communications?.WizardTemplate?.Html }.Where( p => p != null && !files.Exists( p ) ) )
             {
                 throw new InvalidOperationException( $"configuration/communications.json names {path}, but the file is missing." );
             }
