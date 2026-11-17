@@ -449,6 +449,97 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Personal links (configuration/personal-links.json, issue 46): every link is a Rock page by Guid, never a URL, with
+// a real load part and a target that names a real row; every owner is staff; every role is a Rock role; every campus has
+// a campus pastor section Guid; and every bookmark menu names a Cast person.
+{
+    const linksFile = path.join( castDir, "..", "configuration", "personal-links.json" );
+    const config = fs.existsSync( linksFile ) ? JSON.parse( fs.readFileSync( linksFile, "utf8" ) ) : null;
+    if ( config ) {
+        const read = file => JSON.parse( fs.readFileSync( path.join( castDir, "..", file ), "utf8" ) );
+        const staffGuids = new Set( read( "configuration/staff.json" ).staff.map( s => s.person ) );
+        const rockRoles = new Set( securityRoleConfiguration.roles.map( r => r.rockRole ) );
+        const enumText = fs.readFileSync( path.join( castDir, "..", "loader", "SampleDataPart.cs" ), "utf8" );
+        const enumBody = enumText.slice( enumText.indexOf( "public enum SampleDataPart" ) );
+        const parts = new Set( [ ...enumBody.slice( 0, enumBody.indexOf( "\n    }" ) ).matchAll( /^\s*([A-Z][A-Za-z]+),?\s*$/gm ) ].map( m => m[ 1 ] ) );
+        const reporting = read( "configuration/reporting.json" );
+        const reportKeys = new Set( reporting.reports.map( r => r.key ) );
+        const viewKeys = new Set( [ reporting, read( "configuration/group-syncs.json" ), read( "configuration/registrations.json" ) ].flatMap( f => ( f.dataViews || [] ).map( v => v.key ) ) );
+        const categoryKeys = new Set( read( "configuration/categories.json" ).categories.map( c => c.key ) );
+        const programGuids = new Set( STEP_PROGRAMS.map( p => p.guid ) );
+        const campusLists = new Set( read( "configuration/communications.json" ).lists.lists.filter( l => l.campus ).map( l => l.key ) );
+        const campusKinds = new Set( [ "campus", "campusList", "campusSmallGroups" ] );
+        const kinds = new Set( [ "report", "dataView", "category", "stepProgram", "eventCalendar", "campaignFund", ...campusKinds ] );
+        const nameOf = guid => { const found = people.get( guid ); return found ? `${found.person.nickName || found.person.firstName} ${found.person.lastName}` : null; };
+        const checkLinks = ( who, links, isCampus ) => {
+            for ( const link of links ) {
+                const at = `${who}, link ${link.name}`;
+                if ( link.url !== undefined || !GUID.test( link.page || "" ) ) {
+                    errors.push( `${at}: needs a Rock page by Guid and no url. Links go only to Rock pages.` );
+                }
+                if ( link.part && !parts.has( link.part ) ) {
+                    errors.push( `${at}: part "${link.part}" is not a load part in loader/SampleDataPart.cs.` );
+                }
+                if ( !link.parameter !== !link.target ) {
+                    errors.push( `${at}: give a parameter and a target together, or neither.` );
+                }
+                const target = link.target;
+                if ( !target ) {
+                    continue;
+                }
+                const known = !kinds.has( target.kind ) ? false
+                    : target.kind === "report" ? reportKeys.has( target.key )
+                    : target.kind === "dataView" ? viewKeys.has( target.key )
+                    : target.kind === "category" ? categoryKeys.has( target.key )
+                    : target.kind === "stepProgram" ? programGuids.has( target.guid )
+                    : target.kind === "eventCalendar" ? GUID.test( target.guid || "" )
+                    : target.kind === "campusList" ? campusLists.has( target.key )
+                    : true;
+                if ( !known ) {
+                    errors.push( `${at}: target ${target.kind} ${target.key || target.guid || ""} is not a real ${target.kind}.` );
+                }
+                if ( campusKinds.has( target.kind ) !== isCampus && campusKinds.has( target.kind ) ) {
+                    errors.push( `${at}: a ${target.kind} target belongs only in campusPastorSection.` );
+                }
+            }
+        };
+        if ( !staffGuids.has( config.createdBy ) ) {
+            errors.push( `configuration/personal-links.json: createdBy ${config.createdBy} is not staff.` );
+        }
+        const roles = config.editorRoles.concat( config.sharedSections.flatMap( s => s.security.allow ) );
+        for ( const role of roles.filter( r => !rockRoles.has( r ) ) ) {
+            errors.push( `configuration/personal-links.json: ${role} is not a role in configuration/security-roles.json.` );
+        }
+        for ( const section of config.sharedSections ) {
+            claimGuid( section.guid, `configuration/personal-links.json (shared section ${section.key})` );
+            checkLinks( `configuration/personal-links.json (shared section ${section.key})`, section.links, false );
+        }
+        for ( const section of config.personalSections ) {
+            const who = `configuration/personal-links.json (${section.ownerName}'s ${section.name})`;
+            claimGuid( section.guid, who );
+            if ( !staffGuids.has( section.owner ) || nameOf( section.owner ) !== section.ownerName ) {
+                errors.push( `${who}: owner ${section.owner} must be staff named ${section.ownerName}.` );
+            }
+            checkLinks( who, section.links, false );
+        }
+        const pastorSection = config.campusPastorSection;
+        for ( const campus of [ ...OTHER_CAMPUS_KEYS, ...JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.filter( c => c.rockDefault ).map( c => c.key ) ] ) {
+            if ( !pastorSection.guids[ campus ] ) {
+                errors.push( `configuration/personal-links.json (campusPastorSection): no Guid for ${campus}.` );
+            }
+            else {
+                claimGuid( pastorSection.guids[ campus ], `configuration/personal-links.json (campusPastorSection ${campus})` );
+            }
+        }
+        checkLinks( "configuration/personal-links.json (campusPastorSection)", pastorSection.links, true );
+        for ( const menu of config.menus ) {
+            if ( nameOf( menu.person ) !== menu.name ) {
+                errors.push( `configuration/personal-links.json (menu ${menu.name}): person ${menu.person} is not ${menu.name}.` );
+            }
+        }
+    }
+}
+
 if ( adminPeople.length !== 1 ) {
     errors.push( `Exactly one Cast person replaces Rock's admin person (replacesAdmin); found ${adminPeople.length}: ${adminPeople.join( ", " ) || "none"}.` );
 }

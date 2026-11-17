@@ -1,0 +1,162 @@
+{
+  "$comment": "Personal links (issue 46, decisions D-links-1 to D-links-4): the bookmarks behind the icon beside Rock's search bar, grouped in sections. Every link is a Rock page, never a page on rocksolidchurchdemo.com. A link names its page by Guid, and the loader writes it as Rock's /page/Id. 'parameter' and 'target' add the page parameter a detail page needs, such as a report's Id. A target's 'kind' is report or dataView (a key in a configuration file), category (a key in categories.json), stepProgram or eventCalendar (a Guid), campaignFund (the Built on the Rock fund), or, in a campus pastor's section, campus, campusList (a list key in communications.json), or campusSmallGroups. 'part' is the load part whose rows the page shows. A link is skipped when the load left out its part, or when its target was not written. 'sharedSections' are written as Rock's shared link editor saves them, by 'createdBy': 'editorRoles' get View, Edit, and Administrate, and then each section's own 'security' replaces its View rule, as Rock's security editor saves it. 'personalSections' belong to one staff member each, and 'campusPastorSection' gives each loaded campus pastor a section of their own. A personal section is private to its owner, as Rock's bookmark menu makes it. Each owner's section order lists their own sections first, then the shared ones in this file's order, so Rock adds no missing order when they open their links. A link's Order counts up from 1 in its section, as Rock's link list adds them. 'menus' are bookmark menus verify asks Rock's own bookmark data for: each person's sections in order.",
+  "createdBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+  "editorRoles": [ "RSR - Rock Administration", "WEB - Administration", "RSR - Communication Administration" ],
+  "sharedSections": [
+    {
+      "key": "sunday-morning",
+      "name": "Sunday Morning",
+      "guid": "4D2124A5-0BDF-4DE5-889E-5BA6EFEA512C",
+      "createdDaysAgo": 642,
+      "security": { "action": "View", "allow": [ "RSR - Staff Workers", "RSR - Staff Like Workers", "RSR - Rock Administration" ], "denyAllUsers": true },
+      "links": [
+        { "name": "Check-in Manager", "page": "BA04BF01-5244-4637-B12D-7A962D2A9E77", "part": "Attendance" },
+        { "name": "Group Scheduler", "page": "1815D8C6-7C4A-4C05-A810-CF23BA937477", "part": "Serving" },
+        { "name": "SMS Conversations", "page": "275A5175-60E0-40A2-8C63-4E9D9CD39036", "part": "Communications" },
+        { "name": "Attendance Analytics", "page": "7A3CF259-1090-403C-83B7-2DB3A53DEE26", "part": "Attendance" }
+      ]
+    },
+    {
+      "key": "care",
+      "name": "Care",
+      "guid": "FEBE0626-5748-4D31-B195-413CDA243DD1",
+      "createdDaysAgo": 615,
+      "security": { "action": "View", "allow": [ "RSR - Pastoral Workers", "RSR - Rock Administration" ], "denyAllUsers": true },
+      "links": [
+        { "name": "Prayer Requests", "page": "3149959B-EFAC-4C2D-B0E8-8CF4FA1BB2FF", "part": "Prayer" },
+        { "name": "Connections Hub", "page": "8B5F2875-0D36-4625-8EE4-B738AE8E12F5", "part": "Serving" }
+      ]
+    },
+    {
+      "key": "finance",
+      "name": "Finance",
+      "guid": "C11A3E48-B755-4735-8EAE-EA67A31A354F",
+      "createdDaysAgo": 598,
+      "security": { "action": "View", "allow": [ "RSR - Finance Administration", "RSR - Finance Worker", "RSR - Rock Administration" ], "denyAllUsers": true },
+      "links": [
+        { "name": "Financial Batches", "page": "EF65EFF2-99AC-4081-8E09-32A04518683A", "part": "Giving" },
+        { "name": "Pledges", "page": "1570D2AF-4FE2-4FC7-BED9-F20EBCBE9867", "part": "Giving" },
+        { "name": "Built on the Rock", "page": "2B630A3B-E081-4204-A3E4-17BB3A5F063D", "parameter": "AccountId", "target": { "kind": "campaignFund" } }
+      ]
+    },
+    {
+      "key": "communications",
+      "name": "Communications",
+      "guid": "126583DA-D1D9-4E38-AE19-A80D3481BAE8",
+      "createdDaysAgo": 577,
+      "security": { "action": "View", "allow": [ "RSR - Communication Administration", "RSR - Rock Administration" ], "denyAllUsers": true },
+      "links": [
+        { "name": "New Communication", "page": "9F7AE226-CC95-4E6A-B333-C0294A2024BC", "part": "Communications" },
+        { "name": "Communication History", "page": "CADB44F2-2453-4DB5-AB11-DADA5162AB79", "part": "Communications" },
+        { "name": "Communication Flows", "page": "2B479B57-EECA-464C-8C19-6373D82D70F8", "part": "Communications" },
+        { "name": "Saturation Report", "page": "DA0F647C-5317-4368-9514-E408F2254E24", "part": "Communications" }
+      ]
+    }
+  ],
+  "personalSections": [
+    {
+      "owner": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "ownerName": "Pete Foster",
+      "name": "Leadership",
+      "guid": "6989B9FB-A444-4CA6-9A8D-4B7013FE6DD3",
+      "createdDaysAgo": 401,
+      "links": [
+        { "name": "Path Movement", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "path-movement-last-90-days" }, "part": "Steps" },
+        { "name": "Lead Stage", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "lead-stage" }, "part": "Steps" },
+        { "name": "Ministry Path Metrics", "page": "78D84825-EB1A-43C6-9AD5-5F0F84CC9A53", "parameter": "MetricCategoryId", "target": { "kind": "category", "key": "path-metrics" }, "part": "Steps" },
+        { "name": "Org Chart", "page": "C3909F1A-6908-4035-BB93-EC4FBFDCC536" }
+      ]
+    },
+    {
+      "owner": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "ownerName": "Jamal Pierce",
+      "name": "Groups",
+      "guid": "699D3E6E-E7C1-45DB-B871-B76A4C01F752",
+      "createdDaysAgo": 356,
+      "links": [
+        { "name": "Small Groups With Room", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "small-groups-with-room" }, "part": "SmallGroups" },
+        { "name": "Ready to Belong", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "ready-to-belong" }, "part": "SmallGroups" },
+        { "name": "Ready to Lead", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "ready-to-lead" }, "part": "Steps" },
+        { "name": "Group Finder", "page": "BB8FC981-77EA-4416-B672-6B3969384043", "part": "SmallGroups" }
+      ]
+    },
+    {
+      "owner": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "ownerName": "Rachel Brooks",
+      "name": "Kids",
+      "guid": "FBE68104-2B03-4EE0-9CDF-46244358CF3E",
+      "createdDaysAgo": 288,
+      "links": [
+        { "name": "Kids Checked In Lately", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "kids-checked-in-lately" }, "part": "Attendance" },
+        { "name": "Kids Allergy List", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "kids-allergy-list" }, "part": "Attendance" },
+        { "name": "Volunteer Background Checks", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "volunteer-background-checks" }, "part": "Serving" }
+      ]
+    },
+    {
+      "owner": "581C940E-A788-4F32-BCF3-33F4D1948390",
+      "ownerName": "Isaac Silva",
+      "name": "Students",
+      "guid": "2D138D62-3A7E-4167-A75B-5DDA3F842918",
+      "createdDaysAgo": 247,
+      "links": [
+        { "name": "Students Attending", "page": "0FDF1F63-CFB3-4F8E-AC5D-A5312B522D6D", "parameter": "ReportId", "target": { "kind": "report", "key": "students-attending" }, "part": "Attendance" },
+        { "name": "Student Path", "page": "6E46BC35-1FCB-4619-84F0-BB6926D2DDD5", "parameter": "ProgramId", "target": { "kind": "stepProgram", "guid": "C8AD9B16-5132-4ACB-954B-1E61C734AA67" }, "part": "Steps" },
+        { "name": "Event Registrations", "page": "614AF351-6C48-4B6B-B50E-9F7E03BC00A4", "part": "Registrations" }
+      ]
+    },
+    {
+      "owner": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "ownerName": "Alisha Marble",
+      "name": "Office",
+      "guid": "33B77889-A05A-4E7C-8610-16C6506A50EC",
+      "createdDaysAgo": 690,
+      "links": [
+        { "name": "Org Chart", "page": "C3909F1A-6908-4035-BB93-EC4FBFDCC536" },
+        { "name": "Internal Calendar", "page": "B54725E1-3640-4419-B580-2AF77DAF6568", "parameter": "EventCalendarId", "target": { "kind": "eventCalendar", "guid": "8C7F7F4E-1C51-41D3-9AC3-02B3F4054798" }, "part": "Calendar" },
+        { "name": "Event Registrations", "page": "614AF351-6C48-4B6B-B50E-9F7E03BC00A4", "part": "Registrations" }
+      ]
+    },
+    {
+      "owner": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "ownerName": "Daniel Peak",
+      "name": "Digital",
+      "guid": "05D16A07-309E-4E6B-B8A4-4496A8A08024",
+      "createdDaysAgo": 211,
+      "links": [
+        { "name": "Adaptive Messages", "page": "73112D38-E051-4452-AEF9-E473EEDD0BCB" },
+        { "name": "Personalization Segments", "page": "905F6132-AE1C-4C85-9752-18D22E604C3A" },
+        { "name": "Email Analytics", "page": "DF014200-72A3-48A0-A953-E594E5410E36", "part": "Communications" },
+        { "name": "Communication Lists", "page": "002C9991-523A-478C-B19B-E9DF2B977481", "part": "Communications" }
+      ]
+    }
+  ],
+  "campusPastorSection": {
+    "name": "My Campus",
+    "guids": {
+      "phoenix": "EB940703-E073-431A-BCFD-79C8552C891C",
+      "peoria": "855FEBD1-A6BF-4193-BB47-BFDEBA689DAC",
+      "gilbert": "6553F1A9-DC63-40BC-9D9D-CD62649D25FE",
+      "scottsdale": "F97E45B7-E5A8-4960-A3F3-64E5159BE131",
+      "chandler": "C2A63777-BBDA-40C9-B737-62CE6B5B1AE1",
+      "goodyear": "47F29BE6-0187-4E64-8C50-94EF520C6195",
+      "tempe": "7DD526AF-8F72-49BF-ABDD-E068FD860DF5"
+    },
+    "createdDaysAgo": 180,
+    "links": [
+      { "name": "{campus} Campus", "page": "BDD7B906-4D42-43C0-8DBB-B89A566734D8", "parameter": "CampusId", "target": { "kind": "campus" } },
+      { "name": "{campus} Weekly", "page": "4E237286-B715-4109-A578-C1445EC02707", "parameter": "GroupId", "target": { "kind": "campusList", "key": "newsletter" }, "part": "Communications" },
+      { "name": "{campus} Small Groups", "page": "4E237286-B715-4109-A578-C1445EC02707", "parameter": "GroupId", "target": { "kind": "campusSmallGroups" }, "part": "SmallGroups" }
+    ]
+  },
+  "menus": [
+    { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "name": "Pete Foster", "sections": [ "Leadership", "Sunday Morning", "Care" ] },
+    { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble", "sections": [ "Office", "Sunday Morning", "Care", "Finance", "Communications" ] },
+    { "person": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "name": "Daniel Peak", "sections": [ "Digital", "Sunday Morning", "Communications" ] },
+    { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "sections": [ "Kids", "Sunday Morning" ] },
+    { "person": "8A798763-D95F-4EE8-BF7F-FA320226335B", "name": "Aaron Mitchell", "sections": [ "My Campus", "Sunday Morning", "Care" ] },
+    { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "sections": [ "Care", "Communications", "Sunday Morning" ] },
+    { "person": "309570C0-7196-42DB-A23C-A525E0CDAA75", "name": "Priya Raman", "sections": [ "Finance", "Sunday Morning" ] },
+    { "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "sections": [ "Finance", "Sunday Morning" ] },
+    { "person": "9C609974-A8E1-4363-8F5E-51F61828E2BA", "name": "Frank Dexter", "sections": [] }
+  ]
+}

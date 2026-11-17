@@ -40,6 +40,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Signals](#signals) | Verify tool | Rock's own top signal rule gives every person with a signal the flag the load wrote. |
+| [Personal links](#personal-links) | Verify tool | Rock's own bookmark menu shows each person their sections and links in order, and refreshes a cached empty menu. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
@@ -316,6 +317,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** `verify/rock-runner` runs Rock's own `Person.CalculateSignals`, the method Rock's signal list and its nightly Calculate Person Signals job run, for everyone with a signal, and saves nothing. It passes when Rock would change no one's top signal: its Id, color, and icon. A signal's end counts from now, so like segments it is judged only while today is the loads' anchor.
 
 **Why it's there.** The Top Person Signal badge and Rock's signal report column draw from three columns on the person, which Rock sets only when a signal is saved or its job runs. The loader writes them itself (issue 45), so only Rock's own rule proves each person shows the right flag, and that an ended signal shows none.
+
+### Personal links
+
+**What it does.** `verify/rock-runner` asks Rock for each bookmark menu in `menus` in `configuration/personal-links.json`, with `PersonalLinkService.GetPersonalLinksData`, the call Rock's bookmark block makes. Each person's sections must be the listed ones, in order, each with its links from the file. For each person who owns a section, Rock's `AddMissingPersonalLinkSectionOrders` must find no section order missing. Rock's version of the shared links, and each owner's version of their own, must not be midnight today.
+
+**Why it's there.** Rock checks who sees a section, orders sections by each person's own orders, and caches the menu in the browser by a version built from the rows' ModifiedDateTime. Midnight today is the version of a database with no links, so a browser that showed an empty menu earlier that day would keep it (issue 46). Only Rock's own code proves the menu opens filled.
 
 ### Group sync
 

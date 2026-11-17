@@ -56,6 +56,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `adaptive-messages` | Rock's own `{% adaptivemessage %}` Lava command shows each Cast person in `configuration/adaptive-messages.json` their adaptation, with its call to action. |
 | `segments` | Rock's own segment update, run on every personalization segment the load wrote, adds and removes nobody. Judged only when today is the anchor. |
 | `signals` | Rock's own top signal rule, run for everyone with a signal, changes no one's top signal, so the Top Person Signal badge shows the flag Rock would. Judged only when today is the anchor. |
+| `personal-links` | Rock's own bookmark menu data shows each person in `configuration/personal-links.json` their sections and links in order, finds no section order missing for a section's owner, and keeps a version the browser's cached empty menu does not match. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
 
@@ -144,4 +145,5 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `adaptive-messages` | A Cast person sees another adaptation. Check their segments' data views and the adaptation order in `configuration/adaptive-messages.json`, and their story. |
 | `segments` | A segment does not hold exactly what its data view finds in Rock. Fix how `loader/loading/DataViewEvaluator.cs` reads the view's filters. |
 | `signals` | Rock would give a person another top signal. Fix the order of the types in `configuration/signals.json`, or how `loader/loading/SignalsLoader.cs` picks the top one. |
+| `personal-links` | A person's bookmark menu differs from `menus` in `configuration/personal-links.json`. Check the sections' roles, the person's roles, and the section orders in `loader/loading/PersonalLinksLoader.cs`. |
 | `access` | Rock's answer differs from the walkthrough. Fix the category's `security` in `configuration/categories.json`, or the row in `configuration/reporting.json` if the walkthrough is wrong. |

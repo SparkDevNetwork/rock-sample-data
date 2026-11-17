@@ -185,6 +185,7 @@ module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
     const signals = require( path.join( model.root, "configuration/signals.json" ) );
+    const personalLinks = require( path.join( model.root, "configuration/personal-links.json" ) );
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -304,6 +305,13 @@ module.exports = function features( { model } ) {
             checks: [ "The Top Person Signal badge on the profile", "Notes and end dates that only the right roles can read", "A Safety Team Review data view in the Safety category" ],
             look: [ html`${person( model, "Frank Dexter" )}, waiting on a Safety Team Review`, html`${person( model, "Maddie Lowe" )}, with Pickup Instructions for check-in`, html`${person( model, "Derek Ward" )}, whose follow-up has ended, so no flag shows` ],
             links: [ { label: "How signals load", href: doc( "loader/README.md#how-signals-load" ) } ]
+        },
+        {
+            id: "personal-links", eyebrow: "Personal links", title: "A bookmark menu that opens full.", sand: true,
+            text: html`The bookmarks behind the icon beside Rock's search bar: ${personalLinks.sharedSections.length} shared sections, ${esc( personalLinks.sharedSections.map( s => s.name ).slice( 0, -1 ).join( ", " ) )}, and ${esc( personalLinks.sharedSections[personalLinks.sharedSections.length - 1].name )}, each locked to the roles that use it, and personal sections for ${personalLinks.personalSections.length} staff and every campus pastor. Every link opens a Rock page with sample data on it, and a link to a part you left out is skipped.`,
+            checks: [ "Shared sections locked by role", "Personal sections in each owner's own order", "Links only to Rock pages" ],
+            look: [ html`${person( model, "Pete Foster" )}'s Leadership section, signed in as <code>pfoster</code>`, html`${person( model, "Alisha Marble" )}'s Office section, signed in as <code>admin</code>`, "A campus pastor's My Campus section" ],
+            links: [ { label: "How personal links load", href: doc( "loader/README.md#how-personal-links-load" ) } ]
         }
     ];
 

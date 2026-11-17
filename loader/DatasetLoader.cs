@@ -66,6 +66,7 @@ namespace RockSampleData.Loader
             ("Reports", null),
             ("Adaptive messages", null),
             ("Signals", null),
+            ("Personal links", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -634,14 +635,27 @@ namespace RockSampleData.Loader
 
             // The Cast's signals and each campus pastor's Care Team Follow-ups. They read only people and staff.
             steps.Begin( "Signals" );
+            var pastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
             if ( signals.HasConfiguration )
             {
-                var signalPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
-                log.Write( "  " + signals.Load( people, castHouseholdKeys, signalPastors ) );
+                log.Write( "  " + signals.Load( people, castHouseholdKeys, pastors ) );
             }
             else
             {
                 log.Write( "  Skipped (this package has no configuration/signals.json)" );
+            }
+
+            // Shared and personal bookmarks. Each points at a page whose rows earlier steps wrote, so they come after every
+            // step that writes a part, and a link to a part this load left out is skipped.
+            steps.Begin( "Personal links" );
+            var personalLinks = new PersonalLinksLoader( db, source, dates, foreignKey, seed );
+            if ( personalLinks.HasConfiguration )
+            {
+                log.Write( "  " + personalLinks.Load( people, parts, pastors, configuration.CampusIds ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/personal-links.json)" );
             }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
