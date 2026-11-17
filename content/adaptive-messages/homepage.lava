@@ -1,0 +1,32 @@
+{% comment %}
+    Rock Solid Church's next steps on the External Website homepage. Rock's adaptivemessage command picks one
+    adaptation of each message in the church's category for the person viewing the page, in the category's order.
+    The loader fills in the category's Id when it writes the block. The block that holds this Lava enables the
+    AdaptiveMessage command. A person who is not signed in sees each message's fallback, if it has one.
+{% endcomment %}
+{% adaptivemessage categoryid:'{categoryId}' adaptationspermessage:'1' maxadaptations:'4' %}
+{% assign count = messageAdaptations | Size %}
+{% if count > 0 %}
+<div class="row">
+  {% for adaptation in messageAdaptations %}
+    {% assign imageUrl = adaptation | Attribute:'SummaryImage','Url' %}
+    {% assign link = adaptation | Attribute:'CallToActionLink','RawValue' %}
+    {% assign callToAction = adaptation | Attribute:'CallToAction' %}
+    <div class="col-sm-6 col-md-3">
+      <div class="panel panel-default">
+        {% if imageUrl != '' %}
+          <img src="{{ imageUrl }}&width=640" class="img-responsive" alt="">
+        {% endif %}
+        <div class="panel-body">
+          <h4>{{ adaptation.Name }}</h4>
+          <p>{{ adaptation | Attribute:'Summary' }}</p>
+          {% if link != '' and callToAction != '' %}
+            <a class="btn btn-primary btn-sm" href="{{ link }}">{{ callToAction }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endadaptivemessage %}

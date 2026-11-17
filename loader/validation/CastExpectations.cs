@@ -188,6 +188,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Registrations ) ? CheckRegistrations( db, source, guids, failures ) : 0;
 
+            checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
+
             return (checks, failures);
         }
 
@@ -713,6 +715,39 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
                 else if ( level == 2 && Convert.ToInt32( row["EmailPreference"] ) != 1 )
                 {
                     failures.Add( $"Unsubscribe {name}: expected No mass emails, Rock shows email preference {row["EmailPreference"]}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Checks that each Cast person configuration/adaptive-messages.json names sees their adaptation of a message, by
+        /// the rule Rock's adaptivemessage command follows, such as Ted Decker's thanks for his scheduled gift. The
+        /// segments' views read attendance, groups, serving, steps, and giving, so only a load of every data part is
+        /// checked. Check images change no view.
+        /// </summary>
+        private static int CheckAdaptiveMessages( RockDatabase db, SampleDataSource source, CastPersonGuids guids, IReadOnlyCollection<SampleDataPart> parts, List<string> failures )
+        {
+            var configuration = source.AdaptiveMessages;
+            if ( configuration == null || !SampleDataParts.All.Where( p => p.Part != SampleDataPart.CheckImages ).All( p => parts.Contains( p.Part ) ) )
+            {
+                return 0;
+            }
+
+            var messages = configuration.Messages.ToDictionary( m => m.Key );
+            var checks = 0;
+            foreach ( var expectation in configuration.Cast )
+            {
+                var message = messages[expectation.Message];
+                var isWritten = db.IdByGuid( "AdaptiveMessage", message.Guid ) != null;
+                checks++;
+                var expected = expectation.Adaptation == null ? null : message.Adaptations.First( a => a.Key == expectation.Adaptation );
+                var shown = isWritten ? AdaptiveMessagesLoader.ShownAdaptation( db, message.Guid, guids.Value( expectation.Person ), DateTime.Today ) : null;
+                if ( shown != expected?.Guid )
+                {
+                    var shownName = !isWritten ? "no message" : shown == null ? "no adaptation" : message.Adaptations.FirstOrDefault( a => a.Guid == shown )?.Name ?? shown.ToString();
+                    failures.Add( $"{expectation.Name}: expected {message.Name} to show {expected?.Name ?? "no adaptation"} ({expectation.Reason}), Rock shows {shownName}" );
                 }
             }
 

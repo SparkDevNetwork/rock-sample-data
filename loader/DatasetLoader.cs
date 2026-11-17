@@ -64,6 +64,7 @@ namespace RockSampleData.Loader
             ("Person attributes", null),
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
+            ("Adaptive messages", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -617,6 +618,11 @@ namespace RockSampleData.Loader
 
             // A recurring flow fills each run after install from its guarded audience view, which exists only now.
             FlowLoader.LinkAudiences( db, source, seed );
+
+            // Personalization segments and adaptive messages. Each segment is a data view, so they follow every step that
+            // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
+            steps.Begin( "Adaptive messages" );
+            new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

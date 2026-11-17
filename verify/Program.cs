@@ -232,6 +232,10 @@ try
             checks.Add( ReportsCheck( rock, sql, database, source ) );
             stage = "assessment-scores";
             checks.Add( AssessmentScoresCheck( rock, sql, database, connection ) );
+            stage = "adaptive-messages";
+            checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
+            stage = "segments";
+            checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -634,7 +638,7 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
-    var access = source.Reporting?.Access ?? new List<AccessExpectation>();
+    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -643,6 +647,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var categories = source.Categories.Categories.ToDictionary( c => c.Key, c => c.Guid );
     var views = source.Reporting.DataViews.Concat( source.GroupSyncs?.DataViews ?? new List<DataViewDefinition>() )
         .Concat( source.Registrations?.DataViews ?? new List<DataViewDefinition>() ).ToDictionary( v => v.Key, v => v.Guid );
+    var segments = ( source.AdaptiveMessages?.Segments ?? new List<PersonalizationSegmentDefinition>() ).ToDictionary( s => s.Key, s => s.Guid );
 
     // Alisha Marble is Rock's own admin person, so her Guid is the one Rock gave Person 1 at install (decision 177).
     CastPersonGuids people;
@@ -652,7 +657,11 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
-    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}" : a.Report != null ? $"Report\t{reports[a.Report]}" : $"DataView\t{views[a.DataView]}" )
+    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}"
+            : a.Report != null ? $"Report\t{reports[a.Report]}"
+            : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
+            : a.Page != null ? $"Page\t{a.Page}"
+            : $"DataView\t{views[a.DataView]}" )
         + $"\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
     var problems = new List<string>();
@@ -662,11 +671,121 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
     return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
+}
+
+/// <summary>
+/// Renders Rock's adaptivemessage Lava command for each Cast person in configuration/adaptive-messages.json and expects
+/// the adaptation their story gives them, with its call to action. It runs through Rock's own Lava engine and segment
+/// lookup, so it proves the loader's segments, adaptations, and attribute values work the way a page shows them.
+/// </summary>
+static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var cast = source.AdaptiveMessages?.Cast ?? new List<CastAdaptation>();
+    if ( cast.Count == 0 )
+    {
+        return CheckResult.From( "adaptive-messages", "This package has no adaptive message expectations", new List<string>() );
+    }
+
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
+    var adaptationIds = sql.Query( database, "SELECT [Id], [Guid] FROM [AdaptiveMessageAdaptation]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
+
+    // The page block, when the load added one, is rendered for each Cast person too, as the homepage shows it to them.
+    var display = source.AdaptiveMessages.Display;
+    var input = cast.Select( c => $"{people.Rock( c.Person )}\t{c.Message}" ).ToList();
+    if ( display != null )
+    {
+        input.AddRange( cast.Select( c => $"{people.Rock( c.Person )}\tblock:{display.BlockGuid}" ) );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "adaptive-messages", input ).Split( '\n' );
+    var problems = new List<string>();
+    for ( var i = 0; i < cast.Count; i++ )
+    {
+        var message = messages[cast[i].Message];
+        var expected = cast[i].Adaptation == null ? null : message.Adaptations.First( a => a.Key == cast[i].Adaptation );
+        var parts = ( i < lines.Length ? lines[i].Trim() : string.Empty ).Split( '\t' );
+        if ( parts[0] == "error" )
+        {
+            problems.Add( $"{cast[i].Name}: Rock's Lava command failed for {message.Name}: {parts.ElementAtOrDefault( 1 )}" );
+            continue;
+        }
+
+        Guid? shown = int.TryParse( parts[0], out var id ) && adaptationIds.TryGetValue( id, out var guid ) ? guid : null;
+        if ( display != null && expected != null )
+        {
+            var page = cast.Count + i < lines.Length ? lines[cast.Count + i].Trim() : string.Empty;
+            var callToAction = source.ReadAdaptiveMessageText().Messages[message.Key][expected.Key].CallToAction;
+            if ( page.StartsWith( "error", StringComparison.Ordinal ) || !page.Contains( $">{callToAction}<", StringComparison.Ordinal ) )
+            {
+                problems.Add( $"{cast[i].Name}: the {display.Name} block did not show \"{callToAction}\" from {expected.Name}. Rock rendered: {( page.Length > 300 ? page.Substring( 0, 300 ) + "..." : page )}" );
+            }
+        }
+
+        if ( shown != expected?.Guid )
+        {
+            var shownName = shown == null ? "no adaptation" : message.Adaptations.FirstOrDefault( a => a.Guid == shown )?.Name ?? shown.ToString();
+            problems.Add( $"{cast[i].Name}: expected {message.Name} to show {expected?.Name ?? "no adaptation"} ({cast[i].Reason}), but Rock's Lava command showed {shownName}." );
+        }
+        else if ( shown != null && ( parts.Length < 2 || parts[1].Trim().Length == 0 ) )
+        {
+            problems.Add( $"{cast[i].Name}: Rock's Lava command showed {expected.Name} with no call to action." );
+        }
+    }
+
+    var onPage = display == null ? string.Empty : $", and the {display.Name} block showed each one on the page";
+    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems );
+}
+
+/// <summary>
+/// Runs Rock's own segment update on every personalization segment the load wrote and expects it to add and remove
+/// nobody. Nothing changing proves the loader put exactly the people Rock's Update Personalization Data job would in each
+/// segment. The views count from today, so the check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var expected = sql.Query( database, "SELECT [Guid], [Name] FROM [PersonalizationSegment] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) )
+        .ToDictionary( r => ( Guid ) r["Guid"], r => ( string ) r["Name"] );
+    if ( expected.Count == 0 )
+    {
+        return CheckResult.From( "segments", "This load wrote no personalization segments", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "segments", "Segments were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. The segment data views count from today, so run it again on one day."
+        } );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "segments" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var problems = new List<string>();
+    foreach ( var line in lines.Where( l => l.Length == 3 && Guid.TryParse( l[0], out var guid ) && expected.ContainsKey( guid ) ) )
+    {
+        if ( line[1] != "0" || line[2] != "0" )
+        {
+            problems.Add( $"Rock's segment update added {line[1]} and removed {line[2]} in {expected[Guid.Parse( line[0] )]}. The loader must put exactly the people its data view finds in each segment." );
+        }
+    }
+
+    var updated = lines.Count( l => l.Length == 3 && Guid.TryParse( l[0], out var guid ) && expected.ContainsKey( guid ) );
+    if ( updated != expected.Count )
+    {
+        problems.Add( $"Rock updated {updated} of the load's {expected.Count} segments." );
+    }
+
+    return CheckResult.From( "segments", problems.Count == 0 ? $"Rock's segment update changed nothing in the {expected.Count} personalization segments" : "Rock's segment update would change the segments", problems );
 }
 
 /// <summary>

@@ -1,0 +1,625 @@
+{
+  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names.",
+  "category": "church-adaptive-messages",
+  "segmentRefreshMinutes": 1440,
+  "pages": {
+    "new-here": {
+      "name": "New Here?",
+      "guid": "21C1D31E-BB66-4050-A2AC-3A057B484596"
+    },
+    "students": {
+      "name": "Students",
+      "guid": "DB9F7118-6E41-4B36-AA0E-E25942207E4F"
+    },
+    "serve": {
+      "name": "Serve",
+      "guid": "2AA719FD-5B9F-4A9A-A8BF-C135EEA02BC8"
+    },
+    "small-groups": {
+      "name": "Small Groups",
+      "guid": "EA515FD1-7D71-4E24-A09D-EA9EC34BEC71"
+    },
+    "calendar": {
+      "name": "Calendar",
+      "guid": "2E6FED28-683F-4726-8CF1-2822E8E73B03"
+    },
+    "pledge": {
+      "name": "Pledge",
+      "guid": "A974A965-414B-47A6-9CC1-D3A175DA965B"
+    },
+    "giving-history": {
+      "name": "Giving History",
+      "guid": "621E03C5-6586-450B-A340-CC7D9727B69A"
+    },
+    "manage-giving": {
+      "name": "Manage Giving Profiles",
+      "guid": "FFFDCE23-7B67-4B0D-8DA0-E44D883708CC"
+    }
+  },
+  "segments": [
+    {
+      "key": "ready-to-lead",
+      "name": "Ready to Lead",
+      "dataView": "ready-to-lead",
+      "guid": "FB99D58B-31BE-4F2E-B6BB-1CE26B400DC2",
+      "description": "Adults who have been formed, serve on a team, and are in a group, but do not lead yet."
+    },
+    {
+      "key": "ready-to-serve",
+      "name": "Ready to Serve",
+      "dataView": "ready-to-serve",
+      "guid": "3ED32E86-1CE3-406C-84B4-16D7E2AE202A",
+      "description": "Adults who have taken an Equip step and are not on a serving team."
+    },
+    {
+      "key": "ready-to-grow",
+      "name": "Ready to Grow",
+      "dataView": "ready-to-grow",
+      "guid": "A6B3A00F-8BA4-4A71-9FEA-971AC0453119",
+      "description": "Adults who belong and have not taken an Equip step yet."
+    },
+    {
+      "key": "ready-to-belong",
+      "name": "Ready to Belong",
+      "dataView": "ready-to-belong",
+      "guid": "690FC5C4-51D6-4F09-A233-11C1FEDCA8E1",
+      "description": "Regular attenders who are not in a small group."
+    },
+    {
+      "key": "guests-coming-back",
+      "name": "Guests Coming Back",
+      "dataView": "guests-coming-back",
+      "guid": "A9CA3820-1399-4FA2-9434-5741903CB764",
+      "description": "Adults who first came in the last 6 months, keep coming, and have not taken Starting Point."
+    },
+    {
+      "key": "unbaptized-regular-attenders",
+      "name": "Unbaptized Regular Attenders",
+      "dataView": "unbaptized-regular-attenders",
+      "guid": "0A8F1120-E2E5-4217-99D6-F40C0D72770A",
+      "description": "Regular attenders who have not taken the Baptism step."
+    },
+    {
+      "key": "students-attending",
+      "name": "Students Attending the Student Service",
+      "dataView": "students-attending",
+      "guid": "33E20107-A061-47CF-8FEA-478BE46538E7",
+      "description": "Students in grades 7 to 12 who checked in to the student service in the last 12 weeks."
+    },
+    {
+      "key": "built-on-the-rock-pledge-households",
+      "name": "Built on the Rock Pledge Households",
+      "dataView": "built-on-the-rock-pledge-households",
+      "guid": "3B36A1B8-2161-43FF-B130-1D2F6EF9136F",
+      "description": "Everyone in a family that made a Built on the Rock commitment. Built on a Finance view, so it is locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "involved-adults-not-yet-pledged",
+      "name": "Involved Adults Not Yet Pledged",
+      "dataView": "involved-adults-not-yet-pledged",
+      "guid": "A125B407-0995-4472-9BE2-F4B215DA2408",
+      "description": "Involved adults whose family has not made a Built on the Rock commitment. Built on a Finance view, so it is locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "scheduled-givers",
+      "name": "Scheduled Givers",
+      "dataView": "scheduled-givers",
+      "guid": "F81FE995-293A-4D42-B022-2F6A5EE842BA",
+      "description": "People whose giving unit has an active scheduled gift. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "new-givers",
+      "name": "New Givers",
+      "dataView": "new-givers",
+      "guid": "2AC7D678-31F5-4315-A6C2-EE0921995FC9",
+      "description": "People Rock's giving journey shows as New Givers. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "consistent-givers-without-a-schedule",
+      "name": "Consistent Givers Without a Schedule",
+      "dataView": "consistent-givers-without-a-schedule",
+      "guid": "895FD165-6176-4E76-A2E3-1EF49FD612EB",
+      "description": "Consistent Givers with no active scheduled gift. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "occasional-givers",
+      "name": "Occasional Givers",
+      "dataView": "occasional-givers",
+      "guid": "388BB2C9-023A-4BC9-9933-7B295589F186",
+      "description": "People Rock's giving journey shows as Occasional Givers. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "lapsed-givers",
+      "name": "Lapsed Givers",
+      "dataView": "lapsed-givers",
+      "guid": "5D9186E5-F020-4DE3-9096-1B7D7A6658CA",
+      "description": "People Rock's giving journey shows as Lapsed Givers. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "former-givers",
+      "name": "Former Givers",
+      "dataView": "former-givers",
+      "guid": "09B68315-4A30-431F-9074-C1EEEC0C85E4",
+      "description": "People Rock's giving journey shows as Former Givers. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "involved-adults-who-never-gave",
+      "name": "Involved Adults Who Never Gave",
+      "dataView": "involved-adults-who-never-gave",
+      "guid": "8C06B59B-20A4-4E66-82B3-6AF8853B3D6D",
+      "description": "Involved adults Rock's giving journey shows as Non-Givers. Locked like Finance.",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Finance Administration",
+            "RSR - Finance Worker",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "key": "your-next-step",
+      "name": "Your Next Step",
+      "description": "One next step on the path for each person, from the stage they have reached. People who fit no stage are invited to plan a visit.",
+      "guid": "2316296B-C84A-4845-A339-340E9925443E",
+      "adaptations": [
+        {
+          "key": "lead",
+          "name": "Lead a Group",
+          "segments": [
+            "ready-to-lead"
+          ],
+          "guid": "F85CB289-4E2B-4401-8117-0508F6B8EEE9"
+        },
+        {
+          "key": "serve",
+          "name": "Find a Team",
+          "segments": [
+            "ready-to-serve"
+          ],
+          "guid": "D7D1C909-5345-4822-8FFB-75ED133B3A32"
+        },
+        {
+          "key": "grow",
+          "name": "Take Foundations",
+          "segments": [
+            "ready-to-grow"
+          ],
+          "guid": "483D9B44-9BD4-40CD-830C-6CDB1448AE58"
+        },
+        {
+          "key": "belong",
+          "name": "Join a Small Group",
+          "segments": [
+            "ready-to-belong"
+          ],
+          "guid": "2611F713-B4BE-4E85-92ED-5D8F8534FF39"
+        },
+        {
+          "key": "starting-point",
+          "name": "Starting Point Class",
+          "segments": [
+            "guests-coming-back"
+          ],
+          "guid": "985756FC-DDFA-4885-992D-DD5731577E1E"
+        },
+        {
+          "key": "plan-a-visit",
+          "name": "Plan a Visit",
+          "segments": [],
+          "guid": "DE5DC805-EAA4-44E2-8B16-CE94B21A850E"
+        }
+      ]
+    },
+    {
+      "key": "built-on-the-rock",
+      "name": "Built on the Rock",
+      "description": "The building campaign, while it runs: thanks for a family that made a commitment, and an invitation for involved adults who have not.",
+      "guid": "3BE05191-057B-4CA2-9EA3-DFC4A54EAD12",
+      "dates": {
+        "rule": "campaign"
+      },
+      "adaptations": [
+        {
+          "key": "thank-you",
+          "name": "Thank You for Your Commitment",
+          "segments": [
+            "built-on-the-rock-pledge-households"
+          ],
+          "guid": "68A7BD94-54CD-417A-9DD2-6AC0F75A7584"
+        },
+        {
+          "key": "commit",
+          "name": "Make a Commitment",
+          "segments": [
+            "involved-adults-not-yet-pledged"
+          ],
+          "guid": "DED63BF6-924B-4FB2-9DE5-D3CD51899424",
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        }
+      ]
+    },
+    {
+      "key": "baptism-sunday",
+      "name": "Baptism Sunday",
+      "description": "An invitation to be baptized, for regular attenders who have not been, in the five weeks before each baptism Sunday.",
+      "guid": "238C9640-C20B-48F0-BF6F-BD30F621E07C",
+      "adaptations": [
+        {
+          "key": "invitation",
+          "name": "Be Baptized",
+          "segments": [
+            "unbaptized-regular-attenders"
+          ],
+          "guid": "AEEA6344-ADCC-463A-9346-40DA90DF2168",
+          "dates": {
+            "rule": "before-baptism-sunday",
+            "days": 35
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        }
+      ]
+    },
+    {
+      "key": "student-camp",
+      "name": "Student Camp",
+      "description": "An invitation to Student Camp, for students who come to the student service, while camp registration is open.",
+      "guid": "8B08ED64-76ED-4E69-9C36-B9553BB3C712",
+      "adaptations": [
+        {
+          "key": "register",
+          "name": "Register for Camp",
+          "segments": [
+            "students-attending"
+          ],
+          "guid": "DC1048A1-8036-4A8A-848F-33AF00919F79",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        }
+      ]
+    },
+    {
+      "key": "giving",
+      "name": "Giving",
+      "description": "The next step that fits how each person gives, from Rock's giving journey and scheduled gifts. Rock shows the first layer that fits, so a scheduled giver who is also new sees the thank you for their scheduled gift.",
+      "guid": "86EDACE5-C0DC-4ECB-AE25-46A19E30A00C",
+      "adaptations": [
+        {
+          "key": "scheduled",
+          "name": "Thank You for Your Scheduled Gift",
+          "segments": [
+            "scheduled-givers"
+          ],
+          "guid": "80D7DFB2-D4EF-4D8D-8502-E31E3B200260"
+        },
+        {
+          "key": "first-gift",
+          "name": "Thank You for Your First Gift",
+          "segments": [
+            "new-givers"
+          ],
+          "guid": "430E5B96-C2FB-4EFF-A292-F7A048F7BE16"
+        },
+        {
+          "key": "make-it-automatic",
+          "name": "Make It Automatic",
+          "segments": [
+            "consistent-givers-without-a-schedule"
+          ],
+          "guid": "BEE69DEE-EE61-49FF-A989-D7813BCA9A28",
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "give-online",
+          "name": "Give Online Any Time",
+          "segments": [
+            "occasional-givers"
+          ],
+          "guid": "9FCE642C-8BC5-4CB5-A547-4660682CE00B"
+        },
+        {
+          "key": "this-year",
+          "name": "What God Did This Year",
+          "segments": [
+            "lapsed-givers",
+            "former-givers"
+          ],
+          "guid": "BB97F643-DE7B-474C-B867-097E4EE2A96F",
+          "saturation": {
+            "views": 2,
+            "days": 30
+          }
+        },
+        {
+          "key": "generosity",
+          "name": "Generosity Starts Here",
+          "segments": [
+            "involved-adults-who-never-gave"
+          ],
+          "guid": "C6F38FD5-0E4B-46C3-94BE-161B3F197DE3"
+        },
+        {
+          "key": "ways-to-give",
+          "name": "Ways to Give",
+          "segments": [],
+          "guid": "DF521D63-ACD5-4392-8E36-2E71284DA561"
+        }
+      ]
+    }
+  ],
+  "resultsPage": {
+    "name": "Personalization Segment Results",
+    "guid": "08C61FD2-B495-4EC2-8B35-C0D9427E4F46",
+    "security": [
+      {
+        "action": "View",
+        "allow": [
+          "RSR - Finance Administration",
+          "RSR - Finance Worker",
+          "RSR - Rock Administration"
+        ],
+        "denyAllUsers": true
+      }
+    ]
+  },
+  "display": {
+    "name": "Your Next Steps",
+    "page": "85F25819-E948-4960-9DDF-00F54D32444E",
+    "zone": "SectionA",
+    "order": 0,
+    "blockGuid": "FB3FBC0D-0C96-4499-A5EB-21E33D594E8C",
+    "contentGuid": "9F76EA5B-5273-46E9-94AC-ED290358EF2A",
+    "content": "content/adaptive-messages/homepage.lava"
+  },
+  "access": [
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "segment": "ready-to-lead",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "segment": "lapsed-givers",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "page": "08C61FD2-B495-4EC2-8B35-C0D9427E4F46",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "segment": "lapsed-givers",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
+      "page": "08C61FD2-B495-4EC2-8B35-C0D9427E4F46",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "segment": "scheduled-givers",
+      "action": "View",
+      "allowed": false
+    }
+  ],
+  "cast": [
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "message": "giving",
+      "adaptation": "scheduled",
+      "reason": "Gives by recurring card every month."
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "message": "giving",
+      "adaptation": "scheduled",
+      "reason": "Gives with Ted, so Rock's Combine Giving counts his scheduled gift for her too."
+    },
+    {
+      "person": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "message": "giving",
+      "adaptation": "first-gift",
+      "reason": "Started giving about 10 weeks ago, with cash in the offering."
+    },
+    {
+      "person": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Margaret Carter",
+      "message": "giving",
+      "adaptation": "make-it-automatic",
+      "reason": "Mails a check every month."
+    },
+    {
+      "person": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
+      "message": "giving",
+      "adaptation": "give-online",
+      "reason": "Gives every quarter."
+    },
+    {
+      "person": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "message": "giving",
+      "adaptation": "this-year",
+      "reason": "Her scheduled card gift stopped seven months ago."
+    },
+    {
+      "person": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "message": "giving",
+      "adaptation": "this-year",
+      "reason": "Stopped giving about six months ago."
+    },
+    {
+      "person": "92D04619-3F97-4EFF-932E-61DA56441995",
+      "name": "Brian Gilbert",
+      "message": "giving",
+      "adaptation": "generosity",
+      "reason": "Hosts a small group and has never given."
+    },
+    {
+      "person": "D35B865D-BF50-4A7D-848F-6C0ED7A2AE67",
+      "name": "Wendy Gilbert",
+      "message": "giving",
+      "adaptation": "generosity",
+      "reason": "Hosts a small group and has never given."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "giving",
+      "adaptation": "ways-to-give",
+      "reason": "Never gave, but is not an Involved Adult yet: she has not come on a Sunday, and her request to serve is still pending."
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "message": "your-next-step",
+      "adaptation": "lead",
+      "reason": "Formed, on a serving team, and in a group, but not leading one."
+    },
+    {
+      "person": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "message": "your-next-step",
+      "adaptation": "serve",
+      "reason": "Has taken an Equip step and is not on a serving team."
+    },
+    {
+      "person": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "message": "your-next-step",
+      "adaptation": "grow",
+      "reason": "Belongs, and has not taken an Equip step yet."
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "message": "your-next-step",
+      "adaptation": "plan-a-visit",
+      "reason": "Already leads, so no next-step segment fits him and he sees the fallback."
+    }
+  ]
+}

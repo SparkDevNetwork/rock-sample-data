@@ -7,6 +7,8 @@ The words this project uses, in alphabetical order.
 | **Ability level** | Rock's setting for a young child, such as Infant or Potty Trained. Rock's nursery and preschool check-in groups each take one, so check-in offers a child with an ability level only the rooms that match it. |
 | **Achievement attempt** | One try at an achievement in Rock. It is open while it can still grow, and closed when it succeeds or a streak breaks. Check-in shows the open ones as in progress. |
 | **Achievement type** | Something a person can earn in Rock, such as Century Club. Each one reads a streak type and has a goal. |
+| **Adaptation** | One version of an adaptive message, for the people in its personalization segments, or for everyone when it has none. Rock shows the first one that fits, by order. See [Adaptive messages](adaptive-messages.md). |
+| **Adaptive message** | A Rock message with several adaptations, shown by Rock's `{% adaptivemessage %}` Lava command so each person sees the version that fits them, such as their next step or their giving layer. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day: today on the database server. Tests pin it with `--anchor`. |
 | **Assessment** | One of Rock's five personal assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, or Motivators. A request waits as Pending, a result is Complete with its answers, and the scores are person attributes. See [Assessments](assessments.md). |
 | **Built on the Rock** | The sample church's two-year building campaign, about 38% through on install day. Its fund has a campus account per campus. See [Pledges](pledges.md). |
@@ -53,6 +55,7 @@ The words this project uses, in alphabetical order.
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
+| **Personalization segment** | The people in one person data view, which Rock keeps in its PersonAliasPersonalization table and refreshes on a schedule. Each of the church's segments points at a view in `configuration/reporting.json`. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |

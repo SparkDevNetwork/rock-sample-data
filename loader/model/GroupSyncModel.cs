@@ -48,6 +48,12 @@ namespace RockSampleData.Loader.Model
         public string Parent { get; set; }
 
         /// <summary>
+        /// A category Rock ships, by Guid, as the parent, such as Rock's All Church adaptive message category. Null when
+        /// the parent is one of the church's categories or there is none.
+        /// </summary>
+        public Guid? ParentGuid { get; set; }
+
+        /// <summary>
         /// The Rock entity the category holds, such as Rock.Model.DataView.
         /// </summary>
         public string EntityType { get; set; }

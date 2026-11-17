@@ -2,6 +2,7 @@
 
 Files the builder draws on that are not data about the church or its people.
 
+- [adaptive-messages/](adaptive-messages/README.md): the text of each adaptive message's adaptations, checked by `check-messages.js`.
 - [communications/](communications/README.md): the message library for emails, texts, and pushes, the weekly newsletter's pieces, the sermon series, and the branded email template with its logo.
 - [fonts/](fonts/README.md): openly licensed handwriting and signature fonts for check images, each with its license.
 - [notes/](notes/README.md): the text pools for generated notes on people.
