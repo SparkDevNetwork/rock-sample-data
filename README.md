@@ -173,7 +173,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 | Folder | What it holds |
 |---|---|
 | [site/](site/README.md) | The public site: why the sample data matters, the church, the Cast, the features, the datasets, and the brand kit and photo downloads. GitHub Pages publishes it from `main` at [sampledata.rockrms.com](https://sampledata.rockrms.com/). |
-| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, performance, the Crowd and personas, and the design spec. |
+| [docs/](docs/) | Strategy, how it works, what to do after you install, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, performance, the Crowd and personas, and the design spec. |
 | [cast/](cast/README.md) | The hand-designed households and groups, their schemas, the validator, and the [family pages](cast/families/README.md). |
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |
@@ -212,6 +212,8 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    cd ../loader-cli
    dotnet run -- --package ../packages/core-1.zip --rock C:\Development\Rock --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
    ```
+
+   Then read [After you install](docs/after-install.md). It says which of Rock's jobs to run, such as Family Analytics for eRA, and which to turn off on a sample site.
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 

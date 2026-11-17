@@ -80,6 +80,7 @@ The loader runs the steps below in one database transaction. A failure rolls eve
 - Every date in a data file is relative: `yearsAgo` plus a month and day, or `daysAgo` for recent events.
 - The **anchor** is the date everything counts back from. It defaults to today on the database server, the clock Rock Cleanup uses for ages (decision 152). Pass `--anchor yyyy-MM-dd` to pin it.
 - Every random choice comes from a stream seeded by the `--seed` text and the household. The same seed and anchor give the same data, row for row.
+- After install, Rock's own jobs move the data forward from the anchor, the way they do for any church. [After you install](after-install.md) says which jobs the load already covers, which to run, and which to watch.
 
 ## The tools
 

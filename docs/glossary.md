@@ -27,6 +27,7 @@ The words this project uses, in alphabetical order.
 | **Crowd** | The generated households that give Full 7 its volume (about 25,000 people). See [The Crowd and personas](crowd.md). |
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
+| **eRA** | Rock's "estimated regular attender" status for a family that comes or gives regularly. Rock's Family Analytics job sets it, and the job ships turned off. The load does not fill eRA yet. See [After you install](after-install.md#run-after-install). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |

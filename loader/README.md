@@ -39,6 +39,8 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 
 The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` rows, which have no such column (see [How people load](#how-people-load)).
 
+After a load, Rock's own jobs take over. [After you install](../docs/after-install.md) says which jobs the load already covers, which to run, such as Family Analytics for eRA, and which can send or reach an outside service.
+
 ## Which Rock a package is for
 
 Each package is for one Rock major release, such as Rock 21, and serves every dot release of it (decision 52). Spark's rule is no model changes in a dot release. Its `package.json` records the major (`rock.major`, for example `21`), plus the exact Rock it was built and verified on (`rock.version`, for example `21.0.2`) and that Rock's newest Entity Framework migration (`rock.migration`). Loaders before 0.1.0-alpha.13 matched the migration, so it stays for them.
