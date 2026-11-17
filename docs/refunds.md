@@ -51,7 +51,7 @@ So 35% of refunds are partial. A duplicate of a one-time gift came minutes after
 
 ### When and who
 
-Staff refund on weekdays between 9am and 5pm. A refund that would fall on a weekend comes the next Monday. Priya Raman, the Finance Director, makes every refund, so Rock records her as each refund's creator.
+Staff refund on weekdays between 9am and 5pm. A refund that would fall on a weekend, Christmas Day, or New Year's Day comes the next weekday, when the office is open. Priya Raman, the Finance Director, makes every refund, so Rock records her as each refund's creator.
 
 Every refund comes on or before Rock's last weekly journey stage run, the Tuesday night before install. Rock's journey stage procedure subtracts every refund in the database, whatever its date. A later refund would make that last run see a refund Rock had not seen yet.
 

@@ -390,34 +390,45 @@ WHERE [dt].[Guid] = @Guid", RockDatabase.P( "@Guid", RefundReasonTypeGuid ) ).To
             }
 
             var random = new SeededRandom( $"{_seed}:refunds:{kind}:{gift.Household.Cast.Guid}:{gift.Pattern.Person}:{gift.Gift.When:o}" );
-            var day = gift.Gift.When.Date.AddDays( isShortestDelay ? definition.DelayDays.Min : random.Between( definition.DelayDays.Min, definition.DelayDays.Max ) );
-            while ( day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday )
-            {
-                day = day.AddDays( 1 );
-            }
-
+            var day = RefundDay( gift.Gift.When, isShortestDelay ? definition.DelayDays.Min : random.Between( definition.DelayDays.Min, definition.DelayDays.Max ) );
             var refundAt = day.AddMinutes( random.Between( 9 * 60, 17 * 60 - 1 ) ).AddSeconds( random.Between( 0, 59 ) ).AddMilliseconds( random.Between( 0, 999 ) );
             DateTime? duplicateAt = kind != RefundKind.Duplicate ? null : DuplicateTime( gift, random );
-            var isOnTime = refundAt <= lastRun && refundAt > gift.Gift.When && refundAt.Date > gift.Gift.When.Date
-                && ( duplicateAt == null || duplicateAt.Value.Date == gift.Gift.When.Date )
+            var isOnTime = refundAt <= lastRun && refundAt > gift.Gift.When
+                && ( kind != RefundKind.Duplicate || duplicateAt.HasValue )
                 && ( kind != RefundKind.EarlierYear || refundAt.Year > gift.Gift.When.Year );
             return isOnTime ? new RefundChoice( gift, kind, definition, refundAt, duplicateAt, random ) : null;
         }
 
         /// <summary>
-        /// When a duplicate of the gift came. After a one-time gift, the giver sent the form again minutes later. After a
-        /// scheduled gift, which the gateway runs overnight, the giver gave the same gift by hand later that day, between
-        /// 7am and 9pm, not knowing the schedule had already run.
+        /// The day staff refund a gift made at <paramref name="giftAt"/>, <paramref name="delayDays"/> later: moved to the
+        /// next weekday when it falls on a weekend, Christmas Day, or New Year's Day, when the office is closed.
         /// </summary>
-        private static DateTime DuplicateTime( PlannedGift gift, SeededRandom random )
+        public static DateTime RefundDay( DateTime giftAt, int delayDays )
+        {
+            var day = giftAt.Date.AddDays( delayDays );
+            while ( day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday || ( day.Month, day.Day ) is (12, 25) or (1, 1) )
+            {
+                day = day.AddDays( 1 );
+            }
+
+            return day;
+        }
+
+        /// <summary>
+        /// When a duplicate of the gift came, or null when none could. After a one-time gift, the giver sent the form
+        /// again minutes later, the same day. After a scheduled gift, which the gateway runs overnight, the giver gave the
+        /// same gift by hand at least an hour later that day, between 7am and 9pm, not knowing the schedule had run.
+        /// </summary>
+        private static DateTime? DuplicateTime( PlannedGift gift, SeededRandom random )
         {
             if ( !gift.Gift.ScheduleIndex.HasValue )
             {
-                return gift.Gift.When.AddMinutes( random.Between( 2, 40 ) );
+                var again = gift.Gift.When.AddMinutes( random.Between( 2, 40 ) );
+                return again.Date == gift.Gift.When.Date ? again : null;
             }
 
             var earliest = Math.Max( 7 * 60, ( int ) gift.Gift.When.TimeOfDay.TotalMinutes + 60 );
-            return gift.Gift.When.Date.AddMinutes( random.Between( earliest, Math.Max( earliest, 21 * 60 ) ) );
+            return earliest > 21 * 60 ? null : gift.Gift.When.Date.AddMinutes( random.Between( earliest, 21 * 60 ) );
         }
 
         /// <summary>

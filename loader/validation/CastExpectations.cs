@@ -220,13 +220,7 @@ WHERE [pa].[PersonId] = @PersonId AND [reason].[Value] = @Reason", P( "@PersonId
             var isFull = refund.Kind is "duplicate" or "earlier-year";
             var matches = refunds.Where( r =>
             {
-                var giftDay = ( ( DateTime ) r["GiftAt"] ).Date;
-                var refundDay = giftDay.AddDays( definition.DelayDays.Min );
-                while ( refundDay.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday )
-                {
-                    refundDay = refundDay.AddDays( 1 );
-                }
-
+                var refundDay = GivingLoader.RefundDay( ( DateTime ) r["GiftAt"], definition.DelayDays.Min );
                 var paid = ( decimal ) r["Paid"];
                 var refunded = -( decimal ) r["Refunded"];
                 return ( ( DateTime ) r["RefundAt"] ).Date == refundDay
