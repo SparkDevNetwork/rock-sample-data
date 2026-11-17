@@ -50,11 +50,12 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
 | `flow-audiences` | Each recurring or One-Time Communication Flow's audience rule, as the loader runs it for past runs, finds on install day exactly the people Rock's own engine finds in the flow's data view. Judged only when today is the anchor. |
 | `metrics` | Each path metric's newest value equals Rock's count of its stage view, less the people who first reached the stage after that value. A SQL count of the stage rule must also equal Rock's count. |
-| `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`): which Cast person may view or edit which category, data view, report, personalization segment, or page. |
+| `access` | Rock's own security check gives every answer in the security walkthrough (`access` in `configuration/reporting.json`, `configuration/adaptive-messages.json`, and `configuration/signals.json`): which Cast person may view or edit which category, data view, report, personalization segment, page, or signal type. |
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
 | `assessment-scores` | Rock's own five assessment scoring services score every saved answer set, and give each person's latest results exactly the person attribute values the load wrote. Rock's own serializer writes the same answer data ([Assessments](../docs/assessments.md#how-it-is-checked)). |
 | `adaptive-messages` | Rock's own `{% adaptivemessage %}` Lava command shows each Cast person in `configuration/adaptive-messages.json` their adaptation, with its call to action. |
 | `segments` | Rock's own segment update, run on every personalization segment the load wrote, adds and removes nobody. Judged only when today is the anchor. |
+| `signals` | Rock's own top signal rule, run for everyone with a signal, changes no one's top signal, so the Top Person Signal badge shows the flag Rock would. Judged only when today is the anchor. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
 
@@ -142,4 +143,5 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `reports` | Fix the column in `configuration/reporting.json`: the property name, attribute key, or the component's selection. |
 | `adaptive-messages` | A Cast person sees another adaptation. Check their segments' data views and the adaptation order in `configuration/adaptive-messages.json`, and their story. |
 | `segments` | A segment does not hold exactly what its data view finds in Rock. Fix how `loader/loading/DataViewEvaluator.cs` reads the view's filters. |
+| `signals` | Rock would give a person another top signal. Fix the order of the types in `configuration/signals.json`, or how `loader/loading/SignalsLoader.cs` picks the top one. |
 | `access` | Rock's answer differs from the walkthrough. Fix the category's `security` in `configuration/categories.json`, or the row in `configuration/reporting.json` if the walkthrough is wrong. |

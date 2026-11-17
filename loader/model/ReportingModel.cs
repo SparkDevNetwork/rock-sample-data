@@ -209,7 +209,7 @@ namespace RockSampleData.Loader.Model
 
     /// <summary>
     /// One answer Rock's security check must give: whether a Cast person may take an action on a category, data view,
-    /// report, personalization segment, or page.
+    /// report, personalization segment, page, or signal type.
     /// </summary>
     internal sealed class AccessExpectation
     {
@@ -247,6 +247,11 @@ namespace RockSampleData.Loader.Model
         /// A Rock page's Guid, or null when the item is not a page.
         /// </summary>
         public Guid? Page { get; set; }
+
+        /// <summary>
+        /// A signal type's key in configuration/signals.json, or null when the item is not a signal type.
+        /// </summary>
+        public string SignalType { get; set; }
 
         /// <summary>
         /// Rock's action, such as View or Edit.

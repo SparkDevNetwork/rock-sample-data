@@ -236,6 +236,8 @@ try
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "signals";
+            checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -638,7 +640,8 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
-    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() ).ToList();
+    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Signals?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -657,10 +660,12 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
+            : a.SignalType != null ? $"SignalType\t{signalTypes[a.SignalType]}"
             : $"DataView\t{views[a.DataView]}" )
         + $"\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
@@ -671,7 +676,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
@@ -786,6 +791,39 @@ static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string databa
     }
 
     return CheckResult.From( "segments", problems.Count == 0 ? $"Rock's segment update changed nothing in the {expected.Count} personalization segments" : "Rock's segment update would change the segments", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Person.CalculateSignals for everyone with a signal and expects it to change no one's top signal, so the
+/// Top Person Signal badge shows each person the flag Rock would. An ended signal counts from now, so like the segments the
+/// check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult SignalsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var expected = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT( DISTINCT [PersonId] ) FROM [PersonSignal] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( expected == 0 )
+    {
+        return CheckResult.From( "signals", "This load wrote no person signals", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "signals", "Signals were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. A signal's end counts from today, so run it again on one day."
+        } );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "signals" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = lines.Where( l => l.Contains( '\t' ) ).Select( l => l.Split( '\t' ) )
+        .Select( p => $"Rock would change person {p[0]}'s top signal from \"{p[1]}\" to \"{p[2]}\" (Id|color|icon)." ).ToList();
+    var checkedLine = lines.FirstOrDefault( l => l.StartsWith( "people ", StringComparison.Ordinal ) );
+    if ( checkedLine != $"people {expected}" )
+    {
+        problems.Add( $"Rock checked {checkedLine ?? "no people"}, but the load gave {expected} people signals." );
+    }
+
+    return CheckResult.From( "signals", problems.Count == 0 ? $"Rock's own top signal rule agrees with all {expected} people the load gave signals" : "Rock would change people's top signals", problems );
 }
 
 /// <summary>

@@ -382,6 +382,73 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Person signals (configuration/signals.json, issue 45): every type's roles are Rock roles, every Cast signal
+// names a Cast person, a staff owner, and a type, and ends at most one way, and the Crowd's follow-ups name a type
+// and real connection statuses.
+{
+    const signalsFile = path.join( castDir, "..", "configuration", "signals.json" );
+    const signals = fs.existsSync( signalsFile ) ? JSON.parse( fs.readFileSync( signalsFile, "utf8" ) ) : null;
+    if ( signals ) {
+        const staffGuids = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.person ) );
+        const rockRoles = new Set( securityRoleConfiguration.roles.map( r => r.rockRole ) );
+        const typeKeys = new Set( signals.types.map( t => t.key ) );
+        for ( const type of signals.types ) {
+            const who = `configuration/signals.json (type ${type.key})`;
+            claimGuid( type.guid, who );
+            if ( !/^#[0-9a-f]{6}$/.test( type.color ) || !/^ti ti-[a-z-]+$/.test( type.icon || "" ) ) {
+                errors.push( `${who}: needs a color like #d9534f and a Tabler icon like "ti ti-flag".` );
+            }
+            for ( const role of ( type.security || [] ).flatMap( r => r.allow ) ) {
+                if ( !rockRoles.has( role ) ) {
+                    errors.push( `${who}: allows ${role}, which is not a role in configuration/security-roles.json.` );
+                }
+            }
+        }
+        const signalled = new Set();
+        for ( const signal of signals.cast ) {
+            const who = `configuration/signals.json (${signal.name})`;
+            claimGuid( signal.guid, who );
+            const found = people.get( signal.person );
+            if ( !found ) {
+                errors.push( `${who}: person ${signal.person} is not in the Cast.` );
+            }
+            else if ( `${found.person.nickName || found.person.firstName} ${found.person.lastName}` !== signal.name ) {
+                errors.push( `${who}: person ${signal.person} is ${found.person.nickName || found.person.firstName} ${found.person.lastName}.` );
+            }
+            for ( const [ field, guid ] of [ [ "owner", signal.owner ], [ "addedBy", signal.addedBy ] ].filter( ( [ , g ] ) => g ) ) {
+                if ( !staffGuids.has( guid ) ) {
+                    errors.push( `${who}: ${field} ${guid} is not staff in configuration/staff.json.` );
+                }
+            }
+            if ( !typeKeys.has( signal.type ) ) {
+                errors.push( `${who}: type "${signal.type}" is not a signal type.` );
+            }
+            if ( signal.endsInDays != null && signal.endedDaysAgo != null ) {
+                errors.push( `${who}: give endsInDays or endedDaysAgo, not both.` );
+            }
+            if ( signal.endedDaysAgo != null && signal.endedDaysAgo >= signal.addedDaysAgo ) {
+                errors.push( `${who}: ended before it was added.` );
+            }
+            if ( signalled.has( `${signal.person}:${signal.type}` ) ) {
+                errors.push( `${who}: has two ${signal.type} signals.` );
+            }
+            signalled.add( `${signal.person}:${signal.type}` );
+        }
+        const crowd = signals.crowd;
+        if ( crowd ) {
+            if ( !typeKeys.has( crowd.type ) ) {
+                errors.push( `configuration/signals.json (crowd): type "${crowd.type}" is not a signal type.` );
+            }
+            for ( const status of crowd.connectionStatuses.filter( s => !STATUSES.includes( s ) ) ) {
+                errors.push( `configuration/signals.json (crowd): "${status}" is not a connection status.` );
+            }
+            if ( crowd.openWithoutEnd + crowd.openWithEnd > crowd.perCampus || crowd.notes.length === 0 ) {
+                errors.push( "configuration/signals.json (crowd): needs notes, and no more open signals than signals per campus." );
+            }
+        }
+    }
+}
+
 if ( adminPeople.length !== 1 ) {
     errors.push( `Exactly one Cast person replaces Rock's admin person (replacesAdmin); found ${adminPeople.length}: ${adminPeople.join( ", " ) || "none"}.` );
 }

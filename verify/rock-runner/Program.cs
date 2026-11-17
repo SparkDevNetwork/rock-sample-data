@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|signals --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -50,7 +50,7 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, or SignalType), its Guid, an action, and a person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
@@ -62,6 +62,8 @@ namespace RockSampleData.RockRunner
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
     ///            place of the key, it renders that block's content for the person instead, on one line.
+    ///   signals  Runs Rock's own Person.CalculateSignals for everyone with a signal, saving nothing, and prints each
+    ///            person whose top signal it would change, then "people" and how many it checked.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -76,10 +78,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "signals" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|signals --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +120,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "signals" => worker.Signals(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -521,6 +524,7 @@ namespace RockSampleData.RockRunner
                         "Category" => "Rock.Web.Cache.CategoryCache",
                         "PersonalizationSegment" => "Rock.Web.Cache.PersonalizationSegmentCache",
                         "Page" => "Rock.Web.Cache.PageCache",
+                        "SignalType" => "Rock.Web.Cache.SignalTypeCache",
                         _ => "Rock.Web.Cache.DataViewCache"
                     };
                     var cache = _rock.GetType( cacheName, true );
@@ -744,6 +748,55 @@ namespace RockSampleData.RockRunner
                 lines.Add( $"{segmentCache.GetProperty( "Guid" ).GetValue( segment )}\t{resultType.GetField( "CountAddedSegment" ).GetValue( result )}\t{resultType.GetField( "CountRemovedFromSegment" ).GetValue( result )}" );
             }
 
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Runs Rock's own Person.CalculateSignals, the method Rock's signal list and its Calculate Person Signals job run,
+        /// for everyone with a signal, and saves nothing. Prints one line for each person whose top signal it would change:
+        /// their Guid, then the stored and the calculated top signal Id, color, and icon. The last line is "people" and how
+        /// many it checked.
+        /// </summary>
+        public string Signals()
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var context = createContext.Invoke( null, new[] { app } );
+            var signalServiceType = _rock.GetType( "Rock.Model.PersonSignalService", true );
+            var signalType = _rock.GetType( "Rock.Model.PersonSignal", true );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var personType = _rock.GetType( "Rock.Model.Person", true );
+            var calculate = personType.GetMethod( "CalculateSignals", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no Person.CalculateSignals(). The runner needs updating for this Rock." );
+            var signals = ( ( IEnumerable<object> ) signalServiceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( signalServiceType, context ), null ) ).ToList();
+            var personService = Activator.CreateInstance( personServiceType, context );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( int ) } );
+            string Top( object person ) => string.Join( "|", new[] { "TopSignalId", "TopSignalColor", "TopSignalIconCssClass" }.Select( p => personType.GetProperty( p ).GetValue( person )?.ToString() ?? string.Empty ) );
+
+            var lines = new List<string>();
+            var byPerson = signals.GroupBy( s => ( int ) signalType.GetProperty( "PersonId" ).GetValue( s ) ).ToList();
+            foreach ( var group in byPerson )
+            {
+                var person = getPerson.Invoke( personService, new object[] { group.Key } );
+                var own = ( System.Collections.IList ) Activator.CreateInstance( typeof( List<> ).MakeGenericType( signalType ) );
+                foreach ( var signal in group )
+                {
+                    own.Add( signal );
+                }
+
+                personType.GetProperty( "Signals" ).SetValue( person, own );
+                var stored = Top( person );
+                calculate.Invoke( person, null );
+                var calculated = Top( person );
+                if ( stored != calculated )
+                {
+                    lines.Add( $"{personType.GetProperty( "Guid" ).GetValue( person )}\t{stored}\t{calculated}" );
+                }
+            }
+
+            lines.Add( $"people {byPerson.Count}" );
             return string.Join( "\n", lines );
         }
 

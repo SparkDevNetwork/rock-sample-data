@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, signals, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, signals, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -653,6 +653,17 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 4. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
 
 `AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees.
+
+## How signals load
+
+`loading/SignalsLoader.cs` writes the person signals in `../configuration/signals.json` (issue 45, decisions D-signals-1 to D-signals-5). Rock 20.0.10 and 21.0.2 store them the same way.
+
+1. **The types.** The church setup writes the four signal types, each at the next order after the last, as Rock's signal type editor gives them, so Safety Team Review is first and wins when a person has several. Each type's View and Edit allow its roles, then deny All Users, as Rock's security editor saves them. View shows a signal's note and end date, and Edit decides who can add one.
+2. **The Cast's signals.** Each signal in the file, with its owner, the person who added it, its note, the day it was added, and its end: never, a number of days after install day, or a number of days before it. An end is midnight, as Rock's date picker saves it. A signal whose person or staff member is not in the dataset is skipped.
+3. **The Crowd's signals.** Each campus with generated households gets six Care Team Follow-ups from its campus pastor, on Connected, Engaged, or Leading adults, one per household at most: one with no end, one that ends in the next few weeks, and four that ended in the last year. Each campus draws from its own stream.
+4. **The top signal.** Rock keeps each person's top signal on the person (`TopSignalId`, `TopSignalColor`, and `TopSignalIconCssClass`), and the Top Person Signal badge draws from them. The loader sets them as `Person.CalculateSignals` does: the first open signal by type order, then type Id. A person whose signals have all ended has none, as Rock's nightly Calculate Person Signals job leaves them.
+
+The Safety Team Review data view in `../configuration/reporting.json` names its type with a `signalType` leaf, and the loader writes Rock's Has Signal selection, the type's Id. Signals load in an always-on step after Adaptive messages, because they read only people and staff.
 
 ## Calendar
 

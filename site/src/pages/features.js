@@ -184,6 +184,7 @@ function reporting( model ) {
 module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
+    const signals = require( path.join( model.root, "configuration/signals.json" ) );
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -296,6 +297,13 @@ module.exports = function features( { model } ) {
             checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
             look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
+        },
+        {
+            id: "signals", eyebrow: "Person signals", title: "Flags that ask staff to act.",
+            text: html`${signals.types.length} signal types, ${esc( signals.types.map( t => t.name ).slice( 0, -1 ).join( ", " ) )}, and ${esc( signals.types[signals.types.length - 1].name )}, each locked to the roles that act on it. ${signals.cast.length} Cast people carry one tied to their story, and in the larger datasets each campus pastor follows up with ${signals.crowd.perCampus} people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none.`,
+            checks: [ "The Top Person Signal badge on the profile", "Notes and end dates that only the right roles can read", "A Safety Team Review data view in the Safety category" ],
+            look: [ html`${person( model, "Frank Dexter" )}, waiting on a Safety Team Review`, html`${person( model, "Maddie Lowe" )}, with Pickup Instructions for check-in`, html`${person( model, "Derek Ward" )}, whose follow-up has ended, so no flag shows` ],
+            links: [ { label: "How signals load", href: doc( "loader/README.md#how-signals-load" ) } ]
         }
     ];
 

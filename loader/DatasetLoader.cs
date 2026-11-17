@@ -65,6 +65,7 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Signals", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -259,6 +260,13 @@ namespace RockSampleData.Loader
             if ( categoryCount > 0 )
             {
                 log.Write( $"  Church categories: {categoryCount}" );
+            }
+
+            // The person signal types are church setup, so the Safety Team Review data view can name its type.
+            var signals = new SignalsLoader( db, source, dates, foreignKey, options.Seed );
+            if ( signals.HasConfiguration )
+            {
+                log.Write( $"  Signal types: {signals.LoadTypes()}" );
             }
 
             // The Staff person attributes, in their category, with the block that shows them (decision 201).
@@ -623,6 +631,18 @@ namespace RockSampleData.Loader
             // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
+
+            // The Cast's signals and each campus pastor's Care Team Follow-ups. They read only people and staff.
+            steps.Begin( "Signals" );
+            if ( signals.HasConfiguration )
+            {
+                var signalPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                log.Write( "  " + signals.Load( people, castHouseholdKeys, signalPastors ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/signals.json)" );
+            }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

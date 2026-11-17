@@ -178,7 +178,15 @@ namespace RockSampleData.Loader
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The church's person signal types and the signals on people, or null in a package built before signals.
+        /// </summary>
+        public SignalsConfiguration Signals { get; }
+
+        public const string SignalsConfigurationPath = "configuration/signals.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built

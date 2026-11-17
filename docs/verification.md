@@ -39,6 +39,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
+| [Signals](#signals) | Verify tool | Rock's own top signal rule gives every person with a signal the flag the load wrote. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
@@ -275,6 +276,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `registration-data-view-is-filed-under-registrations` | A data view that filters on a registration instance or is a template's eligibility rule sits in the church's Registrations category. |
 | `registrant-is-in-the-eligibility-data-view` | Every registrant of a template with an eligibility data view was in it on the day they registered: its grade filter and its check-in count over its window, replayed in SQL. A load without attendance skips it (decision 215). |
 | `celebration-is-on-a-worked-request` | A celebration is a Celebration Note the request's connector wrote after reaching the person, on a request whose connection type turns celebrations on, with text, and only one per request, since the Connections Hub shows only the first (decision 219). |
+| `top-signal-is-own-signal`, `signal-without-end-sets-top-signal` | A person's top signal, which the Top Person Signal badge draws, is one of their own signals with its type's color and icon, and a signal that never ends sets one (issue 45). Whether it is the right open one depends on the day, so the [signals check](#signals) asks Rock. |
 | `people-match-the-dataset-card`, `households-match-the-dataset-card` | Rock's installer shows the people and households from the dataset card in `datasets/{key}.json`. A default-seed load more than 2% away from either means the card is stale (decision 124). |
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
@@ -309,6 +311,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** The loader finds each segment's people with its own data view evaluator, which follows Rock's filters in SQL (decision 271). Only Rock's own update proves the loader picked exactly the people Rock picks.
 
+### Signals
+
+**What it does.** `verify/rock-runner` runs Rock's own `Person.CalculateSignals`, the method Rock's signal list and its nightly Calculate Person Signals job run, for everyone with a signal, and saves nothing. It passes when Rock would change no one's top signal: its Id, color, and icon. A signal's end counts from now, so like segments it is judged only while today is the loads' anchor.
+
+**Why it's there.** The Top Person Signal badge and Rock's signal report column draw from three columns on the person, which Rock sets only when a signal is saved or its job runs. The loader writes them itself (issue 45), so only Rock's own rule proves each person shows the right flag, and that an ended signal shows none.
+
 ### Group sync
 
 **What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
@@ -329,7 +337,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Access
 
-**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`, `configuration/adaptive-messages.json`, and `configuration/signals.json`: may this Cast person view or edit this category, data view, report, personalization segment, page, or signal type. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
 

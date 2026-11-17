@@ -2447,3 +2447,20 @@ FROM [AdaptiveMessageAdaptation] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptationSegment] AS [s] WHERE [s].[AdaptiveMessageAdaptationId] = [a].[Id] )
     AND EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptation] AS [later] WHERE [later].[AdaptiveMessageId] = [a].[AdaptiveMessageId] AND [later].[Order] > [a].[Order] );
+
+-- check: top-signal-is-own-signal
+-- why: Issue 45. Rock keeps a person's top signal on the person, and the Top Person Signal badge draws its color and icon. The top signal must be one of the person's own signals, with its type's color and icon, or Rock would show a flag the person's signal list does not have. Whether it is the right open one depends on today, so verify's signals check asks Rock that on the anchor day.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+LEFT JOIN [PersonSignal] AS [ps] ON [ps].[Id] = [p].[TopSignalId]
+LEFT JOIN [SignalType] AS [st] ON [st].[Id] = [ps].[SignalTypeId]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [p].[TopSignalId] IS NOT NULL
+    AND ( [ps].[PersonId] IS NULL OR [ps].[PersonId] <> [p].[Id]
+        OR ISNULL( [p].[TopSignalColor], '' ) <> [st].[SignalColor] OR ISNULL( [p].[TopSignalIconCssClass], '' ) <> ISNULL( [st].[SignalIconCssClass], '' ) );
+
+-- check: signal-without-end-sets-top-signal
+-- why: Issue 45. A person with a signal that never ends has a top signal, so the Top Person Signal badge shows a flag. Rock sets it whenever a signal is saved.
+SELECT COUNT( DISTINCT [ps].[PersonId] )
+FROM [PersonSignal] AS [ps]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [ps].[PersonId]
+WHERE [ps].[ForeignKey] = @ForeignKey AND [ps].[ExpirationDate] IS NULL AND [p].[TopSignalId] IS NULL;

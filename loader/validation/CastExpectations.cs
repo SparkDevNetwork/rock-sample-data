@@ -190,7 +190,64 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CheckSignals( db, source, guids, failures );
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks that each Cast person with a signal has it, with its owner, and that Rock's Top Person Signal badge has the
+        /// flag of their first open signal by type order, or no flag when every one has ended (issue 45).
+        /// </summary>
+        private static int CheckSignals( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var signals = source.Signals;
+            if ( signals == null )
+            {
+                return 0;
+            }
+
+            var checks = 0;
+            foreach ( var person in signals.Cast.GroupBy( s => s.Person ) )
+            {
+                var name = person.First().Name;
+                var row = db.Query( @"
+SELECT [p].[TopSignalColor], [p].[TopSignalIconCssClass], [ps].[Guid] AS [TopSignalGuid]
+FROM [Person] AS [p]
+LEFT JOIN [PersonSignal] AS [ps] ON [ps].[Id] = [p].[TopSignalId]
+WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Key ) ) ).FirstOrDefault();
+                if ( row == null )
+                {
+                    continue;
+                }
+
+                foreach ( var signal in person )
+                {
+                    checks++;
+                    var owner = db.Scalar( @"
+SELECT [p].[Guid]
+FROM [PersonSignal] AS [ps]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ps].[OwnerPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [ps].[Guid] = @Guid", P( "@Guid", signal.Guid ) ) as Guid?;
+                    if ( owner != guids.Rock( signal.Owner ) )
+                    {
+                        failures.Add( $"{name}: expected a {signals.Type( signal.Type ).Name} signal owned by {signal.Owner}, Rock shows {( owner == null ? "none" : $"one owned by {owner}" )}" );
+                    }
+                }
+
+                checks++;
+                var top = person.Where( s => !s.EndedDaysAgo.HasValue ).OrderBy( s => signals.Types.IndexOf( signals.Type( s.Type ) ) ).FirstOrDefault();
+                var topType = top == null ? null : signals.Type( top.Type );
+                var shownGuid = Nullable( row["TopSignalGuid"] ) as Guid?;
+                var shownColor = Nullable( row["TopSignalColor"] ) as string;
+                if ( shownGuid != top?.Guid || shownColor != topType?.Color || Nullable( row["TopSignalIconCssClass"] ) as string != topType?.Icon )
+                {
+                    failures.Add( $"{name}: expected the badge to show {( topType == null ? "no flag, since every signal has ended" : $"the {topType.Name} flag ({topType.Color})" )}, Rock's top signal is {shownColor ?? "none"}" );
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

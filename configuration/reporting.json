@@ -1060,6 +1060,21 @@
       }
     },
     {
+      "key": "safety-team-review",
+      "name": "Safety Team Review",
+      "category": "safety-data-views",
+      "guid": "4FECA74F-C2DE-46EC-8679-50E6088617D3",
+      "description": "People with a Safety Team Review signal. The safety team reviews each one before they serve with kids or students. Rock's signal filter counts ended signals too.",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.HasSignalFilter",
+            "signalType": "safety-team-review"
+          }
+        ]
+      }
+    },
+    {
       "key": "gifts-in-the-last-12-months",
       "name": "Gifts in the Last 12 Months",
       "category": "finance-data-views",
@@ -1618,6 +1633,20 @@
       "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
       "name": "Jamal Pierce",
       "dataView": "kids-with-an-allergy",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "dataView": "safety-team-review",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "dataView": "safety-team-review",
       "action": "View",
       "allowed": false
     },
