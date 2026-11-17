@@ -195,9 +195,9 @@ module.exports = function features( { model } ) {
         {
             id: "giving", eyebrow: "Giving and check images", title: "Gifts on each giver's rhythm.", sand: true,
             text: "Each giver has a pattern and a channel: scheduled, online, the Sunday offering, or a mailed check. Gifts land in batches by day, campus, and channel, and Rock's giving analytics are filled in as its nightly job would leave them.",
-            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Scanned check fronts and backs that match each check gift, when you ask for them" ],
-            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
-            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) } ]
+            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Refunds at a real church's rate, each with Rock's reason, in a refund batch", "Scanned check fronts and backs that match each check gift, when you ask for them" ],
+            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, html`${person( model, "Gabe Hernandez" )}'s duplicate gift, refunded the next day`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
+            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) }, { label: "Refunds", href: doc( "docs/refunds.md" ) } ]
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",

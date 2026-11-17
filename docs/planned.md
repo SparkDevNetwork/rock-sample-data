@@ -16,7 +16,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 
 ## Giving
 
-- **Refunds** and other uncommon transactions.
+- **Other uncommon transactions,** such as a gift in a foreign currency, a returned check, or an in-kind gift. Refunds are built (see [Refunds](refunds.md)).
 
 ## Other Rock features
 

@@ -56,6 +56,7 @@ The words this project uses, in alphabetical order.
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
+| **Refund** | A transaction that returns part or all of a gift, with negative amounts, a reason, and a link to the gift. Staff make it in Rock, and it lands in the day's " - Refund" batch. See [Refunds](refunds.md). |
 | **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision 209). See [Event registrations](registrations.md). |
 | **Registrant** | A person registered on a registration, such as a camper. One registration can hold several, such as siblings. |
 | **Registrar** | The person who made a registration, usually a parent or guardian. They get the confirmation email and make the payments. |

@@ -19,11 +19,12 @@ Gabriel Hernandez plays guitar on the worship team and almost never misses a Sun
 
 - Young single volunteer on the Phoenix Worship Team.
 - Weekly online giver.
+- A duplicate online gift, refunded the next day, that leaves his journey stage unchanged.
 
 ## Activity
 
 - **Attendance:** core, 92% of Sundays, since 3 years ago.
-- **Giving:** **weekly** by Gabe Hernandez: $50 General Fund per gift, gives in 92% of periods, started 3 years ago.
+- **Giving:** **weekly** by Gabe Hernandez: $50 General Fund per gift, by card, gives in 92% of periods, started 3 years ago, a duplicate refund of a gift from about 45 days ago, and Rock shows the consistent journey stage.
 - **Built on the Rock:** Gabe Hernandez pledged $1,000 weekly on Commitment Sunday, plus $600 30 weeks after Commitment Sunday, and the pledge is **complete**.
 
 ## Prayer requests

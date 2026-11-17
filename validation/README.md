@@ -48,6 +48,14 @@ Documentation, demos, and tests lean on certain Cast givers, for example "the De
 - `journeyStage` is Rock's giving journey stage: non-giver, new, consistent, occasional, lapsed, or former.
 - `alerts` lists alert type keys from `configuration/giving-alert-types.json`. The giver must have at least one alert of each type.
 
+A Cast giving pattern can also design a refund with `refunds` (see [Refunds](../docs/refunds.md)):
+
+```json
+"refunds": [ { "kind": "duplicate", "near": { "daysAgo": 45 } } ]
+```
+
+Each refunds the pattern's last gift on or before `near` that its kind can refund. Every load checks that the giver has a refund with the kind's reason in `configuration/refunds.json`, made the kind's shortest delay after its gift on a weekday, of the whole gift for `duplicate` and `earlier-year` and part of it otherwise, and for a duplicate, of a gift with a twin that day. Gabriel Hernandez has the one Cast refund today.
+
 A Cast person can say what Rock should show for their achievements with `expect` on the person:
 
 ```json
