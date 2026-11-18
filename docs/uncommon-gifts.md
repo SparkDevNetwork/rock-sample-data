@@ -23,7 +23,7 @@ Returned checks are two of the refund kinds in `configuration/refunds.json`. The
 | insufficient-funds | Insufficient Funds | 4% | 3 to 10 | The bank returned the check for insufficient funds. |
 | returned-check | Returned Check | 3% | 3 to 12 | The bank returned the check for another reason: a closed account, a stop payment, or a missing signature. |
 
-Each refunds a whole check, from the Sunday offering or the mail. A check with a building campaign line is never returned, so every pledge stays as planned. A summary can name the check number, such as "The bank returned check 1042 for insufficient funds." The Cast gets only the returned checks its household files design.
+Each refunds a whole check, from the Sunday offering or the mail. On 2026-11-17, at the default seed, Full 7 had 16 returned checks among its 237 refunds, and Core 1 and Core 3 had only the Cast's. A check with a building campaign line is never returned, so every pledge stays as planned. A summary can name the check number, such as "The bank returned check 1042 for insufficient funds." The Cast gets only the returned checks its household files design.
 
 ### The Cast's story
 
@@ -55,7 +55,7 @@ Staff enter an in-kind gift in the Transaction Detail block. It is paid with the
 | vehicle | Vehicles | Generated households that give, at 1 per 1,000 households each year | $800 to $12,000, by the vehicle |
 | equipment | Other | Generated households that give, at 1.5 per 1,000 households each year | $500 to $4,000, by the item, such as a piano, a refrigerator for the food pantry, or a sound mixer |
 
-Vehicles and equipment go to the General Fund at the giver's campus, on a weekday during office hours. Calibration measures non-cash gifts at 1.3% of dollars and under 0.1% of gifts. The largest givers' stock gives about that. Vehicles and equipment add a little: about three vehicles and five pieces of equipment a year in Full 7, and few or none in Core 3, which has about a hundred giving households. Calibration has no rate for vehicles or equipment, so those counts are designed. Rock's fourth type, Property, is left out, since a gift of land is rare and large.
+Vehicles and equipment go to the General Fund at the giver's campus, on a weekday during office hours. Calibration measures non-cash gifts at 1.3% of dollars and under 0.1% of gifts. The largest givers' stock gives about that, and vehicles and equipment add a little. On 2026-11-17, at the default seed, Full 7 had 23 stock gifts, 2 vehicles, and 10 pieces of equipment over its three years, and non-cash gifts were 1.1% of the last year's dollars. Core 3, with about a hundred giving households, had none of the vehicles or equipment. Calibration has no rate for vehicles or equipment, so those counts are designed. Rock's fourth type, Property, is left out, since a gift of land is rare and large.
 
 No in-kind gift is ever refunded, because it was never cash. The Cast gets only the in-kind gifts its household files design.
 
@@ -75,7 +75,7 @@ No gateway that ships with Rock takes a gift in another currency online. Rock's 
 
 A few generated households are Canadian winter visitors. Each is a retiree, 60 or older, who gives by check on Sundays and does not take part in the building campaign. Those who give every week, every other week, or every month come first, so their checks run through the winter. From November through March, their checks are drawn on a Canadian bank, in Canadian dollars.
 
-1. **How many.** 0.3 households for every 1,000 generated households, and at least one in a dataset with generated households: 5 in Full 7 and 1 in Core 3. The Cast has no Canadian, so Core 1 has none. Calibration has no measure for this, so the count is designed.
+1. **How many.** 0.3 households for every 1,000 generated households, and at least one in a dataset with generated households: 5 in Full 7 and 1 in Core 3. On 2026-11-17, Full 7's five gave 32 Canadian checks, CAD 25,836 credited as $18,810. Core 3 has no retiree who gives at least monthly by check on Sundays, so its one visitor gave a single winter check. The Cast has no Canadian, so Core 1 has none. Calibration has no measure for this, so the count is designed.
 2. **The amounts.** The giver writes a round Canadian amount, close to their usual gift. The bank credits it at its rate that day, between 0.70 and 0.76 US dollars for each Canadian dollar. Staff enter both: the Canadian amount on each line, and the dollars the bank credited as the line's amount.
 3. **The batch.** A US check scanner cannot read a Canadian check, so the bank takes it at the counter. A Sunday's Canadian checks go in a batch of their own, such as "Canadian Checks 01/11/2026", with no check image or check number.
 4. **The screens.** The church turns on Enable Foreign Currency on every Transaction Detail and Transaction List block, so staff see the currency and the Canadian amounts. Statements and giving analytics use the dollars.
