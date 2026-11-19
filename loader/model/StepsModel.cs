@@ -252,6 +252,12 @@ namespace RockSampleData.Loader.Model
         public string RequiredBefore { get; set; }
 
         /// <summary>
+        /// For a class: a small group leader who launched from Ready to Lead and had no step of this class's stage by
+        /// the day they were Ready to Lead took this class before then.
+        /// </summary>
+        public bool EquipsReadyToLead { get; set; }
+
+        /// <summary>
         /// A step type key that must be complete before this class starts.
         /// </summary>
         public string After { get; set; }

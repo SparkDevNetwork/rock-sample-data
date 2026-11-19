@@ -348,11 +348,13 @@ namespace RockSampleData.Loader
                 }
             }
 
-            // Serving is planned before people load too, so new team leaders load as Leading.
+            // Serving is planned before people load too, so new team leaders load as Leading. A leader who launched a
+            // group from Ready to Lead was serving before then (decision D-launch-groups-1).
+            var readyToLead = groupLaunches.ReadyToLeadLeaders( groupPlans, source.SmallGroups, dates );
             List<ServingTeamPlan> servingPlans;
             using ( log.TimePart( "Plan serving" ) )
             {
-                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey, readyToLead );
             }
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
@@ -532,7 +534,7 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Steps" ) )
             {
                 stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun, readyToLead );
             }
 
             // Rock's five assessments. Classes ask on their own nights and leaders take theirs before leading, both read

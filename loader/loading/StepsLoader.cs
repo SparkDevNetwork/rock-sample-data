@@ -72,7 +72,9 @@ namespace RockSampleData.Loader.Loading
         /// Returns what it read and planned, which assessments follow, or nulls when the package has no steps.
         /// </summary>
         /// <param name="studentPath">The Student Path planned for this load, whose camp, trip, decision, and Student Leader steps are copied.</param>
-        public (StepFacts Facts, StepPlan Plan) Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, GiftTimeline gifts, DateTime finalJourneyRun )
+        /// <param name="readyToLead">Each leader who launched a group from Ready to Lead, by person Guid, and the day they were Ready to Lead.</param>
+        public (StepFacts Facts, StepPlan Plan) Load( PeopleLoader people, HashSet<string> castHouseholdKeys, AttendanceLoader attendance, StudentPath studentPath, GiftTimeline gifts, DateTime finalJourneyRun,
+            IReadOnlyDictionary<Guid, DateTime> readyToLead )
         {
             var config = _source.Steps;
             if ( config == null )
@@ -83,6 +85,7 @@ namespace RockSampleData.Loader.Loading
 
             var setup = ConfigurePrograms( config );
             var facts = ReadFacts( config, people, castHouseholdKeys, attendance, gifts, finalJourneyRun );
+            facts.ReadyToLead = facts.People.Where( p => readyToLead.ContainsKey( p.Guid ) ).ToDictionary( p => p.PersonId, p => readyToLead[p.Guid] );
             var plan = StepPlanner.Plan( config, facts, studentPath, _seed );
             Write( config, setup, plan );
 
