@@ -235,7 +235,8 @@ for ( const h of households.map( x => x.data ) ) {
 }
 
 // A household on another campus is missing from datasets without that campus, so nothing that loads in
-// every dataset may name its people. configuration/staff.json may, since it names staff by campus.
+// every dataset may name its people. configuration/staff.json may, since it names staff by campus, and
+// configuration/tags.json may name one as a tag's owner, since a tag loads only with its owner.
 {
     const campusPeople = new Map();
     for ( const { file, data } of households.filter( x => x.data.campusSlot !== "main" ) ) {
@@ -251,7 +252,11 @@ for ( const h of households.map( x => x.data ) ) {
         ...fs.readdirSync( path.join( root, "configuration" ) ).filter( f => f.endsWith( ".json" ) && f !== "staff.json" ).map( f => path.join( root, "configuration", f ) )
     ].filter( f => fs.existsSync( f ) );
     for ( const file of shared ) {
-        const text = fs.readFileSync( file, "utf8" ).toUpperCase();
+        let text = fs.readFileSync( file, "utf8" ).toUpperCase();
+        if ( path.basename( file ) === "tags.json" ) {
+            const tags = JSON.parse( fs.readFileSync( file, "utf8" ) );
+            text = JSON.stringify( { ...tags, tags: tags.tags.map( t => ( { ...t, owner: undefined } ) ) } ).toUpperCase();
+        }
         for ( const [ guid, who ] of campusPeople ) {
             if ( text.includes( guid ) ) {
                 errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
@@ -377,6 +382,292 @@ for ( const h of households.map( x => x.data ) ) {
             }
             for ( const s of staff.staff.filter( x => !onChart.has( x.key ) ) ) {
                 errors.push( `configuration/staff.json: ${s.key} is not on the org chart.` );
+            }
+        }
+    }
+}
+
+// Person signals (configuration/signals.json, issue 45): every type's roles are Rock roles, every Cast signal
+// names a Cast person, a staff owner, and a type, and ends at most one way, and the Crowd's follow-ups name a type
+// and real connection statuses.
+{
+    const signalsFile = path.join( castDir, "..", "configuration", "signals.json" );
+    const signals = fs.existsSync( signalsFile ) ? JSON.parse( fs.readFileSync( signalsFile, "utf8" ) ) : null;
+    if ( signals ) {
+        const staffGuids = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.person ) );
+        const rockRoles = new Set( securityRoleConfiguration.roles.map( r => r.rockRole ) );
+        const typeKeys = new Set( signals.types.map( t => t.key ) );
+        for ( const type of signals.types ) {
+            const who = `configuration/signals.json (type ${type.key})`;
+            claimGuid( type.guid, who );
+            if ( !/^#[0-9a-f]{6}$/.test( type.color ) || !/^ti ti-[a-z-]+$/.test( type.icon || "" ) ) {
+                errors.push( `${who}: needs a color like #d9534f and a Tabler icon like "ti ti-flag".` );
+            }
+            for ( const role of ( type.security || [] ).flatMap( r => r.allow ) ) {
+                if ( !rockRoles.has( role ) ) {
+                    errors.push( `${who}: allows ${role}, which is not a role in configuration/security-roles.json.` );
+                }
+            }
+        }
+        const signalled = new Set();
+        for ( const signal of signals.cast ) {
+            const who = `configuration/signals.json (${signal.name})`;
+            claimGuid( signal.guid, who );
+            const found = people.get( signal.person );
+            if ( !found ) {
+                errors.push( `${who}: person ${signal.person} is not in the Cast.` );
+            }
+            else if ( `${found.person.nickName || found.person.firstName} ${found.person.lastName}` !== signal.name ) {
+                errors.push( `${who}: person ${signal.person} is ${found.person.nickName || found.person.firstName} ${found.person.lastName}.` );
+            }
+            for ( const [ field, guid ] of [ [ "owner", signal.owner ], [ "addedBy", signal.addedBy ] ].filter( ( [ , g ] ) => g ) ) {
+                if ( !staffGuids.has( guid ) ) {
+                    errors.push( `${who}: ${field} ${guid} is not staff in configuration/staff.json.` );
+                }
+            }
+            if ( !typeKeys.has( signal.type ) ) {
+                errors.push( `${who}: type "${signal.type}" is not a signal type.` );
+            }
+            if ( signal.endsInDays != null && signal.endedDaysAgo != null ) {
+                errors.push( `${who}: give endsInDays or endedDaysAgo, not both.` );
+            }
+            if ( signal.endedDaysAgo != null && signal.endedDaysAgo >= signal.addedDaysAgo ) {
+                errors.push( `${who}: ended before it was added.` );
+            }
+            if ( signalled.has( `${signal.person}:${signal.type}` ) ) {
+                errors.push( `${who}: has two ${signal.type} signals.` );
+            }
+            signalled.add( `${signal.person}:${signal.type}` );
+        }
+        const crowd = signals.crowd;
+        if ( crowd ) {
+            if ( !typeKeys.has( crowd.type ) ) {
+                errors.push( `configuration/signals.json (crowd): type "${crowd.type}" is not a signal type.` );
+            }
+            for ( const status of crowd.connectionStatuses.filter( s => !STATUSES.includes( s ) ) ) {
+                errors.push( `configuration/signals.json (crowd): "${status}" is not a connection status.` );
+            }
+            if ( crowd.openWithoutEnd + crowd.openWithEnd > crowd.perCampus || crowd.notes.length === 0 ) {
+                errors.push( "configuration/signals.json (crowd): needs notes, and no more open signals than signals per campus." );
+            }
+        }
+    }
+}
+
+// Personal links (configuration/personal-links.json, issue 46): every link is a Rock page by Guid, never a URL, with
+// a real load part and a target that names a real row; every owner is staff; every role is a Rock role; every campus has
+// a campus pastor section Guid; and every bookmark menu names a Cast person.
+{
+    const linksFile = path.join( castDir, "..", "configuration", "personal-links.json" );
+    const config = fs.existsSync( linksFile ) ? JSON.parse( fs.readFileSync( linksFile, "utf8" ) ) : null;
+    if ( config ) {
+        const read = file => JSON.parse( fs.readFileSync( path.join( castDir, "..", file ), "utf8" ) );
+        const staffGuids = new Set( read( "configuration/staff.json" ).staff.map( s => s.person ) );
+        const rockRoles = new Set( securityRoleConfiguration.roles.map( r => r.rockRole ) );
+        const enumText = fs.readFileSync( path.join( castDir, "..", "loader", "SampleDataPart.cs" ), "utf8" );
+        const enumBody = enumText.slice( enumText.indexOf( "public enum SampleDataPart" ) );
+        const parts = new Set( [ ...enumBody.slice( 0, enumBody.indexOf( "\n    }" ) ).matchAll( /^\s*([A-Z][A-Za-z]+),?\s*$/gm ) ].map( m => m[ 1 ] ) );
+        const reporting = read( "configuration/reporting.json" );
+        const reportKeys = new Set( reporting.reports.map( r => r.key ) );
+        const viewKeys = new Set( [ reporting, read( "configuration/group-syncs.json" ), read( "configuration/registrations.json" ) ].flatMap( f => ( f.dataViews || [] ).map( v => v.key ) ) );
+        const categoryKeys = new Set( read( "configuration/categories.json" ).categories.map( c => c.key ) );
+        const programGuids = new Set( STEP_PROGRAMS.map( p => p.guid ) );
+        const campusLists = new Set( read( "configuration/communications.json" ).lists.lists.filter( l => l.campus ).map( l => l.key ) );
+        const campusKinds = new Set( [ "campus", "campusList", "campusSmallGroups" ] );
+        const kinds = new Set( [ "report", "dataView", "category", "stepProgram", "eventCalendar", "campaignFund", ...campusKinds ] );
+        const nameOf = guid => { const found = people.get( guid ); return found ? `${found.person.nickName || found.person.firstName} ${found.person.lastName}` : null; };
+        const checkLinks = ( who, links, isCampus ) => {
+            for ( const link of links ) {
+                const at = `${who}, link ${link.name}`;
+                if ( link.url !== undefined || !GUID.test( link.page || "" ) ) {
+                    errors.push( `${at}: needs a Rock page by Guid and no url. Links go only to Rock pages.` );
+                }
+                if ( link.part && !parts.has( link.part ) ) {
+                    errors.push( `${at}: part "${link.part}" is not a load part in loader/SampleDataPart.cs.` );
+                }
+                if ( !link.parameter !== !link.target ) {
+                    errors.push( `${at}: give a parameter and a target together, or neither.` );
+                }
+                const target = link.target;
+                if ( !target ) {
+                    continue;
+                }
+                const known = !kinds.has( target.kind ) ? false
+                    : target.kind === "report" ? reportKeys.has( target.key )
+                    : target.kind === "dataView" ? viewKeys.has( target.key )
+                    : target.kind === "category" ? categoryKeys.has( target.key )
+                    : target.kind === "stepProgram" ? programGuids.has( target.guid )
+                    : target.kind === "eventCalendar" ? GUID.test( target.guid || "" )
+                    : target.kind === "campusList" ? campusLists.has( target.key )
+                    : true;
+                if ( !known ) {
+                    errors.push( `${at}: target ${target.kind} ${target.key || target.guid || ""} is not a real ${target.kind}.` );
+                }
+                if ( campusKinds.has( target.kind ) !== isCampus && campusKinds.has( target.kind ) ) {
+                    errors.push( `${at}: a ${target.kind} target belongs only in campusPastorSection.` );
+                }
+            }
+        };
+        if ( !staffGuids.has( config.createdBy ) ) {
+            errors.push( `configuration/personal-links.json: createdBy ${config.createdBy} is not staff.` );
+        }
+        const roles = config.editorRoles.concat( config.sharedSections.flatMap( s => s.security.allow ) );
+        for ( const role of roles.filter( r => !rockRoles.has( r ) ) ) {
+            errors.push( `configuration/personal-links.json: ${role} is not a role in configuration/security-roles.json.` );
+        }
+        for ( const section of config.sharedSections ) {
+            claimGuid( section.guid, `configuration/personal-links.json (shared section ${section.key})` );
+            checkLinks( `configuration/personal-links.json (shared section ${section.key})`, section.links, false );
+        }
+        for ( const section of config.personalSections ) {
+            const who = `configuration/personal-links.json (${section.ownerName}'s ${section.name})`;
+            claimGuid( section.guid, who );
+            if ( !staffGuids.has( section.owner ) || nameOf( section.owner ) !== section.ownerName ) {
+                errors.push( `${who}: owner ${section.owner} must be staff named ${section.ownerName}.` );
+            }
+            checkLinks( who, section.links, false );
+        }
+        const pastorSection = config.campusPastorSection;
+        for ( const campus of [ ...OTHER_CAMPUS_KEYS, ...JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.filter( c => c.rockDefault ).map( c => c.key ) ] ) {
+            if ( !pastorSection.guids[ campus ] ) {
+                errors.push( `configuration/personal-links.json (campusPastorSection): no Guid for ${campus}.` );
+            }
+            else {
+                claimGuid( pastorSection.guids[ campus ], `configuration/personal-links.json (campusPastorSection ${campus})` );
+            }
+        }
+        checkLinks( "configuration/personal-links.json (campusPastorSection)", pastorSection.links, true );
+        for ( const menu of config.menus ) {
+            if ( nameOf( menu.person ) !== menu.name ) {
+                errors.push( `configuration/personal-links.json (menu ${menu.name}): person ${menu.person} is not ${menu.name}.` );
+            }
+        }
+    }
+}
+
+// Tags (configuration/tags.json, decision 302): each tag is organizational, in a tag category, or personal, with a
+// staff member as owner. Everyone it names is in the Cast, and whoever makes or uses an organizational tag may tag
+// people with it under its category's security, as Rock checks in its tag bar.
+{
+    const root = path.join( castDir, ".." );
+    const tagsFile = path.join( root, "configuration", "tags.json" );
+    const config = fs.existsSync( tagsFile ) ? JSON.parse( fs.readFileSync( tagsFile, "utf8" ) ) : null;
+    if ( config ) {
+        const read = f => JSON.parse( fs.readFileSync( path.join( root, "configuration", f ), "utf8" ) );
+        const categories = new Map( read( "categories.json" ).categories.map( c => [ c.key, c ] ) );
+        const staffGuids = new Set( read( "staff.json" ).staff.map( s => s.person ) );
+        const rockRoles = new Map( securityRoleConfiguration.roles.map( r => [ r.name, r.rockRole ] ) );
+        const views = new Map( [ "reporting.json", "group-syncs.json", "registrations.json" ].flatMap( f => read( f ).dataViews || [] ).map( v => [ v.key, v ] ) );
+        const tagKeys = new Map();
+        const tagGuids = new Set();
+        const names = new Set();
+        const isPerson = ( ref, who ) => {
+            const found = ref && people.get( ref.person );
+            if ( !found ) {
+                errors.push( `${who}: ${ref?.person ?? "no one"} is not a Cast person.` );
+                return null;
+            }
+            const name = `${found.person.nickName || found.person.firstName} ${found.person.lastName}`;
+            if ( ref.name !== name ) {
+                errors.push( `${who}: ${ref.person} is ${name}, not ${ref.name}.` );
+            }
+            return found;
+        };
+        const canTag = ( found, category ) => {
+            const rule = ( category.security || [] ).find( s => s.action === "Tag" );
+            return !rule || !rule.denyAllUsers || ( found.person.securityRoles || [] ).some( r => rule.allow.includes( rockRoles.get( r ) ) );
+        };
+        for ( const tag of config.tags ) {
+            const who = `configuration/tags.json (${tag.key})`;
+            if ( !KEY.test( tag.key || "" ) || tagKeys.has( tag.key ) ) {
+                errors.push( `${who}: the key must be unique and in kebab case.` );
+            }
+            tagKeys.set( tag.key, tag );
+            if ( !GUID.test( tag.guid || "" ) || tagGuids.has( tag.guid ) ) {
+                errors.push( `${who}: the Guid must be unique and uppercase.` );
+            }
+            tagGuids.add( tag.guid );
+
+            // Rock's TagService finds a tag by its name and owner, and Tag refuses <, >, %, and & in a name.
+            if ( !tag.name || tag.name.length > 100 || /[<>%&]/.test( tag.name ) || names.has( `${tag.owner?.person}|${tag.name}` ) ) {
+                errors.push( `${who}: the name must be 1 to 100 characters without <, >, %, or &, and unique for its owner.` );
+            }
+            names.add( `${tag.owner?.person}|${tag.name}` );
+            if ( tag.rockShips ) {
+                if ( tag.owner || tag.category || tag.createdBy ) {
+                    errors.push( `${who}: Rock ships this tag, so the loader changes nothing about it but who carries it.` );
+                }
+            } else if ( !!tag.owner === !!tag.category ) {
+                errors.push( `${who}: give a personal tag an owner, or an organizational tag a category, but not both.` );
+            } else if ( !( tag.createdDaysAgo >= 1 ) ) {
+                errors.push( `${who}: createdDaysAgo must be at least 1.` );
+            }
+            if ( tag.owner ) {
+                isPerson( tag.owner, `${who} owner` );
+                if ( !staffGuids.has( tag.owner.person ) ) {
+                    errors.push( `${who}: only staff keep personal tags, and ${tag.owner.name} is not in configuration/staff.json.` );
+                }
+                if ( tag.createdBy ) {
+                    errors.push( `${who}: a personal tag is made by its owner, so it takes no createdBy.` );
+                }
+            }
+            const category = tag.category && categories.get( tag.category );
+            if ( tag.category && category?.entityType !== "Rock.Model.Tag" ) {
+                errors.push( `${who}: category "${tag.category}" is not a tag category in configuration/categories.json.` );
+            }
+            if ( tag.category && !tag.createdBy ) {
+                errors.push( `${who}: an organizational tag needs createdBy.` );
+            }
+            for ( const [ role, ref ] of [ [ "createdBy", tag.createdBy ], [ "taggedBy", tag.taggedBy ] ].filter( r => r[ 1 ] ) ) {
+                const found = isPerson( ref, `${who} ${role}` );
+                if ( found && found.household.campusSlot !== "main" ) {
+                    errors.push( `${who}: ${role} ${ref.name} lives on another campus, so the tag would be missing from datasets without it.` );
+                }
+                if ( found && category && !canTag( found, category ) ) {
+                    errors.push( `${who}: ${ref.name} has no role that may tag people in category "${tag.category}".` );
+                }
+            }
+            for ( const ref of tag.cast || [] ) {
+                const found = isPerson( ref, `${who} cast` );
+                if ( found && found.household.campusSlot !== "main" ) {
+                    errors.push( `${who}: ${ref.name} lives on another campus, so the tag would be missing them in datasets without it.` );
+                }
+            }
+            const draw = tag.draw;
+            if ( draw ) {
+                if ( draw.campus && draw.campus !== "main" && !( draw.campus === "owner" && ( tag.owner || tag.createdBy ) ) ) {
+                    errors.push( `${who}: draw campus "${draw.campus}" must be main, or owner on a tag with an owner or maker.` );
+                }
+                if ( ( draw.percent === undefined ) === ( draw.count === undefined ) ) {
+                    errors.push( `${who}: a draw gives a percent or a count, not both.` );
+                }
+                if ( draw.dataView && !views.has( draw.dataView ) ) {
+                    errors.push( `${who}: data view "${draw.dataView}" is not in any configuration file.` );
+                }
+                for ( const status of draw.statuses || [] ) {
+                    if ( !STATUSES.includes( status ) ) {
+                        errors.push( `${who}: status "${status}" is not a connection status.` );
+                    }
+                }
+            }
+        }
+
+        // Rock's Person Tag filter saves "1|guid" for a personal tag and "2|guid" for an organizational one.
+        const leaves = f => [ ...( f.all || [] ), ...( f.any || [] ), ...( f.none || [] ) ].flatMap( leaves ).concat( f.component ? [ f ] : [] );
+        for ( const view of views.values() ) {
+            for ( const leaf of leaves( view.filter || {} ).filter( l => l.component === "Rock.Reporting.DataFilter.Person.TagFilter" ) ) {
+                const [ type, guid ] = ( leaf.selection || "" ).split( "|" );
+                const tag = config.tags.find( t => t.guid === ( guid || "" ).toUpperCase() );
+                if ( !tag || type !== ( tag.owner ? "1" : "2" ) || guid !== guid.toLowerCase() ) {
+                    errors.push( `Data view ${view.key}: its tag filter must name a tag in configuration/tags.json as Rock saves it, 1 for a personal tag or 2 for an organizational one, a bar, and the tag's Guid in lowercase.` );
+                }
+            }
+        }
+
+        for ( const row of config.access || [] ) {
+            isPerson( { person: row.person, name: row.name }, `configuration/tags.json access (${row.tag})` );
+            if ( !tagKeys.has( row.tag ) || ![ "View", "Tag", "Edit", "Administrate" ].includes( row.action ) || typeof row.allowed !== "boolean" ) {
+                errors.push( `configuration/tags.json access: ${row.name} ${row.action} ${row.tag} needs a tag key, a Rock action, and allowed.` );
             }
         }
     }
@@ -545,13 +836,17 @@ for ( const { file, data: h } of households ) {
         }
 
         // A designed refund names a kind in configuration/refunds.json and a day. A refund of an online gift needs a
-        // pattern that gives online on every install day, so it names card or ach.
+        // pattern that gives online on every install day, so it names card or ach. A returned check needs a pattern
+        // that writes checks, so it names check.
         for ( const refund of gv.refunds || [] ) {
             if ( !REFUND_KIND_KEYS.includes( refund.kind ) ) {
                 errors.push( `${file}: a refund for "${gv.person}" has kind "${refund.kind}", which is not in configuration/refunds.json.` );
             }
             if ( [ "duplicate", "incorrect-amount" ].includes( refund.kind ) && ![ "card", "ach" ].includes( gv.currency ) ) {
                 errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds an online gift, so the pattern's currency must be card or ach.` );
+            }
+            if ( [ "insufficient-funds", "returned-check" ].includes( refund.kind ) && gv.currency !== "check" ) {
+                errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds a check the bank returned, so the pattern's currency must be check.` );
             }
             if ( refund.near === undefined ) {
                 errors.push( `${file}: a refund for "${gv.person}" needs a near date.` );

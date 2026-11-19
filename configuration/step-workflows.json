@@ -1,0 +1,142 @@
+{
+  "$comment": "Step workflows (issue 18, decisions 290 to 294): staff follow-up tasks that Rock starts when a person completes a step, and one that staff start by hand. Each workflow type is tasks only: it sets its people from the step, names itself, assigns its one activity, and waits at a form for the assignee, with no email. When a step of a triggered type is completed, Rock launches the type with the step as its entity and links them with a StepWorkflow row. author built the types and triggers builtMonthsAgo, and the loader writes a workflow for every such step completed since: the ones completed in the last openDays still wait at the form, and the older ones were completed by the assignee.",
+  "author": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+  "builtMonthsAgo": 12,
+  "openDays": 14,
+  "$workflowsComment": "trigger is complete (Rock's Step Completed trigger) or manual (staff start it from the step). person is the workflow attribute set from the step's person. assignee is who gets the task: campusLeader (the leader of the step's campus, which each campus pastor is), staff (a person by Guid), or currentPerson (whoever starts it). Each field shows on the form. A field's history says what a completed task holds: assignee for the person who did the task, yesPercent for a yes or no, ifBaptizedAfter for yes when the person was baptized after the step, and percent and pool for a note.",
+  "workflows": [
+    {
+      "key": "baptism-follow-up",
+      "guid": "5FA1BBED-2C23-41B7-9545-F945290388D7",
+      "name": "Baptism Follow-Up",
+      "description": "A task for the campus pastor after a baptism: record who baptized the person, send their certificate, and offer the next Foundations course.",
+      "category": "workflows-equip",
+      "workTerm": "Follow-Up",
+      "iconCssClass": "ti ti-droplet",
+      "prefix": "BAP",
+      "stepType": "baptism",
+      "trigger": "complete",
+      "person": { "key": "Person", "name": "Person", "description": "The person who was baptized." },
+      "assignee": { "campusLeader": true, "key": "CampusPastor", "name": "Campus Pastor", "description": "The pastor of the campus where the person was baptized." },
+      "form": {
+        "header": "<p>{{ Workflow | Attribute:'Person' }} was baptized. Record who baptized them, send their certificate, and offer them the next Foundations course.</p>",
+        "button": "Complete",
+        "response": "Thanks! The baptism follow-up is complete."
+      },
+      "fields": [
+        { "key": "BaptizedBy", "name": "Baptized By", "type": "person", "required": true, "history": { "assignee": true } },
+        { "key": "CertificateSent", "name": "Certificate Sent", "type": "boolean", "history": { "yesPercent": 100 } },
+        { "key": "FoundationsOffered", "name": "Offered Foundations", "type": "boolean", "history": { "yesPercent": 92 } },
+        {
+          "key": "Notes",
+          "name": "Notes",
+          "type": "memo",
+          "history": {
+            "percent": 35,
+            "pool": [
+              "Mailed the certificate with a handwritten note.",
+              "Gave the certificate after service on Sunday.",
+              "Family came to celebrate. Sent photos with the certificate.",
+              "Signed up for the next Foundations course.",
+              "Wants to wait on Foundations until the next course.",
+              "Asked about joining a small group too.",
+              "Certificate went home with the family.",
+              "Interested in serving. Passed along to the connections team."
+            ]
+          }
+        }
+      ],
+      "completedDaysAfter": { "min": 1, "max": 9 }
+    },
+    {
+      "key": "follow-jesus-follow-up",
+      "guid": "1F4F9579-DAEC-4F9D-8F2D-3873E1B86EB3",
+      "name": "Follow Jesus Follow-Up",
+      "description": "A task for the Student Pastor after a student decides to follow Jesus: talk with the student and their parents about baptism.",
+      "category": "workflows-equip",
+      "workTerm": "Follow-Up",
+      "iconCssClass": "ti ti-heart-handshake",
+      "prefix": "FJF",
+      "stepType": "follow-jesus",
+      "trigger": "complete",
+      "person": { "key": "Student", "name": "Student", "description": "The student who decided to follow Jesus." },
+      "assignee": { "staff": "581C940E-A788-4F32-BCF3-33F4D1948390", "key": "StudentPastor", "name": "Student Pastor", "description": "The pastor who follows up with students." },
+      "form": {
+        "header": "<p>{{ Workflow | Attribute:'Student' }} decided to follow Jesus. Talk with them and their parents about what comes next, including baptism.</p>",
+        "button": "Complete",
+        "response": "Thanks! The follow-up is complete."
+      },
+      "fields": [
+        { "key": "TalkedWithStudent", "name": "Talked With the Student", "type": "boolean", "history": { "yesPercent": 100 } },
+        { "key": "TalkedWithParents", "name": "Talked With Parents", "type": "boolean", "history": { "yesPercent": 85 } },
+        { "key": "InterestedInBaptism", "name": "Interested in Baptism", "type": "boolean", "history": { "ifBaptizedAfter": true, "yesPercent": 45 } },
+        {
+          "key": "Notes",
+          "name": "Notes",
+          "type": "memo",
+          "history": {
+            "percent": 40,
+            "pool": [
+              "Met for lunch after school. So excited!",
+              "Parents were glad to hear it and want to be there for baptism.",
+              "Gave a student Bible and a reading plan.",
+              "Connected with their small group leader.",
+              "Wants to be baptized with a friend.",
+              "Parents are not believers yet. Invited them to Starting Point.",
+              "Talked with them right after the service.",
+              "Following up after the next youth night."
+            ]
+          }
+        }
+      ],
+      "completedDaysAfter": { "min": 1, "max": 7 }
+    },
+    {
+      "key": "volunteer-care-check-in",
+      "guid": "87AE70FF-D469-4005-87E8-A40A626E4511",
+      "name": "Volunteer Care Check-In",
+      "description": "A check-in a staff member starts by hand from a volunteer's Serve step, to see how serving is going.",
+      "category": "workflows-contribute",
+      "workTerm": "Check-In",
+      "iconCssClass": "ti ti-mood-smile",
+      "prefix": "VCC",
+      "stepType": "serve",
+      "trigger": "manual",
+      "person": { "key": "Volunteer", "name": "Volunteer", "description": "The volunteer on the Serve step." },
+      "assignee": { "currentPerson": true, "key": "StaffMember", "name": "Staff Member", "description": "The staff member who started the check-in." },
+      "form": {
+        "header": "<p>Check in with {{ Workflow | Attribute:'Volunteer' }} about how serving is going.</p>",
+        "button": "Complete",
+        "response": "Thanks for checking in."
+      },
+      "fields": [
+        { "key": "HowItIsGoing", "name": "How It Is Going", "type": "memo", "required": true },
+        { "key": "NeedsFollowUp", "name": "Needs Follow-Up", "type": "boolean" }
+      ]
+    }
+  ],
+  "$castComment": "Cast stories. Each names the person whose step starts the workflow, and expect says what Rock shows: open at the form, or complete. A complete one holds its values, and a person field's value is a person by Guid.",
+  "cast": [
+    {
+      "key": "josh-baptism",
+      "workflow": "baptism-follow-up",
+      "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "personName": "Josh Sanders",
+      "expect": "complete",
+      "completedDaysAfter": 3,
+      "values": {
+        "BaptizedBy": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+        "CertificateSent": "True",
+        "FoundationsOffered": "True",
+        "Notes": "Josh's baptism certificate went out in the mail with a note from the staff. He wants to take Foundations in the spring."
+      }
+    },
+    {
+      "key": "dennis-baptism",
+      "workflow": "baptism-follow-up",
+      "person": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "personName": "Dennis Perry",
+      "expect": "open"
+    }
+  ]
+}

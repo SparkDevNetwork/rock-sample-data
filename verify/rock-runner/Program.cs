@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -50,7 +50,8 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, Snippet, or Tag), its Guid, an action, and a
+    ///            person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
@@ -58,10 +59,29 @@ namespace RockSampleData.RockRunner
     ///   segments  Runs Rock's own segment update (PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment,
     ///            what the Update Personalization Data job calls) on every personalization segment, and prints each
     ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
+    ///   process-reminders  Runs Rock's Process Reminders job once, as its stored job with the settings Rock's scheduler
+    ///            gives it, as Rock runs it every weekday morning. Prints "processed" and how many reminders it notified about, then "error" and each
+    ///            error the job recorded, one per line.
+    ///   process-workflows  Runs Rock's Process Workflows job once, as its stored job with the settings Rock's scheduler
+    ///            gives it, as Rock runs it every ten minutes. Prints the job's result.
+    ///   launch-step-workflows  For each input line's step Id, step workflow trigger Id, and workflow attribute key, separated
+    ///            by tabs, launches the trigger's workflow on the step the way Rock does when a step becomes complete, without
+    ///            saving it. Prints the step Id, the workflow's name, the assigned person's Guid, the
+    ///            attribute's value, whether it waits at a form, and Rock's errors, separated by tabs.
     ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
     ///            place of the key, it renders that block's content for the person instead, on one line.
+    ///   email-sections  Checks every email section the way Rock's email editor saves one: the model's validation and the
+    ///            markup's string validation. Prints "ok" and its Guid, or "error", its Guid, and Rock's message.
+    ///   signals  Runs Rock's own Person.CalculateSignals for everyone with a signal, saving nothing, and prints each
+    ///            person whose top signal it would change, then "people" and how many it checked.
+    ///   personal-links  Asks Rock for each input line's person's bookmark menu (PersonalLinkService.GetPersonalLinksData)
+    ///            and whether Rock would add a section order for them, saving nothing. It prints the version Rock keeps for
+    ///            the shared links and midnight today, then a line for each person: the answer, the version of their own
+    ///            links, and each section with its links' names, separated by tabs.
+    ///   notifications  Answers what Rock's top-bar bell shows: for "count" and a person's Guid, how many unread messages
+    ///            Rock counts for them, and for "link" and a message's Guid, the link Rock's Note Mention component opens.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -76,10 +96,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +138,13 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "email-sections" => worker.EmailSections(),
+                    "signals" => worker.Signals(),
+                    "personal-links" => worker.PersonalLinks( lines ),
+                    "notifications" => worker.Notifications( lines ),
+                    "process-reminders" => worker.ProcessReminders(),
+                    "process-workflows" => worker.ProcessWorkflows(),
+                    "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -239,6 +266,113 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs Rock's Process Reminders job as Rock's scheduler does and returns how many reminders it notified about, then
+        /// every error it recorded. The job's own result keeps only five errors, so the runner reads its full list.
+        /// </summary>
+        public string ProcessReminders()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var jobType = _rock.GetType( "Rock.Jobs.ProcessReminders", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "3F697C80-4C33-4552-9038-D3470445EA40" ) );
+            var errors = ( IEnumerable<string> ) ( jobType.GetField( "_jobErrors", Hidden )
+                ?? throw new InvalidOperationException( "This Rock's Process Reminders job has no _jobErrors. The runner needs updating for this Rock." ) ).GetValue( job );
+            var processed = jobType.GetField( "_totalProcessedReminders", Hidden )?.GetValue( job );
+            return string.Join( "\n", new[] { $"processed {processed}" }.Concat( ( errors ?? Enumerable.Empty<string>() ).Select( e => $"error {e.Replace( '\r', ' ' ).Replace( '\n', ' ' )}" ) ) );
+        }
+
+        /// <summary>
+        /// Runs Rock's Process Workflows job as Rock's scheduler does and returns its result text.
+        /// </summary>
+        public string ProcessWorkflows()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var jobType = _rock.GetType( "Rock.Jobs.ProcessWorkflows", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "35EABBDB-1EFA-46F1-86D4-4199FFA2D9A7" ) );
+            return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /*
+            11/18/26 - CLAUDE
+
+            The launch first ran in a transaction it rolled back. Rock saves a persisted workflow as it processes it, and some
+            of Rock's own reads during processing use other connections, which waited on that transaction's locks until they
+            timed out. On Full 7 each launch took minutes and logged timeouts. Rock's WorkflowService.Process saves only when the
+            workflow or its type is persisted, so the runner marks the type's cached copy not persisted, and Rock processes every
+            action exactly as it would and writes nothing.
+
+            Reason: The launch check must prove Rock's own processing without writing to the loaded database.
+        */
+
+        /// <summary>
+        /// Launches step workflows the way Rock's LaunchStepChangeWorkflows task does when a step becomes complete: activates the
+        /// trigger's workflow type with the trigger's name, and processes it with the step as its entity. The type's cached copy
+        /// is marked not persisted, so Rock writes nothing, and a transaction rolled back after each launch catches any write.
+        /// </summary>
+        public string LaunchStepWorkflows( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var contextType = _rock.GetType( "Rock.Data.RockContext", true );
+            var workflowType = _rock.GetType( "Rock.Model.Workflow", true );
+            var typeCache = _rock.GetType( "Rock.Web.Cache.WorkflowTypeCache", true );
+            var activate = workflowType.GetMethod( "Activate", new[] { typeCache, typeof( string ), contextType } )
+                ?? throw new InvalidOperationException( "This Rock has no Workflow.Activate( WorkflowTypeCache, string, RockContext ). The runner needs updating for this Rock." );
+            var workflowService = _rock.GetType( "Rock.Model.WorkflowService", true );
+            var process = workflowService.GetMethod( "Process", new[] { workflowType, typeof( object ), typeof( List<string> ).MakeByRefType() } )
+                ?? throw new InvalidOperationException( "This Rock has no WorkflowService.Process( Workflow, object, out List<string> ). The runner needs updating for this Rock." );
+            var getType = typeCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            object Get( object item, string name ) => item?.GetType().GetProperty( name )?.GetValue( item );
+            object Find( string service, int id, object context ) => _rock.GetType( service, true ).GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( _rock.GetType( service, true ), context ), new object[] { id } );
+
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var context = createContext.Invoke( null, new[] { app } );
+                var database = Get( context, "Database" );
+                var transaction = database.GetType().GetMethod( "BeginTransaction", Type.EmptyTypes ).Invoke( database, null );
+                try
+                {
+                    var step = Find( "Rock.Model.StepService", int.Parse( parts[0] ), context );
+                    var trigger = Find( "Rock.Model.StepWorkflowTriggerService", int.Parse( parts[1] ), context );
+                    var cache = getType.Invoke( null, new[] { Get( trigger, "WorkflowTypeId" ) } );
+                    typeCache.GetProperty( "IsPersisted" ).GetSetMethod( true ).Invoke( cache, new object[] { false } );
+                    var workflow = activate.Invoke( null, new[] { cache, Get( trigger, "WorkflowName" ), context } );
+                    var arguments = new object[] { workflow, step, null };
+                    process.Invoke( Activator.CreateInstance( workflowService, context ), arguments );
+                    var activity = ( ( System.Collections.IEnumerable ) Get( workflow, "Activities" ) ).Cast<object>().FirstOrDefault();
+                    var assignedAliasId = Get( activity, "AssignedPersonAliasId" ) as int?;
+                    var assignee = assignedAliasId.HasValue ? Get( Get( Find( "Rock.Model.PersonAliasService", assignedAliasId.Value, context ), "Person" ), "Guid" ) : null;
+                    var value = workflowType.GetMethod( "GetAttributeValue", new[] { typeof( string ) } ).Invoke( workflow, new object[] { parts[2] } );
+                    var isWaiting = activity != null && ( ( System.Collections.IEnumerable ) Get( activity, "Actions" ) ).Cast<object>()
+                        .Any( a => Get( Get( a, "ActionTypeCache" ), "WorkflowFormId" ) is int && Get( a, "CompletedDateTime" ) == null );
+                    var errors = string.Join( " ", ( ( IEnumerable<string> ) arguments[2] ?? Enumerable.Empty<string>() ).Select( e => e.Replace( '\t', ' ' ).Replace( '\n', ' ' ) ) );
+                    results.Add( $"{parts[0]}\t{Get( workflow, "Name" )}\t{assignee}\t{value}\t{isWaiting}\t{errors}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"{parts[0]}\terror\t\t\tFalse\t{ex.GetBaseException().Message.Replace( '\t', ' ' ).Replace( '\n', ' ' )}" );
+                }
+                finally
+                {
+                    transaction.GetType().GetMethod( "Rollback", Type.EmptyTypes ).Invoke( transaction, null );
+                }
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>
@@ -378,6 +512,53 @@ namespace RockSampleData.RockRunner
         }
 
         /// <summary>
+        /// Checks every email section the way Rock saves one from its email editor: the model's own validation, then the
+        /// string validation the editor's save endpoint runs on the markup (Rock.Rest/v2/ControlsController.cs, Lava and
+        /// basic HTML). Prints "ok" and each section's Guid, or "error", its Guid, and Rock's message, separated by tabs.
+        /// </summary>
+        public string EmailSections()
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.EmailSectionService", true );
+            var sections = ( ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), null ) ).ToList();
+            var enums = Assembly.Load( "Rock.Enums" );
+            var profileType = enums.GetType( "Rock.Enums.Security.StringValidationProfile", true );
+            var ruleType = enums.GetType( "Rock.Enums.Security.StringValidationRule", true );
+            var validator = _rock.GetType( "Rock.Security.StringValueValidator", true );
+            var rules = validator.GetMethod( "GetEffectiveRules", new[] { profileType, ruleType, ruleType } )
+                .Invoke( null, new[] { Enum.Parse( profileType, "LavaAndBasicHtml" ), Enum.ToObject( ruleType, 0 ), Enum.ToObject( ruleType, 0 ) } );
+            var validate = validator.GetMethod( "Validate", new[] { typeof( string ), ruleType, typeof( Type ), typeof( string ) } );
+
+            var lines = new List<string>();
+            foreach ( var section in sections )
+            {
+                var type = section.GetType();
+                var guid = type.GetProperty( "Guid" ).GetValue( section );
+                var problems = new List<string>();
+                if ( !( bool ) type.GetProperty( "IsValid" ).GetValue( section ) )
+                {
+                    problems.AddRange( ( ( System.Collections.IEnumerable ) type.GetProperty( "ValidationResults" ).GetValue( section ) ).Cast<object>().Select( r => r.ToString() ) );
+                }
+
+                try
+                {
+                    validate.Invoke( null, new[] { type.GetProperty( "SourceMarkup" ).GetValue( section ), rules, _rock.GetType( "Rock.Model.EmailSection", true ), "SourceMarkup" } );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    problems.Add( ex.InnerException?.Message ?? ex.Message );
+                }
+
+                lines.Add( problems.Count == 0 ? $"ok\t{guid}" : $"error\t{guid}\t{string.Join( " ", problems )}" );
+            }
+
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
         /// Checks every report's columns against Rock the way its report grid reads them: a property must be one of Rock's
         /// reportable fields for the entity, an attribute must exist, and a data select component must build its expression
         /// from the stored selection. A Lava column is rendered by Rock's Lava engine for the first row its data view finds.
@@ -488,6 +669,7 @@ namespace RockSampleData.RockRunner
         /// <summary>
         /// Asks Rock's own security check whether each person may take each action on each category or data view. Rock walks
         /// the item's parent authorities (a data view's category, then its parent categories) as it does on every page.
+        /// A snippet answers for itself, as SMS Conversations asks it.
         /// </summary>
         public string Authorize( string[] lines )
         {
@@ -507,6 +689,32 @@ namespace RockSampleData.RockRunner
             {
                 var parts = line.Split( '\t' );
                 object item;
+                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                if ( parts[0] == "Tag" )
+                {
+                    // Rock keeps no cache of tags. Its tag bar loads the tag and asks the tag itself, which lets a personal
+                    // tag's owner do anything with it and keeps everyone else out, before Rock's usual rules.
+                    var tagService = _rock.GetType( "Rock.Model.TagService", true );
+                    var tag = tagService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( tagService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    results.Add( tag == null || person == null ? "missing"
+                        : securedType.GetMethod( "IsAuthorized" ).Invoke( tag, new[] { parts[2], person } ).ToString() );
+                    continue;
+                }
+
+                if ( parts[0] == "Snippet" )
+                {
+                    // SMS Conversations asks each snippet itself, whose own check lets only its owner see a personal one
+                    // (Rock.Blocks/Communication/SmsConversations.cs and Snippet.Logic.cs).
+                    var snippetService = _rock.GetType( "Rock.Model.SnippetService", true );
+                    var snippet = snippetService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( snippetService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    var snippetPerson = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                    results.Add( snippet == null || snippetPerson == null ? "missing"
+                        : snippet.GetType().GetMethod( "IsAuthorized", new[] { typeof( string ), _rock.GetType( "Rock.Model.Person", true ) } ).Invoke( snippet, new[] { parts[2], snippetPerson } ).ToString() );
+                    continue;
+                }
+
                 if ( parts[0] == "Report" )
                 {
                     // Rock keeps no cache of reports; its report screens load the report and check it.
@@ -521,6 +729,7 @@ namespace RockSampleData.RockRunner
                         "Category" => "Rock.Web.Cache.CategoryCache",
                         "PersonalizationSegment" => "Rock.Web.Cache.PersonalizationSegmentCache",
                         "Page" => "Rock.Web.Cache.PageCache",
+                        "SignalType" => "Rock.Web.Cache.SignalTypeCache",
                         _ => "Rock.Web.Cache.DataViewCache"
                     };
                     var cache = _rock.GetType( cacheName, true );
@@ -528,7 +737,6 @@ namespace RockSampleData.RockRunner
                         .Invoke( null, new object[] { new Guid( parts[1] ) } );
                 }
 
-                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
                 results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
             }
 
@@ -748,6 +956,144 @@ namespace RockSampleData.RockRunner
         }
 
         /// <summary>
+        /// Runs Rock's own Person.CalculateSignals, the method Rock's signal list and its Calculate Person Signals job run,
+        /// for everyone with a signal, and saves nothing. Prints one line for each person whose top signal it would change:
+        /// their Guid, then the stored and the calculated top signal Id, color, and icon. The last line is "people" and how
+        /// many it checked.
+        /// </summary>
+        public string Signals()
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var context = createContext.Invoke( null, new[] { app } );
+            var signalServiceType = _rock.GetType( "Rock.Model.PersonSignalService", true );
+            var signalType = _rock.GetType( "Rock.Model.PersonSignal", true );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var personType = _rock.GetType( "Rock.Model.Person", true );
+            var calculate = personType.GetMethod( "CalculateSignals", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no Person.CalculateSignals(). The runner needs updating for this Rock." );
+            var signals = ( ( IEnumerable<object> ) signalServiceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( signalServiceType, context ), null ) ).ToList();
+            var personService = Activator.CreateInstance( personServiceType, context );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( int ) } );
+            string Top( object person ) => string.Join( "|", new[] { "TopSignalId", "TopSignalColor", "TopSignalIconCssClass" }.Select( p => personType.GetProperty( p ).GetValue( person )?.ToString() ?? string.Empty ) );
+
+            var lines = new List<string>();
+            var byPerson = signals.GroupBy( s => ( int ) signalType.GetProperty( "PersonId" ).GetValue( s ) ).ToList();
+            foreach ( var group in byPerson )
+            {
+                var person = getPerson.Invoke( personService, new object[] { group.Key } );
+                var own = ( System.Collections.IList ) Activator.CreateInstance( typeof( List<> ).MakeGenericType( signalType ) );
+                foreach ( var signal in group )
+                {
+                    own.Add( signal );
+                }
+
+                personType.GetProperty( "Signals" ).SetValue( person, own );
+                var stored = Top( person );
+                calculate.Invoke( person, null );
+                var calculated = Top( person );
+                if ( stored != calculated )
+                {
+                    lines.Add( $"{personType.GetProperty( "Guid" ).GetValue( person )}\t{stored}\t{calculated}" );
+                }
+            }
+
+            lines.Add( $"people {byPerson.Count}" );
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Asks Rock for each input line's person's bookmark menu, with PersonalLinkService.GetPersonalLinksData, the call
+        /// Rock's bookmark block makes, and runs AddMissingPersonalLinkSectionOrders, which Rock runs when a person opens
+        /// their links page, without saving. The first line is "shared" and the version Rock keeps for the shared links,
+        /// then "today" and midnight today. Each person's line is whether Rock would add a section order, the version of
+        /// their own links, and each section as its name and its links' names, separated by "&gt;", all separated by tabs.
+        /// </summary>
+        public string PersonalLinks( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personType = _rock.GetType( "Rock.Model.Person", true );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var linkServiceType = _rock.GetType( "Rock.Model.PersonalLinkService", true );
+            var getData = linkServiceType.GetMethod( "GetPersonalLinksData", BindingFlags.Public | BindingFlags.Static, null, new[] { personType }, null )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalLinkService.GetPersonalLinksData( Person ). The runner needs updating for this Rock." );
+            var addMissing = linkServiceType.GetMethod( "AddMissingPersonalLinkSectionOrders", new[] { personType } )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalLinkService.AddMissingPersonalLinkSectionOrders( Person ). The runner needs updating for this Rock." );
+            var sharedVersion = _rock.GetType( "Rock.Web.Cache.SharedPersonalLinkSectionCache", true ).GetProperty( "LastModifiedDateTime", BindingFlags.Public | BindingFlags.Static ).GetValue( null );
+            var today = _rock.GetType( "Rock.RockDateTime", true ).GetProperty( "Today", BindingFlags.Public | BindingFlags.Static ).GetValue( null );
+            var results = new List<string> { $"shared\t{( DateTime ) sharedVersion:o}", $"today\t{( DateTime ) today:o}" };
+            foreach ( var line in lines.Where( l => Guid.TryParse( l.Trim(), out _ ) ) )
+            {
+                var context = createContext.Invoke( null, new[] { app } );
+                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, context ), new object[] { new Guid( line.Trim() ) } );
+                if ( person == null )
+                {
+                    results.Add( "missing" );
+                    continue;
+                }
+
+                var data = getData.Invoke( null, new[] { person } );
+                var sections = ( ( System.Collections.IEnumerable ) data.GetType().GetProperty( "PersonLinksSectionList" ).GetValue( data ) ).Cast<object>()
+                    .Select( s => string.Join( ">", new[] { ( string ) s.GetType().GetProperty( "Name" ).GetValue( s ) }
+                        .Concat( ( ( System.Collections.IEnumerable ) s.GetType().GetProperty( "PersonalLinks" ).GetValue( s ) ).Cast<object>().Select( l => ( string ) l.GetType().GetProperty( "Name" ).GetValue( l ) ) ) ) );
+                var added = addMissing.Invoke( Activator.CreateInstance( linkServiceType, context ), new[] { person } );
+                var ownVersion = ( DateTime ) data.GetType().GetProperty( "LastNonSharedLinksModifiedDateTime" ).GetValue( data );
+                results.Add( string.Join( "\t", new[] { added.ToString(), ownVersion.ToString( "o" ) }.Concat( sections ) ) );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Answers what Rock's top-bar bell shows, on Rock's internal site. "count" and a person's Guid gives how many unread
+        /// notification messages Rock counts for them (NotificationMessageService.GetUnreadMessagesForPerson, which the bell
+        /// reads). "link" and a message's Guid gives the link Rock's Note Mention component opens for it.
+        /// </summary>
+        public string Notifications( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var context = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                .Invoke( null, new[] { app } );
+            var siteCache = _rock.GetType( "Rock.Web.Cache.SiteCache", true );
+            var internalSite = siteCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                .Invoke( null, new object[] { new Guid( "C2D29296-6A87-47A9-A753-EE4E9159C4C4" ) } );
+            var serviceType = _rock.GetType( "Rock.Model.NotificationMessageService", true );
+            var service = Activator.CreateInstance( serviceType, context );
+            var messageType = _rock.GetType( "Rock.Model.NotificationMessage", true );
+            var unread = serviceType.GetMethod( "GetUnreadMessagesForPerson", new[] { typeof( Guid ), siteCache } )
+                ?? throw new InvalidOperationException( "This Rock has no NotificationMessageService.GetUnreadMessagesForPerson( Guid, SiteCache ). The runner needs updating for this Rock." );
+            var count = typeof( Queryable ).GetMethods().First( m => m.Name == "Count" && m.GetParameters().Length == 1 ).MakeGenericMethod( messageType );
+            // Rock builds a page's link from the web route table, which its start-up fills from the PageRoute rows.
+            _rock.GetType( "Rock.Web.RockRouteHandler", true ).GetMethod( "RegisterRoutes", BindingFlags.Public | BindingFlags.Static ).Invoke( null, null );
+            var mention = Activator.CreateInstance( _rock.GetType( "Rock.Core.NotificationMessageTypes.NoteMention", true ), nonPublic: true );
+            var action = mention.GetType().GetMethod( "GetActionForNotificationMessage" );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                if ( parts[0] == "count" )
+                {
+                    results.Add( count.Invoke( null, new[] { unread.Invoke( service, new[] { new Guid( parts[1] ), internalSite } ) } ).ToString() );
+                    continue;
+                }
+
+                var message = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( service, new object[] { new Guid( parts[1] ) } );
+                var bag = message == null ? null : action.Invoke( mention, new[] { message, internalSite, null } );
+                results.Add( bag?.GetType().GetProperty( "Url" ).GetValue( bag ) as string ?? "none" );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
         /// Renders Rock's adaptivemessage Lava command for each person and message, as a page with the command enabled
         /// renders it for that person, and returns the adaptation it shows. Views are not tracked, so nothing is written.
         /// </summary>
@@ -857,6 +1203,38 @@ namespace RockSampleData.RockRunner
             }
 
             return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
+        }
+
+        /*
+            11/18/26 - CLAUDE
+
+            Rock's scheduler registers a job type's settings, with their defaults, when it first builds the job
+            (ServiceJobService.UpdateAttributesIfNeeded), and runs the stored job with its settings. A new job definition, as
+            RockJob.ExecuteInternal makes, has no settings, so Process Reminders found no notification and never tried to
+            send one.
+
+            Reason: The Process Reminders and Process Workflows checks must run each job as Rock does.
+        */
+
+        /// <summary>
+        /// Runs a job as Rock's scheduler does: registers its type's settings, then runs its stored ServiceJob with them.
+        /// </summary>
+        private void RunStoredJob( object job, Guid serviceJobGuid )
+        {
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            serviceType.GetMethod( "UpdateAttributesIfNeeded", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof( Type ) }, null )
+                .Invoke( null, new object[] { job.GetType() } );
+            var stored = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), new object[] { serviceJobGuid } )
+                ?? throw new InvalidOperationException( $"Rock has no stored job {serviceJobGuid}." );
+            _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 ).Invoke( null, new[] { stored } );
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { stored.GetType().GetProperty( "Id" ).GetValue( stored ) } );
+            rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
+            Execute( job );
         }
 
         /// <summary>

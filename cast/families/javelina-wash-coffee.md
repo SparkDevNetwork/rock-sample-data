@@ -2,7 +2,7 @@
 
 New household · Business · Phoenix campus · [source](../households/javelina-wash-coffee.json)
 
-Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.
+Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month. After a slow month at the shop, one check came back from the bank for insufficient funds, and Priya recorded it as a returned check.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -19,11 +19,12 @@ Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, 
 
 - Business gift split between two funds.
 - Mailed monthly business checks, each split across two funds.
+- A returned business check, recorded as a refund with Rock's Insufficient Funds reason.
 
 ## Activity
 
 - **Attendance:** none. A business does not attend.
-- **Giving:** **monthly** by Javelina Wash Coffee: $120 General Fund + $40 Mission Fund per gift, by check, gives in 95% of periods, started 2 years ago.
+- **Giving:** **monthly** by Javelina Wash Coffee: $120 General Fund + $40 Mission Fund per gift, by check, gives in 95% of periods, started 2 years ago, an insufficient funds refund of a gift from about 5 months ago.
 
 ## Address
 

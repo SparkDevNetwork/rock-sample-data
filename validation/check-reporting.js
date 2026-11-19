@@ -17,7 +17,8 @@
 
 // Checks configuration/reporting.json and the categories it files under (docs/reporting.md): unique data view keys and
 // Guids across every configuration file, real categories and security roles, views that point only at views that exist
-// and never loop, steps filters that name real programs, stages, and step types, persisted views with one real schedule,
+// and never loop, steps filters that name real programs, stages, and step types, signal filters that name real signal
+// types, persisted views with one real schedule,
 // the consumer rule (a view built on a locked view sits under the same lock), the Sample Data guard on every flow
 // audience in its category, run history overrides that make sense, metrics on a stage view with a metric schedule,
 // access rows that name Cast people and real items, and the personalization segments in adaptive-messages.json, each on
@@ -34,6 +35,7 @@ const reporting = read( "configuration/reporting.json" );
 const categories = read( "configuration/categories.json" ).categories;
 const roles = new Set( read( "configuration/security-roles.json" ).roles.map( r => r.rockRole ) );
 const programs = read( "configuration/steps.json" ).programs;
+const signalTypes = new Set( read( "configuration/signals.json" ).types.map( t => t.key ) );
 const guidPattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/;
 
 // Categories: keys, parents, and security roles.
@@ -133,8 +135,12 @@ for ( const view of reporting.dataViews ) {
     }
 
     for ( const leaf of leaves( view.filter ) ) {
-        if ( leaf.selection == null && !leaf.dataView && !leaf.steps ) {
-            problems.push( `${name}: a ${leaf.component} filter has no selection, data view, or steps` );
+        if ( leaf.selection == null && !leaf.dataView && !leaf.steps && !leaf.signalType ) {
+            problems.push( `${name}: a ${leaf.component} filter has no selection, data view, steps, or signal type` );
+        }
+
+        if ( leaf.signalType && !signalTypes.has( leaf.signalType ) ) {
+            problems.push( `${name}: a signal filter names ${leaf.signalType}, which is not a signal type in configuration/signals.json` );
         }
 
         if ( leaf.steps ) {

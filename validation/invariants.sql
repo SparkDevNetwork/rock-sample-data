@@ -249,6 +249,38 @@ INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionI
 WHERE [r].[ForeignKey] = @ForeignKey
     AND [o].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2D607262-52D6-4724-910D-5C6E8FB89ACC' );
 
+-- check: returned-check-is-a-whole-check
+-- why: Decision 288. Staff record a check the bank returned as a refund with Rock's Insufficient Funds or Returned Check reason. The bank returns the whole check, and a check has no gateway, so Rock's refund only records it. So each such refund is of a check, returns all of it, and has no gateway or gateway code.
+SELECT COUNT(*)
+FROM [FinancialTransactionRefund] AS [r]
+INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [r].[Id]
+INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
+INNER JOIN [DefinedValue] AS [reason] ON [reason].[Id] = [r].[RefundReasonValueId]
+LEFT JOIN [FinancialPaymentDetail] AS [op] ON [op].[Id] = [o].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [op].[CurrencyTypeValueId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND [reason].[Guid] IN ( '40248BD5-59C4-48CE-BD21-8CC094F3655C', '8538611D-3624-4CD4-BB74-8CC7861D2ADB' )
+    AND ( [currency].[Guid] IS NULL OR [currency].[Guid] <> '8B086A19-405A-451F-8D44-174E92D6B402'
+        OR [t].[FinancialGatewayId] IS NOT NULL OR [t].[TransactionCode] IS NOT NULL
+        OR ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [r].[Id] )
+            + ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) <> 0 );
+
+-- check: non-cash-gift-is-rocks
+-- why: Decision 289. Staff enter an in-kind gift in Rock's Transaction Detail block: paid with the Non-Cash Asset currency type, with one of Rock's Non-Cash Asset Types, a summary that Rock's statement prints as the gift's description, and no gateway or gateway code. An asset type belongs only on a non-cash gift. An in-kind gift was never cash, so nothing refunds it.
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [t]
+LEFT JOIN [FinancialPaymentDetail] AS [p] ON [p].[Id] = [t].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [p].[CurrencyTypeValueId]
+LEFT JOIN [DefinedValue] AS [asset] ON [asset].[Id] = [t].[NonCashAssetTypeValueId]
+LEFT JOIN [DefinedType] AS [assetType] ON [assetType].[Id] = [asset].[DefinedTypeId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[Id] = [t].[Id] )
+    AND ( ( [currency].[Guid] = '7950FF66-80EE-E8AB-4A77-4A13EDEB7513'
+            AND ( [assetType].[Guid] IS NULL OR [assetType].[Guid] <> '6B19C65E-FF8F-4ADD-9DA0-48E53FC074A6'
+                OR ISNULL( [t].[Summary], '' ) = '' OR [t].[FinancialGatewayId] IS NOT NULL OR [t].[TransactionCode] IS NOT NULL
+                OR EXISTS ( SELECT 1 FROM [FinancialTransactionRefund] AS [r] WHERE [r].[OriginalTransactionId] = [t].[Id] ) ) )
+        OR ( ( [currency].[Guid] IS NULL OR [currency].[Guid] <> '7950FF66-80EE-E8AB-4A77-4A13EDEB7513' ) AND [t].[NonCashAssetTypeValueId] IS NOT NULL ) );
+
 -- check: member-role-belongs-to-the-group-type
 -- why: Rock only lets a member hold a role of their group's type. The database does not enforce it.
 SELECT COUNT(*)
@@ -1222,10 +1254,10 @@ WHERE [i].[ForeignKey] = @ForeignKey
             AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
 
 -- check: workflow-is-finished-as-rock-leaves-it
--- why: Decision 235. Each sample workflow is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow.
+-- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started has its own rules (issue 18).
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
-WHERE [w].[ForeignKey] = @ForeignKey
+WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] )
     AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] IS NULL OR [w].[InitiatorPersonAliasId] IS NULL OR [w].[CompletedDateTime] > GETDATE()
         OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NOT NULL ) <> 1
         OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act]
@@ -2514,3 +2546,218 @@ FROM [AdaptiveMessageAdaptation] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptationSegment] AS [s] WHERE [s].[AdaptiveMessageAdaptationId] = [a].[Id] )
     AND EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptation] AS [later] WHERE [later].[AdaptiveMessageId] = [a].[AdaptiveMessageId] AND [later].[Order] > [a].[Order] );
+
+-- check: top-signal-is-own-signal
+-- why: Issue 45. Rock keeps a person's top signal on the person, and the Top Person Signal badge draws its color and icon. The top signal must be one of the person's own signals, with its type's color and icon, or Rock would show a flag the person's signal list does not have. Whether it is the right open one depends on today, so verify's signals check asks Rock that on the anchor day.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+LEFT JOIN [PersonSignal] AS [ps] ON [ps].[Id] = [p].[TopSignalId]
+LEFT JOIN [SignalType] AS [st] ON [st].[Id] = [ps].[SignalTypeId]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) AND [p].[TopSignalId] IS NOT NULL
+    AND ( [ps].[PersonId] IS NULL OR [ps].[PersonId] <> [p].[Id]
+        OR ISNULL( [p].[TopSignalColor], '' ) <> [st].[SignalColor] OR ISNULL( [p].[TopSignalIconCssClass], '' ) <> ISNULL( [st].[SignalIconCssClass], '' ) );
+
+-- check: signal-without-end-sets-top-signal
+-- why: Issue 45. A person with a signal that never ends has a top signal, so the Top Person Signal badge shows a flag. Rock sets it whenever a signal is saved.
+SELECT COUNT( DISTINCT [ps].[PersonId] )
+FROM [PersonSignal] AS [ps]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [ps].[PersonId]
+WHERE [ps].[ForeignKey] = @ForeignKey AND [ps].[ExpirationDate] IS NULL AND [p].[TopSignalId] IS NULL;
+
+-- check: tag-is-saved-like-rock
+-- why: Decision 302. Rock's tag bar and Tag Report find a tag on people by Rock's Person entity type, with no qualifier, while it is active. A personal tag belongs to its owner's primary alias, who made it, and has no category. An organizational tag sits in a tag category, whose security decides who can see and use it. Each was made by install day.
+SELECT COUNT(*)
+FROM [Tag] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( [t].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR ISNULL( [t].[EntityTypeQualifierColumn], '' ) <> '' OR ISNULL( [t].[EntityTypeQualifierValue], '' ) <> '' OR [t].[IsActive] = 0
+        OR [t].[CreatedByPersonAliasId] IS NULL OR [t].[CreatedDateTime] >= CAST( GETDATE() AS DATE )
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL
+            AND ( [t].[CategoryId] IS NOT NULL OR [t].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId]
+                OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[PrimaryAliasId] = [t].[OwnerPersonAliasId] ) ) )
+        OR ( [t].[OwnerPersonAliasId] IS NULL
+            AND NOT EXISTS ( SELECT 1 FROM [Category] AS [c] WHERE [c].[Id] = [t].[CategoryId] AND [c].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Tag' ) ) ) );
+
+-- check: tag-name-is-unique-for-its-owner
+-- why: Decision 302. Rock's TagService finds a tag by its name and owner, so two tags on people with one name and owner would send the tag bar to either one.
+SELECT COUNT(*)
+FROM (
+    SELECT [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 ) AS [Owner]
+    FROM [Tag] AS [t]
+    WHERE [t].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    GROUP BY [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 )
+    HAVING COUNT(*) > 1 ) AS [x];
+
+-- check: tagged-item-is-on-a-dataset-person
+-- why: Decision 302. A tagged item finds its person by Guid, with no foreign key, so each one the load wrote is on Rock's Person entity type, points at a person in this dataset, and is the only one for that person and tag, as Rock's tag bar adds it.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Guid] = [ti].[EntityGuid] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) )
+        OR ( SELECT COUNT(*) FROM [TaggedItem] AS [other] WHERE [other].[TagId] = [ti].[TagId] AND [other].[EntityGuid] = [ti].[EntityGuid] ) > 1 );
+
+-- check: tagged-item-is-made-by-someone-who-may-tag
+-- why: Decision 302. Rock's tag bar lets only a personal tag's owner use it, and records who tagged the person. Each person was tagged after the tag was made and before install day.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+INNER JOIN [Tag] AS [t] ON [t].[Id] = [ti].[TagId]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[CreatedByPersonAliasId] IS NULL
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL AND [ti].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId] )
+        OR [ti].[CreatedDateTime] < [t].[CreatedDateTime] OR [ti].[CreatedDateTime] >= CAST( GETDATE() AS DATE ) );
+
+-- check: mention-message-is-rocks
+-- why: Decision 307. Rock's Note Mention component saves one message for each person a note mentions, never its author: its web and mobile "mention" type, the author's name as the title, Rock's sentence about the note, the Key "note-" and the note's Id, the note's time, an expiry 90 days later, a count of 1, and the data its link reads: the note, the person, the author, the person profile page with its PersonId, and the note's anchor. The bell counts it and opens the note only when every part is Rock's.
+SELECT COUNT(*)
+FROM [NotificationMessage] AS [nm]
+INNER JOIN [NotificationMessageType] AS [nmt] ON [nmt].[Id] = [nm].[NotificationMessageTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nmt].[EntityTypeId]
+LEFT JOIN [Note] AS [n] ON [nm].[Key] = 'note-' + CAST( [n].[Id] AS nvarchar( 20 ) )
+LEFT JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+LEFT JOIN [PersonAlias] AS [authorAlias] ON [authorAlias].[Id] = [n].[CreatedByPersonAliasId]
+LEFT JOIN [Person] AS [author] ON [author].[Id] = [authorAlias].[PersonId]
+LEFT JOIN [Person] AS [about] ON [about].[Id] = [n].[EntityId]
+LEFT JOIN [Person] AS [mentioned] ON [mentioned].[PrimaryAliasId] = [nm].[PersonAliasId]
+WHERE [nm].[ForeignKey] = @ForeignKey
+    AND ( [et].[Name] <> 'Rock.Core.NotificationMessageTypes.NoteMention' OR [nmt].[Key] <> 'mention' OR [nmt].[IsWebSupported] = 0 OR [nmt].[IsMobileApplicationSupported] = 0
+        OR [n].[Id] IS NULL OR [mentioned].[Id] IS NULL OR [mentioned].[Id] = [author].[Id] OR [nm].[Count] <> 1
+        OR [nm].[MessageDateTime] <> [n].[CreatedDateTime] OR [nm].[ExpireDateTime] <> DATEADD( DAY, 90, [nm].[MessageDateTime] )
+        OR [nm].[Title] <> [author].[NickName] + ' ' + [author].[LastName] + ISNULL( ' ' + ( SELECT [Value] FROM [DefinedValue] WHERE [Id] = [author].[SuffixValueId] ), '' )
+        OR [nm].[Description] <> 'You were mentioned in a ' + [nt].[Name] + ' about ' + [about].[NickName] + ' ' + [about].[LastName] + ISNULL( ' ' + ( SELECT [Value] FROM [DefinedValue] WHERE [Id] = [about].[SuffixValueId] ), '' ) + '.'
+        OR [nm].[ComponentDataJson] <> CONCAT( '{"NoteId":', [n].[Id], ',"EntityId":', [n].[EntityId], ',"PersonAliasId":', [n].[CreatedByPersonAliasId],
+            ',"SourcePageId":', ( SELECT [Id] FROM [Page] WHERE [Guid] = '08DBD8A5-2C35-4146-B4A8-0F7652348B25' ), ',"SourcePageParameters":{"PersonId":"', [n].[EntityId],
+            '"},"SourcePageAnchor":"NoteRef-', LOWER( REPLACE( CONVERT( nvarchar( 36 ), [n].[Guid] ), '-', '' ) ), '"}' )
+        OR [n].[Text] NOT LIKE '%class="mention"%>@' + [mentioned].[NickName] + ' ' + [mentioned].[LastName] + '</span>%' );
+
+-- check: mention-message-is-read-by-its-date
+-- why: Decision 307. A mention from a note in the last three days waits unread in the bell. The person it mentions has opened every older one, which Rock's notification list marks read.
+SELECT COUNT(*)
+FROM [NotificationMessage] AS [nm]
+WHERE [nm].[ForeignKey] = @ForeignKey
+    AND [nm].[IsRead] = CASE WHEN [nm].[MessageDateTime] >= DATEADD( DAY, -3, CAST( GETDATE() AS DATE ) ) THEN 1 ELSE 0 END;
+
+-- check: recent-mention-has-one-message
+-- why: Decision 307. Every note from the last 89 days that mentions a staff member left them exactly one message, so no mention is missing from the bell and Rock Cleanup, which keeps only the newest message for a person and Key, deletes none. No message is older, so none expires on install day, when Rock Cleanup would delete it.
+SELECT ( SELECT COUNT(*)
+        FROM [Note] AS [n]
+        WHERE [n].[ForeignKey] = @ForeignKey AND [n].[CreatedDateTime] >= DATEADD( DAY, -89, CAST( GETDATE() AS DATE ) ) AND [n].[Text] LIKE '%class="mention"%'
+            AND NOT EXISTS ( SELECT 1 FROM [NotificationMessage] AS [nm] WHERE [nm].[Key] = 'note-' + CAST( [n].[Id] AS nvarchar( 20 ) ) ) )
+    + ( SELECT COUNT(*)
+        FROM [NotificationMessage] AS [nm]
+        WHERE [nm].[ForeignKey] = @ForeignKey
+            AND ( [nm].[MessageDateTime] < DATEADD( DAY, -89, CAST( GETDATE() AS DATE ) )
+                OR EXISTS ( SELECT 1 FROM [NotificationMessage] AS [twin] WHERE [twin].[Key] = [nm].[Key] AND [twin].[PersonAliasId] = [nm].[PersonAliasId] AND [twin].[Id] <> [nm].[Id] ) ) );
+
+-- check: reminder-count-is-what-process-reminders-sets
+-- why: Issue 22. Rock's bell shows each person's ReminderCount, and Rock's Process Reminders job sets it to their reminders of an active type that are not complete and are due by now. A count that differs would change on the job's first run, and the bell would show the wrong number until it ran.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
+    AND ISNULL( [p].[ReminderCount], 0 ) <> (
+        SELECT COUNT(*)
+        FROM [Reminder] AS [r]
+        INNER JOIN [ReminderType] AS [rt] ON [rt].[Id] = [r].[ReminderTypeId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
+        WHERE [pa].[PersonId] = [p].[Id] AND [rt].[IsActive] = 1 AND [r].[IsComplete] = 0 AND [r].[ReminderDate] <= GETDATE() );
+
+-- check: reminder-is-as-rocks-blocks-save-it
+-- why: Issue 22. Rock's reminder blocks save a reminder on its owner's primary alias, about a person's primary alias for a Personal Reminder or a group for a Group Reminder. Its repeat count starts at 0 and never passes its limit, and only a repeating reminder has a period or a count above 0. Completing a repeating reminder with repeats left moves it to its next date instead. A reminder whose person or group is missing makes the Process Reminders job report an error.
+SELECT COUNT(*)
+FROM [Reminder] AS [r]
+INNER JOIN [ReminderType] AS [rt] ON [rt].[Id] = [r].[ReminderTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [rt].[EntityTypeId]
+INNER JOIN [PersonAlias] AS [oa] ON [oa].[Id] = [r].[PersonAliasId]
+INNER JOIN [Person] AS [owner] ON [owner].[Id] = [oa].[PersonId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [owner].[PrimaryAliasId] <> [oa].[Id]
+        OR [et].[Name] NOT IN ( 'Rock.Model.PersonAlias', 'Rock.Model.Group' )
+        OR ( [et].[Name] = 'Rock.Model.PersonAlias' AND NOT EXISTS ( SELECT 1 FROM [PersonAlias] AS [ea] INNER JOIN [Person] AS [ep] ON [ep].[Id] = [ea].[PersonId] WHERE [ea].[Id] = [r].[EntityId] AND [ep].[PrimaryAliasId] = [ea].[Id] ) )
+        OR ( [et].[Name] = 'Rock.Model.Group' AND NOT EXISTS ( SELECT 1 FROM [Group] AS [g] WHERE [g].[Id] = [r].[EntityId] ) )
+        OR ISNULL( [r].[RenewCurrentCount], -1 ) < 0
+        OR [r].[RenewPeriodDays] <= 0
+        OR ( [r].[RenewPeriodDays] IS NULL AND ( [r].[RenewCurrentCount] <> 0 OR [r].[RenewMaxCount] IS NOT NULL ) )
+        OR [r].[RenewCurrentCount] > [r].[RenewMaxCount]
+        OR ( [r].[IsComplete] = 1 AND [r].[RenewPeriodDays] IS NOT NULL AND ( [r].[RenewMaxCount] IS NULL OR [r].[RenewCurrentCount] < [r].[RenewMaxCount] ) )
+        OR [r].[CreatedDateTime] > [r].[ModifiedDateTime] OR [r].[ModifiedDateTime] > GETDATE() );
+
+-- check: reminder-never-comes-due-during-install-day
+-- why: Issue 22. The loader counts each owner's reminders due as of the install day. A reminder that is not complete and comes due partway through that day would raise the count when Rock's Process Reminders job next runs, so every reminder is due by midnight or dated tomorrow or later.
+SELECT COUNT(*)
+FROM [Reminder] AS [r]
+WHERE [r].[ForeignKey] = @ForeignKey AND [r].[IsComplete] = 0
+    AND [r].[ReminderDate] > CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) AND [r].[ReminderDate] < DATEADD( DAY, 1, CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) );
+
+-- check: step-workflow-is-as-rock-launches-it
+-- why: Issue 18. When a step becomes complete, Rock launches each Step Completed trigger's workflow type with the step as the workflow's entity, on its message bus, so nobody is the initiator, and links the step, the trigger, and the workflow with one StepWorkflow row. The workflow is the trigger's type, its step is of the trigger's step type and complete, and it started when the step was completed or later.
+SELECT COUNT(*)
+FROM [StepWorkflow] AS [sw]
+INNER JOIN [StepWorkflowTrigger] AS [t] ON [t].[Id] = [sw].[StepWorkflowTriggerId]
+INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+INNER JOIN [Step] AS [s] ON [s].[Id] = [sw].[StepId]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+WHERE [sw].[ForeignKey] = @ForeignKey
+    AND ( [t].[TriggerType] <> 2 OR [t].[StepTypeId] <> [s].[StepTypeId] OR [w].[WorkflowTypeId] <> [t].[WorkflowTypeId] OR [ss].[IsCompleteStatus] = 0
+        OR [w].[EntityId] <> [s].[Id] OR [w].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Step' )
+        OR [w].[InitiatorPersonAliasId] IS NOT NULL OR [w].[ActivatedDateTime] < [s].[CompletedDateTime] OR [w].[ActivatedDateTime] > GETDATE()
+        OR ( SELECT COUNT(*) FROM [StepWorkflow] AS [other] WHERE [other].[StepId] = [s].[Id] AND [other].[StepWorkflowTriggerId] = [t].[Id] ) <> 1 );
+
+-- check: completed-step-has-its-workflow
+-- why: Issue 18. Rock launches a Step Completed trigger's workflow for every step of its type completed after the trigger was made, so each such step has one.
+SELECT COUNT(*)
+FROM [Step] AS [s]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId] AND [ss].[IsCompleteStatus] = 1
+INNER JOIN [StepWorkflowTrigger] AS [t] ON [t].[StepTypeId] = [s].[StepTypeId] AND [t].[TriggerType] = 2 AND [t].[ForeignKey] = @ForeignKey
+WHERE [s].[ForeignKey] = @ForeignKey AND [s].[CompletedDateTime] >= [t].[CreatedDateTime]
+    AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[StepId] = [s].[Id] AND [sw].[StepWorkflowTriggerId] = [t].[Id] );
+
+-- check: step-workflow-waits-at-its-form-or-is-complete
+-- why: Issue 18. A step workflow has one activity, assigned to a person. An open one waits at its form: every action before the form is complete, the form is processed but not complete, and nothing after it has run, so Rock's My Workflows list shows it to that person. A completed one has every action complete and its form submitted with a button, by its assignee.
+SELECT COUNT(*)
+FROM [StepWorkflow] AS [sw]
+INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+WHERE [sw].[ForeignKey] = @ForeignKey
+    AND ( ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] ) <> 1
+        OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id]
+            AND ( [act].[AssignedPersonAliasId] IS NULL OR [act].[ActivatedDateTime] IS NULL
+                OR ( [w].[CompletedDateTime] IS NULL AND [act].[CompletedDateTime] IS NOT NULL ) OR ( [w].[CompletedDateTime] IS NOT NULL AND [act].[CompletedDateTime] IS NULL ) ) )
+        OR ( [w].[CompletedDateTime] IS NULL AND ( [w].[Status] <> 'Active' OR [w].[IsProcessing] = 1 OR EXISTS (
+            SELECT 1
+            FROM [WorkflowActivity] AS [act]
+            INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [act].[ActivityTypeId]
+            INNER JOIN [WorkflowActionType] AS [form] ON [form].[ActivityTypeId] = [act].[ActivityTypeId] AND [form].[WorkflowFormId] IS NOT NULL
+            LEFT JOIN [WorkflowAction] AS [ac] ON [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id]
+            WHERE [act].[WorkflowId] = [w].[Id]
+                AND ( [ac].[Id] IS NULL
+                    OR ( [at].[Order] < [form].[Order] AND [ac].[CompletedDateTime] IS NULL )
+                    OR ( [at].[Order] = [form].[Order] AND ( [ac].[CompletedDateTime] IS NOT NULL OR [ac].[LastProcessedDateTime] IS NULL ) )
+                    OR ( [at].[Order] > [form].[Order] AND [ac].[CompletedDateTime] IS NOT NULL ) ) ) ) )
+        OR ( [w].[CompletedDateTime] IS NOT NULL AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] > GETDATE()
+            OR EXISTS (
+                SELECT 1
+                FROM [WorkflowActivity] AS [act]
+                INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [act].[ActivityTypeId]
+                LEFT JOIN [WorkflowAction] AS [ac] ON [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id]
+                WHERE [act].[WorkflowId] = [w].[Id] AND ( [ac].[CompletedDateTime] IS NULL OR ( [at].[WorkflowFormId] IS NOT NULL AND [ac].[FormAction] IS NULL ) ) )
+            OR NOT EXISTS (
+                SELECT 1
+                FROM [WorkflowActivity] AS [act]
+                INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [act].[AssignedPersonAliasId]
+                INNER JOIN [PersonAlias] AS [mpa] ON [mpa].[Id] = [w].[ModifiedByPersonAliasId]
+                WHERE [act].[WorkflowId] = [w].[Id] AND [apa].[PersonId] = [mpa].[PersonId] ) ) ) );
+
+-- check: step-workflow-type-keeps-its-workflows
+-- why: Issue 18. Rock Cleanup completes a workflow older than its type's age limit, deletes a completed one and its step link after its type's retention period, and deletes logs after the log retention period. A form that sends an email would send it when Process Workflows first runs it. So every workflow type a step triggers is active and persisted, with none of those limits and no form email, and the jobs leave each open workflow open and each completed one as it is.
+SELECT COUNT(*)
+FROM [StepWorkflowTrigger] AS [t]
+INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [t].[WorkflowTypeId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( [wt].[IsActive], 0 ) = 0 OR [wt].[IsPersisted] = 0 OR [wt].[MaxWorkflowAgeDays] IS NOT NULL OR [wt].[CompletedWorkflowRetentionPeriod] IS NOT NULL
+        OR [wt].[LogRetentionPeriod] IS NOT NULL OR [wt].[CategoryId] IS NULL
+        OR [t].[IsActive] = 0 OR ISNULL( [t].[TypeQualifier], '' ) <> '|' OR [t].[StepTypeId] IS NULL
+        OR [t].[StepProgramId] IS NULL OR [t].[StepProgramId] <> ( SELECT [st].[StepProgramId] FROM [StepType] AS [st] WHERE [st].[Id] = [t].[StepTypeId] )
+        OR EXISTS ( SELECT 1
+            FROM [WorkflowActivityType] AS [actt]
+            INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [actt].[Id]
+            INNER JOIN [WorkflowActionForm] AS [f] ON [f].[Id] = [at].[WorkflowFormId]
+            WHERE [actt].[WorkflowTypeId] = [wt].[Id] AND [f].[NotificationSystemCommunicationId] IS NOT NULL ) );

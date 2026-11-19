@@ -1,0 +1,55 @@
+{
+  "$comment": "The church's email sections for Rock's newer email editor, which staff drag into an email (README.md, email-sections.json, decision 301). 'category' is a Rock.Model.EmailSection category's key in configuration/categories.json. Each section is a title, text, and a button, with an optional eyebrow line above the title and an optional photo of an approved calendar event (photos/events/manifest.json). 'card' gives the section a background: 'light' is the template's page color and 'accent' its accent color, from the template's Lava fields in configuration/communications.json. A section with 'serviceTimes' lists each of the dataset's campuses with its Sunday service times, filled in at load. email-sections/make-sections.js builds each section's markup with Rock's own email editor code, and its thumbnail, into email-sections/.",
+  "category": "church-email-sections",
+  "sections": [
+    {
+      "key": "service-times",
+      "name": "Service Times",
+      "usageSummary": "A card with the Sunday service times at every campus and a button to plan a visit. Use it in a welcome or holiday email.",
+      "guid": "DF4A25C6-663E-4BAD-9E49-5768DEDB7E3E",
+      "thumbnailGuid": "5017D3BC-3F5D-48C4-9457-3EDEF2F5B520",
+      "card": "light",
+      "eyebrow": "Join us Sunday",
+      "title": "Service times",
+      "text": "Every service has the same message, kids rooms for every age, and a welcome tent by the front doors.",
+      "serviceTimes": true,
+      "button": { "text": "Plan your visit", "href": "/next-steps" }
+    },
+    {
+      "key": "upcoming-event",
+      "name": "Upcoming Event",
+      "usageSummary": "An event photo, title, and short description with a sign-up button. Swap in the event you are promoting.",
+      "guid": "A2AE559E-1618-4C1C-B3E9-779790201EFB",
+      "thumbnailGuid": "BAC242D1-3DFC-46EC-A2BF-2E13D36B9ADD",
+      "image": { "event": "parents-night-out", "guid": "B22337F8-9837-4F91-A1D9-D7FDADED7AAD", "alt": "Parents' Night Out" },
+      "eyebrow": "Coming up",
+      "title": "Parents' Night Out",
+      "text": "Drop off the kids for pizza, games, and a movie, and go have a night to yourselves. Spots are limited, so sign up early.",
+      "button": { "text": "Sign up", "href": "/events" }
+    },
+    {
+      "key": "give-online",
+      "name": "Give Online",
+      "usageSummary": "A teal card that invites people to give online, with a Give button. Use it near the end of an email.",
+      "guid": "C88E506A-1A3B-4C6C-A06F-BA43665C22A2",
+      "thumbnailGuid": "A47C75DF-C7FB-46CD-B96E-41FAA606EC07",
+      "card": "accent",
+      "eyebrow": "Generosity",
+      "title": "Give online",
+      "text": "Thank you for giving. Your generosity helps people take a next step at every campus. Give once, or set up a recurring gift in a few minutes.",
+      "button": { "text": "Give now", "href": "/give" }
+    },
+    {
+      "key": "campaign-update",
+      "name": "Built on the Rock Update",
+      "usageSummary": "The campaign's artwork, a short update, and a button to the campaign page. Use it in a Built on the Rock update.",
+      "guid": "8605DC24-978C-495C-8EEC-442C244EF68C",
+      "thumbnailGuid": "2DD06AC1-ABD5-4B73-AB19-507ACBF3698A",
+      "image": { "event": "commitment-sunday", "guid": "45606214-39F5-4593-ABF0-57077A449179", "alt": "Built on the Rock" },
+      "eyebrow": "Built on the Rock",
+      "title": "Building on a foundation that lasts",
+      "text": "Thank you for building with us. Every gift moves us closer to a Student Center at the Phoenix campus and new kids rooms at every campus.",
+      "button": { "text": "See the progress", "href": "/built-on-the-rock" }
+    }
+  ]
+}

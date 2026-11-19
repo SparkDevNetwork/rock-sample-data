@@ -410,7 +410,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// One kind of refund: duplicate, incorrect-amount, one-fund, or earlier-year.
+    /// One kind of refund: duplicate, incorrect-amount, one-fund, earlier-year, insufficient-funds, or returned-check.
     /// </summary>
     internal sealed class RefundKindDefinition
     {
@@ -454,6 +454,62 @@ namespace RockSampleData.Loader.Model
         public int Min { get; set; }
 
         public int Max { get; set; }
+    }
+
+    /// <summary>
+    /// configuration/in-kind-gifts.json: gifts of stock, vehicles, and equipment, which Rock records with the Non-Cash
+    /// Asset currency type (decision 289).
+    /// </summary>
+    internal sealed class InKindGiftsConfiguration
+    {
+        public List<InKindKindDefinition> Kinds { get; set; } = new List<InKindKindDefinition>();
+    }
+
+    /// <summary>
+    /// One kind of in-kind gift: stock, vehicle, or equipment.
+    /// </summary>
+    internal sealed class InKindKindDefinition
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// One of Rock's shipped Non-Cash Asset Types, by its value, such as Stocks And Bonds.
+        /// </summary>
+        public string AssetType { get; set; }
+
+        /// <summary>
+        /// The chance each year that a generated household that gives makes a gift of this kind, per 1,000 households.
+        /// Zero for stock, which the giving patterns and the building campaign plan.
+        /// </summary>
+        public double PerThousandGivingHouseholdsPerYear { get; set; }
+
+        /// <summary>
+        /// The fund the gift goes to, by name in configuration/accounts.json.
+        /// </summary>
+        public string Fund { get; set; }
+
+        public List<InKindItem> Items { get; set; } = new List<InKindItem>();
+    }
+
+    /// <summary>
+    /// One thing a household might give: what staff typed as the gift's summary, and its fair value. Stock has no
+    /// value here, since its giving pattern sizes it.
+    /// </summary>
+    internal sealed class InKindItem
+    {
+        public string Summary { get; set; }
+
+        public AmountRange Value { get; set; }
+    }
+
+    /// <summary>
+    /// A dollar or rate range, at least and at most.
+    /// </summary>
+    internal sealed class AmountRange
+    {
+        public decimal Min { get; set; }
+
+        public decimal Max { get; set; }
     }
 
     /// <summary>
