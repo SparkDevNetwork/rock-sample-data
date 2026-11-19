@@ -774,7 +774,7 @@ if ( conversationsFile && checkKeys( "conversations.json", conversationsFile, [ 
     summary.push( `conversations.json\n    ${topics.length} topics (${where}), ${entries} texts (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
 }
 
-// snippets.json: the SMS snippets staff insert in SMS Conversations (decision D-snippets-1). A shared snippet has a
+// snippets.json: the SMS snippets staff insert in SMS Conversations (decision 299). A shared snippet has a
 // category so staff find it in the picker. An owned one belongs to a staff member, or to each campus pastor. A snippet
 // with campusGuids loads once per campus, so it may use the campus tokens. Every one fills in the person's nickname.
 const snippetsFile = readFile( "snippets.json" );
@@ -901,7 +901,7 @@ if ( snippetsFile && checkKeys( "snippets.json", snippetsFile, [ "replyShare", "
     summary.push( `snippets.json\n    ${snippets.length} snippets (${snippets.length - personal} shared, ${personal} personal, ${perCampus} once per campus) in ${usedCategories.size} categories, ${withTopics} used in generated replies (${share}% are ${SMS_TYPICAL_MAX} characters or fewer)` );
 }
 
-// email-sections.json: the church's sections for Rock's newer email editor (decision D-snippets-3). Each section's
+// email-sections.json: the church's sections for Rock's newer email editor (decision 301). Each section's
 // markup and thumbnails in email-sections/ come from make-sections.js, so a section whose markup no longer holds its
 // own words, Guids, and link was changed without running it again.
 const sectionsFile = readFile( "email-sections.json" );

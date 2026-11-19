@@ -250,7 +250,7 @@ WHERE [r].[ForeignKey] = @ForeignKey
     AND [o].[TransactionTypeValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2D607262-52D6-4724-910D-5C6E8FB89ACC' );
 
 -- check: returned-check-is-a-whole-check
--- why: Decision D-uncommon-1. Staff record a check the bank returned as a refund with Rock's Insufficient Funds or Returned Check reason. The bank returns the whole check, and a check has no gateway, so Rock's refund only records it. So each such refund is of a check, returns all of it, and has no gateway or gateway code.
+-- why: Decision 288. Staff record a check the bank returned as a refund with Rock's Insufficient Funds or Returned Check reason. The bank returns the whole check, and a check has no gateway, so Rock's refund only records it. So each such refund is of a check, returns all of it, and has no gateway or gateway code.
 SELECT COUNT(*)
 FROM [FinancialTransactionRefund] AS [r]
 INNER JOIN [FinancialTransaction] AS [t] ON [t].[Id] = [r].[Id]
@@ -266,7 +266,7 @@ WHERE [r].[ForeignKey] = @ForeignKey
             + ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) <> 0 );
 
 -- check: non-cash-gift-is-rocks
--- why: Decision D-uncommon-2. Staff enter an in-kind gift in Rock's Transaction Detail block: paid with the Non-Cash Asset currency type, with one of Rock's Non-Cash Asset Types, a summary that Rock's statement prints as the gift's description, and no gateway or gateway code. An asset type belongs only on a non-cash gift. An in-kind gift was never cash, so nothing refunds it.
+-- why: Decision 289. Staff enter an in-kind gift in Rock's Transaction Detail block: paid with the Non-Cash Asset currency type, with one of Rock's Non-Cash Asset Types, a summary that Rock's statement prints as the gift's description, and no gateway or gateway code. An asset type belongs only on a non-cash gift. An in-kind gift was never cash, so nothing refunds it.
 SELECT COUNT(*)
 FROM [FinancialTransaction] AS [t]
 LEFT JOIN [FinancialPaymentDetail] AS [p] ON [p].[Id] = [t].[FinancialPaymentDetailId]
@@ -2498,7 +2498,7 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [ps].[PersonId]
 WHERE [ps].[ForeignKey] = @ForeignKey AND [ps].[ExpirationDate] IS NULL AND [p].[TopSignalId] IS NULL;
 
 -- check: tag-is-saved-like-rock
--- why: Decision D-tags-1. Rock's tag bar and Tag Report find a tag on people by Rock's Person entity type, with no qualifier, while it is active. A personal tag belongs to its owner's primary alias, who made it, and has no category. An organizational tag sits in a tag category, whose security decides who can see and use it. Each was made by install day.
+-- why: Decision 302. Rock's tag bar and Tag Report find a tag on people by Rock's Person entity type, with no qualifier, while it is active. A personal tag belongs to its owner's primary alias, who made it, and has no category. An organizational tag sits in a tag category, whose security decides who can see and use it. Each was made by install day.
 SELECT COUNT(*)
 FROM [Tag] AS [t]
 WHERE [t].[ForeignKey] = @ForeignKey
@@ -2512,7 +2512,7 @@ WHERE [t].[ForeignKey] = @ForeignKey
             AND NOT EXISTS ( SELECT 1 FROM [Category] AS [c] WHERE [c].[Id] = [t].[CategoryId] AND [c].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Tag' ) ) ) );
 
 -- check: tag-name-is-unique-for-its-owner
--- why: Decision D-tags-1. Rock's TagService finds a tag by its name and owner, so two tags on people with one name and owner would send the tag bar to either one.
+-- why: Decision 302. Rock's TagService finds a tag by its name and owner, so two tags on people with one name and owner would send the tag bar to either one.
 SELECT COUNT(*)
 FROM (
     SELECT [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 ) AS [Owner]
@@ -2522,7 +2522,7 @@ FROM (
     HAVING COUNT(*) > 1 ) AS [x];
 
 -- check: tagged-item-is-on-a-dataset-person
--- why: Decision D-tags-1. A tagged item finds its person by Guid, with no foreign key, so each one the load wrote is on Rock's Person entity type, points at a person in this dataset, and is the only one for that person and tag, as Rock's tag bar adds it.
+-- why: Decision 302. A tagged item finds its person by Guid, with no foreign key, so each one the load wrote is on Rock's Person entity type, points at a person in this dataset, and is the only one for that person and tag, as Rock's tag bar adds it.
 SELECT COUNT(*)
 FROM [TaggedItem] AS [ti]
 WHERE [ti].[ForeignKey] = @ForeignKey
@@ -2531,7 +2531,7 @@ WHERE [ti].[ForeignKey] = @ForeignKey
         OR ( SELECT COUNT(*) FROM [TaggedItem] AS [other] WHERE [other].[TagId] = [ti].[TagId] AND [other].[EntityGuid] = [ti].[EntityGuid] ) > 1 );
 
 -- check: tagged-item-is-made-by-someone-who-may-tag
--- why: Decision D-tags-1. Rock's tag bar lets only a personal tag's owner use it, and records who tagged the person. Each person was tagged after the tag was made and before install day.
+-- why: Decision 302. Rock's tag bar lets only a personal tag's owner use it, and records who tagged the person. Each person was tagged after the tag was made and before install day.
 SELECT COUNT(*)
 FROM [TaggedItem] AS [ti]
 INNER JOIN [Tag] AS [t] ON [t].[Id] = [ti].[TagId]
@@ -2541,7 +2541,7 @@ WHERE [ti].[ForeignKey] = @ForeignKey
         OR [ti].[CreatedDateTime] < [t].[CreatedDateTime] OR [ti].[CreatedDateTime] >= CAST( GETDATE() AS DATE ) );
 
 -- check: mention-message-is-rocks
--- why: Decision D-notify-1. Rock's Note Mention component saves one message for each person a note mentions, never its author: its web and mobile "mention" type, the author's name as the title, Rock's sentence about the note, the Key "note-" and the note's Id, the note's time, an expiry 90 days later, a count of 1, and the data its link reads: the note, the person, the author, the person profile page with its PersonId, and the note's anchor. The bell counts it and opens the note only when every part is Rock's.
+-- why: Decision 307. Rock's Note Mention component saves one message for each person a note mentions, never its author: its web and mobile "mention" type, the author's name as the title, Rock's sentence about the note, the Key "note-" and the note's Id, the note's time, an expiry 90 days later, a count of 1, and the data its link reads: the note, the person, the author, the person profile page with its PersonId, and the note's anchor. The bell counts it and opens the note only when every part is Rock's.
 SELECT COUNT(*)
 FROM [NotificationMessage] AS [nm]
 INNER JOIN [NotificationMessageType] AS [nmt] ON [nmt].[Id] = [nm].[NotificationMessageTypeId]
@@ -2564,14 +2564,14 @@ WHERE [nm].[ForeignKey] = @ForeignKey
         OR [n].[Text] NOT LIKE '%class="mention"%>@' + [mentioned].[NickName] + ' ' + [mentioned].[LastName] + '</span>%' );
 
 -- check: mention-message-is-read-by-its-date
--- why: Decision D-notify-1. A mention from a note in the last three days waits unread in the bell. The person it mentions has opened every older one, which Rock's notification list marks read.
+-- why: Decision 307. A mention from a note in the last three days waits unread in the bell. The person it mentions has opened every older one, which Rock's notification list marks read.
 SELECT COUNT(*)
 FROM [NotificationMessage] AS [nm]
 WHERE [nm].[ForeignKey] = @ForeignKey
     AND [nm].[IsRead] = CASE WHEN [nm].[MessageDateTime] >= DATEADD( DAY, -3, CAST( GETDATE() AS DATE ) ) THEN 1 ELSE 0 END;
 
 -- check: recent-mention-has-one-message
--- why: Decision D-notify-1. Every note from the last 89 days that mentions a staff member left them exactly one message, so no mention is missing from the bell and Rock Cleanup, which keeps only the newest message for a person and Key, deletes none. No message is older, so none expires on install day, when Rock Cleanup would delete it.
+-- why: Decision 307. Every note from the last 89 days that mentions a staff member left them exactly one message, so no mention is missing from the bell and Rock Cleanup, which keeps only the newest message for a person and Key, deletes none. No message is older, so none expires on install day, when Rock Cleanup would delete it.
 SELECT ( SELECT COUNT(*)
         FROM [Note] AS [n]
         WHERE [n].[ForeignKey] = @ForeignKey AND [n].[CreatedDateTime] >= DATEADD( DAY, -89, CAST( GETDATE() AS DATE ) ) AND [n].[Text] LIKE '%class="mention"%'

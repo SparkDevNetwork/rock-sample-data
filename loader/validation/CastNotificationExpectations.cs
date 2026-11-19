@@ -26,7 +26,7 @@ namespace RockSampleData.Loader.Validation
 {
     /// <summary>
     /// Checks that each recent mention in a Cast note left its staff member the notification message Rock's Note Mention
-    /// component makes (decision D-notify-1): one per note and person, unread when the note is from the last three days,
+    /// component makes (decision 307): one per note and person, unread when the note is from the last three days,
     /// and opening the note on the person's profile.
     /// </summary>
     internal static class CastNotificationExpectations

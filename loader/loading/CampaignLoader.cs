@@ -131,7 +131,7 @@ WHERE [p].[Guid] = @PageGuid AND [bt].[Guid] IN ( {typeNames} )",
         /// <summary>
         /// Shows the campaign's pledges on the contribution statement, with gifts to its campus accounts counted. Its stock
         /// gifts count too, as they do in Pledge Analytics, so the statement agrees with Rock's pledge screens
-        /// (decision D-uncommon-2).
+        /// (decision 289).
         /// </summary>
         private void LoadStatementTemplate( Guid templateGuid, int fundId )
         {

@@ -55,7 +55,7 @@
       },
       "time": "10:15",
       "text": "Called Hal this morning. He is out of large-print prayer guides and would love the new one before the first Saturday visit. {@alisha}, could you mail him a copy this week?",
-      "testPurpose": "A recent mention of Alisha Marble, so signing in as admin shows an unread mention in the bell (decision D-notify-2)."
+      "testPurpose": "A recent mention of Alisha Marble, so signing in as admin shows an unread mention in the bell (decision 308)."
     }
   ]
 }

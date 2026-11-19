@@ -11,8 +11,8 @@ The hand-written messages the sample church sends: emails, texts, and pushes. Th
 | `emails.json` | Every other email: seasonal sends, ministry sends, pastoral letters, and one-to-one messages. |
 | `texts.json` | Texts and pushes, plus the reply pools for texts that ask for an answer. |
 | `conversations.json` | The pools that generated text conversations are built from. |
-| `snippets.json` | The SMS snippets staff insert in SMS Conversations: shared ones, personal ones, and who may see which (decision D-snippets-1). |
-| `email-sections.json` | The church's sections for Rock's newer email editor: each one's words, link, card, and photo (decision D-snippets-3). |
+| `snippets.json` | The SMS snippets staff insert in SMS Conversations: shared ones, personal ones, and who may see which (decision 299). |
+| `email-sections.json` | The church's sections for Rock's newer email editor: each one's words, link, card, and photo (decision 301). |
 | `email-sections/` | Each section's markup (`<key>.html`) and thumbnail (`<key>.png`, or `<key>-<dataset>.png`), and `make-sections.js`, which builds them with Rock's own email editor code. |
 | `email-template.html` | The sample church's branded email template for Rock's older email editor, with its colors as Lava fields (see [configuration/communications.json](../../configuration/communications.json)). |
 | `email-template-wizard.html` | The same template in the rows and components of Rock's newer email editor, which the Communication Entry Wizard lists. Its colors are written in, and `check-library.js` checks they match the Lava fields above (decision 269). |

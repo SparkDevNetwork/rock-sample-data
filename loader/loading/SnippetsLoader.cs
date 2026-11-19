@@ -34,7 +34,7 @@ namespace RockSampleData.Loader.Loading
         so each row is written that way: shared ones by the church's communications sender, and personal ones by
         their owner, before the first text that uses them.
 
-        Reason: Staff open SMS Conversations to a snippet picker the church already filled (decision D-snippets-1).
+        Reason: Staff open SMS Conversations to a snippet picker the church already filled (decision 299).
     */
 
     /// <summary>

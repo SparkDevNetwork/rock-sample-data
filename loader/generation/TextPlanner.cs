@@ -495,7 +495,7 @@ namespace RockSampleData.Loader.Generation
             for one campus answers only that campus's people. The choice draws from its own stream, after the
             thread's own draws, so every thread keeps its length, times, and texts, and only that reply's words change.
 
-            Reason: The SMS history shows the snippets in use (decision D-snippets-2).
+            Reason: The SMS history shows the snippets in use (decision 300).
         */
 
         /// <summary>

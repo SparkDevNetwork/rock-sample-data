@@ -161,7 +161,7 @@ namespace RockSampleData.Loader
             A caller such as Rock's installer block may act on the error's type and message, so the load's
             own error is rethrown as it was, and the rollback's error rides along in its Data.
 
-            Reason: A failed load must show what went wrong, not its rollback's error (decision D-rollback-1).
+            Reason: A failed load must show what went wrong, not its rollback's error (decision 278).
         */
 
         /// <summary>
@@ -430,7 +430,7 @@ namespace RockSampleData.Loader
                     log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
                 }
 
-                // Each campus pastor leads their campus in Rock, so a baptism's follow-up goes to its campus's leader (decision D-stepflows-2).
+                // Each campus pastor leads their campus in Rock, so a baptism's follow-up goes to its campus's leader (decision 291).
                 if ( source.Staff != null )
                 {
                     var leaders = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
@@ -721,7 +721,7 @@ namespace RockSampleData.Loader
                 log.Write( "  Skipped (this package has no configuration/personal-links.json)" );
             }
 
-            // The church's tags on people (decision D-tags-1). Jamal Pierce's tag holds people from Ready to Lead, a data
+            // The church's tags on people (decision 302). Jamal Pierce's tag holds people from Ready to Lead, a data
             // view, so tags follow every step that writes views. No step after this reads a tag.
             steps.Begin( "Tags" );
             log.Write( "  " + new TagsLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, mainCampusKey ) );

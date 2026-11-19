@@ -24,7 +24,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Loading
 {
     /// <summary>
-    /// Writes the church's tags on people from configuration/tags.json (decision D-tags-1): its organizational tags in their
+    /// Writes the church's tags on people from configuration/tags.json (decision 302): its organizational tags in their
     /// categories, staff members' personal tags, and who carries each one, as Rock's tag bar saves them.
     /// </summary>
     internal sealed class TagsLoader

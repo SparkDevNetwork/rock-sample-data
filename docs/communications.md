@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, the SMS snippets and email sections, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, 153 to 155, 159 to 160, 161, 162 to 163, and D-snippets-1 to D-snippets-3 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, the SMS snippets and email sections, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, 153 to 155, 159 to 160, 161, 162 to 163, and 299 to 301 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -63,8 +63,8 @@ The loader's Communications part writes the setup, after steps. It needs the sma
 5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
 6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). The loader writes the site with the Homepage and Full layouts and the homepage Rock seeds for a new app (decision 161). A package from before push carries the old stub, with no device shares, and the loader writes no app from it (decision 168). Pages and app content come in later work.
 7. **Personal devices.** About 25% of active adults have the app, and every Cast staff member does. 89% have notifications on (measured), 70% are on an iPhone (designed, because the measured share comes from too few devices), and 80% were seen in the last 30 days. Each device is the row the app writes when it first opens, with a friendly model name. Every registration token starts with `sample-data-`, which Firebase never issues, so no push can ever reach a real phone (decision 95).
-8. **SMS snippets** (decision D-snippets-1). Shared and personal snippets fill the snippet picker in SMS Conversations, in five categories. See [SMS snippets](#sms-snippets).
-9. **Email sections** (decision D-snippets-3). Four sections for Rock's newer email editor, styled like the branded template, in a Rock Solid Church category. See [Email sections](#email-sections).
+8. **SMS snippets** (decision 299). Shared and personal snippets fill the snippet picker in SMS Conversations, in five categories. See [SMS snippets](#sms-snippets).
+9. **Email sections** (decision 301). Four sections for Rock's newer email editor, styled like the branded template, in a Rock Solid Church category. See [Email sections](#email-sections).
 10. **Group syncs** come last in the part, after every send has changed what it changes. See [Group sync](#group-sync).
 
 ## Group sync
@@ -147,7 +147,7 @@ Texts follow Rock's Twilio path (decision 153). On Full 7 there are about 300 ma
 
 ## SMS snippets
 
-A snippet is saved text that staff insert in SMS Conversations instead of retyping it (decisions D-snippets-1 and D-snippets-2). Rock ships the SMS snippet type but no snippets. The text is in [content/communications/snippets.json](../content/communications/snippets.json), checked by `check-library.js` like the rest of the message library.
+A snippet is saved text that staff insert in SMS Conversations instead of retyping it (decisions 299 and 300). Rock ships the SMS snippet type but no snippets. The text is in [content/communications/snippets.json](../content/communications/snippets.json), checked by `check-library.js` like the rest of the message library.
 
 - **How Rock stores them.** Rock 20.0.10 and 21.0.2 store snippets the same way: a row of Rock's SMS snippet type, in a category of the Snippet entity type. A shared snippet has no owner, and every staff member sees it. A personal snippet has an owner, and only that person sees it. SMS Conversations lists the shared snippets and the person's own, and Rock fills in `{{ Person.NickName }}` with the person's nickname when staff insert one.
 - **Categories.** Guests, Kids Check-in, Students, Care, and Events, in `configuration/categories.json`.
@@ -158,7 +158,7 @@ A snippet is saved text that staff insert in SMS Conversations instead of retypi
 
 ## Email sections
 
-An email section is a saved block staff drag into an email in Rock's newer email editor (decision D-snippets-3). The editor's Sections panel showed only Rock's three starter sections. The church adds four, in a Rock Solid Church category, styled like the branded "Rock Solid Church" template (decision 269): its type, its text color, and its teal accent.
+An email section is a saved block staff drag into an email in Rock's newer email editor (decision 301). The editor's Sections panel showed only Rock's three starter sections. The church adds four, in a Rock Solid Church category, styled like the branded "Rock Solid Church" template (decision 269): its type, its text color, and its teal accent.
 
 | Section | What it holds |
 |---|---|
@@ -279,8 +279,8 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient and no communication without a `SendDateTime`, except the one scheduled email, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped. Each Cast staff email shows in the person's Communication History, delivered, from the staff member, on its day.
-- **Snippet access (built):** the verify tool asks Rock who may see each snippet in the walkthrough in `snippets.json`, through the snippet's own security check, so a personal snippet shows only to its owner (decision D-snippets-1).
-- **Email sections (built):** `check-library.js` checks each section's words, link, and photo, and that its markup and thumbnails were built from them. The verify tool has Rock's own save rules accept every loaded section (decision D-snippets-3).
+- **Snippet access (built):** the verify tool asks Rock who may see each snippet in the walkthrough in `snippets.json`, through the snippet's own security check, so a personal snippet shows only to its owner (decision 299).
+- **Email sections (built):** `check-library.js` checks each section's words, link, and photo, and that its markup and thumbnails were built from them. The verify tool has Rock's own save rules accept every loaded section (decision 301).
 - **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision 155).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 

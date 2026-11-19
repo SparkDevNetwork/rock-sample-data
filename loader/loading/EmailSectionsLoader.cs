@@ -38,7 +38,7 @@ namespace RockSampleData.Loader.Loading
         disk, which a load cannot write, so each file here is stored in the database. Rock reads a file through the
         storage provider on its own row, and moves it to its type's provider the next time it is saved.
 
-        Reason: Staff find the church's sections in the editor's Sections panel, with their thumbnails (decision D-snippets-3).
+        Reason: Staff find the church's sections in the editor's Sections panel, with their thumbnails (decision 301).
     */
 
     /// <summary>

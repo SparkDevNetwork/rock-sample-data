@@ -40,7 +40,7 @@ namespace RockSampleData.Verify
         the ones due. So the sweep loads the reminders part too, with the notes and small groups it needs, and checks the
         Cast reminders on every install day it sweeps.
 
-        Reason: "Due", "upcoming", and "complete" must read right on any install day (decision D-reminders-3).
+        Reason: "Due", "upcoming", and "complete" must read right on any install day (decision 297).
     */
 
     /// <summary>

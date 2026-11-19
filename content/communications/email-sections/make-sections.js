@@ -16,7 +16,7 @@
 //
 
 /*
-    Builds this folder from ../email-sections.json (decision D-snippets-3):
+    Builds this folder from ../email-sections.json (decision 301):
 
     1. Each section's markup, <key>.html, made by Rock's own email editor code. It runs make-sections.spec.ts with
        the Jest, jsdom, and TypeScript a built Rock checkout already has in Rock.JavaScript.Obsidian, as Rock's own

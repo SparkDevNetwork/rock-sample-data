@@ -458,7 +458,7 @@ namespace RockSampleData.Loader.Model
 
     /// <summary>
     /// configuration/in-kind-gifts.json: gifts of stock, vehicles, and equipment, which Rock records with the Non-Cash
-    /// Asset currency type (decision D-uncommon-2).
+    /// Asset currency type (decision 289).
     /// </summary>
     internal sealed class InKindGiftsConfiguration
     {

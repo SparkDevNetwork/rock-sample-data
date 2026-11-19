@@ -259,7 +259,7 @@ namespace RockSampleData.Loader.Model
         public List<SnippetDefinition> Snippets { get; set; } = new List<SnippetDefinition>();
 
         /// <summary>
-        /// Who may see which snippet, which the verify tool asks Rock (decision D-snippets-1).
+        /// Who may see which snippet, which the verify tool asks Rock (decision 299).
         /// </summary>
         public List<AccessExpectation> Access { get; set; } = new List<AccessExpectation>();
     }

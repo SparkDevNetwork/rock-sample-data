@@ -545,7 +545,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// Tags (configuration/tags.json, decision D-tags-1): each tag is organizational, in a tag category, or personal, with a
+// Tags (configuration/tags.json, decision 302): each tag is organizational, in a tag category, or personal, with a
 // staff member as owner. Everyone it names is in the Cast, and whoever makes or uses an organizational tag may tag
 // people with it under its category's security, as Rock checks in its tag bar.
 {

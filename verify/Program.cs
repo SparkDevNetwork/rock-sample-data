@@ -708,7 +708,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
 
 /// <summary>
 /// Rock's own save rules accept every email section the load wrote, as they are: the model's validation, and the string
-/// validation Rock's email editor runs on a section's markup when staff save it (decision D-snippets-3).
+/// validation Rock's email editor runs on a section's markup when staff save it (decision 301).
 /// </summary>
 static CheckResult EmailSectionsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
@@ -956,7 +956,7 @@ static CheckResult PersonalLinksCheck( RockRelease rock, SqlServer sql, string d
 }
 
 /// <summary>
-/// Asks Rock what each note author's top-bar bell shows (decision D-notify-1): the unread count Rock reads must be every
+/// Asks Rock what each note author's top-bar bell shows (decision 307): the unread count Rock reads must be every
 /// staff mention in the last three days' notes, found from the notes themselves, and the newest mention's link must open
 /// the note on the person's profile. It is judged only when today is the loads' anchor, because the bell counts from now.
 /// </summary>

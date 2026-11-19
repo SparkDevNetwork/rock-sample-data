@@ -47,7 +47,7 @@ using RockSampleData.Loader.Packages;
     The signature hash checks compare the port of Rock's CalculateSignatureVerificationHash with values computed by
     calling that method in Rock 21's own compiled Rock.dll (Rock 20's gives the same first value).
     The rollback checks prove that a failed load throws its own error even when its rollback fails too,
-    with the rollback's error attached (decision D-rollback-1). They run on both builds because .NET
+    with the rollback's error attached (decision 278). They run on both builds because .NET
     Framework's Exception.Data holds only serializable values.
     The registration dates check plans the repository's calendar and registrations for install day
     2026-10-28 and compares each instance's dates with the example dates the approved registrations
@@ -183,7 +183,7 @@ var checks = new (string Name, string Actual, string Expected)[]
     ("Assessment answers, scores, and answer data (decision 265)",
         AssessmentScores(),
         "d2e36917b2d54d9adeaecca8fd828caa6044d9f4aad5c976ec08d27de8327221"),
-    ("A failed load whose rollback works throws its own error (decision D-rollback-1)",
+    ("A failed load whose rollback works throws its own error (decision 278)",
         RollbackKeepsError( null ),
         "True|InvalidDataException|Gift 12 has no batch.|none"),
     ("A failed load whose rollback fails too throws its own error, with the rollback's attached",

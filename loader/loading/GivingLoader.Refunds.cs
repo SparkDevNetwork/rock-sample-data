@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Loading
     /*
         11/16/26 - CLAUDE
 
-        Refunds of gifts (decisions 262 and D-uncommon-1). Generated households' gifts get refunds at the profile's rate
+        Refunds of gifts (decisions 262 and 288). Generated households' gifts get refunds at the profile's rate
         per 1,000 gifts, counted in the same 12 month windows calibration counts (each ends on the first of a month).
         Each refund is one of the six kinds in configuration/refunds.json:
 

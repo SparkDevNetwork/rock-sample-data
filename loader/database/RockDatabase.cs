@@ -94,7 +94,7 @@ namespace RockSampleData.Loader.Database
             has. It runs only while the transaction is still open: SqlClient drops a completed
             transaction's connection, and @@TRANCOUNT is 0 once SQL Server has ended it.
 
-            Reason: A failed load must show what went wrong, not its rollback's error (decision D-rollback-1).
+            Reason: A failed load must show what went wrong, not its rollback's error (decision 278).
         */
 
         /// <summary>

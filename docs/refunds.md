@@ -1,6 +1,6 @@
 # Refunds
 
-How refunds of gifts work in the sample data, and why. The decisions are 261 to 264 and D-uncommon-1 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json`, so they can be tuned in one place.
+How refunds of gifts work in the sample data, and why. The decisions are 261 to 264 and 288 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json`, so they can be tuned in one place.
 
 ## The idea
 

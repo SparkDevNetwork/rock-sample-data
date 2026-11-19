@@ -25,7 +25,7 @@
     sections: a section component, the Rock Solid Church section's Guid as data-email-section-guid, and title,
     text, image, and button components set through each component's own adapter. make-sections.js runs it.
 
-    Reason: The sections open in Rock's editor exactly as one staff built would (decision D-snippets-3).
+    Reason: The sections open in Rock's editor exactly as one staff built would (decision 301).
 */
 
 import {

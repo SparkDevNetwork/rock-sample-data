@@ -18,7 +18,7 @@
 namespace RockSampleData.Loader.Model
 {
     /// <summary>
-    /// configuration/tags.json: the church's tags on people, who made them, and who carries them (decision D-tags-1).
+    /// configuration/tags.json: the church's tags on people, who made them, and who carries them (decision 302).
     /// </summary>
     internal sealed class TagsConfiguration
     {

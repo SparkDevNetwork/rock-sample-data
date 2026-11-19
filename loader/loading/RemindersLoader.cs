@@ -41,7 +41,7 @@ namespace RockSampleData.Loader.Loading
         generated leaders set group reminders, read back from the small groups step's rows. Reminders therefore need
         notes and small groups (SampleDataParts.All). The Cast's reminders are hand-written in configuration/reminders.json.
 
-        Reason: Issue 22 (decisions D-reminders-1 to D-reminders-4).
+        Reason: Issue 22 (decisions 295 to 298).
     */
 
     /// <summary>

@@ -294,7 +294,7 @@ namespace RockSampleData.Builder
                 throw new InvalidOperationException( $"configuration/communications.json names {path}, but the file is missing." );
             }
 
-            // Each email section's markup and thumbnails, which make-sections.js builds (decision D-snippets-3).
+            // Each email section's markup and thumbnails, which make-sections.js builds (decision 301).
             var datasets = source.Campuses.Campuses.SelectMany( c => c.Datasets ).Distinct();
             foreach ( var section in source.ReadEmailSectionLibrary()?.Sections ?? new List<EmailSectionDefinition>() )
             {

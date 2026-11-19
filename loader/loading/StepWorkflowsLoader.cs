@@ -42,9 +42,9 @@ namespace RockSampleData.Loader.Loading
         Workflows only reprocesses an open one and leaves it open.
 
         Steps are read back from the steps step's rows, so each workflow points at a real step. A baptism's task goes to
-        the leader of the step's campus, which every campus pastor is (decision D-stepflows-2).
+        the leader of the step's campus, which every campus pastor is (decision 291).
 
-        Reason: Issue 18 (decisions D-stepflows-1 to D-stepflows-5).
+        Reason: Issue 18 (decisions 290 to 294).
     */
 
     /// <summary>

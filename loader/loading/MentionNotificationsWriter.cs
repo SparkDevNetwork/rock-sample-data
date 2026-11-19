@@ -52,7 +52,7 @@ namespace RockSampleData.Loader.Loading
 
     /// <summary>
     /// Writes the notification messages Rock's Note Mention component makes when a saved note mentions someone (decision
-    /// D-notify-1), so each staff member's bell counts their recent unread mentions and opens the note on the person's profile.
+    /// 307), so each staff member's bell counts their recent unread mentions and opens the note on the person's profile.
     /// </summary>
     internal sealed class MentionNotificationsWriter
     {
@@ -109,7 +109,7 @@ namespace RockSampleData.Loader.Loading
             the link the bell opens. Rock saves the message right after the note. A message keeps no audit
             columns, so opening one only marks it read.
 
-            Reason: The bell and the notification list behave as if Rock made the messages (decision D-notify-1).
+            Reason: The bell and the notification list behave as if Rock made the messages (decision 307).
         */
 
         /// <summary>

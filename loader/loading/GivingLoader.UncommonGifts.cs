@@ -26,7 +26,7 @@ namespace RockSampleData.Loader.Loading
     /*
         11/17/26 - CLAUDE
 
-        In-kind gifts (decision D-uncommon-2), the way staff enter them in Rock's Transaction Detail block, which is
+        In-kind gifts (decision 289), the way staff enter them in Rock's Transaction Detail block, which is
         the same in Rock 20.0.10 and 21.0.2. An in-kind gift is paid with the Non-Cash Asset currency type and has one
         of Rock's Non-Cash Asset Types and a summary that says what was given. Its amount is its fair value. The largest
         givers' stock and the building campaign's stock gifts were already planned; vehicles and equipment come from

@@ -22,7 +22,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Validation
 {
     /// <summary>
-    /// Checks the tags in configuration/tags.json against the loaded database (decision D-tags-1): each tag is where Rock's
+    /// Checks the tags in configuration/tags.json against the loaded database (decision 302): each tag is where Rock's
     /// tag bar finds it, Rock's Staff tag holds exactly the loaded staff, and each Cast person a story tags carries it.
     /// </summary>
     internal static class CastTagExpectations

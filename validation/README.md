@@ -120,7 +120,7 @@ This catches what kept Rock's legacy notes on Ted Decker and others off their pr
 
 ## Cast mention expectations
 
-Every load with the notes part also checks each mention in a Cast note or reply from the last 89 days (decisions D-notify-1 and D-notify-2):
+Every load with the notes part also checks each mention in a Cast note or reply from the last 89 days (decisions 307 and 308):
 
 1. The staff member it mentions has exactly one message from Rock's Note Mention component for that note. The author of the note never gets one.
 2. The message is unread when the note is from the last three days, and read otherwise.
@@ -130,7 +130,7 @@ They cover Ted Decker's unread mention from Pete Foster, Pete's two read ones, a
 
 ## Cast tag expectations
 
-Every load checks each tag in `configuration/tags.json` whose owner or maker it loaded (decision D-tags-1):
+Every load checks each tag in `configuration/tags.json` whose owner or maker it loaded (decision 302):
 
 1. The tag is an active tag on Rock's Person entity type, where Rock's tag bar and Person Tag filter find it.
 2. A personal tag belongs to its owner. An organizational tag has no owner and sits in its tag category.
@@ -139,27 +139,27 @@ Every load checks each tag in `configuration/tags.json` whose owner or maker it 
 
 ## Cast reminder expectations
 
-Every load with the reminders part checks each Cast reminder in `configuration/reminders.json` (decision D-reminders-2):
+Every load with the reminders part checks each Cast reminder in `configuration/reminders.json` (decision 296):
 
 1. The reminder is in Rock, by its Guid, on its owner.
 2. A reminder about a person is a Personal Reminder on that person's primary alias. A reminder about a group is a Group Reminder on that group.
 3. Its note is the note in the file. A repeating one has the period and the number of completions the file gives.
 4. It shows what its `expect` says on the load's install day: `due`, `upcoming`, or `complete`. A load and the verify tool pass the load's anchor. A later `--check-cast` run judges it on the database server's today, so run it on the install day.
 
-Then it checks each Cast owner's `ReminderCount`, the number Rock's bell shows. It must equal what Rock's Process Reminders job would count: their reminders of an active type that are not complete and are due. An owner with a reminder that should be due must have a count above 0 (decision D-reminders-4).
+Then it checks each Cast owner's `ReminderCount`, the number Rock's bell shows. It must equal what Rock's Process Reminders job would count: their reminders of an active type that are not complete and are due. An owner with a reminder that should be due must have a count above 0 (decision 298).
 
-They cover Ted Decker's check-in with Ashley Kelly (due, repeating every 30 days), his reminder about Josh Sanders's story (upcoming), and Bill Marble's reminder about the Marble Group's party (upcoming). The verify tool's anchor sweep checks them on the 60 install days from each run's anchor, beside the giving expectations (decision D-reminders-3).
+They cover Ted Decker's check-in with Ashley Kelly (due, repeating every 30 days), his reminder about Josh Sanders's story (upcoming), and Bill Marble's reminder about the Marble Group's party (upcoming). The verify tool's anchor sweep checks them on the 60 install days from each run's anchor, beside the giving expectations (decision 297).
 
 ## Cast step workflow expectations
 
-Every load with the steps part checks the step workflows in `configuration/step-workflows.json` (decision D-stepflows-5):
+Every load with the steps part checks the step workflows in `configuration/step-workflows.json` (decision 294):
 
 1. Each workflow type has one trigger on its step type, saved as Rock's step type editor saves one: its program, Step Completed or Manual, a blank qualifier, and the type's name. The type is active, persisted, and filed, with no age limit and no retention periods.
 2. No step is linked to a Volunteer Care Check-In, because staff start it by hand.
 3. Every Baptism and Follow Jesus step completed since its trigger was made started exactly one workflow.
 4. The workflow went to the right person: the campus pastor of the step's campus in `configuration/staff.json` for Baptism Follow-Up, and Isaac Silva for Follow Jesus Follow-Up.
 5. A workflow whose step was completed in the last 14 days is Active, and shows in its assignee's My Workflows list by the rules Rock's list uses. An older one is Completed, by its assignee.
-6. Each story in the file's `cast` list shows. Josh Sanders's Baptism Follow-Up is complete, with Aaron Mitchell as Baptized By, the certificate sent, Foundations offered, and the note in the file. Dennis Perry's is open (decision D-stepflows-4).
+6. Each story in the file's `cast` list shows. Josh Sanders's Baptism Follow-Up is complete, with Aaron Mitchell as Baptized By, the certificate sent, Foundations offered, and the note in the file. Dennis Perry's is open (decision 293).
 
 The 14 days count from the load's install day. A load and the verify tool pass the load's anchor. A later `--check-cast` run judges it on the database server's today, so run it on the install day.
 

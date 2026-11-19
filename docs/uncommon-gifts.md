@@ -1,6 +1,6 @@
 # Uncommon gifts
 
-How returned checks and in-kind gifts work in the sample data, and why. The decisions are D-uncommon-1 and D-uncommon-2 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json` and `configuration/in-kind-gifts.json`, so they can be tuned in one place.
+How returned checks and in-kind gifts work in the sample data, and why. The decisions are 288 and 289 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json` and `configuration/in-kind-gifts.json`, so they can be tuned in one place.
 
 ## The idea
 

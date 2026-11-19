@@ -261,7 +261,7 @@ WHERE [ps].[Guid] = @Guid", P( "@Guid", signal.Guid ) ) as Guid?;
         }
 
         /// <summary>
-        /// Checks one designed refund (decisions 264 and D-uncommon-1): the giver has a refund with the kind's reason, of
+        /// Checks one designed refund (decisions 264 and 288): the giver has a refund with the kind's reason, of
         /// the whole gift for a duplicate, an earlier year, or a returned check, or of part of it otherwise, made the
         /// kind's shortest delay after the gift on a weekday. A duplicate's gift has a twin: another of the giver's gifts
         /// that day, of the same amount. A returned check's gift is a check. Returns what is wrong, or null.
@@ -314,7 +314,7 @@ WHERE [pa].[PersonId] = @PersonId AND [reason].[Value] = @Reason", P( "@PersonId
         private static readonly Guid StocksAndBondsGuid = new Guid( "B29D7D89-357F-47F9-BE7B-52AFF3892007" );
 
         /// <summary>
-        /// Checks one Cast campaign stock gift (decision D-uncommon-2): the giving unit has a gift to the campaign that
+        /// Checks one Cast campaign stock gift (decision 289): the giving unit has a gift to the campaign that
         /// day, paid with Non-Cash Asset, of the Stocks And Bonds asset type, for the gift's amount, with a summary that
         /// Rock's statement prints as its description. Returns what is wrong, or null.
         /// </summary>
