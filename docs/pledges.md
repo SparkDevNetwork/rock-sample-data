@@ -20,7 +20,7 @@ Rock stores a pledge as a `FinancialPledge`: a person, an account, a total amoun
 | Pledge Analytics | Finance > Pledge Analytics | Pledges, plus gifts to the pledged account and its child accounts |
 | Person profile, Contributions tab | The Giving Configuration block | The person's pledges |
 | (Public) Create Pledge page, and Pledge under Give on the external site | Rock's shipped Pledge Entry block | The block's Account and Pledge Date Range settings |
-| Contribution statements | The statement template's pledge settings | The pledge accounts, and "include gifts to child accounts" |
+| Contribution statements | The statement template's pledge settings | The pledge accounts, "include gifts to child accounts", and "include non-cash gifts" |
 
 One fact shapes the whole plan. **Pledge Analytics counts every gift to the pledged account and its child accounts, with no date limit** unless the user sets one. If people pledged to a fund with years of older gifts, every pledge would show hundreds of percent complete. So the campaign's fund has no gifts from before the campaign (decision 98).
 
@@ -50,7 +50,7 @@ The building is not finished, so no rooms change. Check-in and serving keep the 
 
 - **Pledge pages.** On both (Public) Create Pledge and the external site's Give > Pledge page, the Pledge Entry block's Account is the campaign fund, and its pledge dates are the campaign dates. Anyone can make a test pledge on install.
 - **Pledge frequency.** Both pledge pages show the frequency choice, but a pledger may leave it blank (decision 109).
-- **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts. A pledger's statement shows the pledge, what they have given, and what is left.
+- **Contribution statement.** Rock's default statement template shows pledges for the campaign fund and includes gifts to its child accounts and non-cash gifts, as Pledge Analytics does. A pledger's statement shows the pledge, what they have given, and what is left.
 - **No history.** Rock's pledge save hook writes its history against the pledge record, not the person, and no Rock screen shows it, so the loader writes none (decision 112).
 
 ## How pledges are made
@@ -111,7 +111,7 @@ Plus **gifts without a pledge.** About 5% of generated givers who did not pledge
 - **An extra campaign gift** rides on the giver's next usual hand-given gift within a month, as people add to their check. Otherwise it is a gift of its own, given the way they usually give. A pledge paid in full is one such gift, the week after pledging.
 - Pledgers who give through a **scheduled transaction** get a campaign line on that schedule from the pledge's start date. Rock shows it on their Contributions tab.
 - One-time and yearly pledges are paid by their own gifts.
-- The largest givers sometimes pay with stock, as they already do for other gifts (decision 43).
+- The largest givers sometimes pay with stock, as they already do for other gifts (decision 43). A stock gift is a non-cash gift of Stocks And Bonds with a description (see [Uncommon gifts](uncommon-gifts.md#in-kind-gifts)).
 - Campaign gifts count in Rock's giving analytics, as they would at a real church. A one-time gift that pays a large pledge in full can raise a large gift alert.
 
 ## The Cast's stories

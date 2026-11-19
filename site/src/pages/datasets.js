@@ -28,8 +28,10 @@ const inside = model => [
     [ "Serving and scheduling", "Eight teams per campus, with rotations, preferences, blackout dates, six weeks of future schedules, and volunteer check-in." ],
     [ "Connections", "Requests to serve that follow each household's journey, with activities and placements. Due dates run by status, so each board has requests due later, due this week, and past due." ],
     [ "Prayer", "Requests in every state, the prayer team's prayers and comments, and the Cast's own requests tied to their stories." ],
-    [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff." ],
-    [ "Steps", "Rock's Discipleship Path built out to seven steps and a four-step Student Path, each step made from a record the data already has, with classes in progress at every campus, camps and mission trips from student check-ins, and program completions." ],
+    [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions. A mention in a recent note waits unread in that staff member's bell. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff." ],
+    [ "Reminders", "Reminders staff set about people they wrote notes on, and small group leaders about their groups: some due, some upcoming, some complete, and a few that repeat. Rock's bell counts each person's reminders due, as its own job would." ],
+    [ "Tags", "Organizational tags, such as Homebound and Car Show Volunteers, locked to the roles that use them, personal tags staff keep for themselves, and Rock's own Staff tag on every staff member. Generated people carry tags too, drawn by each tag's rules." ],
+    [ "Steps", "Rock's Discipleship Path built out to seven steps and a four-step Student Path, each step made from a record the data already has, with classes in progress at every campus, camps and mission trips from student check-ins, and program completions. A baptism or a decision to follow Jesus starts a follow-up task for staff, waiting in My Workflows when it is recent." ],
     [ "Assessments", "Rock's five assessments: most staff took all five, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, with some requests still pending and reminders where Rock's job would leave them. Every result comes from real answers scored the way Rock scores them, and the Cast's DISC results taken outside Rock are kept exactly." ],
     [ "Calendar", `${model.calendarEvents.length} events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, at every campus the dataset has. Each event serves a Ministry by Design stage: Belong, Equip, Contribute, or Lead.` ],
     [ "Event registrations", `${model.registrations.templates.length} kinds of registration, from camp and the mission trip to VBS and classes, linked to their calendar events with fees, discounts, payment plans, wait lists, and placement groups. Some are always open, so every feature can be tried on any install day.` ],
@@ -144,6 +146,18 @@ dotnet run -- --rock C:\\Development\\Rock</code></pre></li>
 dotnet run -- --package ../packages/core-1.zip --login-password "choose-one" --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"</code></pre></li>
     </ol>
     <p class="fine">You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly installed Rock database. Sample data installs into a fresh database only. Leave out <code>--login-password</code> to load no sample logins. See the <a href="${repoUrl}#quick-start">quick start</a> for every option.</p>
+  </div>
+</section>
+
+<section class="section section-sand" id="after-install">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "After you install", title: "Know which Rock jobs to run.", lede: "Rock's background jobs keep a church's data current. The load already wrote most of what they would have, so most need nothing from you." } )}
+    <div class="card-grid">
+      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, group sync, step program completions, personalization segments, top signals, and what Rock Cleanup sets are filled as if Rock's jobs ran every night. Every address is marked as checked, so none goes to an address service. Their next runs change nothing.</p></div>
+      <div class="card reveal"><h3>Run once</h3><p>Family Analytics ships turned off, and the load does not fill eRA yet. Run it once for eRA as of today. Duplicates, peer networks, and the analytics tables fill on their first scheduled run, or run them now.</p></div>
+      <div class="card reveal"><h3>Be careful</h3><p>Keep real email off, because a few reminders reach Cast staff. Communication flows keep sending after install, only to reserved addresses.</p></div>
+    </div>
+    <p class="fine">Every date counts back from install day, so Rock's jobs move the church forward from there. See <a href="${repoUrl}/blob/main/docs/after-install.md">After you install</a> for every Rock job and what it does to the sample data.</p>
   </div>
 </section>
 `

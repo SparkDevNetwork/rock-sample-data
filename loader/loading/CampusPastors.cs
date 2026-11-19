@@ -15,7 +15,10 @@
 // </copyright>
 //
 
+using RockSampleData.Loader.Database;
 using RockSampleData.Loader.Model;
+
+using static RockSampleData.Loader.Database.RockDatabase;
 
 namespace RockSampleData.Loader.Loading
 {
@@ -48,6 +51,24 @@ namespace RockSampleData.Loader.Loading
         public static Dictionary<string, LoadedPerson> Pick( PeopleLoader people, IEnumerable<LoadedHousehold> generated, string mainCampusKey, StaffConfiguration staff )
         {
             return staff == null ? Generated( generated, mainCampusKey ) : Named( people, staff );
+        }
+
+        /// <summary>
+        /// Makes each campus's pastor its leader, whom Rock's campus page shows as Leader, so a workflow can send a campus's
+        /// tasks to its leader. Returns how many campuses were set.
+        /// </summary>
+        public static int WriteLeaders( RockDatabase db, Dictionary<string, LoadedPerson> pastors, Dictionary<string, int> campusIds )
+        {
+            var count = 0;
+            foreach ( var pastor in pastors.OrderBy( p => p.Key, StringComparer.Ordinal ) )
+            {
+                if ( campusIds.TryGetValue( pastor.Key, out var campusId ) )
+                {
+                    count += db.Execute( "UPDATE [Campus] SET [LeaderPersonAliasId] = @AliasId WHERE [Id] = @Id", P( "@AliasId", pastor.Value.AliasId ), P( "@Id", campusId ) );
+                }
+            }
+
+            return count;
         }
 
         /// <summary>

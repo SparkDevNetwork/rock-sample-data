@@ -1,6 +1,6 @@
 # Communications
 
-How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, 153 to 155, 159 to 160, 161, and 162 to 163 in [Decisions](decisions.md).
+How email, text, and push history will look in the sample data, and why. Every slice is built: the texting numbers, the communication lists, the branded template, the message library, the SMS snippets and email sections, two years of mass email, two years of texts and SMS conversations, two years of one-to-one email, the church's app with its devices and two years of pushes, and the messages tied to steps with the finished After Starting Point flow. The decisions are 90 to 96, 131 to 133, 137 to 141, 149 to 151, 153 to 155, 159 to 160, 161, 162 to 163, and 299 to 301 in [Decisions](decisions.md).
 
 ## The goal
 
@@ -41,8 +41,9 @@ What a load writes is history, so Rock never sends it again (decision 95). Some 
 - Every communication a load writes is Approved with a `SendDateTime`. Rock's send job only picks up communications with no `SendDateTime`. The one exception is the scheduled Christmas Eve email (decision 248), which waits for its future send date. See [The scheduled communication](#the-scheduled-communication).
 - No recipient a load writes is Pending or Sending, except the scheduled email's, which are Pending and all on `example.org` or have no email.
 - A Communication Flow run that started before install and still has messages left stays open. Rock's Process Communication Flows job sends the rest on their dates. Everyone still Active in an open run has an email on `example.org` or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on `rocksolidchurchdemo.com`, a real domain with live mail servers, so no staff member is ever in an open run. See [Communication flows](#communication-flows).
-- Sample addresses never go to an address service. Rock ships with its Smarty Streets service on, and its Location Services Verify job sends unchecked addresses to it every night. Every home, business, and campus address a load writes carries the marks Rock leaves after a successful check, so the job finds none to send (decisions D-addresses-1 and D-addresses-2). Only a person who clicks Verify on an address sends it.
+- Sample addresses never go to an address service. Every home, business, and campus address a load writes carries the marks Rock leaves after a successful check, so Rock's Location Services Verify job finds none to send (decisions D-addresses-1 and D-addresses-2). See [After you install](after-install.md#already-done-by-the-load).
 - The verify tool gets an invariant for each of these, and its `address-services` check runs the Location Services Verify job's selection on every load.
+- Rock's own reminder jobs also send after install, from registrations and small groups, and a few of those reach Cast staff. See [After you install](after-install.md#be-careful).
 - Group syncs carry Rock's welcome and exit emails, and some make logins, but only for a person who joins or leaves a synced group after install. Each synced group already holds exactly its data view's people, so the Group Sync job's first run adds and removes nobody, and verify proves it on every load (decision 187). See [Group sync](#group-sync).
 
 ## The setup
@@ -63,7 +64,9 @@ The loader's Communications part writes the setup, after steps. It needs the sma
 5. **Topics.** Mass sends carry one of the 8 communication topics Rock ships, such as Events & Registrations or Serving Opportunities, because the Unsubscribe report shows them. They are unchanged.
 6. **The church's app.** Rock ships no mobile application site, so the sample church adds its own: the Rock Solid Church App, with the store name Rock Solid Church (decision 94). Push history points at it. The stub in [configuration/church-app.json](../configuration/church-app.json) holds its name, Guid, shell, bundle Ids, and planned tabs (Home, Watch, Events, Give, and More). The loader writes the site with the Homepage and Full layouts and the homepage Rock seeds for a new app (decision 161). A package from before push carries the old stub, with no device shares, and the loader writes no app from it (decision 168). Pages and app content come in later work.
 7. **Personal devices.** About 25% of active adults have the app, and every Cast staff member does. 89% have notifications on (measured), 70% are on an iPhone (designed, because the measured share comes from too few devices), and 80% were seen in the last 30 days. Each device is the row the app writes when it first opens, with a friendly model name. Every registration token starts with `sample-data-`, which Firebase never issues, so no push can ever reach a real phone (decision 95).
-8. **Group syncs** come last in the part, after every send has changed what it changes. See [Group sync](#group-sync).
+8. **SMS snippets** (decision 299). Shared and personal snippets fill the snippet picker in SMS Conversations, in five categories. See [SMS snippets](#sms-snippets).
+9. **Email sections** (decision 301). Four sections for Rock's newer email editor, styled like the branded template, in a Rock Solid Church category. See [Email sections](#email-sections).
+10. **Group syncs** come last in the part, after every send has changed what it changes. See [Group sync](#group-sync).
 
 ## Group sync
 
@@ -141,6 +144,35 @@ Texts follow Rock's Twilio path (decision 153). On Full 7 there are about 300 ma
 - **The Cast's threads** (decision 154). Sixteen hand-written threads in [cast/sms-threads.json](../cast/sms-threads.md), tied to Cast stories. Together they cover every SMS Conversations state: unread and read, a 16-text back-and-forth, Brandon Watson's STOP, two threads on the student line, and threads on Ted Decker's, Alisha Marble's, and Isaac Silva's personal numbers. Six are from the last 1 to 3 days before install and unread, so even Core 1 opens to a live inbox (decision 93). Every load checks each thread.
 - **Generated threads.** About 70 conversations a year per 1,000 active adults, from the pools in `content/communications/conversations.json`. Most are on a staff member's personal number: each campus pastor's for their campus, and Ted's or Alisha's when a campus has no pastor's number. The rest are on the main and student lines. Lengths and reply delays follow the measured shape, people text during waking hours, a few regular texters write staff again and again, and some short conversations never get an answer. A text with no staff answer after it is often left unread.
 - **STOP.** A texted STOP comes at the measured rate, mostly the same day as a mass text. It is recorded the way Rock records it: a level All unsubscribe on the person's newest text in the last 60 days, and texting turned off and opted out on their mobile, with the History line Rock writes. Later texts to them fail. Rock turns off texting on every phone with the number that texted STOP, and every number belongs to one family (decision 259), so a STOP never reaches anyone else.
+- **Snippets.** About a quarter of the staff's first replies in generated threads about a snippet's topic are a snippet's text. See [SMS snippets](#sms-snippets).
+
+## SMS snippets
+
+A snippet is saved text that staff insert in SMS Conversations instead of retyping it (decisions 299 and 300). Rock ships the SMS snippet type but no snippets. The text is in [content/communications/snippets.json](../content/communications/snippets.json), checked by `check-library.js` like the rest of the message library.
+
+- **How Rock stores them.** Rock 20.0.10 and 21.0.2 store snippets the same way: a row of Rock's SMS snippet type, in a category of the Snippet entity type. A shared snippet has no owner, and every staff member sees it. A personal snippet has an owner, and only that person sees it. SMS Conversations lists the shared snippets and the person's own, and Rock fills in `{{ Person.NickName }}` with the person's nickname when staff insert one.
+- **Categories.** Guests, Kids Check-in, Students, Care, and Events, in `configuration/categories.json`.
+- **Shared snippets.** Nine answers to what people text about: service times, a first visit, small groups, giving, a lost pickup tag, camp forms, prayer, baptism, and event details. Daniel Peak made them a month before the text history starts. Service Times loads once per campus in the dataset, with that campus's Sunday times, such as "Phoenix Service Times".
+- **Personal snippets.** Isaac Silva's Camp Packing List, Ted Decker's Coffee This Week?, Alisha Marble's Office Hours, and for each campus pastor in the dataset, a welcome and a reply to a prayer request. Each owner made theirs when they joined staff, or with the shared ones.
+- **In the history.** In about 25% of the generated threads about a snippet's topic, the staff's first reply is the text of a snippet that staff member could insert: a shared one, their campus's Service Times for their own campus's people, or their own. Alisha answers the main line, Isaac the student line, and each campus pastor their own number. The choice has its own seeded stream, so every thread keeps its length, times, and other texts. Core 1 has no generated threads, so only Core 3 and Full 7 show snippet replies.
+- **Who sees which.** The verify tool's access walkthrough asks each snippet's own security check, as SMS Conversations does: Isaac sees his Camp Packing List and Alisha does not, even as Rock's administrator, and Ted sees the shared First Visit but not Aaron Mitchell's Welcome to Phoenix.
+
+## Email sections
+
+An email section is a saved block staff drag into an email in Rock's newer email editor (decision 301). The editor's Sections panel showed only Rock's three starter sections. The church adds four, in a Rock Solid Church category, styled like the branded "Rock Solid Church" template (decision 269): its type, its text color, and its teal accent.
+
+| Section | What it holds |
+|---|---|
+| Service Times | A light gray card: "Join us Sunday", a line about what every service has, each of the dataset's campuses with its Sunday times, and a Plan your visit button |
+| Upcoming Event | The approved Parents' Night Out photo, a title, a short description, and a Sign up button, to swap for the event being promoted |
+| Give Online | A teal card that invites people to give online, with a white Give now button |
+| Built on the Rock Update | The approved Commitment Sunday artwork, a short thank-you, and a See the progress button to the campaign page |
+
+- **Where the text lives.** Each section's words, link, card, and photo are in [content/communications/email-sections.json](../content/communications/email-sections.json), checked by `check-library.js` like the rest of the message library.
+- **How the markup is made.** Rock's editor saves a section as its own component markup: a section component and its title, text, image, and button components, each with the version the editor reads. `content/communications/email-sections/make-sections.js` runs Rock's own editor code, under the Jest a built Rock checkout already has, and builds each section the way Rock seeds its starter sections. Rock 20.0.10 and 21.0.2 build the same bytes. Run it after any change to the file.
+- **Thumbnails.** The panel shows each section's thumbnail, which Rock's editor draws when staff save a section. `make-sections.js` has Chrome draw each one at the width of the template's body. Service Times has one per dataset, because its campuses differ.
+- **How Rock stores them.** Each is saved the way Rock's Save as Section dialog saves one: not a system section, by Daniel Peak, with its Guid on its markup and its thumbnail named after it. The thumbnail and the photos are Rock's Communication Image file type. That type keeps its files on the web server's disk, which a load cannot write, so these are stored in the database, and Rock reads each file through the storage on its own row.
+- **Checked by Rock.** The verify tool's email-sections check has Rock's own save rules accept every section on each Rock: the model's validation, and the check Rock's editor runs on a section's markup when staff save it.
 
 ## Push
 
@@ -248,6 +280,8 @@ Volume is designed, as for prayer and notes: the sample church shows what good c
 - **Setup invariants (built):** no list member chose "No mass emails" or "Do not email", a newsletter holds only its campus's adults with an active email, the Volunteers and Small Group Leaders lists match the teams and groups, and every texting number is reserved, active, and no loaded person's number. The Cast check confirms each staff texting number is assigned to its staff member.
 - **Invariants:** no Pending or Sending recipient and no communication without a `SendDateTime`, except the one scheduled email, every email recipient address on a reserved domain, and every outbound SMS conversation row Delivered with `SentMessage` set. Every unsubscribed recipient matches the person: a list unsubscribe leaves them Inactive in that list, a Bulk or All unsubscribe matches their email preference, and a texted STOP has texting turned off on their phone.
 - **Cast expectations (built):** each Cast thread shows in SMS Conversations with its texts and in its intended state, unread, read, or stopped. Each Cast staff email shows in the person's Communication History, delivered, from the staff member, on its day.
+- **Snippet access (built):** the verify tool asks Rock who may see each snippet in the walkthrough in `snippets.json`, through the snippet's own security check, so a personal snippet shows only to its owner (decision 299).
+- **Email sections (built):** `check-library.js` checks each section's words, link, and photo, and that its markup and thumbnails were built from them. The verify tool has Rock's own save rules accept every loaded section (decision 301).
 - **Validation** grades the generated email data against calibration part 7 (decision 151): the open rate, engagement, open delays, top link share, the shares of inactive emails, "No mass emails", and "Do not email", and the designed share of active adults with no mass email in a month. For texts it grades thread lengths, threads with a staff text, unread threads, threads on personal numbers, the STOP share, and the designed share with no mass text in a month (decision 155).
 - **The verify tool** re-records the contract for the new tables and runs Rock Cleanup as the referee.
 

@@ -184,6 +184,27 @@ function reporting( model ) {
 module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
+    const signals = require( path.join( model.root, "configuration/signals.json" ) );
+    const personalLinks = require( path.join( model.root, "configuration/personal-links.json" ) );
+    const tags = require( path.join( model.root, "configuration/tags.json" ) ).tags;
+    const tagCategories = model.categories.filter( c => c.entityType === "Rock.Model.Tag" );
+    const homebound = tags.find( t => t.key === "homebound" );
+
+    // The staff follow-up tasks steps start (configuration/step-workflows.json). A Cast story's task belongs to its
+    // campus's pastor, the campus leader in Rock, or to the named staff member.
+    const stepWorkflows = require( path.join( model.root, "configuration/step-workflows.json" ) );
+    const castMember = guid => model.people.get( String( guid || "" ).toUpperCase() );
+    const stepWorkflowStories = stepWorkflows.cast.map( story => {
+        const workflow = stepWorkflows.workflows.find( w => w.key === story.workflow );
+        const member = castMember( story.person );
+        const owner = workflow.assignee.campusLeader ? member && member.household.campus.pastor : castMember( workflow.assignee.staff );
+        const ownerName = owner ? person( model, owner.displayName ) : "its assignee";
+        const login = owner && owner.logins && owner.logins.length ? html`, signed in as <code>${esc( owner.logins[0] )}</code>` : "";
+        return story.expect === "open"
+            ? html`${person( model, story.personName )}'s ${esc( workflow.name )}, open in ${ownerName}'s My Workflows${login}`
+            : html`${person( model, story.personName )}'s ${esc( workflow.name )}, completed by ${ownerName}`;
+    } );
+
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -195,9 +216,9 @@ module.exports = function features( { model } ) {
         {
             id: "giving", eyebrow: "Giving and check images", title: "Gifts on each giver's rhythm.", sand: true,
             text: "Each giver has a pattern and a channel: scheduled, online, the Sunday offering, or a mailed check. Gifts land in batches by day, campus, and channel, and Rock's giving analytics are filled in as its nightly job would leave them.",
-            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Refunds at a real church's rate, each with Rock's reason, in a refund batch", "Scanned check fronts and backs that match each check gift, when you ask for them" ],
-            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, html`${person( model, "Gabe Hernandez" )}'s duplicate gift, refunded the next day`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
-            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) }, { label: "Refunds", href: doc( "docs/refunds.md" ) } ]
+            checks: [ "Giving bins, journey stages, and a year of giving alerts", html`The ${esc( model.campaign.name )} building campaign, with pledges and how each is going`, "Refunds at a real church's rate, returned checks among them, each with Rock's reason, in a refund batch", "Stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement", "Scanned check fronts and backs that match each check gift, when you ask for them" ],
+            look: [ html`The <a href="${castDecker}">Deckers</a>, monthly and consistent givers`, html`${person( model, "Gabe Hernandez" )}'s duplicate gift, refunded the next day`, html`<a href="cast/javelina-wash-coffee.html">Javelina Wash Coffee</a>'s check that came back for insufficient funds`, html`The <a href="cast/price.html">Prices</a>' stock gift, under Non-Cash Gifts on their statement`, "Rock's Pledge Analytics page for the campaign", "A check batch, with each check's scan" ],
+            links: [ { label: "Pledges and the campaign", href: doc( "docs/pledges.md" ) }, { label: "Refunds", href: doc( "docs/refunds.md" ) }, { label: "Uncommon gifts", href: doc( "docs/uncommon-gifts.md" ) } ]
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
@@ -215,10 +236,10 @@ module.exports = function features( { model } ) {
         },
         {
             id: "steps", eyebrow: "Steps", title: "A path people really walk.",
-            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in.`,
-            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them" ],
-            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp" ],
-            links: [ { label: "Steps", href: doc( "docs/steps.md" ) } ]
+            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in. ${stepWorkflows.workflows.length} step workflows give staff their follow-up tasks. A baptism starts one for its campus pastor, a decision to follow Jesus starts one for the Student Pastor, and staff start a volunteer check-in by hand from a Serve step. Tasks from the last ${stepWorkflows.openDays} days wait in My Workflows, and staff completed the older ones.`,
+            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them", "Follow-up tasks after baptisms and decisions, open and completed, that Rock's own workflow jobs leave as they are" ],
+            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp", ...stepWorkflowStories ],
+            links: [ { label: "Steps", href: doc( "docs/steps.md" ) }, { label: "Step workflows", href: doc( "docs/steps.md#step-workflows" ) } ]
         },
         {
             id: "connections", eyebrow: "Connections", title: "Requests to serve, and the stories behind them.", sand: true,
@@ -229,9 +250,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "notes", eyebrow: "Notes", title: "What staff write down.",
-            text: html`Six note types with View security, ${model.counts.notes} hand-written Cast notes, and generated notes in the larger datasets, with replies, alerts, private notes, and mentions of other staff.`,
-            checks: [ "Note types locked to the staff who should read them", "Replies from other staff", "Alerts, pinned, and private notes" ],
-            look: [ html`The <a href="${castDecker}">Deckers'</a> profiles`, "A pastoral note, signed in as a staff member", "A note with a mention of another staff member" ],
+            text: html`Six note types with View security, ${model.counts.notes} hand-written Cast notes, and generated notes in the larger datasets, with replies, alerts, private notes, and mentions of other staff. A mention in a recent note waits in that staff member's bell, as Rock's notification, and opens the note.`,
+            checks: [ "Note types locked to the staff who should read them", "Replies from other staff", "Alerts, pinned, and private notes", "Mentions from the last few days still unread in the bell" ],
+            look: [ html`The <a href="${castDecker}">Deckers'</a> profiles`, "A pastoral note, signed in as a staff member", "A note with a mention of another staff member", html`The bell in the top bar, signed in as <code>admin</code>, with ${person( model, "Alisha Marble" )}'s unread mentions` ],
             links: [ { label: "Notes setup", href: doc( "configuration/README.md#notes" ) } ]
         },
         {
@@ -243,9 +264,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "communications", eyebrow: "Communications", title: "Two years of messages.",
-            text: html`Texting numbers, ${model.communicationLists.length} communication lists, and a branded email template, ready in Rock's email wizard. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
-            checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails" ],
-            look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number" ],
+            text: html`Texting numbers, ${model.communicationLists.length} communication lists, SMS snippets staff reply with, and a branded email template, ready in Rock's email wizard with sections that match it. Then two years of newsletters and ministry emails with opens, clicks, bounces, and unsubscribes, texts with live conversations, one-to-one emails, and the church's app with its pushes. Nothing ever sends at install.`,
+            checks: [ "Who is on each list follows how involved they are", "Texted STOPs and unsubscribes that follow Rock's rules", "The Cast's hand-written text threads and staff emails", "Shared SMS snippets, and personal ones only their owner sees" ],
+            look: [ "Rock's Communication History for any adult", "The Unsubscribe and Saturation reports", "The SMS Conversations page on a staff member's number", "The snippet picker in SMS Conversations", "The Sections panel in Rock's email editor" ],
             links: [ { label: "Communications", href: doc( "docs/communications.md" ) } ]
         },
         {
@@ -296,6 +317,27 @@ module.exports = function features( { model } ) {
             checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Leaders of a group or team asked to invite a friend", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
             look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift and asked to invite a friend`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
+        },
+        {
+            id: "signals", eyebrow: "Person signals", title: "Flags that ask staff to act.",
+            text: html`${signals.types.length} signal types, ${esc( signals.types.map( t => t.name ).slice( 0, -1 ).join( ", " ) )}, and ${esc( signals.types[signals.types.length - 1].name )}, each locked to the roles that act on it. ${signals.cast.length} Cast people carry one tied to their story, and in the larger datasets each campus pastor follows up with ${signals.crowd.perCampus} people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none.`,
+            checks: [ "The Top Person Signal badge on the profile", "Notes and end dates that only the right roles can read", "A Safety Team Review data view in the Safety category" ],
+            look: [ html`${person( model, "Frank Dexter" )}, waiting on a Safety Team Review`, html`${person( model, "Maddie Lowe" )}, with Pickup Instructions for check-in`, html`${person( model, "Derek Ward" )}, whose follow-up has ended, so no flag shows` ],
+            links: [ { label: "How signals load", href: doc( "loader/README.md#how-signals-load" ) } ]
+        },
+        {
+            id: "personal-links", eyebrow: "Personal links", title: "A bookmark menu that opens full.", sand: true,
+            text: html`The bookmarks behind the icon beside Rock's search bar: ${personalLinks.sharedSections.length} shared sections, ${esc( personalLinks.sharedSections.map( s => s.name ).slice( 0, -1 ).join( ", " ) )}, and ${esc( personalLinks.sharedSections[personalLinks.sharedSections.length - 1].name )}, each locked to the roles that use it, and personal sections for ${personalLinks.personalSections.length} staff and every campus pastor. Every link opens a Rock page with sample data on it, and a link to a part you left out is skipped.`,
+            checks: [ "Shared sections locked by role", "Personal sections in each owner's own order", "Links only to Rock pages" ],
+            look: [ html`${person( model, "Pete Foster" )}'s Leadership section, signed in as <code>pfoster</code>`, html`${person( model, "Alisha Marble" )}'s Office section, signed in as <code>admin</code>`, "A campus pastor's My Campus section" ],
+            links: [ { label: "How personal links load", href: doc( "loader/README.md#how-personal-links-load" ) } ]
+        },
+        {
+            id: "tags", eyebrow: "Tags", title: "Labels staff really use.",
+            text: html`Tags are Rock's quick labels on a person. ${tags.filter( t => t.category ).length} organizational tags sit in ${tagCategories.length} tag categories, ${esc( new Intl.ListFormat( "en", { type: "conjunction" } ).format( tagCategories.map( c => c.name ) ) )}, each locked to the roles that should use it. Staff keep personal tags that only they see, and Rock's own Staff tag holds every staff member.`,
+            checks: [ "Organizational tags locked to the roles that may see and use them", "Personal tags, such as each campus pastor's Coffee This Month", homebound && homebound.draw ? html`In the larger datasets, Homebound on ${homebound.draw.percent}% of generated adults ${homebound.draw.minAge} and older who live alone` : "", "Data views in Staff Workspace built on tags, each made by the staff member who uses it" ].filter( Boolean ),
+            look: [ html`${person( model, "Hal Russell" )}, on Homebound`, html`${person( model, "Jamal Pierce" )}'s personal Possible Group Leaders tag, signed in as him`, "Rock's Tag Report, and the tag bar on each profile" ],
+            links: [ { label: "Tags setup", href: doc( "configuration/README.md#tags" ) } ]
         }
     ];
 
@@ -320,6 +362,17 @@ module.exports = function features( { model } ) {
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
+    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
+    const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
+    const remindersArea = {
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
+        checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
+        look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
+        links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
+    };
+
     return {
         file: "features.html",
         active: "features",
@@ -340,12 +393,14 @@ module.exports = function features( { model } ) {
       ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
       <a href="#data-views-and-reports">Data views and reports</a>
       <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
+      <a href="#${remindersArea.id}">${esc( remindersArea.eyebrow )}</a>
     </nav>
   </div>
 </section>
 ${areas.map( area )}
 ${reporting( model )}
 ${area( assessmentsArea )}
+${area( remindersArea )}
 `
     };
 };
