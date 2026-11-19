@@ -50,7 +50,7 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, or Page), its Guid, an action, and a person's Guid,
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, or BenevolenceType), its Guid, an action, and a person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer

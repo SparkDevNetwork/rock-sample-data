@@ -184,6 +184,8 @@ function reporting( model ) {
 module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
+    const backgroundChecks = require( path.join( model.root, "configuration/background-checks.json" ) );
+    const benevolence = require( path.join( model.root, "configuration/benevolence.json" ) );
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -226,6 +228,20 @@ module.exports = function features( { model } ) {
             checks: [ "Team leaders connect their teams' requests", "Celebrations: the story a connector records, which the Celebrations Report lists", "Active and inactive requests in a real mix" ],
             look: [ html`${person( model, "Alisha Marble" )}'s requests in the Connections Hub, when you sign in as <code>admin</code>`, "Rock's Celebrations Report", "A request's activity history" ],
             links: [ { label: "Requests to serve", href: doc( "docs/serving.md#requests-to-serve" ) } ]
+        },
+        {
+            id: "background-checks", eyebrow: "Background checks", title: "Who is cleared to lead.",
+            text: html`Every small group leader needs a current background check, and so does every adult on the kids and student teams. Rock shows who meets it: ${backgroundChecks.leaders.mix.current}% of generated leaders are current, and the rest expire soon, have expired, or were never checked. Each check is saved the way Rock's Checkr provider saves it, with its report as a PDF.`,
+            checks: [ "Requirement results that Rock's own job leaves unchanged", "Checks in progress for requests to serve that wait on one", "A Leader Background Checks report, locked to the safety team" ],
+            look: [ html`${person( model, "Ted Decker" )}, whose only check is too old to count`, html`${person( model, "Bill Marble" )}, whose check runs out in about five weeks`, html`${person( model, "Frank Dexter" )}'s failed check, linked to his request to serve` ],
+            links: [ { label: "How background checks load", href: doc( "loader/README.md#how-background-checks-load" ) }, { label: "Serving", href: doc( "docs/serving.md" ) } ]
+        },
+        {
+            id: "benevolence", eyebrow: "Benevolence", title: "Help when someone asks.", sand: true,
+            text: html`People ask the church for help with rent, bills, food, cars, and medical costs. ${esc( benevolence.caseWorker.name )}, the Care Director, works each request, and the team records what it gave. ${benevolence.types.length - 1} church types join Rock's own, and every one is locked to the benevolence team.`,
+            checks: [ "Requests that are Approved, Denied, and Pending", "Help paid straight to a landlord, a utility, a shop, or a pharmacy", "Signed assistance agreements as PDFs" ],
+            look: [ html`${person( model, "Ashley Kelly" )}'s rent help, which matches her notes`, "Rock's Benevolence page under Finance, signed in as admin", html`${person( model, "Dee Navarro" )}, the case worker` ],
+            links: [ { label: "How benevolence loads", href: doc( "loader/README.md#how-benevolence-loads" ) } ]
         },
         {
             id: "notes", eyebrow: "Notes", title: "What staff write down.",

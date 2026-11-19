@@ -22,7 +22,7 @@ Alisha is the church's Rock administrator and holds nearly every security role. 
 
 Bill owns a local business and leads a small group for people who are new to faith. He was born on a leap day, so he is the record to use for February 29 birthday logic. He is one of the church's most generous weekly givers.
 
-- Age 55 · married · Owner, Saguaro Ridge Glass and Screen · email bill.marble@example.org · groups: Marble Group (leader), Ushers (leader), Foster Group (left) · business contact for Saguaro Ridge Glass and Screen
+- Age 55 · married · Owner, Saguaro Ridge Glass and Screen · email bill.marble@example.org · groups: Marble Group (leader), Ushers (leader), Foster Group (left) · business contact for Saguaro Ridge Glass and Screen · background check: Pass
 - Person Guid `1EA811BB-3118-42D1-B020-32A82BC8081A`
 
 ## What this family tests
@@ -34,6 +34,7 @@ Bill owns a local business and leads a small group for people who are new to fai
 - Business owner linked to a business record.
 - Weekly giver with year-end gifts and check images.
 - Leads one small group and belongs to another.
+- Bill's background check runs out in about five weeks, so Rock warns on his small group leader requirement.
 - Has taken all five assessments.
 
 ## Activity

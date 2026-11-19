@@ -20,7 +20,7 @@ Every campus has the same eight teams. Each one is a Rock Serving Team group, so
 - **Structure.** Each team sits under its campus's parent ("Phoenix Serving Teams"), under Rock's own Serving Teams group. Names are plain, with the campus set on the group. Rock's shipped Greeters, Ushers, and Children's groups become Phoenix's Greeters, Ushers, and Kids Ministry, and the old A/V Team becomes Phoenix's Production Team.
 - **Positions are rooms.** A team's rooms are its scheduling positions. The kids and student rooms are the check-in rooms; the other rooms are added to each campus building. Each room has a minimum, desired, and maximum number of people at each service.
 - **Staffing fits the campus.** The configured numbers are for a campus that can staff them. A small campus asks for about the people it usually has, so its scheduler is mostly staffed with some open spots. Phoenix in Core 1 is a church of about 180 people running six kids rooms at three services, so many kids rooms still show an open spot. That is realistic, and it gives the scheduler work to show.
-- **Requirements.** Kids Ministry and Student Ministry require Rock's Background Check Required, and only volunteers who meet it can be scheduled. Every volunteer on those teams has a passing check from the last few years and the requirement results Rock's job would have saved.
+- **Requirements.** Kids Ministry and Student Ministry require Rock's Background Check Required, and only volunteers who meet it can be scheduled. Every adult on those teams has a passing check from the last few years, with its report, and the requirement results Rock's job would have saved. Volunteers under 18 meet Rock's rule by age. The Background checks part writes them (decision D-checks-1), and small group leaders have the same requirement (decision D-checks-2).
 
 ## The volunteers
 
@@ -61,8 +61,8 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 | Brian and Wendy Gilbert | Greeters, In Progress | A couple asking to serve together |
 | Sean Hansen | Ushers, No Contact | A new request with no connector |
 | Nancy Turner | Ushers, No Contact | An idle, overdue request with no connector |
-| Helen Evans | Kids Ministry, Background Check | Waiting on a background check |
-| Frank Dexter | Kids Ministry, Background Check | A failed background check that needs review |
+| Helen Evans | Kids Ministry, Background Check | Waiting on a background check, still in progress and linked to her request |
+| Frank Dexter | Kids Ministry, Background Check | A failed background check, linked to his request, that the safety team reviews |
 | Sam Hanks | Production Team, No Contact | 75 days with no follow-up |
 | Bri Hall | Greeters, Connected | Just connected, waiting as a Pending greeter |
 | Ryan Patel | Production Team, future follow-up | Contact him again after his work travel |

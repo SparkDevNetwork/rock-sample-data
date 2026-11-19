@@ -17,7 +17,7 @@ Ted and Cindy Decker and their two children are the church's best-known family. 
 
 Ted is the Outreach Pastor and the face of most Rock documentation. He leads the Decker small group, leads the Production Team, where he still runs a camera, and is talking with staff about starting a young adults ministry. He holds most staff security roles, so he is the go-to login for testing staff screens.
 
-- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 7 security roles · Rock shows Starting Point Class complete, Small Group complete, Baptism complete, Foundations complete, Serve complete, Give complete, Lead complete, the Discipleship Path completed
+- Age 38 · married · Outreach Pastor, Rock Solid Church · email ted@rocksolidchurchdemo.com · groups: Decker Group (leader), Production Team (leader) · 8 security roles · background check: Pass · Rock shows Starting Point Class complete, Small Group complete, Baptism complete, Foundations complete, Serve complete, Give complete, Lead complete, the Discipleship Path completed
 - Person Guid `8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4`
 
 ### Cindy (Cynthia) Decker
@@ -47,6 +47,8 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 - Two adults and two children; kids check-in with an allergy attribute.
 - Monthly giver by recurring credit card, with a building campaign line on each gift.
 - Small group leader and serving team member.
+- Ted's only background check passed 13 years ago, so his small group leader requirement is not met.
+- Ted approves benevolence requests as one of the Benevolence Workers.
 - Completes the whole Discipleship Path, with a program completion.
 - Staff member with many security roles, logins, all five assessments, and personal notes including an alert. Ted's DISC result is from before the church used Rock's assessments.
 - Cindy has an old Spiritual Gifts result and a pending retake that the Groups Pastor asked for.

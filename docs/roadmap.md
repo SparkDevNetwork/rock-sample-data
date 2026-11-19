@@ -56,6 +56,8 @@ Where the project stands: the team's working list. Update this page whenever som
 - Three fixes for alpha.18 (decisions 259, 260, and 269). Every generated phone number is its own, so a texted STOP, a check-in phone search, or the duplicate finder never reaches strangers: generated people and businesses draw from the Phoenix codes first, then other US geographic codes in `configuration/phones.json`. Every attendance row has the check-in status Rock gives it. The church's branded email template is in Rock's email wizard, in the newer editor's format, beside its Legacy version.
 - **Assessments** (decisions 265 to 268; see [Assessments](assessments.md)). Rock's five assessments for staff, the Starting Point and Foundations classes, every current leader, and active adults who take one on their own, with pending requests and reminders where Rock's job would leave them. A port of Rock's scoring makes both the answers and the results, and verify scores every answer set with Rock's own services. The Cast's stories (Ted Decker and Alisha Marble with all five, the Gilberts' pending request, Bri Hall's gifts, Cindy Decker's retake, and six legacy DISC results) are checked on every load. Packages need loader 0.1.0-alpha.18.
 - **Giving refunds** (decisions 261 to 264; see [Refunds](refunds.md)). Slice 1 is built. Generated households' gifts get refunds at the calibrated rate of 2.54 per 1,000 gifts: duplicate online gifts, amounts typed with an extra zero, one fund of a two-fund gift, and gifts from an earlier year, each written the way Rock's refund saves it, in a " - Refund" batch made by Priya Raman. Gabriel Hernandez's duplicate gift is the Cast's refund, and his journey stage stays Consistent. The replays of Rock's giving runs read each gift as it stood that night, and validation grades the refund rate. Packages need loader `0.1.0-alpha.18`. Next: slice 2, other uncommon transactions, and Registration Follow-ups reuses the refund writer.
+- **Leader background checks** (issue 36, decisions D-checks-1 to D-checks-5; see [How background checks load](../loader/README.md#how-background-checks-load)). Every small group leader needs a current background check, which leaders cannot override, and a new Background checks part writes every person's latest check the way Rock's Checkr provider writes it, with a PDF report, the person attributes Checkr's workflow sets, and the requirement results Rock's Calculate Group Requirements job would save. Generated leaders are 85% current, 6% expiring, 5% expired, and 4% never checked. Ted Decker's check is too old, Bill Marble's runs out in about five weeks, and Jerry Wright has none. Verify runs Rock's real job and fails if it changes any result. A Leader Background Checks report sits in Safety.
+- **Benevolence** (issue 21, decisions D-benevolence-1 to D-benevolence-5; see [How benevolence loads](../loader/README.md#how-benevolence-loads)). Three church types beside Rock's own, locked to the benevolence team, with Dee Navarro as case worker. The Cast's four requests match their notes: Ashley Kelly's rent, the Wards' electric bill and groceries, and two waiting as Pending. Generated requests come at about 2 a year for every 1,000 adults, and approved bills have a signed assistance agreement PDF. Next: the workflow that starts when a request is entered.
 
 ## In progress
 
@@ -86,7 +88,6 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 ### Small groups
 
 1. **Women's groups.** Add women's small groups led by women, with a Women's Bible Study topic. Alisha Marble's existing group becomes one of them; until then it is not part of the small group design.
-2. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
 
 ### People
 
@@ -121,7 +122,7 @@ Publishing packages to Azure is in the release workflow (see In progress). Signi
 
 ## Later (Phase 1 and beyond)
 
-Connection requests beyond serving, learning (LMS), benevolence, and reminders.
+Connection requests beyond serving, learning (LMS), and reminders.
 
 ## Open questions
 

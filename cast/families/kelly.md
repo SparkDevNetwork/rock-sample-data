@@ -35,7 +35,8 @@ Chloe is four and in the preschool room.
 
 ## What this family tests
 
-- Benevolence request (Phase 1).
+- Benevolence request: one month's rent, paid to her landlord.
+- Registered for the next Money Matters class after her benevolence request.
 - Single mom with preschool and Grades 2-3 check-in.
 - Known status, no giving.
 

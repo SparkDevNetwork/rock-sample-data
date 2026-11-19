@@ -17,7 +17,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/coffee-phil.jpg" width="56" alt="Phil Coffee"> | [Coffee](coffee.md) | Phil | Invited-by-a-friend journey from first visit to baptism. |
 | <img src="../../photos/cast/decker-ted.jpg" width="56" alt="Ted Decker"> | [Decker Family](decker.md) | Ted, Cindy, Noah, Alex | Primary demo family used in documentation and screenshots. |
 | <img src="../../photos/cast/delgado-ray.jpg" width="56" alt="Ray Delgado"> | [Delgado Family](delgado.md) | Ray, Carmen | Facilities Director with Rock's safety and security role. |
-| <img src="../../photos/cast/dexter-frank.jpg" width="56" alt="Frank Dexter"> | [Dexter Family](dexter.md) | Frank | Failed background check that needs review. |
+| <img src="../../photos/cast/dexter-frank.jpg" width="56" alt="Frank Dexter"> | [Dexter Family](dexter.md) | Frank | Failed background check, linked to his request to serve, that the safety team reviews. |
 | <img src="../../photos/cast/faleolo-josiah.jpg" width="56" alt="Josiah Faleolo"> | [Faleolo Family](faleolo.md) | Josiah, Leilani, Malia, Kai | Named campus pastor at Chandler, loaded only in Full 7. |
 | <img src="../../photos/cast/foster-pete.jpg" width="56" alt="Pete Foster"> | [Foster Family](foster.md) | Pete, Pamela | Senior pastor with pastoral and staff security roles. |
 | <img src="../../photos/cast/garcia-daniel.jpg" width="56" alt="Daniel Garcia"> | [Garcia Family](garcia.md) | Daniel, Maria, Olivia, Bella, Leo | Twins with the same birthday. |
@@ -31,7 +31,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | <img src="../../photos/cast/ibarra-rafael.jpg" width="56" alt="Rafael Ibarra"> | [Ibarra Family](ibarra.md) | Rafael, Elisa, Nico | Named campus pastor at Goodyear, loaded only in Full 7. |
 | <img src="../../photos/cast/jackson-mariah.jpg" width="56" alt="Mariah Jackson"> | [Jackson Family](jackson.md) | Mariah, Maddie | Single parent whose child has a different last name. |
 | <img src="../../photos/cast/jones-ben-ben.jpg" width="56" alt="Ben Jones"> | [Jones Family](jones-ben.md) | Ben, Brian | Divorced parent with joint custody; the child belongs to two families. |
-| <img src="../../photos/cast/kelly-ashley.jpg" width="56" alt="Ashley Kelly"> | [Kelly Family](kelly.md) | Ashley, Mason, Chloe | Benevolence request (Phase 1). |
+| <img src="../../photos/cast/kelly-ashley.jpg" width="56" alt="Ashley Kelly"> | [Kelly Family](kelly.md) | Ashley, Mason, Chloe | Benevolence request: one month's rent, paid to her landlord. |
 | <img src="../../photos/cast/lee-james.jpg" width="56" alt="James Lee"> | [Lee Family](lee.md) | James, Sarah, Ben, Abby, Sam, Libby, Joey, Ruth | Family of eight with kids in every check-in area. |
 | <img src="../../photos/cast/lowe-craig.jpg" width="56" alt="Craig Lowe"> | [Lowe Family](lowe.md) | Craig, Trish | Visitor household that gives regularly. |
 | <img src="../../photos/cast/marble-alisha.jpg" width="56" alt="Alisha Marble"> | [Marble Family](marble.md) | Alisha, Bill | Rock administrator with many security roles. |
@@ -79,7 +79,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Decker Family](decker.md) | legacy | 4 | Leading, Engaged, Connected | Primary demo family used in documentation and screenshots. |
 | [Delgado Family](delgado.md) | new | 2 | Engaged | Facilities Director with Rock's safety and security role. |
 | [Desert Thistle Landscaping](desert-bloom-landscaping.md) | new | 1 | Prospect | Business with two contacts, a married couple who own it together. |
-| [Dexter Family](dexter.md) | legacy | 1 | Engaged | Failed background check that needs review. |
+| [Dexter Family](dexter.md) | legacy | 1 | Engaged | Failed background check, linked to his request to serve, that the safety team reviews. |
 | [Diaz Family](diaz.md) | new | 2 | Known | Holiday-only attenders. |
 | [Ellis Family](ellis.md) | new | 2 | Known | New couple: first visit about four months ago. |
 | [Evans](evans.md) | legacy | 1 | Prospect | Event guest who needs follow-up. |
@@ -108,7 +108,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Jenkins Family](jenkins.md) | new | 3 | Engaged | Grandparents raising a grandchild. |
 | [Jones Family](jones-ben.md) | legacy | 2 | Known, Connected | Divorced parent with joint custody; the child belongs to two families. |
 | [Jones Family](jones-will.md) | legacy | 1 | Connected | Pending record that needs review. |
-| [Kelly Family](kelly.md) | new | 3 | Known | Benevolence request (Phase 1). |
+| [Kelly Family](kelly.md) | new | 3 | Known | Benevolence request: one month's rent, paid to her landlord. |
 | [Kim Family](kim.md) | new | 3 | Connected | Adult child living at home (adult role in the family). |
 | [Lee Family](lee.md) | new | 8 | Leading, Engaged | Family of eight with kids in every check-in area. |
 | [Lowe Family](lowe.md) | legacy | 2 | Known | Visitor household that gives regularly. |

@@ -26,7 +26,7 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [michaels](households/michaels.json) | Jenny (Engaged) | Volunteer with the Staff-Like Users role. |
 | [smith-paul](households/smith-paul.json) | Paul (Connected) | Young adult living alone. |
 | [mcclintock](households/mcclintock.json) | Ty (Connected) | Young adult living alone. |
-| [dexter](households/dexter.json) | Frank (Engaged) | Failed background check that needs review. |
+| [dexter](households/dexter.json) | Frank (Engaged) | Failed background check, linked to his request to serve, that the safety team reviews. |
 | [greggs](households/greggs.json) | Bob (Engaged), Lorraine (Engaged), Tim (Engaged), Jordan (Engaged) | Grieving family with sensitive alert notes. |
 | [greggs-jenny](households/greggs-jenny.json) | Jenny (Known) | Deceased child record kept in its own family. |
 | [webb](households/webb.json) | Marty (Prospect), Deb (Prospect) | Married couple who are still Prospects but already in a small group. |
@@ -64,11 +64,11 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [carter](households/carter.json) | Peggy (Engaged) | Widow living alone, age 78. |
 | [coleman](households/coleman.json) | Tony (Connected), Tiffany (Connected), Eli 9 (Connected), Zoe 4 (Connected) | Two working parents, two check-in rooms. |
 | [cruz](households/cruz.json) | Jose (Participant), Gaby (Participant), Adrian 8 (Participant), Camila 6 (Participant) | Participants through an event registration (VBS). |
-| [dawson](households/dawson.json) | Kevin (Connected), Tyler 12 (Connected), Emma 9 (Connected) | Single dad with every-other-weekend attendance. |
+| [dawson](households/dawson.json) | Kevin (Connected), Tyler 12 (Connected), Emma 9 (Connected) | Single dad with every-other-weekend attendance. Pending benevolence request for groceries. |
 | [diaz](households/diaz.json) | Ricardo (Known), Patty (Known) | Holiday-only attenders. |
 | [ellis](households/ellis.json) | Jordan (Known), Hannah (Known) | New couple: first visit about four months ago. |
 | [fischer](households/fischer.json) | Mark (Connected), Julie (Connected), Ethan 17 (Connected), Grace 15 (Connected) | High school students, including a senior about to graduate. |
-| [flores](households/flores.json) | Monica (Connected), Sebastian 10 (Connected), Lucia 5 (Connected) | Never-married single parent. |
+| [flores](households/flores.json) | Monica (Connected), Sebastian 10 (Connected), Lucia 5 (Connected) | Never-married single parent. Pending benevolence request for a car repair. |
 | [garcia](households/garcia.json) | Daniel (Engaged), Maria (Engaged), Olivia 6 (Engaged), Bella 6 (Engaged), Leo 2 (Engaged) | Twins with the same birthday. |
 | [gray](households/gray.json) | Emily (Connected) | Attends many different services (low primary-service share). |
 | [hall](households/hall.json) | Bri (Participant) | Participant: one in-person touch (a serve day), no Sunday attendance. |
@@ -76,7 +76,7 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [hernandez](households/hernandez.json) | Gabe (Engaged) | Young single volunteer (worship team in Phase 1). |
 | [hughes](households/hughes.json) | Matt (Engaged), Jess (Engaged), Henry 5 (Engaged), Charlotte 3 (Engaged), Jack 1 (Engaged) | Three kids in three check-in rooms, from nursery to kindergarten. |
 | [jenkins](households/jenkins.json) | Gary (Engaged), Barb (Engaged), Austin 11 (Engaged) | Grandparents raising a grandchild. |
-| [kelly](households/kelly.json) | Ashley (Known), Mason 7 (Known), Chloe 4 (Known) | Benevolence request (Phase 1). |
+| [kelly](households/kelly.json) | Ashley (Known), Mason 7 (Known), Chloe 4 (Known) | Benevolence request: one month's rent, paid to her landlord. Registered for Money Matters. |
 | [kim](households/kim.json) | David (Connected), Susan (Connected), Drew (Connected) | Adult child living at home (adult role in the family). |
 | [lee](households/lee.json) | James (Engaged), Sarah (Engaged), Ben 16 (Engaged), Abby 14 (Engaged), Sam 11 (Engaged), Libby 8 (Engaged), Joey 5 (Engaged), Ruth 2 (Engaged) | Family of eight with kids in every check-in area. |
 | [morgan](households/morgan.json) | Steve (Engaged), Karen (Engaged) | Quarterly giver with a year-end gift. |
@@ -100,7 +100,7 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [washington](households/washington.json) | Marcus (Engaged), Denise (Engaged), Jasmine 18 (Engaged) | An 18-year-old who is still a child in the family. |
 | [watson](households/watson.json) | Brandon (Known), Kristen (Known) | Year-end-only giver. |
 | [wood](households/wood.json) | Jason (Connected), Melissa (Connected), Ryan 13 (Connected), Kaylee 10 (Connected) | Middle school student in the student check-in area. |
-| [wright](households/wright.json) | Jerry (Engaged), Dot (Engaged) | Weekly cash giver. |
+| [wright](households/wright.json) | Jerry (Engaged), Dot (Engaged) | Weekly cash giver. Small group leader who has never had a background check. |
 | [young](households/young.json) | Destiny (Participant), Jayden 1 (Participant) | Participant through a community event. |
 
 With the new households the Cast reached 83 households and 181 people. Adult photo ethnicity is 40% White, 24% Hispanic or Latino, 12% Black, 6% East Asian, 4% Southeast Asian, 4% South Asian, 3% Native American, 3% Middle Eastern or North African, 2% Multiracial, and 2% Pacific Islander. 7 of 43 couples (16%) are mixed.

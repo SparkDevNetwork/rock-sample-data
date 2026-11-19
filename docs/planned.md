@@ -5,7 +5,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## Groups and serving
 
 - **Women's groups,** led by women, with a women's Bible study topic.
-- **Group leader requirements,** such as a background check, with a few leaders whose check is missing or expired so Rock shows the warning.
 - **New small group leaders from Ready to Lead,** planned for alpha.18. The small group data should draw most new leaders from people who are Ready to Lead (an Equip step, serving on a team now, and in a small group), so the Lead a Group flow shows real conversions. Today most new leaders had left their group or were not serving, so the flow's goal shows Missed. It changes the groups in every dataset, so it needs its own verify.
 
 ## People and attendance
@@ -23,7 +22,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Learning (LMS):** learning programs, courses, and classes, with people enrolled, activities completed, and program completions, so Rock's learning screens have real data.
 - **Event registrations**: one cancelled mission trip spot with a refunded deposit, financial batch history for registration payments, and the registration emails (confirmations, reminders, payment reminders, and signature receipts) as communication history. Everything else is built: the setup, the students, kids, and adults who registered, their payments, payment plans, wait lists, and placements, the signed camp and mission trip releases, the notes and history, reminders, and data views. See [Event registrations](registrations.md).
 - **Adaptive message view history.** A year of "Viewed" interactions in Rock's Adaptive Messages channel, so each adaptation shows its views and saturation works on install day. The segments, messages, and adaptations are built (see [Adaptive messages](adaptive-messages.md)). It waits for Interaction Data's website sessions.
-- **Benevolence requests.**
 - **Reminders** that staff would really set.
 
 - **The church's app:** pages and content for the Rock Solid Church App, which starts as a stub for push notifications.

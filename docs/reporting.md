@@ -1,6 +1,6 @@
 # Data views and reports
 
-Status: slices 1 to 8 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 25 reports in `configuration/reporting.json`; the New Here and We Miss You syncs rebuilt on the foundations (slice 6); a run history on every view and report (slice 7); and a weekly metric for each stage (slice 8). Slice 9, a reporting page on the site, waits for Jon. Every open question is answered. Decisions 223 to 234 record what is built, and section 8.2 lists where the build differs from the design.
+Status: slices 1 to 8 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 26 reports in `configuration/reporting.json`; the New Here and We Miss You syncs rebuilt on the foundations (slice 6); a run history on every view and report (slice 7); and a weekly metric for each stage (slice 8). Slice 9, a reporting page on the site, waits for Jon. Every open question is answered. Decisions 223 to 234 record what is built, and section 8.2 lists where the build differs from the design.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -162,7 +162,7 @@ Five of the framework's ideas shape the data views and reports:
 
 ### 2.3 What is not covered yet
 
-- **Pastoral Care** has no data views. Its data today is prayer requests, which have their own Rock screens and security. Benevolence requests are planned work. A Care category is added when one of them needs a data view.
+- **Pastoral Care** has no data views. Its data today is prayer requests and benevolence requests, which have their own Rock screens and security (decision D-benevolence-2). A Care category is added when one of them needs a data view.
 - **Notice** has no step. Rock's first-visit attendance and the First Visit attribute stand in for it.
 - **Counts over time.** Rock's Step Program page already charts each step type by month. Rock's Step Flow block, which draws movement between steps, ships in both builds, but no page uses it on a new install. Stage counts over time would be Rock Metrics fed by the stage views (question 15).
 
@@ -353,6 +353,7 @@ The category already holds three registration data views (decision 215). One flo
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | S1 | Kids and Student Volunteers | Person | In F8, and an active member of a Kids Ministry or Student Ministry team, the two teams with the background check requirement | F8 | No | R11 |
+| S2 | Small Group Leaders | Person | In F8, and an active leader of an active small group, the role with the background check requirement (decision D-checks-2) | F8 | No | R26 |
 | K2 | Kids With an Allergy | Person | In K1 (use persisted), and the Allergy person attribute is not blank | K1 | No | R6 |
 
 R11 also shows how Rock's shipped "Background check about to expire" data view (in Rock's Group Requirements category) fits in. Question 5 asks whether Safety is in scope.
@@ -498,9 +499,10 @@ The path reports give the senior team the whole path in one place. Each stage re
 | # | Report | Data view | Columns | What a staff member learns |
 |---|---|---|---|---|
 | R11 | Volunteer Background Checks | S1 | Name (Property), Team (Select: In Group of Group Type), Background Checked (Attribute), Background Check Date (Attribute), Background Check Result (Attribute) | Who needs a renewal before they serve again |
+| R26 | Leader Background Checks | S2 | Name (Property), Group (Select: In Group of Group Type), Background Checked (Attribute), Background Check Date (Attribute), Background Check Result (Attribute) | Which small group leaders need a check before their next group night (decision D-checks-5) |
 | R6 | Kids Allergy List | K2 | Photo (Select: Photo), Name (Property), Grade (Select), Allergy (Attribute), Parents (Select), Parent Phone (Select: Parent Phone Number), Allergy alert (Lava: a red label) | The sheet a classroom leader keeps by the snack table |
 
-R11's three attributes are locked by Rock to RSR - Safety & Security Workers and RSR - Rock Administration. As section 1.3 says, the columns would still show to anyone who can view the report. That is why the report category is locked too.
+R11's and R26's three attributes are locked by Rock to RSR - Safety & Security Workers and RSR - Rock Administration. As section 1.3 says, the columns would still show to anyone who can view the report. That is why the report category is locked too.
 
 ### 5.9 Finance (category: Rock Solid Church > Finance, locked)
 
@@ -513,7 +515,7 @@ R11's three attributes are locked by Rock to RSR - Safety & Security Workers and
 | R16 | Registration Payments | FN7 (transactions) | Date (Property), Person (Property), Amount (Select: Total Amount), Currency Type (Property), Transaction Code (Property) | Every registration payment this year, for reconciling |
 | R17 | Money Matters Invite List | FN8 | Name (Property), Campus (Select), Connection Status (Property), Small Group (Select), Email (Property) | Engaged adults to invite to the Money Matters class |
 
-The 25 reports use all four column kinds, two of Rock's locked finance components, and three record types besides people (groups, pledges, and transactions).
+The 26 reports use all four column kinds, two of Rock's locked finance components, and three record types besides people (groups, pledges, and transactions).
 
 ## 6. Categories and their security
 

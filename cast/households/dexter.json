@@ -9,7 +9,7 @@
   "campusSlot": "main",
   "story": "Frank Dexter is a long-time member. After his divorce he was convicted of a misdemeanor, so his recent background check failed and needs review before he can serve.",
   "testPurposes": [
-    "Failed background check that needs review.",
+    "Failed background check, linked to his request to serve, that the safety team reviews.",
     "Divorced adult living alone.",
     "Monthly giver."
   ],
