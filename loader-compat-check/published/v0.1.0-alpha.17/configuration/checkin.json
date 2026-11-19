@@ -1,0 +1,119 @@
+{
+  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service.",
+  "template": {
+    "name": "Weekly Service Check-in",
+    "guid": "FEDD389A-616F-4A53-906C-63D8255631C5"
+  },
+  "areas": [
+    {
+      "name": "Nursery/Preschool Area",
+      "guid": "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8",
+      "groups": [
+        "nursery",
+        "crawlers-walkers",
+        "preschool"
+      ]
+    },
+    {
+      "name": "Elementary Area",
+      "guid": "E3C8F7D6-5CEB-43BB-802F-66C3E734049E",
+      "groups": [
+        "grades-k-1",
+        "grades-2-3",
+        "grades-4-6"
+      ]
+    },
+    {
+      "name": "Jr High Area",
+      "guid": "7A17235B-69AD-439B-BAB0-1A0A472DB96F",
+      "groups": [
+        "grades-7-8"
+      ]
+    },
+    {
+      "name": "High School Area",
+      "guid": "9A88743B-F336-4404-B877-2A623689195D",
+      "groups": [
+        "grades-9-12"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "key": "nursery",
+      "name": "Nursery",
+      "matchBy": "age",
+      "room": "Bunnies Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "crawlers-walkers",
+      "name": "Crawlers/Walkers",
+      "matchBy": "age",
+      "room": "Kittens Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "preschool",
+      "name": "Preschool",
+      "matchBy": "age",
+      "room": "Puppies Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "grades-k-1",
+      "name": "Grades K-1",
+      "matchBy": "grade",
+      "room": "Bears Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "grades-2-3",
+      "name": "Grades 2-3",
+      "matchBy": "grade",
+      "room": "Bobcats Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "grades-4-6",
+      "name": "Grades 4-6",
+      "matchBy": "grade",
+      "room": "Outpost Room",
+      "schedules": "weekend"
+    },
+    {
+      "key": "grades-7-8",
+      "name": "Grades 7-8",
+      "matchBy": "grade",
+      "room": "the Warehouse",
+      "schedules": "student"
+    },
+    {
+      "key": "grades-9-12",
+      "name": "Grades 9-12",
+      "matchBy": "grade",
+      "room": "the Garage",
+      "schedules": "student"
+    }
+  ],
+  "building": "Bldg 1",
+  "roomSoftThreshold": {
+    "nursery": 12,
+    "crawlers-walkers": 12,
+    "preschool": 20,
+    "grades-k-1": 30,
+    "grades-2-3": 30,
+    "grades-4-6": 30,
+    "grades-7-8": 60,
+    "grades-9-12": 80
+  },
+  "studentFallbackSlot": "sun-1030",
+  "worship": {
+    "$comment": "Adult worship attendance uses Rock's built-in Service Attendance template and its Weekend Service group, located at each campus with that campus's service times.",
+    "template": {
+      "name": "Service Attendance",
+      "guid": "77713830-AE5E-4B1A-94FA-E145DFF85035"
+    },
+    "groupName": "Weekend Service"
+  }
+}

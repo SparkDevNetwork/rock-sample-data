@@ -11,6 +11,9 @@ The hand-written messages the sample church sends: emails, texts, and pushes. Th
 | `emails.json` | Every other email: seasonal sends, ministry sends, pastoral letters, and one-to-one messages. |
 | `texts.json` | Texts and pushes, plus the reply pools for texts that ask for an answer. |
 | `conversations.json` | The pools that generated text conversations are built from. |
+| `snippets.json` | The SMS snippets staff insert in SMS Conversations: shared ones, personal ones, and who may see which (decision 299). |
+| `email-sections.json` | The church's sections for Rock's newer email editor: each one's words, link, card, and photo (decision 301). |
+| `email-sections/` | Each section's markup (`<key>.html`) and thumbnail (`<key>.png`, or `<key>-<dataset>.png`), and `make-sections.js`, which builds them with Rock's own email editor code. |
 | `email-template.html` | The sample church's branded email template for Rock's older email editor, with its colors as Lava fields (see [configuration/communications.json](../../configuration/communications.json)). |
 | `email-template-wizard.html` | The same template in the rows and components of Rock's newer email editor, which the Communication Entry Wizard lists. Its colors are written in, and `check-library.js` checks they match the Lava fields above (decision 269). |
 | `email-logo.png` | The approved Rock Solid Church logo at 480 by 120 pixels with a transparent background, for the template. |
@@ -210,6 +213,75 @@ A text that asks for an answer sets `"asksReply": true`, and its replies come fr
 
 A generated thread is one topic: an opener from the person, a staff reply, then follow-ups back and forth to its length, and sometimes a closing. `numbers` says where the topic happens: `personal` (a staff member's personal number), `main` (the main line), or `students` (the student line). `audience` is `adult`, `parent`, or `student`. Tokens are `{name}` (the person's nickname), `{staff}` (the staff member's first name), and `{campus}`.
 
+## snippets.json
+
+```json
+{
+  "$comment": "...",
+  "replyShare": 0.25,
+  "snippets": [
+    {
+      "key": "service-times",
+      "name": "{campus} Service Times",
+      "description": "Sunday service times at Rock Solid {campus}.",
+      "category": "snippets-guests",
+      "campusGuids": { "phoenix": "2EC33B5A-F220-4A6C-BCE6-F23F0A5C085D" },
+      "topics": [ "service-times" ],
+      "text": "Hi {{ Person.NickName }}! Sunday services at {campus} are at {serviceTimes}."
+    },
+    {
+      "key": "camp-packing-list",
+      "name": "Camp Packing List",
+      "description": "What to bring to Student Camp.",
+      "owner": "isaac",
+      "category": "snippets-students",
+      "guid": "77E5B81F-FB4E-41FA-95D2-6C93B422C8BF",
+      "topics": [ "camp-form-student", "camp-form-parent" ],
+      "text": "Hey {{ Person.NickName }}! Pack a Bible, water bottle, and sunscreen."
+    }
+  ],
+  "access": [
+    { "person": "581C940E-A788-4F32-BCF3-33F4D1948390", "name": "Isaac Silva", "snippet": "77E5B81F-FB4E-41FA-95D2-6C93B422C8BF", "action": "View", "allowed": true }
+  ]
+}
+```
+
+A snippet with no `owner` is shared: every staff member sees it, and it needs a `category`, a Rock.Model.Snippet category's key in configuration/categories.json. An `owner` is a staff key in configuration/staff.json, or `campus-pastor`, which gives each campus pastor in the dataset their own copy. A snippet has a `guid`, or `campusGuids` with a Guid for every campus in configuration/campuses.json, when it loads once per campus in the dataset. Only a snippet with `campusGuids` may use `{campus}` and `{serviceTimes}`, and only a campus pastor's may use `{staff}`, the pastor's first name. Every snippet's `text` fills in `{{ Person.NickName }}` once, which Rock fills when staff insert it. `topics` are keys in conversations.json: in about `replyShare` of the generated threads in those topics, the staff's first reply is the snippet's text, when that staff member can see it. `access` is the walkthrough the verify tool asks Rock: a staff member, a snippet's Guid, View or Edit, and Rock's answer.
+
+## email-sections.json
+
+```json
+{
+  "$comment": "...",
+  "category": "church-email-sections",
+  "sections": [
+    {
+      "key": "upcoming-event",
+      "name": "Upcoming Event",
+      "usageSummary": "An event photo, title, and short description with a sign-up button.",
+      "guid": "A2AE559E-1618-4C1C-B3E9-779790201EFB",
+      "thumbnailGuid": "BAC242D1-3DFC-46EC-A2BF-2E13D36B9ADD",
+      "image": { "event": "parents-night-out", "guid": "B22337F8-9837-4F91-A1D9-D7FDADED7AAD", "alt": "Parents' Night Out" },
+      "eyebrow": "Coming up",
+      "title": "Parents' Night Out",
+      "text": "Drop off the kids for pizza, games, and a movie.",
+      "button": { "text": "Sign up", "href": "/events" }
+    }
+  ]
+}
+```
+
+`category` is a Rock.Model.EmailSection category's key in configuration/categories.json. A section is an optional `eyebrow` line, a `title`, one paragraph of `text`, and a `button`, whose `href` is one of the allowed paths. `card` is `light` (the template's page color) or `accent` (its teal), or none. `image` shows the approved photo of a calendar event, from photos/events/manifest.json, as a Rock file with its own Guid. `serviceTimes` adds a line for each of the dataset's campuses with its Sunday service times, filled in at load. These fields hold no tokens and no Lava.
+
+After any change to this file, the template's colors, or a photo a section shows, build the markup and thumbnails again with a built Rock checkout and Chrome, then run the checker:
+
+```
+node content/communications/email-sections/make-sections.js --rock C:\Development\Rock-21
+node content/communications/check-library.js
+```
+
+The checker fails a section whose markup no longer holds its own title, text, button, Guids, and link, so markup that was not built again does not slip through.
+
 ## Lengths
 
 | Field | Characters |
@@ -221,6 +293,10 @@ A generated thread is one topic: an opener from the person, a staff reply, then 
 | Push `text` | 20 to 120 |
 | Reply | 2 to 120 |
 | Conversation opener, reply, follow-up, or closing | 2 to 300, mostly under 160 |
+| Snippet `text` | 40 to 300, mostly under 160 |
+| Snippet `name`, with the longest campus name | 3 to 100 |
+| Email section `name` | 3 to 100 |
+| Email section `usageSummary` | 20 to 500 |
 
 ## Rules
 

@@ -54,7 +54,7 @@ A Cast giving pattern can also design a refund with `refunds` (see [Refunds](../
 "refunds": [ { "kind": "duplicate", "near": { "daysAgo": 45 } } ]
 ```
 
-Each refunds the pattern's last gift on or before `near` that its kind can refund. Every load checks that the giver has a refund with the kind's reason in `configuration/refunds.json`, made the kind's shortest delay after its gift on a weekday, of the whole gift for `duplicate` and `earlier-year` and part of it otherwise, and for a duplicate, of a gift with a twin that day. Gabriel Hernandez has the one Cast refund today.
+Each refunds the pattern's last gift on or before `near` that its kind can refund. Every load checks that the giver has a refund with the kind's reason in `configuration/refunds.json`, made the kind's shortest delay after its gift on a weekday, of the whole gift for `duplicate`, `earlier-year`, `insufficient-funds`, and `returned-check` and part of it otherwise, for a duplicate, of a gift with a twin that day, and for a returned check, of a check. Gabriel Hernandez's duplicate gift and Javelina Wash Coffee's returned check are the Cast's refunds today.
 
 A Cast person can say what Rock should show for their achievements with `expect` on the person:
 
@@ -76,7 +76,7 @@ A Cast person can also say what their steps should show:
 - `inProgress` lists types the person has an In Progress step of.
 - `programCompletions` lists the keys of exactly the programs the person has a completion for, such as `discipleship-path` or `student-path`. An empty list means none. Leave it out to not check.
 
-They cover Ted Decker (the whole Discipleship Path, with a program completion), Brian and Wendy Gilbert (Starting Point Class In Progress), Bri Hall (Starting Point Class complete, and a Serve step In Progress while she waits as a Pending greeter), Ava Brooks (Student Camp and Follow Jesus), Benjamin Lee (Student Camp and Mission Trip), and Jasmine Washington (the whole Student Path, with a program completion).
+They cover Ted Decker (the whole Discipleship Path, with a program completion), Brian and Wendy Gilbert (Starting Point Class In Progress), Bri Hall (Starting Point Class complete, and a Serve step In Progress while she waits as a Pending greeter), Ava Brooks (Student Camp and Follow Jesus), Benjamin Lee (Student Camp and Mission Trip), Jasmine Washington (the whole Student Path, with a program completion), and Dennis Perry (Baptism, ten days before the install day).
 
 A Cast household's `campaign` entries say how each Built on the Rock pledge must be going on install day (see [Pledges](../docs/pledges.md)):
 
@@ -99,7 +99,7 @@ A story's `leaning` in `assessments` must come out on top, such as Bri Hall's gi
 
 The Cast's duplicates in `cast/duplicates.json` are checked too (see [Duplicates](../docs/duplicates.md)). Rock's duplicate finder must score each pair, with its decision: open, Not a Duplicate, or ignored. An open pair must score above the Duplicate Finder's 60, so the list shows it. Each merge request must be a Person Merge Request that never expires, with its requester, note, and people. Each merge must leave the old record's alias on the person, one Merged line in their History, and the old last name as a previous name when it differs. These need no part, since people always load.
 
-Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step expectations the steps part, and assessment expectations the assessments part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
+Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step and step workflow expectations the steps part, assessment expectations the assessments part, and reminder expectations the reminders part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast giving expectations hold on every install day: the verify tool's anchor sweep checks the 60 days from each run's anchor, and `--anchor-sweep 365` a full year (decision 218). They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
@@ -119,6 +119,51 @@ Every load with the notes part checks each Cast note in `cast/notes/` (decision 
 2. Its type is one the person profile's Notes block (TimeLine, Guid `0B2B550C-B0C9-420E-9CF3-BEC8979108F2`) shows: a person note type with no qualifier, and one of the block's Note Types when that setting names any. Rock's own setting is empty, which shows every person note type.
 
 This catches what kept Rock's legacy notes on Ted Decker and others off their profiles: a note that never loads, or a type the profile hides. It does not check who may see a note. Rock shows a private note only to its author, and each type's View security decides the rest (decision 78).
+
+## Cast mention expectations
+
+Every load with the notes part also checks each mention in a Cast note or reply from the last 89 days (decisions 307 and 308):
+
+1. The staff member it mentions has exactly one message from Rock's Note Mention component for that note. The author of the note never gets one.
+2. The message is unread when the note is from the last three days, and read otherwise.
+3. The message opens that note on the person's profile.
+
+They cover Ted Decker's unread mention from Pete Foster, Pete's two read ones, and Daniel Peak's and Jamal Pierce's read ones. Alisha Marble has two unread ones, so signing in as admin shows them in the bell. A load without Rock's DataEncryptionKey writes mentions as plain names, so it has none to check.
+
+## Cast tag expectations
+
+Every load checks each tag in `configuration/tags.json` whose owner or maker it loaded (decision 302):
+
+1. The tag is an active tag on Rock's Person entity type, where Rock's tag bar and Person Tag filter find it.
+2. A personal tag belongs to its owner. An organizational tag has no owner and sits in its tag category.
+3. Rock's Staff tag holds exactly the staff the dataset loads.
+4. Each Cast person the tag names carries it, such as Hal Russell on Homebound and Bri Hall on Ted Decker's Young Adults Night.
+
+## Cast reminder expectations
+
+Every load with the reminders part checks each Cast reminder in `configuration/reminders.json` (decision 296):
+
+1. The reminder is in Rock, by its Guid, on its owner.
+2. A reminder about a person is a Personal Reminder on that person's primary alias. A reminder about a group is a Group Reminder on that group.
+3. Its note is the note in the file. A repeating one has the period and the number of completions the file gives.
+4. It shows what its `expect` says on the load's install day: `due`, `upcoming`, or `complete`. A load and the verify tool pass the load's anchor. A later `--check-cast` run judges it on the database server's today, so run it on the install day.
+
+Then it checks each Cast owner's `ReminderCount`, the number Rock's bell shows. It must equal what Rock's Process Reminders job would count: their reminders of an active type that are not complete and are due. An owner with a reminder that should be due must have a count above 0 (decision 298).
+
+They cover Ted Decker's check-in with Ashley Kelly (due, repeating every 30 days), his reminder about Josh Sanders's story (upcoming), and Bill Marble's reminder about the Marble Group's party (upcoming). The verify tool's anchor sweep checks them on the 60 install days from each run's anchor, beside the giving expectations (decision 297).
+
+## Cast step workflow expectations
+
+Every load with the steps part checks the step workflows in `configuration/step-workflows.json` (decision 294):
+
+1. Each workflow type has one trigger on its step type, saved as Rock's step type editor saves one: its program, Step Completed or Manual, a blank qualifier, and the type's name. The type is active, persisted, and filed, with no age limit and no retention periods.
+2. No step is linked to a Volunteer Care Check-In, because staff start it by hand.
+3. Every Baptism and Follow Jesus step completed since its trigger was made started exactly one workflow.
+4. The workflow went to the right person: the campus pastor of the step's campus in `configuration/staff.json` for Baptism Follow-Up, and Isaac Silva for Follow Jesus Follow-Up.
+5. A workflow whose step was completed in the last 14 days is Active, and shows in its assignee's My Workflows list by the rules Rock's list uses. An older one is Completed, by its assignee.
+6. Each story in the file's `cast` list shows. Josh Sanders's Baptism Follow-Up is complete, with Aaron Mitchell as Baptized By, the certificate sent, Foundations offered, and the note in the file. Dennis Perry's is open (decision 293).
+
+The 14 days count from the load's install day. A load and the verify tool pass the load's anchor. A later `--check-cast` run judges it on the database server's today, so run it on the install day.
 
 ## Business expectations
 

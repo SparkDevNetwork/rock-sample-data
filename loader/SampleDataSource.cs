@@ -177,8 +177,42 @@ namespace RockSampleData.Loader
             Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
+            InKindGifts = Files.Exists( InKindGiftsConfigurationPath ) ? Read<InKindGiftsConfiguration>( InKindGiftsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
+            PersonalLinks = Files.Exists( PersonalLinksConfigurationPath ) ? Read<PersonalLinksConfiguration>( PersonalLinksConfigurationPath ) : null;
+            Tags = Files.Exists( TagsConfigurationPath ) ? Read<TagsConfiguration>( TagsConfigurationPath ) : null;
+            Reminders = Files.Exists( RemindersConfigurationPath ) ? Read<RemindersConfiguration>( RemindersConfigurationPath ) : null;
+            StepWorkflows = Files.Exists( StepWorkflowsConfigurationPath ) ? Read<StepWorkflowsConfiguration>( StepWorkflowsConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The bookmarks in Rock's bookmark menu, or null in a package built before personal links.
+        /// </summary>
+        public PersonalLinksConfiguration PersonalLinks { get; }
+
+        public const string PersonalLinksConfigurationPath = "configuration/personal-links.json";
+
+        /// <summary>
+        /// The church's person signal types and the signals on people, or null in a package built before signals.
+        /// </summary>
+        public SignalsConfiguration Signals { get; }
+
+        public const string SignalsConfigurationPath = "configuration/signals.json";
+
+        /// <summary>
+        /// The workflows completed steps start, or null in a package built before step workflows loaded.
+        /// </summary>
+        public StepWorkflowsConfiguration StepWorkflows { get; }
+
+        public const string StepWorkflowsConfigurationPath = "configuration/step-workflows.json";
+
+        /// <summary>
+        /// The reminders staff and leaders set, or null in a package built before reminders loaded.
+        /// </summary>
+        public RemindersConfiguration Reminders { get; }
+
+        public const string RemindersConfigurationPath = "configuration/reminders.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built
@@ -203,9 +237,24 @@ namespace RockSampleData.Loader
         public const string RefundsConfigurationPath = "configuration/refunds.json";
 
         /// <summary>
+        /// The kinds of in-kind (non-cash) gifts, or null in a package built before them, whose non-cash gifts have no
+        /// asset type or summary.
+        /// </summary>
+        public InKindGiftsConfiguration InKindGifts { get; }
+
+        public const string InKindGiftsConfigurationPath = "configuration/in-kind-gifts.json";
+
+        /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.
         /// </summary>
         public AdaptiveMessagesConfiguration AdaptiveMessages { get; }
+
+        /// <summary>
+        /// The church's tags on people, or null in a package built before tags loaded.
+        /// </summary>
+        public TagsConfiguration Tags { get; }
+
+        public const string TagsConfigurationPath = "configuration/tags.json";
 
         /// <summary>
         /// Reads each adaptation's text, from content/adaptive-messages/messages.json.
@@ -357,6 +406,20 @@ namespace RockSampleData.Loader
         /// Reads the pools generated text conversations are built from.
         /// </summary>
         public ConversationLibrary ReadConversationLibrary() => Read<ConversationLibrary>( $"{CommunicationsContentFolder}/conversations.json" );
+
+        public const string SnippetsPath = CommunicationsContentFolder + "/snippets.json";
+
+        /// <summary>
+        /// Reads the SMS snippets, or null for a package built before they existed.
+        /// </summary>
+        public SnippetLibrary ReadSnippetLibrary() => Files.Exists( SnippetsPath ) ? Read<SnippetLibrary>( SnippetsPath ) : null;
+
+        public const string EmailSectionsPath = CommunicationsContentFolder + "/email-sections.json";
+
+        /// <summary>
+        /// Reads the church's email sections, or null for a package built before they existed.
+        /// </summary>
+        public EmailSectionLibrary ReadEmailSectionLibrary() => Files.Exists( EmailSectionsPath ) ? Read<EmailSectionLibrary>( EmailSectionsPath ) : null;
 
         public const string CastThreadsPath = "cast/sms-threads.json";
 

@@ -1,6 +1,6 @@
 # Steps
 
-Steps in the sample data, and why. Both programs are built: the adult Discipleship Path and the Student Path. The decisions are 83 to 89, 106 to 108, and 115 to 119 in [Decisions](decisions.md). The numbers live in `configuration/steps.json`, so they can be tuned in one place.
+Steps in the sample data, and why. Both programs are built: the adult Discipleship Path and the Student Path. The decisions are 83 to 89, 106 to 108, and 115 to 119 in [Decisions](decisions.md), and 290 to 294 for the step workflows. The numbers live in `configuration/steps.json`, so they can be tuned in one place. The step workflows live in `configuration/step-workflows.json`.
 
 ## The idea
 
@@ -65,6 +65,25 @@ Four steps, the same arc in a smaller form, for students who check in to the stu
 - **Baptism stays in one place.** A church has one Baptism step type, so a student's baptism goes on the Discipleship Path's Baptism step (decision 87). It still shows on the student's Steps tab.
 - **No group step yet.** Small groups are adults only today. When student groups exist, the Student Path can add one.
 - **Graduates keep their history.** A student who graduates keeps their Student Path steps.
+
+## Step workflows
+
+A step workflow is a Rock workflow that a step starts when it is completed, or that staff start by hand from a step. Rock's step type editor sets one up as a workflow trigger. The sample church has three, and each is a staff task with a form and no email (decision 290). Communication flows already send people messages about baptism, so these are the staff side only.
+
+| Workflow | Step | Starts | Goes to | The form asks |
+|---|---|---|---|---|
+| Baptism Follow-Up | Baptism | When the step is completed | The campus pastor of the step's campus | Who baptized the person, whether the certificate was sent, whether they were offered Foundations, and a note |
+| Follow Jesus Follow-Up | Follow Jesus | When the step is completed | Isaac Silva, the Student Pastor | Whether they talked with the student and with the parents, whether the student is interested in baptism, and a note |
+| Volunteer Care Check-In | Serve | When staff start it by hand | Whoever starts it | How serving is going, and whether it needs follow-up |
+
+- **Campus leaders.** Each campus's pastor is its leader in Rock, so Baptism Follow-Up finds the pastor of the step's campus (decision 291).
+- **Categories.** Baptism Follow-Up and Follow Jesus Follow-Up are filed under the church's Equip workflow category, and Volunteer Care Check-In under a new Contribute one, by their steps' stages.
+- **History.** The workflow types were built 12 months before the install day. Every Baptism and Follow Jesus step completed since has the workflow Rock would have launched, linked to its step. An older step has none, because its trigger did not exist yet (decision 292).
+- **Open and completed tasks.** A task whose step was completed in the last 14 days waits in its assignee's My Workflows list. Its assignee completed each older one, 1 to 9 days later for a baptism, or 1 to 7 for a decision. A Follow Jesus task says the student is interested in baptism when they were baptized later.
+- **Volunteer Care Check-In** has no history. Staff start it from a volunteer's Serve step, and the task goes to them.
+- **Kept.** The workflow types keep every workflow, so Rock Cleanup and Rock's Process Workflows job leave them as they are (decision 294).
+
+The loader is described in [How step workflows load](../loader/README.md#how-step-workflows-load).
 
 ## How adult steps are made
 
@@ -208,15 +227,20 @@ Shares are rounded within the Cast and within the generated households, and a Ca
 | Ava Brooks | Student Camp last summer, where she made a Follow Jesus decision. | Built, checked every load |
 | Benjamin Lee | Two summers of Student Camp and a mission trip last spring. | Built, checked every load |
 | Jasmine Washington | The whole Student Path, with a program completion. She graduated this past May, sang on the student worship team, and led younger students until graduation. | Built, checked every load |
+| Josh Sanders | Baptized 60 days ago at the Phoenix campus. Aaron Mitchell, the Phoenix campus pastor, completed his Baptism Follow-Up three days later, with a note that his certificate went out. | Built, checked every load |
+| Dennis Perry | Baptized ten days before the install day, after he joined Pastor Pete's Book of John group. His Baptism Follow-Up is still open in Aaron Mitchell's My Workflows list. | Built, checked every load |
 
 Each story is a Cast expectation (`expect.steps` in the household file), so every load checks it against the loaded data. See [Validation](../validation/README.md#cast-expectations). A story sets the steps it needs in the person's `steps`: a class by how many classes ago it was, a camp or trip by its season and how many years back from the latest one held, or `taken` to let the usual rules date it (decision 119). Ava's camp and decision name last summer's camp, Benjamin's name the last two camps and the last spring trip, and Jasmine's four steps are `taken`, so they hold on any install day.
+
+Josh's and Dennis's follow-up tasks are Cast stories in `configuration/step-workflows.json` (`cast`), and every load checks them too (decision 293). Their Baptism Dates are in their household files. The Cast had no adult baptized in the last two weeks, so Dennis's file now gives him one. Isaac Silva has an open Follow Jesus Follow-Up for each decision in the last 14 days, and some install days have none.
 
 Jasmine's household file now sets her graduation as a relative date, this past May. Before, she had no graduation year in the loader, because a grade is derived only for ages 5 to 17, so she never checked in. Now a child whose file sets a graduation keeps that year, and she checks in to the student service through her senior year (decision 118).
 
 ## How it is checked
 
-- **Cast expectations,** on every CLI load and in the verify tool: the stories above.
-- **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job in both programs; and every step has the date keys, status, alias, and campus Rock expects. For the Student Path: every student step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then; Mission Trip is high school only and Student Leader juniors and seniors only; Follow Jesus and Student Leader happen at most once, and Student Leader ends at graduation or stays open while the student is in school; a child's baptism is here, on a Sunday, after they started coming to the student service; and no step is dated after the install day.
+- **Cast expectations,** on every CLI load and in the verify tool: the stories above. For the step workflows, each type has its trigger, and every Baptism and Follow Jesus step completed since the trigger was built has one workflow. It is open or complete as its step's date says, it went to the right person, and an open one shows in that person's My Workflows list (decision 294).
+- **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job in both programs; and every step has the date keys, status, alias, and campus Rock expects. For the Student Path: every student step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then; Mission Trip is high school only and Student Leader juniors and seniors only; Follow Jesus and Student Leader happen at most once, and Student Leader ends at graduation or stays open while the student is in school; a child's baptism is here, on a Sunday, after they started coming to the student service; and no step is dated after the install day. For the step workflows: each is linked to its step as Rock launches it, every step completed since its trigger has one, each waits at its form or was completed by its assignee, and each type keeps its workflows and sends no email.
+- **Rock's own workflow code,** in the verify tool. Rock launches each open task's step, and a few completed ones, without saving them, and gives the same name, assignee, person, and waiting form the load wrote. Rock's Process Workflows job leaves every workflow as it was, apart from the times it processed them. See [Step workflow launch](verification.md#step-workflow-launch) and [Process Workflows](verification.md#process-workflows).
 - **Rock Cleanup** as a referee finds nothing to fix.
 
 ## Later
@@ -224,4 +248,3 @@ Jasmine's household file now sets her graduation as a relative date, this past M
 - **eRA steps** in Rock's Core Steps program, from the attendance the data already has.
 - **Links to learning and events.** When learning (LMS) is built, Foundations can link to a learning class. Student registrations are built, and last summer's campers are exactly the students with that camp's step (see [Event registrations](registrations.md#who-registered-students)), so each Student Camp step could also point at its registration.
 - **Student small groups,** which would add a group step to the Student Path.
-- **Step workflows,** such as a follow-up after a baptism.
