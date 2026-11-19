@@ -1611,6 +1611,7 @@
     "DataView": {
       "written": [
         "CategoryId",
+        "CreatedByPersonAliasId",
         "CreatedDateTime",
         "DataViewFilterId",
         "Description",
@@ -1621,6 +1622,7 @@
         "IncludeDeceased",
         "IsSystem",
         "LastRunDateTime",
+        "ModifiedByPersonAliasId",
         "ModifiedDateTime",
         "Name",
         "PersistedScheduleId",
@@ -1662,12 +1664,14 @@
     },
     "DataViewFilter": {
       "written": [
+        "CreatedByPersonAliasId",
         "CreatedDateTime",
         "DataViewId",
         "EntityTypeId",
         "ExpressionType",
         "ForeignKey",
         "Guid",
+        "ModifiedByPersonAliasId",
         "ModifiedDateTime",
         "ParentId",
         "RelatedDataViewId",
@@ -3793,6 +3797,74 @@
         "UserSelectable": "bit not null"
       }
     },
+    "NotificationMessage": {
+      "written": [
+        "ComponentDataJson",
+        "Count",
+        "Description",
+        "ExpireDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsRead",
+        "Key",
+        "MessageDateTime",
+        "NotificationMessageTypeId",
+        "PersonAliasId",
+        "Title"
+      ],
+      "rockColumns": {
+        "ComponentDataJson": "nvarchar(max) null",
+        "Count": "int not null",
+        "Description": "nvarchar(200) not null",
+        "ExpireDateTime": "datetime not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsRead": "bit not null",
+        "Key": "nvarchar(200) null",
+        "MessageDateTime": "datetime not null",
+        "NotificationMessageTypeId": "int not null",
+        "PersonAliasId": "int not null",
+        "Title": "nvarchar(50) not null"
+      }
+    },
+    "NotificationMessageType": {
+      "written": [
+        "CreatedDateTime",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IsDeletedOnRead",
+        "IsMobileApplicationSupported",
+        "IsTvApplicationSupported",
+        "IsWebSupported",
+        "Key",
+        "ModifiedDateTime"
+      ],
+      "rockColumns": {
+        "ComponentDataJson": "nvarchar(max) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsDeletedOnRead": "bit not null",
+        "IsMobileApplicationSupported": "bit not null",
+        "IsTvApplicationSupported": "bit not null",
+        "IsWebSupported": "bit not null",
+        "Key": "nvarchar(200) not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "RelatedMobileApplicationSiteId": "int null",
+        "RelatedTvApplicationSiteId": "int null",
+        "RelatedWebSiteId": "int null"
+      }
+    },
     "Page": {
       "written": [
         "BreadCrumbDisplayIcon",
@@ -5555,6 +5627,82 @@
         "SuppressSmsOptInOutAutoReplies": "bit not null"
       }
     },
+    "Tag": {
+      "written": [
+        "BackgroundColor",
+        "CategoryId",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "Description",
+        "EntityTypeId",
+        "EntityTypeQualifierColumn",
+        "EntityTypeQualifierValue",
+        "ForeignKey",
+        "Guid",
+        "IconCssClass",
+        "IsActive",
+        "IsSystem",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Name",
+        "Order",
+        "OwnerPersonAliasId"
+      ],
+      "rockColumns": {
+        "BackgroundColor": "nvarchar(100) null",
+        "CategoryId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "EntityTypeId": "int null",
+        "EntityTypeQualifierColumn": "nvarchar(50) null",
+        "EntityTypeQualifierValue": "nvarchar(200) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "IconCssClass": "nvarchar(100) null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "IsSystem": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "Order": "int not null",
+        "OwnerPersonAliasId": "int null"
+      }
+    },
+    "TaggedItem": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntityGuid",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "IsSystem",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Quantity",
+        "TagId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityGuid": "uniqueidentifier not null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsSystem": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Quantity": "int not null",
+        "TagId": "int not null"
+      }
+    },
     "UserLogin": {
       "written": [
         "CreatedDateTime",
@@ -6305,6 +6453,7 @@
     ],
     "Page": [
       "08C61FD2-B495-4EC2-8B35-C0D9427E4F46",
+      "08DBD8A5-2C35-4146-B4A8-0F7652348B25",
       "1C737278-4CBA-404B-B6B3-E3F0E05AB5FE",
       "21C1D31E-BB66-4050-A2AC-3A057B484596",
       "2AA719FD-5B9F-4A9A-A8BF-C135EEA02BC8",
@@ -6354,6 +6503,9 @@
       "8A20FE79-B73C-447A-82B1-416F9B50C038",
       "9AC62F1B-16E0-3886-4CE6-2B9290D6B135",
       "F66D7DAE-89C1-E8BC-48F8-A0D6B849615F"
+    ],
+    "Tag": [
+      "0E70E933-F07A-4DA2-B696-368378E8F6FE"
     ]
   },
   "procedures": [
