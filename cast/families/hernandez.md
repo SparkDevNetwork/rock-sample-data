@@ -12,7 +12,7 @@ Gabriel Hernandez plays guitar on the worship team and almost never misses a Sun
 
 ### Gabe (Gabriel) Hernandez
 
-- Age 28 · single · email gabe.hernandez@example.org · groups: Lee Group, Worship Team
+- Age 28 · single · email gabe.hernandez@example.org · groups: Greggs Group, Worship Team
 - Person Guid `9655AD2A-84AB-480F-9772-D5F438593450`
 
 ## What this family tests

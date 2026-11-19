@@ -6,7 +6,7 @@ How small groups look in the sample data, and why. Every number here lives in [c
 
 - **Size.** About 12 members, never fewer than 6 or more than 18. Capacity is 18.
 - **Leader.** One leader, who is at least 18, out of high school, and already Engaged or Leading. A Women's Bible Study group has a woman leader, and every other group a man. Leading a group makes the leader Leading. A campus with too few possible leaders for its groups also takes Connected people, then Known people.
-- **Members.** Adults only, 18 and older and out of high school (decision 169). Spouses join together, except in a women's or men's group, which a married person joins alone. Everyone is in one group at a time, with two exceptions: a leader from Ready to Lead who stays in their old group, and Alisha Marble in the Cast.
+- **Members.** Adults only, 18 and older and out of high school (decision 169). Spouses join together, except in a women's or men's group, which a married person joins alone. Everyone is in one group at a time, with two exceptions: a leader from Ready to Lead who stays in their old group, and a Cast person whose story puts them in two groups, such as Alisha Marble and Jenny Michaels.
 - **Host.** In 60% of groups the leader's spouse is the host. In the rest, another member hosts, and the group meets at that member's home.
 - **Name.** The leader's last name plus "Group", for example "Decker Group." When two leaders share a last name, the first name is added: "Ben Jones Group."
 - **Topic.** One of eleven topics: Sermon Discussion, Book of John, Marriage, Parenting, Men's Bible Study, Women's Bible Study, Young Adults, Prayer, New to Faith, Grief and Loss, and Money and Generosity. Two are planned on purpose (decision D-womens-groups-1). About one in six of a campus's active groups study the Women's Bible Study, and at least one when the campus has four or more groups. About one in ten study the Men's Bible Study. Their leaders and members are all women or all men. Every other group gets a topic its members fit: Marriage needs mostly married couples (80%), Parenting mostly parents (60%), and Young Adults a median age of 35 or under. Each group gets a short, real description for Group Finder.
@@ -75,10 +75,12 @@ The Cast's groups are fixed files in `cast/groups/`, which the builder plans wit
 Pins in `configuration/small-groups.json` hold what Cast stories, notes, and prayer requests say (decision D-group-fixes-2):
 
 - Ted Decker, Bill Marble, Pete Foster, Bob Greggs, Jerry Wright, James Lee, Mike Rivera, and Isaac Silva keep leading their groups, and the Greggs and Gilbert groups keep meeting in those homes.
-- James Lee's New to Faith group meets online, Mariah Jackson is in the Greggs's Grief and Loss group, and the Fischers are in the group at the Gilberts' home.
-- Alisha Marble leads Women of the Bible, a Women's Bible Study, and stays in Bill's Marble Group. She is the one Cast person in two groups by design.
+- James Lee's New to Faith group meets online. Mariah Jackson, the Webbs, and Dan Richards are in the Greggs's Grief and Loss group, the Fischers are in the group at the Gilberts' home, and the Sweeneys are in the Rivera Group together.
+- Alisha Marble leads Women of the Bible, a Women's Bible Study, and stays in Bill's Marble Group. Jenny Michaels is in Women of the Bible and Pete Foster's group. They are the Cast people in two groups by design.
 - Karen Morgan launched a women's group from Ready to Lead on the fall launch Sunday a year or more back, and stays in Women of the Bible. Cast plans change nothing within a year of install day, so the Cast's launch is never more recent than that.
-- The Ellises took the Starting Point Class this fall and have one pending request to the Marble Group, and no other group. The Ortizes left their group five weeks after their last Sunday.
+- The Ellises took the Starting Point Class this fall and have one pending request to the Marble Group, and no other group. Victoria Ramos has one pending request to the Silva Group. The Ortizes left their group five weeks after their last Sunday.
+
+A Cast expectation checks every pin on every load: the pinned leader leads the group, and each pinned household's adults are in it or have asked to join.
 
 A group photo loads only when everyone in it is a member, so a women's or men's group never shows the leader's spouse (decision D-womens-groups-2).
 

@@ -14,7 +14,7 @@
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "ward"
+    "hostHousehold": "sullivan"
   },
   "childCareProvided": true,
   "capacity": 18,
@@ -45,8 +45,8 @@
     },
     {
       "state": "Active",
-      "guid": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
-      "name": "Derek Ward",
+      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
+      "name": "Chris Sullivan",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
-      "name": "Nathan Brooks",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
-      "name": "Sam Hanks",
+      "guid": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
+      "name": "Drew Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
+      "guid": "3E52CD9D-79D4-40FC-AC71-26688C084A27",
+      "name": "Becky Peterson",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
-      "name": "Priya Raman",
+      "guid": "C28DD35E-E58A-4D5F-81A9-47877B9AE03B",
+      "name": "Brian Peterson",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
-      "name": "Sunil Raman",
+      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
+      "name": "Joan Ross",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465",
-      "name": "Jon Smith",
+      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
+      "name": "Dick Ross",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,8 +141,8 @@
     },
     {
       "state": "Active",
-      "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
-      "name": "Allie Song",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -152,6 +152,18 @@
       "attendancePercent": 47
     },
     {
+      "state": "Active",
+      "guid": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "name": "Derek Ward",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 66
+    },
+    {
       "state": "Pending",
       "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
       "name": "Hannah Ellis",
@@ -159,7 +171,7 @@
       "joined": {
         "daysAgo": 24
       },
-      "attendancePercent": 66
+      "attendancePercent": 61
     },
     {
       "state": "Pending",
@@ -169,7 +181,7 @@
       "joined": {
         "daysAgo": 24
       },
-      "attendancePercent": 61
+      "attendancePercent": 52
     },
     {
       "state": "Inactive",
@@ -186,7 +198,7 @@
         "month": 10,
         "day": 23
       },
-      "attendancePercent": 52
+      "attendancePercent": 60
     },
     {
       "state": "Inactive",
@@ -203,7 +215,7 @@
         "month": 10,
         "day": 23
       },
-      "attendancePercent": 60
+      "attendancePercent": 63
     }
   ]
 }

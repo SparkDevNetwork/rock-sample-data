@@ -14,7 +14,7 @@
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "mcclintock"
+    "hostHousehold": "navarro"
   },
   "childCareProvided": false,
   "capacity": 18,
@@ -45,8 +45,8 @@
     },
     {
       "state": "Active",
-      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
-      "name": "Ty McClintock",
+      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "name": "Dee Navarro",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -57,8 +57,20 @@
     },
     {
       "state": "Active",
-      "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
-      "name": "Becca Bennett",
+      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
+      "name": "Hector Navarro",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
-      "name": "Tom Bennett",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "name": "Linda Hayes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
-      "name": "Hal Russell",
+      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "name": "Bob Hayes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -90,6 +102,18 @@
         "day": 23
       },
       "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Ty McClintock",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 55
     },
     {
       "state": "Active",
@@ -101,7 +125,7 @@
         "month": 6,
         "day": 23
       },
-      "attendancePercent": 55
+      "attendancePercent": 58
     },
     {
       "state": "Active",
@@ -113,7 +137,17 @@
         "month": 9,
         "day": 22
       },
-      "attendancePercent": 58
+      "attendancePercent": 59
+    },
+    {
+      "state": "Pending",
+      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "name": "Tori Ramos",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 18
+      },
+      "attendancePercent": 66
     },
     {
       "state": "Inactive",
@@ -130,7 +164,7 @@
         "month": 10,
         "day": 24
       },
-      "attendancePercent": 59
+      "attendancePercent": 51
     },
     {
       "state": "Inactive",
@@ -147,7 +181,7 @@
         "month": 10,
         "day": 24
       },
-      "attendancePercent": 66
+      "attendancePercent": 51
     }
   ]
 }

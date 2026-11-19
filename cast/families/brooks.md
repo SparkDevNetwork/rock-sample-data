@@ -18,7 +18,7 @@ The Brooks family has been at the church for nine years. Rachel led the Phoenix 
 
 Nathan has been at the church nine years and gives every week to the General Fund, with a line for the building campaign on each gift. He is the example of a steady, growing weekly giver.
 
-- Age 42 · married · email nathan.brooks@example.org · groups: Marble Group, Kids Ministry, Lee Group (left)
+- Age 42 · married · email nathan.brooks@example.org · groups: Decker Group, Kids Ministry, Lee Group (left)
 - Person Guid `CADE3046-BF77-4131-9527-D52E4700E038`
 
 ### Rachel Brooks

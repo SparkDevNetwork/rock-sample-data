@@ -75,6 +75,30 @@
     },
     {
       "state": "Active",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
       "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
       "name": "Luis Ortiz",
       "role": "Member",
@@ -83,7 +107,7 @@
         "month": 1,
         "day": 14
       },
-      "attendancePercent": 51
+      "attendancePercent": 66
     },
     {
       "state": "Active",
@@ -95,65 +119,41 @@
         "month": 1,
         "day": 14
       },
-      "attendancePercent": 63
-    },
-    {
-      "state": "Active",
-      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
-      "name": "Deb Webb",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 6,
-        "month": 1,
-        "day": 14
-      },
-      "attendancePercent": 66
-    },
-    {
-      "state": "Active",
-      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
-      "name": "Marty Webb",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 6,
-        "month": 1,
-        "day": 14
-      },
       "attendancePercent": 65
     },
     {
       "state": "Active",
-      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
-      "name": "Tom Miller",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
       "role": "Member",
       "joined": {
         "yearsAgo": 5,
-        "month": 3,
-        "day": 3
+        "month": 9,
+        "day": 5
       },
       "attendancePercent": 47
     },
     {
       "state": "Active",
-      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
-      "name": "Denise Washington",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 1,
-        "day": 19
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 5
       },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
-      "name": "Marcus Washington",
+      "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Peggy Carter",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 1,
-        "day": 19
+        "yearsAgo": 5,
+        "month": 9,
+        "day": 6
       },
       "attendancePercent": 61
     },

@@ -12,7 +12,7 @@ Josh Sanders started coming last year with a coworker and was baptized two month
 
 ### Josh (Joshua) Sanders
 
-- Age 24 · single · Ocotillo Market · email josh.sanders@example.org · groups: Lee Group
+- Age 24 · single · Ocotillo Market · email josh.sanders@example.org · groups: Wright Group
 - Person Guid `BDF16E10-F365-431B-ABAD-A0A265A878AB`
 
 ## What this family tests

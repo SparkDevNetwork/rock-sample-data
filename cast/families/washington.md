@@ -14,12 +14,12 @@ Marcus and Denise Washington's daughter Jasmine graduated from high school this 
 
 ### Marcus Washington
 
-- Age 52 · married · email marcus.washington@example.org · groups: Greggs Group, Ushers, Murphy Group (group ended), Raman Group (group ended)
+- Age 52 · married · email marcus.washington@example.org · groups: Decker Group, Ushers, Lee Group (left)
 - Person Guid `DDB9DE7A-977F-4A44-8097-2F5A00DD7C30`
 
 ### Denise Washington
 
-- Age 50 · married · email denise.washington@example.org · groups: Greggs Group, Kids Ministry, Murphy Group (group ended), Raman Group (group ended)
+- Age 50 · married · email denise.washington@example.org · groups: Decker Group, Kids Ministry, Lee Group (left)
 - Person Guid `613519D8-909C-4E3B-9553-B7C345159C7A`
 
 ### Jasmine Washington

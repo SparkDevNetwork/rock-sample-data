@@ -15,14 +15,14 @@ Brian and Becky Peterson are a married couple who attend and are in a small grou
 
 Brian and his wife Becky have attended for years and are in the Marble small group.
 
-- Age 53 · married · email bpeterson@example.org · groups: Wright Group, Foster Group (left)
+- Age 53 · married · email bpeterson@example.org · groups: Marble Group, Foster Group (left)
 - Person Guid `C28DD35E-E58A-4D5F-81A9-47877B9AE03B`
 
 ### Becky Peterson
 
 Becky is in the Marble small group with her husband Brian. She has no email address on file, which makes the couple useful for communication tests.
 
-- Age 53 · married · no email · groups: Wright Group, Foster Group (left)
+- Age 53 · married · no email · groups: Marble Group, Foster Group (left)
 - Person Guid `3E52CD9D-79D4-40FC-AC71-26688C084A27`
 
 ## What this family tests

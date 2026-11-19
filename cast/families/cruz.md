@@ -15,12 +15,12 @@ Jose and Gabriela Cruz registered Adrian and Camila for Vacation Bible School th
 
 ### Jose Cruz
 
-- Age 36 · married · email jose.cruz@example.org · groups: Wright Group (asked to join)
+- Age 36 · married · email jose.cruz@example.org · groups: Wright Group (asked to join), Jenkins Group (group archived)
 - Person Guid `CBE5E38E-4824-4472-904F-9BDCF77BD433`
 
 ### Gaby (Gabriela) Cruz
 
-- Age 35 · married · email gaby.cruz@example.org · groups: Women of the Bible (left), Wright Group (asked to join)
+- Age 35 · married · email gaby.cruz@example.org · groups: Women of the Bible (left, archived), Wright Group (asked to join), Jenkins Group (group archived)
 - Person Guid `4E98A87E-06B9-4822-9C45-88BF1F6E9C12`
 
 ### Adrian Cruz

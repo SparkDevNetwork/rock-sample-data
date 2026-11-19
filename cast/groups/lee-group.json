@@ -45,6 +45,30 @@
     },
     {
       "state": "Active",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 6,
+        "day": 7
+      },
+      "attendancePercent": 64
+    },
+    {
+      "state": "Active",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 6,
+        "day": 7
+      },
+      "attendancePercent": 64
+    },
+    {
+      "state": "Active",
       "guid": "9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2",
       "name": "Sarah Lee",
       "role": "Member",
@@ -53,123 +77,201 @@
         "month": 6,
         "day": 7
       },
-      "attendancePercent": 64
-    },
-    {
-      "state": "Active",
-      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
-      "name": "Dee Navarro",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 7,
-        "month": 6,
-        "day": 7
-      },
-      "attendancePercent": 64
-    },
-    {
-      "state": "Active",
-      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
-      "name": "Hector Navarro",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 7,
-        "month": 6,
-        "day": 7
-      },
       "attendancePercent": 56
     },
     {
       "state": "Active",
-      "guid": "9655AD2A-84AB-480F-9772-D5F438593450",
-      "name": "Gabe Hernandez",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 3,
-        "month": 5,
-        "day": 5
-      },
-      "attendancePercent": 47
-    },
-    {
-      "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 3,
-        "month": 12,
-        "day": 22
-      },
-      "attendancePercent": 55
-    },
-    {
-      "state": "Active",
-      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
-      "name": "Tom Miller",
+      "guid": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
         "month": 1,
         "day": 28
       },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "AB789D5A-01BD-499C-BEB8-B6C5465088A2",
+      "name": "Lisa Holloway",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 28
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
+      "name": "Tony Coleman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 10,
+        "day": 3
+      },
       "attendancePercent": 51
     },
     {
       "state": "Active",
-      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
-      "name": "Jason Wood",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 8
-      },
-      "attendancePercent": 48
-    },
-    {
-      "state": "Active",
-      "guid": "D7CE30DF-58F8-4268-BA19-56FDF17D3890",
-      "name": "Paul Smith",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
         "month": 12,
         "day": 3
       },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
+      "name": "Gary Jenkins",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 19
+      },
       "attendancePercent": 50
     },
     {
       "state": "Active",
-      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
-      "name": "Josh Sanders",
+      "guid": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "name": "Dennis Perry",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 4,
-        "day": 22
+        "month": 6,
+        "day": 11
       },
       "attendancePercent": 55
     },
     {
       "state": "Pending",
-      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
-      "name": "Tori Ramos",
+      "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
       "role": "Member",
       "joined": {
-        "daysAgo": 23
+        "daysAgo": 21
       },
       "attendancePercent": 62
     },
     {
       "state": "Pending",
-      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
-      "name": "Sean Hansen",
+      "guid": "E4098D5B-4D01-476A-A951-37FD8E7E901B",
+      "name": "Renee Pierce",
       "role": "Member",
       "joined": {
-        "daysAgo": 7
+        "daysAgo": 21
       },
       "attendancePercent": 49
+    },
+    {
+      "state": "Inactive",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 25
+      },
+      "left": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 31
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Inactive",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 8,
+        "day": 15
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 4,
+        "day": 16
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Inactive",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 12,
+        "day": 17
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 5
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Inactive",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 12,
+        "day": 17
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 3,
+        "day": 5
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Inactive",
+      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "name": "Dee Navarro",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 2,
+        "day": 22
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 10
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Inactive",
+      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
+      "name": "Hector Navarro",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 2,
+        "day": 22
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 10
+      },
+      "attendancePercent": 65
     },
     {
       "state": "Inactive",
@@ -177,84 +279,50 @@
       "name": "Allie Song",
       "role": "Member",
       "joined": {
-        "yearsAgo": 6,
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 28
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 4,
+        "day": 24
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Inactive",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 21
+      },
+      "left": {
+        "yearsAgo": 2,
         "month": 12,
-        "day": 3
+        "day": 18
       },
-      "left": {
-        "yearsAgo": 5,
-        "month": 2,
-        "day": 4
-      },
-      "attendancePercent": 62
+      "attendancePercent": 49
     },
     {
       "state": "Inactive",
-      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
-      "name": "David Kim",
+      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
+      "name": "Bob Greggs",
       "role": "Member",
       "joined": {
-        "yearsAgo": 5,
-        "month": 9,
-        "day": 20
-      },
-      "left": {
         "yearsAgo": 3,
-        "month": 5,
-        "day": 12
-      },
-      "attendancePercent": 50
-    },
-    {
-      "state": "Inactive",
-      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
-      "name": "Susan Kim",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 5,
         "month": 9,
-        "day": 20
-      },
-      "left": {
-        "yearsAgo": 3,
-        "month": 5,
-        "day": 12
-      },
-      "attendancePercent": 56
-    },
-    {
-      "state": "Inactive",
-      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
-      "name": "Amanda Sullivan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 11
+        "day": 21
       },
       "left": {
         "yearsAgo": 2,
-        "month": 1,
-        "day": 29
+        "month": 12,
+        "day": 18
       },
-      "attendancePercent": 54
-    },
-    {
-      "state": "Inactive",
-      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
-      "name": "Chris Sullivan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 11
-      },
-      "left": {
-        "yearsAgo": 2,
-        "month": 1,
-        "day": 29
-      },
-      "attendancePercent": 58
+      "attendancePercent": 59
     },
     {
       "state": "Inactive",
@@ -262,16 +330,16 @@
       "name": "Joan Ross",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 22
+        "yearsAgo": 3,
+        "month": 10,
+        "day": 9
       },
       "left": {
         "yearsAgo": 2,
-        "month": 12,
-        "day": 17
+        "month": 1,
+        "day": 2
       },
-      "attendancePercent": 65
+      "attendancePercent": 55
     },
     {
       "state": "Inactive",
@@ -279,50 +347,16 @@
       "name": "Dick Ross",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 22
+        "yearsAgo": 3,
+        "month": 10,
+        "day": 9
       },
       "left": {
         "yearsAgo": 2,
-        "month": 12,
-        "day": 17
+        "month": 1,
+        "day": 2
       },
-      "attendancePercent": 60
-    },
-    {
-      "state": "Inactive",
-      "guid": "83DAAFFE-41B0-4439-A958-F854589887E6",
-      "name": "Daniel Garcia",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 28
-      },
-      "left": {
-        "yearsAgo": 2,
-        "month": 7,
-        "day": 20
-      },
-      "attendancePercent": 49
-    },
-    {
-      "state": "Inactive",
-      "guid": "1AD452EF-23CE-4250-A1B1-34836452DEFB",
-      "name": "Maria Garcia",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 28
-      },
-      "left": {
-        "yearsAgo": 2,
-        "month": 7,
-        "day": 20
-      },
-      "attendancePercent": 59
+      "attendancePercent": 56
     },
     {
       "state": "Inactive",
@@ -339,7 +373,7 @@
         "month": 1,
         "day": 9
       },
-      "attendancePercent": 55
+      "attendancePercent": 60
     },
     {
       "state": "Inactive",
@@ -356,56 +390,22 @@
         "month": 1,
         "day": 9
       },
-      "attendancePercent": 56
-    },
-    {
-      "state": "Inactive",
-      "guid": "902984C3-BCE1-405A-8A74-416F7D15B288",
-      "name": "John Smith",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 2
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 5
-      },
-      "attendancePercent": 60
-    },
-    {
-      "state": "Archived",
-      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
-      "name": "Deb Webb",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 21
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 3,
-        "day": 23
-      },
       "attendancePercent": 67
     },
     {
-      "state": "Archived",
-      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
-      "name": "Marty Webb",
+      "state": "Inactive",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 2,
-        "day": 21
+        "month": 1,
+        "day": 10
       },
       "left": {
         "yearsAgo": 1,
-        "month": 3,
-        "day": 23
+        "month": 4,
+        "day": 9
       },
       "attendancePercent": 51
     }

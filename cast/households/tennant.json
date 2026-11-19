@@ -7,7 +7,7 @@
   "kind": "family",
   "origin": "legacy-1.14.1",
   "campusSlot": "main",
-  "story": "Rob and Sheryl Tennant are a married couple who attend and are in a small group. Sheryl is a little older than Rob.",
+  "story": "Rob and Sheryl Tennant are a married couple who attend. Sheryl is a little older than Rob.",
   "testPurposes": [
     "Married couple with different employers.",
     "Spouses give separately, each from their own employer paycheck.",

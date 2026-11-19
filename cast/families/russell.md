@@ -12,7 +12,7 @@ Harold Russell is 81 and homebound since his wife died. Volunteers visit him mon
 
 ### Hal (Harold) Russell
 
-- Age 81 · widowed · email hal.russell@example.org · groups: Silva Group
+- Age 81 · widowed · email hal.russell@example.org · groups: Marble Group
 - Person Guid `BD9C173B-18CD-4B78-AE52-3F2377B80DCB`
 
 ## What this family tests

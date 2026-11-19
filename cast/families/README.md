@@ -135,7 +135,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Price Family](price.md) | new | 2 | Engaged | Top 1% giver with large quarterly gifts. |
 | [Raman Family](raman.md) | new | 3 | Engaged | Finance Director with Rock's finance administration role. |
 | [Ramirez Family](ramirez.md) | new | 4 | Prospect | First-time guests: first visit two weeks ago. |
-| [Ramos Family](ramos.md) | new | 1 | Known | Group-first connection (Phase 1). |
+| [Ramos Family](ramos.md) | new | 1 | Known | New in town: one pending request to join a small group, made after her first four weeks. |
 | [Richards](richards.md) | legacy | 1 | Prospect | Single Prospect who is already in a small group. |
 | [Rivera Family](rivera.md) | new | 3 | Leading, Engaged | Adopted child whose photo ethnicity is set on her own record. |
 | [Ross Family](ross.md) | new | 2 | Connected | Seasonal attenders (winter visitors). |

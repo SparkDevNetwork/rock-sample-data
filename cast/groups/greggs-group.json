@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
-      "name": "Frank Dexter",
+      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
+      "name": "Marco Alvarez",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
-      "name": "Linda Hayes",
+      "guid": "9655AD2A-84AB-480F-9772-D5F438593450",
+      "name": "Gabe Hernandez",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
-      "name": "Bob Hayes",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
-      "name": "Drew Kim",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
-      "name": "Denise Washington",
+      "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
+      "name": "Allie Song",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
-      "name": "Marcus Washington",
+      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
+      "name": "Deb Webb",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,15 +141,27 @@
     },
     {
       "state": "Active",
-      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
-      "name": "Chris Sullivan",
+      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
+      "name": "Marty Webb",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 12,
         "day": 20
       },
-      "attendancePercent": 61
+      "attendancePercent": 48
     },
     {
       "state": "Pending",
@@ -157,9 +169,9 @@
       "name": "Craig Lowe",
       "role": "Member",
       "joined": {
-        "daysAgo": 12
+        "daysAgo": 21
       },
-      "attendancePercent": 48
+      "attendancePercent": 47
     },
     {
       "state": "Pending",
@@ -167,9 +179,9 @@
       "name": "Trish Lowe",
       "role": "Member",
       "joined": {
-        "daysAgo": 12
+        "daysAgo": 21
       },
-      "attendancePercent": 47
+      "attendancePercent": 58
     },
     {
       "state": "Inactive",
@@ -186,7 +198,7 @@
         "month": 4,
         "day": 1
       },
-      "attendancePercent": 58
+      "attendancePercent": 65
     },
     {
       "state": "Inactive",
@@ -203,7 +215,7 @@
         "month": 7,
         "day": 15
       },
-      "attendancePercent": 65
+      "attendancePercent": 51
     }
   ]
 }

@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
-      "name": "Phil Coffee",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
-      "name": "Matt Hughes",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
-      "name": "David Kim",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
-      "name": "Susan Kim",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "name": "Sunil Raman",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
-      "name": "Daniel Peak",
+      "guid": "DBAE45C0-1980-48FA-8201-41C08910F654",
+      "name": "James Sweeney",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -117,27 +117,39 @@
     },
     {
       "state": "Active",
-      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
-      "name": "Joan Ross",
+      "guid": "988195A3-1895-492E-839B-653C35307862",
+      "name": "Nancy Sweeney",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 11
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
       },
       "attendancePercent": 51
     },
     {
       "state": "Active",
-      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
-      "name": "Dick Ross",
+      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
+      "name": "Jason Wood",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
         "day": 11
       },
-      "attendancePercent": 63
+      "attendancePercent": 62
     },
     {
       "state": "Inactive",
@@ -154,7 +166,7 @@
         "month": 12,
         "day": 9
       },
-      "attendancePercent": 62
+      "attendancePercent": 57
     },
     {
       "state": "Inactive",
@@ -171,35 +183,39 @@
         "month": 12,
         "day": 9
       },
-      "attendancePercent": 57
-    },
-    {
-      "state": "Inactive",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 15
-      },
-      "left": {
-        "daysAgo": 158
-      },
       "attendancePercent": 66
     },
     {
       "state": "Inactive",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "83DAAFFE-41B0-4439-A958-F854589887E6",
+      "name": "Daniel Garcia",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
         "month": 9,
-        "day": 15
+        "day": 22
       },
       "left": {
-        "daysAgo": 158
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 2
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Inactive",
+      "guid": "1AD452EF-23CE-4250-A1B1-34836452DEFB",
+      "name": "Maria Garcia",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 22
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 2
       },
       "attendancePercent": 60
     }

@@ -12,7 +12,7 @@ Sean Hansen asked to serve as an usher after the church promoted online serve si
 
 ### Sean Hansen
 
-- Age 35 · single · Research Assistant, Sonoran Valley University · email shansen@example.org · groups: Lee Group (asked to join), Raman Group (group ended)
+- Age 35 · single · Research Assistant, Sonoran Valley University · email shansen@example.org
 - Person Guid `FA38A268-6744-4507-9CDC-69A7AC6CC0E5`
 
 ## What this family tests

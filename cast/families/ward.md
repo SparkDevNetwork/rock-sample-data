@@ -15,12 +15,12 @@ Derek and Kayla Ward gave a single large gift after the church helped them throu
 
 ### Derek Ward
 
-- Age 34 · married · email derek.ward@example.org · groups: Marble Group (host)
+- Age 34 · married · email derek.ward@example.org · groups: Marble Group
 - Person Guid `5EFB0260-BF0A-491F-A4D5-C1205DCECB11`
 
 ### Kayla Ward
 
-- Age 33 · married · email kayla.ward@example.org · groups: Morgan Group
+- Age 33 · married · email kayla.ward@example.org · groups: Women of the Bible
 - Person Guid `AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592`
 
 ### Aiden Ward

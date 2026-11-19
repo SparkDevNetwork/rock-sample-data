@@ -13,12 +13,12 @@ Larry and Debra Bell greet at the front doors every Sunday. Their gift goes out 
 
 ### Larry (Lawrence) Bell
 
-- Age 66 · married · Store Manager, Cholla Creek Hardware · email larry.bell@example.org · groups: Foster Group, Greeters, Hughes Group (group archived) · business contact for Cholla Creek Hardware
+- Age 66 · married · Store Manager, Cholla Creek Hardware · email larry.bell@example.org · groups: Foster Group, Greeters · business contact for Cholla Creek Hardware
 - Person Guid `65B88091-00EE-4E28-9136-42B45E0C7188`
 
 ### Deb (Debra) Bell
 
-- Age 64 · married · email deb.bell@example.org · groups: Foster Group, Greeters, Women of the Bible (left, archived), Hughes Group (group archived)
+- Age 64 · married · email deb.bell@example.org · groups: Foster Group, Greeters
 - Person Guid `727A0988-9147-40E0-96D5-12D90F3C2DDD`
 
 ## What this family tests

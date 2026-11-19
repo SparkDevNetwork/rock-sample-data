@@ -16,12 +16,12 @@ Jamal Pierce is the Groups Pastor, who helps every campus start and lead small g
 
 Jamal is the Groups Pastor. He joined staff five years ago and helps every campus start, fill, and lead small groups.
 
-- Age 42 · married · Groups Pastor, Rock Solid Church · email jamal@rocksolidchurchdemo.com · 3 security roles
+- Age 42 · married · Groups Pastor, Rock Solid Church · email jamal@rocksolidchurchdemo.com · groups: Decker Group (left), Lee Group (asked to join) · 3 security roles
 - Person Guid `B153DA3D-6E07-415B-8F6F-35C24EFF67F2`
 
 ### Renee Pierce
 
-- Age 40 · married · Pharmacist, Ocotillo Market · email renee.pierce@example.org · groups: Women of the Bible (left)
+- Age 40 · married · Pharmacist, Ocotillo Market · email renee.pierce@example.org · groups: Decker Group (left), Lee Group (asked to join)
 - Person Guid `E4098D5B-4D01-476A-A951-37FD8E7E901B`
 
 ### Micah Pierce

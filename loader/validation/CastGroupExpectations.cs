@@ -24,7 +24,9 @@ namespace RockSampleData.Loader.Validation
 {
     /// <summary>
     /// Checks that each Cast family's small group memberships fit when it came: none starts, and no request is made,
-    /// before four weeks after the family started coming, and none lasts past six weeks after it stopped (issue 37).
+    /// before four weeks after the family started coming, and none lasts past six weeks after it stopped. Then checks
+    /// that each pin in configuration/small-groups.json holds, since Cast stories, bios, notes, and prayer requests rely
+    /// on them: the pinned leader leads the group, and each pinned household's adults are in it or have asked to join (issue 37).
     /// </summary>
     internal static class CastGroupExpectations
     {
@@ -77,6 +79,60 @@ WHERE [p].[Guid] = @Guid AND [gt].[Guid] = @Type", P( "@Guid", guids.Value( pers
                         if ( leaveBy < anchor && ( isPending || until > leaveBy ) )
                         {
                             failures.Add( $"{name}: {( isPending ? "has a request to join" : "is still in" )} {group} after the family stopped coming on {ended:yyyy-MM-dd}" );
+                        }
+                    }
+                }
+            }
+
+            return checks + CheckPins( db, source, guids, failures );
+        }
+
+        /// <summary>
+        /// Checks each pin's leader, member households, and pending households against the loaded group. A group of one gender
+        /// holds only that gender's adults from a pinned household.
+        /// </summary>
+        private static int CheckPins( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var rules = source.SmallGroups;
+            var plans = source.ReadCastSmallGroupPlans().ToDictionary( p => p.Key );
+            var households = source.ReadHouseholds().ToDictionary( h => h.Key );
+            var checks = 0;
+            foreach ( var (key, pin) in rules.Cast.Pins.Where( p => plans.ContainsKey( p.Key ) ) )
+            {
+                var plan = plans[key];
+                var gender = rules.Topics.FirstOrDefault( t => t.Value == plan.Topic )?.LeaderGender;
+                var members = db.Query( @"
+SELECT [p].[Guid], [gm].[GroupMemberStatus], [r].[IsLeader]
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [gm].[GroupRoleId]
+WHERE [g].[Guid] = @Group AND [gm].[IsArchived] = 0", P( "@Group", plan.Guid ) )
+                    .Select( r => (Person: ( Guid ) r["Guid"], Status: Convert.ToInt32( r["GroupMemberStatus"] ), IsLeader: ( bool ) r["IsLeader"]) )
+                    .ToList();
+
+                bool Has( Guid person, int status, bool leader ) => members.Any( m => m.Person == guids.Rock( person ) && m.Status == status && ( !leader || m.IsLeader ) );
+
+                if ( pin.Leader != null )
+                {
+                    checks++;
+                    var parts = pin.Leader.Split( '/' );
+                    var leader = households[parts[0]].Members.Single( m => m.Key == parts[1] );
+                    if ( !Has( leader.Guid, 1, true ) )
+                    {
+                        failures.Add( $"{plan.Name}: {leader.NickName ?? leader.FirstName} {leader.LastName} should lead it, as its pin says" );
+                    }
+                }
+
+                foreach ( var (pinned, status, verb) in new[] { (pin.MemberHouseholds, 1, "be an active member of"), (pin.PendingHouseholds, 2, "have a pending request to join") } )
+                {
+                    foreach ( var person in pinned.SelectMany( h => households[h].Members )
+                        .Where( m => m.FamilyRole == "adult" && !m.IsDeceased && m.RecordStatus == "active" && ( gender == null || m.Gender == gender ) ) )
+                    {
+                        checks++;
+                        if ( !Has( person.Guid, status, false ) )
+                        {
+                            failures.Add( $"{person.NickName ?? person.FirstName} {person.LastName}: should {verb} {plan.Name}, as its pin says" );
                         }
                     }
                 }

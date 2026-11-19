@@ -6,8 +6,8 @@
   "name": "Decker Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Marriage",
-  "description": "Couples encouraging couples. We talk honestly about building a marriage that lasts.",
+  "topic": "Prayer",
+  "description": "We spend most of our time praying for each other, our church, and our city.",
   "schedule": {
     "day": "Monday",
     "time": "19:00"
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
-      "name": "Kevin Dawson",
+      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "name": "Nathan Brooks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
-      "name": "Gary Jenkins",
+      "guid": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
-      "name": "Megan Patel",
+      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "name": "Daniel Peak",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
-      "name": "Ryan Patel",
+      "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465",
+      "name": "Jon Smith",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
-      "name": "Jim Simmons",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
-      "name": "Sarah Simmons",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,8 +141,8 @@
     },
     {
       "state": "Active",
-      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
-      "name": "Tony Coleman",
+      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
+      "name": "Cathy Price",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -152,38 +152,50 @@
       "attendancePercent": 52
     },
     {
-      "state": "Inactive",
-      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
-      "name": "Craig Lowe",
+      "state": "Active",
+      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
+      "name": "Bill Price",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 27
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 12,
-        "day": 23
+        "day": 12
       },
       "attendancePercent": 58
     },
     {
       "state": "Inactive",
-      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
-      "name": "Trish Lowe",
+      "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 27
+        "day": 26
       },
       "left": {
         "yearsAgo": 1,
         "month": 12,
-        "day": 23
+        "day": 4
       },
       "attendancePercent": 65
+    },
+    {
+      "state": "Inactive",
+      "guid": "E4098D5B-4D01-476A-A951-37FD8E7E901B",
+      "name": "Renee Pierce",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 26
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 12,
+        "day": 4
+      },
+      "attendancePercent": 50
     }
   ]
 }

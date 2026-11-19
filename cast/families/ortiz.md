@@ -14,12 +14,12 @@ Luis and Teresa Ortiz were regulars for seven years. They stopped coming about s
 
 ### Luis Ortiz
 
-- Age 48 · married · email luis.ortiz@example.org · groups: Murphy Group (group ended), Rivera Group (left)
+- Age 48 · married · email luis.ortiz@example.org · groups: Wright Group (left), Murphy Group (group ended), Raman Group (host, group archived)
 - Person Guid `F24B151A-4679-4066-A52F-78DF11FFEA9A`
 
 ### Teresa Ortiz
 
-- Age 47 · married · email teresa.ortiz@example.org · groups: Murphy Group (group ended), Rivera Group (left)
+- Age 47 · married · email teresa.ortiz@example.org · groups: Wright Group (left), Murphy Group (group ended), Raman Group (host, group archived)
 - Person Guid `5B54D997-EFD1-4824-B1E1-22F82ED8413A`
 
 ### Diego Ortiz

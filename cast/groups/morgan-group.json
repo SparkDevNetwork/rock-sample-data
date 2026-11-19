@@ -70,8 +70,8 @@
     },
     {
       "state": "Active",
-      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
-      "name": "Jess Hughes",
+      "guid": "8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F",
+      "name": "Tiffany Coleman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -82,8 +82,8 @@
     },
     {
       "state": "Active",
-      "guid": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
-      "name": "Ashley Kelly",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -106,8 +106,8 @@
     },
     {
       "state": "Active",
-      "guid": "AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592",
-      "name": "Kayla Ward",
+      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
+      "name": "Amanda Sullivan",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -142,18 +142,18 @@
     },
     {
       "state": "Inactive",
-      "guid": "988195A3-1895-492E-839B-653C35307862",
-      "name": "Nancy Sweeney",
+      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 14
+        "day": 18
       },
       "left": {
         "yearsAgo": 1,
-        "month": 12,
-        "day": 9
+        "month": 11,
+        "day": 30
       },
       "attendancePercent": 56
     }

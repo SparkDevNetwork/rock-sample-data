@@ -6,8 +6,8 @@
   "name": "Wright Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Prayer",
-  "description": "We spend most of our time praying for each other, our church, and our city.",
+  "topic": "Marriage",
+  "description": "Couples encouraging couples. We talk honestly about building a marriage that lasts.",
   "schedule": {
     "day": "Thursday",
     "time": "19:00"
@@ -93,30 +93,6 @@
     },
     {
       "state": "Active",
-      "guid": "3E52CD9D-79D4-40FC-AC71-26688C084A27",
-      "name": "Becky Peterson",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 1,
-        "day": 9
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
-      "guid": "C28DD35E-E58A-4D5F-81A9-47877B9AE03B",
-      "name": "Brian Peterson",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 1,
-        "day": 9
-      },
-      "attendancePercent": 57
-    },
-    {
-      "state": "Active",
       "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
       "name": "Dot Wright",
       "role": "Member",
@@ -125,7 +101,7 @@
         "month": 1,
         "day": 9
       },
-      "attendancePercent": 66
+      "attendancePercent": 61
     },
     {
       "state": "Active",
@@ -137,6 +113,30 @@
         "month": 9,
         "day": 11
       },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 66
+    },
+    {
+      "state": "Active",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 4,
+        "day": 22
+      },
       "attendancePercent": 52
     },
     {
@@ -145,7 +145,7 @@
       "name": "Gaby Cruz",
       "role": "Member",
       "joined": {
-        "daysAgo": 25
+        "daysAgo": 29
       },
       "attendancePercent": 61
     },
@@ -155,7 +155,7 @@
       "name": "Jose Cruz",
       "role": "Member",
       "joined": {
-        "daysAgo": 25
+        "daysAgo": 29
       },
       "attendancePercent": 50
     },
@@ -165,26 +165,9 @@
       "name": "John Smith",
       "role": "Member",
       "joined": {
-        "daysAgo": 3
+        "daysAgo": 29
       },
       "attendancePercent": 65
-    },
-    {
-      "state": "Archived",
-      "guid": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
-      "name": "Naomi Castillo",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 1,
-        "day": 18
-      },
-      "left": {
-        "yearsAgo": 2,
-        "month": 8,
-        "day": 29
-      },
-      "attendancePercent": 67
     },
     {
       "state": "Inactive",
@@ -201,7 +184,37 @@
         "month": 1,
         "day": 22
       },
+      "attendancePercent": 67
+    },
+    {
+      "state": "Inactive",
+      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 6,
+        "day": 10
+      },
+      "left": {
+        "daysAgo": 158
+      },
       "attendancePercent": 49
+    },
+    {
+      "state": "Inactive",
+      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 6,
+        "day": 10
+      },
+      "left": {
+        "daysAgo": 158
+      },
+      "attendancePercent": 55
     },
     {
       "state": "Inactive",
@@ -217,23 +230,6 @@
         "yearsAgo": 2,
         "month": 10,
         "day": 27
-      },
-      "attendancePercent": 55
-    },
-    {
-      "state": "Inactive",
-      "guid": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
-      "name": "Bri Hall",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 6
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 11,
-        "day": 23
       },
       "attendancePercent": 61
     }

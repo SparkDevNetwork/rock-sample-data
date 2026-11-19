@@ -15,12 +15,12 @@ Anthony and Tiffany Coleman both work full time. Elijah is in the 2-3 room and Z
 
 ### Tony (Anthony) Coleman
 
-- Age 37 · married · email tony.coleman@example.org · groups: Decker Group
+- Age 37 · married · email tony.coleman@example.org · groups: Lee Group
 - Person Guid `E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D`
 
 ### Tiffany Coleman
 
-- Age 36 · married · email tiffany.coleman@example.org · groups: Women of the Bible
+- Age 36 · married · email tiffany.coleman@example.org · groups: Morgan Group
 - Person Guid `8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F`
 
 ### Eli (Elijah) Coleman

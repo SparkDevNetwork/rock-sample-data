@@ -126,18 +126,18 @@
     "eachOtherCampus": { "full": 1, "closed": 1, "pending": 1, "inactive": 1, "archived": 1 }
   },
   "cast": {
-    "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader, host, topic, or name, and the households that have a pending request to join it. A pinned leader may also be in their spouse's group, the one Cast exception to one group per person. Groups listed in notInPattern are left alone.",
-    "$pinsComment": "Each pin holds what a Cast story, note, or prayer request says about the group: James Lee leads the online New to Faith group, Mariah Jackson is in the Greggs's grief and loss group, the Fischers share prayer requests with the group at the Gilberts' home, the Ellises asked to join the Marble Group, and Karen Morgan launched a women's group from Ready to Lead. launchesAgo 1 is the newest launch Sunday at least a year back.",
+    "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader, host, topic, or name, and the households that have a pending request to join it. A pinned leader may also be in their spouse's group, and a household pinned into two groups is in both: the Cast's exceptions to one group per person. Groups listed in notInPattern are left alone.",
+    "$pinsComment": "Each pin holds what a Cast story, bio, note, or prayer request says about the group: James Lee leads the online New to Faith group; Mariah Jackson, the Webbs, and Dan Richards are in the Greggs's grief and loss group; the Fischers share prayer requests with the group at the Gilberts' home; the Sweeneys are in one group together; Jenny Michaels is in two groups; the Ellises asked to join the Marble Group and Victoria Ramos the Silva Group; and Karen Morgan launched a women's group from Ready to Lead. launchesAgo 1 is the newest launch Sunday at least a year back.",
     "pins": {
       "decker-group": { "leader": "decker/ted" },
       "marble-group": { "leader": "marble/bill", "pendingHouseholds": [ "ellis" ] },
-      "petes-group": { "leader": "foster/pete" },
-      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs", "topic": "Grief and Loss", "memberHouseholds": [ "jackson" ] },
+      "petes-group": { "leader": "foster/pete", "memberHouseholds": [ "michaels" ] },
+      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs", "topic": "Grief and Loss", "memberHouseholds": [ "jackson", "webb", "richards" ] },
       "gilbert-group": { "leader": "wright/gerald", "hostHousehold": "gilbert", "memberHouseholds": [ "fischer" ] },
       "lee-group": { "leader": "lee/james", "topic": "New to Faith", "online": true },
-      "rivera-group": { "leader": "rivera/michael" },
-      "silva-group": { "leader": "silva/isaac" },
-      "alisha-marbles-group": { "leader": "marble/alisha", "topic": "Women's Bible Study", "name": "Women of the Bible", "description": "We read the stories of the women of the Bible, one at a time, and talk about what their faith means for ours." },
+      "rivera-group": { "leader": "rivera/michael", "memberHouseholds": [ "sweeney" ] },
+      "silva-group": { "leader": "silva/isaac", "pendingHouseholds": [ "ramos" ] },
+      "alisha-marbles-group": { "leader": "marble/alisha", "topic": "Women's Bible Study", "name": "Women of the Bible", "description": "We read the stories of the women of the Bible, one at a time, and talk about what their faith means for ours.", "memberHouseholds": [ "michaels" ] },
       "morgan-group": { "leader": "morgan/karen", "topic": "Women's Bible Study", "launchesAgo": 1, "readyToLead": true }
     },
     "notInPattern": [ "svu-student-group" ]

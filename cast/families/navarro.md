@@ -15,12 +15,12 @@ Dee Navarro is the Care Director. She makes hospital visits, leads grief care, o
 
 Dee is the Care Director. She volunteered on the prayer team for years before joining staff eleven years ago, and she now leads hospital visits, grief care, benevolence, and counseling.
 
-- Age 61 · married · Care Director, Rock Solid Church · email dee@rocksolidchurchdemo.com · groups: Lee Group · 5 security roles
+- Age 61 · married · Care Director, Rock Solid Church · email dee@rocksolidchurchdemo.com · groups: Silva Group (host), Lee Group (left) · 5 security roles
 - Person Guid `BFD61E71-D242-40AA-8D69-46CF6305C90B`
 
 ### Hector Navarro
 
-- Age 64 · married · Field Supervisor, Greywash Water District · email hector.navarro@example.org · groups: Lee Group
+- Age 64 · married · Field Supervisor, Greywash Water District · email hector.navarro@example.org · groups: Silva Group (host), Lee Group (left)
 - Person Guid `F86D01B8-AB61-44F3-8C82-2AB611C357C0`
 
 ## What this family tests
