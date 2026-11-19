@@ -305,6 +305,50 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Background checks (configuration/background-checks.json, decision D-checks-1): a Cast story's check has a date and a
+// result of Pass or Fail, a person without a check has no check in their file, and each story the file expects names a
+// Cast person whose file agrees with it.
+{
+    const checks = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "background-checks.json" ), "utf8" ) );
+    for ( const [ guid, { person: p, file } ] of people ) {
+        const a = p.attributes || {};
+        if ( a.BackgroundCheckResult !== undefined && ![ "Pass", "Fail" ].includes( a.BackgroundCheckResult ) ) {
+            errors.push( `${file} ${p.key}: BackgroundCheckResult must be Pass or Fail, Rock's two values.` );
+        }
+        if ( a.BackgroundCheckResult !== undefined && a.BackgroundCheckDate === undefined ) {
+            errors.push( `${file} ${p.key}: has a BackgroundCheckResult but no BackgroundCheckDate.` );
+        }
+    }
+    for ( const c of checks.castWithoutCheck || [] ) {
+        const found = people.get( c.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name} (${c.person}), who is not a Cast person.` );
+        } else if ( found.person.attributes?.BackgroundCheckDate !== undefined ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name}, but their file has a BackgroundCheckDate.` );
+        }
+    }
+    const withoutCheck = new Set( ( checks.castWithoutCheck || [] ).map( c => c.person ) );
+    for ( const e of checks.castExpectations || [] ) {
+        const found = people.get( e.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castExpectations names ${e.name} (${e.person}), who is not a Cast person.` );
+            continue;
+        }
+        const a = found.person.attributes || {};
+        const fileResult = a.BackgroundCheckDate === undefined ? null : a.BackgroundCheckResult || "Pass";
+        if ( ( e.check === "Pass" || e.check === "Fail" ) && fileResult !== e.check ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check to be ${e.check}, but their file says ${fileResult || "nothing"}.` );
+        }
+        if ( e.check === "None" && !withoutCheck.has( e.person ) ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name} to have no check, so castWithoutCheck must name them.` );
+        }
+        const requests = ( found.person.connectionRequests || [] ).filter( r => r.status === "Background Check" && r.state === "Active" );
+        if ( e.linkedToRequest && requests.length !== 1 ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check linked to a request, but their file has ${requests.length} active requests in the Background Check status.` );
+        }
+    }
+}
+
 // The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {

@@ -178,6 +178,7 @@ namespace RockSampleData.Loader
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            BackgroundChecks = Files.Exists( BackgroundChecksConfigurationPath ) ? Read<BackgroundChecksConfiguration>( BackgroundChecksConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -201,6 +202,14 @@ namespace RockSampleData.Loader
         public RefundsConfiguration Refunds { get; }
 
         public const string RefundsConfigurationPath = "configuration/refunds.json";
+
+        /// <summary>
+        /// Who has a background check and the requirements that read it, or null in a package built before background
+        /// check records, which loads none.
+        /// </summary>
+        public BackgroundChecksConfiguration BackgroundChecks { get; }
+
+        public const string BackgroundChecksConfigurationPath = "configuration/background-checks.json";
 
         /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.

@@ -125,7 +125,8 @@
           "yearsAgo": 13,
           "month": 10,
           "day": 4
-        }
+        },
+        "BackgroundCheckResult": "Pass"
       },
       "steps": {
         "foundations": {

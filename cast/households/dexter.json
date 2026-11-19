@@ -98,9 +98,7 @@
         "Employer": "First Bank of Main",
         "Position": "Analyst",
         "BackgroundCheckDate": {
-          "yearsAgo": 8,
-          "month": 10,
-          "day": 4
+          "daysAgo": 33
         },
         "BackgroundCheckResult": "Fail"
       },
@@ -116,7 +114,6 @@
             "daysAgo": 40
           },
           "connector": true,
-          "backgroundCheck": "Fail",
           "comment": "I'd like to help with the elementary kids on Sundays."
         }
       ],

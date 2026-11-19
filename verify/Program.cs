@@ -241,6 +241,10 @@ try
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
 
+            // After group sync, because Rock's requirement job reads the members a sync could have changed.
+            stage = "group-requirements";
+            checks.Add( GroupRequirementsCheck.Run( rock, sql, database, anchor ) );
+
             // The Cast giving stories must hold on every install day, not only this run's (decision 218). Core 1
             // holds every main-campus Cast giver, so it is the one swept.
             if ( dataset == "core-1" )

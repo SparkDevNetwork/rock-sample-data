@@ -408,7 +408,6 @@
               "connected": { "$ref": "#/$defs/relativeDate", "description": "When a Connected request connected." },
               "followUpInDays": { "type": "integer", "minimum": 1, "description": "Days after the anchor a FutureFollowUp request comes back." },
               "connector": { "type": "boolean", "description": "Whether the team's leader at the person's campus is the connector." },
-              "backgroundCheck": { "enum": [ "Pass", "Fail" ], "description": "A background check result recorded a week after the request." },
               "comment": { "type": "string" },
               "celebration": { "type": "string", "description": "The story the connector recorded as a celebration on this request (decision 219). Rock shows it on the request and in the Celebrations Report. Needs a connector, and a request someone has reached: Connected, or Active past No Contact." }
             }

@@ -1245,6 +1245,92 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR [cr].[ConnectionState] NOT IN ( 0, 3 )
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
 
+-- check: background-check-requirement-agrees-with-check
+-- why: Decision D-checks-1. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also an adult whose Pass is older than 1,035 days, and Not Met otherwise. A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+SELECT COUNT(*)
+FROM (
+    SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
+        CASE
+            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsMinor] = 0 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
+            ELSE 1
+        END AS [Expected]
+    FROM [GroupMemberRequirement] AS [gmr]
+    INNER JOIN [GroupRequirement] AS [gr] ON [gr].[Id] = [gmr].[GroupRequirementId]
+    INNER JOIN [GroupRequirementType] AS [grt] ON [grt].[Id] = [gr].[GroupRequirementTypeId]
+    INNER JOIN [GroupMember] AS [gm] ON [gm].[Id] = [gmr].[GroupMemberId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    CROSS APPLY ( SELECT CAST( [gmr].[LastRequirementCheckDateTime] AS DATE ) AS [Night] ) AS [n]
+    CROSS APPLY (
+        SELECT
+            MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+            MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN TRY_CAST( [av].[Value] AS DATETIME2 ) END ) AS [CheckDate],
+            MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+        FROM [AttributeValue] AS [av]
+        INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+        WHERE [av].[EntityId] = [p].[Id] AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' ) ) AS [c]
+    CROSS APPLY (
+        SELECT
+            CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [n].[Night] THEN 1 ELSE 0 END AS [IsMinor],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) >= DATEADD( DAY, -1095, [n].[Night] ) THEN 1 ELSE 0 END AS [IsValid],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) < DATEADD( DAY, -1035, [n].[Night] ) THEN 1 ELSE 0 END AS [IsOld] ) AS [rule]
+    WHERE [gmr].[ForeignKey] = @ForeignKey AND [grt].[Guid] = '1C21C346-A861-4A9A-BD6D-BAA7D92419D5'
+) AS [r]
+WHERE [r].[State] <> [r].[Expected]
+    OR ( [r].[State] IN ( 0, 2 ) AND ( [r].[Met] IS NULL OR [r].[Failed] IS NOT NULL ) )
+    OR ( [r].[State] = 2 AND [r].[Warned] IS NULL )
+    OR ( [r].[State] = 1 AND ( [r].[Failed] IS NULL OR [r].[Met] IS NOT NULL OR [r].[Warned] IS NOT NULL ) );
+
+-- check: finished-background-check-has-report
+-- why: Decision D-checks-4. Every check whose report came back has the report: a PDF in Rock's Background Check file type, which requires view security, linked as the check's response document, with its bytes. A check still in progress has none.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [bc].[ResponseDocumentId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [d] ON [d].[Id] = [bf].[Id]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] = 'ReportCompleted'
+            AND ( [bf].[Id] IS NULL OR [bft].[Guid] <> '5C701472-8A6B-4BBE-AEC6-EC833C859F2D' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+                OR [d].[Id] IS NULL OR DATALENGTH( [d].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [d].[Content], 1, 5 ) <> 0x255044462D ) )
+        OR ( [bc].[Status] <> 'ReportCompleted' AND [bc].[ResponseDocumentId] IS NOT NULL ) );
+
+-- check: background-check-agrees-with-person
+-- why: Decision D-checks-4. A person's Background Checked, Background Check Date, and Background Check Result are what Rock's Checkr workflow set from their latest finished check: the day it finished, Pass and True when Checkr found nothing, and Fail and False when it found a record. Every person with those values has that check, and each check is one Rock's Checkr provider wrote (ForeignId 2, with its candidate key and package).
+SELECT COUNT(*)
+FROM (
+    SELECT [pa].[PersonId], [bc].[RecordFound], CAST( [bc].[ModifiedDateTime] AS DATE ) AS [Finished],
+        ROW_NUMBER() OVER ( PARTITION BY [pa].[PersonId] ORDER BY [bc].[RequestDate] DESC ) AS [Latest]
+    FROM [BackgroundCheck] AS [bc]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [bc].[PersonAliasId]
+    WHERE [bc].[ForeignKey] = @ForeignKey AND [bc].[Status] = 'ReportCompleted'
+) AS [k]
+FULL OUTER JOIN (
+    SELECT [av].[EntityId] AS [PersonId],
+        MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+        MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN CAST( TRY_CAST( [av].[Value] AS DATETIME2 ) AS DATE ) END ) AS [CheckDate],
+        MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [av].[ForeignKey] = @ForeignKey AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' )
+    GROUP BY [av].[EntityId]
+) AS [v] ON [v].[PersonId] = [k].[PersonId] AND [k].[Latest] = 1
+WHERE ( [k].[Latest] = 1 OR [k].[PersonId] IS NULL )
+    AND ( [k].[PersonId] IS NULL OR [v].[PersonId] IS NULL
+        OR [v].[CheckDate] IS NULL OR [v].[CheckDate] <> [k].[Finished]
+        OR [v].[Result] <> CASE WHEN [k].[RecordFound] = 1 THEN 'Fail' ELSE 'Pass' END
+        OR [v].[Checked] <> CASE WHEN [k].[RecordFound] = 1 THEN 'False' ELSE 'True' END )
+    OR EXISTS ( SELECT 1 FROM [BackgroundCheck] AS [bad] WHERE [bad].[ForeignKey] = @ForeignKey
+        AND ( ISNULL( [bad].[ForeignId], 0 ) <> 2 OR ISNULL( [bad].[RequestId], '' ) = '' OR ISNULL( [bad].[PackageName], '' ) = '' OR [bad].[RequestDate] > GETDATE() ) );
+
+-- check: background-check-in-progress-waits-on-its-request
+-- why: Decision D-checks-1. A check still in progress belongs to a request to serve that waits in the Background Check status, Checkr has found nothing yet, and the person's attributes still show their last finished check, if any. A finished check linked to a request finished after the request was made.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [ConnectionRequest] AS [cr] ON [cr].[Id] = [bc].[ConnectionRequestId]
+LEFT JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] <> 'ReportCompleted' AND ( [cr].[Id] IS NULL OR [cs].[Guid] <> '720EA71A-18F9-4D6B-B3B5-56D39EA403E3' OR [cr].[ConnectionState] <> 0 OR [bc].[RecordFound] = 1 ) )
+        OR ( [bc].[Status] = 'ReportCompleted' AND [cr].[Id] IS NOT NULL AND [bc].[ModifiedDateTime] < [cr].[CreatedDateTime] ) );
+
 -- check: event-occurrence-is-listed
 -- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
 SELECT COUNT(*)

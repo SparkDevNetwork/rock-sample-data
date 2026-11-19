@@ -86,7 +86,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators: requests, answers, and results.
         /// </summary>
-        Assessments
+        Assessments,
+
+        /// <summary>
+        /// Background checks for volunteers, small group leaders, and requests to serve, with their reports and requirement results.
+        /// </summary>
+        BackgroundChecks
     }
 
     /// <summary>
@@ -163,6 +168,9 @@ namespace RockSampleData.Loader
             every load makes, not from the steps part's rows, so last summer's campers match the camp steps without
             registrations needing steps (decision 206).
 
+            Background checks need small groups and serving. Each check's requirement results point at the team and leader
+            memberships those parts wrote, read back like steps, and a check in progress points at its request to serve.
+
             Assessments need steps. Starting Point and Foundations ask their classes to take assessments on the class's
             own nights, read from the steps part's class steps, and every current leader takes theirs before leading,
             from the memberships the steps part read back.
@@ -179,6 +187,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Attendance, "Attendance and check-in", "Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements." ),
             new SampleDataPartInfo( SampleDataPart.SmallGroups, "Small groups", "Small groups with leaders, members, meeting places, photos, history, and weekly attendance." ),
             new SampleDataPartInfo( SampleDataPart.Serving, "Serving teams", "Volunteers on every serving team, with schedules, check-ins, and requests to serve." ),
+            new SampleDataPartInfo( SampleDataPart.BackgroundChecks, "Background checks", "Background checks for kids and student volunteers and small group leaders, with each report as a PDF, the person's check details, and the requirement results Rock shows on each team and group.", SampleDataPart.SmallGroups, SampleDataPart.Serving ),
             new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),

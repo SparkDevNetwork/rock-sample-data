@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|group-requirements --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -62,6 +62,7 @@ namespace RockSampleData.RockRunner
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
     ///            place of the key, it renders that block's content for the person instead, on one line.
+    ///   group-requirements  Runs Rock's Calculate Group Requirements job once, with its default settings, and prints its result.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -76,10 +77,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "group-requirements" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|group-requirements --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +119,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "group-requirements" => worker.GroupRequirements(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -238,6 +240,20 @@ namespace RockSampleData.RockRunner
                 return $"{jobType.GetProperty( "Result" ).GetValue( job )}\n{lines}";
             }
 
+            return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs Rock's Calculate Group Requirements job with its default settings and returns its result text: how many
+        /// requirement results it inserted, updated, and deleted. Verify compares the results before and after.
+        /// </summary>
+        public string GroupRequirements()
+        {
+            Start();
+            StartMessageBus();
+            var jobType = _rock.GetType( "Rock.Jobs.CalculateGroupRequirements", true );
+            var job = Activator.CreateInstance( jobType );
+            Execute( job );
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
         }
 

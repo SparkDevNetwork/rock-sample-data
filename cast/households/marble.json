@@ -193,7 +193,11 @@
       ],
       "attributes": {
         "Employer": "Saguaro Ridge Glass and Screen",
-        "Position": "Owner"
+        "Position": "Owner",
+        "BackgroundCheckDate": {
+          "daysAgo": 1060
+        },
+        "BackgroundCheckResult": "Pass"
       }
     }
   ]
