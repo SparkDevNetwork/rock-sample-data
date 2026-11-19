@@ -836,7 +836,7 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 /// reminder and nobody's reminder count, the number Rock's bell shows (issue 22). The job also emails each owner the
 /// reminders due, and the trusted base has no mail server, so a send Rock could not make is noted, not failed. Any other
 /// error, such as a reminder whose person or group is missing, fails. Reminders come due by the day, so like Rock Cleanup
-/// the check is judged only when today is the loads' anchor.
+/// the check is judged only when today is the loads' anchor, checked before and after the job.
 /// </summary>
 static CheckResult RemindersCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
 {
@@ -864,6 +864,15 @@ static CheckResult RemindersCheck( RockRelease rock, SqlServer sql, string datab
     var lines = RockRunner.Run( rock, sql, database, "process-reminders" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
     var remindersAfter = Reminders();
     var countsAfter = Counts();
+
+    // A run that crosses midnight lets reminders dated the next day come due while the job runs.
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "process-reminders", "Process Reminders was not judged: the date changed while the job ran", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is now {DateTime.Today:yyyy-MM-dd}. Reminders come due by the day, so run it again on one day."
+        } );
+    }
 
     var problems = new List<string>();
     var changedReminders = remindersBefore.Keys.Union( remindersAfter.Keys ).Where( id => remindersBefore.GetValueOrDefault( id ) != remindersAfter.GetValueOrDefault( id ) ).ToList();
