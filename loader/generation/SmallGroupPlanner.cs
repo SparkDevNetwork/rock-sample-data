@@ -131,6 +131,11 @@ namespace RockSampleData.Loader.Generation
             private SeededRandom Stream( string purpose ) => new SeededRandom( $"{_planner._seed}:small-groups:{purpose}:{_request.Campus}" );
 
             /// <summary>
+            /// The legacy groups that are still meeting. A pin with an ended state is one of the campus's ended test groups.
+            /// </summary>
+            private IEnumerable<LegacyGroup> ActiveLegacy => _request.Legacy.Where( l => l.Ended == null );
+
+            /// <summary>
             /// Runs every planning step in order and builds the plans.
             /// </summary>
             public List<SmallGroupPlan> Plan()
@@ -171,7 +176,7 @@ namespace RockSampleData.Loader.Generation
                 var all = active.Concat( former ).ToList();
 
                 // A household a pin gives a request is never picked for another group's request.
-                foreach ( var person in _request.Legacy.SelectMany( l => l.PendingHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ).SelectMany( u => u.People ) )
+                foreach ( var person in ActiveLegacy.SelectMany( l => l.PendingHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ).SelectMany( u => u.People ) )
                 {
                     _pending.Add( person.Guid );
                 }
@@ -319,7 +324,7 @@ namespace RockSampleData.Loader.Generation
             private List<Unit> PickJoiners()
             {
                 var forced = new HashSet<Unit>();
-                foreach ( var legacy in _request.Legacy )
+                foreach ( var legacy in ActiveLegacy )
                 {
                     if ( legacy.LeaderGuid.HasValue )
                     {
@@ -458,7 +463,7 @@ namespace RockSampleData.Loader.Generation
             /// <summary>
             /// The fewest active groups the campus plans: one ordinary group beside its active test cases, and every legacy group.
             /// </summary>
-            private int MinimumActiveGroups => Math.Max( _request.TestCases.ActiveCount > 0 ? _request.TestCases.ActiveCount + 1 : 0, _request.Legacy.Count );
+            private int MinimumActiveGroups => Math.Max( _request.TestCases.ActiveCount > 0 ? _request.TestCases.ActiveCount + 1 : 0, ActiveLegacy.Count() );
 
             #endregion Units
 
@@ -482,7 +487,7 @@ namespace RockSampleData.Loader.Generation
                 var drafts = new List<Draft>();
                 var usedPeople = new HashSet<Guid>();
                 var names = new FullNames( _request.TakenLeaderNames );
-                foreach ( var legacy in _request.Legacy.Where( l => l.LeaderGuid.HasValue ) )
+                foreach ( var legacy in ActiveLegacy.Where( l => l.LeaderGuid.HasValue ) )
                 {
                     var leader = candidates.FirstOrDefault( c => c.Guid == legacy.LeaderGuid ) ?? throw new InvalidOperationException( $"Pinned leader of {legacy.Key} cannot lead a group." );
                     var topic = legacy.Topic == null ? null : _rules.Topics.FirstOrDefault( t => t.Value == legacy.Topic ) ?? throw new InvalidOperationException( $"The pin for {legacy.Key} names topic {legacy.Topic}, which configuration/small-groups.json does not have." );
@@ -510,12 +515,18 @@ namespace RockSampleData.Loader.Generation
                     }
                 }
 
-                foreach ( var member in _request.Legacy.SelectMany( l => l.MemberHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ) )
+                foreach ( var member in ActiveLegacy.SelectMany( l => l.MemberHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ) )
                 {
                     member.People.ForEach( p => usedPeople.Add( p.Guid ) );
                 }
 
-                foreach ( var host in _request.Legacy.Where( l => l.HostHousehold != null ).Select( l => _current.First( u => u.Household.Key == l.HostHousehold && u.HasHome ) ) )
+                // The pinned leader of an ended group leads no active group.
+                foreach ( var leader in _request.Legacy.Where( l => l.Ended != null && l.LeaderGuid.HasValue ) )
+                {
+                    usedPeople.Add( leader.LeaderGuid.Value );
+                }
+
+                foreach ( var host in ActiveLegacy.Where( l => l.HostHousehold != null ).Select( l => _current.First( u => u.Household.Key == l.HostHousehold && u.HasHome ) ) )
                 {
                     host.People.ForEach( p => usedPeople.Add( p.Guid ) );
                 }
@@ -547,7 +558,7 @@ namespace RockSampleData.Loader.Generation
 
                 drafts.AddRange( slots.Where( s => s.Leader != null ).OrderBy( s => s.Leader.Guid ) );
 
-                foreach ( var legacy in _request.Legacy.Where( l => !l.LeaderGuid.HasValue ) )
+                foreach ( var legacy in ActiveLegacy.Where( l => !l.LeaderGuid.HasValue ) )
                 {
                     var draft = drafts.FirstOrDefault( d => d.Legacy == null && d.Gender == null ) ?? throw new InvalidOperationException( $"No group is left for {legacy.Key}." );
                     draft.Legacy = legacy;
@@ -635,7 +646,7 @@ namespace RockSampleData.Loader.Generation
             /// </summary>
             private List<CastPerson> LeaderCandidates( IEnumerable<CastPerson> people )
             {
-                var pinned = _request.Legacy.Where( l => l.LeaderGuid.HasValue ).Select( l => l.LeaderGuid.Value ).ToList();
+                var pinned = ActiveLegacy.Where( l => l.LeaderGuid.HasValue ).Select( l => l.LeaderGuid.Value ).ToList();
                 return people
                     .Where( p => CanLead( p, p.Gender ) )
                     .OrderBy( p => pinned.Contains( p.Guid ) ? pinned.IndexOf( p.Guid ) : int.MaxValue )
@@ -702,9 +713,25 @@ namespace RockSampleData.Loader.Generation
                     .Where( CanLead );
                 var earliestStart = new DateTime( _clock.Anchor.Year - _rules.Membership.StartedYearsAgo.Max, 1, 1 );
 
+                // A pinned ended group keeps its leader and state, and takes its case first.
+                foreach ( var legacy in _request.Legacy.Where( l => l.Ended != null ) )
+                {
+                    var unit = _unitByPerson.GetValueOrDefault( legacy.LeaderGuid ?? Guid.Empty ) ?? throw new InvalidOperationException( $"The pin for {legacy.Key} names a leader who is not an eligible adult." );
+                    var leader = unit.People.First( p => p.Guid == legacy.LeaderGuid );
+                    var from = Max( earliestStart, unit.JoinFrom );
+                    var until = Min( _clock.LatestChange.AddDays( -60 ), unit.LeaveBy ?? DateTime.MaxValue, FirstReserved( unit ) );
+                    if ( !cases.Remove( legacy.Ended.Value ) || ( until - from ).TotalDays < 365 || unit.People.Any( p => usedPeople.Contains( p.Guid ) ) || !names.Add( leader ) )
+                    {
+                        throw new InvalidOperationException( $"The pin for {legacy.Key} makes it an ended group its leader cannot lead." );
+                    }
+
+                    unit.People.ForEach( p => usedPeople.Add( p.Guid ) );
+                    drafts.Add( new Draft { Legacy = legacy, Leader = leader, LeaderUnit = unit, TestCase = legacy.Ended.Value, WindowStart = from, WindowEnd = until } );
+                }
+
                 foreach ( var candidate in candidates )
                 {
-                    if ( drafts.Count == cases.Count )
+                    if ( cases.Count == 0 )
                     {
                         break;
                     }
@@ -715,7 +742,8 @@ namespace RockSampleData.Loader.Generation
                     if ( !unit.People.Any( p => usedPeople.Contains( p.Guid ) ) && ( until - from ).TotalDays >= 365 && names.Add( candidate ) )
                     {
                         unit.People.ForEach( p => usedPeople.Add( p.Guid ) );
-                        drafts.Add( new Draft { Leader = candidate, LeaderUnit = unit, TestCase = cases[drafts.Count], WindowStart = from, WindowEnd = until } );
+                        drafts.Add( new Draft { Leader = candidate, LeaderUnit = unit, TestCase = cases[0], WindowStart = from, WindowEnd = until } );
+                        cases.RemoveAt( 0 );
                     }
                 }
 
@@ -1680,6 +1708,11 @@ namespace RockSampleData.Loader.Generation
         public int? LaunchesAgo { get; init; }
 
         public bool ReadyToLead { get; init; }
+
+        /// <summary>
+        /// Inactive or Archived for one of the campus's ended test groups, or null for a group still meeting.
+        /// </summary>
+        public SmallGroupTestCase? Ended { get; init; }
     }
 
     /// <summary>

@@ -6,21 +6,21 @@
   "name": "Jenkins Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Book of John",
-  "description": "We read through the Gospel of John a chapter at a time. No background needed.",
+  "topic": "Prayer",
+  "description": "A small, steady group that gathers to pray and share what God is doing.",
   "schedule": {
-    "day": "Tuesday",
+    "day": "Sunday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
     "hostHousehold": "jenkins"
   },
-  "childCareProvided": false,
+  "childCareProvided": true,
   "capacity": 18,
   "isPublic": true,
   "meetsInSummer": false,
-  "attendanceHabit": "EveryWeek",
+  "attendanceHabit": "Spotty",
   "lifecycle": {
     "state": "Archived",
     "started": {

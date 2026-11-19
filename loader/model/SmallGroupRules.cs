@@ -482,5 +482,10 @@ namespace RockSampleData.Loader.Model
         public int? LaunchesAgo { get; set; }
 
         public bool ReadyToLead { get; set; }
+
+        /// <summary>
+        /// "Inactive" or "Archived" for one of the campus's ended test groups, or null for a group still meeting.
+        /// </summary>
+        public string Ended { get; set; }
     }
 }

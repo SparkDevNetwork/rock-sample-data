@@ -58,7 +58,8 @@ namespace RockSampleData.Builder
                 MemberHouseholds = pin.Value.MemberHouseholds,
                 PendingHouseholds = pin.Value.PendingHouseholds,
                 LaunchesAgo = pin.Value.LaunchesAgo,
-                ReadyToLead = pin.Value.ReadyToLead
+                ReadyToLead = pin.Value.ReadyToLead,
+                Ended = pin.Value.Ended == null ? null : ( SmallGroupTestCase ) Enum.Parse( typeof( SmallGroupTestCase ), pin.Value.Ended )
             } ).ToList();
 
             // A Cast leader from Ready to Lead must already be on a serving team, not as its leader, since the rosters are hand-picked.

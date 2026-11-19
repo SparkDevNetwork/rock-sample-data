@@ -6,23 +6,23 @@
   "name": "Hughes Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Prayer",
-  "description": "A small, steady group that gathers to pray and share what God is doing.",
+  "topic": "Sermon Discussion",
+  "description": "We dig into Sunday's message together and talk about how it plays out in everyday life.",
   "schedule": {
-    "day": "Sunday",
+    "day": "Thursday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
     "hostHousehold": "hughes"
   },
-  "childCareProvided": true,
+  "childCareProvided": false,
   "capacity": 18,
   "isPublic": true,
-  "meetsInSummer": false,
-  "attendanceHabit": "Spotty",
+  "meetsInSummer": true,
+  "attendanceHabit": "EveryWeek",
   "lifecycle": {
-    "state": "Archived",
+    "state": "Inactive",
     "started": {
       "yearsAgo": 4,
       "month": 9,
@@ -33,13 +33,9 @@
       "month": 12,
       "day": 20
     },
-    "archived": {
-      "yearsAgo": 2,
-      "month": 3,
-      "day": 19
-    }
+    "reason": "Group ended"
   },
-  "testCase": "Archived",
+  "testCase": "Inactive",
   "members": [
     {
       "state": "Active",
