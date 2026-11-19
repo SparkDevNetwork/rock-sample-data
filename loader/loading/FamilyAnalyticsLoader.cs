@@ -373,11 +373,15 @@ WHERE [EntityTypeId] = @EntityTypeId AND [EntityTypeQualifierColumn] = 'Class' A
                 P( "@EntityTypeId", entityTypeId ), P( "@Class", JobClass ) ) as int?;
             if ( !attributeId.HasValue )
             {
+                // The name and description go as parameters. The contract recorder reads any write word in the SQL text
+                // as a statement, and Rock's description has one.
                 attributeId = Convert.ToInt32( _db.Scalar( @"
 INSERT INTO [Attribute] ( [IsSystem], [FieldTypeId], [EntityTypeId], [EntityTypeQualifierColumn], [EntityTypeQualifierValue], [Key], [Name], [Description], [Order], [IsGridColumn], [DefaultValue], [IsMultiValue], [IsRequired], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @BooleanFieldType ), @EntityTypeId, 'Class', @Class, 'SetVisitDates', 'Set Visit Dates', 'If enabled will update the first and second visit person attributes.', 3, 0, 'True', 0, 0, NEWID(), @Now, @Now, @ForeignKey )",
-                    P( "@BooleanFieldType", BooleanFieldTypeGuid ), P( "@EntityTypeId", entityTypeId ), P( "@Class", JobClass ), P( "@Now", _dates.Anchor ), P( "@ForeignKey", _foreignKey ) ) );
+VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @BooleanFieldType ), @EntityTypeId, 'Class', @Class, 'SetVisitDates', @Name, @Description, 3, 0, 'True', 0, 0, NEWID(), @Now, @Now, @ForeignKey )",
+                    P( "@BooleanFieldType", BooleanFieldTypeGuid ), P( "@EntityTypeId", entityTypeId ), P( "@Class", JobClass ),
+                    P( "@Name", "Set Visit Dates" ), P( "@Description", "If enabled will update the first and second visit person attributes." ),
+                    P( "@Now", _dates.Anchor ), P( "@ForeignKey", _foreignKey ) ) );
             }
 
             _db.Execute( @"
