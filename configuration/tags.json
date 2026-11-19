@@ -112,7 +112,7 @@
       "owner": { "person": "DF911BBD-E3DA-4852-9C35-1A6F92A13558", "name": "Andre Haywood" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     },
     {
       "key": "coffee-gilbert",
@@ -121,7 +121,7 @@
       "owner": { "person": "2FD26F42-1EB7-4187-B1EE-04703144128D", "name": "Joel Park" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     },
     {
       "key": "coffee-scottsdale",
@@ -130,7 +130,7 @@
       "owner": { "person": "E47EAABF-E7E2-4C6A-AD9B-A2353D4A5613", "name": "Walt Hargrove" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     },
     {
       "key": "coffee-chandler",
@@ -139,7 +139,7 @@
       "owner": { "person": "5DD2FCE8-0F2D-4A99-8C9C-0191AF2A541C", "name": "Josiah Faleolo" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     },
     {
       "key": "coffee-goodyear",
@@ -148,7 +148,7 @@
       "owner": { "person": "E65DD626-9A6A-4353-837B-E6D48808E621", "name": "Rafael Ibarra" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     },
     {
       "key": "coffee-tempe",
@@ -157,7 +157,7 @@
       "owner": { "person": "A102460D-6362-4202-8F8E-19CA2679312B", "name": "Miles Okafor" },
       "createdDaysAgo": 600,
       "taggedWithinDays": 30,
-      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+      "draw": { "campus": "owner", "firstCameWithinDays": 365, "count": 4 }
     }
   ],
   "access": [

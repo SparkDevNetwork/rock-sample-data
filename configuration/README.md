@@ -126,7 +126,7 @@ Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, Dee Navarro (the Care Direc
 | Possible Group Leaders | Personal | Jamal Pierce | Cast people who are Ready to Lead, and a draw of generated main campus people from Ready to Lead |
 | Young Adults Night | Personal | Ted Decker | Cast young adults, Bri Hall among them, and a draw of generated main campus adults up to 29 |
 | Office Volunteers | Personal | Alisha Marble | Cast office volunteers, and a draw of generated main campus Engaged or Leading adults 60 and older |
-| Coffee This Month | Personal, one for each campus pastor | That campus's pastor | A draw of that campus's adults whose family first came in the last 180 days, tagged in the last 30 days. Aaron Mitchell's holds four Cast newcomers instead |
+| Coffee This Month | Personal, one for each campus pastor | That campus's pastor | A draw of that campus's adults whose family first came in the last year, tagged in the last 30 days. Aaron Mitchell's holds four Cast newcomers instead |
 
 Each tag says how it is made and who carries it:
 
