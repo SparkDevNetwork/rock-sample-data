@@ -38,6 +38,19 @@
           "text": "Thanks. I'll call her this week and offer her a ride if she needs one."
         }
       ]
+    },
+    {
+      "key": "bri-young-adults-night",
+      "guid": "48103E59-0E1D-4A64-B882-989C8669AA2D",
+      "about": "brianna",
+      "type": "followUp",
+      "author": "ted",
+      "written": {
+        "daysAgo": 2
+      },
+      "time": "14:20",
+      "text": "Bri wants to bring two friends from her dorm to Young Adults Night. {@alisha}, please add three to the pizza order and set out name tags for them.",
+      "testPurpose": "A second unread mention of Alisha Marble (decision D-notify-2). Bri is on Ted Decker's Young Adults Night tag."
     }
   ]
 }

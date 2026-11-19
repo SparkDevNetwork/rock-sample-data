@@ -184,6 +184,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Notes ) ? CastNotificationExpectations.Check( db, source, guids, failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Registrations ) ? CheckRegistrations( db, source, guids, failures ) : 0;
@@ -191,6 +193,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
             checks += CheckSignals( db, source, guids, failures );
+            checks += CastTagExpectations.Check( db, source, guids, failures );
 
             return (checks, failures);
         }

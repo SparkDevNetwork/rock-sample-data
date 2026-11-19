@@ -1450,6 +1450,48 @@
           }
         ]
       }
+    },
+    {
+      "key": "homebound-adults",
+      "name": "Homebound Adults",
+      "description": "Adults with the Homebound tag, for the care team's monthly visits and calls. Dee Navarro made it.",
+      "category": "staff-workspace-data-views",
+      "guid": "D3D3DCAD-0022-4DFA-AB3B-1F0579B5263C",
+      "createdBy": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "usage": {
+        "createdDaysAgo": 300
+      },
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.TagFilter",
+            "selection": "2|61626310-042b-4fad-92b0-66e07ac2934a"
+          }
+        ]
+      }
+    },
+    {
+      "key": "my-possible-group-leaders",
+      "name": "My Possible Group Leaders",
+      "description": "People on Jamal Pierce's personal Possible Group Leaders tag, to invite to Group Leader Training. Jamal made it.",
+      "category": "staff-workspace-data-views",
+      "guid": "24A6C43E-16B9-4E72-8E5B-6EBA64324ED4",
+      "createdBy": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "usage": {
+        "createdDaysAgo": 200
+      },
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.Person.TagFilter",
+            "selection": "1|f12aab41-8db3-4467-8418-15aca6cc3116"
+          }
+        ]
+      }
     }
   ],
   "$accessComment": "The security walkthrough (docs/reporting.md section 7): for a Cast person, a category or data view key, and an action, whether Rock's own security check must allow it. Verify asks Rock each one.",

@@ -6,6 +6,8 @@ Each note ties to the household's story in [cast/households](../households/). To
 
 The 11 notes from Rock's legacy sample data are here too, as Personal Notes. They keep their authors and wording, with small changes where the old text no longer fit the story. Their `testPurpose` says "legacy." Notes go only in these files: a household file has no notes field. Every load checks that each note here shows on its person's profile (see [Cast note expectations](../../validation/README.md#cast-note-expectations)).
 
+A mention in a note or reply from the last 89 days also leaves the mentioned staff member a notification message in Rock's bell (decision D-notify-1). The message is unread when the note is from the last three days, and read otherwise. Dates count back from install day, so a mention in a note written `{ "daysAgo": 1 }` is unread on every install day. Dee Navarro's note about Hal Russell leaves one for Alisha Marble this way (decision D-notify-2). Every load checks each one (see [Cast mention expectations](../../validation/README.md#cast-mention-expectations)).
+
 ## Format
 
 ```json
@@ -51,7 +53,7 @@ The 11 notes from Rock's legacy sample data are here too, as Personal Notes. The
 | `author` | A staff key from the configuration's `staff` list. |
 | `written` | When the note was written, as `daysAgo` from install day. |
 | `time` | The time of day, `HH:mm`, 24-hour. |
-| `text` | The note. `{@ted}` (any staff key) becomes a mention of that staff member. |
+| `text` | The note. `{@ted}` (any staff key) becomes a mention of that staff member, with a notification message when the note is from the last 89 days. |
 | `isAlert`, `isPrivate`, `isPinned` | Optional. Default false. A Safety Alert note is always an alert. |
 | `testPurpose` | Optional. What the note tests or shows. |
 | `replies` | Optional. Replies from staff, each written after the note it answers. |

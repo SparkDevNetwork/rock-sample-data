@@ -36,6 +36,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `adaptive-messages.json` | The church's 16 personalization segments, each on a person data view, with the Finance lock on the ones built on Finance views; its five adaptive messages with their adaptations in order, dates rules, and saturation; the External Website pages a link may name; the lock on Rock's segment Results page; the access questions verify asks Rock; and the Cast people each adaptation must reach. The text is in `content/adaptive-messages`. See [Adaptive messages](../docs/adaptive-messages.md). |
 | `signals.json` | The church's four person signal types, in Rock's order, with their colors, icons, and who may see and add each; the Cast's six signals with their owners, notes, and ends; and how many Care Team Follow-ups each campus pastor has. See [How signals load](../loader/README.md#how-signals-load). |
 | `personal-links.json` | The bookmarks in Rock's bookmark menu: the shared sections and their roles, the named staff's personal sections, each campus pastor's My Campus section, the Rock page, parameter, and load part behind each link, and the menus verify checks. Every link is a Rock page. See [How personal links load](../loader/README.md#how-personal-links-load). |
+| `tags.json` | The church's tags on people: organizational tags in their tag categories, staff members' personal tags, and Rock's own Staff tag, with the Cast people each story tags, the rules that draw generated people, and the access questions verify asks Rock. See [Tags](#tags). |
 | `group-syncs.json` | The church's group sync data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
 
 ## Categories
@@ -51,7 +52,7 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Data views | Rock Solid Church, then Sample Data | Reserved or No Email, and each recurring flow's guarded audience |
 | Data views | Rock Solid Church, then Safety, locked to the safety and background check roles | Kids and Student Teams, Kids and Student Volunteers, and Kids With an Allergy |
 | Data views | Rock Solid Church, then Finance, locked to the finance roles | The giving and pledge views, including the Giving message's layers |
-| Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Men's Retreat Invites, which no one has run in over a year, and room for staff to build |
+| Data views | Rock Solid Church, then Staff Workspace, where Staff Workers can edit | Men's Retreat Invites, which no one has run in over a year, two views built on tags, Dee Navarro's Homebound Adults and Jamal Pierce's My Possible Group Leaders (decision D-tags-5), and room for staff to build |
 | Data views | Foundational Views (Shipped), Rock's own category renamed by Guid (decision 224) | Rock's 8 shipped example views, unchanged |
 | Reports | Rock Solid Church, locked to staff, then Leadership (locked to pastors), Notice, Belong, Equip, Contribute, Lead, Re-engage, Safety and Finance (each locked to its roles), and Staff Workspace | The 25 reports in `reporting.json`; Staff Workspace is empty |
 | Metrics | Ministry Path | The four stage metrics in `reporting.json`, Belong Stage to Lead Stage |
@@ -62,13 +63,15 @@ Every category the church adds is in `categories.json` (decision 185), so its ro
 | Adaptive messages | Rock Solid Church, under Rock's All Church category (`parentGuid`) | The five adaptive messages in `adaptive-messages.json` |
 | SMS snippets | Guests, Kids Check-in, Students, Care, and Events, each at the top level, as SMS Conversations' snippet picker groups them | The snippets in `content/communications/snippets.json` (decision D-snippets-1) |
 | Email sections | Rock Solid Church, beside Rock's Starter Sections | The four sections in `content/communications/email-sections.json` (decision D-snippets-3) |
+| Tags | Care, where staff, pastoral workers, and Rock administrators may view and tag. Events, where staff, staff-like workers, and Rock administrators may (decision D-tags-2) | Homebound in Care, and Car Show Volunteers in Events, from `tags.json` |
 
 To add rows of a new kind or for a new purpose:
 
 1. **Data views.** Add a child of Rock Solid Church for the purpose, such as Communications, Care, or Reporting, then file the views under it. Never put a church view at the top level or in a category Rock ships.
 2. **Communication lists.** Keep list categories flat, as Rock's own Public category is. A public list uses Rock's Public category. A private list may use a church category such as Care, through its `categoryGuid` in `communications.json`.
 3. **Person attributes.** Keep attribute categories flat, as Rock's own Employment and Membership are. Give the category `qualifierEntityType` (such as `Rock.Model.Person`), which Rock stores as its EntityTypeId qualifier. The person profile shows a category only through an Attribute Values block, so add one, as `staff.json` does for Staff.
-4. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
+4. **Tags.** Keep tag categories flat, and give each its own `security` for View and Tag. A tag's security comes from its category, and Rock's global default lets everyone view and tag (decision D-tags-2).
+5. **Another kind of row,** such as system communications or reports. Add a top-level category named Rock Solid Church for that kind, with children by purpose, as the data views have.
 
 Each category names the Rock entity it holds, its parent's key or, under a category Rock ships, that category's Guid as `parentGuid`, and, for a group category, the group type it is for, or, for an attribute category, the entity its attributes belong to.
 
@@ -114,6 +117,29 @@ People have six note types (decision 78). Three are Rock's own, updated in place
 "Staff" means Rock's Staff Workers and Staff Like Workers roles, plus Rock Administration. Everyone else is denied, so notes never show to someone who is not staff.
 
 Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, Dee Navarro (the Care Director, who writes most Counseling notes), Jamal Pierce, and Aaron Mitchell, the Phoenix campus pastor, write the main campus's notes. Every other campus's notes come from its named campus pastor in `staff.json` (decision 198). Campus pastors are in RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
+
+## Tags
+
+`tags.json` lists the church's tags on people (decision D-tags-1). They load in every dataset. See [Tags](../loader/README.md#tags) for how.
+
+| Tag | Kind | Who keeps it | Who carries it |
+|---|---|---|---|
+| Staff | Rock's own, found by Guid | Alisha Marble tags each one | Every staff member the dataset loads |
+| Homebound | Organizational, in Care | Dee Navarro | Hal Russell, and a share of generated adults 80 and older who live alone (decision D-tags-3) |
+| Car Show Volunteers | Organizational, in Events | Jenny Michaels | Cast adults who help at the car show, and a draw of generated main campus adults |
+| Possible Group Leaders | Personal | Jamal Pierce | Cast people who are Ready to Lead, and a draw of generated main campus people from Ready to Lead |
+| Young Adults Night | Personal | Ted Decker | Cast young adults, Bri Hall among them, and a draw of generated main campus adults up to 29 |
+| Office Volunteers | Personal | Alisha Marble | Cast office volunteers, and a draw of generated main campus Engaged or Leading adults 60 and older |
+| Coffee This Month | Personal, one for each campus pastor | That campus's pastor | A draw of that campus's adults whose family first came in the last year, tagged in the last 30 days. Aaron Mitchell's holds four Cast newcomers instead |
+
+Each tag says how it is made and who carries it:
+
+1. **Kind.** An organizational tag names its `category`, a tag category in `categories.json`, and `createdBy`, who made it. A personal tag names its `owner`, a staff member, and has no category. `rockShips` marks Rock's Staff tag, which the loader never changes.
+2. **When.** `createdDaysAgo` is when the tag was made. `taggedBy` tags each person, and defaults to the owner or the maker. `taggedWithinDays` keeps each person's tag within that many days of install day.
+3. **Who.** `staff` tags every staff member the dataset loads. `cast` lists the Cast people a story tags. `draw` adds generated people, never Cast people, who match every rule it gives: `campus` (main, or owner for the owner's campus), `minAge`, `maxAge`, `livesAlone`, `statuses`, `firstCameWithinDays`, and `dataView`. Then `percent` tags each match by that chance, or `count` tags that many.
+4. **Access.** `access` lists the questions verify asks Rock's own security check, such as whether Hal Russell may see Homebound (decision D-tags-2).
+
+A tag whose owner or maker a dataset does not load is skipped, so a campus pastor's Coffee This Month loads only with their campus.
 
 ## Check-in
 

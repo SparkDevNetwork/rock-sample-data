@@ -182,6 +182,7 @@ namespace RockSampleData.Loader
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
             Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
             PersonalLinks = Files.Exists( PersonalLinksConfigurationPath ) ? Read<PersonalLinksConfiguration>( PersonalLinksConfigurationPath ) : null;
+            Tags = Files.Exists( TagsConfigurationPath ) ? Read<TagsConfiguration>( TagsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -239,6 +240,13 @@ namespace RockSampleData.Loader
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.
         /// </summary>
         public AdaptiveMessagesConfiguration AdaptiveMessages { get; }
+
+        /// <summary>
+        /// The church's tags on people, or null in a package built before tags loaded.
+        /// </summary>
+        public TagsConfiguration Tags { get; }
+
+        public const string TagsConfigurationPath = "configuration/tags.json";
 
         /// <summary>
         /// Reads each adaptation's text, from content/adaptive-messages/messages.json.

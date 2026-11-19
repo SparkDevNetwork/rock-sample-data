@@ -242,6 +242,8 @@ try
             checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
             stage = "personal-links";
             checks.Add( PersonalLinksCheck( rock, sql, database, source ) );
+            stage = "notifications";
+            checks.Add( NotificationsCheck( rock, sql, database, source, foreignKey, anchor ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -652,7 +654,8 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
 {
     var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
         .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() )
-        .Concat( source.Signals?.Access ?? new List<AccessExpectation>() ).ToList();
+        .Concat( source.Signals?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -672,8 +675,10 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
     var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
+    var tags = ( source.Tags?.Tags ?? new List<TagDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
             : a.Category != null ? $"Category\t{categories[a.Category]}"
+            : a.Tag != null ? $"Tag\t{tags[a.Tag]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
@@ -688,7 +693,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
@@ -942,6 +947,80 @@ static CheckResult PersonalLinksCheck( RockRelease rock, SqlServer sql, string d
     }
 
     return CheckResult.From( "personal-links", problems.Count == 0 ? $"Rock's bookmark menu shows each of the {configuration.Menus.Count} people their sections and links in order, and finds no section order missing" : "Rock's bookmark menus do not match the file", problems );
+}
+
+/// <summary>
+/// Asks Rock what each note author's top-bar bell shows (decision D-notify-1): the unread count Rock reads must be every
+/// staff mention in the last three days' notes, found from the notes themselves, and the newest mention's link must open
+/// the note on the person's profile. It is judged only when today is the loads' anchor, because the bell counts from now.
+/// </summary>
+static CheckResult NotificationsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source, string foreignKey, DateTime anchor )
+{
+    var foreignKeyParameter = new SqlParameter( "@ForeignKey", foreignKey );
+    if ( source.Notes == null || Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [NotificationMessage] WHERE [ForeignKey] = @ForeignKey", foreignKeyParameter ) ) == 0 )
+    {
+        return CheckResult.From( "notifications", "This load wrote no mention notifications", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "notifications", "Notifications were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. The bell counts unread mentions from now, so run it again on one day."
+        } );
+    }
+
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    // From the notes alone: each person's mentions in the last three days by someone else, and their newest mention.
+    var staff = source.Notes.Staff.Select( s => (s.Name, Guid: people.Rock( s.Guid )) ).ToList();
+    var expected = staff.Select( s => sql.Query( database, $@"
+SELECT COUNT( [n].[Id] ) AS [Unread],
+    ( SELECT TOP 1 CONCAT( [nm].[Guid], '|/person/', [n2].[EntityId], '#NoteRef-', LOWER( REPLACE( CONVERT( nvarchar( 36 ), [n2].[Guid] ), '-', '' ) ) )
+        FROM [NotificationMessage] AS [nm]
+        INNER JOIN [Note] AS [n2] ON [nm].[Key] = 'note-' + CAST( [n2].[Id] AS nvarchar( 20 ) )
+        WHERE [nm].[PersonAliasId] = [p].[PrimaryAliasId] AND [nm].[ForeignKey] = @ForeignKey
+        ORDER BY [nm].[MessageDateTime] DESC ) AS [Newest]
+FROM [Person] AS [p]
+LEFT JOIN [Note] AS [n] ON [n].[ForeignKey] = @ForeignKey AND [n].[CreatedDateTime] >= DATEADD( DAY, -{MentionNotificationsWriter.UnreadDays}, CAST( GETDATE() AS DATE ) )
+    AND [n].[CreatedByPersonAliasId] <> [p].[PrimaryAliasId]
+    AND [n].[Text] LIKE '%class=""mention""%>@' + [p].[NickName] + ' ' + [p].[LastName] + '</span>%'
+WHERE [p].[Guid] = @Person
+GROUP BY [p].[PrimaryAliasId]", new SqlParameter( "@ForeignKey", foreignKey ), new SqlParameter( "@Person", s.Guid ) ).FirstOrDefault() ).ToList();
+
+    var loaded = staff.Zip( expected ).Where( x => x.Second != null ).ToList();
+    var withLinks = loaded.Where( x => x.Second["Newest"] is string ).ToList();
+    var questions = loaded.Select( x => $"count\t{x.First.Guid}" ).Concat( withLinks.Select( x => $"link\t{( ( string ) x.Second["Newest"] ).Split( '|' )[0]}" ) );
+    var answers = RockRunner.Run( rock, sql, database, "notifications", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    for ( var i = 0; i < loaded.Count; i++ )
+    {
+        var want = Convert.ToInt32( loaded[i].Second["Unread"] ).ToString();
+        var got = i < answers.Length ? answers[i] : "no answer";
+        if ( got != want )
+        {
+            problems.Add( $"{loaded[i].First.Name}: the last three days' notes mention them {want} times, but Rock's bell counts {got} unread." );
+        }
+    }
+
+    for ( var i = 0; i < withLinks.Count; i++ )
+    {
+        var want = ( ( string ) withLinks[i].Second["Newest"] ).Split( '|' )[1];
+        var got = loaded.Count + i < answers.Length ? answers[loaded.Count + i] : "no answer";
+        if ( got != want )
+        {
+            problems.Add( $"{withLinks[i].First.Name}: their newest mention should open {want}, but Rock's link is {got}." );
+        }
+    }
+
+    var total = loaded.Sum( x => Convert.ToInt32( x.Second["Unread"] ) );
+    return CheckResult.From( "notifications", problems.Count == 0
+        ? $"Rock's bell counts each of {loaded.Count} note authors' unread mentions ({total} in all), and each newest mention opens its note"
+        : "Rock's bell does not show the mentions the notes hold", problems );
 }
 
 /// <summary>

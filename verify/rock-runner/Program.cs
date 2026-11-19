@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -50,7 +50,7 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, or Snippet), its Guid, an action, and a
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, Snippet, or Tag), its Guid, an action, and a
     ///            person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
@@ -71,6 +71,8 @@ namespace RockSampleData.RockRunner
     ///            and whether Rock would add a section order for them, saving nothing. It prints the version Rock keeps for
     ///            the shared links and midnight today, then a line for each person: the answer, the version of their own
     ///            links, and each section with its links' names, separated by tabs.
+    ///   notifications  Answers what Rock's top-bar bell shows: for "count" and a person's Guid, how many unread messages
+    ///            Rock counts for them, and for "link" and a message's Guid, the link Rock's Note Mention component opens.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -85,10 +87,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -130,6 +132,7 @@ namespace RockSampleData.RockRunner
                     "email-sections" => worker.EmailSections(),
                     "signals" => worker.Signals(),
                     "personal-links" => worker.PersonalLinks( lines ),
+                    "notifications" => worker.Notifications( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -567,6 +570,19 @@ namespace RockSampleData.RockRunner
             {
                 var parts = line.Split( '\t' );
                 object item;
+                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                if ( parts[0] == "Tag" )
+                {
+                    // Rock keeps no cache of tags. Its tag bar loads the tag and asks the tag itself, which lets a personal
+                    // tag's owner do anything with it and keeps everyone else out, before Rock's usual rules.
+                    var tagService = _rock.GetType( "Rock.Model.TagService", true );
+                    var tag = tagService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( tagService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    results.Add( tag == null || person == null ? "missing"
+                        : securedType.GetMethod( "IsAuthorized" ).Invoke( tag, new[] { parts[2], person } ).ToString() );
+                    continue;
+                }
+
                 if ( parts[0] == "Snippet" )
                 {
                     // SMS Conversations asks each snippet itself, whose own check lets only its owner see a personal one
@@ -602,7 +618,6 @@ namespace RockSampleData.RockRunner
                         .Invoke( null, new object[] { new Guid( parts[1] ) } );
                 }
 
-                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
                 results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
             }
 
@@ -911,6 +926,49 @@ namespace RockSampleData.RockRunner
                 var added = addMissing.Invoke( Activator.CreateInstance( linkServiceType, context ), new[] { person } );
                 var ownVersion = ( DateTime ) data.GetType().GetProperty( "LastNonSharedLinksModifiedDateTime" ).GetValue( data );
                 results.Add( string.Join( "\t", new[] { added.ToString(), ownVersion.ToString( "o" ) }.Concat( sections ) ) );
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Answers what Rock's top-bar bell shows, on Rock's internal site. "count" and a person's Guid gives how many unread
+        /// notification messages Rock counts for them (NotificationMessageService.GetUnreadMessagesForPerson, which the bell
+        /// reads). "link" and a message's Guid gives the link Rock's Note Mention component opens for it.
+        /// </summary>
+        public string Notifications( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var context = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                .Invoke( null, new[] { app } );
+            var siteCache = _rock.GetType( "Rock.Web.Cache.SiteCache", true );
+            var internalSite = siteCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                .Invoke( null, new object[] { new Guid( "C2D29296-6A87-47A9-A753-EE4E9159C4C4" ) } );
+            var serviceType = _rock.GetType( "Rock.Model.NotificationMessageService", true );
+            var service = Activator.CreateInstance( serviceType, context );
+            var messageType = _rock.GetType( "Rock.Model.NotificationMessage", true );
+            var unread = serviceType.GetMethod( "GetUnreadMessagesForPerson", new[] { typeof( Guid ), siteCache } )
+                ?? throw new InvalidOperationException( "This Rock has no NotificationMessageService.GetUnreadMessagesForPerson( Guid, SiteCache ). The runner needs updating for this Rock." );
+            var count = typeof( Queryable ).GetMethods().First( m => m.Name == "Count" && m.GetParameters().Length == 1 ).MakeGenericMethod( messageType );
+            // Rock builds a page's link from the web route table, which its start-up fills from the PageRoute rows.
+            _rock.GetType( "Rock.Web.RockRouteHandler", true ).GetMethod( "RegisterRoutes", BindingFlags.Public | BindingFlags.Static ).Invoke( null, null );
+            var mention = Activator.CreateInstance( _rock.GetType( "Rock.Core.NotificationMessageTypes.NoteMention", true ), nonPublic: true );
+            var action = mention.GetType().GetMethod( "GetActionForNotificationMessage" );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                if ( parts[0] == "count" )
+                {
+                    results.Add( count.Invoke( null, new[] { unread.Invoke( service, new[] { new Guid( parts[1] ), internalSite } ) } ).ToString() );
+                    continue;
+                }
+
+                var message = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( service, new object[] { new Guid( parts[1] ) } );
+                var bag = message == null ? null : action.Invoke( mention, new[] { message, internalSite, null } );
+                results.Add( bag?.GetType().GetProperty( "Url" ).GetValue( bag ) as string ?? "none" );
             }
 
             return string.Join( "\n", results );

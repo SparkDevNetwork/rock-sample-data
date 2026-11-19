@@ -235,7 +235,8 @@ for ( const h of households.map( x => x.data ) ) {
 }
 
 // A household on another campus is missing from datasets without that campus, so nothing that loads in
-// every dataset may name its people. configuration/staff.json may, since it names staff by campus.
+// every dataset may name its people. configuration/staff.json may, since it names staff by campus, and
+// configuration/tags.json may name one as a tag's owner, since a tag loads only with its owner.
 {
     const campusPeople = new Map();
     for ( const { file, data } of households.filter( x => x.data.campusSlot !== "main" ) ) {
@@ -251,7 +252,11 @@ for ( const h of households.map( x => x.data ) ) {
         ...fs.readdirSync( path.join( root, "configuration" ) ).filter( f => f.endsWith( ".json" ) && f !== "staff.json" ).map( f => path.join( root, "configuration", f ) )
     ].filter( f => fs.existsSync( f ) );
     for ( const file of shared ) {
-        const text = fs.readFileSync( file, "utf8" ).toUpperCase();
+        let text = fs.readFileSync( file, "utf8" ).toUpperCase();
+        if ( path.basename( file ) === "tags.json" ) {
+            const tags = JSON.parse( fs.readFileSync( file, "utf8" ) );
+            text = JSON.stringify( { ...tags, tags: tags.tags.map( t => ( { ...t, owner: undefined } ) ) } ).toUpperCase();
+        }
         for ( const [ guid, who ] of campusPeople ) {
             if ( text.includes( guid ) ) {
                 errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
@@ -535,6 +540,134 @@ for ( const h of households.map( x => x.data ) ) {
         for ( const menu of config.menus ) {
             if ( nameOf( menu.person ) !== menu.name ) {
                 errors.push( `configuration/personal-links.json (menu ${menu.name}): person ${menu.person} is not ${menu.name}.` );
+            }
+        }
+    }
+}
+
+// Tags (configuration/tags.json, decision D-tags-1): each tag is organizational, in a tag category, or personal, with a
+// staff member as owner. Everyone it names is in the Cast, and whoever makes or uses an organizational tag may tag
+// people with it under its category's security, as Rock checks in its tag bar.
+{
+    const root = path.join( castDir, ".." );
+    const tagsFile = path.join( root, "configuration", "tags.json" );
+    const config = fs.existsSync( tagsFile ) ? JSON.parse( fs.readFileSync( tagsFile, "utf8" ) ) : null;
+    if ( config ) {
+        const read = f => JSON.parse( fs.readFileSync( path.join( root, "configuration", f ), "utf8" ) );
+        const categories = new Map( read( "categories.json" ).categories.map( c => [ c.key, c ] ) );
+        const staffGuids = new Set( read( "staff.json" ).staff.map( s => s.person ) );
+        const rockRoles = new Map( securityRoleConfiguration.roles.map( r => [ r.name, r.rockRole ] ) );
+        const views = new Map( [ "reporting.json", "group-syncs.json", "registrations.json" ].flatMap( f => read( f ).dataViews || [] ).map( v => [ v.key, v ] ) );
+        const tagKeys = new Map();
+        const tagGuids = new Set();
+        const names = new Set();
+        const isPerson = ( ref, who ) => {
+            const found = ref && people.get( ref.person );
+            if ( !found ) {
+                errors.push( `${who}: ${ref?.person ?? "no one"} is not a Cast person.` );
+                return null;
+            }
+            const name = `${found.person.nickName || found.person.firstName} ${found.person.lastName}`;
+            if ( ref.name !== name ) {
+                errors.push( `${who}: ${ref.person} is ${name}, not ${ref.name}.` );
+            }
+            return found;
+        };
+        const canTag = ( found, category ) => {
+            const rule = ( category.security || [] ).find( s => s.action === "Tag" );
+            return !rule || !rule.denyAllUsers || ( found.person.securityRoles || [] ).some( r => rule.allow.includes( rockRoles.get( r ) ) );
+        };
+        for ( const tag of config.tags ) {
+            const who = `configuration/tags.json (${tag.key})`;
+            if ( !KEY.test( tag.key || "" ) || tagKeys.has( tag.key ) ) {
+                errors.push( `${who}: the key must be unique and in kebab case.` );
+            }
+            tagKeys.set( tag.key, tag );
+            if ( !GUID.test( tag.guid || "" ) || tagGuids.has( tag.guid ) ) {
+                errors.push( `${who}: the Guid must be unique and uppercase.` );
+            }
+            tagGuids.add( tag.guid );
+
+            // Rock's TagService finds a tag by its name and owner, and Tag refuses <, >, %, and & in a name.
+            if ( !tag.name || tag.name.length > 100 || /[<>%&]/.test( tag.name ) || names.has( `${tag.owner?.person}|${tag.name}` ) ) {
+                errors.push( `${who}: the name must be 1 to 100 characters without <, >, %, or &, and unique for its owner.` );
+            }
+            names.add( `${tag.owner?.person}|${tag.name}` );
+            if ( tag.rockShips ) {
+                if ( tag.owner || tag.category || tag.createdBy ) {
+                    errors.push( `${who}: Rock ships this tag, so the loader changes nothing about it but who carries it.` );
+                }
+            } else if ( !!tag.owner === !!tag.category ) {
+                errors.push( `${who}: give a personal tag an owner, or an organizational tag a category, but not both.` );
+            } else if ( !( tag.createdDaysAgo >= 1 ) ) {
+                errors.push( `${who}: createdDaysAgo must be at least 1.` );
+            }
+            if ( tag.owner ) {
+                isPerson( tag.owner, `${who} owner` );
+                if ( !staffGuids.has( tag.owner.person ) ) {
+                    errors.push( `${who}: only staff keep personal tags, and ${tag.owner.name} is not in configuration/staff.json.` );
+                }
+                if ( tag.createdBy ) {
+                    errors.push( `${who}: a personal tag is made by its owner, so it takes no createdBy.` );
+                }
+            }
+            const category = tag.category && categories.get( tag.category );
+            if ( tag.category && category?.entityType !== "Rock.Model.Tag" ) {
+                errors.push( `${who}: category "${tag.category}" is not a tag category in configuration/categories.json.` );
+            }
+            if ( tag.category && !tag.createdBy ) {
+                errors.push( `${who}: an organizational tag needs createdBy.` );
+            }
+            for ( const [ role, ref ] of [ [ "createdBy", tag.createdBy ], [ "taggedBy", tag.taggedBy ] ].filter( r => r[ 1 ] ) ) {
+                const found = isPerson( ref, `${who} ${role}` );
+                if ( found && found.household.campusSlot !== "main" ) {
+                    errors.push( `${who}: ${role} ${ref.name} lives on another campus, so the tag would be missing from datasets without it.` );
+                }
+                if ( found && category && !canTag( found, category ) ) {
+                    errors.push( `${who}: ${ref.name} has no role that may tag people in category "${tag.category}".` );
+                }
+            }
+            for ( const ref of tag.cast || [] ) {
+                const found = isPerson( ref, `${who} cast` );
+                if ( found && found.household.campusSlot !== "main" ) {
+                    errors.push( `${who}: ${ref.name} lives on another campus, so the tag would be missing them in datasets without it.` );
+                }
+            }
+            const draw = tag.draw;
+            if ( draw ) {
+                if ( draw.campus && draw.campus !== "main" && !( draw.campus === "owner" && ( tag.owner || tag.createdBy ) ) ) {
+                    errors.push( `${who}: draw campus "${draw.campus}" must be main, or owner on a tag with an owner or maker.` );
+                }
+                if ( ( draw.percent === undefined ) === ( draw.count === undefined ) ) {
+                    errors.push( `${who}: a draw gives a percent or a count, not both.` );
+                }
+                if ( draw.dataView && !views.has( draw.dataView ) ) {
+                    errors.push( `${who}: data view "${draw.dataView}" is not in any configuration file.` );
+                }
+                for ( const status of draw.statuses || [] ) {
+                    if ( !STATUSES.includes( status ) ) {
+                        errors.push( `${who}: status "${status}" is not a connection status.` );
+                    }
+                }
+            }
+        }
+
+        // Rock's Person Tag filter saves "1|guid" for a personal tag and "2|guid" for an organizational one.
+        const leaves = f => [ ...( f.all || [] ), ...( f.any || [] ), ...( f.none || [] ) ].flatMap( leaves ).concat( f.component ? [ f ] : [] );
+        for ( const view of views.values() ) {
+            for ( const leaf of leaves( view.filter || {} ).filter( l => l.component === "Rock.Reporting.DataFilter.Person.TagFilter" ) ) {
+                const [ type, guid ] = ( leaf.selection || "" ).split( "|" );
+                const tag = config.tags.find( t => t.guid === ( guid || "" ).toUpperCase() );
+                if ( !tag || type !== ( tag.owner ? "1" : "2" ) || guid !== guid.toLowerCase() ) {
+                    errors.push( `Data view ${view.key}: its tag filter must name a tag in configuration/tags.json as Rock saves it, 1 for a personal tag or 2 for an organizational one, a bar, and the tag's Guid in lowercase.` );
+                }
+            }
+        }
+
+        for ( const row of config.access || [] ) {
+            isPerson( { person: row.person, name: row.name }, `configuration/tags.json access (${row.tag})` );
+            if ( !tagKeys.has( row.tag ) || ![ "View", "Tag", "Edit", "Administrate" ].includes( row.action ) || typeof row.allowed !== "boolean" ) {
+                errors.push( `configuration/tags.json access: ${row.name} ${row.action} ${row.tag} needs a tag key, a Rock action, and allowed.` );
             }
         }
     }

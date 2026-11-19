@@ -2517,3 +2517,88 @@ SELECT COUNT( DISTINCT [ps].[PersonId] )
 FROM [PersonSignal] AS [ps]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [ps].[PersonId]
 WHERE [ps].[ForeignKey] = @ForeignKey AND [ps].[ExpirationDate] IS NULL AND [p].[TopSignalId] IS NULL;
+
+-- check: tag-is-saved-like-rock
+-- why: Decision D-tags-1. Rock's tag bar and Tag Report find a tag on people by Rock's Person entity type, with no qualifier, while it is active. A personal tag belongs to its owner's primary alias, who made it, and has no category. An organizational tag sits in a tag category, whose security decides who can see and use it. Each was made by install day.
+SELECT COUNT(*)
+FROM [Tag] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( [t].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR ISNULL( [t].[EntityTypeQualifierColumn], '' ) <> '' OR ISNULL( [t].[EntityTypeQualifierValue], '' ) <> '' OR [t].[IsActive] = 0
+        OR [t].[CreatedByPersonAliasId] IS NULL OR [t].[CreatedDateTime] >= CAST( GETDATE() AS DATE )
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL
+            AND ( [t].[CategoryId] IS NOT NULL OR [t].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId]
+                OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[PrimaryAliasId] = [t].[OwnerPersonAliasId] ) ) )
+        OR ( [t].[OwnerPersonAliasId] IS NULL
+            AND NOT EXISTS ( SELECT 1 FROM [Category] AS [c] WHERE [c].[Id] = [t].[CategoryId] AND [c].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Tag' ) ) ) );
+
+-- check: tag-name-is-unique-for-its-owner
+-- why: Decision D-tags-1. Rock's TagService finds a tag by its name and owner, so two tags on people with one name and owner would send the tag bar to either one.
+SELECT COUNT(*)
+FROM (
+    SELECT [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 ) AS [Owner]
+    FROM [Tag] AS [t]
+    WHERE [t].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    GROUP BY [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 )
+    HAVING COUNT(*) > 1 ) AS [x];
+
+-- check: tagged-item-is-on-a-dataset-person
+-- why: Decision D-tags-1. A tagged item finds its person by Guid, with no foreign key, so each one the load wrote is on Rock's Person entity type, points at a person in this dataset, and is the only one for that person and tag, as Rock's tag bar adds it.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Guid] = [ti].[EntityGuid] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) )
+        OR ( SELECT COUNT(*) FROM [TaggedItem] AS [other] WHERE [other].[TagId] = [ti].[TagId] AND [other].[EntityGuid] = [ti].[EntityGuid] ) > 1 );
+
+-- check: tagged-item-is-made-by-someone-who-may-tag
+-- why: Decision D-tags-1. Rock's tag bar lets only a personal tag's owner use it, and records who tagged the person. Each person was tagged after the tag was made and before install day.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+INNER JOIN [Tag] AS [t] ON [t].[Id] = [ti].[TagId]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[CreatedByPersonAliasId] IS NULL
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL AND [ti].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId] )
+        OR [ti].[CreatedDateTime] < [t].[CreatedDateTime] OR [ti].[CreatedDateTime] >= CAST( GETDATE() AS DATE ) );
+
+-- check: mention-message-is-rocks
+-- why: Decision D-notify-1. Rock's Note Mention component saves one message for each person a note mentions, never its author: its web and mobile "mention" type, the author's name as the title, Rock's sentence about the note, the Key "note-" and the note's Id, the note's time, an expiry 90 days later, a count of 1, and the data its link reads: the note, the person, the author, the person profile page with its PersonId, and the note's anchor. The bell counts it and opens the note only when every part is Rock's.
+SELECT COUNT(*)
+FROM [NotificationMessage] AS [nm]
+INNER JOIN [NotificationMessageType] AS [nmt] ON [nmt].[Id] = [nm].[NotificationMessageTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [nmt].[EntityTypeId]
+LEFT JOIN [Note] AS [n] ON [nm].[Key] = 'note-' + CAST( [n].[Id] AS nvarchar( 20 ) )
+LEFT JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId]
+LEFT JOIN [PersonAlias] AS [authorAlias] ON [authorAlias].[Id] = [n].[CreatedByPersonAliasId]
+LEFT JOIN [Person] AS [author] ON [author].[Id] = [authorAlias].[PersonId]
+LEFT JOIN [Person] AS [about] ON [about].[Id] = [n].[EntityId]
+LEFT JOIN [Person] AS [mentioned] ON [mentioned].[PrimaryAliasId] = [nm].[PersonAliasId]
+WHERE [nm].[ForeignKey] = @ForeignKey
+    AND ( [et].[Name] <> 'Rock.Core.NotificationMessageTypes.NoteMention' OR [nmt].[Key] <> 'mention' OR [nmt].[IsWebSupported] = 0 OR [nmt].[IsMobileApplicationSupported] = 0
+        OR [n].[Id] IS NULL OR [mentioned].[Id] IS NULL OR [mentioned].[Id] = [author].[Id] OR [nm].[Count] <> 1
+        OR [nm].[MessageDateTime] <> [n].[CreatedDateTime] OR [nm].[ExpireDateTime] <> DATEADD( DAY, 90, [nm].[MessageDateTime] )
+        OR [nm].[Title] <> [author].[NickName] + ' ' + [author].[LastName] + ISNULL( ' ' + ( SELECT [Value] FROM [DefinedValue] WHERE [Id] = [author].[SuffixValueId] ), '' )
+        OR [nm].[Description] <> 'You were mentioned in a ' + [nt].[Name] + ' about ' + [about].[NickName] + ' ' + [about].[LastName] + ISNULL( ' ' + ( SELECT [Value] FROM [DefinedValue] WHERE [Id] = [about].[SuffixValueId] ), '' ) + '.'
+        OR [nm].[ComponentDataJson] <> CONCAT( '{"NoteId":', [n].[Id], ',"EntityId":', [n].[EntityId], ',"PersonAliasId":', [n].[CreatedByPersonAliasId],
+            ',"SourcePageId":', ( SELECT [Id] FROM [Page] WHERE [Guid] = '08DBD8A5-2C35-4146-B4A8-0F7652348B25' ), ',"SourcePageParameters":{"PersonId":"', [n].[EntityId],
+            '"},"SourcePageAnchor":"NoteRef-', LOWER( REPLACE( CONVERT( nvarchar( 36 ), [n].[Guid] ), '-', '' ) ), '"}' )
+        OR [n].[Text] NOT LIKE '%class="mention"%>@' + [mentioned].[NickName] + ' ' + [mentioned].[LastName] + '</span>%' );
+
+-- check: mention-message-is-read-by-its-date
+-- why: Decision D-notify-1. A mention from a note in the last three days waits unread in the bell. The person it mentions has opened every older one, which Rock's notification list marks read.
+SELECT COUNT(*)
+FROM [NotificationMessage] AS [nm]
+WHERE [nm].[ForeignKey] = @ForeignKey
+    AND [nm].[IsRead] = CASE WHEN [nm].[MessageDateTime] >= DATEADD( DAY, -3, CAST( GETDATE() AS DATE ) ) THEN 1 ELSE 0 END;
+
+-- check: recent-mention-has-one-message
+-- why: Decision D-notify-1. Every note from the last 89 days that mentions a staff member left them exactly one message, so no mention is missing from the bell and Rock Cleanup, which keeps only the newest message for a person and Key, deletes none. No message is older, so none expires on install day, when Rock Cleanup would delete it.
+SELECT ( SELECT COUNT(*)
+        FROM [Note] AS [n]
+        WHERE [n].[ForeignKey] = @ForeignKey AND [n].[CreatedDateTime] >= DATEADD( DAY, -89, CAST( GETDATE() AS DATE ) ) AND [n].[Text] LIKE '%class="mention"%'
+            AND NOT EXISTS ( SELECT 1 FROM [NotificationMessage] AS [nm] WHERE [nm].[Key] = 'note-' + CAST( [n].[Id] AS nvarchar( 20 ) ) ) )
+    + ( SELECT COUNT(*)
+        FROM [NotificationMessage] AS [nm]
+        WHERE [nm].[ForeignKey] = @ForeignKey
+            AND ( [nm].[MessageDateTime] < DATEADD( DAY, -89, CAST( GETDATE() AS DATE ) )
+                OR EXISTS ( SELECT 1 FROM [NotificationMessage] AS [twin] WHERE [twin].[Key] = [nm].[Key] AND [twin].[PersonAliasId] = [nm].[PersonAliasId] AND [twin].[Id] <> [nm].[Id] ) ) );

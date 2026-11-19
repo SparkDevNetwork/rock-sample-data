@@ -182,6 +182,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public UsageHistory Usage { get; set; }
 
+        /// <summary>
+        /// The Cast person who made the view, by Guid, or null when Rock records no one. Rock's admin person cannot be one.
+        /// </summary>
+        public Guid? CreatedBy { get; set; }
+
         public DataViewFilterDefinition Filter { get; set; }
     }
 
