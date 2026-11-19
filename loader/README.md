@@ -74,7 +74,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 
 | Part | Name | What it adds | Needs |
 |---|---|---|---|
-| `Photos` | Photos | Profile photos for the Cast and some generated families, and photos for the serving opportunities | |
+| `Photos` | Photos | Profile photos for the Cast and some generated families, and photos for the serving opportunities and the campuses | |
 | `Attendance` | Attendance and check-in | Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements | |
 | `SmallGroups` | Small groups | Small groups with leaders, members, meeting places, photos, history, and weekly attendance | |
 | `Serving` | Serving teams | Volunteers on every serving team, with schedules, check-ins, and requests to serve | |
@@ -417,6 +417,7 @@ Logins load last, in the always-on Logins step, and only when the load has a pas
 - **Generated households.** When the dataset manifest sets `photos.generatedHouseholdPercent` (Core 3 sets 50), about that share of each campus's generated households get faces from the 120-photo pool. A household gets faces only when one photo ethnicity has an unused face for every member's gender and age band, so a family looks like one family and no face repeats on a campus. In Core 3, these are the companion households at Peoria and Gilbert.
 - **Cast small groups.** After the small groups load, each group in `../photos/groups/manifest.json` gets its photo as the group's photo, stored the way Rock stores a photo uploaded on the group's page (the Default file type). Every dataset has all 12, each showing the group's leader and spouse. The original full-group photos in `../photos/groups-full-members/` are never packed or loaded. The configuration step turns on Show Image on Rock's Group Finder page, so the cards show them (decision 62). A package without group photos still loads.
 - **Serving opportunities.** In the photos step, each opportunity in `../photos/opportunities/manifest.json` gets its photo, stored the same way, as the opportunity's photo. Every dataset has all eight, which replace the three Rock ships, and the public Serve page shows them. A package without opportunity photos still loads.
+- **Campuses.** In the photos step, each loaded campus in `../photos/campuses/manifest.json` gets its exterior photo as the image of its Location, stored in Rock's Location Image file type, as Rock's Location Detail block stores one (decision D-campus-photos-1). The builder packs only the dataset's own campuses' photos.
 
 Core 1 loads 175 photos in about a third of a second.
 

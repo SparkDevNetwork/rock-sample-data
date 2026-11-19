@@ -171,6 +171,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
 | `loaded-addresses-are-checked` | Every home, business, and campus Location the load wrote carries the marks of a successful check by Rock's address service, and a geocoded one has its map point, so no sample address ever goes to one (decision D-addresses-1). It covers campuses, which have no street yet, so the address services check cannot see them. |
 | `staff-updates-are-complete` | Every staff update has its feature title, text, link, and stored image, one to three articles with a title and content, a global key, and one slug, as Rock's editor and save hook leave them (decision D-homepage-1). |
+| `campus-has-its-photo` | Every campus the dataset has shows its exterior photo on its Location, stored as a Location Image file with its content (decision D-campus-photos-1). |
 | `nothing-dated-in-the-future` | A future gift, check-in, or step shows up in "upcoming" places. |
 | `transaction-has-positive-details` | Rock totals a gift from its details. A refund is the one transaction with negative details. |
 | `transaction-is-inside-its-batch` | A gift outside its batch's date range lands in the wrong batch report. |

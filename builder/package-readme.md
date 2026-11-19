@@ -15,7 +15,7 @@ The package holds the inputs, not the records. It has no attendance rows, gifts,
 | `datasets/{{dataset}}.json` | This dataset's settings, such as generated households and the check image window |
 | `profile.json` | The target numbers the loader generates against (measured church patterns) |
 | `addresses/pool.json` | Real-street addresses with house numbers that do not exist |
-| `photos/` | Profile photos, and a photo of each Cast small group |
+| `photos/` | Profile photos, a photo of each Cast small group, and the exterior photo of each campus in this dataset |
 | `content/fonts/` | Fonts for the scanned check images, with their licenses |
 | `package.json` | The format version, the Rock major release this package is for, the oldest loader that can load it, and a SHA-256 for every file |
 | `LICENSE.md` | The license for this data |

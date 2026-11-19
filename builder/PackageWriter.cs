@@ -142,6 +142,24 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // Only the dataset's own campuses' photos, as with addresses and staff photos (decision D-campus-photos-1).
+            if ( repository.Exists( SampleDataSource.CampusPhotoManifestPath ) )
+            {
+                var campusManifest = JsonNode.Parse( repository.ReadText( SampleDataSource.CampusPhotoManifestPath ) ).AsObject();
+                var campusImages = campusManifest["images"].AsArray();
+                foreach ( var image in campusImages.Where( i => !campusKeys.Contains( i["campus"].GetValue<string>() ) ).ToList() )
+                {
+                    campusImages.Remove( image );
+                }
+
+                var campusOptions = new JsonSerializerOptions { WriteIndented = true, NewLine = "\n", Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+                files[SampleDataSource.CampusPhotoManifestPath] = Utf8( campusManifest.ToJsonString( campusOptions ) + "\n" );
+                foreach ( var image in campusImages )
+                {
+                    AddFile( $"photos/{image["file"].GetValue<string>()}" );
+                }
+            }
+
             // Every dataset has the calendar, so every package carries the event photos delivered so far.
             if ( repository.Exists( SampleDataSource.EventPhotoManifestPath ) )
             {
@@ -324,6 +342,20 @@ namespace RockSampleData.Builder
                 foreach ( var article in news.Articles.Concat( news.EvergreenArticles ).Where( a => !staffImages.Contains( a.Author ) ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.InternalNewsPath}: article {article.Key} is by {article.Author}, who has no staff photo in {SampleDataSource.StaffPhotoManifestPath}." );
+                }
+            }
+
+            // A campus photo belongs to one of the package's campuses, and its file is in the package.
+            foreach ( var photo in source.ReadCampusPhotoManifest().Images )
+            {
+                if ( !campusKeys.Contains( photo.Campus ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.CampusPhotoManifestPath} has a photo for {photo.Campus}, which is not a campus in this dataset." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.CampusPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

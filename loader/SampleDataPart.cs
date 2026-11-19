@@ -24,7 +24,7 @@ namespace RockSampleData.Loader
     public enum SampleDataPart
     {
         /// <summary>
-        /// Profile photos and serving opportunity photos.
+        /// Profile photos, serving opportunity photos, and campus photos.
         /// </summary>
         Photos,
 
@@ -180,7 +180,7 @@ namespace RockSampleData.Loader
         /// </summary>
         public static IReadOnlyList<SampleDataPartInfo> All { get; } = new[]
         {
-            new SampleDataPartInfo( SampleDataPart.Photos, "Photos", "Profile photos for the Cast and some generated families, and photos for the serving opportunities." ),
+            new SampleDataPartInfo( SampleDataPart.Photos, "Photos", "Profile photos for the Cast and some generated families, and photos for the serving opportunities and the campuses." ),
             new SampleDataPartInfo( SampleDataPart.Attendance, "Attendance and check-in", "Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements." ),
             new SampleDataPartInfo( SampleDataPart.SmallGroups, "Small groups", "Small groups with leaders, members, meeting places, photos, history, and weekly attendance." ),
             new SampleDataPartInfo( SampleDataPart.Serving, "Serving teams", "Volunteers on every serving team, with schedules, check-ins, and requests to serve." ),

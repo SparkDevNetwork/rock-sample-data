@@ -318,6 +318,16 @@ namespace RockSampleData.Loader
         public const string MessagePhotoManifestPath = "photos/messages/manifest.json";
 
         /// <summary>
+        /// Reads photos/campuses/manifest.json, the campus photos. A package built before campus photos loaded has none.
+        /// </summary>
+        public CampusPhotoManifest ReadCampusPhotoManifest()
+        {
+            return Files.Exists( CampusPhotoManifestPath ) ? Read<CampusPhotoManifest>( CampusPhotoManifestPath ) : new CampusPhotoManifest();
+        }
+
+        public const string CampusPhotoManifestPath = "photos/campuses/manifest.json";
+
+        /// <summary>
         /// Reads configuration/staff-homepage.json, Rock's staff homepage. A package built before it existed has none.
         /// </summary>
         public StaffHomepageConfiguration ReadStaffHomepage()

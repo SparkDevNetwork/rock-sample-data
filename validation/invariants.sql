@@ -183,6 +183,19 @@ WHERE [i].[ForeignKey] = @ForeignKey
                 AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = 'DBC9E868-D509-4436-8B11-1343A02DB433' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' )
                 AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = '95FE772F-D799-41DD-9802-F5FD487933FC' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' ) ) NOT BETWEEN 1 AND 3 );
 
+-- check: campus-has-its-photo
+-- why: Decision D-campus-photos-1. Every campus the dataset has shows its exterior photo on its Location, stored in Rock's Location Image file type with its content, as Rock's Location Detail block saves one. Lava pages and the app read it from there.
+SELECT COUNT(*)
+FROM [Campus] AS [c]
+INNER JOIN [Location] AS [l] ON [l].[Id] = [c].[LocationId]
+WHERE ( [c].[ForeignKey] = @ForeignKey OR [c].[Guid] = '76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [BinaryFile] AS [f]
+        INNER JOIN [BinaryFileType] AS [t] ON [t].[Id] = [f].[BinaryFileTypeId] AND [t].[Guid] = 'DAB74416-3272-4411-BA69-70944B549A4B'
+        INNER JOIN [BinaryFileData] AS [d] ON [d].[Id] = [f].[Id]
+        WHERE [f].[Id] = [l].[ImageId] AND [f].[IsTemporary] = 0 AND DATALENGTH( [d].[Content] ) > 0 );
+
 -- check: nothing-dated-in-the-future
 -- why: The timeline counts back from the install day. A future gift, check-in, or step shows up in "upcoming" places.
 --      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 74).

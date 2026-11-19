@@ -390,6 +390,9 @@ namespace RockSampleData.Loader
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
 
+                // Each campus's exterior photo, on its Location (decision D-campus-photos-1).
+                log.Write( $"  Campus photos: {photoLoader.LoadCampusPhotos( configuration.CampusPlans.ToDictionary( c => c.Key, c => c.Value.LocationId ) )}" );
+
                 // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
                 var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
                 if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
