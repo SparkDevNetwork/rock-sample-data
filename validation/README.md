@@ -118,6 +118,25 @@ Every load with the notes part checks each Cast note in `cast/notes/` (decision 
 
 This catches what kept Rock's legacy notes on Ted Decker and others off their profiles: a note that never loads, or a type the profile hides. It does not check who may see a note. Rock shows a private note only to its author, and each type's View security decides the rest (decision 78).
 
+## Cast mention expectations
+
+Every load with the notes part also checks each mention in a Cast note or reply from the last 89 days (decisions D-notify-1 and D-notify-2):
+
+1. The staff member it mentions has exactly one message from Rock's Note Mention component for that note. The author of the note never gets one.
+2. The message is unread when the note is from the last three days, and read otherwise.
+3. The message opens that note on the person's profile.
+
+They cover Ted Decker's unread mention from Pete Foster, Pete's two read ones, and Daniel Peak's and Jamal Pierce's read ones. Alisha Marble has two unread ones, so signing in as admin shows them in the bell. A load without Rock's DataEncryptionKey writes mentions as plain names, so it has none to check.
+
+## Cast tag expectations
+
+Every load checks each tag in `configuration/tags.json` whose owner or maker it loaded (decision D-tags-1):
+
+1. The tag is an active tag on Rock's Person entity type, where Rock's tag bar and Person Tag filter find it.
+2. A personal tag belongs to its owner. An organizational tag has no owner and sits in its tag category.
+3. Rock's Staff tag holds exactly the staff the dataset loads.
+4. Each Cast person the tag names carries it, such as Hal Russell on Homebound and Bri Hall on Ted Decker's Young Adults Night.
+
 ## Business expectations
 
 Every load also checks the businesses, Cast and generated alike, and prints the result after the Cast expectations:

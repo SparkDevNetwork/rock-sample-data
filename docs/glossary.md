@@ -47,7 +47,9 @@ The words this project uses, in alphabetical order.
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view. See [Data views and reports](reporting.md). |
+| **Notification message** | A message in a person's bell in Rock's top bar, which counts the unread ones. A mention in a recent note leaves one for the staff member it mentions, and it opens the note (decision D-notify-1). |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
+| **Organizational tag** | A tag staff share. It sits in a tag category, whose security decides who can see it and tag people with it, such as Homebound in Care (decision D-tags-2). |
 | **Package** | A zip the builder writes for one dataset and one Rock major release, such as Rock 21: data files only, never SQL, with a checksum for every file in `package.json`. It serves every dot release of that major (decision 52). |
 | **Package index** | `index.json`, the hosted list of packages that Rock's installer block reads, at `storage.rockrms.com/sampledata/packages/`. Each entry carries its dataset's card (decision 144). The release workflow merges each release into it, signs it, and uploads it last (decisions 128 and 172). |
 | **Pay later** | Registering for a class with no minimum payment and paying nothing yet, as most Money Matters registrants do. The whole balance stays due. |
@@ -55,6 +57,7 @@ The words this project uses, in alphabetical order.
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
+| **Personal tag** | A tag one staff member owns. Only its owner sees it and tags people with it, such as Jamal Pierce's Possible Group Leaders. |
 | **Personalization segment** | The people in one person data view, which Rock keeps in its PersonAliasPersonalization table and refreshes on a schedule. Each of the church's segments points at a view in `configuration/reporting.json`. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
@@ -88,6 +91,7 @@ The words this project uses, in alphabetical order.
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
 | **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision 206). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
+| **Tag** | A quick label staff put on a person in Rock, shown in the tag bar on the person's profile. A tag is organizational or personal, and Rock ships one, Staff. See [Tags](../configuration/README.md#tags). |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |

@@ -184,6 +184,9 @@ function reporting( model ) {
 module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
+    const tags = require( path.join( model.root, "configuration/tags.json" ) ).tags;
+    const tagCategories = model.categories.filter( c => c.entityType === "Rock.Model.Tag" );
+    const homebound = tags.find( t => t.key === "homebound" );
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -229,9 +232,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "notes", eyebrow: "Notes", title: "What staff write down.",
-            text: html`Six note types with View security, ${model.counts.notes} hand-written Cast notes, and generated notes in the larger datasets, with replies, alerts, private notes, and mentions of other staff.`,
-            checks: [ "Note types locked to the staff who should read them", "Replies from other staff", "Alerts, pinned, and private notes" ],
-            look: [ html`The <a href="${castDecker}">Deckers'</a> profiles`, "A pastoral note, signed in as a staff member", "A note with a mention of another staff member" ],
+            text: html`Six note types with View security, ${model.counts.notes} hand-written Cast notes, and generated notes in the larger datasets, with replies, alerts, private notes, and mentions of other staff. A mention in a recent note waits in that staff member's bell, as Rock's notification, and opens the note.`,
+            checks: [ "Note types locked to the staff who should read them", "Replies from other staff", "Alerts, pinned, and private notes", "Mentions from the last few days still unread in the bell" ],
+            look: [ html`The <a href="${castDecker}">Deckers'</a> profiles`, "A pastoral note, signed in as a staff member", "A note with a mention of another staff member", html`The bell in the top bar, signed in as <code>admin</code>, with ${person( model, "Alisha Marble" )}'s unread mentions` ],
             links: [ { label: "Notes setup", href: doc( "configuration/README.md#notes" ) } ]
         },
         {
@@ -296,6 +299,13 @@ module.exports = function features( { model } ) {
             checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
             look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
+        },
+        {
+            id: "tags", eyebrow: "Tags", title: "Labels staff really use.",
+            text: html`Tags are Rock's quick labels on a person. ${tags.filter( t => t.category ).length} organizational tags sit in ${tagCategories.length} tag categories, ${esc( new Intl.ListFormat( "en", { type: "conjunction" } ).format( tagCategories.map( c => c.name ) ) )}, each locked to the roles that should use it. Staff keep personal tags that only they see, and Rock's own Staff tag holds every staff member.`,
+            checks: [ "Organizational tags locked to the roles that may see and use them", "Personal tags, such as each campus pastor's Coffee This Month", homebound && homebound.draw ? html`In the larger datasets, Homebound on ${homebound.draw.percent}% of generated adults ${homebound.draw.minAge} and older who live alone` : "", "Data views in Staff Workspace built on tags, each made by the staff member who uses it" ].filter( Boolean ),
+            look: [ html`${person( model, "Hal Russell" )}, on Homebound`, html`${person( model, "Jamal Pierce" )}'s personal Possible Group Leaders tag, signed in as him`, "Rock's Tag Report, and the tag bar on each profile" ],
+            links: [ { label: "Tags setup", href: doc( "configuration/README.md#tags" ) } ]
         }
     ];
 

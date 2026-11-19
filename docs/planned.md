@@ -26,7 +26,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Benevolence requests.**
 - **Reminders** that staff would really set.
 
-- **The church's app:** pages and content for the Rock Solid Church App, which starts as a stub for push notifications.
+- **The church's app:** pages and content for the Rock Solid Church App, which starts as a stub for push notifications. SMS notifications for note mentions wait for it too. Mentions already wait in each staff member's bell in Rock (see [Notes](../loader/README.md#notes)).
 
 ## Installing and quality
 
