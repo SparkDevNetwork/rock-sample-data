@@ -372,6 +372,8 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 
+Every address, and every campus's map point, carries the marks Rock's `LocationService.Verify` leaves after its address service standardized and geocoded an address: both attempted dates, both success dates, the service (Smarty Streets), and its result (`loading/CheckedAddress.cs`). Rock's Location Services Verify job sends only addresses without them, so no sample address ever goes to an address service (decision D-addresses-1). Rooms and buildings have no address, so Rock never checks them, and they stay unmarked.
+
 A Cast person's `attributes.Allergy` becomes Rock's Allergy person attribute, which check-in labels print, as Rock saves a text attribute value, with its persisted values left for Rock to fill (decision 204). The people step writes it, before registrations, which skip anyone who already has an allergy, so no person gets two values. Both steps give the value the same Guid, from the person's Guid and the attribute's. The Cast's other values, and every generated person's, load later, in the person attributes step (see [How person attributes load](#how-person-attributes-load)).
 
 ## How person attributes load

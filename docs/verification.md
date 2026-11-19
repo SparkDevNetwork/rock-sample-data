@@ -31,6 +31,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Cast expectations](#cast-expectations) | Verify tool, and every CLI load | The Cast givers that docs and tests rely on still show what their stories say. |
 | [Invariants](#invariants) | Verify tool | Rules Rock relies on hold in the loaded data. |
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
+| [Address services](#address-services) | Verify tool | Rock's Location Services Verify job would send no loaded address to an address service, on any night. |
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
 | [Data views](#data-views) | Verify tool | Rock's own engine runs every data view in the load without an error. |
 | [Metrics](#metrics) | Verify tool | Each path metric's newest value matches Rock's count of its stage view. |
@@ -160,6 +161,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `emails-use-reserved-domains` | Content standard 3, for every loaded email. |
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
+| `loaded-addresses-are-checked` | Every home, business, and campus Location the load wrote carries the marks of a successful check by Rock's address service, and a geocoded one has its map point, so no sample address ever goes to one (decision D-addresses-1). It covers campuses, which have no street yet, so the address services check cannot see them. |
 | `nothing-dated-in-the-future` | A future gift, check-in, or step shows up in "upcoming" places. |
 | `transaction-has-positive-details` | Rock totals a gift from its details. A refund is the one transaction with negative details. |
 | `transaction-is-inside-its-batch` | A gift outside its batch's date range lands in the wrong batch report. |
@@ -290,6 +292,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **The clock.** The loader sets each event occurrence's next start from the clock at load time, the way Rock's save hook does, and Rock Cleanup sets it again from the clock when it runs, minutes later. An occurrence whose next start passes in between moves to its following start, which once failed rock-cleanup (3 rows on a Core 3 run). So a change to `EventItemOccurrence.NextStartDateTime` is not judged when the old value had already passed when Rock Cleanup started, and Rock only moved it later or cleared it. The tool reports those rows as "Not judged". Any other change to the column, such as a next start the loader set wrong, still fails.
 
 **When it is not judged.** Rock Cleanup recomputes ages and daily counts for today, from SQL Server's `GETDATE`. So the tool judges it only while the database server and the machine running Rock are both on the loads' anchor, checked before and after the job (decision 152). Otherwise the check fails with both dates and says to run again. A run that crosses midnight, or an `--anchor` that is not today, lands here instead of reporting false age changes.
+
+### Address services
+
+**What it does.** After the referee, the tool runs the selection of Rock's Location Services Verify job (`Rock/Jobs/LocationServicesVerify.cs`) against the loaded database: active Locations with a street that are not locked and lack a standardized or geocoded date. It sets the job's retry date in the far future, so it judges every later night, not only tonight. It fails if the selection picks any Location the load wrote: this dataset's rows and every campus's Location. It never runs the job, so verify never calls an address service. Rock's own addresses that every new Rock already sends, such as its Organization Address, are noted, not failed. The selection is the same in Rock 20.0.10 and Rock 21.0.2, and `validation/rock-lock.json` pins it (decision D-addresses-2).
+
+**Why it's there.** Rock ships with its Smarty Streets service on, and the job sends up to 1,000 unchecked addresses a night. Sample addresses never go to an address service, so every loaded address must carry the marks of a successful check (decision D-addresses-1). An address with only an attempted date would pass a check of tonight alone, then go out when the job's 200-day retry period ends.
 
 ### Sign-in
 

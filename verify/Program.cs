@@ -215,6 +215,10 @@ try
             var cleanup = ClockCheck( sql, anchor ) ?? referee.Referee( database, baseDatabase );
             checks.Add( ClockCheck( sql, anchor ) ?? cleanup );
 
+            // After the referee, so a mark Rock Cleanup cleared would show.
+            stage = "address-services";
+            checks.Add( AddressServicesCheck( sql, database, foreignKey ) );
+
             // After the referee, because a sign-in can rewrite a password hash.
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
@@ -786,6 +790,51 @@ static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string databa
     }
 
     return CheckResult.From( "segments", problems.Count == 0 ? $"Rock's segment update changed nothing in the {expected.Count} personalization segments" : "Rock's segment update would change the segments", problems );
+}
+
+/// <summary>
+/// Runs the selection of Rock's Location Services Verify job (Rock/Jobs/LocationServicesVerify.cs, the same in Rock 20
+/// and Rock 21, pinned in validation/rock-lock.json) and fails if it would pick any Location the load wrote: this
+/// dataset's rows and every campus's Location, Rock's main campus included. The job sends what it picks to Rock's
+/// address service, and sample addresses never go to one (decision D-addresses-2). The retry date is left in the far
+/// future, so the check judges every later night, not only tonight: an address with only an attempted date would pass
+/// tonight and go out once the job's retry period ends. The check never runs the job, so verify never calls an address
+/// service. Rock's own addresses that a new Rock already sends, such as its Organization Address, are noted.
+/// </summary>
+static CheckResult AddressServicesCheck( SqlServer sql, string database, string foreignKey )
+{
+    var picked = sql.Query( database, @"
+SELECT [l].[Id], [l].[Street1], [l].[City], CASE WHEN [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) THEN 1 ELSE 0 END AS [IsLoaded]
+FROM [Location] AS [l]
+WHERE ( [l].[IsGeoPointLocked] IS NULL OR [l].[IsGeoPointLocked] = 0 )
+    AND [l].[IsActive] = 1
+    AND [l].[Street1] IS NOT NULL
+    AND [l].[Street1] <> N''
+    AND ( ( [l].[GeocodedDateTime] IS NULL AND ( [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodeAttemptedDateTime] < @RetryDate ) )
+        OR ( [l].[StandardizedDateTime] IS NULL AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizeAttemptedDateTime] < @RetryDate ) ) )
+ORDER BY [l].[Id]",
+        new SqlParameter( "@ForeignKey", foreignKey ),
+        new SqlParameter( "@RetryDate", new DateTime( 9999, 12, 31 ) ) );
+    var loaded = Convert.ToInt32( sql.Scalar( database, @"
+SELECT COUNT(*)
+FROM [Location] AS [l]
+WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
+    AND [l].[Street1] IS NOT NULL
+    AND [l].[Street1] <> N''", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    var problems = picked.Where( r => Convert.ToInt32( r["IsLoaded"] ) == 1 )
+        .Select( r => $"Location {r["Id"]} ({r["Street1"]}, {r["City"]}) has no standardized or geocoded date, so Rock's Location Services Verify job would send it to the address service. Mark it as CheckedAddress does." )
+        .ToList();
+    if ( loaded == 0 )
+    {
+        problems.Add( "The load wrote no street addresses, so this check proves nothing." );
+    }
+
+    var notes = picked.Where( r => Convert.ToInt32( r["IsLoaded"] ) == 0 )
+        .Select( r => $"Rock's own Location {r["Id"]} ({r["Street1"]}, {r["City"]}) is not sample data. Rock would send it on any install." )
+        .ToList();
+    return CheckResult.From( "address-services", problems.Count == 0
+        ? $"Rock's Location Services Verify job would pick none of the {loaded:N0} loaded street addresses on any night"
+        : $"Rock's Location Services Verify job would send {problems.Count:N0} loaded addresses to the address service", problems, notes );
 }
 
 /// <summary>

@@ -154,6 +154,16 @@ WHERE [g].[ForeignKey] = @ForeignKey
     AND [t].[Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC'
     AND [l].[GeoPoint] IS NULL;
 
+-- check: loaded-addresses-are-checked
+-- why: Decision D-addresses-1. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point.
+SELECT COUNT(*)
+FROM [Location] AS [l]
+WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
+    AND ( ISNULL( [l].[Street1], '' ) <> '' OR [l].[GeoPoint] IS NOT NULL )
+    AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizedDateTime] IS NULL OR [l].[StandardizeAttemptedServiceType] IS NULL
+        OR [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodedDateTime] IS NULL OR [l].[GeocodeAttemptedServiceType] IS NULL
+        OR [l].[GeoPoint] IS NULL );
+
 -- check: nothing-dated-in-the-future
 -- why: The timeline counts back from the install day. A future gift, check-in, or step shows up in "upcoming" places.
 --      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 74).
