@@ -158,6 +158,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `birth-date-parts-agree` | Rock stores a birth date three ways, and reports read all three. |
 | `phones-use-the-reserved-range` | Content standard 2, for every loaded phone, generated people too: 555-0100 to 555-0199 in an area code from the package's `configuration/phones.json`. |
 | `phones-are-not-shared-across-households` | Each number belongs to one family. People in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number (decision 259). |
+| `emails-are-not-shared-across-households` | Each email belongs to one person. People in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number. Rock's duplicate finder scores a shared email highly, so strangers with one name and one email filled the Duplicate Finder (decision D-duplicates-5). |
 | `emails-use-reserved-domains` | Content standard 3, for every loaded email. |
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |

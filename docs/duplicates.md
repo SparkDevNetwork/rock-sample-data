@@ -1,6 +1,6 @@
 # Duplicates
 
-How duplicate person records work in the sample data, and why. The decisions are D-duplicates-1 to D-duplicates-4 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
+How duplicate person records work in the sample data, and why. The decisions are D-duplicates-1 to D-duplicates-3, D-duplicates-4, and D-duplicates-5 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
 
 ## The idea
 
@@ -25,9 +25,9 @@ The load runs Rock's procedure itself, as its last step, after every person, pho
 | Dataset | Time | Pairs | Listed in the Duplicate Finder |
 |---|---|---|---|
 | Core 1 | under a second | 9 | 3, all the Cast's |
-| Full 7 | about 10 seconds | about 76,000 | about 20 |
+| Full 7 | about 10 seconds | about 76,000 | 4: the Cast's 3 and one Crowd pair |
 
-Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, often the whole name, since the Crowd's names come from short lists. They score 37 to 58, below the Duplicate Finder's 60. A few Crowd pairs share a name and an email and score above 60. Rock flags all of them the same way in a real database with those names.
+Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, often the whole name, since the Crowd's names come from short lists. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database with those names. One Crowd pair shares a name and a birth date and scores above 60, a look-alike any church with those names would see. Every generated email is one person's (decision D-duplicates-5), so no two strangers share an address.
 
 Households with the same address share one Location, as Rock's address editor saves them (decision D-duplicates-4). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
 
