@@ -2526,6 +2526,33 @@
         "RefundReasonValueId": "int null"
       }
     },
+    "Following": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntityId",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "PersonAliasId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int not null",
+        "EntityTypeId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PersonAliasId": "int not null",
+        "PurposeKey": "nvarchar(100) null"
+      }
+    },
     "Group": {
       "written": [
         "ArchivedByPersonAliasId",
@@ -3042,11 +3069,14 @@
         "Guid",
         "IconCssClass",
         "Id",
+        "IsPeerNetworkEnabled",
         "IsSystem",
         "LocationSelectionMode",
         "ModifiedDateTime",
         "Name",
         "Order",
+        "RelationshipGrowthEnabled",
+        "RelationshipStrength",
         "ScheduleConfirmationEmailOffsetDays",
         "ScheduleReminderEmailOffsetDays",
         "ShowInGroupList",
@@ -3217,6 +3247,7 @@
         "RelatedData",
         "RelatedEntityId",
         "RelatedEntityTypeId",
+        "SourceOfChange",
         "ValueName",
         "Verb"
       ],
@@ -3976,6 +4007,37 @@
         "RateLimitRequestPerPeriod": "int null",
         "RequiresEncryption": "bit not null",
         "SiteId": "int not null"
+      }
+    },
+    "PeerNetwork": {
+      "written": [
+        "Caption",
+        "ClassificationEntityId",
+        "LastUpdateDateTime",
+        "RelatedEntityId",
+        "RelationshipEndDate",
+        "RelationshipScore",
+        "RelationshipScoreLastUpdateValue",
+        "RelationshipStartDate",
+        "RelationshipTrend",
+        "RelationshipTypeValueId",
+        "SourcePersonId",
+        "TargetPersonId"
+      ],
+      "rockColumns": {
+        "Caption": "nvarchar(200) null",
+        "ClassificationEntityId": "int null",
+        "Id": "bigint not null",
+        "LastUpdateDateTime": "datetime not null",
+        "RelatedEntityId": "int null",
+        "RelationshipEndDate": "date null",
+        "RelationshipScore": "decimal(8,1) not null",
+        "RelationshipScoreLastUpdateValue": "decimal(8,1) not null",
+        "RelationshipStartDate": "date not null",
+        "RelationshipTrend": "int not null",
+        "RelationshipTypeValueId": "int not null",
+        "SourcePersonId": "int not null",
+        "TargetPersonId": "int not null"
       }
     },
     "Person": {
@@ -5281,6 +5343,39 @@
         "StartDateTime": "datetime not null"
       }
     },
+    "ServiceJob": {
+      "written": [
+        "IsActive"
+      ],
+      "rockColumns": {
+        "Assembly": "nvarchar(260) null",
+        "Class": "nvarchar(100) not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "CronExpression": "nvarchar(120) not null",
+        "Description": "nvarchar(max) null",
+        "EnableHistory": "bit not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HistoryCount": "int not null",
+        "Id": "int not null",
+        "IsActive": "bit null",
+        "IsSystem": "bit not null",
+        "LastRunDateTime": "datetime null",
+        "LastRunDurationSeconds": "int null",
+        "LastRunSchedulerName": "nvarchar(40) null",
+        "LastStatus": "nvarchar(50) null",
+        "LastStatusMessage": "nvarchar(max) null",
+        "LastSuccessfulRunDateTime": "datetime null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) not null",
+        "NotificationEmails": "nvarchar(1000) null",
+        "NotificationStatus": "int not null"
+      }
+    },
     "SignalType": {
       "written": [
         "CreatedDateTime",
@@ -6457,9 +6552,13 @@
       "3DBF9AC8-3BA2-41FA-8AD0-5BDE65B7FCAB",
       "3EFF4FEF-EE4C-40E2-8DBD-80F3276852DA",
       "44490089-E02C-4E54-A456-454845ABBC9D",
+      "45A1E978-DC5B-CFA1-4AF4-EA098A24C914",
+      "4711D67E-7526-9582-4A8E-1CD7BBE1B3A2",
       "4A2E1539-4ECC-40B9-9EBD-C0C84EC8DA36",
       "4ABF0BF2-49BA-4363-9D85-AC48A0F7E92A",
       "5212E7F5-41A1-41F2-80FE-5D971258566D",
+      "57700E8F-ED11-D787-415A-04DDF411BB10",
+      "5F4C6462-018E-D19C-4AB0-9843CB21C57E",
       "611C3F9D-67BA-496E-9533-2D07B0AD9733",
       "655D6FBA-F8C0-4919-9E31-C1C936653555",
       "65D7CF79-BD80-44B2-9F5F-96D81B9B4990",
@@ -6477,13 +6576,17 @@
       "98373264-0E65-4C79-B75B-4F8477AA647E",
       "990275DB-611B-4D2E-94EA-3FFA1186A5E1",
       "9E67B39B-C95C-464B-AC7B-CB191834EF85",
+      "A106610C-A7A1-469E-4097-9DE6400FDFC2",
       "A927602E-DC72-4CE5-B9B6-D6F77086AB6D",
+      "AB12B3B0-55B8-D6A5-4C1F-DB9CCB2C4342",
+      "AC11EF53-AE55-79A0-4CAD-43721750E988",
       "B35CE867-6017-484E-9EC7-AEB93CD4B2D8",
       "B55E8E55-1021-4A9E-8D05-EA9F52AA5C98",
       "B767F2CF-A4F0-45AA-A2E9-8270F31B307B",
       "BF5F86FD-7BFB-491F-91DE-6A2E4E9FD4CC",
       "C7B529C6-B6C8-45B5-B892-5D9821CEDDCD",
       "CE129112-4BA9-4FC1-A67C-2A5C69140DA7",
+      "CE5739C5-2156-E2AB-48E5-1337C38B935E",
       "D03ACAB8-EB0C-4835-A04C-4C357014D935",
       "D42763FA-28E9-4A55-A25A-48998D7D7FEF",
       "D7EA578F-0132-473E-8338-4A48DDB8BF66",
@@ -6544,6 +6647,7 @@
       "AF51A735-59EF-4713-B9BD-604EBB86CA13",
       "B08F10AA-CA78-4527-93BF-A0D5640E4549",
       "BDD2C36F-7575-48A8-8B70-3A566E3811ED",
+      "C1524D2E-3E8F-3D83-45F8-526B749D79F0",
       "C35752E2-A575-4182-8B5A-8AE9D0694B97",
       "C47AD7D0-DDD0-4BE6-AE1D-D69D72B13842",
       "D12837CF-EEE7-4822-9899-36E8884CD848",
@@ -6616,6 +6720,7 @@
       "7D705CE7-7B11-4342-A58E-53617C5B4E69",
       "82614683-7FB4-4F16-9087-6F85945A7B16",
       "833EE2C7-F83A-4744-AD14-6907554DF8AE",
+      "84E0360E-0828-E5A5-4BCC-F3113BE338A1",
       "8B086A19-405A-451F-8D44-174E92D6B402",
       "8C52E53C-2A66-435A-AE6E-5EE307D9A0DC",
       "8EBC0CEB-474D-4C1B-A6BA-734C3A9AB061",
@@ -6635,6 +6740,7 @@
       "BF64ADD3-E70A-44CE-9C4B-E76BBED37550",
       "C22D71AA-C78A-46B4-94C6-DC48CA6ECAB5",
       "C6504FFB-E7E8-4EC2-AED9-FE0BC1A86B37",
+      "CB51DC46-FBDB-43DA-B7F3-60E7C6E70F40",
       "D42C4DF7-1AE9-4DDE-ADA2-774B866B798C",
       "DABEE8FD-AEDF-43E1-8547-4C97FA14D9B6",
       "DF6CF12E-7183-464B-B6B2-B67D76300F8A",
@@ -6840,6 +6946,9 @@
       "4628D917-EC9C-4269-B39C-5BCBEF3658E7",
       "FF6FB240-0C32-4542-BE40-159C522F7E51"
     ],
+    "ServiceJob": [
+      "623F4751-C654-FEB7-45B7-59685B1F60AE"
+    ],
     "SnippetType": [
       "D6074803-9405-47E3-974C-E95C9AD05874"
     ],
@@ -6848,11 +6957,14 @@
     ],
     "StepStatus": [
       "2BC1146E-4DBF-4915-814B-F0FED29DDD19",
+      "359D3CE0-E144-491E-8C3B-2A2BCE55C04B",
+      "8013C752-31AA-46C6-9B55-BCFBE57C0577",
       "E2F2EA68-7D30-490D-8EA7-E1B0CC625B0F"
     ],
     "StepType": [
       "71E66730-8F7D-4EEF-9C53-524C4BDE5E59",
       "801CC43C-0641-4271-939E-75E428F31D06",
+      "E57468BE-15BF-48B6-AAB2-F8E2B02720F3",
       "EFA15A4F-5666-4153-B92F-AF3ECD73C504",
       "F3585131-3EBF-49C4-83A0-3F88271A9B9B"
     ],
@@ -6873,7 +6985,12 @@
     ]
   },
   "procedures": [
+    "spCrm_FamilyAnalyticsAttendance",
+    "spCrm_FamilyAnalyticsEraDataset",
+    "spCrm_FamilyAnalyticsGiving",
     "spGivingAutomation_UpdateGivingBinsAndPercentiles",
-    "spGivingAutomation_UpdateGivingJourneyStages"
+    "spGivingAutomation_UpdateGivingJourneyStages",
+    "spPeerNetwork_UpdateFollowing",
+    "spPeerNetwork_UpdateGroupConnections"
   ]
 }
