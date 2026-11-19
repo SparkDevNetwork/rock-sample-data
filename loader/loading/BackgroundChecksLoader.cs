@@ -234,7 +234,7 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 else
                 {
                     rows.Rows.Add( check.Person.AliasId, check.Requested, false, DBNull.Value, CheckrForeignId, "ReportCreated", config.Checkr.PackageName, DBNull.Value, candidate,
-                        ( object ) check.ConnectionRequestId ?? DBNull.Value, SeededRandom.StableGuid( $"{guid}:background-check" ), _foreignKey, check.Requested, check.Requested.AddDays( 1 ) );
+                        ( object ) check.ConnectionRequestId ?? DBNull.Value, SeededRandom.StableGuid( $"{guid}:background-check" ), _foreignKey, check.Requested, check.Requested );
                 }
             }
 
