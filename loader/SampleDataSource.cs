@@ -372,6 +372,13 @@ namespace RockSampleData.Loader
         /// </summary>
         public List<CastStaffEmail> ReadCastStaffEmails() => Files.Exists( CastStaffEmailsPath ) ? Read<CastStaffEmailFile>( CastStaffEmailsPath ).Emails : new List<CastStaffEmail>();
 
+        public const string CastDuplicatesPath = "cast/duplicates.json";
+
+        /// <summary>
+        /// Reads the Cast's duplicate pairs, merge requests, and finished merges, or none for a package built before they existed.
+        /// </summary>
+        public CastDuplicatesFile ReadCastDuplicates() => Files.Exists( CastDuplicatesPath ) ? Read<CastDuplicatesFile>( CastDuplicatesPath ) : new CastDuplicatesFile();
+
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.
         /// </summary>

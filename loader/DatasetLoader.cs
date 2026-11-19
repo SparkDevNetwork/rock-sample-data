@@ -66,6 +66,7 @@ namespace RockSampleData.Loader
             ("Reports", null),
             ("Adaptive messages", null),
             ("Logins", null),
+            ("Duplicates", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -661,6 +662,11 @@ namespace RockSampleData.Loader
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
             log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor ):N0} values set" );
+
+            // Rock's duplicate finder runs last, after every person, phone, and address, so the Calculate Person Duplicates
+            // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.
+            steps.Begin( "Duplicates" );
+            new DuplicatesLoader( db, source, dates, foreignKey ).Load( people );
 
             /*
                 10/30/26 - CLAUDE

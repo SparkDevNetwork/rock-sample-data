@@ -163,6 +163,7 @@ namespace RockSampleData.Loader.Loading
             var phones = NewTable( "Id:int", "IsSystem:bool", "PersonId:int", "CountryCode:string", "Number:string", "NumberFormatted:string", "FullNumber:string", "NumberTypeValueId:int", "IsMessagingEnabled:bool", "IsUnlisted:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             var homeLocationIds = new Dictionary<string, int>();
+            var locationIds = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase );
             var familyRows = new Dictionary<int, DataRow>();
             var salutationMembers = new Dictionary<int, List<SalutationMember>>();
 
@@ -277,12 +278,26 @@ namespace RockSampleData.Loader.Loading
 
                 if ( household.Address != null )
                 {
+                    /*
+                        11/19/26 - CLAUDE
+
+                        Rock's address editor saves an address through LocationService.Get, which returns the Location
+                        that already has that street, city, state, and postal code. So families at one address share one
+                        Location, and Rock's duplicate finder scores Address only for people on the same Location.
+                        Jon Smith's duplicate records each had their own copy of his address, so the finder never saw it.
+
+                        Reason: Duplicate records at one address score the way Rock scores them (decision D-duplicates-4).
+                    */
                     var address = household.Address;
-                    var locationId = nextLocationId++;
-                    locations.Rows.Add( locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now );
-                    if ( address.Latitude.HasValue && address.Longitude.HasValue )
+                    var addressKey = string.Join( "|", address.Street1, address.Street2, address.City, address.State, address.PostalCode );
+                    if ( !locationIds.TryGetValue( addressKey, out var locationId ) )
                     {
-                        geo.Rows.Add( locationId, address.Latitude.Value, address.Longitude.Value );
+                        locationId = locationIds[addressKey] = nextLocationId++;
+                        locations.Rows.Add( locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now );
+                        if ( address.Latitude.HasValue && address.Longitude.HasValue )
+                        {
+                            geo.Rows.Add( locationId, address.Latitude.Value, address.Longitude.Value );
+                        }
                     }
 
                     var isHome = address.Type == "home";

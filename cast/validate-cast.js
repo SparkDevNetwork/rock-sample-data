@@ -19,8 +19,8 @@
     Validates the Cast registry: required fields, Guid format, unique Guids,
     every cross-reference between households and groups, the delivered
     photos in photos/manifest.json, the prayer requests, the notes, and the
-    text threads in sms-threads.json, and the staff emails in
-    staff-emails.json. Prints errors
+    text threads in sms-threads.json, the staff emails in
+    staff-emails.json, and the duplicates in duplicates.json. Prints errors
     (exit code 1) and warnings (exit code 0).
 
     Usage: node validate-cast.js
@@ -247,7 +247,7 @@ for ( const h of households.map( x => x.data ) ) {
     const shared = [
         ...households.filter( x => x.data.campusSlot === "main" ).map( x => path.join( castDir, x.file ) ),
         ...[ "groups", "notes" ].flatMap( d => fs.readdirSync( path.join( castDir, d ) ).filter( f => f.endsWith( ".json" ) ).map( f => path.join( castDir, d, f ) ) ),
-        ...[ "sms-threads.json", "staff-emails.json", "prayer-requests.json" ].map( f => path.join( castDir, f ) ),
+        ...[ "sms-threads.json", "staff-emails.json", "prayer-requests.json", "duplicates.json" ].map( f => path.join( castDir, f ) ),
         ...fs.readdirSync( path.join( root, "configuration" ) ).filter( f => f.endsWith( ".json" ) && f !== "staff.json" ).map( f => path.join( root, "configuration", f ) )
     ].filter( f => fs.existsSync( f ) );
     for ( const file of shared ) {
@@ -1624,6 +1624,94 @@ if ( fs.existsSync( staffEmailFile ) ) {
     }
 }
 
+/*
+    Pass 8: the Cast's duplicates (cast/duplicates.json, docs/duplicates.md). Every person is a Cast person with that
+    name. A pair is two different people, listed once. A decided pair names the staff member who decided and when, and
+    an open pair names neither. A merge request names two or more people.
+*/
+const duplicatesFile = path.join( castDir, "duplicates.json" );
+const DUPLICATE_DECISIONS = [ "open", "not-a-duplicate", "ignored" ];
+const STAFF_GUIDS = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.person ) );
+let duplicatePairCount = 0;
+if ( fs.existsSync( duplicatesFile ) ) {
+    const duplicates = JSON.parse( fs.readFileSync( duplicatesFile, "utf8" ) );
+    const keys = new Set();
+    const checkKey = ( owner, key ) => {
+        if ( !KEY.test( key || "" ) || keys.has( key ) ) {
+            errors.push( `${owner}: key must be unique and lowercase with hyphens.` );
+        }
+        keys.add( key );
+    };
+    const checkPerson = ( owner, ref, mustBeStaff ) => {
+        const entry = ref && people.get( ref.guid );
+        if ( !entry ) {
+            errors.push( `${owner}: ${ref && ref.guid} is not a Cast person.` );
+            return null;
+        }
+        const name = `${entry.person.nickName || entry.person.firstName} ${entry.person.lastName}`;
+        if ( ref.name !== name ) {
+            errors.push( `${owner}: ${ref.guid} is ${name}, not ${ref.name}.` );
+        }
+        if ( mustBeStaff && !STAFF_GUIDS.has( ref.guid ) ) {
+            errors.push( `${owner}: ${name} is not on staff in configuration/staff.json.` );
+        }
+        return entry;
+    };
+    const checkDate = ( owner, date ) => {
+        const isDaysAgo = date && Number.isInteger( date.daysAgo ) && date.daysAgo >= 0;
+        const isYearsAgo = date && Number.isInteger( date.yearsAgo ) && Number.isInteger( date.month ) && Number.isInteger( date.day );
+        if ( isDaysAgo === isYearsAgo || ( date.time !== undefined && !/^[0-2][0-9]:[0-5][0-9]$/.test( date.time ) ) ) {
+            errors.push( `${owner}: a date is daysAgo, or yearsAgo with a month and day, and an optional HH:mm time.` );
+        }
+    };
+
+    const pairKeys = new Set();
+    for ( const pair of duplicates.pairs || [] ) {
+        duplicatePairCount++;
+        const owner = `duplicates.json pair ${pair.key}`;
+        checkKey( owner, pair.key );
+        const pairPeople = Array.isArray( pair.people ) ? pair.people : [];
+        pairPeople.forEach( p => checkPerson( owner, p, false ) );
+        const pairKey = pairPeople.map( p => p.guid ).sort().join( "|" );
+        if ( pairPeople.length !== 2 || pairPeople[0].guid === pairPeople[1].guid || pairKeys.has( pairKey ) ) {
+            errors.push( `${owner}: a pair is two different people, and each pair is listed once.` );
+        }
+        pairKeys.add( pairKey );
+        if ( !DUPLICATE_DECISIONS.includes( pair.decision ) ) {
+            errors.push( `${owner}: decision must be one of ${DUPLICATE_DECISIONS.join( ", " )}.` );
+        }
+        else if ( pair.decision === "open" && ( pair.decidedBy || pair.decided ) ) {
+            errors.push( `${owner}: an open pair has no decidedBy or decided.` );
+        }
+        else if ( pair.decision !== "open" ) {
+            if ( !pair.decidedBy || !pair.decided ) {
+                errors.push( `${owner}: a ${pair.decision} pair names who decided (decidedBy) and when (decided).` );
+            }
+            else {
+                checkPerson( owner, pair.decidedBy, true );
+                checkDate( owner, pair.decided );
+            }
+        }
+    }
+
+    for ( const request of duplicates.mergeRequests || [] ) {
+        const owner = `duplicates.json merge request ${request.key}`;
+        checkKey( owner, request.key );
+        claimGuid( request.guid, owner );
+        checkPerson( owner, request.requester, true );
+        const requestPeople = Array.isArray( request.people ) ? request.people : [];
+        requestPeople.forEach( p => checkPerson( owner, p, false ) );
+        if ( requestPeople.length < 2 || new Set( requestPeople.map( p => p.guid ) ).size !== requestPeople.length ) {
+            errors.push( `${owner}: a merge request names two or more different people.` );
+        }
+        if ( typeof request.note !== "string" || !request.note.trim() || request.note.length > 500 || !isPlainText( request.note ) ) {
+            errors.push( `${owner}: the note is plain text of 1 to 500 characters.` );
+        }
+        checkDate( owner, request.requested );
+    }
+
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -1636,5 +1724,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

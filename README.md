@@ -171,6 +171,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 - **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
 - **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, and gifts from an earlier year, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
+- **Duplicates are waiting to be found.** Rock's Duplicate Finder lists the Cast's duplicate records on install day, with staff decisions already made on some and a merge request waiting. See [Duplicates](docs/duplicates.md).
 
 ## What is where
 

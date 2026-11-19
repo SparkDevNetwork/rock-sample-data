@@ -107,6 +107,11 @@ namespace RockSampleData.Builder
                 AddFile( SampleDataSource.CastStaffEmailsPath );
             }
 
+            if ( repository.Exists( SampleDataSource.CastDuplicatesPath ) )
+            {
+                AddFile( SampleDataSource.CastDuplicatesPath );
+            }
+
             AddFile( $"datasets/{dataset}.json" );
 
             // The profile is resolved here, so a load never blends calibration sources itself.
@@ -227,7 +232,21 @@ namespace RockSampleData.Builder
             var source = new SampleDataSource( package );
             IPackageFiles files = package;
 
-            source.ReadHouseholds();
+            var packagedPeople = source.ReadHouseholds().SelectMany( h => h.Members ).Select( m => m.Guid ).ToHashSet();
+            var duplicates = source.ReadCastDuplicates();
+            var duplicatePeople = duplicates.Pairs.SelectMany( p => p.People.Append( p.DecidedBy ) )
+                .Concat( duplicates.MergeRequests.SelectMany( r => r.People.Append( r.Requester ) ) )
+                .Where( p => p != null );
+            foreach ( var person in duplicatePeople.Where( p => !packagedPeople.Contains( p.Guid ) ) )
+            {
+                throw new InvalidOperationException( $"{SampleDataSource.CastDuplicatesPath} names {person.Name}, who is not in this package." );
+            }
+
+            foreach ( var pair in duplicates.Pairs )
+            {
+                _ = pair.DecisionValue;
+            }
+
             var castGroupKeys = source.ReadCastSmallGroupPlans().Select( p => p.Key ).ToHashSet();
             foreach ( var photo in source.ReadGroupPhotoManifest().Images )
             {

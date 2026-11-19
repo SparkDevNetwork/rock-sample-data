@@ -46,6 +46,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `cast-expectations` | Every Cast giver whose story says what Rock should show still shows it ([validation](../validation/README.md#cast-expectations)). |
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
+| `person-duplicates` | Rock's own Calculate Person Duplicates job, run as Rock's scheduler runs it, adds, removes, and rescores no duplicate pair, and keeps every Not Duplicate and Ignore decision ([Duplicates](../docs/duplicates.md)). |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
 | `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
 | `flow-audiences` | Each recurring or One-Time Communication Flow's audience rule, as the loader runs it for past runs, finds on install day exactly the people Rock's own engine finds in the flow's data view. Judged only when today is the anchor. |
@@ -134,6 +135,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `invariants` | The loader wrote data that breaks a rule. Fix the loader, or fix the rule if the rule is wrong. |
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
+| `person-duplicates` | Something changed a person, phone, or address after the load ran Rock's duplicate finder, or a Cast decision did not stick. Each line names the pair and its values before and after. Move the change before the Duplicates step, or fix how `loader/loading/DuplicatesLoader.cs` writes the decision. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
 | `anchor-sweep` | A Cast giving story holds on some install days and not others. Each line names the expectation and the days. Keep that giver's gifts from landing close together on any day, for example with `isOnTime` for a monthly giver, then sweep a year with `--anchor-sweep 365`. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |

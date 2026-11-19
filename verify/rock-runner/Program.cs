@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|person-duplicates --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -36,6 +36,8 @@ namespace RockSampleData.RockRunner
     ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
     ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
+    ///   person-duplicates  Rock's Calculate Person Duplicates job once, as its own stored job, so it runs the SQL and
+    ///            timeout its settings hold (Rock's duplicate finder procedure). It prints how long the job took.
     ///   hash-password  Rock's Database login hash of the password on the input file's first line, the way the
     ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
     ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
@@ -76,10 +78,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "person-duplicates" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|person-duplicates --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +120,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "person-duplicates" => worker.PersonDuplicates(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -820,43 +823,92 @@ namespace RockSampleData.RockRunner
         /// </summary>
         private string RunUpdateJobs()
         {
-            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
-            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
-            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
-                ?? throw new InvalidOperationException( "This Rock has no RockAppExtensions.CreateRockContext( RockApp ). The runner needs updating for this Rock." );
-            object NewContext() => createContext.Invoke( null, new[] { app } );
-            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
-            var jobType = _rock.GetType( "Rock.Model.ServiceJob", true );
-            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), null );
-            var jobs = queryable
-                .Select( j => (Id: ( int ) jobType.GetProperty( "Id" ).GetValue( j ), Class: ( string ) jobType.GetProperty( "Class" ).GetValue( j ), Name: ( string ) jobType.GetProperty( "Name" ).GetValue( j )) )
+            var jobs = StoredJobs()
                 .Where( j => j.Class.StartsWith( "Rock.Jobs.Post", StringComparison.Ordinal ) && j.Class != "Rock.Jobs.PostInstallDataMigrations" )
                 .OrderBy( j => j.Id )
                 .ToList();
 
-            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
-            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
-                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
-            foreach ( var (id, className, name) in jobs )
+            foreach ( var job in jobs )
             {
-                var type = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( className ) ).FirstOrDefault( t => t != null )
-                    ?? throw new InvalidOperationException( $"Rock has no job class {className} (job {id}, {name})." );
-                var job = Activator.CreateInstance( type );
-                var stored = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, NewContext() ), new object[] { id } );
-                loadAttributes.Invoke( null, new[] { stored } );
-                rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { id } );
-                rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
-                try
-                {
-                    Execute( job );
-                }
-                catch ( TargetInvocationException ex )
-                {
-                    throw new InvalidOperationException( $"Rock's update job {id} ({name}) failed: {ex.GetBaseException().Message}", ex.InnerException );
-                }
+                RunStoredJob( job, "update job" );
             }
 
             return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
+        }
+
+        /// <summary>
+        /// Rock's Calculate Person Duplicates job (a Run SQL job whose SQL runs Rock's duplicate finder procedure).
+        /// </summary>
+        private static readonly Guid CalculatePersonDuplicatesJobGuid = new Guid( "C386528C-3AC6-44E8-884E-A57B571B65D5" );
+
+        /// <summary>
+        /// Runs Rock's Calculate Person Duplicates job once, as its own stored job, the way Rock's scheduler runs it at 3 AM.
+        /// The caller compares the duplicate pairs before and after.
+        /// </summary>
+        public string PersonDuplicates()
+        {
+            Start();
+            StartMessageBus();
+            var job = StoredJobs().SingleOrDefault( j => j.Guid == CalculatePersonDuplicatesJobGuid );
+            if ( job.Class == null )
+            {
+                throw new InvalidOperationException( "This database has no Calculate Person Duplicates job." );
+            }
+
+            var timer = Stopwatch.StartNew();
+            RunStoredJob( job, "job" );
+            return $"{job.Name} ran in {timer.ElapsedMilliseconds} ms";
+        }
+
+        /// <summary>
+        /// Every stored job's Id, Guid, class, and name.
+        /// </summary>
+        private List<(int Id, Guid Guid, string Class, string Name)> StoredJobs()
+        {
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            var jobType = _rock.GetType( "Rock.Model.ServiceJob", true );
+            var queryable = ( IEnumerable<object> ) serviceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( serviceType, NewRockContext() ), null );
+            return queryable
+                .Select( j => (Id: ( int ) jobType.GetProperty( "Id" ).GetValue( j ), Guid: ( Guid ) jobType.GetProperty( "Guid" ).GetValue( j ), Class: ( string ) jobType.GetProperty( "Class" ).GetValue( j ), Name: ( string ) jobType.GetProperty( "Name" ).GetValue( j )) )
+                .ToList();
+        }
+
+        /// <summary>
+        /// Runs one stored job as Rock's scheduler does: its class, with the stored ServiceJob and its settings. Any failure stops the caller.
+        /// </summary>
+        private void RunStoredJob( (int Id, Guid Guid, string Class, string Name) stored, string kind )
+        {
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
+            var type = AppDomain.CurrentDomain.GetAssemblies().Select( a => a.GetType( stored.Class ) ).FirstOrDefault( t => t != null )
+                ?? throw new InvalidOperationException( $"Rock has no job class {stored.Class} (job {stored.Id}, {stored.Name})." );
+            var job = Activator.CreateInstance( type );
+            var serviceJob = serviceType.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( serviceType, NewRockContext() ), new object[] { stored.Id } );
+            loadAttributes.Invoke( null, new[] { serviceJob } );
+            rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { stored.Id } );
+            rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, serviceJob );
+            try
+            {
+                Execute( job );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                throw new InvalidOperationException( $"Rock's {kind} {stored.Id} ({stored.Name}) failed: {ex.GetBaseException().Message}", ex.InnerException );
+            }
+        }
+
+        /// <summary>
+        /// A new RockContext from Rock's app, as Rock's own code makes one.
+        /// </summary>
+        private object NewRockContext()
+        {
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                ?? throw new InvalidOperationException( "This Rock has no RockAppExtensions.CreateRockContext( RockApp ). The runner needs updating for this Rock." );
+            return createContext.Invoke( null, new[] { app } );
         }
 
         /// <summary>

@@ -20,6 +20,7 @@ The Cast is the set of hand-designed households: today **104 households and 230 
 | `staff-emails.json` | The Cast staff's hand-written personal emails to Cast people, tied to their stories. See [staff-emails.md](staff-emails.md). |
 | `sms-threads.json` | The Cast's hand-written text conversations, covering every SMS Conversations state, with several always from the last few days. See [sms-threads.md](sms-threads.md). |
 | `prayer-requests.json` | The Cast's own prayer requests, tied to their stories, covering every prayer screen state, with at least 8 always current. Format: `prayer-requests.schema.json`. |
+| `duplicates.json` | The Cast's duplicate pairs and what staff decided about them, and merge requests. Format: `duplicates.schema.json`. See [Duplicates](../docs/duplicates.md). |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |
 | `families/*.md` | Generated family pages. Never edit them; rerun `build-pages.js`. |
 | `INVENTORY.md` | What came over from the legacy sample data, what was added, open issues, and remaining gaps. |
@@ -52,7 +53,7 @@ It rewrites every small group file and marks each new leader Leading in the hous
 - Legacy groups keep their keys and Guids. Pins in the configuration keep Ted Decker, Bill Marble, Pete Foster, and Bob Greggs as leaders, and keep the Greggs and Gilbert groups in those homes.
 - Groups in `cast.notInPattern` (Alisha Marble's group and the university group) keep their old shape and are not loaded.
 - Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. General groups still mark leaders with `isLeader`.
-- A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups.
+- A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups. What Rock's duplicate finder scores for each, and what staff decided, is in `duplicates.json`.
 - People with an inactive record (the Murphys, who moved) appear only as former members of inactive or archived groups.
 
 ## Serving teams and requests to serve

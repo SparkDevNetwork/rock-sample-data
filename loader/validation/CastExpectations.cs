@@ -190,7 +190,87 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CheckDuplicates( db, source, guids, failures );
+
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
+        /// decision, and the Duplicate Finder lists each open pair (decisions D-duplicates-1 and D-duplicates-2). Each merge
+        /// request is a Person Merge Request that never expires, with its requester, note, and people.
+        /// </summary>
+        private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var duplicates = source.ReadCastDuplicates();
+            var checks = 0;
+            foreach ( var pair in duplicates.Pairs )
+            {
+                checks++;
+                var name = $"Duplicate pair {pair.Key} ({pair.People[0].Name} and {pair.People[1].Name})";
+                var row = db.Query( @"
+SELECT [pd].[IsConfirmedAsNotDuplicate], [pd].[IgnoreUntilScoreChanges], [pd].[ConfidenceScore]
+FROM [PersonDuplicate] AS [pd]
+INNER JOIN [Person] AS [p1] ON [p1].[PrimaryAliasId] = [pd].[PersonAliasId]
+INNER JOIN [Person] AS [p2] ON [p2].[PrimaryAliasId] = [pd].[DuplicatePersonAliasId]
+WHERE ( [p1].[Guid] = @First AND [p2].[Guid] = @Second ) OR ( [p1].[Guid] = @Second AND [p2].[Guid] = @First )",
+                    P( "@First", guids.Value( pair.People[0].Guid ) ), P( "@Second", guids.Value( pair.People[1].Guid ) ) ).FirstOrDefault();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected Rock's duplicate finder to score the pair, Rock has no such pair" );
+                    continue;
+                }
+
+                var isNotDuplicate = ( bool ) row["IsConfirmedAsNotDuplicate"];
+                var isIgnored = ( bool ) row["IgnoreUntilScoreChanges"];
+                var actual = isNotDuplicate ? "not-a-duplicate" : isIgnored ? "ignored" : "open";
+                var confidence = Convert.ToDouble( row["ConfidenceScore"] ?? 0d );
+                if ( isNotDuplicate && isIgnored || actual != pair.Decision )
+                {
+                    failures.Add( $"{name}: expected {pair.Decision}, Rock shows {( isNotDuplicate && isIgnored ? "both Not Duplicate and ignored" : actual )}" );
+                }
+                else if ( pair.DecisionValue == DuplicateDecision.Open && confidence <= DuplicatesLoader.FinderListMinimum )
+                {
+                    failures.Add( $"{name}: expected the Duplicate Finder to list it (confidence above {DuplicatesLoader.FinderListMinimum:N0}), Rock scores it {confidence:N1}" );
+                }
+            }
+
+            foreach ( var request in duplicates.MergeRequests )
+            {
+                checks++;
+                var name = $"Merge request {request.Key}";
+                var row = db.Query( @"
+SELECT [es].[Id], [es].[Note], [es].[ExpireDateTime], [dv].[Guid] AS [Purpose], [p].[Guid] AS [Requester]
+FROM [EntitySet] AS [es]
+LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [es].[EntitySetPurposeValueId]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [es].[CreatedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [es].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
+                var people = row == null ? new HashSet<Guid>() : db.Query( @"
+SELECT [p].[Guid]
+FROM [EntitySetItem] AS [i]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [i].[EntityId]
+WHERE [i].[EntitySetId] = @SetId", P( "@SetId", row["Id"] ) ).Select( r => ( Guid ) r["Guid"] ).ToHashSet();
+                var expectedPeople = request.People.Select( p => guids.Rock( p.Guid ) ).ToHashSet();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected a merge request, Rock has none" );
+                }
+                else if ( row["Purpose"] as Guid? != DuplicatesLoader.MergeRequestPurposeGuid || row["ExpireDateTime"] != null )
+                {
+                    failures.Add( $"{name}: expected a Person Merge Request that never expires, so the Merge Requests page lists it" );
+                }
+                else if ( row["Requester"] as Guid? != guids.Rock( request.Requester.Guid ) || ( string ) row["Note"] != request.Note )
+                {
+                    failures.Add( $"{name}: expected {request.Requester.Name}'s request with its note" );
+                }
+                else if ( !people.SetEquals( expectedPeople ) )
+                {
+                    failures.Add( $"{name}: expected {string.Join( ", ", request.People.Select( p => p.Name ) )} in the request, Rock has {people.Count} other people" );
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

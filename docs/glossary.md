@@ -32,6 +32,7 @@ The words this project uses, in alphabetical order.
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
+| **Duplicate pair** | Two person records Rock's duplicate finder scores as maybe one person. Staff leave a pair open, mark it Not Duplicate, or Ignore it until its score changes. The Duplicate Finder lists open pairs above a confidence of 60. See [Duplicates](duplicates.md). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
@@ -46,6 +47,7 @@ The words this project uses, in alphabetical order.
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
+| **Merge request** | A merge asked for by someone who cannot merge people. Rock keeps it until someone merges or deletes it, on the Merge Requests page. See [Duplicates](duplicates.md). |
 | **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view. See [Data views and reports](reporting.md). |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Package** | A zip the builder writes for one dataset and one Rock major release, such as Rock 21: data files only, never SQL, with a checksum for every file in `package.json`. It serves every dot release of that major (decision 52). |
