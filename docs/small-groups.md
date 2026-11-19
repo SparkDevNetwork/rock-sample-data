@@ -52,6 +52,23 @@ Each dataset includes groups made for testing Group Finder and group history.
 - **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower. A campus too small to fill its test groups at that rate adds the households that came closest to joining, until each group can reach the minimum size. Core 3 gets 6 groups at each companion campus, 24 in all.
 - **Registrations** read the small group plan, not its rows: a share of the members on the day of the Community Serve Day signed up for it, and some active groups send two to four women to the Women's Retreat on one registration (decision 209). See [Event registrations](registrations.md#who-registered-kids-and-adults).
 
+## Peer network
+
+Rock's Peer Network scores how well two people likely know each other, and the person profile shows each person's peers with a score and a trend arrow. The sample data turns it on for small groups and serving teams, from `configuration/peer-network.json` (decision D-peers-1):
+
+| Group type | Strength | Score |
+|---|---|---|
+| Small Group | Close | 10 points, plus 0.1 a month while both stay |
+| Serving Team | Casual | 5 points, plus 0.1 a month while both stay |
+
+Every other group type stays off, as Rock ships it. After someone leaves, or the group closes, the score falls 0.2 a month until it reaches 0, and Rock removes it. A small group pair takes about four years to fade, and a serving pair about two.
+
+The load scores the last two runs of Rock's Calculate Peer Network job, which runs at 2:05 AM on the 1st of each month. The last run sees the groups as they stand on install day, and the run before it sees them as they stood a month earlier, so each trend is Rock's: rising while two people stay, falling after one leaves, and flat for a follow (decision D-peers-2).
+
+People follow each other too (decision D-peers-3). Each campus pastor follows their campus's small group leaders, and each staff member follows up to 25 people in their care, from their recent Pastoral and Counseling notes. Rock scores a follow 5 points, and it stays flat.
+
+Ted Decker's profile shows Cindy, his small group, and the Production Team he leads, all rising. Every Cast person who left a group sees its people falling. Every load checks both (decision D-peers-5). Full 7 has about 166,000 peer network rows.
+
 ## The Cast's groups
 
 The Cast's groups are fixed files in `cast/groups/`, so tests can rely on them. Legacy groups keep their Guids. Ted Decker, Bill Marble, and Pete Foster keep leading their groups, and the Greggs and Gilbert groups keep meeting in those homes.

@@ -273,6 +273,13 @@ function familyPage( h ) {
             }[era.status];
             facts.push( `Rock shows ${shows}` );
         }
+        const peers = p.expect?.peerNetwork;
+        if ( peers ) {
+            // What this person's Peer Network shows; every load checks it.
+            const names = ( peers.includes || [] ).map( k => ( h.members || [] ).find( m => m.key === k ) ).filter( Boolean ).map( m => m.nickName || m.firstName );
+            const shows = [ ...names, ...( peers.currentGroupsRising ? [ "everyone in their current groups and teams" ] : [] ) ];
+            facts.push( `Rock shows ${shows.join( " and " )} in their peer network, rising` );
+        }
         lines.push( `- ${facts.join( " · " )}` );
         lines.push( `- Person Guid \`${p.guid}\``, "" );
     }

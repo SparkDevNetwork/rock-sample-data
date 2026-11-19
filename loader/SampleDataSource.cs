@@ -178,7 +178,16 @@ namespace RockSampleData.Loader
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            PeerNetwork = Files.Exists( PeerNetworkConfigurationPath ) ? Read<PeerNetworkConfiguration>( PeerNetworkConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The group types with Rock's Peer Network on, and who follows whom, or null in a package built before peer
+        /// networks loaded, which leaves Peer Network off as Rock ships it.
+        /// </summary>
+        public PeerNetworkConfiguration PeerNetwork { get; }
+
+        public const string PeerNetworkConfigurationPath = "configuration/peer-network.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built

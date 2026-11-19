@@ -189,6 +189,12 @@
           "startedDaysAgo": {
             "min": 730
           }
+        },
+        "peerNetwork": {
+          "includes": [
+            "cindy"
+          ],
+          "currentGroupsRising": true
         }
       },
       "logins": [

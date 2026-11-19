@@ -771,6 +771,12 @@ for ( const { file, data: h } of households ) {
             }
         }
 
+        // Peer network: the people it includes are others in this household.
+        for ( const key of p.expect?.peerNetwork?.includes || [] ) {
+            if ( key === p.key || !( h.members || [] ).some( m => m.key === key ) ) {
+                errors.push( `${file}: "${p.key}" expects "${key}" in their peer network, who is not someone else in this household.` );
+            }
+        }
         for ( const [ key, story ] of Object.entries( p.assessments || {} ) ) {
             const who = `${file}: "${p.key}" ${key}`;
             if ( !ASSESSMENT_TYPES.includes( key ) ) {

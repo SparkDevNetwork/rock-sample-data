@@ -1,0 +1,24 @@
+{
+  "$comment": "Rock's Peer Network (issue 17, decisions D-peers-1 to D-peers-4). Rock's Calculate Peer Network job scores how well two people likely know each other, from the groups they share and the people they follow. Each group type here has Peer Network turned on, with Rock's relationship strength (casual 5, close 10, or deep 20 points) and whether a score grows while two people stay in the group. Every other group type stays off, as Rock ships it. The load scores the job's last two monthly runs before install day.",
+  "groupTypes": [
+    {
+      "name": "Small Group",
+      "guid": "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
+      "relationshipStrength": "close",
+      "isGrowthEnabled": true
+    },
+    {
+      "name": "Serving Team",
+      "guid": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4",
+      "relationshipStrength": "casual",
+      "isGrowthEnabled": true
+    }
+  ],
+  "$followsComment": "Who follows whom. Each campus pastor follows the leaders of their campus's active small groups, from the day each began leading. Each staff member follows the people they wrote a note of one of careNoteTypes about in the last careMonths months, from the first such note: at most careLimit people, those with the newest notes first, since a pastor follows a short list. Rock scores every follow 5 points, and it stays flat.",
+  "follows": {
+    "campusPastorsFollowSmallGroupLeaders": true,
+    "careNoteTypes": [ "pastoral", "counseling" ],
+    "careMonths": 12,
+    "careLimit": 25
+  }
+}

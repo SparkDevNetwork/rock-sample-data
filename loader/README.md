@@ -513,6 +513,17 @@ Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the al
 
 Speed: Full 7 replays 158 weeks for about 2,900 eRA families in about 2 seconds, and writes about 11,800 eRA steps and 18,800 history lines in about 3. Rock's count procedures take about 27 seconds on Full 7 and 1 on Core 1. The check takes about 3 seconds on Full 7.
 
+## Peer network
+
+`loading/PeerNetworkLoader.cs` fills Rock's Peer Network (decisions D-peers-1 to D-peers-5). The design is in [Small groups](../docs/small-groups.md#peer-network).
+
+1. **Setup.** The configuration step turns Peer Network on for each group type in `configuration/peer-network.json`, with its strength and growth.
+2. **Follows.** Each campus pastor follows their campus's active small group leaders, and each staff member follows up to 25 people from their recent care notes, as Rock's Following rows (decision D-peers-3).
+3. **Replay.** `loading/RockPeerNetwork.cs` is a line-for-line port of Rock's Calculate Peer Network job and its two procedures. It runs the job's last two monthly runs: the 1st of the month before install day, with the groups and follows as they stood then, and the 1st of the install month, with them as they stand on install day (decision D-peers-2). The PeerNetwork table has no ForeignKey column, so its rows belong to the dataset through their people (decision D-peers-4).
+4. **Check.** With the Cast expectations on, it runs Rock's own two procedures as of the last run inside a savepoint, and warns if they would add, remove, or rescore any row. Then it rolls them back.
+
+Speed: Full 7 writes about 166,000 rows, about 99,000 rising and 66,000 falling, and 558 follows. Core 1 writes about 2,600 rows and 15 follows.
+
 ## Prayer requests
 
 `generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.

@@ -158,9 +158,10 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckPersonAttributes( db, source, failures );
 
-            // The eRA stories follow attendance and giving (decision D-era-5).
+            // The eRA stories follow attendance and giving (decision D-era-5), and the peer network stories follow small
+            // groups and serving teams (decision D-peers-5).
             checks += parts.Contains( SampleDataPart.Attendance ) && parts.Contains( SampleDataPart.Giving ) ? CastEraExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
-
+            checks += parts.Contains( SampleDataPart.SmallGroups ) && parts.Contains( SampleDataPart.Serving ) ? CastPeerNetworkExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 

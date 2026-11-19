@@ -59,6 +59,7 @@ namespace RockSampleData.Loader
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
+            ("Peer network", null),
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
@@ -256,6 +257,9 @@ namespace RockSampleData.Loader
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             new CampaignLoader( db, source, dates, foreignKey ).Load();
+            // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision D-peers-1).
+            var peerNetwork = new PeerNetworkLoader( db, source, dates, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            peerNetwork.LoadSetup();
             var categoryCount = new CategoriesLoader( db, source, foreignKey ).Load();
             if ( categoryCount > 0 )
             {
@@ -555,6 +559,20 @@ namespace RockSampleData.Loader
                     var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
                     new AssessmentsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, stepsLoaded.Facts, stepsLoaded.Plan, campusPastors );
                 }
+            }
+
+            // The follows and the peer network, as Rock's Calculate Peer Network job's last two monthly runs left them. They
+            // read the small groups, serving teams, and care notes from the rows, so they always run, after every step that
+            // writes those (decisions D-peers-1 to D-peers-4).
+            steps.Begin( "Peer network" );
+            if ( peerNetwork.HasConfiguration )
+            {
+                var peerCampusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                peerNetwork.Load( peerCampusPastors, configuration.CampusIds, smallGroupSetup.GroupTypeId );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/peer-network.json)" );
             }
 
             // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so

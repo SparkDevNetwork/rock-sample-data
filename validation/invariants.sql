@@ -580,6 +580,17 @@ SELECT ( SELECT COUNT(*) FROM [FirstExit] AS [f]
     + ( SELECT COUNT(*) FROM [EraSteps] AS [s] LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
         WHERE ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
 
+-- check: follows-come-from-staff
+-- why: Decision D-peers-3. Every follow the load writes is a staff member's: a campus pastor following a small group leader, or staff following someone in their care, each a person following a person with no purpose. Rock's Send Following Event Notification job, which ships off and which the load leaves off, emails only its Eligible Followers role (RSR - Staff Workers), so if a church turns it on, its notices reach only staff on the sample church's own domain.
+SELECT ( SELECT COUNT(*)
+        FROM [Following] AS [f]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [f].[PersonAliasId]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+        WHERE [f].[ForeignKey] = @ForeignKey
+            AND ( ISNULL( [p].[Email], '' ) NOT LIKE '%@rocksolidchurchdemo.com' OR ISNULL( [f].[PurposeKey], '' ) <> ''
+                OR [f].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Guid] = '90F5E87B-F0D5-4617-8AE9-EB57E673F36F' ) ) )
+    + ( SELECT COUNT(*) FROM [ServiceJob] WHERE [Guid] = '893A745F-8642-4095-9E91-F8C54547DEF0' AND [IsActive] = 1 );
+
 -- check: people-match-the-dataset-card
 -- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
 SELECT CASE WHEN @CardPeople IS NOT NULL AND ABS( [c].[People] - @CardPeople ) > @CardPeople * 0.02 THEN ABS( [c].[People] - @CardPeople ) ELSE 0 END

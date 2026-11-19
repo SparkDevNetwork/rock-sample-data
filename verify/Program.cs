@@ -237,9 +237,11 @@ try
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
 
-            // Rock's own Family Analytics procedures, rolled back after (decision D-era-2).
+            // Rock's own Family Analytics and Calculate Peer Network procedures, rolled back after (decisions D-era-2 and D-peers-2).
             stage = "family-analytics";
             checks.Add( JobReplayChecks.FamilyAnalytics( sql, database, anchor ) );
+            stage = "peer-network";
+            checks.Add( JobReplayChecks.PeerNetwork( sql, database, anchor ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";

@@ -562,6 +562,8 @@ namespace RockSampleData.Loader.Model
         public CastAssessmentsExpect Assessments { get; set; }
 
         public CastEraExpect Era { get; set; }
+
+        public CastPeerNetworkExpect PeerNetwork { get; set; }
     }
 
     /// <summary>
@@ -593,6 +595,22 @@ namespace RockSampleData.Loader.Model
         public int? Min { get; set; }
 
         public int? Max { get; set; }
+    }
+
+    /// <summary>
+    /// What a Cast person's peer network shows on install day (decision D-peers-5).
+    /// </summary>
+    internal sealed class CastPeerNetworkExpect
+    {
+        /// <summary>
+        /// Keys of people in the same household who show in the person's peer network, rising.
+        /// </summary>
+        public List<string> Includes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Every person who shares one of the person's current groups of a type with Peer Network on shows, rising.
+        /// </summary>
+        public bool CurrentGroupsRising { get; set; }
     }
 
     /// <summary>

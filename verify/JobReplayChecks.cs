@@ -36,6 +36,7 @@ namespace RockSampleData.Verify
     internal static class JobReplayChecks
     {
         private const string FamilyAnalyticsJobGuid = "623F4751-C654-FEB7-45B7-59685B1F60AE";
+        private const string PeerNetworkJobGuid = "D3172560-0E8C-4E69-A477-56ABC018FEEF";
 
         /// <summary>
         /// Currently an eRA, eRA Start Date, eRA End Date, and the seven values the count procedures write.
@@ -119,6 +120,57 @@ WHERE [b].[EntityId] IS NULL OR [n].[EntityId] IS NULL
             return CheckResult.From( "family-analytics", problems.Count == 0
                 ? "Rock's Family Analytics job, run on install day, moves no family in or out of eRA and changes no value"
                 : "Rock's Family Analytics job would change eRA or its counts on its first run", problems );
+        }
+
+        /// <summary>
+        /// Rock's Calculate Peer Network job, as it would run on install day: the job is on, and its two procedures add,
+        /// remove, and rescore no row the load wrote.
+        /// </summary>
+        public static CheckResult PeerNetwork( SqlServer sql, string database, DateTime anchor )
+        {
+            if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+            {
+                return NotJudged( "peer-network", "Calculate Peer Network", anchor );
+            }
+
+            var problems = new List<string>();
+            if ( !Convert.ToBoolean( sql.Scalar( database, $"SELECT [IsActive] FROM [ServiceJob] WHERE [Guid] = '{PeerNetworkJobGuid}'" ) ?? false ) )
+            {
+                problems.Add( "Rock's Calculate Peer Network job must stay on (decision D-peers-2)." );
+            }
+
+            var rows = sql.Query( database, @"
+SET NOCOUNT ON;
+DECLARE @Before TABLE ( [Type] INT, [Source] INT, [Target] INT, [Related] INT, [Class] INT, [StartDate] DATE, [EndDate] DATE, [Score] DECIMAL(8,1), [Caption] NVARCHAR(MAX) );
+DECLARE @After TABLE ( [Type] INT, [Source] INT, [Target] INT, [Related] INT, [Class] INT, [StartDate] DATE, [EndDate] DATE, [Score] DECIMAL(8,1), [Caption] NVARCHAR(MAX) );
+INSERT INTO @Before SELECT [RelationshipTypeValueId], [SourcePersonId], [TargetPersonId], [RelatedEntityId], [ClassificationEntityId], [RelationshipStartDate], [RelationshipEndDate], [RelationshipScore], [Caption] FROM [PeerNetwork];
+BEGIN TRANSACTION;
+EXEC [dbo].[spPeerNetwork_UpdateFollowing];
+EXEC [dbo].[spPeerNetwork_UpdateGroupConnections];
+INSERT INTO @After SELECT [RelationshipTypeValueId], [SourcePersonId], [TargetPersonId], [RelatedEntityId], [ClassificationEntityId], [RelationshipStartDate], [RelationshipEndDate], [RelationshipScore], [Caption] FROM [PeerNetwork];
+ROLLBACK TRANSACTION;
+
+WITH [Removed] AS ( SELECT * FROM @Before EXCEPT SELECT * FROM @After ), [Added] AS ( SELECT * FROM @After EXCEPT SELECT * FROM @Before )
+SELECT 'was' AS [Kind], [x].*, CONCAT( [s].[NickName], ' ', [s].[LastName] ) AS [SourceName], CONCAT( [t].[NickName], ' ', [t].[LastName] ) AS [TargetName], ( SELECT COUNT(*) FROM @Before ) AS [Rows]
+FROM [Removed] AS [x] LEFT JOIN [Person] AS [s] ON [s].[Id] = [x].[Source] LEFT JOIN [Person] AS [t] ON [t].[Id] = [x].[Target]
+UNION ALL
+SELECT 'becomes', [x].*, CONCAT( [s].[NickName], ' ', [s].[LastName] ), CONCAT( [t].[NickName], ' ', [t].[LastName] ), ( SELECT COUNT(*) FROM @Before )
+FROM [Added] AS [x] LEFT JOIN [Person] AS [s] ON [s].[Id] = [x].[Source] LEFT JOIN [Person] AS [t] ON [t].[Id] = [x].[Target]
+UNION ALL
+SELECT 'total', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ( SELECT COUNT(*) FROM @Before );" );
+
+            var total = rows.Where( r => ( string ) r["Kind"] == "total" ).Select( r => Convert.ToInt32( r["Rows"] ) ).FirstOrDefault();
+            var changed = rows.Where( r => ( string ) r["Kind"] != "total" ).ToList();
+            string Describe( Dictionary<string, object> r ) => $"{r["SourceName"]} and {r["TargetName"]}{( r["Caption"] is string c ? $" in {c}" : " (a follow)" )}: score {r["Score"]}, from {r["StartDate"]:yyyy-MM-dd}{( r["EndDate"] is DateTime end ? $" to {end:yyyy-MM-dd}" : string.Empty )}";
+            problems.AddRange( changed.Take( 20 ).Select( r => $"{( ( string ) r["Kind"] == "was" ? "Rock's job would change or remove" : "Rock's job would make" )} {Describe( r )}." ) );
+            if ( changed.Count > 20 )
+            {
+                problems.Add( $"In all: {changed.Count( r => ( string ) r["Kind"] == "was" )} of {total} rows would change or go, and {changed.Count( r => ( string ) r["Kind"] == "becomes" )} rows would take their place or be added." );
+            }
+
+            return CheckResult.From( "peer-network", problems.Count == 0
+                ? $"Rock's Calculate Peer Network job, run on install day, keeps all {total:N0} peer network rows as the load wrote them"
+                : "Rock's Calculate Peer Network job would change the peer network on its first run", problems );
         }
 
         private static CheckResult NotJudged( string name, string job, DateTime anchor )

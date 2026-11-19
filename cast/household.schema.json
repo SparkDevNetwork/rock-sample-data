@@ -301,6 +301,15 @@
                 "startedDaysAgo": { "$ref": "#/$defs/daysAgoRange", "description": "For current: how many days before install day the eRA Start Date may be." },
                 "endedDaysAgo": { "$ref": "#/$defs/daysAgoRange", "description": "For former: how many days before install day the eRA End Date may be." }
               }
+            },
+            "peerNetwork": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "What the person's Peer Network shows on install day.",
+              "properties": {
+                "includes": { "type": "array", "items": { "type": "string" }, "description": "Keys of people in this household who show in the person's peer network, rising." },
+                "currentGroupsRising": { "type": "boolean", "description": "Every person who shares one of the person's current groups, of a type with Peer Network on, shows rising." }
+              }
             }
           }
         },

@@ -14,6 +14,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `refunds.json` | The refunds staff make on generated households' gifts: who refunds them, the rate when the profile has none, and four kinds, each with a Rock refund reason, a share, a delay, and the summaries staff type. See [Refunds](../docs/refunds.md). |
 | `achievements.json` | The Kids Check-in streak type and its seven achievement types. |
+| `peer-network.json` | The group types with Rock's Peer Network on, Small Group (close) and Serving Team (casual), with their strength and growth, and who follows whom: campus pastors follow their small group leaders, and staff follow up to 25 people in their care. See [Peer network](../docs/small-groups.md#peer-network). |
 | `serving.json` | The serving teams at every campus: their rooms, service times, and staffing, the background check requirement, volunteer check-in, and the rules for who serves and how scheduling history is generated. |
 | `connections.json` | Rock's Involvement connection type, its request statuses, the eight serving opportunities, and the rules for generating requests to serve and their celebrations. These are request statuses, not the person connection statuses in `connection-statuses.json`. |
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |

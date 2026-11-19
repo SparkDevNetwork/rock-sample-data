@@ -130,7 +130,7 @@ Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 has
 
 ## Rock version guard
 
-The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, the streak and achievement math, the five assessment scoring services with the reminder job's rules, and Family Analytics' eRA rule. It also runs some of Rock's procedures from the text Rock installed, with their clock set to the job's last run: Family Analytics' giving and attendance counts. Verify also scores every assessment answer set with Rock's own services (see [Assessments](../docs/assessments.md#how-it-is-checked)), and runs Rock's own Family Analytics procedures on every load (see [Verification](../docs/verification.md)). If Rock changes that code, the port goes stale. Two checks catch it.
+The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, the streak and achievement math, the five assessment scoring services with the reminder job's rules, Family Analytics' eRA rule, and Calculate Peer Network's scores. It also runs some of Rock's procedures from the text Rock installed, with their clock set to the job's last run: Family Analytics' giving and attendance counts. Verify also scores every assessment answer set with Rock's own services (see [Assessments](../docs/assessments.md#how-it-is-checked)), and runs Rock's own Family Analytics and Calculate Peer Network procedures on every load (see [Verification](../docs/verification.md)). If Rock changes that code, the port goes stale. Two checks catch it.
 
 ### The lock check (any time)
 
