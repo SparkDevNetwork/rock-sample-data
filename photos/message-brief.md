@@ -1,6 +1,6 @@
-# Message image brief: images for eight next-step cards
+# Message image brief: images for nine next-step cards
 
-You create eight images for Rock Solid Church's next-step messages in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
+You create nine images for Rock Solid Church's next-step messages in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
 
 Work in your own branch from `main`, in the `rock-sample-data` repository. All paths are from the root of the repository. This is the same kind of work as `photos/event-brief.md`, and the same rules apply where this page does not say otherwise.
 
@@ -8,7 +8,7 @@ Work in your own branch from `main`, in the `rock-sample-data` repository. All p
 
 Rock shows each signed-in person a few "next step" cards on the church website's homepage. Each card has an image on top, then the card's title, a sentence, and a button. Rock picks the card that fits the person. A visitor who is not signed in sees "Plan a Visit" and "Ways to Give".
 
-Ten cards already use approved event images from `photos/events/`. These eight have no image yet. Look at a few event images first, such as `photos/events/group-leader-training.jpg` and `photos/events/baptism-sunday.jpg`, so the new images sit well beside them.
+Ten cards already use approved event images from `photos/events/`. These nine have no image yet. Look at a few event images first, such as `photos/events/group-leader-training.jpg` and `photos/events/baptism-sunday.jpg`, so the new images sit well beside them.
 
 ## Image size
 
@@ -47,7 +47,15 @@ Each heading gives the image's **key**. Save the image under that key (see "Savi
 - **Setting:** A neighborhood coffee shop patio in the Phoenix area, late morning, palo verde shade, warm light. No shop name or sign anywhere.
 - **People:** Two adults in their 30s or 40s. Their faces may show in profile, but the moment is the subject, not the faces.
 
-### 3. `giving/scheduled`: Thank You for Your Scheduled Gift
+### 3. `your-next-step/find-your-next-step`: Find Your Next Step
+
+- **Card:** For people who already come on Sundays but have no clear next step yet. The button says "Find your next step" and opens a short form to get connected.
+- **Kind:** Photo.
+- **Scene:** Right after a Sunday service, a volunteer at the welcome desk smiles and talks with an adult who attends. Ministry tables and people fill the background, softly blurred.
+- **Setting:** The Phoenix campus lobby. Attach `photos/references/church/lobby-toward-entrance.jpg` and keep the room as it is. Frame out or blur any wall graphic.
+- **People:** The volunteer and the attender, from the side or three-quarter view. The conversation is the subject, not the faces.
+
+### 4. `giving/scheduled`: Thank You for Your Scheduled Gift
 
 - **Card:** "Thank you for giving faithfully. This year your gifts sent students to camp and filled food boxes for neighbors."
 - **Kind:** Photo.
@@ -55,19 +63,19 @@ Each heading gives the image's **key**. Save the image under that key (see "Savi
 - **Setting:** A bright church multipurpose room, midday. Teal and ivory tablecloths. No printing on any box or can.
 - **People:** Four to six adults and a teenager, from the side and behind, mid-motion.
 
-### 4. `giving/first-gift`: Thank You for Your First Gift
+### 5. `giving/first-gift`: Thank You for Your First Gift
 
 - **Card:** "Thank you for your first gift! Here is what happens next: a thank you note, and a giving statement each January."
 - **Kind:** Design. **Style:** Flat illustration.
 - **Concept:** A small green seedling rising from warm soil toward a soft sun. A beginning that will grow. Ivory background, teal and coral accents.
 
-### 5. `giving/make-it-automatic`: Make It Automatic
+### 6. `giving/make-it-automatic`: Make It Automatic
 
 - **Card:** "You give faithfully. A recurring gift makes it automatic, so it happens even on the weeks you are away."
 - **Kind:** Design. **Style:** Paper cut.
 - **Concept:** A circular arrow made of layered cut paper wraps around a small coral heart, photographed from above with soft shadows. Steady and repeating. No numbers or calendar marks.
 
-### 6. `giving/give-online`: Give Online Any Time
+### 7. `giving/give-online`: Give Online Any Time
 
 - **Card:** "Give online any time, from any phone or computer. Or set up a recurring gift that fits your own rhythm."
 - **Kind:** Photo.
@@ -75,7 +83,7 @@ Each heading gives the image's **key**. Save the image under that key (see "Savi
 - **Setting:** A modern Arizona kitchen, warm light through a window, a desert plant on the sill.
 - **People:** Only a hand and forearm.
 
-### 7. `giving/this-year`: What God Did This Year
+### 8. `giving/this-year`: What God Did This Year
 
 - **Card:** "We're glad you're part of this church. This year we baptized new believers, sent students to camp, and served our city."
 - **Kind:** Photo.
@@ -83,7 +91,7 @@ Each heading gives the image's **key**. Save the image under that key (see "Savi
 - **Setting:** A city park in the Phoenix area, gravel paths, mesquite trees, late afternoon sun.
 - **People:** A mix of ages, from behind and the side, busy and smiling. No child's face shows.
 
-### 8. `giving/ways-to-give`: Ways to Give
+### 9. `giving/ways-to-give`: Ways to Give
 
 - **Card:** "Give online, set up a recurring gift, or drop a check in the offering. Every gift helps our church serve the Valley."
 - **Kind:** Design. **Style:** Block print.
