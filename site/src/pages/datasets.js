@@ -148,6 +148,18 @@ dotnet run -- --package ../packages/core-1.zip --login-password "choose-one" --c
     <p class="fine">You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly installed Rock database. Sample data installs into a fresh database only. Leave out <code>--login-password</code> to load no sample logins. See the <a href="${repoUrl}#quick-start">quick start</a> for every option.</p>
   </div>
 </section>
+
+<section class="section section-sand" id="after-install">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "After you install", title: "Know which Rock jobs to run.", lede: "Rock's background jobs keep a church's data current. The load already wrote most of what they would have, so most need nothing from you." } )}
+    <div class="card-grid">
+      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, group sync, step program completions, and what Rock Cleanup sets are filled as if Rock's jobs ran every night. Their next runs change nothing.</p></div>
+      <div class="card reveal"><h3>Run once</h3><p>Family Analytics ships turned off, and the load does not fill eRA yet. Run it once for eRA as of today. Duplicates, peer networks, and the analytics tables fill on their first scheduled run, or run them now.</p></div>
+      <div class="card reveal"><h3>Be careful</h3><p>Turn off Location Services Verify on a sample site, or it sends the sample addresses to an address service each night. Keep real email off, because a few reminders reach Cast staff.</p></div>
+    </div>
+    <p class="fine">Every date counts back from install day, so Rock's jobs move the church forward from there. See <a href="${repoUrl}/blob/main/docs/after-install.md">After you install</a> for every Rock job and what it does to the sample data.</p>
+  </div>
+</section>
 `
     };
 };

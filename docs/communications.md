@@ -42,6 +42,7 @@ What a load writes is history, so Rock never sends it again (decision 95). Some 
 - No recipient a load writes is Pending or Sending, except the scheduled email's, which are Pending and all on `example.org` or have no email.
 - A Communication Flow run that started before install and still has messages left stays open. Rock's Process Communication Flows job sends the rest on their dates. Everyone still Active in an open run has an email on `example.org` or none, and only phones in the reserved 555-0100 to 555-0199 range. Staff emails are on `rocksolidchurchdemo.com`, a real domain with live mail servers, so no staff member is ever in an open run. See [Communication flows](#communication-flows).
 - The verify tool gets an invariant for each of these.
+- Rock's own reminder jobs also send after install, from registrations and small groups, and a few of those reach Cast staff. See [After you install](after-install.md#be-careful).
 - Group syncs carry Rock's welcome and exit emails, and some make logins, but only for a person who joins or leaves a synced group after install. Each synced group already holds exactly its data view's people, so the Group Sync job's first run adds and removes nobody, and verify proves it on every load (decision 187). See [Group sync](#group-sync).
 
 ## The setup
