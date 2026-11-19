@@ -54,17 +54,18 @@ namespace RockSampleData.Loader.Loading
         public int ActionTypeEntityTypeId { get; }
 
         /// <summary>
-        /// Writes a persisted, active workflow type with no logging and Rock's defaults for everything else.
+        /// Writes an active workflow type with no logging and Rock's defaults for everything else. It is persisted unless
+        /// <paramref name="isPersisted"/> says otherwise, for a type whose work finishes the moment it runs.
         /// </summary>
-        public int InsertType( string name, string description, int categoryId, string workTerm, string iconCssClass, string prefix, Guid guid, DateTime created, int authorAliasId )
+        public int InsertType( string name, string description, int categoryId, string workTerm, string iconCssClass, string prefix, Guid guid, DateTime created, int authorAliasId, bool isPersisted = true )
         {
             return Insert( @"
 INSERT INTO [WorkflowType] ( [IsSystem], [IsActive], [Name], [Description], [CategoryId], [Order], [WorkTerm], [IsPersisted], [LoggingLevel], [IconCssClass], [WorkflowIdPrefix],
     [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, 1, @Name, @Description, @CategoryId, 0, @WorkTerm, 1, 0, @Icon, @Prefix, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
+VALUES ( 0, 1, @Name, @Description, @CategoryId, 0, @WorkTerm, @IsPersisted, 0, @Icon, @Prefix, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
                 P( "@Name", name ), P( "@Description", description ), P( "@CategoryId", categoryId ), P( "@WorkTerm", workTerm ), P( "@Icon", iconCssClass ),
-                P( "@Prefix", prefix ), P( "@Guid", guid ), P( "@Created", created ), P( "@Author", authorAliasId ) );
+                P( "@Prefix", prefix ), P( "@Guid", guid ), P( "@Created", created ), P( "@Author", authorAliasId ), P( "@IsPersisted", isPersisted ) );
         }
 
         /// <summary>

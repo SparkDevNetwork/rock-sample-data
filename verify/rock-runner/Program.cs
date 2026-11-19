@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|group-requirements --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|group-requirements|launch-benevolence-workflows --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -82,6 +82,10 @@ namespace RockSampleData.RockRunner
     ///   notifications  Answers what Rock's top-bar bell shows: for "count" and a person's Guid, how many unread messages
     ///            Rock counts for them, and for "link" and a message's Guid, the link Rock's Note Mention component opens.
     ///   group-requirements  Runs Rock's Calculate Group Requirements job once, with its default settings, and prints its result.
+    ///   launch-benevolence-workflows  For each input line's benevolence request Id and benevolence workflow trigger Id, separated
+    ///            by a tab, launches the trigger's workflow on the request as Rock does when a request is entered. Its actions
+    ///            save what they change, so run it only on a throwaway copy. Prints the request Id and Rock's errors, separated
+    ///            by a tab.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -96,10 +100,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "group-requirements" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "group-requirements", "launch-benevolence-workflows" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" or "launch-benevolence-workflows" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|group-requirements --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|group-requirements|launch-benevolence-workflows --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -146,6 +150,7 @@ namespace RockSampleData.RockRunner
                     "process-workflows" => worker.ProcessWorkflows(),
                     "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
                     "group-requirements" => worker.GroupRequirements(),
+                    "launch-benevolence-workflows" => worker.LaunchBenevolenceWorkflows( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -267,6 +272,56 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Launches each input line's benevolence workflow trigger on its request, the way Rock's BenevolenceRequestChangeTransaction
+        /// does when a request is entered: it activates the workflow type and processes it with the request as its entity.
+        /// The workflow's own actions save what they change, so the caller runs this only on a copy it throws away. Prints the
+        /// request Id and Rock's errors, separated by a tab.
+        /// </summary>
+        public string LaunchBenevolenceWorkflows( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var contextType = _rock.GetType( "Rock.Data.RockContext", true );
+            var workflowType = _rock.GetType( "Rock.Model.Workflow", true );
+            var typeCache = _rock.GetType( "Rock.Web.Cache.WorkflowTypeCache", true );
+            var activate = workflowType.GetMethod( "Activate", new[] { typeCache, typeof( string ), contextType } )
+                ?? throw new InvalidOperationException( "This Rock has no Workflow.Activate( WorkflowTypeCache, string, RockContext ). The runner needs updating for this Rock." );
+            var workflowService = _rock.GetType( "Rock.Model.WorkflowService", true );
+            var process = workflowService.GetMethod( "Process", new[] { workflowType, typeof( object ), typeof( List<string> ).MakeByRefType() } )
+                ?? throw new InvalidOperationException( "This Rock has no WorkflowService.Process( Workflow, object, out List<string> ). The runner needs updating for this Rock." );
+            var getType = typeCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            object Get( object item, string name ) => item?.GetType().GetProperty( name )?.GetValue( item );
+            object Find( string service, int id, object context ) => _rock.GetType( service, true ).GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( _rock.GetType( service, true ), context ), new object[] { id } );
+
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var context = createContext.Invoke( null, new[] { app } );
+                try
+                {
+                    var request = Find( "Rock.Model.BenevolenceRequestService", int.Parse( parts[0] ), context );
+                    var trigger = Find( "Rock.Model.BenevolenceWorkflowService", int.Parse( parts[1] ), context );
+                    var workflow = activate.Invoke( null, new[] { getType.Invoke( null, new[] { Get( trigger, "WorkflowTypeId" ) } ), "Request Started", context } );
+                    var arguments = new object[] { workflow, request, null };
+                    process.Invoke( Activator.CreateInstance( workflowService, context ), arguments );
+                    var errors = string.Join( " ", ( ( IEnumerable<string> ) arguments[2] ?? Enumerable.Empty<string>() ).Select( e => e.Replace( '\t', ' ' ).Replace( '\n', ' ' ) ) );
+                    results.Add( $"{parts[0]}\t{errors}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"{parts[0]}\t{ex.GetBaseException().Message.Replace( '\t', ' ' ).Replace( '\n', ' ' )}" );
+                }
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>

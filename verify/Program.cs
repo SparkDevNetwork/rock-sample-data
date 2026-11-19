@@ -259,6 +259,11 @@ try
             stage = "group-requirements";
             checks.Add( GroupRequirementsCheck.Run( rock, sql, database, anchor ) );
 
+            // After every other check of the load, because it clears case workers on this throwaway copy for Rock's
+            // workflow to fill again.
+            stage = "benevolence-workflow-launch";
+            checks.Add( BenevolenceWorkflowCheck.Run( rock, sql, database, foreignKey, source ) );
+
             // The Cast giving stories must hold on every install day, not only this run's (decision 218). Core 1
             // holds every main-campus Cast giver, so it is the one swept.
             if ( dataset == "core-1" )

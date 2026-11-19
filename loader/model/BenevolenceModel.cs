@@ -32,6 +32,11 @@ namespace RockSampleData.Loader.Model
 
         public BenevolencePerson CaseWorker { get; set; }
 
+        /// <summary>
+        /// The workflow every church type starts when a request is entered, or null for none.
+        /// </summary>
+        public BenevolenceWorkflowDefinition Workflow { get; set; }
+
         public List<CastBenevolenceRequest> Cast { get; set; } = new List<CastBenevolenceRequest>();
 
         public GeneratedBenevolenceRule Generated { get; set; }
@@ -63,6 +68,34 @@ namespace RockSampleData.Loader.Model
         public string Name { get; set; }
 
         public string Description { get; set; }
+    }
+
+    internal sealed class BenevolenceWorkflowDefinition
+    {
+        public Guid Guid { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// A workflow type category's key in configuration/categories.json.
+        /// </summary>
+        public string Category { get; set; }
+
+        public string WorkTerm { get; set; }
+
+        public string IconCssClass { get; set; }
+
+        /// <summary>
+        /// The staff member who built the workflow.
+        /// </summary>
+        public Guid Author { get; set; }
+
+        /// <summary>
+        /// How many years before install day the workflow and its triggers were built.
+        /// </summary>
+        public int BuiltYearsAgo { get; set; }
     }
 
     internal sealed class BenevolencePerson

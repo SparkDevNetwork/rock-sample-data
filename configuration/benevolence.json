@@ -40,6 +40,17 @@
     { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "name": "Pete Foster", "benevolenceType": "rent-utilities", "action": "View", "allowed": false },
     { "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "benevolenceType": "benevolence", "action": "View", "allowed": false }
   ],
+  "workflow": {
+    "$comment": "The workflow each church type starts when a request is entered (Rock's Request Started trigger, decision D-benevolence-6). It gives a request with no case worker to the case worker, through Rock's Entity Property Set action, and sends no email. Its work finishes the moment it runs, so it is not persisted and leaves no workflow behind. It was built before the history window, so every loaded request has the case worker it would have set.",
+    "guid": "906A7AD0-49FC-44D4-9998-53B93B0CFB75",
+    "name": "Benevolence Request Started",
+    "description": "Gives a new benevolence request with no case worker to the Care Director. It sends no email.",
+    "category": "church-workflows",
+    "workTerm": "Request",
+    "iconCssClass": "ti ti-heart-handshake",
+    "author": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+    "builtYearsAgo": 4
+  },
   "caseWorker": {
     "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
     "name": "Dee Navarro",

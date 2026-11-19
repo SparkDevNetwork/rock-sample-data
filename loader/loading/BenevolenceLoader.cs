@@ -76,6 +76,7 @@ namespace RockSampleData.Loader.Loading
         {
             var config = _source.Benevolence;
             var typeIds = WriteTypes( config );
+            var triggers = WriteWorkflow( config, typeIds, people );
             var statusIds = DefinedValues( RequestStatusTypeGuid );
             var resultTypeIds = DefinedValues( ResultTypeTypeGuid );
             var byGuid = people.People;
@@ -135,7 +136,78 @@ namespace RockSampleData.Loader.Loading
             _db.BulkInsert( "BenevolenceRequestDocument", documents, keepIdentity: false );
 
             return $"  Benevolence: {requests.Count:N0} requests ({requests.Count - generated.Count:N0} Cast; {requests.Count( r => r.Status == "Approved" ):N0} approved, {requests.Count( r => r.Status == "Denied" ):N0} denied, "
-                + $"{requests.Count( r => r.Status == "Pending" ):N0} pending), {results.Rows.Count:N0} results, {documents.Rows.Count:N0} agreements, {typeIds.Count:N0} types";
+                + $"{requests.Count( r => r.Status == "Pending" ):N0} pending), {results.Rows.Count:N0} results, {documents.Rows.Count:N0} agreements, {typeIds.Count:N0} types, {triggers:N0} request started triggers";
+        }
+
+        /*
+            11/19/26 - CLAUDE
+
+            Rock's Benevolence Type Detail block saves a workflow trigger with the type, the workflow type, the trigger
+            (Request Started), and its qualifier, "|" around two empty status Ids. When a request is added, Rock's
+            BenevolenceRequestChangeTransaction activates the workflow type and processes it with the request as its entity.
+            This one sets the request's case worker to the Care Director when it has none, through Rock's Entity Property Set
+            action, and sends no email. It is not persisted, so a run that finishes at once saves no workflow, only the
+            request's case worker, which every loaded request already has.
+
+            Reason: Decision D-benevolence-6. The types show the church's trigger, and the requests agree with it.
+        */
+
+        /// <summary>
+        /// Writes the Request Started workflow type and its trigger on every church type. Returns how many triggers.
+        /// </summary>
+        private int WriteWorkflow( BenevolenceConfiguration config, Dictionary<string, int> typeIds, PeopleLoader people )
+        {
+            var workflow = config.Workflow;
+            if ( workflow == null )
+            {
+                return 0;
+            }
+
+            Guid G( string part ) => SeededRandom.StableGuid( $"benevolence-workflow:{part}" );
+            var writer = new WorkflowTypeWriter( _db, _foreignKey );
+            var author = people.People.TryGetValue( workflow.Author, out var person ) ? person
+                : throw new InvalidDataException( $"configuration/benevolence.json: the workflow's author {workflow.Author} is not a loaded person." );
+            var caseWorker = people.People[config.CaseWorker.Person];
+            var built = _dates.Anchor.AddYears( -workflow.BuiltYearsAgo ).AddHours( 14 ).AddMinutes( 20 );
+            var categoryId = _db.RequireIdByGuid( "Category", _source.Categories.Get( workflow.Category ).Guid );
+            var typeId = writer.InsertType( workflow.Name, workflow.Description, categoryId, workflow.WorkTerm, workflow.IconCssClass, string.Empty, workflow.Guid, built, author.AliasId, isPersisted: false );
+            // Rock's Entity Property Set action reads only the workflow's merge fields, not the request, so the first two
+            // actions copy the request's Guid and its case worker into workflow attributes, as Rock's own examples do.
+            writer.InsertWorkflowAttribute( typeId, "Rock.Field.Types.TextFieldType", "Request", "Request", "The benevolence request's Guid.", 0, false, null, G( "attribute:Request" ), built );
+            writer.InsertWorkflowAttribute( typeId, "Rock.Field.Types.TextFieldType", "CaseWorker", "Case Worker", "The request's case worker, by person alias Id, when it has one.", 1, false, null,
+                G( "attribute:CaseWorker" ), built );
+            var activityId = writer.InsertActivityType( typeId, "Start", G( "activity" ), built, author.AliasId );
+            var requestEntityType = ( Guid ) _db.Scalar( "SELECT [Guid] FROM [EntityType] WHERE [Name] = 'Rock.Model.BenevolenceRequest'" );
+            var setFromEntity = writer.EntityType( "Rock.Workflow.Action.SetAttributeFromEntity" );
+            var assign = $"{{% assign caseWorker = Workflow | Attribute:'CaseWorker' %}}{{% if caseWorker == empty %}}{{{{ '{caseWorker.Cast.Guid}' | PersonByGuid | Property:'PrimaryAliasId' }}}}{{% endif %}}";
+            var actions = new (string Name, int EntityTypeId, (string Key, string Value)[] Settings)[]
+            {
+                ("Set Request", setFromEntity, new[] { ("Attribute", G( "attribute:Request" ).ToString()), ("LavaTemplate", "{{ Entity.Guid }}") }),
+                ("Set Case Worker", setFromEntity, new[] { ("Attribute", G( "attribute:CaseWorker" ).ToString()), ("LavaTemplate", "{{ Entity.CaseWorkerPersonAliasId }}") }),
+                ($"Assign {config.CaseWorker.Name}", writer.EntityType( "Rock.Workflow.Action.SetEntityProperty" ), new[]
+                {
+                    ("EntityType", requestEntityType.ToString()), ("EntityIdGuid", "{{ Workflow | Attribute:'Request' }}"), ("PropertyName", "CaseWorkerPersonAliasId"),
+                    ("PropertyValue", assign), ("EmptyValueHandling", "IGNORE")
+                })
+            };
+            for ( var i = 0; i < actions.Length; i++ )
+            {
+                var index = i;
+                writer.InsertActionType( activityId, actions[i].Name, i, actions[i].EntityTypeId, i == actions.Length - 1, null, G( $"action:{i}" ), built, author.AliasId,
+                    actions[i].Settings, key => G( $"action:{index}:{key}" ) );
+            }
+
+            var triggers = 0;
+            foreach ( var type in config.Types.Where( t => t.Name != null ) )
+            {
+                _db.Execute( @"
+INSERT INTO [BenevolenceWorkflow] ( [BenevolenceTypeId], [WorkflowTypeId], [TriggerType], [QualifierValue], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [Guid], [ForeignKey] )
+VALUES ( @TypeId, @WorkflowTypeId, 0, '|||', @Built, @Built, @Author, @Author, @Guid, @ForeignKey )",
+                    P( "@TypeId", typeIds[type.Key] ), P( "@WorkflowTypeId", typeId ), P( "@Built", built ), P( "@Author", author.AliasId ), P( "@Guid", G( $"trigger:{type.Key}" ) ), P( "@ForeignKey", _foreignKey ) );
+                triggers++;
+            }
+
+            return triggers;
         }
 
         /// <summary>

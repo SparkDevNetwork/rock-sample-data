@@ -1416,6 +1416,26 @@ WHERE [d].[ForeignKey] = @ForeignKey
     AND ( [s].[Guid] <> '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' OR [bft].[Guid] <> '2599DDBE-40E1-158E-4436-AACA6C00556E' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
         OR [data].[Id] IS NULL OR DATALENGTH( [data].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [data].[Content], 1, 5 ) <> 0x255044462D );
 
+-- check: benevolence-trigger-sends-no-email
+-- why: Decision D-benevolence-6. Each church benevolence type starts one workflow when a request is entered, saved as Rock's type editor saves a Request Started trigger. The workflow is active and not persisted, and none of its actions sends an email, a text, or a communication, so entering a request after install reaches nobody.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ( SELECT COUNT(*) FROM [BenevolenceWorkflow] AS [bw] WHERE [bw].[BenevolenceTypeId] = [t].[Id] AND [bw].[TriggerType] = 0 AND [bw].[QualifierValue] = '|||' ) <> 1
+        OR EXISTS (
+            SELECT 1
+            FROM [BenevolenceWorkflow] AS [bw]
+            INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [bw].[WorkflowTypeId]
+            WHERE [bw].[BenevolenceTypeId] = [t].[Id]
+                AND ( [wt].[IsActive] = 0 OR [wt].[IsPersisted] = 1
+                    OR EXISTS (
+                        SELECT 1
+                        FROM [WorkflowActivityType] AS [at]
+                        INNER JOIN [WorkflowActionType] AS [act] ON [act].[ActivityTypeId] = [at].[Id]
+                        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [act].[EntityTypeId]
+                        WHERE [at].[WorkflowTypeId] = [wt].[Id]
+                            AND ( [et].[Name] LIKE 'Rock.Workflow.Action.Send%' OR [et].[Name] LIKE '%Communication%' OR [act].[WorkflowFormId] IS NOT NULL ) ) ) ) );
+
 -- check: benevolence-type-is-locked
 -- why: Decision D-benevolence-2. Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration, and every benevolence type is locked to the same two roles for View and Edit, so no other screen shows a request to anyone else.
 SELECT COUNT(*)
