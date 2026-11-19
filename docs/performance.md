@@ -72,6 +72,20 @@ Instead of turning the communication tables' indexes off and rebuilding them onc
 
 With the indexes on, bulk email alone took 117 and 294 seconds, and the log grew to 18,888 MB against 7,624. It is slower and much larger, so the loader keeps rebuilding once.
 
+### Family analytics and peer network
+
+Measured on 2026-11-19 with one CLI load of Full 7 at the default seed, on a machine busy with other loads, so the times are high. The CLI and verify also run each step's check against Rock's own procedures, which Rock's installer skips.
+
+| Part | Seconds |
+|---|---:|
+| Family analytics: read, replay 158 weeks, and write eRA | 5.5 |
+| Family analytics: Rock's giving and attendance count procedures, with fresh statistics | 26.9 |
+| Family analytics: check with Rock's eRA procedure (CLI and verify only) | 3.4 |
+| Peer network: follows, two monthly runs, and 165,718 rows | about 10 |
+| Peer network: check with Rock's two procedures (CLI and verify only) | about 15 |
+
+Rock's count procedures look up each person in turn, so they grow with the Crowd. Fresh statistics on the tables they read cut them about four times on Core 1, from 12.5 to 3 seconds (decision D-era-4). The PeerNetwork table takes 76 MB with its indexes.
+
 ## Before the speed pass
 
 The rest of this page describes the load before loader 0.1.0-alpha.15. It is how the speed pass found its target.
