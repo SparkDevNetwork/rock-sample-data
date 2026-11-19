@@ -209,7 +209,7 @@ namespace RockSampleData.Loader.Model
 
     /// <summary>
     /// One answer Rock's security check must give: whether a Cast person may take an action on a category, data view,
-    /// report, personalization segment, page, or benevolence type.
+    /// report, personalization segment, page, signal type, tag, or benevolence type.
     /// </summary>
     internal sealed class AccessExpectation
     {
@@ -249,6 +249,19 @@ namespace RockSampleData.Loader.Model
         public Guid? Page { get; set; }
 
         /// <summary>
+        /// An SMS snippet's Guid in content/communications/snippets.json, or null when the item is not a snippet.
+        /// </summary>
+        public Guid? Snippet { get; set; }
+
+        /// <summary>
+        /// A signal type's key in configuration/signals.json, or null when the item is not a signal type.
+        /// </summary>
+        public string SignalType { get; set; }
+
+        /// <summary>
+        /// A tag's key in configuration/tags.json, or null when the item is not a tag.
+        /// </summary>
+        public string Tag { get; set; }
         /// A benevolence type's key in configuration/benevolence.json, or null when the item is not a benevolence type.
         /// </summary>
         public string BenevolenceType { get; set; }

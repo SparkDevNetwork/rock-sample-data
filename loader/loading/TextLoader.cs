@@ -54,6 +54,11 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid MobilePhoneTypeGuid = new Guid( "407E7E45-7B2E-4FCD-9605-ECB1339F2453" );
         private const string TwilioTransport = "Rock.Communication.Transport.Twilio";
 
+        /// <summary>
+        /// Texts cover the same 2 years as email.
+        /// </summary>
+        public const int HistoryYears = 2;
+
         private readonly RockDatabase _db;
         private readonly SampleDataSource _source;
         private readonly ProfileTargets _profile;
@@ -89,13 +94,27 @@ namespace RockSampleData.Loader.Loading
             return this;
         }
 
+        private List<TextSnippet> _snippets = new List<TextSnippet>();
+        private double _snippetReplyShare;
+
+        /// <summary>
+        /// Gives the loader the SMS snippets the load wrote, and the share of threads in their topics whose first staff
+        /// reply is one of them.
+        /// </summary>
+        public TextLoader WithSnippets( List<TextSnippet> snippets, double replyShare )
+        {
+            _snippets = snippets;
+            _snippetReplyShare = replyShare;
+            return this;
+        }
+
         /// <summary>
         /// Plans and writes every text over the same 2 years as email.
         /// </summary>
         public void Load( CommunicationsConfiguration configuration, PeopleLoader people, List<ListCandidate> candidates, List<PlannedListMember> members,
             Dictionary<(string ListKey, string CampusKey), int> listIds, string mainCampusKey, IReadOnlyDictionary<string, int> campusIds, CommunicationCalendar calendar, List<EmailCampus> campuses )
         {
-            var from = _dates.Anchor.AddYears( -2 );
+            var from = _dates.Anchor.AddYears( -HistoryYears );
             var textPeople = People( people, candidates, from );
             var numbers = Numbers( configuration, people );
             var planner = new TextPlanner( new TextPlanInputs
@@ -117,7 +136,9 @@ namespace RockSampleData.Loader.Loading
                 Numbers = numbers,
                 TextSenderAliasId = people.People[configuration.Senders.Texts.Sender].AliasId,
                 StudentSenderAliasId = people.People[configuration.Senders.Students.Sender].AliasId,
-                Design = new TextDesign( _profile )
+                Design = new TextDesign( _profile ),
+                Snippets = _snippets,
+                SnippetReplyShare = _snippetReplyShare
             } );
             planner.Plan();
 
@@ -128,7 +149,7 @@ namespace RockSampleData.Loader.Loading
             var mass = planner.Texts.Where( t => !t.IsConversation ).ToList();
             var threads = planner.Responses.Select( r => (r.Person.PersonId, r.NumberKey) ).Concat( planner.Texts.Where( t => t.IsConversation ).Select( t => (t.Recipients[0].Person.PersonId, t.NumberKey) ) ).Distinct().Count();
             _db.Log.Write( $"  Texts: {mass.Count:N0} mass texts to {mass.Sum( t => t.Recipients.Count ):N0} recipients ({mass.Sum( t => t.Recipients.Count( r => r.Status == TextPlanner.Delivered ) ):N0} delivered), {planner.Texts.Count - mass.Count:N0} staff texts in conversations" );
-            _db.Log.Write( $"  SMS conversations: {threads:N0} threads, {planner.Responses.Count:N0} texts from people ({planner.Responses.Count( r => !r.IsRead ):N0} unread), {planner.OptOuts.Count:N0} texted STOP" );
+            _db.Log.Write( $"  SMS conversations: {threads:N0} threads, {planner.Responses.Count:N0} texts from people ({planner.Responses.Count( r => !r.IsRead ):N0} unread), {planner.OptOuts.Count:N0} texted STOP, {planner.SnippetReplies:N0} staff replies from a snippet" );
         }
 
         /// <summary>

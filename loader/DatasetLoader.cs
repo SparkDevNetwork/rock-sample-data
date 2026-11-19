@@ -57,6 +57,7 @@ namespace RockSampleData.Loader
             ("Giving alerts", SampleDataPart.Giving),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
+            ("Reminders", SampleDataPart.Reminders),
             ("Benevolence", SampleDataPart.Benevolence),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
@@ -67,13 +68,18 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Signals", null),
+            ("Personal links", null),
+            ("Tags", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
 
         /// <summary>
-        /// Loads the package. Everything rolls back if any step fails.
+        /// Loads the package. Everything rolls back if any step fails, and the step's error is thrown. When the
+        /// rollback fails too, the step's error is still the one thrown, with the rollback's in its
+        /// <see cref="Exception.Data"/> under <see cref="RollbackErrorKey"/>.
         /// </summary>
         /// <exception cref="DatabaseNotReadyException">The database has people beyond a new Rock install, or another load is running. Nothing was loaded.</exception>
         /// <exception cref="RockVersionMismatchException">The database's Rock is not the package's major release, or is unknown. Nothing was loaded.</exception>
@@ -136,10 +142,48 @@ namespace RockSampleData.Loader
                     log.WriteTiming( $"Done in {total.ElapsedMilliseconds:N0} ms.", new LoadTiming( LoadTimingKind.Load, "Load", null, total.ElapsedMilliseconds ) );
                 }
             }
-            catch
+            catch ( Exception error )
             {
-                db.Rollback();
+                RollBackAfterFailure( error, db.Rollback );
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// The key in a failed load's <see cref="Exception.Data"/> that holds its rollback's error, when the
+        /// rollback failed too. The load's own error keeps its type and message.
+        /// </summary>
+        public const string RollbackErrorKey = "RockSampleData.RollbackError";
+
+        /*
+            11/17/26 - CLAUDE
+
+            A load that failed rolled back and rethrew. When that rollback failed too, its error replaced
+            the load's, so a person saw "This SqlTransaction has completed" instead of what went wrong.
+            A caller such as Rock's installer block may act on the error's type and message, so the load's
+            own error is rethrown as it was, and the rollback's error rides along in its Data.
+
+            Reason: A failed load must show what went wrong, not its rollback's error (decision 278).
+        */
+
+        /// <summary>
+        /// Rolls back after a failed load. A rollback that fails too never replaces the load's error: its error
+        /// is attached to the load's error under <see cref="RollbackErrorKey"/>.
+        /// </summary>
+        internal static void RollBackAfterFailure( Exception error, Action rollBack )
+        {
+            try
+            {
+                rollBack();
+            }
+            catch ( Exception rollbackError )
+            {
+#if NETFRAMEWORK
+                // .NET Framework's Exception.Data takes only serializable values, so any other error is attached as text.
+                error.Data[RollbackErrorKey] = rollbackError.GetType().IsSerializable ? rollbackError : ( object ) rollbackError.ToString();
+#else
+                error.Data[RollbackErrorKey] = rollbackError;
+#endif
             }
         }
 
@@ -264,6 +308,13 @@ namespace RockSampleData.Loader
                 log.Write( $"  Church categories: {categoryCount}" );
             }
 
+            // The person signal types are church setup, so the Safety Team Review data view can name its type.
+            var signals = new SignalsLoader( db, source, dates, foreignKey, options.Seed );
+            if ( signals.HasConfiguration )
+            {
+                log.Write( $"  Signal types: {signals.LoadTypes()}" );
+            }
+
             // The Staff person attributes, in their category, with the block that shows them (decision 201).
             var staffLoader = new StaffLoader( db, source, dates, foreignKey );
             if ( staffLoader.HasAttributes )
@@ -380,6 +431,13 @@ namespace RockSampleData.Loader
                 if ( staffLoader.HasOrgChart )
                 {
                     log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
+                }
+
+                // Each campus pastor leads their campus in Rock, so a baptism's follow-up goes to its campus's leader (decision 291).
+                if ( source.Staff != null )
+                {
+                    var leaders = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    log.Write( $"  Campus leaders: {CampusPastors.WriteLeaders( db, leaders, configuration.CampusIds )}" );
                 }
             }
 
@@ -541,6 +599,13 @@ namespace RockSampleData.Loader
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             }
 
+            // Reminders staff set about the people they wrote notes on, and leaders' reminders about their groups. Both read
+            // back what the notes and small groups steps wrote, so reminders need those parts (SampleDataParts.All).
+            if ( steps.Begin( "Reminders" ) )
+            {
+                new RemindersLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, smallGroupSetup.GroupTypeId );
+            }
+
             // Requests for help come from people already in the data, and the case worker is Cast staff, so benevolence reads
             // only people.
             if ( steps.Begin( "Benevolence" ) )
@@ -559,6 +624,13 @@ namespace RockSampleData.Loader
             {
                 stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+
+                // The follow-up workflows completed steps started, read back from the steps just written (issue 18).
+                if ( stepsLoaded.Facts != null )
+                {
+                    var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    new StepWorkflowsLoader( db, source, dates, foreignKey, seed ).Load( people, campusPastors, configuration.CampusIds );
+                }
             }
 
             // Rock's five assessments. Classes ask on their own nights and leaders take theirs before leading, both read
@@ -651,6 +723,36 @@ namespace RockSampleData.Loader
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
 
+            // The Cast's signals and each campus pastor's Care Team Follow-ups. They read only people and staff.
+            steps.Begin( "Signals" );
+            var pastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+            if ( signals.HasConfiguration )
+            {
+                log.Write( "  " + signals.Load( people, castHouseholdKeys, pastors ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/signals.json)" );
+            }
+
+            // Shared and personal bookmarks. Each points at a page whose rows earlier steps wrote, so they come after every
+            // step that writes a part, and a link to a part this load left out is skipped.
+            steps.Begin( "Personal links" );
+            var personalLinks = new PersonalLinksLoader( db, source, dates, foreignKey, seed );
+            if ( personalLinks.HasConfiguration )
+            {
+                log.Write( "  " + personalLinks.Load( people, parts, pastors, configuration.CampusIds ) );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/personal-links.json)" );
+            }
+
+            // The church's tags on people (decision 302). Jamal Pierce's tag holds people from Ready to Lead, a data
+            // view, so tags follow every step that writes views. No step after this reads a tag.
+            steps.Begin( "Tags" );
+            log.Write( "  " + new TagsLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, mainCampusKey ) );
+
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows
             // logins, security roles, and scheduled gifts, so every load sets it here.
@@ -702,7 +804,7 @@ namespace RockSampleData.Loader
             if ( options.IsCastExpectationsChecked )
             {
                 steps.Begin( CastExpectationsStep );
-                CastExpectations.Check( db, source, parts );
+                CastExpectations.Check( db, source, parts, dates.Anchor );
             }
             else
             {

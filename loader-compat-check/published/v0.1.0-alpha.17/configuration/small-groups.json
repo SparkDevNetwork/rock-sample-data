@@ -1,0 +1,126 @@
+{
+  "$comment": "Small group setup and the rules that shape every small group, in every dataset. See docs/small-groups.md for the reasoning.",
+  "groupType": {
+    "guid": "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
+    "sectionGuid": "FAB75EC6-0402-456A-BE34-252097DE4F20",
+    "capacityRule": "soft",
+    "purpose": { "guid": "24969409-2291-49B6-B715-84A176A16F6C", "value": "Small Group", "$comment": "A Group Type Purpose value, so the calibration scripts find small groups by purpose, as they do in real churches." }
+  },
+  "roles": {
+    "leader": { "guid": "6D798EFA-0110-41D5-BCE4-30ACEFE4317E" },
+    "member": { "guid": "F0806058-7E5D-4CA9-9C04-3BDF92739462" },
+    "host": { "guid": "D44D555A-9C6E-4341-90D7-539F6E60B409", "name": "Host", "description": "Opens their home for the group's meetings." }
+  },
+  "groupFinder": {
+    "$comment": "Rock's Group Finder page block and its Show Image setting, which is off by default. Turned on so each card shows the group's photo (decision 62).",
+    "blockGuid": "63733A54-060F-4C8A-8166-87F9E1E4E835",
+    "showImageAttributeGuid": "80D044F6-75B4-4C91-811A-6CAE9D5BA95E"
+  },
+  "parents": {
+    "root": { "guid": "CA8D6272-82EB-4C39-9BDF-7FB628FB49E4", "name": "Small Groups" },
+    "campuses": {
+      "phoenix": "690483CF-6E7D-4D4F-9236-67D1EA9BA6BB",
+      "peoria": "0E902506-4F70-47B3-B767-0DA1BB76FA2F",
+      "gilbert": "45ED4B72-CA11-487F-9621-BCC5197CDC4B",
+      "scottsdale": "E930137A-09A9-4E73-8DA7-9E496D8FC497",
+      "chandler": "0677A589-9583-4483-9542-93C996FE5761",
+      "goodyear": "3881648D-ED36-4124-B71E-AF0CF916097C",
+      "tempe": "1792C517-BF8A-452C-AD6B-4D844FDBC8A5"
+    },
+    "campusNameFormat": "{campus} Small Groups",
+    "removeStarterSections": [
+      { "guid": "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9", "name": "Section A" },
+      { "guid": "3CBC1A3F-DD26-430A-9B53-B476CB385ABC", "name": "Section B" }
+    ]
+  },
+  "topics": [
+    { "guid": "1E7C3054-73E6-4D07-90B6-BD53739E40E7", "value": "Sermon Discussion", "descriptions": [ "We dig into Sunday's message together and talk about how it plays out in everyday life.", "A relaxed evening of talking through the weekend sermon, with good questions and good snacks." ] },
+    { "guid": "8FB24369-CEE8-4033-9A61-0C0B30600A58", "value": "Book of John", "descriptions": [ "We read through the Gospel of John a chapter at a time. No background needed.", "A slow, honest walk through John, one conversation at a time." ] },
+    { "guid": "8DD86736-70F0-4A38-856C-33C1173AB23A", "value": "Marriage", "fit": { "marriedPercentMin": 80 }, "descriptions": [ "Couples encouraging couples. We talk honestly about building a marriage that lasts.", "A group for married couples who want to grow together, with practical conversations and plenty of laughter." ] },
+    { "guid": "33354ACE-50D5-40A6-A197-374FF2F0819A", "value": "Parenting", "fit": { "parentsPercentMin": 60 }, "descriptions": [ "Parents comparing notes, praying for our kids, and learning from each other.", "From toddlers to teens, we share what is working, what is not, and where we need help." ] },
+    { "guid": "0AD6C058-A314-4D27-A290-824D71E4DCB1", "value": "Men's Bible Study", "fit": { "menPercentMin": 100 }, "descriptions": [ "Men studying the Bible together and keeping each other honest.", "A weekly study for men who want real friendships and a deeper faith." ] },
+    { "guid": "963B7693-0797-478A-8E43-41F33BB30FD6", "value": "Young Adults", "fit": { "medianAgeMax": 35 }, "descriptions": [ "Twenties and thirties figuring out faith, work, and life together.", "A group for young adults who want community that goes deeper than small talk." ] },
+    { "guid": "67E7A9E5-AA78-4FB5-8369-6DDB1F107DD3", "value": "Prayer", "descriptions": [ "We spend most of our time praying for each other, our church, and our city.", "A small, steady group that gathers to pray and share what God is doing." ] },
+    { "guid": "2032CFCA-0701-483E-BD74-38B0668821B0", "value": "New to Faith", "descriptions": [ "New to church or just exploring? Bring your questions; there are no wrong ones.", "A welcoming place to learn the basics of faith alongside others who are new too." ] },
+    { "guid": "CB379C1E-F74A-457D-8BB5-38CAB41BFF57", "value": "Grief and Loss", "descriptions": [ "A gentle group for anyone carrying a loss. Come as you are.", "We walk alongside each other through grief, with hope and without hurry." ] },
+    { "guid": "29BD0826-AD7F-4488-BE51-3E2EEEB6CA93", "value": "Money and Generosity", "descriptions": [ "Practical conversations about budgeting, debt, and living generously.", "We learn how to manage money well and give freely, together." ] }
+  ],
+  "attributes": {
+    "childCareProvided": { "guid": "F2288750-3F38-4451-ACA9-2C9B8C739458", "key": "ChildCareProvided", "name": "Child Care Provided", "description": "Whether the group provides child care during meetings." },
+    "meetingStyle": { "guid": "CA3A7E3E-E19D-43EB-BC79-EC56B2620A1A", "key": "MeetingStyle", "name": "Meeting Style", "description": "Whether the group meets in person or online.", "values": [ "In Person", "Online" ] },
+    "meetingLink": { "guid": "71782C30-BC89-439F-92F3-5445EB068732", "key": "MeetingLink", "name": "Meeting Link", "description": "The link online groups use to meet.", "format": "https://meet.example.org/{groupKey}" }
+  },
+  "inactiveReasons": [
+    { "guid": "0B057B4C-D49C-4929-93B1-70B5B4D3FB7E", "value": "Group ended" },
+    { "guid": "A4B74CE0-5F4D-4FB8-9B75-0491938CD610", "value": "Taking a season off" }
+  ],
+  "naming": {
+    "format": "{lastName} Group",
+    "duplicateFormat": "{firstName} {lastName} Group"
+  },
+  "size": { "target": 12, "min": 6, "max": 18, "capacity": 18 },
+  "leaders": {
+    "gender": "male",
+    "minimumAge": 18,
+    "statuses": [ "Engaged", "Leading" ],
+    "$fallbackComment": "A campus with too few possible leaders for its groups (Core 3's small companion campuses) also takes leaders from these statuses, in order.",
+    "fallbackStatuses": [ "Connected", "Known" ],
+    "becomeStatus": "Leading"
+  },
+  "members": {
+    "minimumAge": 18
+  },
+  "hosts": {
+    "spouseHostsPercent": 60
+  },
+  "schedule": {
+    "frequency": "weekly",
+    "days": { "Sunday": 15, "Monday": 15, "Tuesday": 25, "Wednesday": 25, "Thursday": 20 },
+    "times": { "19:00": 75, "18:00": 25 }
+  },
+  "meetingStyle": { "In Person": 90, "Online": 10 },
+  "childCareProvidedPercent": 50,
+  "childCareFollowsYoungKids": true,
+  "calendar": {
+    "meetingMonths": [ 1, 2, 3, 4, 5, 9, 10, 11, 12 ],
+    "lastDecemberMeetingDay": 14,
+    "summerMeetingPercent": 33,
+    "skippedWeeks": [ "thanksgiving", "christmasWeek", "newYear" ],
+    "joinMonthWeights": { "9": 40, "1": 30, "other": 30 }
+  },
+  "attendance": {
+    "leaderPercent": 95,
+    "hostPercent": 90,
+    "memberPercent": { "min": 47, "max": 67 },
+    "spouseTogetherPercent": 85,
+    "recordsEveryWeekPercent": 70,
+    "spottyRecordsPercent": 50
+  },
+  "membership": {
+    "startedYearsAgo": { "min": 1, "max": 8 },
+    "leavePercentPerYear": 20,
+    "archivedPercentOfLeavers": 10,
+    "pendingRequests": { "min": 1, "max": 3 }
+  },
+  "participation": {
+    "$comment": "Cast: percent of eligible adults in an active group, by connection status. Generated households use the profile's share of active adults in a group.",
+    "cast": { "Leading": 95, "Engaged": 85, "Connected": 80, "Known": 30, "Participant": 5, "Prospect": 5 },
+    "generatedProfilePath": "engagement.amongActiveAdults.pctInGroup"
+  },
+  "testCases": {
+    "$comment": "Group Finder and history cases. mainCampus applies to the Cast's campus; eachOtherCampus to every other campus in the dataset.",
+    "mainCampus": { "full": 2, "closed": 2, "pending": 3, "inactive": 2, "archived": 2 },
+    "eachOtherCampus": { "full": 1, "closed": 1, "pending": 1, "inactive": 1, "archived": 1 }
+  },
+  "cast": {
+    "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader or host; groups listed in notInPattern are left alone.",
+    "pins": {
+      "decker-group": { "leader": "decker/ted" },
+      "marble-group": { "leader": "marble/bill" },
+      "petes-group": { "leader": "foster/pete" },
+      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs" },
+      "gilbert-group": { "hostHousehold": "gilbert" }
+    },
+    "notInPattern": [ "alisha-marbles-group", "svu-student-group" ]
+  }
+}

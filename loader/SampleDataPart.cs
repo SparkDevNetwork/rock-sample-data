@@ -64,7 +64,8 @@ namespace RockSampleData.Loader
         Notes,
 
         /// <summary>
-        /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates and program completions.
+        /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates, program completions, and the staff
+        /// follow-up workflows that completed steps start.
         /// </summary>
         Steps,
 
@@ -87,6 +88,11 @@ namespace RockSampleData.Loader
         /// DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators: requests, answers, and results.
         /// </summary>
         Assessments,
+
+        /// <summary>
+        /// Reminders staff and leaders set for themselves about people and groups.
+        /// </summary>
+        Reminders,
 
         /// <summary>
         /// Background checks for volunteers, small group leaders, and requests to serve, with their reports and requirement results.
@@ -182,6 +188,10 @@ namespace RockSampleData.Loader
             own nights, read from the steps part's class steps, and every current leader takes theirs before leading,
             from the memberships the steps part read back.
 
+            Reminders need notes and small groups. Staff set reminders about the generated people they wrote notes on,
+            read back from the notes part's rows, and a generated small group's leader sets reminders about their group,
+            which each group reminder points at.
+
             Reason: One table holds the parts, so the loader, the CLI, and Rock's block agree.
         */
 
@@ -198,8 +208,9 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
+            new SampleDataPartInfo( SampleDataPart.Reminders, "Reminders", "Reminders staff set about people they have notes on and leaders set about their groups: some due, some upcoming, some complete, and a few that repeat.", SampleDataPart.Notes, SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Benevolence, "Benevolence", "Requests for help with rent, bills, food, cars, and medical costs, with the case worker, what the church gave, and signed assistance agreements, seen only by the benevolence team." ),
-            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
+            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions and the staff follow-up tasks a baptism or a decision to follow Jesus starts.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Assessments, "Assessments", "DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators results for staff, leaders, and class members, with the answers behind them and the requests still waiting.", SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),

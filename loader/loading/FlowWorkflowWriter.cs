@@ -61,6 +61,7 @@ namespace RockSampleData.Loader.Loading
         private readonly SampleDataSource _source;
         private readonly string _foreignKey;
         private readonly string _seed;
+        private readonly WorkflowTypeWriter _types;
 
         public FlowWorkflowWriter( RockDatabase db, SampleDataSource source, string foreignKey, string seed )
         {
@@ -68,6 +69,7 @@ namespace RockSampleData.Loader.Loading
             _source = source;
             _foreignKey = foreignKey;
             _seed = seed;
+            _types = new WorkflowTypeWriter( db, foreignKey );
         }
 
         /// <summary>
@@ -97,54 +99,30 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         public WorkflowTypeRows WriteType( FlowWorkflowDefinition workflow, Guid flowGuid, int authorAliasId, DateTime created )
         {
-            var workflowEntityTypeId = _db.RequireIdByGuid( "EntityType", new Guid( "3540E9A7-FE30-43A9-8B0A-A372B63DFC93" ) );
-            var actionTypeEntityTypeId = _db.RequireIdByGuid( "EntityType", new Guid( "23E3273A-B137-48A3-9AFF-C8DC832DDCA6" ) );
-            var activateFlowId = EnsureActivateFlowAction( actionTypeEntityTypeId, created );
-            var formId = RequireEntityType( UserEntryFormClass );
-            var setPersonId = RequireEntityType( SetToCurrentPersonClass );
-            var completeId = RequireEntityType( CompleteWorkflowClass );
+            var activateFlowId = EnsureActivateFlowAction( _types.ActionTypeEntityTypeId, created );
+            var formId = _types.EntityType( UserEntryFormClass );
+            var setPersonId = _types.EntityType( SetToCurrentPersonClass );
+            var completeId = _types.EntityType( CompleteWorkflowClass );
             var categoryId = _db.RequireIdByGuid( "Category", _source.Categories.Get( workflow.Category ).Guid );
             var rows = new WorkflowTypeRows { Definition = workflow, FlowGuid = flowGuid };
             Guid G( string part ) => SeededRandom.StableGuid( $"workflow:{workflow.Key}:{part}" );
 
-            rows.TypeId = Insert( @"
-INSERT INTO [WorkflowType] ( [IsSystem], [IsActive], [Name], [Description], [CategoryId], [Order], [WorkTerm], [IsPersisted], [LoggingLevel], [IconCssClass], [WorkflowIdPrefix],
-    [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
-OUTPUT INSERTED.[Id]
-VALUES ( 0, 1, @Name, @Description, @CategoryId, 0, @WorkTerm, 1, 0, @Icon, @Prefix, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
-                P( "@Name", workflow.Name ), P( "@Description", workflow.Description ), P( "@CategoryId", categoryId ), P( "@WorkTerm", workflow.WorkTerm ), P( "@Icon", workflow.IconCssClass ),
-                P( "@Prefix", "BI" ), P( "@Guid", G( "type" ) ), P( "@Created", created ), P( "@Author", authorAliasId ) );
-
-            var typeQualifier = rows.TypeId.ToString( System.Globalization.CultureInfo.InvariantCulture );
-            rows.PersonAttributeId = InsertAttribute( FieldTypeId( "Rock.Field.Types.PersonFieldType" ), workflowEntityTypeId, "WorkflowTypeId", typeQualifier, "Person", "Person",
-                "The person who filled out the form.", 0, true, null, G( "attribute:person" ), created );
-            rows.CommentsAttributeId = InsertAttribute( FieldTypeId( "Rock.Field.Types.MemoFieldType" ), workflowEntityTypeId, "WorkflowTypeId", typeQualifier, "Comments", workflow.CommentsLabel,
-                null, 1, false, null, G( "attribute:comments" ), created );
-            rows.FlowAttributeId = InsertAttribute( FieldTypeId( "Rock.Field.Types.CommunicationFlowFieldType" ), workflowEntityTypeId, "WorkflowTypeId", typeQualifier, "CommunicationFlow", "Communication Flow",
+            rows.TypeId = _types.InsertType( workflow.Name, workflow.Description, categoryId, workflow.WorkTerm, workflow.IconCssClass, "BI", G( "type" ), created, authorAliasId );
+            rows.PersonAttributeId = _types.InsertWorkflowAttribute( rows.TypeId, "Rock.Field.Types.PersonFieldType", "Person", "Person", "The person who filled out the form.", 0, true, null,
+                G( "attribute:person" ), created );
+            rows.CommentsAttributeId = _types.InsertWorkflowAttribute( rows.TypeId, "Rock.Field.Types.MemoFieldType", "Comments", workflow.CommentsLabel, null, 1, false, null,
+                G( "attribute:comments" ), created );
+            rows.FlowAttributeId = _types.InsertWorkflowAttribute( rows.TypeId, "Rock.Field.Types.CommunicationFlowFieldType", "CommunicationFlow", "Communication Flow",
                 "The flow the workflow adds the person to.", 2, false, flowGuid.ToString(), G( "attribute:flow" ), created );
-
-            rows.ActivityTypeId = Insert( @"
-INSERT INTO [WorkflowActivityType] ( [IsActive], [WorkflowTypeId], [Name], [IsActivatedWithWorkflow], [Order], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
-OUTPUT INSERTED.[Id]
-VALUES ( 1, @TypeId, 'Start', 1, 0, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
-                P( "@TypeId", rows.TypeId ), P( "@Guid", G( "activity:start" ) ), P( "@Created", created ), P( "@Author", authorAliasId ) );
+            rows.ActivityTypeId = _types.InsertActivityType( rows.TypeId, "Start", G( "activity:start" ), created, authorAliasId );
 
             // The form shows the comments box. Rock keeps a form row for every workflow attribute, and shows only the visible ones.
-            var workflowFormId = Insert( @"
-INSERT INTO [WorkflowActionForm] ( [Header], [Footer], [Actions], [AllowNotes], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
-OUTPUT INSERTED.[Id]
-VALUES ( @Header, @Footer, @Actions, 0, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
-                P( "@Header", workflow.FormHeader ), P( "@Footer", workflow.FormFooter ),
-                P( "@Actions", $"Submit^{PrimaryButtonGuid.ToString().ToLowerInvariant()}^^Thank you! A pastor will be in touch soon.|" ),
-                P( "@Guid", G( "form" ) ), P( "@Created", created ), P( "@Author", authorAliasId ) );
+            var workflowFormId = _types.InsertForm( workflow.FormHeader, workflow.FormFooter,
+                $"Submit^{PrimaryButtonGuid.ToString().ToLowerInvariant()}^^Thank you! A pastor will be in touch soon.|", G( "form" ), created, authorAliasId );
             var order = 0;
             foreach ( var (attributeId, visible, part) in new[] { (rows.PersonAttributeId, false, "person"), (rows.CommentsAttributeId, true, "comments"), (rows.FlowAttributeId, false, "flow") } )
             {
-                _db.Execute( @"
-INSERT INTO [WorkflowActionFormAttribute] ( [WorkflowActionFormId], [AttributeId], [Order], [IsVisible], [IsReadOnly], [IsRequired], [Guid], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
-VALUES ( @FormId, @AttributeId, @Order, @Visible, 0, 0, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
-                    P( "@FormId", workflowFormId ), P( "@AttributeId", attributeId ), P( "@Order", order++ ), P( "@Visible", visible ), P( "@Guid", G( $"form:{part}" ) ),
-                    P( "@Created", created ), P( "@Author", authorAliasId ), P( "@ForeignKey", _foreignKey ) );
+                _types.InsertFormAttribute( workflowFormId, attributeId, order++, visible, false, false, G( $"form:{part}" ), created, authorAliasId );
             }
 
             var personAttributeGuid = G( "attribute:person" ).ToString();
@@ -158,26 +136,9 @@ VALUES ( @FormId, @AttributeId, @Order, @Visible, 0, 0, @Guid, @Created, @Create
             for ( var i = 0; i < actions.Length; i++ )
             {
                 var (name, entityTypeId, actionFormId, settings) = actions[i];
-                var actionTypeId = Insert( @"
-INSERT INTO [WorkflowActionType] ( [ActivityTypeId], [Name], [Order], [EntityTypeId], [IsActionCompletedOnSuccess], [IsActivityCompletedOnSuccess], [WorkflowFormId], [Guid],
-    [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId], [ForeignKey] )
-OUTPUT INSERTED.[Id]
-VALUES ( @ActivityTypeId, @Name, @Order, @EntityTypeId, 1, @CompletesActivity, @FormId, @Guid, @Created, @Created, @Author, @Author, @ForeignKey )",
-                    P( "@ActivityTypeId", rows.ActivityTypeId ), P( "@Name", name ), P( "@Order", i ), P( "@EntityTypeId", entityTypeId ), P( "@CompletesActivity", i == actions.Length - 1 ),
-                    P( "@FormId", ( object ) actionFormId ?? DBNull.Value ), P( "@Guid", G( $"action:{i}" ) ), P( "@Created", created ), P( "@Author", authorAliasId ) );
-                rows.ActionTypeIds.Add( actionTypeId );
-
-                foreach ( var (key, value) in settings )
-                {
-                    var attributeId = Convert.ToInt32( _db.Scalar( @"
-SELECT [Id] FROM [Attribute] WHERE [EntityTypeId] = @EntityTypeId AND [EntityTypeQualifierColumn] = 'EntityTypeId' AND [EntityTypeQualifierValue] = @Component AND [Key] = @Key",
-                        P( "@EntityTypeId", actionTypeEntityTypeId ), P( "@Component", entityTypeId.ToString( System.Globalization.CultureInfo.InvariantCulture ) ), P( "@Key", key ) )
-                        ?? throw new InvalidOperationException( $"Rock has no '{key}' setting for the workflow action {name}." ) );
-                    _db.Execute( @"
-INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [IsPersistedValueDirty], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-VALUES ( 0, @AttributeId, @EntityId, @Value, 1, @Guid, @ForeignKey, @Created, @Created )",
-                        P( "@AttributeId", attributeId ), P( "@EntityId", actionTypeId ), P( "@Value", value ), P( "@Guid", G( $"action:{i}:{key}" ) ), P( "@ForeignKey", _foreignKey ), P( "@Created", created ) );
-                }
+                var index = i;
+                rows.ActionTypeIds.Add( _types.InsertActionType( rows.ActivityTypeId, name, i, entityTypeId, i == actions.Length - 1, actionFormId, G( $"action:{i}" ), created, authorAliasId,
+                    settings, key => G( $"action:{index}:{key}" ) ) );
             }
 
             return rows;
@@ -207,8 +168,8 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, @Guid, @ForeignKey, @Created, @C
                 "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignKey:string" );
             var values = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "IsPersistedValueDirty:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
-            var nextWorkflowId = NextId( "Workflow" );
-            var nextActivityId = NextId( "WorkflowActivity" );
+            var nextWorkflowId = _types.NextId( "Workflow" );
+            var nextActivityId = _types.NextId( "WorkflowActivity" );
             var number = 1;
             foreach ( var entry in list )
             {
@@ -252,7 +213,7 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, @Guid, @ForeignKey, @Created, @C
             {
                 // Rock stores the class's assembly-qualified name, so it takes the version from an action Rock already registered.
                 var formAssembly = ( string ) _db.Scalar( "SELECT [AssemblyName] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", UserEntryFormClass ) );
-                id = Insert( @"
+                id = _types.Insert( @"
 INSERT INTO [EntityType] ( [Name], [AssemblyName], [FriendlyName], [IsEntity], [IsSecured], [IsCommon], [Guid], [IsIndexingEnabled], [AttributesSupportPrePostHtml], [AttributesSupportShowOnBulk],
     [IsAchievementsEnabled], [IsMessageBusEventPublishEnabled], [IsRelatedToInteractionTrackedOnCreate] )
 OUTPUT INSERTED.[Id]
@@ -264,17 +225,17 @@ VALUES ( @Name, @Assembly, 'Activate Communication Flow', 0, 1, 0, @Guid, 0, 0, 
             var existing = _db.Query( "SELECT [Key] FROM [Attribute] WHERE [EntityTypeId] = @EntityTypeId AND [EntityTypeQualifierColumn] = 'EntityTypeId' AND [EntityTypeQualifierValue] = @Component",
                     P( "@EntityTypeId", actionTypeEntityTypeId ), P( "@Component", component ) )
                 .Select( r => ( string ) r["Key"] ).ToHashSet();
-            var workflowAttributeTypeId = FieldTypeId( "Rock.Field.Types.WorkflowAttributeFieldType" );
+            var workflowAttributeTypeId = _types.FieldType( "Rock.Field.Types.WorkflowAttributeFieldType" );
             var settings = new (string Key, string Name, string Description, int FieldTypeId, int Order, bool Required, string Default, string AttributeFieldTypes)[]
             {
-                ("Active", "Active", "Should Service be used?", FieldTypeId( "Rock.Field.Types.BooleanFieldType" ), 0, false, "False", null),
-                ("Order", "Order", "The order that this service should be used (priority)", FieldTypeId( "Rock.Field.Types.IntegerFieldType" ), 0, true, string.Empty, null),
+                ("Active", "Active", "Should Service be used?", _types.FieldType( "Rock.Field.Types.BooleanFieldType" ), 0, false, "False", null),
+                ("Order", "Order", "The order that this service should be used (priority)", _types.FieldType( "Rock.Field.Types.IntegerFieldType" ), 0, true, string.Empty, null),
                 ("CommunicationFlow", "Communication Flow Attribute", "The workflow attribute that contains the communication flow to trigger.", workflowAttributeTypeId, 0, true, string.Empty, "Rock.Field.Types.CommunicationFlowFieldType"),
                 ("Person", "Person", "The person to add to the communication flow.", workflowAttributeTypeId, 1, true, string.Empty, "Rock.Field.Types.PersonFieldType")
             };
             foreach ( var setting in settings.Where( s => !existing.Contains( s.Key ) ) )
             {
-                var attributeId = InsertAttribute( setting.FieldTypeId, actionTypeEntityTypeId, "EntityTypeId", component, setting.Key, setting.Name, setting.Description, setting.Order, setting.Required,
+                var attributeId = _types.InsertAttribute( setting.FieldTypeId, actionTypeEntityTypeId, "EntityTypeId", component, setting.Key, setting.Name, setting.Description, setting.Order, setting.Required,
                     setting.Default, SeededRandom.StableGuid( $"rock:{ActivateFlowClass}:{setting.Key}" ), created, isSystem: true );
                 if ( setting.AttributeFieldTypes != null )
                 {
@@ -287,32 +248,5 @@ VALUES ( 0, @AttributeId, 'attributefieldtypes', @Value, @Guid )",
 
             return id.Value;
         }
-
-        private int InsertAttribute( int fieldTypeId, int entityTypeId, string qualifierColumn, string qualifierValue, string key, string name, string description, int order, bool required,
-            string defaultValue, Guid guid, DateTime created, bool isSystem = false )
-        {
-            return Insert( @"
-INSERT INTO [Attribute] ( [IsSystem], [FieldTypeId], [EntityTypeId], [EntityTypeQualifierColumn], [EntityTypeQualifierValue], [Key], [Name], [Description], [Order], [IsGridColumn], [DefaultValue],
-    [IsMultiValue], [IsRequired], [Guid], [CreatedDateTime], [ModifiedDateTime], [IsActive], [IsPublic], [ForeignKey] )
-OUTPUT INSERTED.[Id]
-VALUES ( @IsSystem, @FieldTypeId, @EntityTypeId, @Column, @Value, @Key, @Name, @Description, @Order, 0, @Default, 0, @Required, @Guid, @Created, @Created, 1, 0, @ForeignKey )",
-                P( "@IsSystem", isSystem ), P( "@FieldTypeId", fieldTypeId ), P( "@EntityTypeId", entityTypeId ), P( "@Column", qualifierColumn ), P( "@Value", qualifierValue ), P( "@Key", key ),
-                P( "@Name", name ), P( "@Description", ( object ) description ?? DBNull.Value ), P( "@Order", order ), P( "@Default", ( object ) defaultValue ?? string.Empty ), P( "@Required", required ),
-                P( "@Guid", guid ), P( "@Created", created ) );
-        }
-
-        private int RequireEntityType( string name ) => Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", name ) )
-            ?? throw new InvalidOperationException( $"Rock has no entity type {name}." ) );
-
-        private int FieldTypeId( string className ) => Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [FieldType] WHERE [Class] = @Class", P( "@Class", className ) )
-            ?? throw new InvalidOperationException( $"Rock has no field type {className}." ) );
-
-        private int Insert( string sql, params Microsoft.Data.SqlClient.SqlParameter[] parameters )
-        {
-            var all = parameters.Concat( sql.Contains( "@ForeignKey" ) ? new[] { P( "@ForeignKey", _foreignKey ) } : Array.Empty<Microsoft.Data.SqlClient.SqlParameter>() ).ToArray();
-            return Convert.ToInt32( _db.Scalar( sql, all ) );
-        }
-
-        private int NextId( string table ) => Convert.ToInt32( _db.Scalar( $"SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [{table}]" ) );
     }
 }
