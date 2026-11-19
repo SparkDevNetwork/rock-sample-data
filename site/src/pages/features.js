@@ -189,6 +189,22 @@ module.exports = function features( { model } ) {
     const tags = require( path.join( model.root, "configuration/tags.json" ) ).tags;
     const tagCategories = model.categories.filter( c => c.entityType === "Rock.Model.Tag" );
     const homebound = tags.find( t => t.key === "homebound" );
+
+    // The staff follow-up tasks steps start (configuration/step-workflows.json). A Cast story's task belongs to its
+    // campus's pastor, the campus leader in Rock, or to the named staff member.
+    const stepWorkflows = require( path.join( model.root, "configuration/step-workflows.json" ) );
+    const castMember = guid => model.people.get( String( guid || "" ).toUpperCase() );
+    const stepWorkflowStories = stepWorkflows.cast.map( story => {
+        const workflow = stepWorkflows.workflows.find( w => w.key === story.workflow );
+        const member = castMember( story.person );
+        const owner = workflow.assignee.campusLeader ? member && member.household.campus.pastor : castMember( workflow.assignee.staff );
+        const ownerName = owner ? person( model, owner.displayName ) : "its assignee";
+        const login = owner && owner.logins && owner.logins.length ? html`, signed in as <code>${esc( owner.logins[0] )}</code>` : "";
+        return story.expect === "open"
+            ? html`${person( model, story.personName )}'s ${esc( workflow.name )}, open in ${ownerName}'s My Workflows${login}`
+            : html`${person( model, story.personName )}'s ${esc( workflow.name )}, completed by ${ownerName}`;
+    } );
+
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -220,10 +236,10 @@ module.exports = function features( { model } ) {
         },
         {
             id: "steps", eyebrow: "Steps", title: "A path people really walk.",
-            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in.`,
-            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them" ],
-            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp" ],
-            links: [ { label: "Steps", href: doc( "docs/steps.md" ) } ]
+            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in. ${stepWorkflows.workflows.length} step workflows give staff their follow-up tasks. A baptism starts one for its campus pastor, a decision to follow Jesus starts one for the Student Pastor, and staff start a volunteer check-in by hand from a Serve step. Tasks from the last ${stepWorkflows.openDays} days wait in My Workflows, and staff completed the older ones.`,
+            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them", "Follow-up tasks after baptisms and decisions, open and completed, that Rock's own workflow jobs leave as they are" ],
+            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp", ...stepWorkflowStories ],
+            links: [ { label: "Steps", href: doc( "docs/steps.md" ) }, { label: "Step workflows", href: doc( "docs/steps.md#step-workflows" ) } ]
         },
         {
             id: "connections", eyebrow: "Connections", title: "Requests to serve, and the stories behind them.", sand: true,
@@ -336,6 +352,17 @@ module.exports = function features( { model } ) {
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
+    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
+    const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
+    const remindersArea = {
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
+        checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
+        look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
+        links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
+    };
+
     return {
         file: "features.html",
         active: "features",
@@ -356,12 +383,14 @@ module.exports = function features( { model } ) {
       ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
       <a href="#data-views-and-reports">Data views and reports</a>
       <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
+      <a href="#${remindersArea.id}">${esc( remindersArea.eyebrow )}</a>
     </nav>
   </div>
 </section>
 ${areas.map( area )}
 ${reporting( model )}
 ${area( assessmentsArea )}
+${area( remindersArea )}
 `
     };
 };

@@ -56,6 +56,7 @@ namespace RockSampleData.Loader
             ("Giving alerts", SampleDataPart.Giving),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
+            ("Reminders", SampleDataPart.Reminders),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
             ("Data views", null),
@@ -429,6 +430,13 @@ namespace RockSampleData.Loader
                 {
                     log.Write( $"  Org chart members: {staffLoader.LoadOrgChartMembers( people ):N0}" );
                 }
+
+                // Each campus pastor leads their campus in Rock, so a baptism's follow-up goes to its campus's leader (decision D-stepflows-2).
+                if ( source.Staff != null )
+                {
+                    var leaders = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    log.Write( $"  Campus leaders: {CampusPastors.WriteLeaders( db, leaders, configuration.CampusIds )}" );
+                }
             }
 
             // Every Cast person's delivered photo, plus pool faces for generated households when the dataset asks.
@@ -574,6 +582,13 @@ namespace RockSampleData.Loader
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
             }
 
+            // Reminders staff set about the people they wrote notes on, and leaders' reminders about their groups. Both read
+            // back what the notes and small groups steps wrote, so reminders need those parts (SampleDataParts.All).
+            if ( steps.Begin( "Reminders" ) )
+            {
+                new RemindersLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, smallGroupSetup.GroupTypeId );
+            }
+
             // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and
             // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
             // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
@@ -583,6 +598,13 @@ namespace RockSampleData.Loader
             {
                 stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
                     .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+
+                // The follow-up workflows completed steps started, read back from the steps just written (issue 18).
+                if ( stepsLoaded.Facts != null )
+                {
+                    var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                    new StepWorkflowsLoader( db, source, dates, foreignKey, seed ).Load( people, campusPastors, configuration.CampusIds );
+                }
             }
 
             // Rock's five assessments. Classes ask on their own nights and leaders take theirs before leading, both read
@@ -756,7 +778,7 @@ namespace RockSampleData.Loader
             if ( options.IsCastExpectationsChecked )
             {
                 steps.Begin( CastExpectationsStep );
-                CastExpectations.Check( db, source, parts );
+                CastExpectations.Check( db, source, parts, dates.Anchor );
             }
             else
             {

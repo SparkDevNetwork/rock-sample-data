@@ -33,10 +33,18 @@ namespace RockSampleData.Verify
         A dry run rolls back, so one copy of the trusted base serves every day.
 
         Reason: Cast giving stories must hold on every install day, not only the day verify ran (decision 218).
+
+        11/18/26 - CLAUDE
+
+        Each Cast reminder is due, upcoming, or complete by a date that counts from the install day, and Rock's bell counts
+        the ones due. So the sweep loads the reminders part too, with the notes and small groups it needs, and checks the
+        Cast reminders on every install day it sweeps.
+
+        Reason: "Due", "upcoming", and "complete" must read right on any install day (decision D-reminders-3).
     */
 
     /// <summary>
-    /// Checks the Cast giving expectations of one dataset on each install day in a range.
+    /// Checks the Cast giving and reminder expectations of one dataset on each install day in a range.
     /// </summary>
     internal static class AnchorSweep
     {
@@ -46,13 +54,13 @@ namespace RockSampleData.Verify
         public const int DefaultDays = 60;
 
         /// <summary>
-        /// Dry-runs <paramref name="package"/>'s giving part into a copy of <paramref name="baseDatabase"/> once for each of
+        /// Dry-runs <paramref name="package"/>'s giving and reminders parts into a copy of <paramref name="baseDatabase"/> once for each of
         /// <paramref name="days"/> install days from <paramref name="firstDay"/>, prints each day's result, and returns the
         /// anchor-sweep check: each Cast expectation that failed, with the days it failed on.
         /// </summary>
         public static CheckResult Run( SqlServer sql, string baseDatabase, string database, SampleDataPackage package, RockRelease rock, string rockVersion, DateTime firstDay, int days, string seed, bool isKept )
         {
-            Console.WriteLine( $"\nAnchor sweep: {package.Manifest.Dataset}'s Cast giving expectations on {days} install days from {firstDay:yyyy-MM-dd}" );
+            Console.WriteLine( $"\nAnchor sweep: {package.Manifest.Dataset}'s Cast giving and reminder expectations on {days} install days from {firstDay:yyyy-MM-dd}" );
             sql.Copy( baseDatabase, database );
             var failingDays = 0;
             var failuresByStory = new SortedDictionary<string, List<DateTime>>( StringComparer.Ordinal );
@@ -65,7 +73,7 @@ namespace RockSampleData.Verify
                     {
                         Anchor = day,
                         Seed = seed,
-                        Parts = new[] { SampleDataPart.Giving },
+                        Parts = new[] { SampleDataPart.Giving, SampleDataPart.Reminders },
                         Progress = lines,
                         RockWebConfigPath = rock.WebConfigPath,
                         RockVersion = rockVersion,
@@ -98,7 +106,7 @@ namespace RockSampleData.Verify
             }
 
             var problems = failuresByStory.Select( story => $"{story.Key}: fails on {story.Value.Count} of {days} days ({string.Join( ", ", story.Value.Select( d => d.ToString( "yyyy-MM-dd" ) ) )})" ).ToList();
-            return CheckResult.From( "anchor-sweep", $"{days - failingDays} of {days} install days from {firstDay:yyyy-MM-dd} hold every Cast giving expectation", problems );
+            return CheckResult.From( "anchor-sweep", $"{days - failingDays} of {days} install days from {firstDay:yyyy-MM-dd} hold every Cast giving and reminder expectation", problems );
         }
 
         /// <summary>

@@ -183,6 +183,8 @@ namespace RockSampleData.Loader
             Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
             PersonalLinks = Files.Exists( PersonalLinksConfigurationPath ) ? Read<PersonalLinksConfiguration>( PersonalLinksConfigurationPath ) : null;
             Tags = Files.Exists( TagsConfigurationPath ) ? Read<TagsConfiguration>( TagsConfigurationPath ) : null;
+            Reminders = Files.Exists( RemindersConfigurationPath ) ? Read<RemindersConfiguration>( RemindersConfigurationPath ) : null;
+            StepWorkflows = Files.Exists( StepWorkflowsConfigurationPath ) ? Read<StepWorkflowsConfiguration>( StepWorkflowsConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -198,6 +200,20 @@ namespace RockSampleData.Loader
         public SignalsConfiguration Signals { get; }
 
         public const string SignalsConfigurationPath = "configuration/signals.json";
+
+        /// <summary>
+        /// The workflows completed steps start, or null in a package built before step workflows loaded.
+        /// </summary>
+        public StepWorkflowsConfiguration StepWorkflows { get; }
+
+        public const string StepWorkflowsConfigurationPath = "configuration/step-workflows.json";
+
+        /// <summary>
+        /// The reminders staff and leaders set, or null in a package built before reminders loaded.
+        /// </summary>
+        public RemindersConfiguration Reminders { get; }
+
+        public const string RemindersConfigurationPath = "configuration/reminders.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built

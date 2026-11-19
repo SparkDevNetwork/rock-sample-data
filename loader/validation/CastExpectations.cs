@@ -41,9 +41,10 @@ namespace RockSampleData.Loader.Validation
         /// <summary>
         /// Prints each expectation's result and returns how many failed.
         /// </summary>
-        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day. Null is the database server's today.</param>
+        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
-            var (checks, failures) = Evaluate( db, source, parts );
+            var (checks, failures) = Evaluate( db, source, parts, anchor );
             db.Log.Write( failures.Count == 0
                 ? $"  Cast expectations: all {checks} hold"
                 : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
@@ -59,7 +60,8 @@ namespace RockSampleData.Loader.Validation
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
         /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
-        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day, which reminder dates count from. Null is the database server's today.</param>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var guids = new CastPersonGuids( db, source );
@@ -150,6 +152,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
+            // The follow-up tasks completed steps started, and who has them (issue 18).
+            checks += parts.Contains( SampleDataPart.Steps ) ? CastStepWorkflowExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
@@ -185,6 +190,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Notes ) ? CastNotificationExpectations.Check( db, source, guids, failures ) : 0;
+            // The Cast's reminders and the bell's count (issue 22).
+            checks += parts.Contains( SampleDataPart.Reminders ) ? CastReminderExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
 

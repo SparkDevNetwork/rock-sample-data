@@ -574,6 +574,15 @@
       "description": "The church's own email sections for Rock's email editor, styled like its branded template.",
       "iconCssClass": "ti ti-building-church",
       "guid": "C01161FA-7738-43C2-AC85-321AD5AB145D"
+    },
+    {
+      "key": "workflows-contribute",
+      "parent": "church-workflows",
+      "entityType": "Rock.Model.WorkflowType",
+      "name": "Contribute",
+      "description": "Workflows that care for people who serve and give, such as a check-in with a volunteer.",
+      "iconCssClass": "ti ti-heart",
+      "guid": "F3B594D8-97EF-495C-B951-2ECC263AAA0F"
     }
   ]
 }

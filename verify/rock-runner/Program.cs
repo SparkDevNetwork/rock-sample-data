@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -59,6 +59,15 @@ namespace RockSampleData.RockRunner
     ///   segments  Runs Rock's own segment update (PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment,
     ///            what the Update Personalization Data job calls) on every personalization segment, and prints each
     ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
+    ///   process-reminders  Runs Rock's Process Reminders job once, as its stored job with the settings Rock's scheduler
+    ///            gives it, as Rock runs it every weekday morning. Prints "processed" and how many reminders it notified about, then "error" and each
+    ///            error the job recorded, one per line.
+    ///   process-workflows  Runs Rock's Process Workflows job once, as its stored job with the settings Rock's scheduler
+    ///            gives it, as Rock runs it every ten minutes. Prints the job's result.
+    ///   launch-step-workflows  For each input line's step Id, step workflow trigger Id, and workflow attribute key, separated
+    ///            by tabs, launches the trigger's workflow on the step the way Rock does when a step becomes complete, without
+    ///            saving it. Prints the step Id, the workflow's name, the assigned person's Guid, the
+    ///            attribute's value, whether it waits at a form, and Rock's errors, separated by tabs.
     ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
@@ -87,10 +96,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -133,6 +142,9 @@ namespace RockSampleData.RockRunner
                     "signals" => worker.Signals(),
                     "personal-links" => worker.PersonalLinks( lines ),
                     "notifications" => worker.Notifications( lines ),
+                    "process-reminders" => worker.ProcessReminders(),
+                    "process-workflows" => worker.ProcessWorkflows(),
+                    "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -254,6 +266,113 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs Rock's Process Reminders job as Rock's scheduler does and returns how many reminders it notified about, then
+        /// every error it recorded. The job's own result keeps only five errors, so the runner reads its full list.
+        /// </summary>
+        public string ProcessReminders()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var jobType = _rock.GetType( "Rock.Jobs.ProcessReminders", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "3F697C80-4C33-4552-9038-D3470445EA40" ) );
+            var errors = ( IEnumerable<string> ) ( jobType.GetField( "_jobErrors", Hidden )
+                ?? throw new InvalidOperationException( "This Rock's Process Reminders job has no _jobErrors. The runner needs updating for this Rock." ) ).GetValue( job );
+            var processed = jobType.GetField( "_totalProcessedReminders", Hidden )?.GetValue( job );
+            return string.Join( "\n", new[] { $"processed {processed}" }.Concat( ( errors ?? Enumerable.Empty<string>() ).Select( e => $"error {e.Replace( '\r', ' ' ).Replace( '\n', ' ' )}" ) ) );
+        }
+
+        /// <summary>
+        /// Runs Rock's Process Workflows job as Rock's scheduler does and returns its result text.
+        /// </summary>
+        public string ProcessWorkflows()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var jobType = _rock.GetType( "Rock.Jobs.ProcessWorkflows", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "35EABBDB-1EFA-46F1-86D4-4199FFA2D9A7" ) );
+            return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /*
+            11/18/26 - CLAUDE
+
+            The launch first ran in a transaction it rolled back. Rock saves a persisted workflow as it processes it, and some
+            of Rock's own reads during processing use other connections, which waited on that transaction's locks until they
+            timed out. On Full 7 each launch took minutes and logged timeouts. Rock's WorkflowService.Process saves only when the
+            workflow or its type is persisted, so the runner marks the type's cached copy not persisted, and Rock processes every
+            action exactly as it would and writes nothing.
+
+            Reason: The launch check must prove Rock's own processing without writing to the loaded database.
+        */
+
+        /// <summary>
+        /// Launches step workflows the way Rock's LaunchStepChangeWorkflows task does when a step becomes complete: activates the
+        /// trigger's workflow type with the trigger's name, and processes it with the step as its entity. The type's cached copy
+        /// is marked not persisted, so Rock writes nothing, and a transaction rolled back after each launch catches any write.
+        /// </summary>
+        public string LaunchStepWorkflows( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var contextType = _rock.GetType( "Rock.Data.RockContext", true );
+            var workflowType = _rock.GetType( "Rock.Model.Workflow", true );
+            var typeCache = _rock.GetType( "Rock.Web.Cache.WorkflowTypeCache", true );
+            var activate = workflowType.GetMethod( "Activate", new[] { typeCache, typeof( string ), contextType } )
+                ?? throw new InvalidOperationException( "This Rock has no Workflow.Activate( WorkflowTypeCache, string, RockContext ). The runner needs updating for this Rock." );
+            var workflowService = _rock.GetType( "Rock.Model.WorkflowService", true );
+            var process = workflowService.GetMethod( "Process", new[] { workflowType, typeof( object ), typeof( List<string> ).MakeByRefType() } )
+                ?? throw new InvalidOperationException( "This Rock has no WorkflowService.Process( Workflow, object, out List<string> ). The runner needs updating for this Rock." );
+            var getType = typeCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            object Get( object item, string name ) => item?.GetType().GetProperty( name )?.GetValue( item );
+            object Find( string service, int id, object context ) => _rock.GetType( service, true ).GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( _rock.GetType( service, true ), context ), new object[] { id } );
+
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var context = createContext.Invoke( null, new[] { app } );
+                var database = Get( context, "Database" );
+                var transaction = database.GetType().GetMethod( "BeginTransaction", Type.EmptyTypes ).Invoke( database, null );
+                try
+                {
+                    var step = Find( "Rock.Model.StepService", int.Parse( parts[0] ), context );
+                    var trigger = Find( "Rock.Model.StepWorkflowTriggerService", int.Parse( parts[1] ), context );
+                    var cache = getType.Invoke( null, new[] { Get( trigger, "WorkflowTypeId" ) } );
+                    typeCache.GetProperty( "IsPersisted" ).GetSetMethod( true ).Invoke( cache, new object[] { false } );
+                    var workflow = activate.Invoke( null, new[] { cache, Get( trigger, "WorkflowName" ), context } );
+                    var arguments = new object[] { workflow, step, null };
+                    process.Invoke( Activator.CreateInstance( workflowService, context ), arguments );
+                    var activity = ( ( System.Collections.IEnumerable ) Get( workflow, "Activities" ) ).Cast<object>().FirstOrDefault();
+                    var assignedAliasId = Get( activity, "AssignedPersonAliasId" ) as int?;
+                    var assignee = assignedAliasId.HasValue ? Get( Get( Find( "Rock.Model.PersonAliasService", assignedAliasId.Value, context ), "Person" ), "Guid" ) : null;
+                    var value = workflowType.GetMethod( "GetAttributeValue", new[] { typeof( string ) } ).Invoke( workflow, new object[] { parts[2] } );
+                    var isWaiting = activity != null && ( ( System.Collections.IEnumerable ) Get( activity, "Actions" ) ).Cast<object>()
+                        .Any( a => Get( Get( a, "ActionTypeCache" ), "WorkflowFormId" ) is int && Get( a, "CompletedDateTime" ) == null );
+                    var errors = string.Join( " ", ( ( IEnumerable<string> ) arguments[2] ?? Enumerable.Empty<string>() ).Select( e => e.Replace( '\t', ' ' ).Replace( '\n', ' ' ) ) );
+                    results.Add( $"{parts[0]}\t{Get( workflow, "Name" )}\t{assignee}\t{value}\t{isWaiting}\t{errors}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"{parts[0]}\terror\t\t\tFalse\t{ex.GetBaseException().Message.Replace( '\t', ' ' ).Replace( '\n', ' ' )}" );
+                }
+                finally
+                {
+                    transaction.GetType().GetMethod( "Rollback", Type.EmptyTypes ).Invoke( transaction, null );
+                }
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>
@@ -1084,6 +1203,38 @@ namespace RockSampleData.RockRunner
             }
 
             return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
+        }
+
+        /*
+            11/18/26 - CLAUDE
+
+            Rock's scheduler registers a job type's settings, with their defaults, when it first builds the job
+            (ServiceJobService.UpdateAttributesIfNeeded), and runs the stored job with its settings. A new job definition, as
+            RockJob.ExecuteInternal makes, has no settings, so Process Reminders found no notification and never tried to
+            send one.
+
+            Reason: The Process Reminders and Process Workflows checks must run each job as Rock does.
+        */
+
+        /// <summary>
+        /// Runs a job as Rock's scheduler does: registers its type's settings, then runs its stored ServiceJob with them.
+        /// </summary>
+        private void RunStoredJob( object job, Guid serviceJobGuid )
+        {
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            serviceType.GetMethod( "UpdateAttributesIfNeeded", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof( Type ) }, null )
+                .Invoke( null, new object[] { job.GetType() } );
+            var stored = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), new object[] { serviceJobGuid } )
+                ?? throw new InvalidOperationException( $"Rock has no stored job {serviceJobGuid}." );
+            _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 ).Invoke( null, new[] { stored } );
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { stored.GetType().GetProperty( "Id" ).GetValue( stored ) } );
+            rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
+            Execute( job );
         }
 
         /// <summary>

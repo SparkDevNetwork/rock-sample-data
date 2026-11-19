@@ -78,6 +78,7 @@ The words this project uses, in alphabetical order.
 | **Registration template** | The setup a registration reuses every year: its cost, forms, fees, discounts, placements, and who may register. |
 | **Registration placement** | Putting a registrant in a placement group, such as a VBS kid in the crew for their grade or a Serve Day volunteer on a project team. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
+| **Reminder** | A follow-up a person sets for themselves in Rock, due on a date, about a person (a Personal Reminder) or a group (a Group Reminder). It can repeat some days after each time it is completed. Rock's Process Reminders job counts each person's reminders due, and the bell in Rock's top bar shows a dot from that count. See [How reminders load](../loader/README.md#how-reminders-load). |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Returned check** | A check the bank sent back unpaid, for insufficient funds or another reason. Staff record it as a refund of the whole check, with Rock's Insufficient Funds or Returned Check reason. See [Uncommon gifts](uncommon-gifts.md#returned-checks). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
@@ -92,6 +93,7 @@ The words this project uses, in alphabetical order.
 | **SMS snippet** | Saved text staff insert in SMS Conversations instead of retyping it, such as service times. A shared snippet shows to every staff member, and a personal one only to its owner. Rock fills in the person's nickname when staff insert it. See [SMS snippets](communications.md#sms-snippets). |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
+| **Step workflow** | A Rock workflow tied to a step type by a trigger. Rock starts it when a person completes the step, or staff start it by hand from the step. The sample church has three staff follow-up tasks, such as Baptism Follow-Up, which goes to the campus pastor. See [Steps](steps.md#step-workflows). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |

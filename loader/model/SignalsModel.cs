@@ -142,11 +142,4 @@ namespace RockSampleData.Loader.Model
 
         public List<string> Notes { get; set; } = new List<string>();
     }
-
-    internal sealed class DayRange
-    {
-        public int Min { get; set; }
-
-        public int Max { get; set; }
-    }
 }
