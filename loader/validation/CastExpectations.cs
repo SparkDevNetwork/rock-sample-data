@@ -225,11 +225,11 @@ WHERE ( [p1].[Guid] = @First AND [p2].[Guid] = @Second ) OR ( [p1].[Guid] = @Sec
 
                 var isNotDuplicate = ( bool ) row["IsConfirmedAsNotDuplicate"];
                 var isIgnored = ( bool ) row["IgnoreUntilScoreChanges"];
-                var actual = isNotDuplicate ? "not-a-duplicate" : isIgnored ? "ignored" : "open";
+                var actual = isNotDuplicate && isIgnored ? "both Not Duplicate and ignored" : isNotDuplicate ? "not-a-duplicate" : isIgnored ? "ignored" : "open";
                 var confidence = Convert.ToDouble( row["ConfidenceScore"] ?? 0d );
-                if ( isNotDuplicate && isIgnored || actual != pair.Decision )
+                if ( actual != pair.Decision )
                 {
-                    failures.Add( $"{name}: expected {pair.Decision}, Rock shows {( isNotDuplicate && isIgnored ? "both Not Duplicate and ignored" : actual )}" );
+                    failures.Add( $"{name}: expected {pair.Decision}, Rock shows {actual}" );
                 }
                 else if ( pair.DecisionValue == DuplicateDecision.Open && confidence <= DuplicatesLoader.FinderListMinimum )
                 {
