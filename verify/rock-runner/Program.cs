@@ -507,6 +507,19 @@ namespace RockSampleData.RockRunner
             {
                 var parts = line.Split( '\t' );
                 object item;
+                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
+                if ( parts[0] == "Tag" )
+                {
+                    // Rock keeps no cache of tags. Its tag bar loads the tag and asks the tag itself, which lets a personal
+                    // tag's owner do anything with it and keeps everyone else out, before Rock's usual rules.
+                    var tagService = _rock.GetType( "Rock.Model.TagService", true );
+                    var tag = tagService.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( tagService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    results.Add( tag == null || person == null ? "missing"
+                        : securedType.GetMethod( "IsAuthorized" ).Invoke( tag, new[] { parts[2], person } ).ToString() );
+                    continue;
+                }
+
                 if ( parts[0] == "Report" )
                 {
                     // Rock keeps no cache of reports; its report screens load the report and check it.
@@ -528,7 +541,6 @@ namespace RockSampleData.RockRunner
                         .Invoke( null, new object[] { new Guid( parts[1] ) } );
                 }
 
-                var person = getPerson.Invoke( personService, new object[] { new Guid( parts[3] ) } );
                 results.Add( item == null || person == null ? "missing" : authorized.Invoke( null, new[] { item, parts[2], person } ).ToString() );
             }
 

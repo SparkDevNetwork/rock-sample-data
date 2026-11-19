@@ -1,0 +1,171 @@
+{
+  "$comment": "The church's tags on people (decision D-tags-1). An organizational tag is shared and sits in a tag category from categories.json, whose security decides who can see it and tag people with it. A personal tag has an 'owner' and no category: only its owner sees and uses it. 'rockShips' marks Rock's own Staff tag, found by Guid and never changed. 'createdBy' made an organizational tag; a personal tag is made by its owner. 'createdDaysAgo' is when the tag was made. 'taggedBy' tags each person, and defaults to the owner or the creator. Each person is tagged on a day after the tag was made and the person's record was made, and within 'taggedWithinDays' of install day when it is set. 'staff' tags every staff member this dataset loads, on their start date. 'cast' lists the Cast people a story tags. 'draw' adds generated people, never Cast people, who match every rule it gives: 'campus' (main, owner for the owner's campus, or every campus when left out), 'minAge' (18 when left out), 'maxAge', 'livesAlone', 'statuses' (connection statuses), 'firstCameWithinDays', and 'dataView' (in that data view on install day). Then 'percent' tags each match by that chance, or 'count' tags that many. 'access' is the security walkthrough for tags: verify asks Rock's own security check each one.",
+  "tags": [
+    {
+      "key": "staff",
+      "name": "Staff",
+      "guid": "0E70E933-F07A-4DA2-B696-368378E8F6FE",
+      "rockShips": true,
+      "taggedBy": { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "staff": true
+    },
+    {
+      "key": "homebound",
+      "name": "Homebound",
+      "description": "People who cannot leave home. Care volunteers visit them each month and bring communion.",
+      "guid": "61626310-042B-4FAD-92B0-66E07AC2934A",
+      "category": "care-tags",
+      "createdBy": { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro" },
+      "createdDaysAgo": 1500,
+      "taggedWithinDays": 730,
+      "iconCssClass": "ti ti-home-heart",
+      "backgroundColor": "#E3F2FD",
+      "cast": [
+        { "person": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB", "name": "Hal Russell" }
+      ],
+      "draw": { "minAge": 80, "livesAlone": true, "percent": 20 }
+    },
+    {
+      "key": "car-show-volunteers",
+      "name": "Car Show Volunteers",
+      "description": "Volunteers who park cars, judge, and grill at the Rock Solid Car Show.",
+      "guid": "A8164654-E491-4612-A28D-48AEA7B970B9",
+      "category": "event-tags",
+      "createdBy": { "person": "82309081-A110-496F-8295-CE6A4720D7A8", "name": "Jenny Michaels" },
+      "createdDaysAgo": 700,
+      "iconCssClass": "ti ti-car",
+      "backgroundColor": "#FFF3E0",
+      "cast": [
+        { "person": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE", "name": "Gary Jenkins" },
+        { "person": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C", "name": "Steve Morgan" },
+        { "person": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30", "name": "Marcus Washington" },
+        { "person": "28C4F2C0-0691-468F-B40E-550BD2976B9E", "name": "Bob Greggs" },
+        { "person": "A8002793-F4F2-425A-B68E-8BE8017EAEAC", "name": "Mike Rivera" },
+        { "person": "65B88091-00EE-4E28-9136-42B45E0C7188", "name": "Larry Bell" }
+      ],
+      "draw": { "campus": "main", "minAge": 25, "maxAge": 70, "statuses": [ "Connected", "Engaged", "Leading" ], "count": 14 }
+    },
+    {
+      "key": "possible-group-leaders",
+      "name": "Possible Group Leaders",
+      "guid": "F12AAB41-8DB3-4467-8418-15ACA6CC3116",
+      "owner": { "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2", "name": "Jamal Pierce" },
+      "createdDaysAgo": 400,
+      "taggedWithinDays": 120,
+      "cast": [
+        { "person": "9655AD2A-84AB-480F-9772-D5F438593450", "name": "Gabe Hernandez" },
+        { "person": "D593F194-9DC3-4936-A1C3-FB7E5CB09145", "name": "Allie Song" },
+        { "person": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33", "name": "Jim Simmons" },
+        { "person": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3", "name": "Tom Miller" },
+        { "person": "3459286F-18C8-4548-9938-53DAC8483D01", "name": "Phil Coffee" }
+      ],
+      "draw": { "campus": "main", "dataView": "ready-to-lead", "count": 8 }
+    },
+    {
+      "key": "young-adults-night",
+      "name": "Young Adults Night",
+      "guid": "094E1085-C4C3-442A-B14C-0D4AD8BD0194",
+      "owner": { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker" },
+      "createdDaysAgo": 120,
+      "cast": [
+        { "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F", "name": "Bri Hall" },
+        { "person": "A08C02C7-ED75-4F24-8F75-FB3956521804", "name": "Ty McClintock" },
+        { "person": "D7CE30DF-58F8-4268-BA19-56FDF17D3890", "name": "Paul Smith" },
+        { "person": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F", "name": "Tori Ramos" },
+        { "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB", "name": "Josh Sanders" },
+        { "person": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33", "name": "Drew Kim" }
+      ],
+      "draw": { "campus": "main", "maxAge": 29, "statuses": [ "Participant", "Connected", "Engaged", "Leading" ], "count": 10 }
+    },
+    {
+      "key": "office-volunteers",
+      "name": "Office Volunteers",
+      "guid": "4D5F0FF3-53F0-4FC2-BD65-5486ADCF6A04",
+      "owner": { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "createdDaysAgo": 900,
+      "cast": [
+        { "person": "727A0988-9147-40E0-96D5-12D90F3C2DDD", "name": "Deb Bell" },
+        { "person": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A", "name": "Linda Hayes" },
+        { "person": "6B190521-2A32-4B46-A02B-618174709D59", "name": "Barb Jenkins" },
+        { "person": "F9635310-8A62-4F4D-A0A3-CA2BA574889E", "name": "Cathy Price" }
+      ],
+      "draw": { "campus": "main", "minAge": 60, "statuses": [ "Engaged", "Leading" ], "count": 4 }
+    },
+    {
+      "key": "coffee-phoenix",
+      "name": "Coffee This Month",
+      "guid": "91C880FB-3810-4BFE-A52B-FDDA7D6C09DD",
+      "owner": { "person": "8A798763-D95F-4EE8-BF7F-FA320226335B", "name": "Aaron Mitchell" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "cast": [
+        { "person": "D41605ED-1652-421F-AC36-39DA3FE714E2", "name": "Carlos Ramirez" },
+        { "person": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6", "name": "Helen Evans" },
+        { "person": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B", "name": "Dan Richards" },
+        { "person": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285", "name": "Marty Webb" }
+      ]
+    },
+    {
+      "key": "coffee-peoria",
+      "name": "Coffee This Month",
+      "guid": "79578616-1E96-4452-95FD-FFA089834D31",
+      "owner": { "person": "DF911BBD-E3DA-4852-9C35-1A6F92A13558", "name": "Andre Haywood" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    },
+    {
+      "key": "coffee-gilbert",
+      "name": "Coffee This Month",
+      "guid": "D477B1D3-EF31-4852-BBAF-D3E7C61E0115",
+      "owner": { "person": "2FD26F42-1EB7-4187-B1EE-04703144128D", "name": "Joel Park" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    },
+    {
+      "key": "coffee-scottsdale",
+      "name": "Coffee This Month",
+      "guid": "EEF4817E-75C3-49D6-A71C-A5C7ECA8434D",
+      "owner": { "person": "E47EAABF-E7E2-4C6A-AD9B-A2353D4A5613", "name": "Walt Hargrove" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    },
+    {
+      "key": "coffee-chandler",
+      "name": "Coffee This Month",
+      "guid": "91919EF6-BDD4-4AF7-A935-359B685DED62",
+      "owner": { "person": "5DD2FCE8-0F2D-4A99-8C9C-0191AF2A541C", "name": "Josiah Faleolo" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    },
+    {
+      "key": "coffee-goodyear",
+      "name": "Coffee This Month",
+      "guid": "9A179BC6-C660-493B-B7BD-8BA3C33E6D52",
+      "owner": { "person": "E65DD626-9A6A-4353-837B-E6D48808E621", "name": "Rafael Ibarra" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    },
+    {
+      "key": "coffee-tempe",
+      "name": "Coffee This Month",
+      "guid": "16531906-B1CD-402E-A50B-9D1A4D0FCFC6",
+      "owner": { "person": "A102460D-6362-4202-8F8E-19CA2679312B", "name": "Miles Okafor" },
+      "createdDaysAgo": 600,
+      "taggedWithinDays": 30,
+      "draw": { "campus": "owner", "firstCameWithinDays": 180, "count": 4 }
+    }
+  ],
+  "access": [
+    { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro", "tag": "homebound", "action": "Tag", "allowed": true },
+    { "person": "82309081-A110-496F-8295-CE6A4720D7A8", "name": "Jenny Michaels", "tag": "homebound", "action": "View", "allowed": false },
+    { "person": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB", "name": "Hal Russell", "tag": "homebound", "action": "View", "allowed": false },
+    { "person": "82309081-A110-496F-8295-CE6A4720D7A8", "name": "Jenny Michaels", "tag": "car-show-volunteers", "action": "Tag", "allowed": true },
+    { "person": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2", "name": "Jamal Pierce", "tag": "possible-group-leaders", "action": "Tag", "allowed": true },
+    { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "tag": "possible-group-leaders", "action": "View", "allowed": false }
+  ]
+}

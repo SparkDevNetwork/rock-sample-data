@@ -638,7 +638,8 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
-    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() ).ToList();
+    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -657,7 +658,9 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var tags = ( source.Tags?.Tags ?? new List<TagDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}"
+            : a.Tag != null ? $"Tag\t{tags[a.Tag]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
@@ -671,7 +674,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? ( access[i].Tag == null ? $"page {access[i].Page}" : $"tag {access[i].Tag}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 

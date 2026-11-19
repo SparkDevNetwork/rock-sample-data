@@ -375,6 +375,62 @@
       "guid": "2833CBF0-95C9-453A-9CC2-38AD9E87B76E"
     },
     {
+      "key": "care-tags",
+      "entityType": "Rock.Model.Tag",
+      "name": "Care",
+      "description": "Tags for pastoral care, such as people who are homebound. Only staff, pastors, and Rock administrators can see or use them.",
+      "iconCssClass": "ti ti-heart-handshake",
+      "guid": "654E1498-3BA0-4B60-919B-C8E608954FCB",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Pastoral Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Tag",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Pastoral Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
+      "key": "event-tags",
+      "entityType": "Rock.Model.Tag",
+      "name": "Events",
+      "description": "Tags for the people who help with one event, such as the car show's volunteers. Staff and staff-like volunteers can see and use them.",
+      "iconCssClass": "ti ti-calendar-event",
+      "guid": "310D29CE-FE5B-4A3E-BE40-3BD6DB130D92",
+      "security": [
+        {
+          "action": "View",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Staff Like Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        },
+        {
+          "action": "Tag",
+          "allow": [
+            "RSR - Staff Workers",
+            "RSR - Staff Like Workers",
+            "RSR - Rock Administration"
+          ],
+          "denyAllUsers": true
+        }
+      ]
+    },
+    {
       "key": "staff-person-attributes",
       "entityType": "Rock.Model.Attribute",
       "qualifierEntityType": "Rock.Model.Person",

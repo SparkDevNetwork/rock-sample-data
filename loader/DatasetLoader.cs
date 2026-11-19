@@ -65,6 +65,7 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Tags", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -623,6 +624,11 @@ namespace RockSampleData.Loader
             // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
+
+            // The church's tags on people (decision D-tags-1). Jamal Pierce's tag holds people from Ready to Lead, a data
+            // view, so tags follow every step that writes views. No step after this reads a tag.
+            steps.Begin( "Tags" );
+            log.Write( "  " + new TagsLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, mainCampusKey ) );
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

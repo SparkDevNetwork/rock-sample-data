@@ -190,6 +190,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CastTagExpectations.Check( db, source, guids, failures );
+
             return (checks, failures);
         }
 

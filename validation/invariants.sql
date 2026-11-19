@@ -2447,3 +2447,46 @@ FROM [AdaptiveMessageAdaptation] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptationSegment] AS [s] WHERE [s].[AdaptiveMessageAdaptationId] = [a].[Id] )
     AND EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptation] AS [later] WHERE [later].[AdaptiveMessageId] = [a].[AdaptiveMessageId] AND [later].[Order] > [a].[Order] );
+
+-- check: tag-is-saved-like-rock
+-- why: Decision D-tags-1. Rock's tag bar and Tag Report find a tag on people by Rock's Person entity type, with no qualifier, while it is active. A personal tag belongs to its owner's primary alias, who made it, and has no category. An organizational tag sits in a tag category, whose security decides who can see and use it. Each was made by install day.
+SELECT COUNT(*)
+FROM [Tag] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( [t].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR ISNULL( [t].[EntityTypeQualifierColumn], '' ) <> '' OR ISNULL( [t].[EntityTypeQualifierValue], '' ) <> '' OR [t].[IsActive] = 0
+        OR [t].[CreatedByPersonAliasId] IS NULL OR [t].[CreatedDateTime] >= CAST( GETDATE() AS DATE )
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL
+            AND ( [t].[CategoryId] IS NOT NULL OR [t].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId]
+                OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[PrimaryAliasId] = [t].[OwnerPersonAliasId] ) ) )
+        OR ( [t].[OwnerPersonAliasId] IS NULL
+            AND NOT EXISTS ( SELECT 1 FROM [Category] AS [c] WHERE [c].[Id] = [t].[CategoryId] AND [c].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Tag' ) ) ) );
+
+-- check: tag-name-is-unique-for-its-owner
+-- why: Decision D-tags-1. Rock's TagService finds a tag by its name and owner, so two tags on people with one name and owner would send the tag bar to either one.
+SELECT COUNT(*)
+FROM (
+    SELECT [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 ) AS [Owner]
+    FROM [Tag] AS [t]
+    WHERE [t].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    GROUP BY [t].[Name], ISNULL( [t].[OwnerPersonAliasId], 0 )
+    HAVING COUNT(*) > 1 ) AS [x];
+
+-- check: tagged-item-is-on-a-dataset-person
+-- why: Decision D-tags-1. A tagged item finds its person by Guid, with no foreign key, so each one the load wrote is on Rock's Person entity type, points at a person in this dataset, and is the only one for that person and tag, as Rock's tag bar adds it.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        OR NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Guid] = [ti].[EntityGuid] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) )
+        OR ( SELECT COUNT(*) FROM [TaggedItem] AS [other] WHERE [other].[TagId] = [ti].[TagId] AND [other].[EntityGuid] = [ti].[EntityGuid] ) > 1 );
+
+-- check: tagged-item-is-made-by-someone-who-may-tag
+-- why: Decision D-tags-1. Rock's tag bar lets only a personal tag's owner use it, and records who tagged the person. Each person was tagged after the tag was made and before install day.
+SELECT COUNT(*)
+FROM [TaggedItem] AS [ti]
+INNER JOIN [Tag] AS [t] ON [t].[Id] = [ti].[TagId]
+WHERE [ti].[ForeignKey] = @ForeignKey
+    AND ( [ti].[CreatedByPersonAliasId] IS NULL
+        OR ( [t].[OwnerPersonAliasId] IS NOT NULL AND [ti].[CreatedByPersonAliasId] <> [t].[OwnerPersonAliasId] )
+        OR [ti].[CreatedDateTime] < [t].[CreatedDateTime] OR [ti].[CreatedDateTime] >= CAST( GETDATE() AS DATE ) );
