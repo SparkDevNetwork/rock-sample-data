@@ -163,8 +163,8 @@ namespace RockSampleData.Loader.Loading
             var schedules = TableFactory.Create( "Id:int", "TransactionFrequencyValueId:int", "StartDate:date", "EndDate:date", "NextPaymentDate:date", "IsActive:bool", "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "SourceTypeValueId:int", "TransactionTypeValueId:int", "GatewayScheduleId:string", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var scheduleDetails = TableFactory.Create( "Id:int", "ScheduledTransactionId:int", "AccountId:int", "Amount:decimal", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var transactions = TableFactory.Create( "Id:int", "BatchId:int", "TransactionDateTime:date", "TransactionCode:string", "TransactionTypeValueId:int", "SourceTypeValueId:int", "ScheduledTransactionId:int", "AuthorizedPersonAliasId:int", "FinancialGatewayId:int", "FinancialPaymentDetailId:int", "IsSettled:bool", "SettledDate:date", "ShowAsAnonymous:bool", "SundayDate:date", "TransactionDateKey:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "CheckMicrHash:string", "MICRStatus:int", "CheckMicrEncrypted:string", "CheckMicrParts:string",
-                "Summary:string", "NonCashAssetTypeValueId:int", "ForeignCurrencyCodeValueId:int" );
-            var details = TableFactory.Create( "Id:int", "TransactionId:int", "AccountId:int", "Amount:decimal", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "ForeignCurrencyAmount:decimal" );
+                "Summary:string", "NonCashAssetTypeValueId:int" );
+            var details = TableFactory.Create( "Id:int", "TransactionId:int", "AccountId:int", "Amount:decimal", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             var nextBatchId = NextId( "FinancialBatch" );
             var nextPaymentId = NextId( "FinancialPaymentDetail" );
@@ -178,8 +178,8 @@ namespace RockSampleData.Loader.Loading
             var qualifying = new List<RockGift>();
             var plannedGifts = new List<PlannedGift>();
 
-            // How each pattern gives comes first, so the winter visitors who give Canadian checks can be chosen from
-            // the check writers. Each pattern keeps its own random stream, so its gifts are the same as before.
+            // How each pattern gives is worked out first, and the in-kind gifts read it. Each pattern keeps its own
+            // random stream, so its gifts are the same as in one pass.
             var patterns = new Dictionary<CastGiving, PatternPlan>();
             foreach ( var household in households )
             {
@@ -194,7 +194,6 @@ namespace RockSampleData.Loader.Loading
                 }
             }
 
-            var foreignCurrency = ForeignCurrencyPatterns( patterns.Values, households, castHouseholdKeys );
             LoadInKindKinds();
 
             foreach ( var household in households )
@@ -234,17 +233,13 @@ namespace RockSampleData.Loader.Loading
                     {
                         var date = gift.When.Date;
 
-                        // A winter visitor's Sunday check in Canadian dollars. Its lines become what the bank credited.
-                        var foreign = foreignCurrency.Contains( pattern ) ? ForeignCurrencyLines( gift ) : null;
-
                         // The Sunday offering is two batches: its checks go through the check scanner in a batch of their own,
                         // and its cash is counted and entered by hand. Checks that do not arrive in the Sunday offering come by
-                        // mail and are entered during the week. Gifts of stock or property are entered by hand in a batch of their own,
-                        // and so are Canadian checks, which the bank takes at the counter.
+                        // mail and are entered during the week. Gifts of stock or property are entered by hand in a batch of their own.
                         var isMailed = !gift.Onsite && gift.Currency is "Check" or "Cash";
                         var isNonCash = gift.Currency == "Non-Cash Asset";
                         var isManual = gift.Onsite || isMailed || isNonCash;
-                        var batchKind = foreign != null ? "foreign-checks" : gift.Onsite ? ( gift.Currency == "Check" ? "onsite-checks" : "onsite-cash" ) : isMailed ? "mail" : isNonCash ? "noncash" : "online";
+                        var batchKind = gift.Onsite ? ( gift.Currency == "Check" ? "onsite-checks" : "onsite-cash" ) : isMailed ? "mail" : isNonCash ? "noncash" : "online";
                         var batchKey = (date, plan.CampusId, batchKind);
                         if ( !batchIds.TryGetValue( batchKey, out var batchId ) )
                         {
@@ -256,7 +251,6 @@ namespace RockSampleData.Loader.Loading
                                 "onsite-cash" => $"Sunday Offering Cash {date:MM/dd/yyyy}",
                                 "mail" => $"Mailed Checks {date:MM/dd/yyyy}",
                                 "noncash" => $"Non-Cash Gifts {date:MM/dd/yyyy}",
-                                "foreign-checks" => $"{_source.ForeignCurrency.BatchName} {date:MM/dd/yyyy}",
                                 _ => $"Online Giving {date:MM/dd/yyyy}"
                             };
                             batches.Rows.Add( batchId, name, date, date.AddDays( 1 ), 2, plan.CampusId, 0m, 0, !isManual, Guid.NewGuid(), _foreignKey, date, date );
@@ -281,16 +275,10 @@ namespace RockSampleData.Loader.Loading
                             SetInKind( transactionRow, gift, household, pattern );
                         }
 
-                        if ( foreign != null )
-                        {
-                            transactionRow["ForeignCurrencyCodeValueId"] = _foreignCurrencyCodeId;
-                        }
-
                         var lines = new List<DataRow>();
                         foreach ( var amount in gift.Amounts )
                         {
-                            lines.Add( details.Rows.Add( nextDetailId++, transactionId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gift.When, gift.When,
-                                foreign != null ? foreign[amount.Key] : DBNull.Value ) );
+                            lines.Add( details.Rows.Add( nextDetailId++, transactionId, amount.Key, amount.Value, Guid.NewGuid(), _foreignKey, gift.When, gift.When ) );
                         }
 
                         if ( RockGiftFor( transactionId, giver, gift.When, !isManual, gift.Currency, gift.ScheduleIndex.HasValue, gift.Amounts ) is { } rockGift )
@@ -298,10 +286,9 @@ namespace RockSampleData.Loader.Loading
                             qualifying.Add( rockGift );
                         }
 
-                        plannedGifts.Add( new PlannedGift( transactionId, transactionRow, lines, batchId, household, giver, pattern, wallet, gift, !isManual, foreign != null ? _foreignCurrencyCodeId : null ) );
+                        plannedGifts.Add( new PlannedGift( transactionId, transactionRow, lines, batchId, household, giver, pattern, wallet, gift, !isManual ) );
 
-                        // A Canadian check is not scanned, so it has no image, check number, or bank account on file.
-                        if ( gift.Currency == "Check" && foreign == null )
+                        if ( gift.Currency == "Check" )
                         {
                             CheckGifts.Add( new CheckGift( transactionId, transactionRow, giver, household, wallet, gift.When, total, gift.Amounts.Keys.Select( FundName ).ToList(), pattern.Signer ) );
                         }

@@ -178,7 +178,6 @@ namespace RockSampleData.Loader
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             InKindGifts = Files.Exists( InKindGiftsConfigurationPath ) ? Read<InKindGiftsConfiguration>( InKindGiftsConfigurationPath ) : null;
-            ForeignCurrency = Files.Exists( ForeignCurrencyConfigurationPath ) ? Read<ForeignCurrencyConfiguration>( ForeignCurrencyConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
             Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
             PersonalLinks = Files.Exists( PersonalLinksConfigurationPath ) ? Read<PersonalLinksConfiguration>( PersonalLinksConfigurationPath ) : null;
@@ -244,13 +243,6 @@ namespace RockSampleData.Loader
         public InKindGiftsConfiguration InKindGifts { get; }
 
         public const string InKindGiftsConfigurationPath = "configuration/in-kind-gifts.json";
-
-        /// <summary>
-        /// The winter visitors who give checks in a foreign currency, or null in a package built before them, which has none.
-        /// </summary>
-        public ForeignCurrencyConfiguration ForeignCurrency { get; }
-
-        public const string ForeignCurrencyConfigurationPath = "configuration/foreign-currency.json";
 
         /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.

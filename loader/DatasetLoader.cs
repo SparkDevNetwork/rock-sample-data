@@ -299,7 +299,6 @@ namespace RockSampleData.Loader
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             new CampaignLoader( db, source, dates, foreignKey ).Load();
-            ForeignCurrencySetup.Load( db, source, foreignKey );
             var categoryCount = new CategoriesLoader( db, source, foreignKey ).Load();
             if ( categoryCount > 0 )
             {

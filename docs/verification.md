@@ -177,7 +177,6 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `refund-is-of-a-gift` | Giving refunds return gifts. Only Registration Follow-ups may refund a registration payment (decision 262). |
 | `returned-check-is-a-whole-check` | A refund with Rock's Insufficient Funds or Returned Check reason is a check the bank returned: it returns the whole check and has no gateway or gateway code (decision D-uncommon-1). |
 | `non-cash-gift-is-rocks` | An in-kind gift is paid with Non-Cash Asset, has one of Rock's Non-Cash Asset Types and a summary for the statement, no gateway, and no refund. Only a non-cash gift has an asset type (decision D-uncommon-2). |
-| `foreign-currency-gift-is-rocks` | A gift in another currency is a check staff entered, with one of Rock's Currency Codes that is not the church's own and a positive foreign amount on every line. No other gift has a foreign amount (decision D-uncommon-3). |
 | `member-role-belongs-to-the-group-type` | Rock allows only roles of the group's type, and the database does not enforce it. |
 | `one-current-history-row` | Rock's history tables mark exactly one current row per group, member, and meeting place. |
 | `photo-is-a-stored-person-image` | A photo must point at a stored Person Image, or the profile shows a broken image. |

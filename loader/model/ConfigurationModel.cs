@@ -513,53 +513,6 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// configuration/foreign-currency.json: the Canadian winter visitors who give Canadian checks (decision D-uncommon-3).
-    /// </summary>
-    internal sealed class ForeignCurrencyConfiguration
-    {
-        /// <summary>
-        /// The currency's value in Rock's Currency Code defined type, such as CAD.
-        /// </summary>
-        public string CurrencyCode { get; set; }
-
-        /// <summary>
-        /// How many generated households give in the currency, per 1,000 generated households.
-        /// </summary>
-        public double HouseholdsPerThousand { get; set; }
-
-        /// <summary>
-        /// The fewest households that give in the currency, in a dataset with generated households.
-        /// </summary>
-        public int MinimumHouseholds { get; set; }
-
-        /// <summary>
-        /// The youngest a giver can be on install day: winter visitors are retired.
-        /// </summary>
-        public int MinimumGiverAge { get; set; }
-
-        /// <summary>
-        /// The months the visitors are in Phoenix, when their checks are in the currency.
-        /// </summary>
-        public List<int> Months { get; set; } = new List<int>();
-
-        /// <summary>
-        /// What one unit of the currency is worth in the church's currency, at least and at most. The bank's rate on
-        /// each deposit day falls in this range.
-        /// </summary>
-        public AmountRange Rate { get; set; } = new AmountRange();
-
-        /// <summary>
-        /// The name of the batch that holds a Sunday's checks in the currency, before its date.
-        /// </summary>
-        public string BatchName { get; set; }
-
-        /// <summary>
-        /// The block types whose Enable Foreign Currency setting the church turns on, by Guid.
-        /// </summary>
-        public List<Guid> BlockTypes { get; set; } = new List<Guid>();
-    }
-
-    /// <summary>
     /// configuration/achievements.json: the kids check-in streak type and the achievement types that read it.
     /// </summary>
     internal sealed class AchievementConfiguration

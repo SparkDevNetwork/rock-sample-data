@@ -39,7 +39,7 @@ namespace RockSampleData.Loader.Loading
         5. insufficient-funds and returned-check: the bank returned a check, and staff refunded it in full with Rock's
            Insufficient Funds or Returned Check reason. A check has no gateway, so Rock's refund only records it.
 
-        No refund is of an in-kind gift, which was never cash, or of a gift in a foreign currency, which Rock refuses.
+        No refund is of an in-kind gift, which was never cash.
 
         A refund never changes what a gift gave to the building campaign, so the pledges stay as planned. Staff refund
         on weekdays. Every refund comes on or before Rock's last weekly journey stage run, because Rock's journey
@@ -101,8 +101,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// A planned gift, with what a refund of it needs. <see cref="Lines"/> are its detail rows, in Id order.
         /// </summary>
-        private sealed record PlannedGift( int TransactionId, DataRow Row, List<DataRow> Lines, int BatchId, LoadedHousehold Household, LoadedPerson Giver, CastGiving Pattern, Wallet Wallet, Gift Gift, bool IsOnline,
-            int? ForeignCurrencyCodeValueId );
+        private sealed record PlannedGift( int TransactionId, DataRow Row, List<DataRow> Lines, int BatchId, LoadedHousehold Household, LoadedPerson Giver, CastGiving Pattern, Wallet Wallet, Gift Gift, bool IsOnline );
 
         /// <summary>
         /// The next free Ids, which a duplicate gift takes before the refunds do.
@@ -181,7 +180,7 @@ namespace RockSampleData.Loader.Loading
                 var cardTypeId = _payments.CardType( gift.Gift.Currency, gift.Wallet ) as int?;
                 var sourceId = DefinedValueId( gift.IsOnline ? PaymentMethods.WebsiteSourceGuid : OnsiteSourceGuid );
                 RefundableTransaction Original( int id, DateTime when, IEnumerable<KeyValuePair<int, decimal>> lines ) => new RefundableTransaction( id, gift.Giver.AliasId, when, contributionId, sourceId,
-                    gift.IsOnline ? gatewayId : null, gift.IsOnline ? ( string ) gift.Row["TransactionCode"] : null, gift.ForeignCurrencyCodeValueId, currencyId, cardTypeId, gift.Wallet.Masked( gift.Gift.Currency ), false,
+                    gift.IsOnline ? gatewayId : null, gift.IsOnline ? ( string ) gift.Row["TransactionCode"] : null, null, currencyId, cardTypeId, gift.Wallet.Masked( gift.Gift.Currency ), false,
                     lines.Select( l => new RefundableLine( l.Key, l.Value ) ).ToList() );
                 RockGift Before( IEnumerable<KeyValuePair<int, decimal>> lines ) => RockGiftFor( gift.TransactionId, gift.Giver, gift.Gift.When, gift.IsOnline, gift.Gift.Currency, gift.Gift.ScheduleIndex.HasValue, lines );
 
@@ -382,14 +381,13 @@ namespace RockSampleData.Loader.Loading
         /// an incorrect amount a one-time online gift to one fund, a one-fund refund a gift to two funds, an earlier
         /// year refund a gift whose refund falls in the next year, and a returned check a check. None touches a building
         /// campaign line, except a duplicate, whose refund takes back exactly what it added. No kind refunds an in-kind
-        /// gift or a gift in a foreign currency. Staff refund on a weekday, during office hours, on or before Rock's last
-        /// journey run.
+        /// gift. Staff refund on a weekday, during office hours, on or before Rock's last journey run.
         /// </summary>
         private RefundChoice Choose( PlannedGift gift, RefundKind kind, RefundKindDefinition definition, DateTime lastRun, bool isShortestDelay )
         {
             // Cheap tests first: a seeded stream for every gift and kind would slow Full 7.
             var latestDay = gift.Gift.When.Date.AddDays( definition.DelayDays.Max + 2 );
-            if ( gift.Gift.When >= lastRun || ( kind == RefundKind.EarlierYear && latestDay.Year == gift.Gift.When.Year ) || gift.ForeignCurrencyCodeValueId.HasValue || gift.Gift.Currency == "Non-Cash Asset" )
+            if ( gift.Gift.When >= lastRun || ( kind == RefundKind.EarlierYear && latestDay.Year == gift.Gift.When.Year ) || gift.Gift.Currency == "Non-Cash Asset" )
             {
                 return null;
             }

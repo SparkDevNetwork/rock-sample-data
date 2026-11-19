@@ -1,12 +1,14 @@
 # Uncommon gifts
 
-How returned checks, in-kind gifts, and checks in Canadian dollars work in the sample data, and why. The decisions are D-uncommon-1 to D-uncommon-3 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json`, `configuration/in-kind-gifts.json`, and `configuration/foreign-currency.json`, so they can be tuned in one place.
+How returned checks and in-kind gifts work in the sample data, and why. The decisions are D-uncommon-1 and D-uncommon-2 in [Decisions](decisions.md). The numbers live in `configuration/refunds.json` and `configuration/in-kind-gifts.json`, so they can be tuned in one place.
 
 ## The idea
 
-Most gifts are cash, checks, cards, and bank transfers, all in dollars. A real church also sees a few uncommon ones. A check bounces. A family gives stock, a car, or a piano. In Phoenix, a Canadian winter visitor puts a Canadian check in the offering. The sample data has a few of each, written the way staff enter them in Rock. So Rock's screens, statements, and giving analytics treat them as they would at a real church.
+Most gifts are cash, checks, cards, and bank transfers, all in dollars. A real church also sees a few uncommon ones. A check bounces. A family gives stock, a car, or a piano. The sample data has a few of each, written the way staff enter them in Rock. So Rock's screens, statements, and giving analytics treat them as they would at a real church.
 
 Each part reads the same Rock code in Rock 20.0.10 and 21.0.2.
+
+Every gift is in US dollars, the church's own currency. A gift in another currency is too rare at most churches to be worth showing.
 
 ## Returned checks
 
@@ -63,37 +65,16 @@ No in-kind gift is ever refunded, because it was never cash. The Cast gets only 
 
 William and Catherine Price gave $25,000 in stock to the Built on the Rock campaign, 30 weeks after Commitment Sunday (see [Pledges](pledges.md)). It is a non-cash gift of Stocks And Bonds with its summary, and it counts toward their pledge on their statement. Every load checks it.
 
-## Checks in Canadian dollars
-
-### What Rock has
-
-Rock stores a gift in another currency in the church's own currency, with the currency code on the transaction and the foreign amount on each line. The church's currency is US dollars (Rock's Organization Standard Currency Code global attribute). Canadian dollars are CAD, one of the 135 currency codes Rock ships.
-
-No gateway that ships with Rock takes a gift in another currency online. Rock's `GatewayComponent.IsCurrencyCodeSupported` accepts only the church's own currency, no core gateway changes that, and Rock refuses the payment. So in core Rock, a gift in Canadian dollars is a check that staff enter by hand. The Transaction Detail block takes the currency code and each line's Canadian amount when its Enable Foreign Currency setting is on. Rock refuses to refund a gift in a foreign currency.
-
-### How they are made
-
-A few generated households are Canadian winter visitors. Each is a retiree, 60 or older, who gives by check on Sundays and does not take part in the building campaign. Those who give every week, every other week, or every month come first, so their checks run through the winter. From November through March, their checks are drawn on a Canadian bank, in Canadian dollars.
-
-1. **How many.** 0.3 households for every 1,000 generated households, and at least one in a dataset with generated households: 5 in Full 7 and 1 in Core 3. On 2026-11-17, Full 7's five gave 32 Canadian checks, CAD 25,836 credited as $18,810. Core 3 has no retiree who gives at least monthly by check on Sundays, so its one visitor gave a single winter check. The Cast has no Canadian, so Core 1 has none. Calibration has no measure for this, so the count is designed.
-2. **The amounts.** The giver writes a round Canadian amount, close to their usual gift. The bank credits it at its rate that day, between 0.70 and 0.76 US dollars for each Canadian dollar. Staff enter both: the Canadian amount on each line, and the dollars the bank credited as the line's amount.
-3. **The batch.** A US check scanner cannot read a Canadian check, so the bank takes it at the counter. A Sunday's Canadian checks go in a batch of their own, such as "Canadian Checks 01/11/2026", with no check image or check number.
-4. **The screens.** The church turns on Enable Foreign Currency on every Transaction Detail and Transaction List block, so staff see the currency and the Canadian amounts. Statements and giving analytics use the dollars.
-5. **No refunds.** No refund kind takes a gift in Canadian dollars, since Rock refuses one.
-
-The Crowd has no seasonal attendance yet, so these households come and give all year. Only their winter checks are Canadian.
-
 ## Checks
 
-1. **Invariants** (`validation/invariants.sql`): `returned-check-is-a-whole-check`, `non-cash-gift-is-rocks`, and `foreign-currency-gift-is-rocks`. `refund-is-rocks` already holds that no refund is of a gift in a foreign currency.
+1. **Invariants** (`validation/invariants.sql`): `returned-check-is-a-whole-check` and `non-cash-gift-is-rocks`.
 2. **Cast expectations:** Javelina Wash Coffee's returned check, and the Price family's stock gift.
 3. **The refund check** in every load's log covers returned checks, as it does every refund.
 4. **Validation** grades the refund rate and the non-cash share of gifts and dollars.
 5. **The anchor sweep** holds the Cast giving stories on 60 install days, the returned check and the stock gift among them.
-6. **The load log** counts each kind: "In-kind gifts" by kind, "CAD checks" with their Canadian and US totals, and the refunds by kind.
-7. **The Rock version guard** (`validation/rock-lock.json`) fingerprints the Rock code this rests on: `GatewayComponent.IsCurrencyCodeSupported`, the Transaction Detail block's Enable Foreign Currency setting, and how a statement splits cash and non-cash gifts. A Rock change to any of them fails `node validation/check-rock-lock.js`.
+6. **The load log** counts each kind: "In-kind gifts" by kind, and the refunds by kind.
+7. **The Rock version guard** (`validation/rock-lock.json`) fingerprints the Rock code this rests on: how a statement splits cash and non-cash gifts. A Rock change to it fails `node validation/check-rock-lock.js`.
 
 ## Later
 
-- **Seasonal attendance,** so the winter visitors come only in the winter.
 - **Bounced bank transfers,** if the sample church ever uses a gateway that downloads payments.

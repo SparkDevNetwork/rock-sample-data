@@ -61,7 +61,7 @@ Every refund comes on or before Rock's last weekly journey stage run, the Tuesda
 
 1. It never changes what a gift gave to the building campaign, so every pledge stays as planned (see [Pledges](pledges.md)). A duplicate's refund takes back exactly what the duplicate added.
 2. A gift has at most one refund, and a giver has at most one refund in each 12-month window.
-3. No refund is of an in-kind gift, which was never cash, or of a gift in a foreign currency, which Rock refuses (see [Uncommon gifts](uncommon-gifts.md)).
+3. No refund is of an in-kind gift, which was never cash (see [Uncommon gifts](uncommon-gifts.md)).
 4. The open batch of unmatched checks has no refunds, because its checks have no giver yet.
 
 ## Giving analytics
@@ -100,4 +100,4 @@ The refund writer takes any transaction, not only a gift. Registration Follow-up
 
 ## Other uncommon gifts
 
-Returned checks, in-kind gifts, and checks in Canadian dollars are built. See [Uncommon gifts](uncommon-gifts.md).
+Returned checks and in-kind gifts are built. See [Uncommon gifts](uncommon-gifts.md).

@@ -176,7 +176,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Profiles have signals.** Four signal types, each locked to its roles, flag the Cast's stories, such as Frank Dexter's Safety Team Review, Maddie Lowe's Pickup Instructions, and Hal Russell's Care Team Follow-up. Each campus pastor follows up with a few people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none. See [How signals load](loader/README.md#how-signals-load).
 - **The bookmark menu is full.** The bookmarks beside Rock's search bar have shared sections for Sunday morning, care, finance, and communications, each locked to its roles, and personal sections for six staff and every campus pastor. Every link opens a Rock page with sample data on it. Sign in as `pfoster` to see Pete Foster's Leadership section. See [How personal links load](loader/README.md#how-personal-links-load).
 - **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, gifts from an earlier year, and checks the bank returned, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
-- **Some gifts are uncommon:** stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement, and Canadian checks from a few winter visitors, entered in Canadian dollars. See [Uncommon gifts](docs/uncommon-gifts.md).
+- **Some gifts are uncommon:** stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement. See [Uncommon gifts](docs/uncommon-gifts.md).
 
 ## What is where
 
