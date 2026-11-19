@@ -64,7 +64,8 @@ namespace RockSampleData.Loader
         Notes,
 
         /// <summary>
-        /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates and program completions.
+        /// Steps on Rock's Discipleship Path and the Student Path, with baptism dates, program completions, and the staff
+        /// follow-up workflows that completed steps start.
         /// </summary>
         Steps,
 
@@ -192,7 +193,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
             new SampleDataPartInfo( SampleDataPart.Reminders, "Reminders", "Reminders staff set about people they have notes on and leaders set about their groups: some due, some upcoming, some complete, and a few that repeat.", SampleDataPart.Notes, SampleDataPart.SmallGroups ),
-            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
+            new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions and the staff follow-up tasks a baptism or a decision to follow Jesus starts.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Assessments, "Assessments", "DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators results for staff, leaders, and class members, with the answers behind them and the requests still waiting.", SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),

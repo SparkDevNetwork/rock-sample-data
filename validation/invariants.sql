@@ -1156,10 +1156,10 @@ WHERE [i].[ForeignKey] = @ForeignKey
             AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
 
 -- check: workflow-is-finished-as-rock-leaves-it
--- why: Decision 235. Each sample workflow is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow.
+-- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started has its own rules (issue 18).
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
-WHERE [w].[ForeignKey] = @ForeignKey
+WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] )
     AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] IS NULL OR [w].[InitiatorPersonAliasId] IS NULL OR [w].[CompletedDateTime] > GETDATE()
         OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NOT NULL ) <> 1
         OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act]
@@ -2486,3 +2486,77 @@ SELECT COUNT(*)
 FROM [Reminder] AS [r]
 WHERE [r].[ForeignKey] = @ForeignKey AND [r].[IsComplete] = 0
     AND [r].[ReminderDate] > CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) AND [r].[ReminderDate] < DATEADD( DAY, 1, CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) );
+
+-- check: step-workflow-is-as-rock-launches-it
+-- why: Issue 18. When a step becomes complete, Rock launches each Step Completed trigger's workflow type with the step as the workflow's entity, on its message bus, so nobody is the initiator, and links the step, the trigger, and the workflow with one StepWorkflow row. The workflow is the trigger's type, its step is of the trigger's step type and complete, and it started when the step was completed or later.
+SELECT COUNT(*)
+FROM [StepWorkflow] AS [sw]
+INNER JOIN [StepWorkflowTrigger] AS [t] ON [t].[Id] = [sw].[StepWorkflowTriggerId]
+INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+INNER JOIN [Step] AS [s] ON [s].[Id] = [sw].[StepId]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+WHERE [sw].[ForeignKey] = @ForeignKey
+    AND ( [t].[TriggerType] <> 2 OR [t].[StepTypeId] <> [s].[StepTypeId] OR [w].[WorkflowTypeId] <> [t].[WorkflowTypeId] OR [ss].[IsCompleteStatus] = 0
+        OR [w].[EntityId] <> [s].[Id] OR [w].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Step' )
+        OR [w].[InitiatorPersonAliasId] IS NOT NULL OR [w].[ActivatedDateTime] < [s].[CompletedDateTime] OR [w].[ActivatedDateTime] > GETDATE()
+        OR ( SELECT COUNT(*) FROM [StepWorkflow] AS [other] WHERE [other].[StepId] = [s].[Id] AND [other].[StepWorkflowTriggerId] = [t].[Id] ) <> 1 );
+
+-- check: completed-step-has-its-workflow
+-- why: Issue 18. Rock launches a Step Completed trigger's workflow for every step of its type completed after the trigger was made, so each such step has one.
+SELECT COUNT(*)
+FROM [Step] AS [s]
+INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId] AND [ss].[IsCompleteStatus] = 1
+INNER JOIN [StepWorkflowTrigger] AS [t] ON [t].[StepTypeId] = [s].[StepTypeId] AND [t].[TriggerType] = 2 AND [t].[ForeignKey] = @ForeignKey
+WHERE [s].[ForeignKey] = @ForeignKey AND [s].[CompletedDateTime] >= [t].[CreatedDateTime]
+    AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[StepId] = [s].[Id] AND [sw].[StepWorkflowTriggerId] = [t].[Id] );
+
+-- check: step-workflow-waits-at-its-form-or-is-complete
+-- why: Issue 18. A step workflow has one activity, assigned to a person. An open one waits at its form: every action before the form is complete, the form is processed but not complete, and nothing after it has run, so Rock's My Workflows list shows it to that person. A completed one has every action complete and its form submitted with a button, by its assignee.
+SELECT COUNT(*)
+FROM [StepWorkflow] AS [sw]
+INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+WHERE [sw].[ForeignKey] = @ForeignKey
+    AND ( ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] ) <> 1
+        OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id]
+            AND ( [act].[AssignedPersonAliasId] IS NULL OR [act].[ActivatedDateTime] IS NULL
+                OR ( [w].[CompletedDateTime] IS NULL AND [act].[CompletedDateTime] IS NOT NULL ) OR ( [w].[CompletedDateTime] IS NOT NULL AND [act].[CompletedDateTime] IS NULL ) ) )
+        OR ( [w].[CompletedDateTime] IS NULL AND ( [w].[Status] <> 'Active' OR [w].[IsProcessing] = 1 OR EXISTS (
+            SELECT 1
+            FROM [WorkflowActivity] AS [act]
+            INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [act].[ActivityTypeId]
+            INNER JOIN [WorkflowActionType] AS [form] ON [form].[ActivityTypeId] = [act].[ActivityTypeId] AND [form].[WorkflowFormId] IS NOT NULL
+            LEFT JOIN [WorkflowAction] AS [ac] ON [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id]
+            WHERE [act].[WorkflowId] = [w].[Id]
+                AND ( [ac].[Id] IS NULL
+                    OR ( [at].[Order] < [form].[Order] AND [ac].[CompletedDateTime] IS NULL )
+                    OR ( [at].[Order] = [form].[Order] AND ( [ac].[CompletedDateTime] IS NOT NULL OR [ac].[LastProcessedDateTime] IS NULL ) )
+                    OR ( [at].[Order] > [form].[Order] AND [ac].[CompletedDateTime] IS NOT NULL ) ) ) ) )
+        OR ( [w].[CompletedDateTime] IS NOT NULL AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] > GETDATE()
+            OR EXISTS (
+                SELECT 1
+                FROM [WorkflowActivity] AS [act]
+                INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [act].[ActivityTypeId]
+                LEFT JOIN [WorkflowAction] AS [ac] ON [ac].[ActivityId] = [act].[Id] AND [ac].[ActionTypeId] = [at].[Id]
+                WHERE [act].[WorkflowId] = [w].[Id] AND ( [ac].[CompletedDateTime] IS NULL OR ( [at].[WorkflowFormId] IS NOT NULL AND [ac].[FormAction] IS NULL ) ) )
+            OR NOT EXISTS (
+                SELECT 1
+                FROM [WorkflowActivity] AS [act]
+                INNER JOIN [PersonAlias] AS [apa] ON [apa].[Id] = [act].[AssignedPersonAliasId]
+                INNER JOIN [PersonAlias] AS [mpa] ON [mpa].[Id] = [w].[ModifiedByPersonAliasId]
+                WHERE [act].[WorkflowId] = [w].[Id] AND [apa].[PersonId] = [mpa].[PersonId] ) ) ) );
+
+-- check: step-workflow-type-keeps-its-workflows
+-- why: Issue 18. Rock Cleanup completes a workflow older than its type's age limit, deletes a completed one and its step link after its type's retention period, and deletes logs after the log retention period. A form that sends an email would send it when Process Workflows first runs it. So every workflow type a step triggers is active and persisted, with none of those limits and no form email, and the jobs leave each open workflow open and each completed one as it is.
+SELECT COUNT(*)
+FROM [StepWorkflowTrigger] AS [t]
+INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [t].[WorkflowTypeId]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ISNULL( [wt].[IsActive], 0 ) = 0 OR [wt].[IsPersisted] = 0 OR [wt].[MaxWorkflowAgeDays] IS NOT NULL OR [wt].[CompletedWorkflowRetentionPeriod] IS NOT NULL
+        OR [wt].[LogRetentionPeriod] IS NOT NULL OR [wt].[CategoryId] IS NULL
+        OR [t].[IsActive] = 0 OR ISNULL( [t].[TypeQualifier], '' ) <> '|' OR [t].[StepTypeId] IS NULL
+        OR [t].[StepProgramId] IS NULL OR [t].[StepProgramId] <> ( SELECT [st].[StepProgramId] FROM [StepType] AS [st] WHERE [st].[Id] = [t].[StepTypeId] )
+        OR EXISTS ( SELECT 1
+            FROM [WorkflowActivityType] AS [actt]
+            INNER JOIN [WorkflowActionType] AS [at] ON [at].[ActivityTypeId] = [actt].[Id]
+            INNER JOIN [WorkflowActionForm] AS [f] ON [f].[Id] = [at].[WorkflowFormId]
+            WHERE [actt].[WorkflowTypeId] = [wt].[Id] AND [f].[NotificationSystemCommunicationId] IS NOT NULL ) );

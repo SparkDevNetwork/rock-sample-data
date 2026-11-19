@@ -2,7 +2,7 @@
 
 New household · 1 person · Phoenix campus · [source](../households/perry.json)
 
-Dennis Perry is 67 and recently retired. He started attending after his wife invited him for years; she now attends another church closer to her mother's care home.
+Dennis Perry is 67 and recently retired. He started attending after his wife invited him for years; she now attends another church closer to her mother's care home. He joined Pastor Pete's Book of John group and was baptized ten days ago.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,13 +12,14 @@ Dennis Perry is 67 and recently retired. He started attending after his wife inv
 
 ### Dennis Perry
 
-- Age 67 · married · no email · groups: Foster Group, Russell Group (group archived)
+- Age 67 · married · no email · groups: Foster Group, Russell Group (group archived) · Rock shows Baptism complete
 - Person Guid `E21428D1-CF39-4880-8AF3-21BEB38F9CFF`
 
 ## What this family tests
 
 - Married man attending without his spouse (spouse not in the database).
 - Newer occasional attender.
+- Baptized ten days ago, so the Phoenix campus pastor has an open Baptism Follow-Up task for him.
 
 ## Activity
 

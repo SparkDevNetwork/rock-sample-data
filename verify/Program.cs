@@ -238,6 +238,10 @@ try
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
             stage = "process-reminders";
             checks.Add( RemindersCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "step-workflow-launch";
+            checks.Add( StepWorkflowLaunchCheck( rock, sql, database, foreignKey ) );
+            stage = "process-workflows";
+            checks.Add( WorkflowsCheck( rock, sql, database, foreignKey ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -881,6 +885,142 @@ static CheckResult RemindersCheck( RockRelease rock, SqlServer sql, string datab
     return CheckResult.From( "process-reminders", problems.Count == 0
         ? $"Rock's Process Reminders job changed none of the {written} reminders and no reminder count ({processed} reminders notified)"
         : "Rock's Process Reminders job would change the reminders", problems, notes );
+}
+
+/// <summary>
+/// Launches step workflows with Rock's own code on steps the load wrote workflows for, without saving them, and expects
+/// the workflow the loader wrote: its name, the person it went to, its person, and waiting at its form (issue
+/// 18). This proves the workflow types work in Rock: their Lava finds the step's person and its campus's leader, and their
+/// actions assign the task. It launches every open step workflow's step and up to ten completed ones for each trigger.
+/// </summary>
+static CheckResult StepWorkflowLaunchCheck( RockRelease rock, SqlServer sql, string database, string foreignKey )
+{
+    // Each type's person attribute is its first attribute, which the type's first action sets from the step.
+    var loaded = sql.Query( database, @"
+WITH [ranked] AS (
+    SELECT [sw].[StepId], [sw].[StepWorkflowTriggerId], [w].[Name], [w].[CompletedDateTime], [ap].[Guid] AS [AssigneeGuid], [pa].[Key] AS [PersonKey], [pv].[Value] AS [PersonValue],
+        ROW_NUMBER() OVER ( PARTITION BY [sw].[StepWorkflowTriggerId], CASE WHEN [w].[CompletedDateTime] IS NULL THEN 0 ELSE 1 END ORDER BY [sw].[StepId] ) AS [Rank]
+    FROM [StepWorkflow] AS [sw]
+    INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+    INNER JOIN [WorkflowActivity] AS [act] ON [act].[WorkflowId] = [w].[Id]
+    LEFT JOIN [PersonAlias] AS [aa] ON [aa].[Id] = [act].[AssignedPersonAliasId]
+    LEFT JOIN [Person] AS [ap] ON [ap].[Id] = [aa].[PersonId]
+    INNER JOIN [Attribute] AS [pa] ON [pa].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [pa].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) ) AND [pa].[Order] = 0
+    LEFT JOIN [AttributeValue] AS [pv] ON [pv].[AttributeId] = [pa].[Id] AND [pv].[EntityId] = [w].[Id]
+    WHERE [sw].[ForeignKey] = @ForeignKey )
+SELECT * FROM [ranked] WHERE [CompletedDateTime] IS NULL OR [Rank] <= 10
+ORDER BY [StepWorkflowTriggerId], [StepId]", new SqlParameter( "@ForeignKey", foreignKey ) );
+    if ( loaded.Count == 0 )
+    {
+        return CheckResult.From( "step-workflow-launch", "This load wrote no step workflows", new List<string>() );
+    }
+
+    var launched = RockRunner.Run( rock, sql, database, "launch-step-workflows", loaded.Select( r => $"{r["StepId"]}\t{r["StepWorkflowTriggerId"]}\t{r["PersonKey"]}" ) )
+        .Split( '\n', StringSplitOptions.RemoveEmptyEntries )
+        .Select( l => l.TrimEnd( '\r' ).Split( '\t' ) )
+        .Where( p => p.Length >= 6 )
+        .GroupBy( p => p[0] )
+        .ToDictionary( g => g.Key, g => g.First() );
+
+    var problems = new List<string>();
+    foreach ( var row in loaded )
+    {
+        var stepId = row["StepId"].ToString();
+        if ( !launched.TryGetValue( stepId, out var launch ) )
+        {
+            problems.Add( $"Rock launched nothing for step {stepId}." );
+            continue;
+        }
+
+        var differences = new List<string>();
+        if ( launch[1] != ( string ) row["Name"] )
+        {
+            differences.Add( $"Rock names it \"{launch[1]}\", the load \"{row["Name"]}\"" );
+        }
+
+        if ( !Guid.TryParse( launch[2], out var assignee ) || assignee != row["AssigneeGuid"] as Guid? )
+        {
+            differences.Add( $"Rock assigns it to {( launch[2].Length == 0 ? "nobody" : launch[2] )}, the load to {row["AssigneeGuid"]}" );
+        }
+
+        if ( !string.Equals( launch[3], row["PersonValue"] as string, StringComparison.OrdinalIgnoreCase ) )
+        {
+            differences.Add( $"Rock sets {row["PersonKey"]} to {launch[3]}, the load to {row["PersonValue"]}" );
+        }
+
+        if ( launch[4] != "True" )
+        {
+            differences.Add( "Rock's workflow does not wait at its form" );
+        }
+
+        if ( launch[5].Trim().Length > 0 )
+        {
+            differences.Add( $"Rock reported: {launch[5].Trim()}" );
+        }
+
+        if ( differences.Count > 0 )
+        {
+            problems.Add( $"Step {stepId}: {string.Join( "; ", differences )}." );
+        }
+    }
+
+    return CheckResult.From( "step-workflow-launch", problems.Count == 0
+        ? $"Rock's own launch gave the loaded workflow for all {loaded.Count} steps tried ({loaded.Count( r => r["CompletedDateTime"] == null )} with open workflows)"
+        : "Rock's own launch gives a different workflow than the load wrote", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Process Workflows job, as Rock's scheduler runs it every ten minutes, and expects it to leave every
+/// workflow the load wrote as it is (issue 18). Rock processes each open workflow again, so its processed times move, but
+/// an open step workflow must still wait at its form for the same person, and a completed one must not change at all. Any
+/// error or exception the job reports fails. Rock Cleanup's handling of the same rows is the rock-cleanup check's.
+/// </summary>
+static CheckResult WorkflowsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey )
+{
+    var stepWorkflows = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [StepWorkflow] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( stepWorkflows == 0 )
+    {
+        return CheckResult.From( "process-workflows", "This load wrote no step workflows", new List<string>() );
+    }
+
+    // Each workflow's state, without the processed and modified times Rock moves on an open workflow. A completed one keeps them.
+    Dictionary<int, string> Workflows() => sql.Query( database, @"
+SELECT [w].[Id], CONCAT( [w].[Status], '|', [w].[Name], '|', CONVERT( NVARCHAR( 30 ), [w].[CompletedDateTime], 126 ), '|',
+    CASE WHEN [w].[CompletedDateTime] IS NULL THEN '' ELSE CONCAT( CONVERT( NVARCHAR( 30 ), [w].[LastProcessedDateTime], 126 ), '|', CONVERT( NVARCHAR( 30 ), [w].[ModifiedDateTime], 126 ) ) END, '|',
+    ( SELECT STRING_AGG( CONCAT( [act].[Id], ':', [act].[AssignedPersonAliasId], ':', CONVERT( NVARCHAR( 30 ), [act].[CompletedDateTime], 126 ) ), ',' ) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] ), '|',
+    ( SELECT STRING_AGG( CONCAT( [ac].[ActionTypeId], ':', CONVERT( NVARCHAR( 30 ), [ac].[CompletedDateTime], 126 ), ':', [ac].[FormAction] ), ',' ) WITHIN GROUP ( ORDER BY [ac].[ActionTypeId] )
+        FROM [WorkflowAction] AS [ac] INNER JOIN [WorkflowActivity] AS [act] ON [act].[Id] = [ac].[ActivityId] WHERE [act].[WorkflowId] = [w].[Id] ), '|',
+    ( SELECT COUNT(*) FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] ) ) AS [State]
+FROM [Workflow] AS [w]
+WHERE [w].[ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) )
+        .ToDictionary( r => ( int ) r["Id"], r => ( string ) r["State"] );
+
+    var before = Workflows();
+    var open = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [Workflow] WHERE [ForeignKey] = @ForeignKey AND [CompletedDateTime] IS NULL", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    var result = RockRunner.Run( rock, sql, database, "process-workflows" ).Trim();
+    var after = Workflows();
+
+    var problems = new List<string>();
+    var changed = before.Keys.Union( after.Keys ).Where( id => before.GetValueOrDefault( id ) != after.GetValueOrDefault( id ) ).ToList();
+    foreach ( var id in changed.Take( 5 ) )
+    {
+        problems.Add( $"Rock's Process Workflows job changed workflow {id}: {before.GetValueOrDefault( id ) ?? "none"} became {after.GetValueOrDefault( id ) ?? "none"}" );
+    }
+
+    if ( changed.Count > 5 )
+    {
+        problems.Add( $"... {changed.Count} workflows changed in all." );
+    }
+
+    var firstLine = result.Split( '\n' )[0].Trim();
+    if ( firstLine.Contains( "error", StringComparison.OrdinalIgnoreCase ) || firstLine.Contains( "exception", StringComparison.OrdinalIgnoreCase ) )
+    {
+        problems.Add( $"Rock's Process Workflows job reported: {result.Replace( '\n', ' ' )}" );
+    }
+
+    return CheckResult.From( "process-workflows", problems.Count == 0
+        ? $"Rock's Process Workflows job left all {before.Count} workflows as they were, with {open} still open, {stepWorkflows} of them from steps ({firstLine})"
+        : "Rock's Process Workflows job would change the workflows", problems );
 }
 
 /// <summary>

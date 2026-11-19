@@ -179,7 +179,15 @@ namespace RockSampleData.Loader
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
             Reminders = Files.Exists( RemindersConfigurationPath ) ? Read<RemindersConfiguration>( RemindersConfigurationPath ) : null;
+            StepWorkflows = Files.Exists( StepWorkflowsConfigurationPath ) ? Read<StepWorkflowsConfiguration>( StepWorkflowsConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The workflows completed steps start, or null in a package built before step workflows loaded.
+        /// </summary>
+        public StepWorkflowsConfiguration StepWorkflows { get; }
+
+        public const string StepWorkflowsConfigurationPath = "configuration/step-workflows.json";
 
         /// <summary>
         /// The reminders staff and leaders set, or null in a package built before reminders loaded.

@@ -152,6 +152,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
+            // The follow-up tasks completed steps started, and who has them (issue 18).
+            checks += parts.Contains( SampleDataPart.Steps ) ? CastStepWorkflowExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );

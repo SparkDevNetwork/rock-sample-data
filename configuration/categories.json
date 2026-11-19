@@ -470,6 +470,15 @@
       "description": "Workflows that help people grow as followers of Jesus, such as baptism.",
       "iconCssClass": "ti ti-book",
       "guid": "4324A74A-D17D-43C1-95B4-C3859930D923"
+    },
+    {
+      "key": "workflows-contribute",
+      "parent": "church-workflows",
+      "entityType": "Rock.Model.WorkflowType",
+      "name": "Contribute",
+      "description": "Workflows that care for people who serve and give, such as a check-in with a volunteer.",
+      "iconCssClass": "ti ti-heart",
+      "guid": "F3B594D8-97EF-495C-B951-2ECC263AAA0F"
     }
   ]
 }

@@ -184,6 +184,22 @@ function reporting( model ) {
 module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
+
+    // The staff follow-up tasks steps start (configuration/step-workflows.json). A Cast story's task belongs to its
+    // campus's pastor, the campus leader in Rock, or to the named staff member.
+    const stepWorkflows = require( path.join( model.root, "configuration/step-workflows.json" ) );
+    const castMember = guid => model.people.get( String( guid || "" ).toUpperCase() );
+    const stepWorkflowStories = stepWorkflows.cast.map( story => {
+        const workflow = stepWorkflows.workflows.find( w => w.key === story.workflow );
+        const member = castMember( story.person );
+        const owner = workflow.assignee.campusLeader ? member && member.household.campus.pastor : castMember( workflow.assignee.staff );
+        const ownerName = owner ? person( model, owner.displayName ) : "its assignee";
+        const login = owner && owner.logins && owner.logins.length ? html`, signed in as <code>${esc( owner.logins[0] )}</code>` : "";
+        return story.expect === "open"
+            ? html`${person( model, story.personName )}'s ${esc( workflow.name )}, open in ${ownerName}'s My Workflows${login}`
+            : html`${person( model, story.personName )}'s ${esc( workflow.name )}, completed by ${ownerName}`;
+    } );
+
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
@@ -215,10 +231,10 @@ module.exports = function features( { model } ) {
         },
         {
             id: "steps", eyebrow: "Steps", title: "A path people really walk.",
-            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in.`,
-            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them" ],
-            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp" ],
-            links: [ { label: "Steps", href: doc( "docs/steps.md" ) } ]
+            text: html`Rock's Discipleship Path, built out to seven steps, and a Student Path, ${model.stepTypes.length} step types in all. Every step comes from a record the data already has: a group, a team, a gift, a baptism, or a camp check-in. ${stepWorkflows.workflows.length} step workflows give staff their follow-up tasks. A baptism starts one for its campus pastor, a decision to follow Jesus starts one for the Student Pastor, and staff start a volunteer check-in by hand from a Serve step. Tasks from the last ${stepWorkflows.openDays} days wait in My Workflows, and staff completed the older ones.`,
+            checks: [ "Classes in progress at every campus", "Camps and mission trips from student check-ins", "Program completions, as Rock's job records them", "Follow-up tasks after baptisms and decisions, open and completed, that Rock's own workflow jobs leave as they are" ],
+            look: [ html`Ted Decker, who completed the Discipleship Path, in the <a href="${castDecker}">Decker family</a>`, "The Step Program page, which charts steps by month", "The Student Path's Follow Jesus step after camp", ...stepWorkflowStories ],
+            links: [ { label: "Steps", href: doc( "docs/steps.md" ) }, { label: "Step workflows", href: doc( "docs/steps.md#step-workflows" ) } ]
         },
         {
             id: "connections", eyebrow: "Connections", title: "Requests to serve, and the stories behind them.", sand: true,
