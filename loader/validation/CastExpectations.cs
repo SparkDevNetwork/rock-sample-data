@@ -150,6 +150,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
+            // Each Cast family's small group memberships fit when it came (issue 37).
+            checks += parts.Contains( SampleDataPart.SmallGroups ) ? CastGroupExpectations.Check( db, source, guids, db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
