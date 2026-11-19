@@ -56,7 +56,7 @@
       "person": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
       "name": "Frank Dexter",
       "type": "safety-team-review",
-      "owner": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "owner": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
       "addedBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
       "note": "His latest background check needs review before he serves on a kids or student team.",
       "addedDaysAgo": 38
@@ -137,6 +137,7 @@
   "access": [
     { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "signalType": "pickup-instructions", "action": "Edit", "allowed": true },
     { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble", "signalType": "safety-team-review", "action": "Edit", "allowed": true },
+    { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "signalType": "safety-team-review", "action": "View", "allowed": true },
     { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "signalType": "safety-team-review", "action": "View", "allowed": false },
     { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro", "signalType": "care-team-follow-up", "action": "Edit", "allowed": true },
     { "person": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "name": "Daniel Peak", "signalType": "care-team-follow-up", "action": "View", "allowed": false },
