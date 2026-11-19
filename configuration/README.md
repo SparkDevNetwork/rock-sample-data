@@ -21,6 +21,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `phones.json` | The area codes of generated phone numbers: the Phoenix codes the Cast and the church use, which generated numbers use up first, then other US geographic codes by state. Every number is 555-0100 to 555-0199, and each generated person and business gets one no one else has (content standard 2, decision 259). |
 | `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template in both of Rock's formats, the communication lists with the rules for who is on them, and the one communication scheduled to send after install. See [Communications](../docs/communications.md#the-setup). |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
+| `reminders.json` | The reminders staff and leaders set for themselves: Rock's two shipped reminder types, the Cast's hand-written reminders with the state each shows on any install day, the rules for generated reminders, and the notes they use. See [Reminders](#reminders). |
 | `campaign.json` | The Built on the Rock building campaign: its fund, description, and dates, and the Rock settings that point at it. See [Pledges](../docs/pledges.md). |
 | `steps.json` | The step programs: the adult Discipleship Path and the Student Path. Each has its completion flow, statuses, step types in path order, and prerequisites, and each type says where its steps come from, with the class schedules, the camp and trip dates, and the designed rates. |
 | `logins.json` | Who among generated adults has a Rock Database login: each reason and its designed chance, the inactive and older-adult shares, and the unconfirmed share (decision 179). The Cast's logins are in their own files. Logins load only when the person installing gives a password. See [How logins load](../loader/README.md#how-logins-load). |
@@ -110,6 +111,16 @@ People have six note types (decision 78). Three are Rock's own, updated in place
 "Staff" means Rock's Staff Workers and Staff Like Workers roles, plus Rock Administration. Everyone else is denied, so notes never show to someone who is not staff.
 
 Pete Foster, Ted Decker, Alisha Marble, Daniel Peak, Dee Navarro (the Care Director, who writes most Counseling notes), Jamal Pierce, and Aaron Mitchell, the Phoenix campus pastor, write the main campus's notes. Every other campus's notes come from its named campus pastor in `staff.json` (decision 198). Campus pastors are in RSR - Staff Workers and RSR - Pastoral Workers, so they can view the notes they write, Counseling included. The church office (Alisha) still writes every campus's phone notes and safety alerts.
+
+## Reminders
+
+`reminders.json` holds the reminders staff and leaders set for themselves (decisions D-reminders-1 to D-reminders-4). It uses Rock's two shipped reminder types by Guid and adds none: `personReminderType` for a Personal Reminder about a person, and `groupReminderType` for a Group Reminder about a group.
+
+Each entry in `cast` is one Cast reminder, with its own key and Guid. `owner` is the person who set it. A Personal Reminder names its person in `person`, and a Group Reminder names its group in `group`. `set` is when it was set, and `date` is when it is due: `daysAgo`, `daysAhead`, or `beforeNextBaptismSunday`, that many days before the next Easter or July baptism Sunday, and never before tomorrow. A repeating reminder has `repeat`, with `everyDays` and how many times it has been `completed`. `expect` is what Rock shows on any install day: `due`, `upcoming`, or `complete`. Every load checks it (see [Validation](../validation/README.md#cast-reminder-expectations)).
+
+`generated` holds the rules for reminders in the generated datasets. `person` gives each note type's share of notes that get a reminder, how far back those notes go, how many days after it is set a reminder is due (`daysAfter`), and the share that repeat and their periods. `group` gives the share of active generated small groups whose leader sets one, how far back they set it, and the same timing and repeats. `duePercent` and `dueWithinDays` keep some recent reminders due, and `completedDaysLate` says how late owners complete the rest. `repeatTimes` lists how many times a repeating reminder may repeat, where `null` means no limit.
+
+`notes` holds the short notes generated reminders use. In a person's note, `{name}` is the person's nickname or first name. How the loader uses the file is in [How reminders load](../loader/README.md#how-reminders-load).
 
 ## Check-in
 

@@ -29,6 +29,7 @@ const features = [
     [ "Connections", "Requests to serve that follow each family's story, from first contact to placement, with due dates that run by status." ],
     [ "Prayer", "Requests in every state, an active prayer team, comments, and answers." ],
     [ "Notes", "Staff notes in six types with View security, replies, alerts, and mentions, on the profiles demos open first." ],
+    [ "Reminders", "Reminders staff and group leaders set for themselves, some due now, with Rock's bell counting them." ],
     [ "Steps", "A seven-step Discipleship Path and a four-step Student Path made from each person's records: classes, groups, baptism, serving, giving, leading, camps, and mission trips." ],
     [ "Assessments", "DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators for staff, leaders, and class members, with real answers behind every result and some requests still pending." ],
     [ "Calendar", "Easter to the car show: a full year of events at every campus, each serving a Ministry by Design stage, with dates that match the steps and newsletters." ],

@@ -178,7 +178,15 @@ namespace RockSampleData.Loader
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            Reminders = Files.Exists( RemindersConfigurationPath ) ? Read<RemindersConfiguration>( RemindersConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The reminders staff and leaders set, or null in a package built before reminders loaded.
+        /// </summary>
+        public RemindersConfiguration Reminders { get; }
+
+        public const string RemindersConfigurationPath = "configuration/reminders.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built

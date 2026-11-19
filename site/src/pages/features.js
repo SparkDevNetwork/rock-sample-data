@@ -310,6 +310,17 @@ module.exports = function features( { model } ) {
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
+    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
+    const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
+    const remindersArea = {
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
+        checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
+        look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
+        links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
+    };
+
     return {
         file: "features.html",
         active: "features",
@@ -330,12 +341,14 @@ module.exports = function features( { model } ) {
       ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
       <a href="#data-views-and-reports">Data views and reports</a>
       <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
+      <a href="#${remindersArea.id}">${esc( remindersArea.eyebrow )}</a>
     </nav>
   </div>
 </section>
 ${areas.map( area )}
 ${reporting( model )}
 ${area( assessmentsArea )}
+${area( remindersArea )}
 `
     };
 };

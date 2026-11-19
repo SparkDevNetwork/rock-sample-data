@@ -2447,3 +2447,42 @@ FROM [AdaptiveMessageAdaptation] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptationSegment] AS [s] WHERE [s].[AdaptiveMessageAdaptationId] = [a].[Id] )
     AND EXISTS ( SELECT 1 FROM [AdaptiveMessageAdaptation] AS [later] WHERE [later].[AdaptiveMessageId] = [a].[AdaptiveMessageId] AND [later].[Order] > [a].[Order] );
+
+-- check: reminder-count-is-what-process-reminders-sets
+-- why: Issue 22. Rock's bell shows each person's ReminderCount, and Rock's Process Reminders job sets it to their reminders of an active type that are not complete and are due by now. A count that differs would change on the job's first run, and the bell would show the wrong number until it ran.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
+    AND ISNULL( [p].[ReminderCount], 0 ) <> (
+        SELECT COUNT(*)
+        FROM [Reminder] AS [r]
+        INNER JOIN [ReminderType] AS [rt] ON [rt].[Id] = [r].[ReminderTypeId]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
+        WHERE [pa].[PersonId] = [p].[Id] AND [rt].[IsActive] = 1 AND [r].[IsComplete] = 0 AND [r].[ReminderDate] <= GETDATE() );
+
+-- check: reminder-is-as-rocks-blocks-save-it
+-- why: Issue 22. Rock's reminder blocks save a reminder on its owner's primary alias, about a person's primary alias for a Personal Reminder or a group for a Group Reminder. Its repeat count starts at 0 and never passes its limit, and only a repeating reminder has a period or a count above 0. Completing a repeating reminder with repeats left moves it to its next date instead. A reminder whose person or group is missing makes the Process Reminders job report an error.
+SELECT COUNT(*)
+FROM [Reminder] AS [r]
+INNER JOIN [ReminderType] AS [rt] ON [rt].[Id] = [r].[ReminderTypeId]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [rt].[EntityTypeId]
+INNER JOIN [PersonAlias] AS [oa] ON [oa].[Id] = [r].[PersonAliasId]
+INNER JOIN [Person] AS [owner] ON [owner].[Id] = [oa].[PersonId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [owner].[PrimaryAliasId] <> [oa].[Id]
+        OR [et].[Name] NOT IN ( 'Rock.Model.PersonAlias', 'Rock.Model.Group' )
+        OR ( [et].[Name] = 'Rock.Model.PersonAlias' AND NOT EXISTS ( SELECT 1 FROM [PersonAlias] AS [ea] INNER JOIN [Person] AS [ep] ON [ep].[Id] = [ea].[PersonId] WHERE [ea].[Id] = [r].[EntityId] AND [ep].[PrimaryAliasId] = [ea].[Id] ) )
+        OR ( [et].[Name] = 'Rock.Model.Group' AND NOT EXISTS ( SELECT 1 FROM [Group] AS [g] WHERE [g].[Id] = [r].[EntityId] ) )
+        OR ISNULL( [r].[RenewCurrentCount], -1 ) < 0
+        OR [r].[RenewPeriodDays] <= 0
+        OR ( [r].[RenewPeriodDays] IS NULL AND ( [r].[RenewCurrentCount] <> 0 OR [r].[RenewMaxCount] IS NOT NULL ) )
+        OR [r].[RenewCurrentCount] > [r].[RenewMaxCount]
+        OR ( [r].[IsComplete] = 1 AND [r].[RenewPeriodDays] IS NOT NULL AND ( [r].[RenewMaxCount] IS NULL OR [r].[RenewCurrentCount] < [r].[RenewMaxCount] ) )
+        OR [r].[CreatedDateTime] > [r].[ModifiedDateTime] OR [r].[ModifiedDateTime] > GETDATE() );
+
+-- check: reminder-never-comes-due-during-install-day
+-- why: Issue 22. The loader counts each owner's reminders due as of the install day. A reminder that is not complete and comes due partway through that day would raise the count when Rock's Process Reminders job next runs, so every reminder is due by midnight or dated tomorrow or later.
+SELECT COUNT(*)
+FROM [Reminder] AS [r]
+WHERE [r].[ForeignKey] = @ForeignKey AND [r].[IsComplete] = 0
+    AND [r].[ReminderDate] > CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) AND [r].[ReminderDate] < DATEADD( DAY, 1, CAST( CAST( GETDATE() AS DATE ) AS DATETIME ) );

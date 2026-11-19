@@ -56,6 +56,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - Three fixes for alpha.18 (decisions 259, 260, and 269). Every generated phone number is its own, so a texted STOP, a check-in phone search, or the duplicate finder never reaches strangers: generated people and businesses draw from the Phoenix codes first, then other US geographic codes in `configuration/phones.json`. Every attendance row has the check-in status Rock gives it. The church's branded email template is in Rock's email wizard, in the newer editor's format, beside its Legacy version.
 - **Assessments** (decisions 265 to 268; see [Assessments](assessments.md)). Rock's five assessments for staff, the Starting Point and Foundations classes, every current leader, and active adults who take one on their own, with pending requests and reminders where Rock's job would leave them. A port of Rock's scoring makes both the answers and the results, and verify scores every answer set with Rock's own services. The Cast's stories (Ted Decker and Alisha Marble with all five, the Gilberts' pending request, Bri Hall's gifts, Cindy Decker's retake, and six legacy DISC results) are checked on every load. Packages need loader 0.1.0-alpha.18.
 - **Giving refunds** (decisions 261 to 264; see [Refunds](refunds.md)). Slice 1 is built. Generated households' gifts get refunds at the calibrated rate of 2.54 per 1,000 gifts: duplicate online gifts, amounts typed with an extra zero, one fund of a two-fund gift, and gifts from an earlier year, each written the way Rock's refund saves it, in a " - Refund" batch made by Priya Raman. Gabriel Hernandez's duplicate gift is the Cast's refund, and his journey stage stays Consistent. The replays of Rock's giving runs read each gift as it stood that night, and validation grades the refund rate. Packages need loader `0.1.0-alpha.18`. Next: slice 2, other uncommon transactions, and Registration Follow-ups reuses the refund writer.
+- **Reminders** (issue 22, decisions D-reminders-1 to D-reminders-4; see [How reminders load](../loader/README.md#how-reminders-load)). Reminders are their own part, loaded after notes, in Rock's two shipped reminder types. On Core 3 and Full 7, staff set reminders about some of the generated people they wrote notes on in the last year, and the leaders of some active generated small groups set one about their group. Every date counts from the install day, so some are complete, some are due, some are upcoming, and a few repeat. The Cast has three: Ted Decker's monthly check-in with Ashley Kelly, due now, his reminder to ask Josh Sanders to share his story at the next baptism Sunday, and Bill Marble's reminder to plan the Marble Group's end-of-season party. Each owner's reminder count, which Rock's bell shows, is what Rock's Process Reminders job sets. Verify runs that job and fails if it changes anything, and the anchor sweep checks the Cast reminders on all 60 install days.
 
 ## In progress
 
@@ -121,7 +122,7 @@ Publishing packages to Azure is in the release workflow (see In progress). Signi
 
 ## Later (Phase 1 and beyond)
 
-Connection requests beyond serving, learning (LMS), benevolence, and reminders.
+Connection requests beyond serving, learning (LMS), and benevolence.
 
 ## Open questions
 

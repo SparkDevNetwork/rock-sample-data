@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|process-reminders --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -58,6 +58,9 @@ namespace RockSampleData.RockRunner
     ///   segments  Runs Rock's own segment update (PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment,
     ///            what the Update Personalization Data job calls) on every personalization segment, and prints each
     ///            segment's Guid, how many people it added, and how many it removed, separated by tabs.
+    ///   process-reminders  Runs Rock's Process Reminders job once, as its stored job with the settings Rock's scheduler
+    ///            gives it, as Rock runs it every weekday morning. Prints "processed" and how many reminders it notified about, then "error" and each
+    ///            error the job recorded, one per line.
     ///   adaptive-messages  Renders Rock's adaptivemessage Lava command for each input line's person Guid and message key,
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
@@ -76,10 +79,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "process-reminders" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|process-reminders --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +121,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "process-reminders" => worker.ProcessReminders(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -239,6 +243,24 @@ namespace RockSampleData.RockRunner
             }
 
             return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
+        /// Runs Rock's Process Reminders job as Rock's scheduler does and returns how many reminders it notified about, then
+        /// every error it recorded. The job's own result keeps only five errors, so the runner reads its full list.
+        /// </summary>
+        public string ProcessReminders()
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var jobType = _rock.GetType( "Rock.Jobs.ProcessReminders", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "3F697C80-4C33-4552-9038-D3470445EA40" ) );
+            var errors = ( IEnumerable<string> ) ( jobType.GetField( "_jobErrors", Hidden )
+                ?? throw new InvalidOperationException( "This Rock's Process Reminders job has no _jobErrors. The runner needs updating for this Rock." ) ).GetValue( job );
+            var processed = jobType.GetField( "_totalProcessedReminders", Hidden )?.GetValue( job );
+            return string.Join( "\n", new[] { $"processed {processed}" }.Concat( ( errors ?? Enumerable.Empty<string>() ).Select( e => $"error {e.Replace( '\r', ' ' ).Replace( '\n', ' ' )}" ) ) );
         }
 
         /// <summary>
@@ -857,6 +879,38 @@ namespace RockSampleData.RockRunner
             }
 
             return $"Rock's {jobs.Count} one-time update jobs (WebForms to Obsidian block swaps among them)";
+        }
+
+        /*
+            11/18/26 - CLAUDE
+
+            Rock's scheduler registers a job type's settings, with their defaults, when it first builds the job
+            (ServiceJobService.UpdateAttributesIfNeeded), and runs the stored job with its settings. A new job definition, as
+            RockJob.ExecuteInternal makes, has no settings, so Process Reminders found no notification and never tried to
+            send one.
+
+            Reason: The Process Reminders check must run the job as Rock does.
+        */
+
+        /// <summary>
+        /// Runs a job as Rock's scheduler does: registers its type's settings, then runs its stored ServiceJob with them.
+        /// </summary>
+        private void RunStoredJob( object job, Guid serviceJobGuid )
+        {
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var serviceType = _rock.GetType( "Rock.Model.ServiceJobService", true );
+            serviceType.GetMethod( "UpdateAttributesIfNeeded", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof( Type ) }, null )
+                .Invoke( null, new object[] { job.GetType() } );
+            var stored = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( Activator.CreateInstance( serviceType, createContext.Invoke( null, new[] { app } ) ), new object[] { serviceJobGuid } )
+                ?? throw new InvalidOperationException( $"Rock has no stored job {serviceJobGuid}." );
+            _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 ).Invoke( null, new[] { stored } );
+            var rockJob = _rock.GetType( "Rock.Jobs.RockJob", true );
+            rockJob.GetProperty( "ServiceJobId" ).GetSetMethod( true ).Invoke( job, new object[] { stored.GetType().GetProperty( "Id" ).GetValue( stored ) } );
+            rockJob.GetProperty( "ServiceJob", Hidden ).SetValue( job, stored );
+            Execute( job );
         }
 
         /// <summary>

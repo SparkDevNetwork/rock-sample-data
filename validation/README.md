@@ -97,7 +97,7 @@ A Cast person can also say what their assessments should show, with the type key
 
 A story's `leaning` in `assessments` must come out on top, such as Bri Hall's gifts among her dominant gifts, and each legacy DISC result must show exactly the scores in the file (see [Assessments](../docs/assessments.md#the-casts-stories)).
 
-Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step expectations the steps part, and assessment expectations the assessments part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
+Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step expectations the steps part, assessment expectations the assessments part, and reminder expectations the reminders part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast giving expectations hold on every install day: the verify tool's anchor sweep checks the 60 days from each run's anchor, and `--anchor-sweep 365` a full year (decision 218). They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
@@ -117,6 +117,19 @@ Every load with the notes part checks each Cast note in `cast/notes/` (decision 
 2. Its type is one the person profile's Notes block (TimeLine, Guid `0B2B550C-B0C9-420E-9CF3-BEC8979108F2`) shows: a person note type with no qualifier, and one of the block's Note Types when that setting names any. Rock's own setting is empty, which shows every person note type.
 
 This catches what kept Rock's legacy notes on Ted Decker and others off their profiles: a note that never loads, or a type the profile hides. It does not check who may see a note. Rock shows a private note only to its author, and each type's View security decides the rest (decision 78).
+
+## Cast reminder expectations
+
+Every load with the reminders part checks each Cast reminder in `configuration/reminders.json` (decision D-reminders-2):
+
+1. The reminder is in Rock, by its Guid, on its owner.
+2. A reminder about a person is a Personal Reminder on that person's primary alias. A reminder about a group is a Group Reminder on that group.
+3. Its note is the note in the file. A repeating one has the period and the number of completions the file gives.
+4. It shows what its `expect` says on the load's install day: `due`, `upcoming`, or `complete`. A load and the verify tool pass the load's anchor. A later `--check-cast` run judges it on the database server's today, so run it on the install day.
+
+Then it checks each Cast owner's `ReminderCount`, the number Rock's bell shows. It must equal what Rock's Process Reminders job would count: their reminders of an active type that are not complete and are due. An owner with a reminder that should be due must have a count above 0 (decision D-reminders-4).
+
+They cover Ted Decker's check-in with Ashley Kelly (due, repeating every 30 days), his reminder about Josh Sanders's story (upcoming), and Bill Marble's reminder about the Marble Group's party (upcoming). The verify tool's anchor sweep checks them on the 60 install days from each run's anchor, beside the giving expectations (decision D-reminders-3).
 
 ## Business expectations
 

@@ -26,7 +26,7 @@ It needs SQL Server on `localhost` with Windows sign-in, Node.js, and a built Ro
 | `--server` | The SQL Server. Defaults to `localhost`. |
 | `--base` | The trusted base's name. Defaults to `RockSampleVerify-base`. |
 | `--run <tag>` | The run tag in this run's database names. Defaults to the worktree's name. |
-| `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today on the database server and `rock-sample-data`. Rock Cleanup is judged only when the anchor is today (see `rock-cleanup` below). |
+| `--anchor`, `--seed` | The install day and seed for the verification loads. Default to today on the database server and `rock-sample-data`. Rock Cleanup is judged only when the anchor is today (see `rock-cleanup` below), and so are the other checks below that say so, such as `process-reminders`. |
 | `--record-contract` | Records `validation/rock-contract.json` from these loads, instead of only checking it. Needs every dataset. |
 | `--keep` | Keeps each loaded database (`RockSampleVerify-<run tag>-core-1` and so on) for a look afterward. |
 | `--anchor-sweep [days]` | Runs only the anchor sweep (see below), for 60 install days or as many as you give, from `--anchor` or today, on `--dataset` (Core 1 by default). Writes no receipt. |
@@ -55,8 +55,9 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `assessment-scores` | Rock's own five assessment scoring services score every saved answer set, and give each person's latest results exactly the person attribute values the load wrote. Rock's own serializer writes the same answer data ([Assessments](../docs/assessments.md#how-it-is-checked)). |
 | `adaptive-messages` | Rock's own `{% adaptivemessage %}` Lava command shows each Cast person in `configuration/adaptive-messages.json` their adaptation, with its call to action. |
 | `segments` | Rock's own segment update, run on every personalization segment the load wrote, adds and removes nobody. Judged only when today is the anchor. |
+| `process-reminders` | Rock's own Process Reminders job (`rock-runner --task process-reminders`) changes no reminder and nobody's reminder count, and reports no error but a failed email. The trusted base has no mail server, so failed sends are noted. Judged only when today is the anchor. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
-| `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
+| `anchor-sweep` | Core 1 only. Every Cast giving and reminder expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving and reminders parts. |
 
 ### The trusted base
 
@@ -135,7 +136,9 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
-| `anchor-sweep` | A Cast giving story holds on some install days and not others. Each line names the expectation and the days. Keep that giver's gifts from landing close together on any day, for example with `isOnTime` for a monthly giver, then sweep a year with `--anchor-sweep 365`. |
+| `process-reminders`, "Process Reminders was not judged" | Today's date is not the loads' anchor. Run it again, without `--anchor`, as for `rock-cleanup`. |
+| `process-reminders` | Rock's job changed a reminder or a reminder count, or reported an error. Fix how `loader/loading/RemindersLoader.cs` dates each reminder or counts each owner's reminders due. |
+| `anchor-sweep` | A Cast giving or reminder story holds on some install days and not others. Each line names the expectation and the days. Keep that giver's gifts from landing close together on any day, for example with `isOnTime` for a monthly giver. For a reminder, fix its date rule in `configuration/reminders.json`. Then sweep a year with `--anchor-sweep 365`. |
 | `content-standards` | The data breaks a content standard. Each line names the rule. |
 | `data-views` | Rock could not read a data view's filter. Fix its selection in the configuration file that holds it, or how `loader/loading/ReportingLoader.cs` builds it. |
 | `metrics` | The loader's weekly values in `loader/loading/MetricsWriter.cs` no longer follow the stage view's rule, or the view changed shape. A metric can count only a view of active people with any of some steps. |

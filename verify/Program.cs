@@ -201,7 +201,7 @@ try
             var source = new SampleDataSource( package );
             using ( var db = new RockDatabase( connection ) )
             {
-                var (expectations, failures) = CastExpectations.Evaluate( db, source, SampleDataParts.All.Select( p => p.Part ).ToList() );
+                var (expectations, failures) = CastExpectations.Evaluate( db, source, SampleDataParts.All.Select( p => p.Part ).ToList(), anchor );
                 checks.Add( CheckResult.From( stage, $"{expectations - failures.Count} of {expectations} Cast expectations hold", failures ) );
             }
 
@@ -236,6 +236,8 @@ try
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "process-reminders";
+            checks.Add( RemindersCheck( rock, sql, database, foreignKey, anchor ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -823,6 +825,62 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 
     problems.AddRange( lines.Where( l => l.StartsWith( "warning ", StringComparison.Ordinal ) ).Select( l => $"Rock's group sync warned: {l.Substring( 8 )}" ) );
     return CheckResult.From( "group-sync", problems.Count == 0 ? $"Rock's group sync changed nothing in the {expected} synced groups" : "Rock's group sync would change the synced groups", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Process Reminders job, as Rock's scheduler runs it every weekday morning, and expects it to change no
+/// reminder and nobody's reminder count, the number Rock's bell shows (issue 22). The job also emails each owner the
+/// reminders due, and the trusted base has no mail server, so a send Rock could not make is noted, not failed. Any other
+/// error, such as a reminder whose person or group is missing, fails. Reminders come due by the day, so like Rock Cleanup
+/// the check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult RemindersCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var written = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [Reminder] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( written == 0 )
+    {
+        return CheckResult.From( "process-reminders", "This load wrote no reminders", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "process-reminders", "Process Reminders was not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. Reminders come due by the day, so run it again on one day."
+        } );
+    }
+
+    Dictionary<int, string> Reminders() => sql.Query( database, "SELECT [Id], [ReminderDate], [IsComplete], [RenewCurrentCount], [RenewMaxCount], [ModifiedDateTime] FROM [Reminder]" )
+        .ToDictionary( r => ( int ) r["Id"], r => string.Join( "|", r.Values.Select( v => v is DateTime d ? d.ToString( "o" ) : v?.ToString() ) ) );
+    Dictionary<int, int> Counts() => sql.Query( database, "SELECT [Id], [ReminderCount] FROM [Person] WHERE [ReminderCount] IS NOT NULL" )
+        .ToDictionary( r => ( int ) r["Id"], r => ( int ) r["ReminderCount"] );
+
+    var remindersBefore = Reminders();
+    var countsBefore = Counts();
+    var lines = RockRunner.Run( rock, sql, database, "process-reminders" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var remindersAfter = Reminders();
+    var countsAfter = Counts();
+
+    var problems = new List<string>();
+    var changedReminders = remindersBefore.Keys.Union( remindersAfter.Keys ).Where( id => remindersBefore.GetValueOrDefault( id ) != remindersAfter.GetValueOrDefault( id ) ).ToList();
+    if ( changedReminders.Count > 0 )
+    {
+        problems.Add( $"Rock's Process Reminders job changed {changedReminders.Count} reminders, such as reminder {changedReminders[0]}. The loader must write each reminder as Rock's blocks leave it." );
+    }
+
+    foreach ( var personId in countsBefore.Keys.Union( countsAfter.Keys ).Where( id => countsBefore.GetValueOrDefault( id, 0 ) != countsAfter.GetValueOrDefault( id, 0 ) ).Take( 10 ) )
+    {
+        problems.Add( $"Rock's Process Reminders job changed person {personId}'s reminder count from {countsBefore.GetValueOrDefault( personId, 0 )} to {countsAfter.GetValueOrDefault( personId, 0 )}. The loader must count each owner's reminders due as the job does." );
+    }
+
+    var errors = lines.Where( l => l.StartsWith( "error ", StringComparison.Ordinal ) ).Select( l => l.Substring( 6 ) ).ToList();
+    bool IsSend( string error ) => error.StartsWith( "Failed to send SystemCommunication", StringComparison.Ordinal ) || error.StartsWith( "Failed to create SystemCommunication", StringComparison.Ordinal );
+    problems.AddRange( errors.Where( e => !IsSend( e ) ).Select( e => $"Rock's Process Reminders job reported: {e}" ) );
+    var notes = errors.Count( IsSend ) == 0 ? new List<string>() : new List<string> { $"Rock could not email {errors.Count( IsSend )} owners their reminders due: the trusted base has no mail server. First: {errors.First( IsSend )}" };
+    var processed = lines.FirstOrDefault( l => l.StartsWith( "processed ", StringComparison.Ordinal ) )?.Substring( 10 ) ?? "0";
+    return CheckResult.From( "process-reminders", problems.Count == 0
+        ? $"Rock's Process Reminders job changed none of the {written} reminders and no reminder count ({processed} reminders notified)"
+        : "Rock's Process Reminders job would change the reminders", problems, notes );
 }
 
 /// <summary>

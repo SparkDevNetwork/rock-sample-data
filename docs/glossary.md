@@ -71,6 +71,7 @@ The words this project uses, in alphabetical order.
 | **Registration template** | The setup a registration reuses every year: its cost, forms, fees, discounts, placements, and who may register. |
 | **Registration placement** | Putting a registrant in a placement group, such as a VBS kid in the crew for their grade or a Serve Day volunteer on a project team. |
 | **Relative date** | A date stored as `yearsAgo` plus a month and day, or as `daysAgo`, instead of a fixed date. |
+| **Reminder** | A follow-up a person sets for themselves in Rock, due on a date, about a person (a Personal Reminder) or a group (a Group Reminder). It can repeat some days after each time it is completed. Rock's Process Reminders job counts each person's reminders due, and the bell in Rock's top bar shows a dot from that count. See [How reminders load](../loader/README.md#how-reminders-load). |
 | **Release workflow** | `.github/workflows/release.yml`. On a version tag it builds, verifies, and publishes every package for every supported Rock, and pushes the loader to nuget.org (decision 127). |
 | **Rhythm step** | A step that is a habit, such as being in a small group or giving. It starts and can stop. A milestone step happens once, such as baptism. See [Steps](steps.md). |
 | **Rolling registration** | A registration that opens the day after the previous one closed, so its event always has one open (decision 190). |
