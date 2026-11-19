@@ -700,6 +700,7 @@
         "Guid",
         "IsActive",
         "IsSystem",
+        "LeaderPersonAliasId",
         "LocationId",
         "ModifiedDateTime",
         "Name",
@@ -3912,7 +3913,8 @@
         "PrimaryFamilyId",
         "RecordStatusReasonValueId",
         "RecordStatusValueId",
-        "RecordTypeValueId"
+        "RecordTypeValueId",
+        "ReminderCount"
       ],
       "rockColumns": {
         "AccountProtectionProfile": "int not null",
@@ -4875,6 +4877,45 @@
         "TargetEntityTypeId": "int not null"
       }
     },
+    "Reminder": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntityId",
+        "ForeignKey",
+        "Guid",
+        "IsComplete",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Note",
+        "PersonAliasId",
+        "ReminderDate",
+        "ReminderTypeId",
+        "RenewCurrentCount",
+        "RenewMaxCount",
+        "RenewPeriodDays"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsComplete": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Note": "nvarchar(max) null",
+        "PersonAliasId": "int not null",
+        "ReminderDate": "datetime not null",
+        "ReminderTypeId": "int not null",
+        "RenewCurrentCount": "int null",
+        "RenewMaxCount": "int null",
+        "RenewPeriodDays": "int null"
+      }
+    },
     "Report": {
       "written": [
         "CategoryId",
@@ -5427,6 +5468,66 @@
         "StepTypeId": "int not null"
       }
     },
+    "StepWorkflow": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "StepId",
+        "StepWorkflowTriggerId",
+        "WorkflowId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "StepId": "int not null",
+        "StepWorkflowTriggerId": "int not null",
+        "WorkflowId": "int not null"
+      }
+    },
+    "StepWorkflowTrigger": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "IsActive",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "StepProgramId",
+        "StepTypeId",
+        "TriggerType",
+        "TypeQualifier",
+        "WorkflowName",
+        "WorkflowTypeId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "StepProgramId": "int null",
+        "StepTypeId": "int null",
+        "TriggerType": "int not null",
+        "TypeQualifier": "nvarchar(200) null",
+        "WorkflowName": "nvarchar(100) null",
+        "WorkflowTypeId": "int not null"
+      }
+    },
     "Streak": {
       "written": [
         "CreatedDateTime",
@@ -5609,6 +5710,8 @@
         "CompletedDateTime",
         "CreatedByPersonAliasId",
         "CreatedDateTime",
+        "EntityId",
+        "EntityTypeId",
         "ForeignKey",
         "Guid",
         "Id",
@@ -5659,6 +5762,7 @@
         "FormAction",
         "Guid",
         "LastProcessedDateTime",
+        "ModifiedByPersonAliasId",
         "ModifiedDateTime"
       ],
       "rockColumns": {
@@ -5823,12 +5927,14 @@
       "written": [
         "ActivatedDateTime",
         "ActivityTypeId",
+        "AssignedPersonAliasId",
         "CompletedDateTime",
         "CreatedDateTime",
         "ForeignKey",
         "Guid",
         "Id",
         "LastProcessedDateTime",
+        "ModifiedByPersonAliasId",
         "ModifiedDateTime",
         "WorkflowId"
       ],
@@ -6185,6 +6291,7 @@
       "5CD9C0C8-C047-61A0-4E36-0FDB8496F066",
       "72657ED8-D16E-492E-AC12-144C5E7567E7",
       "8A25E5CE-1B4F-4825-BCEA-216167836305",
+      "8EADB0DC-17F4-4541-A46E-53F89E21A622",
       "90F5E87B-F0D5-4617-8AE9-EB57E673F36F",
       "9BBFDA11-0D22-40D5-902F-60ADFBC88987",
       "A01E3E99-A8AD-4C6C-BAAC-98795738BA70",
@@ -6324,6 +6431,10 @@
     ],
     "RegistrationTemplate": [
       "5E0ADD57-B220-4ED0-975D-EEE2D0B14743"
+    ],
+    "ReminderType": [
+      "A9BAAA29-F306-4E35-9273-4B299676B252",
+      "CF5D8F88-8BF0-4880-88BC-102B2AE6159D"
     ],
     "Schedule": [
       "1F6C15DA-982F-43B1-BDE9-D4E70CFBCB45",
