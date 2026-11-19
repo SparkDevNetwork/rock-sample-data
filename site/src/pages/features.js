@@ -223,15 +223,15 @@ module.exports = function features( { model } ) {
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
             text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
-            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
-            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday` ],
+            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
+            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
         },
         {
             id: "groups-and-serving", eyebrow: "Groups and serving", title: "Groups that meet, and teams that serve.", sand: true,
             text: html`${model.counts.smallGroups} Cast small groups plus generated ones at every campus, with leaders, hosts, topics, photos, and a real church year. Every campus also has ${model.opportunities.length} serving teams, with rotations, preferences, and schedules six weeks ahead.`,
-            checks: [ "Group Finder test cases at every campus", "Women's Bible studies led by women, and men's Bible studies", "New groups on launch Sundays, most led by someone who was Ready to Lead", "Members who join after a family starts coming and leave after it stops", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays" ],
-            look: [ html`<a href="church.html#groups">The church's small groups</a>`, html`<a href="church.html#serving">The serving teams</a>`, "Rock's Group Scheduler for next Sunday" ],
+            checks: [ "Group Finder test cases at every campus", "Women's Bible studies led by women, and men's Bible studies", "New groups on launch Sundays, most led by someone who was Ready to Lead", "Members who join after a family starts coming and leave after it stops", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays", "Peer networks from shared groups, teams, and follows, with Rock's trend arrows" ],
+            look: [ html`<a href="church.html#groups">The church's small groups</a>`, html`<a href="church.html#serving">The serving teams</a>`, "Rock's Group Scheduler for next Sunday", html`Ted Decker's Peer Network, in the <a href="${castDecker}">Decker family</a>` ],
             links: [ { label: "Small groups", href: doc( "docs/small-groups.md" ) }, { label: "Serving", href: doc( "docs/serving.md" ) } ]
         },
         {

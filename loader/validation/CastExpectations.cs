@@ -60,7 +60,7 @@ namespace RockSampleData.Loader.Validation
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
         /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
-        /// <param name="anchor">The load's install day, which reminder dates count from. Null is the database server's today.</param>
+        /// <param name="anchor">The load's install day, which reminder dates and the eRA stories count from. Null is the database server's today.</param>
         public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
@@ -163,6 +163,11 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
             checks += CheckPersonAttributes( db, source, failures );
+
+            // The eRA stories follow attendance and giving (decision D-era-5), and the peer network stories follow small
+            // groups and serving teams (decision D-peers-5).
+            checks += parts.Contains( SampleDataPart.Attendance ) && parts.Contains( SampleDataPart.Giving ) ? CastEraExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+            checks += parts.Contains( SampleDataPart.SmallGroups ) && parts.Contains( SampleDataPart.Serving ) ? CastPeerNetworkExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 

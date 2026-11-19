@@ -560,6 +560,57 @@ namespace RockSampleData.Loader.Model
         public CastStepsExpect Steps { get; set; }
 
         public CastAssessmentsExpect Assessments { get; set; }
+
+        public CastEraExpect Era { get; set; }
+
+        public CastPeerNetworkExpect PeerNetwork { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock's eRA shows for a Cast person on install day (decision D-era-5).
+    /// </summary>
+    internal sealed class CastEraExpect
+    {
+        /// <summary>
+        /// current (an eRA now), former (was one and exited), or never.
+        /// </summary>
+        public string Status { get; set; }
+
+        /// <summary>
+        /// For current: how many days before install day the eRA Start Date may be.
+        /// </summary>
+        public CastDaysAgoRange StartedDaysAgo { get; set; }
+
+        /// <summary>
+        /// For former: how many days before install day the eRA End Date may be.
+        /// </summary>
+        public CastDaysAgoRange EndedDaysAgo { get; set; }
+    }
+
+    /// <summary>
+    /// A range of days before install day. Either end may be left out.
+    /// </summary>
+    internal sealed class CastDaysAgoRange
+    {
+        public int? Min { get; set; }
+
+        public int? Max { get; set; }
+    }
+
+    /// <summary>
+    /// What a Cast person's peer network shows on install day (decision D-peers-5).
+    /// </summary>
+    internal sealed class CastPeerNetworkExpect
+    {
+        /// <summary>
+        /// Keys of people in the same household who show in the person's peer network, rising.
+        /// </summary>
+        public List<string> Includes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Every person who shares one of the person's current groups of a type with Peer Network on shows, rising.
+        /// </summary>
+        public bool CurrentGroupsRising { get; set; }
     }
 
     /// <summary>

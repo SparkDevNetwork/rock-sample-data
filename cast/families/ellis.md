@@ -13,7 +13,7 @@ Jordan and Hannah Ellis married last year and visited for the first time this su
 
 ### Jordan Ellis
 
-- Age 27 · married · email jordan.ellis@example.org · groups: Marble Group (asked to join)
+- Age 27 · married · email jordan.ellis@example.org · groups: Marble Group (asked to join) · Rock shows an eRA that started 21 to 100 days ago
 - Person Guid `F82915AE-0E40-4827-9E35-17CC897A0320`
 
 ### Hannah Ellis

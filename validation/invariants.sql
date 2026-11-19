@@ -545,12 +545,12 @@ SELECT ( SELECT COUNT(*) FROM [Stages] AS [x] WHERE [x].[Stage] = '2' AND NOT EX
     + ( SELECT COUNT(*) FROM [OpenGive] AS [o] WHERE NOT EXISTS ( SELECT 1 FROM [Stages] AS [x] WHERE [x].[PrimaryAliasId] = [o].[PersonAliasId] AND [x].[Stage] IN ( '2', '3' ) ) );
 
 -- check: program-completions-follow-rocks-rule
--- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type in a program, dated from those steps, and points every step of theirs in the program at it. It runs for every program the dataset has steps in. Rock's job must find nothing to add or fix after install.
+-- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type in a program, dated from those steps, and points every step of theirs in the program at it. It runs for every program the dataset has steps in, except Rock's Core Steps, whose eRA steps follow era-completion-follows-rocks-rule. Rock's job must find nothing to add or fix after install.
 WITH [Programs] AS (
     SELECT DISTINCT [st].[StepProgramId] AS [Id]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
-    WHERE [s].[ForeignKey] = @ForeignKey
+    WHERE [s].[ForeignKey] = @ForeignKey AND [st].[Guid] <> 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3'
 ),
 [PeopleWithAllSteps] AS (
     SELECT [st].[StepProgramId], [s].[PersonAliasId],
@@ -582,6 +582,72 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
         LEFT JOIN [Completions] AS [c] ON [c].[StepProgramId] = [st].[StepProgramId] AND [c].[PersonAliasId] = [s].[PersonAliasId]
         WHERE [st].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [s].[ForeignKey] = @ForeignKey
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: era-flag-and-step-agree
+-- why: Decision D-era-1. Rock's Family Analytics job opens an eRA step when a family enters eRA and completes it, with an eRA End Date, when the family exits. So every In Progress eRA step belongs to someone who is Currently an eRA, with an eRA Start Date on or before the step's start and no eRA End Date, and nobody has two In Progress eRA steps. A child in two homes follows each family's entries and exits on their own, as Rock's job does, so only people in one family are held to that. Every Complete eRA step ended on the day it was completed.
+WITH [EraSteps] AS (
+    SELECT [s].[Id], [pa].[PersonId], [s].[StartDateTime], [s].[EndDateTime], [s].[CompletedDateTime], [ss].[IsCompleteStatus],
+        ( SELECT COUNT(*) FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [gm].[PersonId] = [pa].[PersonId] AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [Families]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [s].[ForeignKey] = @ForeignKey
+),
+[Values] AS (
+    SELECT [av].[EntityId], [a].[Guid], [av].[Value], [av].[ValueAsDateTime]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [a].[Guid] IN ( 'CE5739C5-2156-E2AB-48E5-1337C38B935E', 'A106610C-A7A1-469E-4097-9DE6400FDFC2', '4711D67E-7526-9582-4A8E-1CD7BBE1B3A2' )
+)
+SELECT ( SELECT COUNT(*) FROM [EraSteps] AS [s]
+        WHERE [s].[IsCompleteStatus] = 0 AND [s].[Families] = 1
+            AND ( NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = 'CE5739C5-2156-E2AB-48E5-1337C38B935E' AND [v].[Value] = 'True' )
+                OR NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = 'A106610C-A7A1-469E-4097-9DE6400FDFC2' AND CAST( [v].[ValueAsDateTime] AS DATE ) <= CAST( [s].[StartDateTime] AS DATE ) )
+                OR EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = '4711D67E-7526-9582-4A8E-1CD7BBE1B3A2' ) ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [PersonId] FROM [EraSteps] WHERE [IsCompleteStatus] = 0 AND [Families] = 1 GROUP BY [PersonId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM [EraSteps] WHERE [IsCompleteStatus] = 1 AND ( [CompletedDateTime] IS NULL OR [EndDateTime] IS NULL OR [CompletedDateTime] <> [EndDateTime] OR [CompletedDateTime] < [StartDateTime] ) );
+
+-- check: era-completion-follows-rocks-rule
+-- why: Decision D-era-1. A family's first exit from eRA completes each member's eRA step, and Rock's step save hook gives the person a Core Steps completion dated from that step. Rock's nightly Update Step Program Completions job then points each later eRA step of theirs at it, so the job finds nothing to add or fix after install. Nobody else has a Core Steps completion.
+WITH [EraSteps] AS (
+    SELECT [s].[Id], [s].[PersonAliasId], [s].[StartDateTime], [s].[CompletedDateTime], [s].[CampusId], [s].[StepProgramCompletionId], [ss].[IsCompleteStatus]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [s].[ForeignKey] = @ForeignKey
+),
+[FirstExit] AS (
+    SELECT [PersonAliasId], [StartDateTime], [CompletedDateTime], [CampusId], ROW_NUMBER() OVER ( PARTITION BY [PersonAliasId] ORDER BY [CompletedDateTime], [Id] ) AS [Row]
+    FROM [EraSteps]
+    WHERE [IsCompleteStatus] = 1
+),
+[Completions] AS (
+    SELECT [c].[Id], [c].[PersonAliasId], [c].[StartDateTime], [c].[EndDateTime], [c].[CampusId]
+    FROM [StepProgramCompletion] AS [c]
+    INNER JOIN [StepType] AS [st] ON [st].[StepProgramId] = [c].[StepProgramId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [c].[ForeignKey] = @ForeignKey
+)
+SELECT ( SELECT COUNT(*) FROM [FirstExit] AS [f]
+        WHERE [f].[Row] = 1 AND ( SELECT COUNT(*) FROM [Completions] AS [c]
+            WHERE [c].[PersonAliasId] = [f].[PersonAliasId] AND [c].[StartDateTime] = [f].[StartDateTime] AND [c].[EndDateTime] = [f].[CompletedDateTime]
+                AND ISNULL( [c].[CampusId], 0 ) = ISNULL( [f].[CampusId], 0 ) ) <> 1 )
+    + ( SELECT COUNT(*) FROM [Completions] AS [c] WHERE NOT EXISTS ( SELECT 1 FROM [FirstExit] AS [f] WHERE [f].[PersonAliasId] = [c].[PersonAliasId] ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [PersonAliasId] FROM [Completions] GROUP BY [PersonAliasId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM [EraSteps] AS [s] LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
+        WHERE ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: follows-come-from-staff
+-- why: Decision D-peers-3. Every follow the load writes is a staff member's: a campus pastor following a small group leader, or staff following someone in their care, each a person following a person with no purpose. Rock's Send Following Event Notification job, which ships off and which the load leaves off, emails only its Eligible Followers role (RSR - Staff Workers), so if a church turns it on, its notices reach only staff on the sample church's own domain.
+SELECT ( SELECT COUNT(*)
+        FROM [Following] AS [f]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [f].[PersonAliasId]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+        WHERE [f].[ForeignKey] = @ForeignKey
+            AND ( ISNULL( [p].[Email], '' ) NOT LIKE '%@rocksolidchurchdemo.com' OR ISNULL( [f].[PurposeKey], '' ) <> ''
+                OR [f].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Guid] = '90F5E87B-F0D5-4617-8AE9-EB57E673F36F' ) ) )
+    + ( SELECT COUNT(*) FROM [ServiceJob] WHERE [Guid] = '893A745F-8642-4095-9E91-F8C54547DEF0' AND [IsActive] = 1 );
 
 -- check: people-match-the-dataset-card
 -- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
@@ -1972,7 +2038,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits once its Set Visit Dates setting is on, which the load leaves off (decision D-era-3), and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
@@ -2374,10 +2440,11 @@ SELECT CASE WHEN (
     THEN 0 ELSE 1 END;
 
 -- check: attribute-value-has-rock-derived-columns
--- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
+-- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias. The seven values Rock's own Family Analytics procedures write (First and Last Gave, Times Given, First and Last Checked-In, and Times Checked-In) keep the columns those procedures set, since Rock's hook never runs over them (decision D-era-4).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
-INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] NOT IN ( 'EE5EC76A-D4B9-56B5-4B48-29627D945F10', '02F64263-E290-399E-4487-FC236F4DE81F', 'AC11EF53-AE55-79A0-4CAD-43721750E988',
+    '57700E8F-ED11-D787-415A-04DDF411BB10', 'AB12B3B0-55B8-D6A5-4C1F-DB9CCB2C4342', '5F4C6462-018E-D19C-4AB0-9843CB21C57E', '45A1E978-DC5B-CFA1-4AF4-EA098A24C914' )
 INNER JOIN [FieldType] AS [ft] ON [ft].[Id] = [a].[FieldTypeId]
 LEFT JOIN [PersonAlias] AS [pa] ON [ft].[Guid] = 'E4EAB7B2-0B76-429B-AFE4-AD86D7428C70' AND [pa].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
 CROSS APPLY ( SELECT

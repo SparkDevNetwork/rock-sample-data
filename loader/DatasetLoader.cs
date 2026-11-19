@@ -54,11 +54,13 @@ namespace RockSampleData.Loader
             ("Giving", SampleDataPart.Giving),
             ("Giving analytics", SampleDataPart.Giving),
             ("Giving alerts", SampleDataPart.Giving),
+            ("Family analytics", null),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Reminders", SampleDataPart.Reminders),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
+            ("Peer network", null),
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
@@ -300,6 +302,9 @@ namespace RockSampleData.Loader
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             new CampaignLoader( db, source, dates, foreignKey ).Load();
+            // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision D-peers-1).
+            var peerNetwork = new PeerNetworkLoader( db, source, dates, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            peerNetwork.LoadSetup();
             var categoryCount = new CategoriesLoader( db, source, foreignKey ).Load();
             if ( categoryCount > 0 )
             {
@@ -568,6 +573,13 @@ namespace RockSampleData.Loader
                 new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             }
 
+            // eRA, as if Rock's Family Analytics job had run every Tuesday, then Rock's own giving and attendance counts. It
+            // reads the families, gifts, and weekend attendance from the rows, so it always runs, and it comes before the
+            // data views, which read Last Gave (decisions D-era-1 to D-era-4).
+            steps.Begin( "Family analytics" );
+            var familyAnalytics = new FamilyAnalyticsLoader( db, dates, calendar.HistoryStart, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            familyAnalytics.Load();
+
             // Prayer requests and the prayer team's activity. Who asks depends on who attended, gave, or is in a group.
             var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
             if ( steps.Begin( "Prayer" ) )
@@ -623,6 +635,20 @@ namespace RockSampleData.Loader
                     var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
                     new AssessmentsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, stepsLoaded.Facts, stepsLoaded.Plan, campusPastors );
                 }
+            }
+
+            // The follows and the peer network, as Rock's Calculate Peer Network job's last two monthly runs left them. They
+            // read the small groups, serving teams, and care notes from the rows, so they always run, after every step that
+            // writes those (decisions D-peers-1 to D-peers-4).
+            steps.Begin( "Peer network" );
+            if ( peerNetwork.HasConfiguration )
+            {
+                var peerCampusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                peerNetwork.Load( peerCampusPastors, configuration.CampusIds, smallGroupSetup.GroupTypeId );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/peer-network.json)" );
             }
 
             // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so
@@ -766,7 +792,7 @@ namespace RockSampleData.Loader
             db.RebuildDeferredIndexes( "History" );
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
-            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor ):N0} values set" );
+            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor, familyAnalytics.ProcedureAttributeIds ):N0} values set" );
 
             // Rock's duplicate finder runs last, after every person, phone, and address, so the Calculate Person Duplicates
             // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.

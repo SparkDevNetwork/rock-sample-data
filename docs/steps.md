@@ -22,7 +22,7 @@ Published church pathways agree on the same spine: commit, belong, grow, serve, 
 A new Rock database already has two step programs:
 
 - **Discipleship Path,** with four step types: Baptism, Starting Point Class, Serve, and Small Group. Serve requires Starting Point Class first. Baptism, Serve, and Small Group are system step types with fixed Guids.
-- **Core Steps,** a system program that holds eRA. Rock's Calculate Family Analytics job writes it.
+- **Core Steps,** a system program that holds eRA. Rock's Family Analytics job writes it, and the load fills it the same way (see [eRA](#era)).
 
 The build follows the serving pattern (decision 68): it keeps Rock's program, its step types, and their Guids, and builds them out. Any Rock feature that looks them up by Guid still works.
 
@@ -164,6 +164,16 @@ A student's baptism goes on the Discipleship Path's Baptism step, with the Bapti
 - **Person history.** Every step has the History tab line Rock's step save hook writes: "Added" with the step's name and campus on the day it started (decision 134). A step that started In Progress and was completed later (a class, or a Pending volunteer who became Active) also has its status change and completion date on the day it was completed. A step that ended has its end date on the day it ended.
 - **Program completions.** A person whose Complete steps cover every step type in a program gets a completion for that program, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install, in either program.
 
+## eRA
+
+eRA, "estimated regular attender," is Rock's flag for a family that attends or gives regularly. Rock's Family Analytics job sets it, and the person profile shows it as a badge, in the Family Analytics attributes, and as an eRA step in Rock's Core Steps program. The load fills it as if the job had run every Tuesday at 8 PM since the start of the history window, with a port of Rock's own rule (decision D-era-1):
+
+- **Entering.** A family enters when an adult gave four times in the last year, with one gift in the last six weeks, or when the family came on eight of the last sixteen Sundays. Rock counts a Sunday when anyone in the family checked in to a weekend service, a kids' room, or a serving team. Each member gets Currently an eRA, an eRA Start Date, an In Progress eRA step, and an "Entered" line on their History tab.
+- **Exiting.** A family exits when it has given nothing in eight weeks, come on no Sunday in four weeks, and come on fewer than eight of sixteen. Each member loses the flag, gets an eRA End Date, and has their eRA step completed, with an "Exited" history line. A person's first exit gives them a Core Steps completion, and their later eRA steps point at it, as Rock's step save hook and its Update Step Program Completions job do.
+- **On install day.** The replay ends with one more run at the start of install day, so Rock's first run changes nothing (decision D-era-2). The job is on, with its Set Visit Dates setting off until visit dates load (decision D-era-3). The load also runs Rock's own count procedures, which fill Times Given, First and Last Checked-In, Times Checked-In, and First and Last Gave (decision D-era-4).
+
+Core 1 has 66 eRA families on install day, and Full 7 about 2,900. The Deckers have been eRAs for years, the Ellises became eRAs a few weeks ago, the Ortizes stopped about four months ago, and Bri Hall never has (decision D-era-5).
+
 ## How many
 
 The rates are designed targets, not measured ones (decision 89). The sample church shows what healthy use of steps looks like, the same direction the notes take (decision 78). If calibration measures step use later, the measured data sets only the timing.
@@ -241,10 +251,10 @@ Jasmine's household file now sets her graduation as a relative date, this past M
 - **Cast expectations,** on every CLI load and in the verify tool: the stories above. For the step workflows, each type has its trigger, and every Baptism and Follow Jesus step completed since the trigger was built has one workflow. It is open or complete as its step's date says, it went to the right person, and an open one shows in that person's My Workflows list (decision 294).
 - **Invariants** in `validation/invariants.sql`, in the verify tool: each Small Group, Serve, and Lead step matches its membership's dates, and every membership has its step; the Baptism step agrees with the Baptism Date and Baptized Here; every Serve step has a Starting Point Class completed before it; Give steps agree with the journey stage Rock shows; program completions follow Rock's job in both programs; and every step has the date keys, status, alias, and campus Rock expects. For the Student Path: every student step belongs to someone in grades 7 to 12 on its start who had checked in to the student service by then; Mission Trip is high school only and Student Leader juniors and seniors only; Follow Jesus and Student Leader happen at most once, and Student Leader ends at graduation or stays open while the student is in school; a child's baptism is here, on a Sunday, after they started coming to the student service; and no step is dated after the install day. For the step workflows: each is linked to its step as Rock launches it, every step completed since its trigger has one, each waits at its form or was completed by its assignee, and each type keeps its workflows and sends no email.
 - **Rock's own workflow code,** in the verify tool. Rock launches each open task's step, and a few completed ones, without saving them, and gives the same name, assignee, person, and waiting form the load wrote. Rock's Process Workflows job leaves every workflow as it was, apart from the times it processed them. See [Step workflow launch](verification.md#step-workflow-launch) and [Process Workflows](verification.md#process-workflows).
+- **eRA,** in the verify tool and the invariants. Rock's own Family Analytics procedures, run on install day, move no family in or out of eRA. Every In Progress eRA step belongs to someone who is Currently an eRA, and each person's Core Steps completion comes from their first exit (`era-flag-and-step-agree` and `era-completion-follows-rocks-rule`). The Cast's eRA stories are Cast expectations.
 - **Rock Cleanup** as a referee finds nothing to fix.
 
 ## Later
 
-- **eRA steps** in Rock's Core Steps program, from the attendance the data already has.
 - **Links to learning and events.** When learning (LMS) is built, Foundations can link to a learning class. Student registrations are built, and last summer's campers are exactly the students with that camp's step (see [Event registrations](registrations.md#who-registered-students)), so each Student Camp step could also point at its registration.
 - **Student small groups,** which would add a group step to the Student Path.

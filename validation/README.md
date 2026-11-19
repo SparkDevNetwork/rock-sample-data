@@ -97,9 +97,31 @@ A Cast person can also say what their assessments should show, with the type key
 
 A story's `leaning` in `assessments` must come out on top, such as Bri Hall's gifts among her dominant gifts, and each legacy DISC result must show exactly the scores in the file (see [Assessments](../docs/assessments.md#the-casts-stories)).
 
+A Cast person can say what eRA shows for them on install day (see [eRA](../docs/steps.md#era)):
+
+```json
+"expect": { "era": { "status": "current", "startedDaysAgo": { "min": 730 } } }
+```
+
+- `status` is `current` (Currently an eRA, an eRA Start Date, one In Progress eRA step from that day, and an Entered history line), `former` (no flag, an eRA End Date, a Complete eRA step and an Exited history line on that day), or `never` (no eRA values, steps, or history).
+- `startedDaysAgo` and `endedDaysAgo` give the days before install day the start or end may be, with a `min`, a `max`, or both.
+
+They cover Ted Decker (current for at least 730 days), Jordan Ellis (current, from 21 to 100 days), Luis Ortiz (former, ended 60 to 200 days before install day), and Bri Hall (never). They held on five install days, a Monday, a Tuesday, the 1st of a month, February, and June (decision D-era-5).
+
+A Cast person can say what their peer network shows (see [Peer network](../docs/small-groups.md#peer-network)):
+
+```json
+"expect": { "peerNetwork": { "includes": [ "cindy" ], "currentGroupsRising": true } }
+```
+
+- `includes` lists people in the same household who show in the person's peer network, rising.
+- `currentGroupsRising` means everyone who shares one of the person's current groups, of a type with Peer Network on, shows rising.
+
+Ted Decker has both. Every load also checks that each Cast person who left a group, or whose group closed, sees its people falling, and that at least one has (decision D-peers-5). These read whatever groups exist, so they hold when the Cast's small groups are planned again.
+
 The Cast's duplicates in `cast/duplicates.json` are checked too (see [Duplicates](../docs/duplicates.md)). Rock's duplicate finder must score each pair, with its decision: open, Not a Duplicate, or ignored. An open pair must score above the Duplicate Finder's 60, so the list shows it. Each merge request must be a Person Merge Request that never expires, with its requester, note, and people. Each merge must leave the old record's alias on the person, one Merged line in their History, and the old last name as a previous name when it differs. These need no part, since people always load.
 
-Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step and step workflow expectations the steps part, assessment expectations the assessments part, and reminder expectations the reminders part. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
+Every load checks them and prints the result, for the parts it loaded: giving and campaign expectations need the giving part, achievement expectations the attendance part, prayer expectations the prayer part, step and step workflow expectations the steps part, assessment expectations the assessments part, reminder expectations the reminders part, eRA expectations the attendance and giving parts, and peer network expectations the small groups and serving parts. To check a database that is already loaded, run the loader CLI with `--package <file.zip> --check-cast`; it exits with 1 when an expectation fails. The family pages show each expectation as "Rock shows ...".
 
 The Cast giving expectations hold on every install day: the verify tool's anchor sweep checks the 60 days from each run's anchor, and `--anchor-sweep 365` a full year (decision 218). They cover the Deckers (monthly, consistent, by recurring card), Margaret Carter (monthly, consistent, by check), the Ellises (new), two lapsed givers with late-gift alerts (the Ortizes, who stopped six months ago, and Emily Gray, whose card expired seven months ago), the Murphys (former), Amanda Sullivan (bi-weekly, consistent, her own giving unit), Kristen Watson (a once-a-year giver, whom Rock shows as former), and Bill Price (large-gift alerts). For achievements they cover Sam Lee (Century Club earned), Grace Fischer (Century Club in progress), Diego Ortiz (Century Club still in progress after he stopped coming), and Mason Kelly (High Five, but not yet the 25 Club). All 22 hold at seven anchor dates from 2026-01-04 to 2027-02-20.
 
@@ -177,7 +199,7 @@ Core 1 has 6 businesses at 1 campus, Core 3 has 10 at 3 campuses, and Full 7 has
 
 ## Rock version guard
 
-The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, the streak and achievement math, and the five assessment scoring services with the reminder job's rules. Verify also scores every assessment answer set with Rock's own services (see [Assessments](../docs/assessments.md#how-it-is-checked)). If Rock changes that code, the port goes stale. Two checks catch it.
+The loader ports some of Rock's code: the giving automation math, the alert rules, the value formats, the streak and achievement math, the five assessment scoring services with the reminder job's rules, Family Analytics' eRA rule, and Calculate Peer Network's scores. It also runs some of Rock's procedures from the text Rock installed, with their clock set to the job's last run: Family Analytics' giving and attendance counts. Verify also scores every assessment answer set with Rock's own services (see [Assessments](../docs/assessments.md#how-it-is-checked)), and runs Rock's own Family Analytics and Calculate Peer Network procedures on every load (see [Verification](../docs/verification.md)). If Rock changes that code, the port goes stale. Two checks catch it.
 
 ### The lock check (any time)
 

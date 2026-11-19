@@ -1056,6 +1056,30 @@ for ( const { file, data: h } of households ) {
         if ( ( p.assessments || p.expect?.assessments ) && p.familyRole !== "adult" ) {
             errors.push( `${file}: "${p.key}" has an assessment story, but only adults take assessments.` );
         }
+
+        // eRA: a status, and only the range that status reads, in order.
+        const era = p.expect?.era;
+        if ( era ) {
+            if ( ![ "current", "former", "never" ].includes( era.status ) ) {
+                errors.push( `${file}: "${p.key}" expects eRA status "${era.status}", which is not current, former, or never.` );
+            }
+            for ( const [ field, status ] of [ [ "startedDaysAgo", "current" ], [ "endedDaysAgo", "former" ] ] ) {
+                const range = era[field];
+                if ( range && era.status !== status ) {
+                    errors.push( `${file}: "${p.key}" expects eRA ${field}, which only a ${status} eRA has.` );
+                }
+                if ( range && range.min !== undefined && range.max !== undefined && range.min > range.max ) {
+                    errors.push( `${file}: "${p.key}" expects eRA ${field} from ${range.min} to ${range.max} days ago, which is empty.` );
+                }
+            }
+        }
+
+        // Peer network: the people it includes are others in this household.
+        for ( const key of p.expect?.peerNetwork?.includes || [] ) {
+            if ( key === p.key || !( h.members || [] ).some( m => m.key === key ) ) {
+                errors.push( `${file}: "${p.key}" expects "${key}" in their peer network, who is not someone else in this household.` );
+            }
+        }
         for ( const [ key, story ] of Object.entries( p.assessments || {} ) ) {
             const who = `${file}: "${p.key}" ${key}`;
             if ( !ASSESSMENT_TYPES.includes( key ) ) {

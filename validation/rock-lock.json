@@ -156,6 +156,91 @@
       "sha256": "71e3a700400f735dc10bc1dd0817be49a9879c7ffe22b8c1d2ccfa8fbb2e8d05"
     },
     {
+      "path": "Rock/Jobs/CalculateFamilyAnalytics.cs",
+      "why": "Family Analytics: when a family enters or exits eRA, and what each writes (the flag, the start and end dates, the eRA step, and the history lines), then the giving and attendance count procedures. The loader replays it every week and turns it on with Set Visit Dates off.",
+      "mirroredBy": [
+        "loader/loading/RockFamilyAnalytics.cs",
+        "loader/loading/FamilyAnalyticsLoader.cs"
+      ],
+      "sha256": "696f8655be7fb9334532de665dda197004bda21b9c7054485bb6e30a9e7bd584"
+    },
+    {
+      "path": "Rock/Plugin/HotFixes/311_FixEraFamilyAnalyticsWeekBoundariesFollowup6902_spCrm_FamilyAnalyticsEraDataset.sql",
+      "why": "The eRA dataset procedure as Rock 20.0.10 and 21.0.2 install it: its windows, which adults count, and its side effect that gives the flag to every member of an eRA family.",
+      "mirroredBy": [
+        "loader/loading/RockFamilyAnalytics.cs"
+      ],
+      "sha256": "60f8bd9ce22d072dc15f8347526fc549ead522d3134cd9df9efcd038e1e20e3b"
+    },
+    {
+      "path": "Rock/Plugin/HotFixes/306_FixEraFamilyAnalyticsWeekBoundaries6902_spCrm_FamilyAnalyticsGiving.sql",
+      "why": "Family Analytics' giving counts, First Gave, and Last Gave, which the loader runs as installed with its clock pinned to the last run.",
+      "mirroredBy": [
+        "loader/loading/FamilyAnalyticsLoader.cs",
+        "loader/database/RockProcedureClock.cs"
+      ],
+      "sha256": "31b7946d7b33dffee2b7106f6ac646992f051e184ea2171c32ae315ead59bf55"
+    },
+    {
+      "path": "Rock/Plugin/HotFixes/306_FixEraFamilyAnalyticsWeekBoundaries6902_spCrm_FamilyAnalyticsAttendance.sql",
+      "why": "Family Analytics' check-in dates and counts, which the loader runs as installed with its clock pinned to the last run.",
+      "mirroredBy": [
+        "loader/loading/FamilyAnalyticsLoader.cs",
+        "loader/database/RockProcedureClock.cs"
+      ],
+      "sha256": "181c55042a337eb14ae58f720b4a86eb7cbecae5298b32b940d3d0660140d5a1"
+    },
+    {
+      "path": "Rock/Model/Engagement/Step/Step.SaveHook.cs",
+      "why": "The person history a step adds and changes, and the program completion a completed step makes, which the eRA steps and the step programs write.",
+      "mirroredBy": [
+        "loader/loading/StepHistoryRows.cs",
+        "loader/loading/RockFamilyAnalytics.cs"
+      ],
+      "sha256": "a72afc7f0891f61a2411a64776e58a6edbfc8ecc161a848fa8b7d2ee320f9fe4"
+    },
+    {
+      "path": "Rock/Jobs/UpdateStepProgramCompletions.cs",
+      "why": "The nightly job that adds missing program completions and points each step at its person's completion, which the eRA steps' Core Steps completions follow.",
+      "mirroredBy": [
+        "loader/loading/FamilyAnalyticsLoader.cs"
+      ],
+      "sha256": "d7e27b813b1d07fb54201255f43f1953a2bf4ed4ffa0140830079f1875b41147"
+    },
+    {
+      "path": "Rock/Jobs/CalculatePeerNetwork.cs",
+      "why": "Calculate Peer Network: following first, then groups, both on by default. The loader replays its last two monthly runs.",
+      "mirroredBy": [
+        "loader/loading/RockPeerNetwork.cs",
+        "loader/loading/PeerNetworkLoader.cs"
+      ],
+      "sha256": "f5726639ae78c851313bfdcf13814ac7354721378b464c1153736ea898f44a94"
+    },
+    {
+      "path": "Rock/Plugin/HotFixes/225_ImprovePeerNetworkCalculations_spPeerNetwork_UpdateGroupConnections.sql",
+      "why": "The group connections procedure as installed: which pairs connect, their dates, the score formula, and the clean-up.",
+      "mirroredBy": [
+        "loader/loading/RockPeerNetwork.cs"
+      ],
+      "sha256": "3e8d3eebc9a90224aabd2c7e7e975cbbd1e7e80a1e81731e657753f1640de757"
+    },
+    {
+      "path": "Rock.Migrations/Migrations/Version 17.0/Version 17.0/202501152224140_ImprovePeerNetworkRelationshipTrends_spPeerNetwork_UpdateFollowing.sql",
+      "why": "The following procedure as installed: a flat 5 points per follow, new ones rising.",
+      "mirroredBy": [
+        "loader/loading/RockPeerNetwork.cs"
+      ],
+      "sha256": "df264159596b299b29c70dd41522f39fc5077b9e6e7c17b5f95bc58dfdb7dfc2"
+    },
+    {
+      "path": "Rock/Jobs/SendFollowingEvents.cs",
+      "why": "Who the Send Following Event Notification job emails: members of its Eligible Followers role, for event types they subscribe to or that require notice. The loaded follows come from staff only, and the job ships off.",
+      "mirroredBy": [
+        "loader/loading/PeerNetworkLoader.cs"
+      ],
+      "sha256": "186b43dc06b48621fc898be23dbdb16064145f1471284a98c20ac1020861eec5"
+    },
+    {
       "path": "Rock/Security/Encryption.cs",
       "why": "The keyed hash (GetSHA1Hash) behind the check scanner fields, and the v2 two-way encryption (EncryptString, key derivation, footer) behind CheckMicrParts and CheckMicrEncrypted.",
       "mirroredBy": [

@@ -172,6 +172,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
 - **Each person sees a next step.** Five adaptive messages, from Your Next Step to Giving, show each signed-in person the version that fits them, chosen by Rock from 16 personalization segments on the church's own data views. See [Adaptive messages](docs/adaptive-messages.md).
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
+- **eRA and peer networks are filled.** Each family's eRA, Rock's regular attender status, has years of eRA steps and history, as Rock's weekly Family Analytics job would leave it, and the job is on. Each person's Peer Network shows the people they share a small group or serving team with, and the people staff follow, with Rock's trend arrows. Rock's own jobs, run on install day, change nothing. See [eRA](docs/steps.md#era) and [Peer network](docs/small-groups.md#peer-network).
 - **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
 - **Profiles have signals.** Four signal types, each locked to its roles, flag the Cast's stories, such as Frank Dexter's Safety Team Review, Maddie Lowe's Pickup Instructions, and Hal Russell's Care Team Follow-up. Each campus pastor follows up with a few people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none. See [How signals load](loader/README.md#how-signals-load).
 - **The bookmark menu is full.** The bookmarks beside Rock's search bar have shared sections for Sunday morning, care, finance, and communications, each locked to its roles, and personal sections for six staff and every campus pastor. Every link opens a Rock page with sample data on it. Sign in as `pfoster` to see Pete Foster's Leadership section. See [How personal links load](loader/README.md#how-personal-links-load).
@@ -224,7 +225,7 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    dotnet run -- --package ../packages/core-1.zip --rock C:\Development\Rock --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
    ```
 
-   Then read [After you install](docs/after-install.md). It says which of Rock's jobs to run, such as Family Analytics for eRA, and which to turn off on a sample site.
+   Then read [After you install](docs/after-install.md). It says which of Rock's jobs the load already covers, such as Family Analytics for eRA, which to run, and which to turn off on a sample site.
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 
