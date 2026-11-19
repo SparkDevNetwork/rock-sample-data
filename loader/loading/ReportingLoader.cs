@@ -362,7 +362,22 @@ VALUES ( @Name, @Description, @Calendar, @First, @CategoryId, 1, 0, 0, 0, @Guid,
                 }
             }
 
+            foreach ( var leaf in DataViewWriter.Leaves( view.Filter ).Where( f => f.SignalType != null ) )
+            {
+                var type = SignalType( leaf );
+                if ( _db.IdByGuid( "SignalType", type.Guid ) == null )
+                {
+                    return $"it matches the {type.Name} signal type, which this load did not write";
+                }
+            }
+
             return null;
+        }
+
+        private SignalTypeDefinition SignalType( DataViewFilterDefinition filter )
+        {
+            return _source.Signals?.Type( filter.SignalType )
+                ?? throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: a data view matches signal type '{filter.SignalType}', but this package has no {SampleDataSource.SignalsConfigurationPath}." );
         }
 
         /// <summary>
@@ -378,6 +393,12 @@ VALUES ( @Name, @Description, @Calendar, @First, @CategoryId, 1, 0, 0, 0, @Guid,
             if ( filter.Steps != null )
             {
                 return StepsSelection( filter.Steps );
+            }
+
+            if ( filter.SignalType != null )
+            {
+                // Rock's HasSignalFilter saves the type's Id.
+                return _db.RequireIdByGuid( "SignalType", SignalType( filter ).Guid ).ToString();
             }
 
             return filter.Selection;

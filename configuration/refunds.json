@@ -1,12 +1,12 @@
 {
-  "$comment": "Refunds of gifts (decision 262). Rock stores a refund as a new transaction with negative amounts, linked to the gift in FinancialTransactionRefund, and refuses a refund of a refund, of a foreign currency gift, or of more than was paid. Generated households get refunds at the profile's giving.refundsPerThousandGifts; perThousandGiftsWithoutProfile is the rate only when the profile has none. The Cast's refunds are designed in their household files. Each kind names one of Rock's shipped refund reasons, its share of refunds, and how many days after the gift staff refund it; a refund that would fall on a weekend, Christmas Day, or New Year's Day comes the next weekday. duplicate and earlier-year refund the whole gift, and incorrect-amount and one-fund refund part of it, so 35% of refunds are partial. A summary is what staff typed in Rock's refund dialog, and can say {intended}, {entered}, {refunded}, {fund}, and {kept}. A duplicate of a scheduled gift, given again by hand later that day, takes its summary from scheduledSummaries.",
+  "$comment": "Refunds of gifts (decisions 262 and 288). Rock stores a refund as a new transaction with negative amounts, linked to the gift in FinancialTransactionRefund, and refuses a refund of a refund, of a foreign currency gift, or of more than was paid. Generated households get refunds at the profile's giving.refundsPerThousandGifts; perThousandGiftsWithoutProfile is the rate only when the profile has none. The Cast's refunds are designed in their household files. Each kind names one of Rock's shipped refund reasons, its share of refunds, and how many days after the gift staff refund it; a refund that would fall on a weekend, Christmas Day, or New Year's Day comes the next weekday. duplicate, earlier-year, insufficient-funds, and returned-check refund the whole gift, and incorrect-amount and one-fund refund part of it, so 32% of refunds are partial. insufficient-funds and returned-check are checks the bank returned, which staff record as refunds with Rock's own reasons. A summary is what staff typed in Rock's refund dialog, and can say {intended}, {entered}, {refunded}, {fund}, {kept}, and, for a check, {check}, its check number. A duplicate of a scheduled gift, given again by hand later that day, takes its summary from scheduledSummaries.",
   "refundedBy": "priya",
   "perThousandGiftsWithoutProfile": 2,
   "kinds": [
     {
       "key": "duplicate",
       "reason": "Duplicate Payment",
-      "share": 55,
+      "share": 52,
       "delayDays": { "min": 1, "max": 3 },
       "summaries": [
         "Gave twice online by mistake. Refunded the second gift.",
@@ -25,7 +25,7 @@
     {
       "key": "incorrect-amount",
       "reason": "Incorrect Amount",
-      "share": 25,
+      "share": 23,
       "delayDays": { "min": 1, "max": 4 },
       "mistakeFactor": 10,
       "maximumIntendedAmount": 500,
@@ -39,7 +39,7 @@
     {
       "key": "one-fund",
       "reason": "Refund Requested",
-      "share": 10,
+      "share": 9,
       "delayDays": { "min": 2, "max": 14 },
       "summaries": [
         "Asked us to refund the {fund} part of this gift.",
@@ -50,13 +50,37 @@
     {
       "key": "earlier-year",
       "reason": "Refund Requested",
-      "share": 10,
+      "share": 9,
       "delayDays": { "min": 21, "max": 60 },
       "summaries": [
         "Asked for this gift back after the year-end statement came.",
         "The gift was meant for another ministry. Refunded at the giver's request.",
         "Asked for a refund during a hard season. Glad to help.",
         "Found this gift on the giving statement and asked us to return it."
+      ]
+    },
+    {
+      "key": "insufficient-funds",
+      "reason": "Insufficient Funds",
+      "share": 4,
+      "delayDays": { "min": 3, "max": 10 },
+      "summaries": [
+        "The bank returned check {check} for insufficient funds.",
+        "Check {check} came back for insufficient funds. Called the giver to let them know.",
+        "Returned unpaid for insufficient funds. Mailed the giver a note.",
+        "The bank sent check {check} back for insufficient funds."
+      ]
+    },
+    {
+      "key": "returned-check",
+      "reason": "Returned Check",
+      "share": 3,
+      "delayDays": { "min": 3, "max": 12 },
+      "summaries": [
+        "The bank returned check {check}. The account is closed.",
+        "Check {check} came back. The giver had stopped payment on a lost checkbook.",
+        "Returned unpaid because the check was not signed.",
+        "The bank could not find the account on check {check}."
       ]
     }
   ]

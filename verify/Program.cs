@@ -201,7 +201,7 @@ try
             var source = new SampleDataSource( package );
             using ( var db = new RockDatabase( connection ) )
             {
-                var (expectations, failures) = CastExpectations.Evaluate( db, source, SampleDataParts.All.Select( p => p.Part ).ToList() );
+                var (expectations, failures) = CastExpectations.Evaluate( db, source, SampleDataParts.All.Select( p => p.Part ).ToList(), anchor );
                 checks.Add( CheckResult.From( stage, $"{expectations - failures.Count} of {expectations} Cast expectations hold", failures ) );
             }
 
@@ -234,8 +234,22 @@ try
             checks.Add( AssessmentScoresCheck( rock, sql, database, connection ) );
             stage = "adaptive-messages";
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
+            stage = "email-sections";
+            checks.Add( EmailSectionsCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "signals";
+            checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "personal-links";
+            checks.Add( PersonalLinksCheck( rock, sql, database, source ) );
+            stage = "notifications";
+            checks.Add( NotificationsCheck( rock, sql, database, source, foreignKey, anchor ) );
+            stage = "process-reminders";
+            checks.Add( RemindersCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "step-workflow-launch";
+            checks.Add( StepWorkflowLaunchCheck( rock, sql, database, foreignKey ) );
+            stage = "process-workflows";
+            checks.Add( WorkflowsCheck( rock, sql, database, foreignKey ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -251,7 +265,13 @@ try
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
-            checks.Add( CheckResult.From( stage, "Could not finish", new List<string> { ex.Message } ) );
+            var problems = new List<string> { ex.Message };
+            if ( ex.Data[DatasetLoader.RollbackErrorKey] is { } rollbackError )
+            {
+                problems.Add( $"The rollback reported an error too: {( rollbackError as Exception )?.Message ?? rollbackError}" );
+            }
+
+            checks.Add( CheckResult.From( stage, "Could not finish", problems ) );
         }
         finally
         {
@@ -638,7 +658,10 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
-    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() ).ToList();
+    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Signals?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -657,10 +680,15 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
-    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}"
+    var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
+    var tags = ( source.Tags?.Tags ?? new List<TagDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
+    var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
+            : a.Category != null ? $"Category\t{categories[a.Category]}"
+            : a.Tag != null ? $"Tag\t{tags[a.Tag]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
+            : a.SignalType != null ? $"SignalType\t{signalTypes[a.SignalType]}"
             : $"DataView\t{views[a.DataView]}" )
         + $"\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
@@ -671,11 +699,32 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
     return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
+}
+
+/// <summary>
+/// Rock's own save rules accept every email section the load wrote, as they are: the model's validation, and the string
+/// validation Rock's email editor runs on a section's markup when staff save it (decision 301).
+/// </summary>
+static CheckResult EmailSectionsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.ReadEmailSectionLibrary()?.Sections ?? new List<EmailSectionDefinition>() ).ToDictionary( s => s.Guid, s => s.Name );
+    if ( names.Count == 0 )
+    {
+        return CheckResult.From( "email-sections", "This package has no email sections", new List<string>() );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "email-sections" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var found = lines.Select( p => Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) ? guid : Guid.Empty ).ToHashSet();
+    var problems = lines.Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) && names.TryGetValue( guid, out var name ) ? name : $"Email section {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .Concat( names.Where( n => !found.Contains( n.Key ) ).Select( n => $"{n.Value}: the load did not write it." ) )
+        .ToList();
+    return CheckResult.From( "email-sections", problems.Count == 0 ? $"Rock's email editor would save all {lines.Count} email sections as they are" : "Rock's email editor would refuse an email section", problems );
 }
 
 /// <summary>
@@ -789,6 +838,198 @@ static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string databa
 }
 
 /// <summary>
+/// Runs Rock's own Person.CalculateSignals for everyone with a signal and expects it to change no one's top signal, so the
+/// Top Person Signal badge shows each person the flag Rock would. An ended signal counts from now, so like the segments the
+/// check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult SignalsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var expected = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT( DISTINCT [PersonId] ) FROM [PersonSignal] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( expected == 0 )
+    {
+        return CheckResult.From( "signals", "This load wrote no person signals", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "signals", "Signals were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. A signal's end counts from today, so run it again on one day."
+        } );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "signals" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = lines.Where( l => l.Contains( '\t' ) ).Select( l => l.Split( '\t' ) )
+        .Select( p => $"Rock would change person {p[0]}'s top signal from \"{p[1]}\" to \"{p[2]}\" (Id|color|icon)." ).ToList();
+    var checkedLine = lines.FirstOrDefault( l => l.StartsWith( "people ", StringComparison.Ordinal ) );
+    if ( checkedLine != $"people {expected}" )
+    {
+        problems.Add( $"Rock checked {checkedLine ?? "no people"}, but the load gave {expected} people signals." );
+    }
+
+    return CheckResult.From( "signals", problems.Count == 0 ? $"Rock's own top signal rule agrees with all {expected} people the load gave signals" : "Rock would change people's top signals", problems );
+}
+
+/// <summary>
+/// Asks Rock's own bookmark menu data for each person in configuration/personal-links.json's menus and expects their
+/// sections in order, each with its links from the file. Rock must find no section order missing for anyone who owns a
+/// section, and the
+/// version Rock caches the menu by must come from the links' own dates, not midnight today, which is the version of a
+/// database with no links, so a browser that cached an empty menu refreshes it.
+/// </summary>
+static CheckResult PersonalLinksCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var configuration = source.PersonalLinks;
+    if ( configuration == null || configuration.Menus.Count == 0 )
+    {
+        return CheckResult.From( "personal-links", "This package has no bookmark menus to check", new List<string>() );
+    }
+
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    // Each section's links by section name. A campus pastor's section takes their campus's name in its links.
+    var campusNames = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
+    var pastorCampus = source.Staff.CampusPastors.ToDictionary( p => source.Staff.Staff.First( s => s.Key == p.Value ).Person, p => p.Key );
+    var links = configuration.SharedSections.ToDictionary( s => s.Name, s => s.Links.Select( l => l.Name ).ToList() );
+    var ownSections = configuration.PersonalSections.ToDictionary( s => (s.Owner, s.Name), s => s.Links.Select( l => l.Name ).ToList() );
+    List<string> Expected( Guid person, string section ) =>
+        ownSections.TryGetValue( (person, section), out var own ) ? own
+        : section == configuration.CampusPastorSection.Name && pastorCampus.TryGetValue( person, out var campus ) ? configuration.CampusPastorSection.Links.Select( l => l.Name.Replace( "{campus}", campusNames[campus] ) ).ToList()
+        : links.TryGetValue( section, out var shared ) ? shared : new List<string>();
+
+    var owners = configuration.PersonalSections.Select( s => s.Owner ).Concat( pastorCampus.Keys ).ToHashSet();
+    var lines = RockRunner.Run( rock, sql, database, "personal-links", configuration.Menus.Select( m => people.Rock( m.Person ).ToString() ) ).Split( '\n' ).Select( l => l.TrimEnd( '\r' ) ).ToList();
+    var problems = new List<string>();
+    var version = lines.FirstOrDefault( l => l.StartsWith( "shared\t", StringComparison.Ordinal ) )?.Substring( 7 );
+    var today = lines.FirstOrDefault( l => l.StartsWith( "today\t", StringComparison.Ordinal ) )?.Substring( 6 );
+    if ( version == null || version == today )
+    {
+        problems.Add( $"Rock's version of the shared links is {version ?? "missing"}, midnight today, the version of a database with no links. Each shared section and link needs a ModifiedDateTime." );
+    }
+
+    var menus = lines.Skip( 2 ).ToList();
+    for ( var i = 0; i < configuration.Menus.Count; i++ )
+    {
+        var menu = configuration.Menus[i];
+        var parts = i < menus.Count ? menus[i].Split( '\t' ) : new[] { "missing" };
+        if ( parts.Length < 2 )
+        {
+            problems.Add( $"{menu.Name}: Rock gave no bookmark menu ({parts[0]})." );
+            continue;
+        }
+
+        // Rock adds orders for anyone the first time they open their links page, so only an owner, who arranged their
+        // sections, must have none missing.
+        if ( owners.Contains( menu.Person ) && parts[0] != "False" )
+        {
+            problems.Add( $"{menu.Name}: Rock would add a missing section order when they open their links." );
+        }
+
+        if ( owners.Contains( menu.Person ) && parts[1] == today )
+        {
+            problems.Add( $"{menu.Name}: Rock's version of their own links is midnight today. Their sections, links, and orders need a ModifiedDateTime." );
+        }
+
+        var sections = parts.Skip( 2 ).Select( s => s.Split( '>' ) ).ToList();
+        var names = sections.Select( s => s[0] ).ToList();
+        if ( !names.SequenceEqual( menu.Sections ) )
+        {
+            problems.Add( $"{menu.Name}: expected the sections {string.Join( ", ", menu.Sections.DefaultIfEmpty( "(none)" ) )}, Rock lists {string.Join( ", ", names.DefaultIfEmpty( "(none)" ) )}." );
+            continue;
+        }
+
+        foreach ( var section in sections )
+        {
+            var expected = Expected( menu.Person, section[0] );
+            if ( !section.Skip( 1 ).SequenceEqual( expected ) )
+            {
+                problems.Add( $"{menu.Name}: expected {section[0]} to list {string.Join( ", ", expected )}, Rock lists {string.Join( ", ", section.Skip( 1 ) )}." );
+            }
+        }
+    }
+
+    return CheckResult.From( "personal-links", problems.Count == 0 ? $"Rock's bookmark menu shows each of the {configuration.Menus.Count} people their sections and links in order, and finds no section order missing" : "Rock's bookmark menus do not match the file", problems );
+}
+
+/// <summary>
+/// Asks Rock what each note author's top-bar bell shows (decision 307): the unread count Rock reads must be every
+/// staff mention in the last three days' notes, found from the notes themselves, and the newest mention's link must open
+/// the note on the person's profile. It is judged only when today is the loads' anchor, because the bell counts from now.
+/// </summary>
+static CheckResult NotificationsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source, string foreignKey, DateTime anchor )
+{
+    var foreignKeyParameter = new SqlParameter( "@ForeignKey", foreignKey );
+    if ( source.Notes == null || Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [NotificationMessage] WHERE [ForeignKey] = @ForeignKey", foreignKeyParameter ) ) == 0 )
+    {
+        return CheckResult.From( "notifications", "This load wrote no mention notifications", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "notifications", "Notifications were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. The bell counts unread mentions from now, so run it again on one day."
+        } );
+    }
+
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    // From the notes alone: each person's mentions in the last three days by someone else, and their newest mention.
+    var staff = source.Notes.Staff.Select( s => (s.Name, Guid: people.Rock( s.Guid )) ).ToList();
+    var expected = staff.Select( s => sql.Query( database, $@"
+SELECT COUNT( [n].[Id] ) AS [Unread],
+    ( SELECT TOP 1 CONCAT( [nm].[Guid], '|/person/', [n2].[EntityId], '#NoteRef-', LOWER( REPLACE( CONVERT( nvarchar( 36 ), [n2].[Guid] ), '-', '' ) ) )
+        FROM [NotificationMessage] AS [nm]
+        INNER JOIN [Note] AS [n2] ON [nm].[Key] = 'note-' + CAST( [n2].[Id] AS nvarchar( 20 ) )
+        WHERE [nm].[PersonAliasId] = [p].[PrimaryAliasId] AND [nm].[ForeignKey] = @ForeignKey
+        ORDER BY [nm].[MessageDateTime] DESC ) AS [Newest]
+FROM [Person] AS [p]
+LEFT JOIN [Note] AS [n] ON [n].[ForeignKey] = @ForeignKey AND [n].[CreatedDateTime] >= DATEADD( DAY, -{MentionNotificationsWriter.UnreadDays}, CAST( GETDATE() AS DATE ) )
+    AND [n].[CreatedByPersonAliasId] <> [p].[PrimaryAliasId]
+    AND [n].[Text] LIKE '%class=""mention""%>@' + [p].[NickName] + ' ' + [p].[LastName] + '</span>%'
+WHERE [p].[Guid] = @Person
+GROUP BY [p].[PrimaryAliasId]", new SqlParameter( "@ForeignKey", foreignKey ), new SqlParameter( "@Person", s.Guid ) ).FirstOrDefault() ).ToList();
+
+    var loaded = staff.Zip( expected ).Where( x => x.Second != null ).ToList();
+    var withLinks = loaded.Where( x => x.Second["Newest"] is string ).ToList();
+    var questions = loaded.Select( x => $"count\t{x.First.Guid}" ).Concat( withLinks.Select( x => $"link\t{( ( string ) x.Second["Newest"] ).Split( '|' )[0]}" ) );
+    var answers = RockRunner.Run( rock, sql, database, "notifications", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = new List<string>();
+    for ( var i = 0; i < loaded.Count; i++ )
+    {
+        var want = Convert.ToInt32( loaded[i].Second["Unread"] ).ToString();
+        var got = i < answers.Length ? answers[i] : "no answer";
+        if ( got != want )
+        {
+            problems.Add( $"{loaded[i].First.Name}: the last three days' notes mention them {want} times, but Rock's bell counts {got} unread." );
+        }
+    }
+
+    for ( var i = 0; i < withLinks.Count; i++ )
+    {
+        var want = ( ( string ) withLinks[i].Second["Newest"] ).Split( '|' )[1];
+        var got = loaded.Count + i < answers.Length ? answers[loaded.Count + i] : "no answer";
+        if ( got != want )
+        {
+            problems.Add( $"{withLinks[i].First.Name}: their newest mention should open {want}, but Rock's link is {got}." );
+        }
+    }
+
+    var total = loaded.Sum( x => Convert.ToInt32( x.Second["Unread"] ) );
+    return CheckResult.From( "notifications", problems.Count == 0
+        ? $"Rock's bell counts each of {loaded.Count} note authors' unread mentions ({total} in all), and each newest mention opens its note"
+        : "Rock's bell does not show the mentions the notes hold", problems );
+}
+
+/// <summary>
 /// Runs Rock's own group sync on every sync the load wrote and expects it to add, remove, and refuse nobody (decision
 /// 187). Nothing changing proves the loader filled each group exactly as Rock's data views pick, and that the
 /// syncs' welcome and exit emails and logins wait for a later change. The views count from today, so like Rock Cleanup
@@ -823,6 +1064,207 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 
     problems.AddRange( lines.Where( l => l.StartsWith( "warning ", StringComparison.Ordinal ) ).Select( l => $"Rock's group sync warned: {l.Substring( 8 )}" ) );
     return CheckResult.From( "group-sync", problems.Count == 0 ? $"Rock's group sync changed nothing in the {expected} synced groups" : "Rock's group sync would change the synced groups", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Process Reminders job, as Rock's scheduler runs it every weekday morning, and expects it to change no
+/// reminder and nobody's reminder count, the number Rock's bell shows (issue 22). The job also emails each owner the
+/// reminders due, and the trusted base has no mail server, so a send Rock could not make is noted, not failed. Any other
+/// error, such as a reminder whose person or group is missing, fails. Reminders come due by the day, so like Rock Cleanup
+/// the check is judged only when today is the loads' anchor, checked before and after the job.
+/// </summary>
+static CheckResult RemindersCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var written = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [Reminder] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( written == 0 )
+    {
+        return CheckResult.From( "process-reminders", "This load wrote no reminders", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "process-reminders", "Process Reminders was not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. Reminders come due by the day, so run it again on one day."
+        } );
+    }
+
+    Dictionary<int, string> Reminders() => sql.Query( database, "SELECT [Id], [ReminderDate], [IsComplete], [RenewCurrentCount], [RenewMaxCount], [ModifiedDateTime] FROM [Reminder]" )
+        .ToDictionary( r => ( int ) r["Id"], r => string.Join( "|", r.Values.Select( v => v is DateTime d ? d.ToString( "o" ) : v?.ToString() ) ) );
+    Dictionary<int, int> Counts() => sql.Query( database, "SELECT [Id], [ReminderCount] FROM [Person] WHERE [ReminderCount] IS NOT NULL" )
+        .ToDictionary( r => ( int ) r["Id"], r => ( int ) r["ReminderCount"] );
+
+    var remindersBefore = Reminders();
+    var countsBefore = Counts();
+    var lines = RockRunner.Run( rock, sql, database, "process-reminders" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var remindersAfter = Reminders();
+    var countsAfter = Counts();
+
+    // A run that crosses midnight lets reminders dated the next day come due while the job runs.
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "process-reminders", "Process Reminders was not judged: the date changed while the job ran", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is now {DateTime.Today:yyyy-MM-dd}. Reminders come due by the day, so run it again on one day."
+        } );
+    }
+
+    var problems = new List<string>();
+    var changedReminders = remindersBefore.Keys.Union( remindersAfter.Keys ).Where( id => remindersBefore.GetValueOrDefault( id ) != remindersAfter.GetValueOrDefault( id ) ).ToList();
+    if ( changedReminders.Count > 0 )
+    {
+        problems.Add( $"Rock's Process Reminders job changed {changedReminders.Count} reminders, such as reminder {changedReminders[0]}. The loader must write each reminder as Rock's blocks leave it." );
+    }
+
+    foreach ( var personId in countsBefore.Keys.Union( countsAfter.Keys ).Where( id => countsBefore.GetValueOrDefault( id, 0 ) != countsAfter.GetValueOrDefault( id, 0 ) ).Take( 10 ) )
+    {
+        problems.Add( $"Rock's Process Reminders job changed person {personId}'s reminder count from {countsBefore.GetValueOrDefault( personId, 0 )} to {countsAfter.GetValueOrDefault( personId, 0 )}. The loader must count each owner's reminders due as the job does." );
+    }
+
+    var errors = lines.Where( l => l.StartsWith( "error ", StringComparison.Ordinal ) ).Select( l => l.Substring( 6 ) ).ToList();
+    bool IsSend( string error ) => error.StartsWith( "Failed to send SystemCommunication", StringComparison.Ordinal ) || error.StartsWith( "Failed to create SystemCommunication", StringComparison.Ordinal );
+    problems.AddRange( errors.Where( e => !IsSend( e ) ).Select( e => $"Rock's Process Reminders job reported: {e}" ) );
+    var notes = errors.Count( IsSend ) == 0 ? new List<string>() : new List<string> { $"Rock could not email {errors.Count( IsSend )} owners their reminders due: the trusted base has no mail server. First: {errors.First( IsSend )}" };
+    var processed = lines.FirstOrDefault( l => l.StartsWith( "processed ", StringComparison.Ordinal ) )?.Substring( 10 ) ?? "0";
+    return CheckResult.From( "process-reminders", problems.Count == 0
+        ? $"Rock's Process Reminders job changed none of the {written} reminders and no reminder count ({processed} reminders notified)"
+        : "Rock's Process Reminders job would change the reminders", problems, notes );
+}
+
+/// <summary>
+/// Launches step workflows with Rock's own code on steps the load wrote workflows for, without saving them, and expects
+/// the workflow the loader wrote: its name, the person it went to, its person, and waiting at its form (issue
+/// 18). This proves the workflow types work in Rock: their Lava finds the step's person and its campus's leader, and their
+/// actions assign the task. It launches every open step workflow's step and up to ten completed ones for each trigger.
+/// </summary>
+static CheckResult StepWorkflowLaunchCheck( RockRelease rock, SqlServer sql, string database, string foreignKey )
+{
+    // Each type's person attribute is its first attribute, which the type's first action sets from the step.
+    var loaded = sql.Query( database, @"
+WITH [ranked] AS (
+    SELECT [sw].[StepId], [sw].[StepWorkflowTriggerId], [w].[Name], [w].[CompletedDateTime], [ap].[Guid] AS [AssigneeGuid], [pa].[Key] AS [PersonKey], [pv].[Value] AS [PersonValue],
+        ROW_NUMBER() OVER ( PARTITION BY [sw].[StepWorkflowTriggerId], CASE WHEN [w].[CompletedDateTime] IS NULL THEN 0 ELSE 1 END ORDER BY [sw].[StepId] ) AS [Rank]
+    FROM [StepWorkflow] AS [sw]
+    INNER JOIN [Workflow] AS [w] ON [w].[Id] = [sw].[WorkflowId]
+    INNER JOIN [WorkflowActivity] AS [act] ON [act].[WorkflowId] = [w].[Id]
+    LEFT JOIN [PersonAlias] AS [aa] ON [aa].[Id] = [act].[AssignedPersonAliasId]
+    LEFT JOIN [Person] AS [ap] ON [ap].[Id] = [aa].[PersonId]
+    INNER JOIN [Attribute] AS [pa] ON [pa].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [pa].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) ) AND [pa].[Order] = 0
+    LEFT JOIN [AttributeValue] AS [pv] ON [pv].[AttributeId] = [pa].[Id] AND [pv].[EntityId] = [w].[Id]
+    WHERE [sw].[ForeignKey] = @ForeignKey )
+SELECT * FROM [ranked] WHERE [CompletedDateTime] IS NULL OR [Rank] <= 10
+ORDER BY [StepWorkflowTriggerId], [StepId]", new SqlParameter( "@ForeignKey", foreignKey ) );
+    if ( loaded.Count == 0 )
+    {
+        return CheckResult.From( "step-workflow-launch", "This load wrote no step workflows", new List<string>() );
+    }
+
+    var launched = RockRunner.Run( rock, sql, database, "launch-step-workflows", loaded.Select( r => $"{r["StepId"]}\t{r["StepWorkflowTriggerId"]}\t{r["PersonKey"]}" ) )
+        .Split( '\n', StringSplitOptions.RemoveEmptyEntries )
+        .Select( l => l.TrimEnd( '\r' ).Split( '\t' ) )
+        .Where( p => p.Length >= 6 )
+        .GroupBy( p => p[0] )
+        .ToDictionary( g => g.Key, g => g.First() );
+
+    var problems = new List<string>();
+    foreach ( var row in loaded )
+    {
+        var stepId = row["StepId"].ToString();
+        if ( !launched.TryGetValue( stepId, out var launch ) )
+        {
+            problems.Add( $"Rock launched nothing for step {stepId}." );
+            continue;
+        }
+
+        var differences = new List<string>();
+        if ( launch[1] != ( string ) row["Name"] )
+        {
+            differences.Add( $"Rock names it \"{launch[1]}\", the load \"{row["Name"]}\"" );
+        }
+
+        if ( !Guid.TryParse( launch[2], out var assignee ) || assignee != row["AssigneeGuid"] as Guid? )
+        {
+            differences.Add( $"Rock assigns it to {( launch[2].Length == 0 ? "nobody" : launch[2] )}, the load to {row["AssigneeGuid"]}" );
+        }
+
+        if ( !string.Equals( launch[3], row["PersonValue"] as string, StringComparison.OrdinalIgnoreCase ) )
+        {
+            differences.Add( $"Rock sets {row["PersonKey"]} to {launch[3]}, the load to {row["PersonValue"]}" );
+        }
+
+        if ( launch[4] != "True" )
+        {
+            differences.Add( "Rock's workflow does not wait at its form" );
+        }
+
+        if ( launch[5].Trim().Length > 0 )
+        {
+            differences.Add( $"Rock reported: {launch[5].Trim()}" );
+        }
+
+        if ( differences.Count > 0 )
+        {
+            problems.Add( $"Step {stepId}: {string.Join( "; ", differences )}." );
+        }
+    }
+
+    return CheckResult.From( "step-workflow-launch", problems.Count == 0
+        ? $"Rock's own launch gave the loaded workflow for all {loaded.Count} steps tried ({loaded.Count( r => r["CompletedDateTime"] == null )} with open workflows)"
+        : "Rock's own launch gives a different workflow than the load wrote", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Process Workflows job, as Rock's scheduler runs it every ten minutes, and expects it to leave every
+/// workflow the load wrote as it is (issue 18). Rock processes each open workflow again, so its processed times move, but
+/// an open step workflow must still wait at its form for the same person, and a completed one must not change at all. Any
+/// error or exception the job reports fails. Rock Cleanup's handling of the same rows is the rock-cleanup check's.
+/// </summary>
+static CheckResult WorkflowsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey )
+{
+    var stepWorkflows = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [StepWorkflow] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( stepWorkflows == 0 )
+    {
+        return CheckResult.From( "process-workflows", "This load wrote no step workflows", new List<string>() );
+    }
+
+    // Each workflow's state, without the processed and modified times Rock moves on an open workflow. A completed one keeps them.
+    Dictionary<int, string> Workflows() => sql.Query( database, @"
+SELECT [w].[Id], CONCAT( [w].[Status], '|', [w].[Name], '|', CONVERT( NVARCHAR( 30 ), [w].[CompletedDateTime], 126 ), '|',
+    CASE WHEN [w].[CompletedDateTime] IS NULL THEN '' ELSE CONCAT( CONVERT( NVARCHAR( 30 ), [w].[LastProcessedDateTime], 126 ), '|', CONVERT( NVARCHAR( 30 ), [w].[ModifiedDateTime], 126 ) ) END, '|',
+    ( SELECT STRING_AGG( CONCAT( [act].[Id], ':', [act].[AssignedPersonAliasId], ':', CONVERT( NVARCHAR( 30 ), [act].[CompletedDateTime], 126 ) ), ',' ) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] ), '|',
+    ( SELECT STRING_AGG( CONCAT( [ac].[ActionTypeId], ':', CONVERT( NVARCHAR( 30 ), [ac].[CompletedDateTime], 126 ), ':', [ac].[FormAction] ), ',' ) WITHIN GROUP ( ORDER BY [ac].[ActionTypeId] )
+        FROM [WorkflowAction] AS [ac] INNER JOIN [WorkflowActivity] AS [act] ON [act].[Id] = [ac].[ActivityId] WHERE [act].[WorkflowId] = [w].[Id] ), '|',
+    ( SELECT COUNT(*) FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] ) ) AS [State]
+FROM [Workflow] AS [w]
+WHERE [w].[ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) )
+        .ToDictionary( r => ( int ) r["Id"], r => ( string ) r["State"] );
+
+    var before = Workflows();
+    var open = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT(*) FROM [Workflow] WHERE [ForeignKey] = @ForeignKey AND [CompletedDateTime] IS NULL", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    var result = RockRunner.Run( rock, sql, database, "process-workflows" ).Trim();
+    var after = Workflows();
+
+    var problems = new List<string>();
+    var changed = before.Keys.Union( after.Keys ).Where( id => before.GetValueOrDefault( id ) != after.GetValueOrDefault( id ) ).ToList();
+    foreach ( var id in changed.Take( 5 ) )
+    {
+        problems.Add( $"Rock's Process Workflows job changed workflow {id}: {before.GetValueOrDefault( id ) ?? "none"} became {after.GetValueOrDefault( id ) ?? "none"}" );
+    }
+
+    if ( changed.Count > 5 )
+    {
+        problems.Add( $"... {changed.Count} workflows changed in all." );
+    }
+
+    var firstLine = result.Split( '\n' )[0].Trim();
+    if ( firstLine.Contains( "error", StringComparison.OrdinalIgnoreCase ) || firstLine.Contains( "exception", StringComparison.OrdinalIgnoreCase ) )
+    {
+        problems.Add( $"Rock's Process Workflows job reported: {result.Replace( '\n', ' ' )}" );
+    }
+
+    return CheckResult.From( "process-workflows", problems.Count == 0
+        ? $"Rock's Process Workflows job left all {before.Count} workflows as they were, with {open} still open, {stepWorkflows} of them from steps ({firstLine})"
+        : "Rock's Process Workflows job would change the workflows", problems );
 }
 
 /// <summary>

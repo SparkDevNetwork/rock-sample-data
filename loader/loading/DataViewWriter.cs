@@ -72,37 +72,20 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Adds a row for each data filter component the views use that this Rock has not registered yet, the row Rock's
-        /// start-up would write: the class name, Rock's assembly, a friendly name, and the component's own Guid. When Rock
-        /// already holds the component's Guid under an old class name, its start-up renames that row, so the loader does too.
+        /// Registers each data filter component the views use that this Rock has not registered yet, as Rock's start-up would.
         /// </summary>
         /// <param name="file">The configuration file the views come from, for messages.</param>
         public void RegisterComponents( IEnumerable<DataViewDefinition> views, string file )
         {
             var components = views.SelectMany( v => Leaves( v.Filter ) ).Select( f => f.Component ).Distinct().ToList();
-            var rockAssembly = ( string ) _db.Scalar( "SELECT [AssemblyName] FROM [EntityType] WHERE [Name] = 'Rock.Reporting.DataFilter.PropertyFilter'" );
             foreach ( var component in components.Where( c => _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", c ) ) == null ) )
             {
-                if ( !ComponentGuids.TryGetValue( component, out var guid ) || rockAssembly == null )
+                if ( !ComponentGuids.TryGetValue( component, out var guid ) )
                 {
                     throw new InvalidDataException( $"{file} uses {component}, which this Rock has not registered." );
                 }
 
-                var assemblyName = component + rockAssembly.Substring( rockAssembly.IndexOf( ',' ) );
-                if ( _db.IdByGuid( "EntityType", guid ) is int renamedId )
-                {
-                    // Rock's EntityTypeService.RegisterEntityTypes finds a renamed class by its Guid and updates the row.
-                    _db.Execute( "UPDATE [EntityType] SET [Name] = @Name, [AssemblyName] = @AssemblyName, [IsEntity] = 0, [IsSecured] = 1 WHERE [Id] = @Id",
-                        P( "@Name", component ), P( "@AssemblyName", assemblyName ), P( "@Id", renamedId ) );
-                    continue;
-                }
-
-                var className = component.Substring( component.LastIndexOf( '.' ) + 1 );
-                _db.Execute( @"
-INSERT INTO [EntityType] ( [Name], [AssemblyName], [FriendlyName], [IsEntity], [IsSecured], [IsCommon], [Guid], [ForeignKey] )
-VALUES ( @Name, @AssemblyName, @FriendlyName, 0, 1, 0, @Guid, @ForeignKey )",
-                    P( "@Name", component ), P( "@AssemblyName", assemblyName ),
-                    P( "@FriendlyName", SplitCase( className ) ), P( "@Guid", guid ), P( "@ForeignKey", _foreignKey ) );
+                RockComponents.Register( _db, component, guid, _foreignKey );
             }
         }
 
@@ -130,16 +113,20 @@ VALUES ( @Name, @AssemblyName, @FriendlyName, 0, 1, 0, @Guid, @ForeignKey )",
 
                 Reason: The loader cannot run every filter Rock can, so it leaves the persisted values to Rock.
             */
+            // Rock's save stamps the person who made the view on it and on each of its filters.
+            int? makerAliasId = view.CreatedBy == null ? null
+                : _db.Scalar( "SELECT [PrimaryAliasId] FROM [Person] WHERE [Guid] = @Guid", P( "@Guid", view.CreatedBy.Value ) ) as int?
+                    ?? throw new InvalidDataException( $"Data view {view.Key} was made by {view.CreatedBy}, who is not a loaded person." );
             var viewId = ( int ) _db.Scalar( @"
 INSERT INTO [DataView] ( [IsSystem], [Name], [Description], [CategoryId], [EntityTypeId], [TransformEntityTypeId], [PersistedScheduleIntervalMinutes], [PersistedScheduleId],
-    [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+    [IncludeDeceased], [DisableUseOfReadOnlyContext], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Interval, @ScheduleId, 0, 0, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Interval, @ScheduleId, 0, 0, @Guid, @ForeignKey, @Now, @Now, @MakerAliasId, @MakerAliasId )",
                 P( "@Name", view.Name ), P( "@Description", view.Description ), P( "@CategoryId", _db.RequireIdByGuid( "Category", category.Guid ) ),
                 P( "@EntityTypeId", entityTypeId ), P( "@TransformId", transformId ), P( "@Interval", view.Persisted?.IntervalMinutes ), P( "@ScheduleId", scheduleId ),
-                P( "@Guid", view.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+                P( "@Guid", view.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ), P( "@MakerAliasId", makerAliasId ) );
 
-            var rootId = WriteFilter( view.Filter, null, viewId, random, now, selection );
+            var rootId = WriteFilter( view.Filter, null, viewId, random, now, selection, makerAliasId );
             _db.Execute( "UPDATE [DataView] SET [DataViewFilterId] = @FilterId WHERE [Id] = @Id", P( "@FilterId", rootId ), P( "@Id", viewId ) );
             return viewId;
         }
@@ -173,18 +160,20 @@ VALUES ( 0, @Name, @Description, @CategoryId, @EntityTypeId, @TransformId, @Inte
                 ?? throw new InvalidDataException( $"A data view points at {filter.DataView}, which this load has not written yet." );
         }
 
-        private int WriteFilter( DataViewFilterDefinition filter, int? parentId, int viewId, SeededRandom random, DateTime now, Func<DataViewFilterDefinition, string> selection )
+        private int WriteFilter( DataViewFilterDefinition filter, int? parentId, int viewId, SeededRandom random, DateTime now, Func<DataViewFilterDefinition, string> selection, int? makerAliasId )
         {
             var id = ( int ) _db.Scalar( @"
-INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [RelatedDataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+INSERT INTO [DataViewFilter] ( [ExpressionType], [ParentId], [EntityTypeId], [Selection], [DataViewId], [RelatedDataViewId], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime],
+    [CreatedByPersonAliasId], [ModifiedByPersonAliasId] )
 OUTPUT INSERTED.[Id]
-VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @RelatedId, @Guid, @ForeignKey, @Now, @Now )",
+VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name] = @Component ), @Selection, @DataViewId, @RelatedId, @Guid, @ForeignKey, @Now, @Now,
+    @MakerAliasId, @MakerAliasId )",
                 P( "@ExpressionType", filter.ExpressionType ), P( "@ParentId", parentId ), P( "@Component", filter.Component ), P( "@Selection", filter.Component == null ? null : selection( filter ) ),
                 P( "@RelatedId", filter.DataView == null ? null : RelatedId( filter ) ),
-                P( "@DataViewId", viewId ), P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ) );
+                P( "@DataViewId", viewId ), P( "@Guid", random.NextGuid() ), P( "@ForeignKey", _foreignKey ), P( "@Now", now ), P( "@MakerAliasId", makerAliasId ) );
             foreach ( var child in filter.Children )
             {
-                WriteFilter( child, id, viewId, random, now, selection );
+                WriteFilter( child, id, viewId, random, now, selection, makerAliasId );
             }
 
             return id;
@@ -199,14 +188,6 @@ VALUES ( @ExpressionType, @ParentId, ( SELECT [Id] FROM [EntityType] WHERE [Name
         public static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter )
         {
             return filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
-        }
-
-        /// <summary>
-        /// "GroupTypeFirstAttendanceFilter" becomes "Group Type First Attendance Filter", Rock's friendly name for a type.
-        /// </summary>
-        private static string SplitCase( string name )
-        {
-            return string.Concat( name.Select( ( c, i ) => i > 0 && char.IsUpper( c ) ? " " + c : c.ToString() ) );
         }
     }
 }

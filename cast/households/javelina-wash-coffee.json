@@ -7,10 +7,11 @@
   "kind": "business",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month.",
+  "story": "Natalie Silva owns Javelina Wash Coffee, a small coffee shop. Isaac started it, and Natalie took it over when he joined staff as the Student Pastor (decision 164). Like the Silvas' own gifts, every business gift is split between the General Fund and the Mission Fund. Natalie mails a business check each month. After a slow month at the shop, one check came back from the bank for insufficient funds, and Priya recorded it as a returned check.",
   "testPurposes": [
     "Business gift split between two funds.",
-    "Mailed monthly business checks, each split across two funds."
+    "Mailed monthly business checks, each split across two funds.",
+    "A returned business check, recorded as a refund with Rock's Insufficient Funds reason."
   ],
   "giving": [
     {
@@ -27,7 +28,15 @@
         "yearsAgo": 2,
         "month": 1,
         "day": 15
-      }
+      },
+      "refunds": [
+        {
+          "kind": "insufficient-funds",
+          "near": {
+            "daysAgo": 150
+          }
+        }
+      ]
     }
   ],
   "address": {

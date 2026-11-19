@@ -182,6 +182,11 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public UsageHistory Usage { get; set; }
 
+        /// <summary>
+        /// The Cast person who made the view, by Guid, or null when Rock records no one. Rock's admin person cannot be one.
+        /// </summary>
+        public Guid? CreatedBy { get; set; }
+
         public DataViewFilterDefinition Filter { get; set; }
     }
 
@@ -233,6 +238,12 @@ namespace RockSampleData.Loader.Model
         /// For Rock's StepsTakenFilter in configuration/reporting.json: the steps it matches, in place of a selection.
         /// </summary>
         public StepsFilterRule Steps { get; set; }
+
+        /// <summary>
+        /// For Rock's HasSignalFilter: the signal type's key in configuration/signals.json, in place of a selection, since
+        /// Rock's selection is the type's Id.
+        /// </summary>
+        public string SignalType { get; set; }
 
         /// <summary>
         /// Rock's FilterExpressionType for this node: Filter (0), GroupAll (1), GroupAny (2), or GroupAllFalse (3), which is "none".

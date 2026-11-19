@@ -68,13 +68,27 @@ namespace RockSampleData.Loader.Loading
             }
         }
 
-        private void Insert( int entityTypeId, int entityId, int order, string action, string allowOrDeny, int specialRole, int? groupId, DateTime now )
+        /// <summary>
+        /// Makes an item private to one person for each action, as Rock's Authorization.MakePrivate saves it: allow the
+        /// person's primary alias, then deny All Users.
+        /// </summary>
+        public void WritePrivate( string entityType, int entityId, int personAliasId, IEnumerable<string> actions, DateTime now )
+        {
+            var entityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = @Name", P( "@Name", entityType ) ) );
+            foreach ( var action in actions )
+            {
+                Insert( entityTypeId, entityId, 0, action, "A", 0, null, now, personAliasId );
+                Insert( entityTypeId, entityId, 1, action, "D", 1, null, now );
+            }
+        }
+
+        private void Insert( int entityTypeId, int entityId, int order, string action, string allowOrDeny, int specialRole, int? groupId, DateTime now, int? personAliasId = null )
         {
             _db.Execute( @"
-INSERT INTO [Auth] ( [EntityTypeId], [EntityId], [Order], [Action], [AllowOrDeny], [SpecialRole], [GroupId], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
-VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, @GroupId, NEWID(), @Now, @Now, @ForeignKey )",
+INSERT INTO [Auth] ( [EntityTypeId], [EntityId], [Order], [Action], [AllowOrDeny], [SpecialRole], [GroupId], [PersonAliasId], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
+VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, @GroupId, @PersonAliasId, NEWID(), @Now, @Now, @ForeignKey )",
                 P( "@EntityTypeId", entityTypeId ), P( "@EntityId", entityId ), P( "@Order", order ), P( "@Action", action ), P( "@AllowOrDeny", allowOrDeny ),
-                P( "@SpecialRole", specialRole ), P( "@GroupId", groupId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
+                P( "@SpecialRole", specialRole ), P( "@GroupId", groupId ), P( "@PersonAliasId", personAliasId ), P( "@Now", now ), P( "@ForeignKey", _foreignKey ) );
         }
     }
 }
