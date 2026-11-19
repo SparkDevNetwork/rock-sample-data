@@ -113,9 +113,24 @@ namespace RockSampleData.Loader.Loading
 
             var byType = string.Join( ", ", _types.Values.OrderBy( t => t.Order ).Select( t => $"{t.Name} {_rows.Count( r => r.TypeKey == t.Key && r.ParentIndex == null ):N0}" ) );
             _db.Log.Write( $"  Notes: {castCount:N0} Cast and {generatedCount:N0} generated, plus {_rows.Count( r => r.ParentIndex != null ):N0} replies ({byType})" );
-            _db.Log.Write( _keys?.IdKey( 1 ) != null
-                ? "  Mentions link to staff (keyed from Rock's DataEncryptionKey)"
-                : "  No Rock DataEncryptionKey (give a Rock web.config); mentions are plain names" );
+            if ( _keys?.IdKey( 1 ) == null )
+            {
+                _db.Log.Write( "  No Rock DataEncryptionKey (give a Rock web.config); mentions are plain names, so Rock makes no mention notifications" );
+                return;
+            }
+
+            _db.Log.Write( "  Mentions link to staff (keyed from Rock's DataEncryptionKey)" );
+            var mentions = _rows.Where( r => r.Mentioned.Count > 0 ).Select( r => new MentionedNote
+            {
+                NoteId = r.Id,
+                NoteGuid = r.Guid,
+                NoteTypeName = _types[r.TypeKey].Name,
+                PersonId = r.PersonId,
+                AuthorAliasId = r.AuthorAliasId,
+                Written = r.Written,
+                MentionedAliasIds = r.Mentioned.Select( m => m.AliasId ).ToList()
+            } ).ToList();
+            _db.Log.Write( "  " + new MentionNotificationsWriter( _db, _dates, _foreignKey, _seed ).Write( mentions ) );
         }
 
         #region Note types
@@ -230,7 +245,8 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
                         ?? throw new InvalidOperationException( $"cast/notes/{file.Household}.json: note {note.Key} is about {note.About}, who is not in the household." );
                     var type = RequireType( note.Type, file.Household, note.Key );
                     var written = Written( note.Written, note.Time );
-                    var text = CastText( note.Text );
+                    var mentioned = new List<LoadedPerson>();
+                    var text = CastText( note.Text, mentioned );
 
                     var index = Add( new NoteRow
                     {
@@ -242,12 +258,14 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
                         Text = text,
                         IsAlert = note.IsAlert || type.IsAlwaysAlert,
                         IsPrivate = note.IsPrivate,
-                        IsPinned = note.IsPinned
+                        IsPinned = note.IsPinned,
+                        Mentioned = mentioned
                     } );
                     count++;
 
                     foreach ( var reply in note.Replies )
                     {
+                        var replyMentioned = new List<LoadedPerson>();
                         Add( new NoteRow
                         {
                             Guid = reply.Guid,
@@ -255,8 +273,9 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
                             PersonId = about.PersonId,
                             AuthorAliasId = RequireStaff( reply.Author, file.Household, note.Key ).AliasId,
                             Written = Written( reply.Written, reply.Time ),
-                            Text = CastText( reply.Text ),
-                            ParentIndex = index
+                            Text = CastText( reply.Text, replyMentioned ),
+                            ParentIndex = index,
+                            Mentioned = replyMentioned
                         } );
                     }
                 }
@@ -282,14 +301,20 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
         }
 
         /// <summary>
-        /// A Cast note's text as Rock stores it: escaped, with each {@staffkey} turned into a mention.
+        /// A Cast note's text as Rock stores it: escaped, with each {@staffkey} turned into a mention. Adds each staff
+        /// member Rock would find mentioned to <paramref name="mentioned"/>.
         /// </summary>
-        private string CastText( string text )
+        private string CastText( string text, List<LoadedPerson> mentioned )
         {
             var html = Escape( text );
             foreach ( var (key, person) in _staff )
             {
-                html = html.Replace( $"{{@{key}}}", Mention( person ) );
+                var token = $"{{@{key}}}";
+                if ( html.Contains( token ) )
+                {
+                    html = html.Replace( token, Mention( person ) );
+                    AddMention( mentioned, person );
+                }
             }
 
             return html;
@@ -408,6 +433,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             var author = PickAuthor( random, type, context, configuration );
 
             var isAlert = type.IsAlwaysAlert;
+            var mentioned = new List<LoadedPerson>();
             string text;
             if ( !isAlert && section.Alerts.Count > 0 && random.Chance( design.PctPersonalNotesThatAreAlerts / 100 ) )
             {
@@ -421,7 +447,9 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
                 if ( !type.IsConfidential && shared.MentionLines.Count > 0 && mentionable.Count > 0 && random.Chance( design.PctNotesWithMention / 100 ) )
                 {
                     var line = Escape( Fill( random.Pick( shared.MentionLines ), context ) );
-                    text = $"{text} {line.Replace( "{staff}", Mention( random.Pick( mentionable ) ) )}";
+                    var staff = random.Pick( mentionable );
+                    text = $"{text} {line.Replace( "{staff}", Mention( staff ) )}";
+                    AddMention( mentioned, staff );
                 }
             }
 
@@ -434,7 +462,8 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
                 Written = written,
                 Text = text,
                 IsAlert = isAlert,
-                IsPrivate = !isAlert && random.Chance( design.PctPrivate( type.Key ) / 100 )
+                IsPrivate = !isAlert && random.Chance( design.PctPrivate( type.Key ) / 100 ),
+                Mentioned = mentioned
             } );
         }
 
@@ -657,6 +686,17 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             return identifier == null ? name : $"<span class=\"mention\" data-identifier=\"{identifier}\">@{name}</span>";
         }
 
+        /// <summary>
+        /// Adds a mentioned staff member when the mention is one Rock reads, which needs Rock's DataEncryptionKey.
+        /// </summary>
+        private void AddMention( List<LoadedPerson> mentioned, LoadedPerson staff )
+        {
+            if ( _keys?.IdKey( staff.AliasId ) != null && !mentioned.Contains( staff ) )
+            {
+                mentioned.Add( staff );
+            }
+        }
+
         private int Add( NoteRow row )
         {
             _rows.Add( row );
@@ -689,6 +729,7 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             {
                 var row = _rows[i];
                 ids[i] = nextId++;
+                row.Id = ids[i];
                 table.Rows.Add( ids[i], false, _typeIds[row.TypeKey], row.PersonId, row.IsPrivate ? PrivateCaption : string.Empty, row.IsAlert, row.Text, row.Guid,
                     row.Written, row.Written, row.AuthorAliasId, row.AuthorAliasId, _foreignKey, row.IsPrivate,
                     row.ParentIndex.HasValue ? ids[row.ParentIndex.Value] : DBNull.Value, ApprovedStatus, true, true, row.Written, row.AuthorAliasId, row.IsPinned );
@@ -704,6 +745,11 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
         /// </summary>
         private sealed class NoteRow
         {
+            /// <summary>
+            /// The note's Id, once it is written.
+            /// </summary>
+            public int Id { get; set; }
+
             public Guid Guid { get; set; }
 
             public string TypeKey { get; set; }
@@ -726,6 +772,11 @@ VALUES ( @EntityTypeId, @EntityId, @Order, @Action, @AllowOrDeny, @SpecialRole, 
             /// The index of the note this one replies to, or null for a top-level note.
             /// </summary>
             public int? ParentIndex { get; set; }
+
+            /// <summary>
+            /// The staff members the note mentions in a way Rock reads.
+            /// </summary>
+            public List<LoadedPerson> Mentioned { get; set; } = new List<LoadedPerson>();
         }
 
         /// <summary>

@@ -164,7 +164,9 @@ function describeGiving( g, people ) {
     }
     for ( const refund of g.refunds || [] ) {
         // A designed refund (docs/refunds.md), made by staff its kind's shortest delay after the gift.
-        parts.push( `a ${refund.kind.replace( /-/g, " " )} refund of a gift from about ${ago( refund.near )}` );
+        const kind = refund.kind.replace( /-/g, " " );
+        const when = ago( refund.near );
+        parts.push( `${/^[aeiou]/.test( kind ) ? "an" : "a"} ${kind} refund of a gift from ${when.startsWith( "about" ) ? when : `about ${when}`}` );
     }
     if ( g.expect ) {
         // What Rock should show for this giver; the builder checks it on every load.

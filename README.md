@@ -157,7 +157,10 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Dates are generated at install**, counted back from install day, so "last 12 months" reports are always full.
 - **Realism is measured.** The same scripts that measure real churches grade our data. Today 91% of measured values fall within tolerance, including serving, connections, and prayer.
 - **Correctness is proven against Rock itself.** Before a package is published, the verify tool loads it into a clean copy of the Rock release it is built on, checks it against Rock's schema, runs rule checks, and has Rock's own Rock Cleanup job look for anything to fix. See [Verification](docs/verification.md).
-- **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff.
+- **People have notes** in six note types, secured to staff. Cast notes are hand-written and tied to each family's story, and they show more and better note use than most churches have today. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff. A mention in a recent note waits in that staff member's bell, so signing in as `admin` shows Alisha Marble's unread mentions.
+- **Staff have reminders.** Staff set reminders about people they wrote notes on, and small group leaders set them about their groups. Some are due, some are upcoming, some are complete, and a few repeat, on any install day. Rock's bell counts each person's reminders due, as Rock's own job would. Ted Decker has two and Bill Marble one. See [How reminders load](loader/README.md#how-reminders-load).
+- **People carry tags.** Organizational tags, such as Homebound, sit in tag categories locked to the roles that should use them. Staff keep personal tags, such as Jamal Pierce's Possible Group Leaders. Rock's own Staff tag holds every staff member, and two Staff Workspace data views are built on tags. See [Tags](configuration/README.md#tags).
+- **Steps start staff follow-up.** A completed Baptism step gives its campus pastor a follow-up task, and a Follow Jesus decision gives one to the Student Pastor. Tasks from the last 14 days wait in My Workflows, and the older ones are complete. Sign in as `amitchell` (Aaron Mitchell, the Phoenix campus pastor) to see Dennis Perry's. See [Steps](docs/steps.md#step-workflows).
 - **People can sign in.** When the person installing gives a password, about 30% of Full 7's adults get a Rock login, shaped like a real church: staff, leaders, volunteers, online givers, and app users. Every sample login uses that one password, which is never stored. Sign in as `admin` (Alisha Marble, who Rock's own admin person becomes), `tdecker` (Ted Decker, the Outreach Pastor), `pfoster` (Pete Foster, the Senior Pastor), or `cdecker` (Cindy Decker). See [How logins load](loader/README.md#how-logins-load).
 - **The calendar is full.** 51 events on Rock's Public and Internal calendars, at every campus a dataset has, each serving a Ministry by Design stage, and each with its own image, a titled design or a photo. See [Calendar](docs/calendar.md).
 - **People register for events.** Ten registrations tied to calendar events, with students, kids, couples, and adults registered, fees, payments, payment plans, wait lists, placements, and signed release forms. Some are open on every install day. See [Event registrations](docs/registrations.md).
@@ -170,14 +173,17 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Each person sees a next step.** Five adaptive messages, from Your Next Step to Giving, show each signed-in person the version that fits them, chosen by Rock from 16 personalization segments on the church's own data views. See [Adaptive messages](docs/adaptive-messages.md).
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
 - **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
-- **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, and gifts from an earlier year, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
+- **Profiles have signals.** Four signal types, each locked to its roles, flag the Cast's stories, such as Frank Dexter's Safety Team Review, Maddie Lowe's Pickup Instructions, and Hal Russell's Care Team Follow-up. Each campus pastor follows up with a few people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none. See [How signals load](loader/README.md#how-signals-load).
+- **The bookmark menu is full.** The bookmarks beside Rock's search bar have shared sections for Sunday morning, care, finance, and communications, each locked to its roles, and personal sections for six staff and every campus pastor. Every link opens a Rock page with sample data on it. Sign in as `pfoster` to see Pete Foster's Leadership section. See [How personal links load](loader/README.md#how-personal-links-load).
+- **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, gifts from an earlier year, and checks the bank returned, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
+- **Some gifts are uncommon:** stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement. See [Uncommon gifts](docs/uncommon-gifts.md).
 
 ## What is where
 
 | Folder | What it holds |
 |---|---|
 | [site/](site/README.md) | The public site: why the sample data matters, the church, the Cast, the features, the datasets, and the brand kit and photo downloads. GitHub Pages publishes it from `main` at [sampledata.rockrms.com](https://sampledata.rockrms.com/). |
-| [docs/](docs/) | Strategy, how it works, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, refunds, performance, the Crowd and personas, and the design spec. |
+| [docs/](docs/) | Strategy, how it works, what to do after you install, decisions, planned work, roadmap, standards, contributing, maintaining, glossary, small groups, serving, steps, communications, the calendar, event registrations, pledges, refunds, uncommon gifts, performance, the Crowd and personas, and the design spec. |
 | [cast/](cast/README.md) | The hand-designed households and groups, their schemas, the validator, and the [family pages](cast/families/README.md). |
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |
@@ -216,6 +222,8 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    cd ../loader-cli
    dotnet run -- --package ../packages/core-1.zip --rock C:\Development\Rock --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
    ```
+
+   Then read [After you install](docs/after-install.md). It says which of Rock's jobs to run, such as Family Analytics for eRA, and which to turn off on a sample site.
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 

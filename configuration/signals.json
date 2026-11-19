@@ -1,0 +1,146 @@
+{
+  "$comment": "Person signals (issue 45, decisions 279 to 283). A signal is a colored flag on a profile that asks staff to act, and Rock's Top Person Signal badge shows the person's top open one. 'types' are the church's signal types, in the order Rock's signal type editor gives them (each new type one after the last), so the first is the top signal when a person has several. Each type's 'security' is what Rock's security editor saves: each allowed role in order, then deny All Users. View shows a signal's note and end date, and Edit lets a person add the type. 'cast' are the Cast's own signals, by Cast Guid: the owner is the staff member who follows up, 'addedBy' is who added it when that is someone else, and a signal ends 'endsInDays' after install day, ended 'endedDaysAgo' before it, or never. 'crowd' gives each campus with generated households Care Team Follow-ups owned by its campus pastor, for adults in the listed connection statuses, at most one per household: some still open and the rest ended, with notes from its list. 'access' are questions verify asks Rock's own security check. Notes stay general and factual, and nothing reads as an accusation.",
+  "types": [
+    {
+      "key": "safety-team-review",
+      "name": "Safety Team Review",
+      "guid": "8BAF95E9-3FCB-48A1-A37F-244B848E8883",
+      "color": "#d9534f",
+      "icon": "ti ti-shield-exclamation",
+      "description": "The safety team reviews this person before they serve with kids or students.",
+      "security": [
+        { "action": "View", "allow": [ "RSR - Safety & Security Workers", "RSR - Background Check Administration", "RSR - Rock Administration" ], "denyAllUsers": true },
+        { "action": "Edit", "allow": [ "RSR - Safety & Security Workers", "RSR - Background Check Administration", "RSR - Rock Administration" ], "denyAllUsers": true }
+      ]
+    },
+    {
+      "key": "pickup-instructions",
+      "name": "Pickup Instructions",
+      "guid": "4F8A864F-1659-4D4D-9CBC-224FF699B96F",
+      "color": "#ee7624",
+      "icon": "ti ti-car",
+      "description": "Read the note before releasing this child at check-in.",
+      "security": [
+        { "action": "View", "allow": [ "RSR - Safety & Security Workers", "RSR - Background Check Administration", "RSR - Rock Administration" ], "denyAllUsers": true },
+        { "action": "Edit", "allow": [ "RSR - Safety & Security Workers", "RSR - Background Check Administration", "RSR - Rock Administration" ], "denyAllUsers": true }
+      ]
+    },
+    {
+      "key": "care-team-follow-up",
+      "name": "Care Team Follow-up",
+      "guid": "35482D1C-2618-46C5-9E8F-200B12FA976C",
+      "color": "#337ab7",
+      "icon": "ti ti-heart-handshake",
+      "description": "A pastor or the care team is following up with this person.",
+      "security": [
+        { "action": "View", "allow": [ "RSR - Pastoral Workers", "RSR - Rock Administration" ], "denyAllUsers": true },
+        { "action": "Edit", "allow": [ "RSR - Pastoral Workers", "RSR - Rock Administration" ], "denyAllUsers": true }
+      ]
+    },
+    {
+      "key": "paperwork-needed",
+      "name": "Paperwork Needed",
+      "guid": "714F9BCF-3290-4DFD-8736-0681DC979E93",
+      "color": "#e8b600",
+      "icon": "ti ti-file-text",
+      "description": "This person has forms to finish before they serve.",
+      "security": [
+        { "action": "View", "allow": [ "RSR - Staff Workers", "RSR - Staff Like Workers", "RSR - Rock Administration" ], "denyAllUsers": true },
+        { "action": "Edit", "allow": [ "RSR - Staff Workers", "RSR - Staff Like Workers", "RSR - Rock Administration" ], "denyAllUsers": true }
+      ]
+    }
+  ],
+  "cast": [
+    {
+      "guid": "8EF12092-5EE3-4185-9DE5-75654B360396",
+      "person": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
+      "type": "safety-team-review",
+      "owner": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "addedBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "note": "His latest background check needs review before he serves on a kids or student team.",
+      "addedDaysAgo": 38
+    },
+    {
+      "guid": "5CA1162D-B107-4A47-B04B-EEA581BE3712",
+      "person": "C398A8E3-C9BC-4017-A3F6-7C2BFF654056",
+      "name": "Maddie Lowe",
+      "type": "pickup-instructions",
+      "owner": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "note": "Read the legal note on her record before releasing her at check-in.",
+      "addedDaysAgo": 412
+    },
+    {
+      "guid": "C95FB0EC-CF4C-46B1-B14E-A6AFE5DEA75D",
+      "person": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
+      "type": "care-team-follow-up",
+      "owner": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "note": "Homebound. A volunteer visits each month and brings communion.",
+      "addedDaysAgo": 533
+    },
+    {
+      "guid": "63FF0130-97DF-4A3F-918C-9D4B5880392F",
+      "person": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "name": "Ashley Kelly",
+      "type": "care-team-follow-up",
+      "owner": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "note": "Check in after last winter's help with rent, and invite her to Money Matters.",
+      "addedDaysAgo": 64,
+      "endsInDays": 21
+    },
+    {
+      "guid": "C5BC03B0-16FB-484D-B9AA-156ED8F7DCEB",
+      "person": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "name": "Derek Ward",
+      "type": "care-team-follow-up",
+      "owner": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "note": "Check in with Derek and Kayla during a hard season.",
+      "addedDaysAgo": 431,
+      "endedDaysAgo": 296
+    },
+    {
+      "guid": "7E0D8491-C78C-41EA-873C-9CF4B8DE3485",
+      "person": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
+      "type": "paperwork-needed",
+      "owner": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "note": "Needs a volunteer application and a background check form before she serves in Kids.",
+      "addedDaysAgo": 19
+    }
+  ],
+  "crowd": {
+    "type": "care-team-follow-up",
+    "perCampus": 6,
+    "openWithoutEnd": 1,
+    "openWithEnd": 1,
+    "connectionStatuses": [ "Connected", "Engaged", "Leading" ],
+    "openAddedDaysAgo": { "min": 10, "max": 75 },
+    "endsInDays": { "min": 7, "max": 35 },
+    "endedDaysAgo": { "min": 3, "max": 340 },
+    "addedDaysBeforeEnd": { "min": 14, "max": 120 },
+    "notes": [
+      "Recovering from surgery. A call this week would be welcome.",
+      "Lost a parent last month. Check in after the memorial.",
+      "New baby at home. Meals are on the care calendar.",
+      "Started treatment for an illness. Ask how the care team can help.",
+      "Moved a parent into memory care. Check in this month.",
+      "Spouse is in the hospital. Offer a visit and prayer.",
+      "Between jobs. Share the details of the career transition group.",
+      "Home from a hospital stay. A visit would be welcome.",
+      "Grieving the loss of a close friend. Follow up next week.",
+      "Caring for a spouse after a fall. Ask about help with rides.",
+      "Asked for prayer after a hard diagnosis. Follow up by phone.",
+      "Adjusting after a move to care for family. Invite them to a group."
+    ]
+  },
+  "access": [
+    { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "signalType": "pickup-instructions", "action": "Edit", "allowed": true },
+    { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble", "signalType": "safety-team-review", "action": "Edit", "allowed": true },
+    { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "signalType": "safety-team-review", "action": "View", "allowed": true },
+    { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "signalType": "safety-team-review", "action": "View", "allowed": false },
+    { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro", "signalType": "care-team-follow-up", "action": "Edit", "allowed": true },
+    { "person": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "name": "Daniel Peak", "signalType": "care-team-follow-up", "action": "View", "allowed": false },
+    { "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338", "name": "Rachel Brooks", "signalType": "paperwork-needed", "action": "Edit", "allowed": true }
+  ]
+}

@@ -41,9 +41,10 @@ namespace RockSampleData.Loader.Validation
         /// <summary>
         /// Prints each expectation's result and returns how many failed.
         /// </summary>
-        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day. Null is the database server's today.</param>
+        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
-            var (checks, failures) = Evaluate( db, source, parts );
+            var (checks, failures) = Evaluate( db, source, parts, anchor );
             db.Log.Write( failures.Count == 0
                 ? $"  Cast expectations: all {checks} hold"
                 : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
@@ -59,7 +60,8 @@ namespace RockSampleData.Loader.Validation
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
         /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
-        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day, which reminder dates count from. Null is the database server's today.</param>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var guids = new CastPersonGuids( db, source );
@@ -150,8 +152,11 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
 
-            // Each Cast family's small group memberships fit when it came (issue 37).
-            checks += parts.Contains( SampleDataPart.SmallGroups ) ? CastGroupExpectations.Check( db, source, guids, db.ServerToday(), failures ) : 0;
+            // The follow-up tasks completed steps started, and who has them (issue 18).
+            checks += parts.Contains( SampleDataPart.Steps ) ? CastStepWorkflowExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
+            // Each Cast family's small group memberships fit when it came, and each Cast group pin holds (issue 37).
+            checks += parts.Contains( SampleDataPart.SmallGroups ) ? CastGroupExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
 
@@ -187,20 +192,82 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += parts.Contains( SampleDataPart.Notes ) ? CheckProfileNotes( db, source, guids, failures ) : 0;
 
+            checks += parts.Contains( SampleDataPart.Notes ) ? CastNotificationExpectations.Check( db, source, guids, failures ) : 0;
+            // The Cast's reminders and the bell's count (issue 22).
+            checks += parts.Contains( SampleDataPart.Reminders ) ? CastReminderExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Calendar ) ? CheckCalendar( db, source, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Registrations ) ? CheckRegistrations( db, source, guids, failures ) : 0;
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CheckSignals( db, source, guids, failures );
+            checks += CastTagExpectations.Check( db, source, guids, failures );
+
             return (checks, failures);
         }
 
         /// <summary>
-        /// Checks one designed refund (decision 264): the giver has a refund with the kind's reason, of the whole
-        /// gift for a duplicate or an earlier year, or of part of it otherwise, made the kind's shortest delay after the
-        /// gift on a weekday. A duplicate's gift has a twin: another of the giver's gifts that day, of the same amount.
-        /// Returns what is wrong, or null.
+        /// Checks that each Cast person with a signal has it, with its owner, and that Rock's Top Person Signal badge has the
+        /// flag of their first open signal by type order, or no flag when every one has ended (issue 45).
+        /// </summary>
+        private static int CheckSignals( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var signals = source.Signals;
+            if ( signals == null )
+            {
+                return 0;
+            }
+
+            var checks = 0;
+            foreach ( var person in signals.Cast.GroupBy( s => s.Person ) )
+            {
+                var name = person.First().Name;
+                var row = db.Query( @"
+SELECT [p].[TopSignalColor], [p].[TopSignalIconCssClass], [ps].[Guid] AS [TopSignalGuid]
+FROM [Person] AS [p]
+LEFT JOIN [PersonSignal] AS [ps] ON [ps].[Id] = [p].[TopSignalId]
+WHERE [p].[Guid] = @Guid", P( "@Guid", guids.Value( person.Key ) ) ).FirstOrDefault();
+                if ( row == null )
+                {
+                    continue;
+                }
+
+                foreach ( var signal in person )
+                {
+                    checks++;
+                    var owner = db.Scalar( @"
+SELECT [p].[Guid]
+FROM [PersonSignal] AS [ps]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ps].[OwnerPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [ps].[Guid] = @Guid", P( "@Guid", signal.Guid ) ) as Guid?;
+                    if ( owner != guids.Rock( signal.Owner ) )
+                    {
+                        failures.Add( $"{name}: expected a {signals.Type( signal.Type ).Name} signal owned by {signal.Owner}, Rock shows {( owner == null ? "none" : $"one owned by {owner}" )}" );
+                    }
+                }
+
+                checks++;
+                var top = person.Where( s => !s.EndedDaysAgo.HasValue ).OrderBy( s => signals.Types.IndexOf( signals.Type( s.Type ) ) ).FirstOrDefault();
+                var topType = top == null ? null : signals.Type( top.Type );
+                var shownGuid = Nullable( row["TopSignalGuid"] ) as Guid?;
+                var shownColor = Nullable( row["TopSignalColor"] ) as string;
+                if ( shownGuid != top?.Guid || shownColor != topType?.Color || Nullable( row["TopSignalIconCssClass"] ) as string != topType?.Icon )
+                {
+                    failures.Add( $"{name}: expected the badge to show {( topType == null ? "no flag, since every signal has ended" : $"the {topType.Name} flag ({topType.Color})" )}, Rock's top signal is {shownColor ?? "none"}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Checks one designed refund (decisions 264 and 288): the giver has a refund with the kind's reason, of
+        /// the whole gift for a duplicate, an earlier year, or a returned check, or of part of it otherwise, made the
+        /// kind's shortest delay after the gift on a weekday. A duplicate's gift has a twin: another of the giver's gifts
+        /// that day, of the same amount. A returned check's gift is a check. Returns what is wrong, or null.
         /// </summary>
         private static string RefundProblem( RockDatabase db, SampleDataSource source, int personId, CastRefund refund )
         {
@@ -211,7 +278,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             }
 
             var refunds = db.Query( @"
-SELECT [o].[TransactionDateTime] AS [GiftAt], [rt].[TransactionDateTime] AS [RefundAt]
+SELECT [o].[TransactionDateTime] AS [GiftAt], [rt].[TransactionDateTime] AS [RefundAt], [currency].[Guid] AS [CurrencyGuid]
     , ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [o].[Id] ) AS [Paid]
     , ( SELECT SUM( [d].[Amount] ) FROM [FinancialTransactionDetail] AS [d] WHERE [d].[TransactionId] = [r].[Id] ) AS [Refunded]
     , ( SELECT COUNT(*) FROM [FinancialTransaction] AS [twin]
@@ -225,9 +292,12 @@ INNER JOIN [FinancialTransaction] AS [rt] ON [rt].[Id] = [r].[Id]
 INNER JOIN [FinancialTransaction] AS [o] ON [o].[Id] = [r].[OriginalTransactionId]
 INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [o].[AuthorizedPersonAliasId]
 INNER JOIN [DefinedValue] AS [reason] ON [reason].[Id] = [r].[RefundReasonValueId]
+LEFT JOIN [FinancialPaymentDetail] AS [op] ON [op].[Id] = [o].[FinancialPaymentDetailId]
+LEFT JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [op].[CurrencyTypeValueId]
 WHERE [pa].[PersonId] = @PersonId AND [reason].[Value] = @Reason", P( "@PersonId", personId ), P( "@Reason", definition.Reason ) );
 
-            var isFull = refund.Kind is "duplicate" or "earlier-year";
+            var isFull = GivingLoader.IsWholeGiftRefund( refund.Kind );
+            var isReturnedCheck = GivingLoader.IsReturnedCheckRefund( refund.Kind );
             var matches = refunds.Where( r =>
             {
                 var refundDay = GivingLoader.RefundDay( ( DateTime ) r["GiftAt"], definition.DelayDays.Min );
@@ -235,10 +305,38 @@ WHERE [pa].[PersonId] = @PersonId AND [reason].[Value] = @Reason", P( "@PersonId
                 var refunded = -( decimal ) r["Refunded"];
                 return ( ( DateTime ) r["RefundAt"] ).Date == refundDay
                     && ( isFull ? refunded == paid : refunded > 0 && refunded < paid )
-                    && ( refund.Kind != "duplicate" || ( int ) r["Twins"] > 0 );
+                    && ( refund.Kind != "duplicate" || ( int ) r["Twins"] > 0 )
+                    && ( !isReturnedCheck || r["CurrencyGuid"] as Guid? == CheckCurrencyGuid );
             } );
 
-            return matches.Any() ? null : $"expected a {refund.Kind} refund ({definition.Reason}) made {definition.DelayDays.Min} day(s) after its gift, Rock has none";
+            return matches.Any() ? null : $"expected a {refund.Kind} refund ({definition.Reason}) made {definition.DelayDays.Min} day(s) after its{( isReturnedCheck ? " check" : string.Empty )} gift, Rock has none";
+        }
+
+        private static readonly Guid CheckCurrencyGuid = new Guid( "8B086A19-405A-451F-8D44-174E92D6B402" );
+        private static readonly Guid NonCashCurrencyGuid = new Guid( "7950FF66-80EE-E8AB-4A77-4A13EDEB7513" );
+        private static readonly Guid StocksAndBondsGuid = new Guid( "B29D7D89-357F-47F9-BE7B-52AFF3892007" );
+
+        /// <summary>
+        /// Checks one Cast campaign stock gift (decision 289): the giving unit has a gift to the campaign that
+        /// day, paid with Non-Cash Asset, of the Stocks And Bonds asset type, for the gift's amount, with a summary that
+        /// Rock's statement prints as its description. Returns what is wrong, or null.
+        /// </summary>
+        private static string StockGiftProblem( RockDatabase db, object givingId, int fundId, DateTime when, decimal amount )
+        {
+            var found = db.Scalar( @"
+SELECT COUNT(*)
+FROM [FinancialTransaction] AS [ft]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [ft].[AuthorizedPersonAliasId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+INNER JOIN [FinancialPaymentDetail] AS [fpd] ON [fpd].[Id] = [ft].[FinancialPaymentDetailId]
+INNER JOIN [DefinedValue] AS [currency] ON [currency].[Id] = [fpd].[CurrencyTypeValueId]
+INNER JOIN [DefinedValue] AS [asset] ON [asset].[Id] = [ft].[NonCashAssetTypeValueId]
+WHERE [p].[GivingId] = @GivingId AND CAST( [ft].[TransactionDateTime] AS DATE ) = @Day
+    AND [currency].[Guid] = @NonCash AND [asset].[Guid] = @Stock AND ISNULL( [ft].[Summary], '' ) <> ''
+    AND ( SELECT SUM( [ftd].[Amount] ) FROM [FinancialTransactionDetail] AS [ftd] INNER JOIN [FinancialAccount] AS [fa] ON [fa].[Id] = [ftd].[AccountId]
+        WHERE [ftd].[TransactionId] = [ft].[Id] AND ( [fa].[Id] = @FundId OR [fa].[ParentAccountId] = @FundId ) ) = @Amount",
+                P( "@GivingId", givingId ), P( "@Day", when.Date ), P( "@NonCash", NonCashCurrencyGuid ), P( "@Stock", StocksAndBondsGuid ), P( "@FundId", fundId ), P( "@Amount", amount ) );
+            return Convert.ToInt32( found ) > 0 ? null : $"expected a ${amount:N0} stock gift on {when:yyyy-MM-dd}, a non-cash gift of Stocks And Bonds with a description, the load has none";
         }
 
         /// <summary>
@@ -1006,6 +1104,18 @@ WHERE ( [fa].[Id] = @FundId OR [fa].[ParentAccountId] = @FundId ) AND [p].[Givin
                     if ( state != entry.ExpectedState )
                     {
                         failures.Add( $"{name}: expected the pledge to be {entry.ExpectedState}, the load shows {state} (${given:N0}{( entry.Pledge == null ? string.Empty : $" of ${entry.Pledge:N0}" )})" );
+                    }
+
+                    // A stock gift comes the day after its week, as the pledge plan places it (PledgeLoader). A package built
+                    // before in-kind gifts gave stock no asset type.
+                    foreach ( var stock in entry.Gifts.Where( g => g.Stock && source.InKindGifts != null ) )
+                    {
+                        checks++;
+                        var problem = StockGiftProblem( db, person["GivingId"], ( int ) fund["Id"], ( ( DateTime ) fund["StartDate"] ).AddDays( 7 * stock.WeeksAfterCommitment + 1 ), stock.Amount );
+                        if ( problem != null )
+                        {
+                            failures.Add( $"{name}: {problem}" );
+                        }
                     }
                 }
             }

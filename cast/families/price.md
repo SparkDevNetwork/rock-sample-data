@@ -26,6 +26,7 @@ William and Catherine Price are among the church's most generous givers. They gi
 - Top 1% giver with large quarterly gifts.
 - Year-end gift every year.
 - Gifts to the General Fund and the building campaign.
+- A $25,000 stock gift to the building campaign: a non-cash gift of Stocks And Bonds, listed under Non-Cash Gifts on the statement.
 
 ## Activity
 
