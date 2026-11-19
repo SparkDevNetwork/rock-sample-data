@@ -99,8 +99,8 @@
     },
     {
       "state": "Active",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "name": "Dot Wright",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -111,8 +111,8 @@
     },
     {
       "state": "Active",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -123,27 +123,15 @@
     },
     {
       "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
       "role": "Member",
       "joined": {
         "yearsAgo": 5,
-        "month": 9,
-        "day": 5
+        "month": 3,
+        "day": 3
       },
       "attendancePercent": 47
-    },
-    {
-      "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 5,
-        "month": 9,
-        "day": 5
-      },
-      "attendancePercent": 61
     },
     {
       "state": "Active",
@@ -167,17 +155,29 @@
         "month": 4,
         "day": 7
       },
-      "attendancePercent": 47
+      "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
-      "name": "Dan Richards",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 3,
         "month": 1,
-        "day": 6
+        "day": 8
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 8
       },
       "attendancePercent": 47
     }

@@ -17,14 +17,14 @@ Robert and Lorraine Greggs lost their first child, Jenny, when she was three. Th
 
 Bob is an electrical engineer at Mesa Ridge Electronics. He and Lorraine host a small group in their home.
 
-- Age 36 · married · Electrical Engineer, Mesa Ridge Electronics · email rgreggs@example.org · groups: Greggs Group (leader), First Aid Team, Lee Group (left), Foster Group (left)
+- Age 36 · married · Electrical Engineer, Mesa Ridge Electronics · email rgreggs@example.org · groups: Greggs Group (leader), First Aid Team, Raman Group (group ended)
 - Person Guid `28C4F2C0-0691-468F-B40E-550BD2976B9E`
 
 ### Lorraine Greggs
 
 Lorraine is a financial analyst at Mesa Ridge Electronics. She and Bob lost their first daughter, Jenny, at age three, and a staff note asks people to be gentle with her around that anniversary in September.
 
-- Age 36 · married · Financial Analyst, Mesa Ridge Electronics · email lgreggs@example.org · groups: Greggs Group (host), Worship Team, Women of the Bible (left), Lee Group (left), Foster Group (left)
+- Age 36 · married · Financial Analyst, Mesa Ridge Electronics · email lgreggs@example.org · groups: Greggs Group (host), Worship Team, Women of the Bible (left), Raman Group (group ended)
 - Person Guid `1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718`
 
 ### Tim (Timothy) Greggs

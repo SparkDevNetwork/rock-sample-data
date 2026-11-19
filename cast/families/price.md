@@ -13,12 +13,12 @@ William and Catherine Price are among the church's most generous givers. They gi
 
 ### Bill (William) Price
 
-- Age 61 · married · email bill.price@example.org · groups: Decker Group, Ushers
+- Age 61 · married · email bill.price@example.org · groups: Marble Group, Ushers, Foster Group (left)
 - Person Guid `6995F11F-500F-479B-8979-E7D5B6E48FE5`
 
 ### Cathy (Catherine) Price
 
-- Age 59 · married · email cathy.price@example.org · groups: Decker Group, Kids Ministry, Women of the Bible (left)
+- Age 59 · married · email cathy.price@example.org · groups: Marble Group, Kids Ministry, Foster Group (left)
 - Person Guid `F9635310-8A62-4F4D-A0A3-CA2BA574889E`
 
 ## What this family tests

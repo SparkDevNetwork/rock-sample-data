@@ -12,7 +12,7 @@ Jack Harper recently started attending and joined a small group. His record is s
 
 ### Jack (Jackson) Harper
 
-- Age 54 · single · record pending · Assistant Manager, Ocotillo Market · email jharper@example.org · groups: Silva Group, Jenkins Group (group archived), Foster Group (left)
+- Age 54 · single · record pending · Assistant Manager, Ocotillo Market · email jharper@example.org · groups: Wright Group, Jenkins Group (group archived)
 - Person Guid `9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2`
 
 ## What this family tests

@@ -6,8 +6,8 @@
   "name": "Wright Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Marriage",
-  "description": "Couples encouraging couples. We talk honestly about building a marriage that lasts.",
+  "topic": "New to Faith",
+  "description": "New to church or just exploring? Bring your questions; there are no wrong ones.",
   "schedule": {
     "day": "Thursday",
     "time": "19:00"
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
-      "name": "Dot Wright",
+      "guid": "9655AD2A-84AB-480F-9772-D5F438593450",
+      "name": "Gabe Hernandez",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -105,37 +105,37 @@
     },
     {
       "state": "Active",
-      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
-      "name": "Dale Tucker",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
-        "month": 9,
-        "day": 11
+        "month": 1,
+        "day": 9
       },
       "attendancePercent": 57
     },
     {
       "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "name": "Dot Wright",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
-        "month": 9,
-        "day": 13
+        "month": 1,
+        "day": 9
       },
       "attendancePercent": 66
     },
     {
       "state": "Active",
-      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
-      "name": "Josh Sanders",
+      "guid": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+      "name": "Jack Harper",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 4,
-        "day": 22
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 11
       },
       "attendancePercent": 52
     },
@@ -145,7 +145,7 @@
       "name": "Gaby Cruz",
       "role": "Member",
       "joined": {
-        "daysAgo": 29
+        "daysAgo": 12
       },
       "attendancePercent": 61
     },
@@ -155,7 +155,7 @@
       "name": "Jose Cruz",
       "role": "Member",
       "joined": {
-        "daysAgo": 29
+        "daysAgo": 12
       },
       "attendancePercent": 50
     },
@@ -165,73 +165,94 @@
       "name": "John Smith",
       "role": "Member",
       "joined": {
-        "daysAgo": 29
+        "daysAgo": 10
       },
       "attendancePercent": 65
     },
     {
       "state": "Inactive",
-      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
-      "name": "Helen Evans",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
-        "month": 1,
+        "month": 9,
         "day": 28
       },
       "left": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 22
+        "yearsAgo": 2,
+        "month": 10,
+        "day": 28
       },
       "attendancePercent": 67
     },
     {
       "state": "Inactive",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
+      "guid": "21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA",
+      "name": "Brandon Watson",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 6,
-        "day": 10
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 7
       },
       "left": {
-        "daysAgo": 158
+        "yearsAgo": 1,
+        "month": 4,
+        "day": 9
       },
       "attendancePercent": 49
     },
     {
       "state": "Inactive",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "67F595E1-9066-4BB0-B7CD-4D1A8BC529DE",
+      "name": "Kristen Watson",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 6,
-        "day": 10
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 7
       },
       "left": {
-        "daysAgo": 158
+        "yearsAgo": 1,
+        "month": 4,
+        "day": 9
       },
       "attendancePercent": 55
     },
     {
       "state": "Inactive",
-      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
-      "name": "Corrie Stone",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "name": "Rob Tennant",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 14
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 20
       },
       "left": {
-        "yearsAgo": 2,
-        "month": 10,
-        "day": 27
+        "yearsAgo": 1,
+        "month": 11,
+        "day": 13
       },
       "attendancePercent": 61
+    },
+    {
+      "state": "Inactive",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 20
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 11,
+        "day": 13
+      },
+      "attendancePercent": 53
     }
   ]
 }

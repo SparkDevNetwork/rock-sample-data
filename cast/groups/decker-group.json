@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
-      "name": "Will Jones",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
-      "name": "Daniel Peak",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465",
-      "name": "Jon Smith",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
-      "name": "Denise Washington",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Ty McClintock",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
-      "name": "Marcus Washington",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,20 +141,20 @@
     },
     {
       "state": "Active",
-      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
-      "name": "Cathy Price",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 9,
-        "day": 12
+        "month": 8,
+        "day": 26
       },
       "attendancePercent": 52
     },
     {
       "state": "Active",
-      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
-      "name": "Bill Price",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -171,12 +171,12 @@
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 26
+        "day": 28
       },
       "left": {
         "yearsAgo": 1,
-        "month": 12,
-        "day": 4
+        "month": 10,
+        "day": 28
       },
       "attendancePercent": 65
     },
@@ -188,12 +188,12 @@
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 26
+        "day": 28
       },
       "left": {
         "yearsAgo": 1,
-        "month": 12,
-        "day": 4
+        "month": 10,
+        "day": 28
       },
       "attendancePercent": 50
     }

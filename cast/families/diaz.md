@@ -13,12 +13,12 @@ Ricardo and Patricia Diaz come at Christmas and Easter and give a couple of time
 
 ### Ricardo Diaz
 
-- Age 55 · married · email ricardo.diaz@example.org · groups: Marble Group (left), Foster Group (left)
+- Age 55 · married · email ricardo.diaz@example.org · groups: Marble Group (left)
 - Person Guid `A13582E3-1A18-410C-BB50-959EAB752D52`
 
 ### Patty (Patricia) Diaz
 
-- Age 54 · married · email patty.diaz@example.org · groups: Marble Group (left), Foster Group (left)
+- Age 54 · married · email patty.diaz@example.org · groups: Women of the Bible (left, archived), Marble Group (left)
 - Person Guid `93AE5279-3907-4989-949F-3638F4BC5638`
 
 ## What this family tests

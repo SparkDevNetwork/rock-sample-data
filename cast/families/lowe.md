@@ -22,7 +22,7 @@ Craig is Maddie's dad. He and his wife Trish visit occasionally. He is on the li
 
 Trish is Craig's wife and Maddie's stepmom. She gives almost every week even though the family rarely attends, which makes her the example of a giver who is not an attender.
 
-- Age 35 · married · email trish.lowe@example.org · groups: Greggs Group (asked to join), Murphy Group (group ended)
+- Age 35 · married · email trish.lowe@example.org · groups: Women of the Bible (left), Greggs Group (asked to join), Murphy Group (group ended)
 - Person Guid `20A2C167-D16E-43B3-A5B0-80CE912589AF`
 
 ## What this family tests

@@ -13,12 +13,12 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 
 ### Steve (Steven) Morgan
 
-- Age 58 · married · Owner, Mesquite Tree Bookkeeping · email steve.morgan@example.org · groups: Lee Group, Ushers, Murphy Group (group ended), Raman Group (group archived) · business contact for Mesquite Tree Bookkeeping
+- Age 58 · married · Owner, Mesquite Tree Bookkeeping · email steve.morgan@example.org · groups: Ushers, Silva Group (host) · business contact for Mesquite Tree Bookkeeping
 - Person Guid `26ECA7AC-9EF7-403A-B053-C852CBA7DB4C`
 
 ### Karen Morgan
 
-- Age 57 · married · email karen.morgan@example.org · groups: Wright Group, Morgan Group (leader), Ushers, Women of the Bible (left), Murphy Group (group ended), Raman Group (group archived)
+- Age 57 · married · email karen.morgan@example.org · groups: Women of the Bible, Morgan Group (leader), Ushers
 - Person Guid `4CB52244-023C-46BA-8C3A-FA24D9611ADF`
 
 ## What this family tests

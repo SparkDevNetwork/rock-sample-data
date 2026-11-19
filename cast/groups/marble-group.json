@@ -6,15 +6,15 @@
   "name": "Marble Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Sermon Discussion",
-  "description": "A relaxed evening of talking through the weekend sermon, with good questions and good snacks.",
+  "topic": "New to Faith",
+  "description": "New to church or just exploring? Bring your questions; there are no wrong ones.",
   "schedule": {
     "day": "Wednesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "sullivan"
+    "hostHousehold": "holloway"
   },
   "childCareProvided": true,
   "capacity": 18,
@@ -45,20 +45,32 @@
     },
     {
       "state": "Active",
-      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
-      "name": "Chris Sullivan",
+      "guid": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 28
+        "day": 6
       },
       "attendancePercent": 90
     },
     {
       "state": "Active",
-      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
-      "name": "Sam Hanks",
+      "guid": "AB789D5A-01BD-499C-BEB8-B6C5465088A2",
+      "name": "Lisa Holloway",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "name": "Alisha Marble",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
-      "name": "Drew Kim",
+      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "name": "Dee Navarro",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
-      "name": "Alisha Marble",
+      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
+      "name": "Hector Navarro",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
-      "name": "Joan Ross",
+      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
+      "name": "Cathy Price",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +141,8 @@
     },
     {
       "state": "Active",
-      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
-      "name": "Dick Ross",
+      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
+      "name": "Bill Price",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -138,18 +150,6 @@
         "day": 6
       },
       "attendancePercent": 57
-    },
-    {
-      "state": "Active",
-      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
-      "name": "Hal Russell",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 6
-      },
-      "attendancePercent": 47
     },
     {
       "state": "Active",
@@ -161,7 +161,7 @@
         "month": 9,
         "day": 6
       },
-      "attendancePercent": 66
+      "attendancePercent": 47
     },
     {
       "state": "Pending",
@@ -171,7 +171,7 @@
       "joined": {
         "daysAgo": 24
       },
-      "attendancePercent": 61
+      "attendancePercent": 66
     },
     {
       "state": "Pending",
@@ -181,7 +181,7 @@
       "joined": {
         "daysAgo": 24
       },
-      "attendancePercent": 52
+      "attendancePercent": 61
     },
     {
       "state": "Inactive",
@@ -198,7 +198,7 @@
         "month": 10,
         "day": 23
       },
-      "attendancePercent": 60
+      "attendancePercent": 52
     },
     {
       "state": "Inactive",
@@ -215,7 +215,7 @@
         "month": 10,
         "day": 23
       },
-      "attendancePercent": 63
+      "attendancePercent": 60
     }
   ]
 }

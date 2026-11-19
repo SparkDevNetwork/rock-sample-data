@@ -75,7 +75,7 @@ The Cast's groups are fixed files in `cast/groups/`, which the builder plans wit
 Pins in `configuration/small-groups.json` hold what Cast stories, notes, and prayer requests say (decision D-group-fixes-2):
 
 - Ted Decker, Bill Marble, Pete Foster, Bob Greggs, Jerry Wright, James Lee, Mike Rivera, and Isaac Silva keep leading their groups, and the Greggs and Gilbert groups keep meeting in those homes.
-- James Lee's New to Faith group meets online. Mariah Jackson, the Webbs, and Dan Richards are in the Greggs's Grief and Loss group, the Fischers are in the group at the Gilberts' home, and the Sweeneys are in the Rivera Group together.
+- James Lee's New to Faith group meets online, and Bill Marble's Marble Group is a New to Faith group too, as his story says. Mariah Jackson, the Webbs, Dan Richards, Phil Coffee, and Allie Song are in the Greggs's Grief and Loss group. The Simmonses are in Pete Foster's group, the Petersons in the Marble Group, the Fischers in the group at the Gilberts' home, and the Sweeneys in the Rivera Group together.
 - Alisha Marble leads Women of the Bible, a Women's Bible Study, and stays in Bill's Marble Group. Jenny Michaels is in Women of the Bible and Pete Foster's group. They are the Cast people in two groups by design.
 - Karen Morgan launched a women's group from Ready to Lead on the fall launch Sunday a year or more back, and stays in Women of the Bible. Cast plans change nothing within a year of install day, so the Cast's launch is never more recent than that.
 - The Ellises took the Starting Point Class this fall and have one pending request to the Marble Group, and no other group. Victoria Ramos has one pending request to the Silva Group. The Ortizes left their group five weeks after their last Sunday.

@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "9655AD2A-84AB-480F-9772-D5F438593450",
-      "name": "Gabe Hernandez",
+      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
+      "name": "Tony Coleman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -78,18 +78,6 @@
         "day": 1
       },
       "attendancePercent": 56
-    },
-    {
-      "state": "Active",
-      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
-      "name": "Matt Hughes",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 1
-      },
-      "attendancePercent": 66
     },
     {
       "state": "Active",
@@ -101,7 +89,7 @@
         "month": 1,
         "day": 1
       },
-      "attendancePercent": 57
+      "attendancePercent": 66
     },
     {
       "state": "Active",
@@ -113,7 +101,7 @@
         "month": 1,
         "day": 1
       },
-      "attendancePercent": 65
+      "attendancePercent": 57
     },
     {
       "state": "Active",
@@ -125,7 +113,7 @@
         "month": 1,
         "day": 1
       },
-      "attendancePercent": 56
+      "attendancePercent": 65
     },
     {
       "state": "Active",
@@ -137,7 +125,7 @@
         "month": 1,
         "day": 1
       },
-      "attendancePercent": 60
+      "attendancePercent": 56
     },
     {
       "state": "Active",
@@ -149,12 +137,24 @@
         "month": 1,
         "day": 1
       },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
+      "name": "Jason Wood",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
-      "name": "Phil Coffee",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -185,35 +185,35 @@
     },
     {
       "state": "Inactive",
-      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
-      "name": "Nancy Turner",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 14
+        "month": 6,
+        "day": 6
       },
       "left": {
         "yearsAgo": 1,
-        "month": 4,
-        "day": 1
+        "month": 7,
+        "day": 16
       },
       "attendancePercent": 65
     },
     {
       "state": "Inactive",
-      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
-      "name": "Will Jones",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 16
+        "month": 6,
+        "day": 6
       },
       "left": {
         "yearsAgo": 1,
         "month": 7,
-        "day": 15
+        "day": 16
       },
       "attendancePercent": 51
     }

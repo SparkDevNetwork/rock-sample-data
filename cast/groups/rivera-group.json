@@ -6,8 +6,8 @@
   "name": "Rivera Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Money and Generosity",
-  "description": "We learn how to manage money well and give freely, together.",
+  "topic": "Sermon Discussion",
+  "description": "A relaxed evening of talking through the weekend sermon, with good questions and good snacks.",
   "schedule": {
     "day": "Thursday",
     "time": "19:00"
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
-      "name": "Megan Patel",
+      "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
+      "name": "Becca Bennett",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
-      "name": "Ryan Patel",
+      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
+      "name": "Tom Bennett",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
-      "name": "Priya Raman",
+      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
+      "name": "Gary Jenkins",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
-      "name": "Sunil Raman",
+      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
+      "name": "Chris Sullivan",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -129,20 +129,20 @@
     },
     {
       "state": "Active",
-      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
-      "name": "Jason Wood",
+      "guid": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
+      "name": "Dennis Perry",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 5,
-        "day": 16
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 11
       },
       "attendancePercent": 63
     },
     {
       "state": "Active",
-      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
-      "name": "Tom Miller",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -153,69 +153,52 @@
     },
     {
       "state": "Inactive",
-      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
-      "name": "Rob Tennant",
+      "guid": "4003BF59-F243-4BF9-8E60-2FB3735459CE",
+      "name": "Greg Holloway",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 9
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 22
       },
       "left": {
         "yearsAgo": 1,
-        "month": 12,
-        "day": 9
+        "month": 4,
+        "day": 19
       },
       "attendancePercent": 57
     },
     {
       "state": "Inactive",
-      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
-      "name": "Sheryl Tennant",
+      "guid": "AB789D5A-01BD-499C-BEB8-B6C5465088A2",
+      "name": "Lisa Holloway",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 9
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 22
       },
       "left": {
         "yearsAgo": 1,
-        "month": 12,
-        "day": 9
+        "month": 4,
+        "day": 19
       },
       "attendancePercent": 66
     },
     {
       "state": "Inactive",
-      "guid": "83DAAFFE-41B0-4439-A958-F854589887E6",
-      "name": "Daniel Garcia",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
       "role": "Member",
       "joined": {
-        "yearsAgo": 2,
+        "yearsAgo": 1,
         "month": 9,
-        "day": 22
+        "day": 11
       },
       "left": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 2
-      },
-      "attendancePercent": 60
-    },
-    {
-      "state": "Inactive",
-      "guid": "1AD452EF-23CE-4250-A1B1-34836452DEFB",
-      "name": "Maria Garcia",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 9,
-        "day": 22
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 2
+        "month": 12,
+        "day": 15
       },
       "attendancePercent": 60
     }

@@ -6,40 +6,36 @@
   "name": "Raman Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Prayer",
-  "description": "A small, steady group that gathers to pray and share what God is doing.",
+  "topic": "Sermon Discussion",
+  "description": "We dig into Sunday's message together and talk about how it plays out in everyday life.",
   "schedule": {
-    "day": "Sunday",
+    "day": "Thursday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "ortiz"
+    "hostHousehold": "bell"
   },
   "childCareProvided": false,
   "capacity": 18,
   "isPublic": true,
-  "meetsInSummer": false,
-  "attendanceHabit": "Spotty",
+  "meetsInSummer": true,
+  "attendanceHabit": "EveryWeek",
   "lifecycle": {
-    "state": "Archived",
+    "state": "Inactive",
     "started": {
-      "yearsAgo": 3,
-      "month": 9,
-      "day": 18
+      "yearsAgo": 6,
+      "month": 7,
+      "day": 12
     },
     "ended": {
-      "yearsAgo": 2,
-      "month": 3,
-      "day": 24
+      "yearsAgo": 5,
+      "month": 1,
+      "day": 8
     },
-    "archived": {
-      "yearsAgo": 1,
-      "month": 10,
-      "day": 16
-    }
+    "reason": "Group ended"
   },
-  "testCase": "Archived",
+  "testCase": "Inactive",
   "members": [
     {
       "state": "Active",
@@ -47,71 +43,47 @@
       "name": "Sunil Raman",
       "role": "Leader",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 18
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 12
       },
       "attendancePercent": 95
     },
     {
       "state": "Active",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
       "role": "Host",
       "joined": {
-        "yearsAgo": 3,
+        "yearsAgo": 6,
         "month": 9,
-        "day": 25
+        "day": 9
       },
       "attendancePercent": 90
     },
     {
       "state": "Active",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "name": "Larry Bell",
       "role": "Host",
       "joined": {
-        "yearsAgo": 3,
+        "yearsAgo": 6,
         "month": 9,
-        "day": 25
+        "day": 9
       },
       "attendancePercent": 90
     },
     {
       "state": "Active",
-      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
-      "name": "Sam Hanks",
+      "guid": "9C2A020B-CF34-403E-A948-3E91FDFB958B",
+      "name": "Mariah Jackson",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 18
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 12
       },
       "attendancePercent": 62
-    },
-    {
-      "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 18
-      },
-      "attendancePercent": 63
-    },
-    {
-      "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 18
-      },
-      "attendancePercent": 65
     },
     {
       "state": "Active",
@@ -119,59 +91,107 @@
       "name": "Priya Raman",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 18
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 12
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "name": "Rob Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 12
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 12
       },
       "attendancePercent": 56
     },
     {
       "state": "Active",
-      "guid": "8AF84CC0-CD08-430D-A0D4-04B151AAEB96",
-      "name": "Erin Murphy",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
+        "yearsAgo": 6,
+        "month": 7,
         "day": 20
       },
       "attendancePercent": 60
     },
     {
       "state": "Active",
-      "guid": "7434664A-E5DB-4AD4-945B-625FF574E2EC",
-      "name": "Patrick Murphy",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 20
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 28
       },
       "attendancePercent": 48
     },
     {
       "state": "Active",
-      "guid": "DBAE45C0-1980-48FA-8201-41C08910F654",
-      "name": "James Sweeney",
+      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
+      "name": "Bob Greggs",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
-        "month": 9,
-        "day": 23
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 28
       },
       "attendancePercent": 65
     },
     {
       "state": "Active",
-      "guid": "988195A3-1895-492E-839B-653C35307862",
-      "name": "Nancy Sweeney",
+      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
+      "name": "Deb Webb",
       "role": "Member",
       "joined": {
-        "yearsAgo": 3,
+        "yearsAgo": 6,
+        "month": 9,
+        "day": 20
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Active",
+      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
+      "name": "Marty Webb",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 9,
+        "day": 20
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
+      "name": "Sean Hansen",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
         "month": 9,
         "day": 23
       },
-      "attendancePercent": 62
+      "attendancePercent": 57
     }
   ]
 }

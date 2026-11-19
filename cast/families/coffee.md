@@ -14,7 +14,7 @@ Phil Coffee first came to an Easter service because his neighbor Allie Song invi
 
 Phil's neighbor Allie Song invited him to an Easter service. He kept coming, joined the Greggs small group, and was baptized later that year. His record walks through a full invited-to-baptized journey.
 
-- Age 40 · single · email pcoffee@example.org · groups: Greggs Group, Production Team, Jenkins Group (group archived)
+- Age 40 · single · email pcoffee@example.org · groups: Greggs Group, Production Team, Hughes Group (group archived)
 - Person Guid `3459286F-18C8-4548-9938-53DAC8483D01`
 
 ## What this family tests

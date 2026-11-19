@@ -14,12 +14,12 @@ Patrick and Erin Murphy attended for eight years, then moved to Ohio two years a
 
 ### Patrick Murphy
 
-- Age 44 · married · record inactive (Moved) · email patrick.murphy@example.org · groups: Murphy Group (leader, group ended), Raman Group (group archived)
+- Age 44 · married · record inactive (Moved) · email patrick.murphy@example.org · groups: Hughes Group (group archived), Murphy Group (leader, group ended)
 - Person Guid `7434664A-E5DB-4AD4-945B-625FF574E2EC`
 
 ### Erin Murphy
 
-- Age 43 · married · record inactive (Moved) · email erin.murphy@example.org · groups: Murphy Group (host, group ended), Raman Group (group archived)
+- Age 43 · married · record inactive (Moved) · email erin.murphy@example.org · groups: Hughes Group (group archived), Murphy Group (host, group ended)
 - Person Guid `8AF84CC0-CD08-430D-A0D4-04B151AAEB96`
 
 ### Liam Murphy

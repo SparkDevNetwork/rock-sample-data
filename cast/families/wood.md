@@ -15,7 +15,7 @@ Jason and Melissa Wood have a seventh grader and a fourth grader. Jason's gift g
 
 ### Jason Wood
 
-- Age 41 · married · email jason.wood@example.org · groups: Rivera Group
+- Age 41 · married · email jason.wood@example.org · groups: Greggs Group
 - Person Guid `F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6`
 
 ### Melissa Wood

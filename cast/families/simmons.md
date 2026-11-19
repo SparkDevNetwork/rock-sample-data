@@ -22,7 +22,7 @@ Jim married Sarah after her divorce and is stepdad to Brian. He serves on the Pr
 
 Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service.
 
-- Age 34 · married · email sarah.simmons@example.org · groups: Foster Group, First Aid Team
+- Age 34 · married · email sarah.simmons@example.org · groups: Foster Group, First Aid Team, Women of the Bible (left)
 - Person Guid `FC6B9819-EF2E-44C9-93DB-05571B39E58F`
 
 ## What this family tests

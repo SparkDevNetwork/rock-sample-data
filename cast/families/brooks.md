@@ -25,7 +25,7 @@ Nathan has been at the church nine years and gives every week to the General Fun
 
 Rachel is the Kids Director. She led the Phoenix kids volunteers for years before the church hired her this year, and she still leads the Kids Ministry team. Sunday mornings she also gets her own three kids to three different check-in rooms.
 
-- Age 41 · married · Kids Director, Rock Solid Church · email rachel@rocksolidchurchdemo.com · groups: Morgan Group, Kids Ministry (leader), Lee Group (left) · 2 security roles
+- Age 41 · married · Kids Director, Rock Solid Church · email rachel@rocksolidchurchdemo.com · groups: Women of the Bible, Kids Ministry (leader), Lee Group (left) · 2 security roles
 - Person Guid `9AA2688D-534C-4FC2-9C7D-DAA224041338`
 
 ### Ava Brooks

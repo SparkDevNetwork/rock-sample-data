@@ -1,0 +1,129 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "hughes-group",
+  "guid": "26DBF36F-E673-4356-B31B-4F7958B33462",
+  "name": "Hughes Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Prayer",
+  "description": "A small, steady group that gathers to pray and share what God is doing.",
+  "schedule": {
+    "day": "Sunday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "hughes"
+  },
+  "childCareProvided": true,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "Spotty",
+  "lifecycle": {
+    "state": "Archived",
+    "started": {
+      "yearsAgo": 4,
+      "month": 9,
+      "day": 13
+    },
+    "ended": {
+      "yearsAgo": 3,
+      "month": 12,
+      "day": 20
+    },
+    "archived": {
+      "yearsAgo": 2,
+      "month": 3,
+      "day": 19
+    }
+  },
+  "testCase": "Archived",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "601DC9DE-C9F1-4DDC-8126-88EDB4BDDC23",
+      "name": "Carmen Delgado",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "201B7E08-7C29-4472-931F-047B4A310347",
+      "name": "Ray Delgado",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 13
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "8AF84CC0-CD08-430D-A0D4-04B151AAEB96",
+      "name": "Erin Murphy",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 9
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "7434664A-E5DB-4AD4-945B-625FF574E2EC",
+      "name": "Patrick Murphy",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 9
+      },
+      "attendancePercent": 53
+    }
+  ]
+}

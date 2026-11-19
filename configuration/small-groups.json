@@ -127,12 +127,12 @@
   },
   "cast": {
     "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader, host, topic, or name, and the households that have a pending request to join it. A pinned leader may also be in their spouse's group, and a household pinned into two groups is in both: the Cast's exceptions to one group per person. Groups listed in notInPattern are left alone.",
-    "$pinsComment": "Each pin holds what a Cast story, bio, note, or prayer request says about the group: James Lee leads the online New to Faith group; Mariah Jackson, the Webbs, and Dan Richards are in the Greggs's grief and loss group; the Fischers share prayer requests with the group at the Gilberts' home; the Sweeneys are in one group together; Jenny Michaels is in two groups; the Ellises asked to join the Marble Group and Victoria Ramos the Silva Group; and Karen Morgan launched a women's group from Ready to Lead. launchesAgo 1 is the newest launch Sunday at least a year back.",
+    "$pinsComment": "Each pin holds what a Cast story, bio, note, or prayer request says about the group: James Lee leads the online New to Faith group, and Bill Marble leads a group for people new to faith too; Mariah Jackson, the Webbs, Dan Richards, Phil Coffee, and Allie Song are in the Greggs's grief and loss group; Jim Simmons is in Pete Foster's group and the Petersons in the Marble Group; the Fischers share prayer requests with the group at the Gilberts' home; the Sweeneys are in one group together; Jenny Michaels is in two groups; the Ellises asked to join the Marble Group and Victoria Ramos the Silva Group; and Karen Morgan launched a women's group from Ready to Lead. launchesAgo 1 is the newest launch Sunday at least a year back.",
     "pins": {
       "decker-group": { "leader": "decker/ted" },
-      "marble-group": { "leader": "marble/bill", "pendingHouseholds": [ "ellis" ] },
-      "petes-group": { "leader": "foster/pete", "memberHouseholds": [ "michaels" ] },
-      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs", "topic": "Grief and Loss", "memberHouseholds": [ "jackson", "webb", "richards" ] },
+      "marble-group": { "leader": "marble/bill", "topic": "New to Faith", "memberHouseholds": [ "peterson" ], "pendingHouseholds": [ "ellis" ] },
+      "petes-group": { "leader": "foster/pete", "memberHouseholds": [ "michaels", "simmons" ] },
+      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs", "topic": "Grief and Loss", "memberHouseholds": [ "jackson", "webb", "richards", "coffee", "song" ] },
       "gilbert-group": { "leader": "wright/gerald", "hostHousehold": "gilbert", "memberHouseholds": [ "fischer" ] },
       "lee-group": { "leader": "lee/james", "topic": "New to Faith", "online": true },
       "rivera-group": { "leader": "rivera/michael", "memberHouseholds": [ "sweeney" ] },

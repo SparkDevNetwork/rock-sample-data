@@ -170,6 +170,12 @@ namespace RockSampleData.Loader.Generation
 
                 var all = active.Concat( former ).ToList();
 
+                // A household a pin gives a request is never picked for another group's request.
+                foreach ( var person in _request.Legacy.SelectMany( l => l.PendingHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ).SelectMany( u => u.People ) )
+                {
+                    _pending.Add( person.Guid );
+                }
+
                 foreach ( var draft in active.Where( d => d.TestCase == SmallGroupTestCase.Pending || d.Legacy?.PendingHouseholds.Count > 0 ) )
                 {
                     PlanPendingRequests( draft );

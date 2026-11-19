@@ -6,15 +6,15 @@
   "name": "Silva Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Grief and Loss",
-  "description": "A gentle group for anyone carrying a loss. Come as you are.",
+  "topic": "Money and Generosity",
+  "description": "We learn how to manage money well and give freely, together.",
   "schedule": {
     "day": "Tuesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "navarro"
+    "hostHousehold": "morgan"
   },
   "childCareProvided": false,
   "capacity": 18,
@@ -45,8 +45,8 @@
     },
     {
       "state": "Active",
-      "guid": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
-      "name": "Dee Navarro",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -57,20 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "F86D01B8-AB61-44F3-8C82-2AB611C357C0",
-      "name": "Hector Navarro",
-      "role": "Host",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
-      "name": "Frank Dexter",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
-      "name": "Linda Hayes",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -90,30 +78,6 @@
         "day": 23
       },
       "attendancePercent": 60
-    },
-    {
-      "state": "Active",
-      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
-      "name": "Bob Hayes",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 47
-    },
-    {
-      "state": "Active",
-      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
-      "name": "Ty McClintock",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 55
     },
     {
       "state": "Active",
@@ -125,12 +89,36 @@
         "month": 6,
         "day": 23
       },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
+      "name": "Dale Tucker",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 22
+      },
       "attendancePercent": 58
     },
     {
       "state": "Active",
-      "guid": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
-      "name": "Jack Harper",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "name": "Sunil Raman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -151,35 +139,18 @@
     },
     {
       "state": "Inactive",
-      "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B",
-      "name": "Aaron Mitchell",
+      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 3
+        "day": 9
       },
       "left": {
         "yearsAgo": 1,
         "month": 10,
-        "day": 24
-      },
-      "attendancePercent": 51
-    },
-    {
-      "state": "Inactive",
-      "guid": "5C5008BB-6F4B-4A68-A222-DABD1AF8E41C",
-      "name": "Beth Mitchell",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 3
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 10,
-        "day": 24
+        "day": 9
       },
       "attendancePercent": 51
     }

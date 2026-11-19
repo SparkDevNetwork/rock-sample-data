@@ -12,7 +12,7 @@ Cora (Corrie) Stone is a single adult who attends and is in a small group.
 
 ### Corrie (Cora) Stone
 
-- Age 31 · single · email cstone@example.org · groups: Morgan Group, Wright Group (left), Foster Group (left, archived)
+- Age 31 · single · email cstone@example.org · groups: Morgan Group (host), Lee Group (left)
 - Person Guid `AE45A615-D55E-4749-B2DB-47BBC9FBD885`
 
 ## What this family tests

@@ -12,7 +12,7 @@ Helen Evans came to a very large event on campus and asked about serving in the 
 
 ### Helen Evans
 
-- Age 44 · single · email hevans@example.org · groups: Women of the Bible (left), Wright Group (left), Morgan Group (left)
+- Age 44 · single · email hevans@example.org · groups: Women of the Bible (left), Lee Group (left), Silva Group (left)
 - Person Guid `1DFFF821-E97C-4324-9883-CF59B5C5BDD6`
 
 ## What this family tests

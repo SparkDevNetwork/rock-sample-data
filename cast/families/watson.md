@@ -13,12 +13,12 @@ Brandon and Kristen Watson come about once a month and give once a year, in Dece
 
 ### Brandon Watson
 
-- Age 31 · married · email brandon.watson@example.org
+- Age 31 · married · email brandon.watson@example.org · groups: Wright Group (left)
 - Person Guid `21FA1DBE-3DA0-4ED0-A7A5-97D447F517CA`
 
 ### Kristen Watson
 
-- Age 30 · married · email kristen.watson@example.org
+- Age 30 · married · email kristen.watson@example.org · groups: Wright Group (left)
 - Person Guid `67F595E1-9066-4BB0-B7CD-4D1A8BC529DE`
 
 ## What this family tests

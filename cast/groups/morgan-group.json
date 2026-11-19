@@ -7,14 +7,14 @@
   "type": "small-group",
   "campus": "main",
   "topic": "Women's Bible Study",
-  "description": "A weekly study for women who want deeper friendships and a stronger faith.",
+  "description": "Women reading the Bible together, praying for each other, and sharing real life.",
   "schedule": {
     "day": "Tuesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "castillo"
+    "hostHousehold": "stone"
   },
   "childCareProvided": false,
   "capacity": 9,
@@ -46,8 +46,8 @@
     },
     {
       "state": "Active",
-      "guid": "9CC4ECFF-28A4-4DD5-955E-16F3C31B291D",
-      "name": "Naomi Castillo",
+      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+      "name": "Corrie Stone",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -55,30 +55,6 @@
         "day": 12
       },
       "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
-      "name": "Rachel Brooks",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 12
-      },
-      "attendancePercent": 57
-    },
-    {
-      "state": "Active",
-      "guid": "8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F",
-      "name": "Tiffany Coleman",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 12
-      },
-      "attendancePercent": 51
     },
     {
       "state": "Active",
@@ -90,12 +66,36 @@
         "month": 9,
         "day": 12
       },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
-      "name": "Corrie Stone",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "name": "Barb Jenkins",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -106,8 +106,8 @@
     },
     {
       "state": "Active",
-      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
-      "name": "Amanda Sullivan",
+      "guid": "AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592",
+      "name": "Kayla Ward",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -142,18 +142,18 @@
     },
     {
       "state": "Inactive",
-      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
-      "name": "Helen Evans",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 18
+        "day": 27
       },
       "left": {
         "yearsAgo": 1,
-        "month": 11,
-        "day": 30
+        "month": 10,
+        "day": 27
       },
       "attendancePercent": 56
     }

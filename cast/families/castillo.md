@@ -14,7 +14,7 @@ Naomi Castillo is the Worship Director. She leads worship at Phoenix most Sunday
 
 Naomi is the Worship Director. She joined staff four years ago, leads worship at the Phoenix campus, and trains the worship leaders at every campus.
 
-- Age 34 · single · Worship Director, Rock Solid Church · email naomi@rocksolidchurchdemo.com · groups: Morgan Group (host) · 1 security roles
+- Age 34 · single · Worship Director, Rock Solid Church · email naomi@rocksolidchurchdemo.com · groups: Women of the Bible · 1 security roles
 - Person Guid `9CC4ECFF-28A4-4DD5-955E-16F3C31B291D`
 
 ## What this family tests

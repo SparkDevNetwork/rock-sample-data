@@ -17,12 +17,12 @@ Aaron Mitchell is the Phoenix Campus Pastor. He and Beth moved to Phoenix five y
 
 Aaron is the Phoenix Campus Pastor. He came on staff five years ago and leads the main campus: its Sunday services, its first-time guests, and its campus events.
 
-- Age 45 · married · Phoenix Campus Pastor, Rock Solid Church · email aaron@rocksolidchurchdemo.com · groups: Foster Group (left), Silva Group (left) · 2 security roles
+- Age 45 · married · Phoenix Campus Pastor, Rock Solid Church · email aaron@rocksolidchurchdemo.com · groups: Jenkins Group (group archived) · 2 security roles
 - Person Guid `8A798763-D95F-4EE8-BF7F-FA320226335B`
 
 ### Beth (Bethany) Mitchell
 
-- Age 43 · married · Instructor, Palo Verde Technical College · email beth.mitchell@example.org · groups: Foster Group (left), Silva Group (left)
+- Age 43 · married · Instructor, Palo Verde Technical College · email beth.mitchell@example.org · groups: Jenkins Group (group archived)
 - Person Guid `5C5008BB-6F4B-4A68-A222-DABD1AF8E41C`
 
 ### Jonah Mitchell

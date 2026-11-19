@@ -17,7 +17,7 @@ Marco and Elena Alvarez moved to Phoenix three years ago. Their son Mateo was bo
 
 Marco and his wife Elena moved to Phoenix three years ago. He gives every other week through a scheduled gift.
 
-- Age 31 · married · no email · groups: Greggs Group
+- Age 31 · married · no email · groups: Lee Group
 - Person Guid `A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B`
 
 ### Elena Alvarez
