@@ -1,27 +1,27 @@
-# Group photo brief: the leaders and their spouses
+# Group photo brief: Cast small groups
 
-You create one new photo for each of the Cast's 12 small groups in Rock RMS sample data. You are the image model: read this whole page, make each image, and save it. All paths are from the root of the `rock-sample-data` repository.
+You create one new photo for each of the Cast's 14 small groups in Rock RMS sample data. You are the image model: read this whole page, make each image, and save it. All paths are from the root of the `rock-sample-data` repository.
 
-Each photo shows **only the group's leader and the leader's spouse**. If the leader is single or widowed, the photo shows just the leader. For example, the Decker Group photo shows Ted and Cindy Decker, and nobody else.
+Each photo shows **only the group's leader and any spouse listed for that photo**. Everyone shown must be a member of the group. A leader appears alone when no spouse is listed. For example, the Decker Group photo shows Ted and Cindy Decker, and nobody else.
 
-Rock shows the photo on Group Finder cards and on the group's page. It should feel like an invitation: a warm, friendly couple at home who would love to have you join them.
+Rock shows the photo on Group Finder cards and on the group's page. It should feel like an invitation: a warm welcome from the people who would love to have you join them.
 
-**Delivered 2026-10-28.** All 12 photos are in `photos/groups/`, with their originals in `photos/originals/groups/` and their prompts in `photos/groups/manifest.json` (decision 196). The changes Jon asked for during review are written into this page: no bike or ball at the Deckers', no lemonade at the Lees', closed books at the Hughes', and a closed Bible at Hal's. Use this page to remake a photo, or for a new group's leaders.
+The original 12 photos were delivered on 2026-10-28 (decision 196). All 14 photos are in `photos/groups/`, with their originals in `photos/originals/groups/` and their prompts in `photos/groups/manifest.json`. The changes Jon asked for during review are written into this page: no bike or ball at the Deckers', no lemonade at the Lees', closed books at the Hughes', and a closed Bible at Hal's. Use this page to remake a photo, or for a new group's leaders.
 
 The photos before these showed every member of each group. They are kept as download-only assets in [groups-full-members/](groups-full-members/README.md), and no package carries them.
 
 ## What to make
 
-12 photos, one per group in [The groups](#the-groups). Make the 8 active groups first. The inactive and archived groups are lower priority, because Group Finder doesn't list them.
+14 photos, one per group in [The groups](#the-groups). Make the 10 active groups first. The inactive and archived groups are lower priority, because Group Finder doesn't list them.
 
 ## The look
 
-1. **A welcoming portrait, not a stock photo.** The couple sits or stands close together, looks at the camera, and smiles. It looks like a nice photo a friend took for the group's listing, not a studio shot or a church directory.
+1. **A welcoming portrait, not a stock photo.** The leader looks at the camera and smiles. If their spouse is in the photo, they sit or stand close together. It looks like a nice photo a friend took for the group's listing, not a studio shot or a church directory.
 2. **A hint of small group.** Add one or two small touches, such as a closed Bible, coffee mugs, a plate of cookies, or a couple of extra chairs. An open spot on the couch or an empty patio chair nearby is a nice way to say "there's room for you."
-3. **Each group has its own place.** Use the setting listed for each group. Six are outdoors in a backyard or patio, and six are indoors in a home. No two photos may share a room, a yard, furniture, or a view.
+3. **Each group has its own place.** Use the setting listed for each group. Six are outdoors and eight are indoors in a home. No two photos may share a room, a yard, furniture, or a view.
 4. **Arizona.** The church is in the Phoenix area. Outdoor photos show sun, desert plants, stucco, block walls, and palo verde or citrus trees. Indoor rooms look like real Phoenix-area homes.
 5. **Everyday clothing.** Casual, modern clothes that fit each person's age and the season. No church clothes, costumes, or matching outfits.
-6. **Faces are clear.** Both people are easy to recognize, with nobody cut off or hidden.
+6. **Faces are clear.** Everyone shown is easy to recognize, with nobody cut off or hidden.
 
 ## Matching the people
 
@@ -31,7 +31,7 @@ Every profile photo was made by an image model. They are fictional people, so yo
 
 ## Rules you must not break
 
-1. **Only the listed people.** Two people for a couple, one for a single leader. No extra adults, no children, and no pets in the frame.
+1. **Only the listed group members.** One person for a leader pictured alone and two for a leader pictured with their spouse. No extra adults, no children, and no pets in the frame.
 2. **No real people.** Use only the Cast profile photos named here. No face may look like a real or famous person.
 3. **No text.** No words, signs, logos, watermarks, or frames, including on clothing, mugs, and book covers. Bibles and books stay closed with plain covers, so no print shows.
 4. **Respectful images.** Follow `promptRules` in `photos/ethnicities.json`.
@@ -44,9 +44,9 @@ Start from this and fill in the parts in braces. Add each person's profile photo
 ```
 Warm, welcoming photo of {a married couple / one person} who lead a church small group, at {setting}.
 {One line per person: "{name}, {age}-year-old {man/woman}, matching reference photo {n}"}
-They sit close together and smile at the camera, relaxed and friendly, as if inviting the viewer to join them.
+The leader smiles at the camera, relaxed and friendly, as if inviting the viewer to join. If a spouse is listed, they sit close together and both smile.
 A small touch of small group: {a closed Bible, coffee mugs, or an empty chair nearby}.
-Looks like a real photo a friend took, natural light for the setting. Both faces are clear.
+Looks like a real photo a friend took, natural light for the setting. Every face is clear.
 Everyday, modern clothing. No other people. No text, logos, or watermarks anywhere.
 Landscape, with the people centered and some room around them.
 ```
@@ -210,3 +210,21 @@ Look at every photo before you save it. Remake any that fail.
 | Name | Role | Age | Profile photo |
 |---|---|---|---|
 | Hal Russell | Leader | 81, man | `photos/originals/cast/russell-harold.jpg` |
+
+### Women of the Bible (`alisha-marbles-group`)
+
+- **State:** Active. Women's Bible Study on Sunday evenings at the Marbles' home.
+- **Setting:** Indoors. A bright breakfast nook in the Marbles' farmhouse-style kitchen, with a cushioned built-in bench by a big window in soft evening light. The round table holds a closed Bible, a teapot, and two empty cups. The window bench and round table set it apart from the Marble Group's living room and the Hughes Group's long dining table.
+
+| Name | Role | Age | Profile photo |
+|---|---|---|---|
+| Alisha Marble | Leader | 48, woman | `photos/originals/cast/marble-alisha.jpg` |
+
+### Morgan Group (`morgan-group`)
+
+- **State:** Active. Women's Bible Study that launched about a year ago. Meets on Tuesday evenings at a friend's home.
+- **Setting:** Indoors. A modern living room with a light gray sofa and big windows onto a desert garden. The coffee table holds a closed Bible, a plate of cookies, and a few mugs. There is an open spot on the sofa beside Karen. The modern sofa and garden view set this room apart from the Wright, Foster, and Marble living rooms.
+
+| Name | Role | Age | Profile photo |
+|---|---|---|---|
+| Karen Morgan | Leader | 57, woman | `photos/originals/cast/morgan-karen.jpg` |
