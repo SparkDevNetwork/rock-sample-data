@@ -582,6 +582,221 @@
         "SpecialRole": "int not null"
       }
     },
+    "BackgroundCheck": {
+      "written": [
+        "ConnectionRequestId",
+        "CreatedDateTime",
+        "ForeignId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedDateTime",
+        "PackageName",
+        "PersonAliasId",
+        "RecordFound",
+        "RequestDate",
+        "RequestId",
+        "ResponseDocumentId",
+        "ResponseId",
+        "Status"
+      ],
+      "rockColumns": {
+        "ConnectionRequestId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PackageName": "nvarchar(100) null",
+        "PersonAliasId": "int not null",
+        "ProcessorEntityTypeId": "int null",
+        "RecordFound": "bit null",
+        "RequestDate": "datetime not null",
+        "RequestId": "nvarchar(100) null",
+        "ResponseData": "nvarchar(max) null",
+        "ResponseDate": "datetime null",
+        "ResponseDocumentId": "int null",
+        "ResponseId": "nvarchar(100) null",
+        "Status": "nvarchar(25) null",
+        "WorkflowId": "int null"
+      }
+    },
+    "BenevolenceRequest": {
+      "written": [
+        "BenevolenceTypeId",
+        "CampusId",
+        "CaseWorkerPersonAliasId",
+        "CellPhoneNumber",
+        "ConnectionStatusValueId",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "Email",
+        "FirstName",
+        "ForeignKey",
+        "Guid",
+        "HomePhoneNumber",
+        "Id",
+        "LastName",
+        "LocationId",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "ProvidedNextSteps",
+        "RequestDateKey",
+        "RequestDateTime",
+        "RequestStatusValueId",
+        "RequestText",
+        "RequestedByPersonAliasId",
+        "ResultSummary",
+        "WorkPhoneNumber"
+      ],
+      "rockColumns": {
+        "BenevolenceTypeId": "int not null",
+        "CampusId": "int null",
+        "CaseWorkerPersonAliasId": "int null",
+        "CellPhoneNumber": "nvarchar(50) null",
+        "ConnectionStatusValueId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Email": "nvarchar(254) null",
+        "FirstName": "nvarchar(50) not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "GovernmentId": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HomePhoneNumber": "nvarchar(50) null",
+        "Id": "int not null",
+        "LastName": "nvarchar(50) not null",
+        "LocationId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ProvidedNextSteps": "nvarchar(max) null",
+        "RequestDateKey": "int not null",
+        "RequestDateTime": "datetime not null",
+        "RequestStatusValueId": "int not null",
+        "RequestText": "nvarchar(max) not null",
+        "RequestedByPersonAliasId": "int null",
+        "ResultSummary": "nvarchar(max) null",
+        "WorkPhoneNumber": "nvarchar(50) null"
+      }
+    },
+    "BenevolenceRequestDocument": {
+      "written": [
+        "BenevolenceRequestId",
+        "BinaryFileId",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Order"
+      ],
+      "rockColumns": {
+        "BenevolenceRequestId": "int not null",
+        "BinaryFileId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int null"
+      }
+    },
+    "BenevolenceResult": {
+      "written": [
+        "Amount",
+        "BenevolenceRequestId",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "ResultSummary",
+        "ResultTypeValueId"
+      ],
+      "rockColumns": {
+        "Amount": "decimal(18,2) null",
+        "BenevolenceRequestId": "int not null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "ResultSummary": "nvarchar(max) null",
+        "ResultTypeValueId": "int not null"
+      }
+    },
+    "BenevolenceType": {
+      "written": [
+        "CreatedDateTime",
+        "Description",
+        "ForeignKey",
+        "Guid",
+        "IsActive",
+        "ModifiedDateTime",
+        "Name",
+        "ShowFinancialResults"
+      ],
+      "rockColumns": {
+        "AdditionalSettingsJson": "nvarchar(max) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "RequestLavaTemplate": "nvarchar(max) null",
+        "ShowFinancialResults": "bit not null"
+      }
+    },
+    "BenevolenceWorkflow": {
+      "written": [
+        "BenevolenceTypeId",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "QualifierValue",
+        "TriggerType",
+        "WorkflowTypeId"
+      ],
+      "rockColumns": {
+        "BenevolenceTypeId": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "QualifierValue": "nvarchar(max) null",
+        "TriggerType": "int not null",
+        "WorkflowTypeId": "int not null"
+      }
+    },
     "BinaryFile": {
       "written": [
         "BinaryFileTypeId",
@@ -2922,7 +3137,9 @@
         "Guid",
         "LastRequirementCheckDateTime",
         "ModifiedDateTime",
+        "RequirementFailDateTime",
         "RequirementMetDateTime",
+        "RequirementWarningDateTime",
         "WasManuallyCompleted",
         "WasOverridden"
       ],
@@ -2962,6 +3179,8 @@
         "ForeignKey",
         "GroupId",
         "GroupRequirementTypeId",
+        "GroupRoleId",
+        "GroupTypeId",
         "Guid",
         "ModifiedDateTime",
         "MustMeetRequirementToAddMember"
@@ -6495,13 +6714,18 @@
       "FA4341B4-28C7-409E-A101-548BB5759BE6",
       "FF9A62A6-3F19-458C-9527-9A3274652BCC"
     ],
+    "BenevolenceType": [
+      "B4A7C50B-E399-452E-BA37-1ABD6B15482C"
+    ],
     "BinaryFile": [
       "80331F03-4F4B-46B3-B789-8D34C12B4F42",
       "9A1503BC-D965-4BD4-AEA4-8039D4657201"
     ],
     "BinaryFileType": [
       "03BD8476-8A9F-4078-B628-5B538F967AFC",
+      "2599DDBE-40E1-158E-4436-AACA6C00556E",
       "40871411-4E2D-45C2-9E21-D9FCBA5FC340",
+      "5C701472-8A6B-4BBE-AEC6-EC833C859F2D",
       "60B896C3-F00C-411C-A31C-2D5D4CCBB65F",
       "6D18A9C4-34AB-444A-B95B-C644019465AC",
       "C1142570-8CD6-4A20-83B1-ACB47C1CD377"
@@ -6568,11 +6792,14 @@
     "DefinedType": [
       "1DFF1804-0055-491E-9559-54EA3F8F89D1",
       "24E5A79F-1E62-467A-AD5D-0D10A2328B4D",
+      "2787B088-D607-4D69-84FF-850A6891EE34",
       "354715FA-564A-420A-8324-0411988AE7AB",
+      "35FC0225-3DAC-48B4-BDF7-AFDE104FB60E",
       "576FF1E2-6225-4565-A16D-230E26167A3D",
       "61FE3A58-9F4F-472F-A4E0-5116EB90A323",
       "6B19C65E-FF8F-4ADD-9DA0-48E53FC074A6",
       "70C9F9C4-20CC-43DD-888D-9243853A0E52",
+      "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD",
       "9D9628F0-7FC5-411E-B9DF-740AA17689A0",
       "B23F1E45-BC26-4E82-BEB3-9B191FE5CCC3",
       "D4111631-6B42-1CBD-4019-427D6BC6F475",
