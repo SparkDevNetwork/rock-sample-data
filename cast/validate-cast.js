@@ -349,6 +349,51 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Benevolence (configuration/benevolence.json, decision D-benevolence-1): each Cast request names a Cast requester, a
+// type the file lists, and staff who can open Rock's benevolence pages. Pending requests have no decision or results yet,
+// Approved ones have at least one result, and every amount is more than zero. The case worker is in Benevolence Workers.
+{
+    const benevolence = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "benevolence.json" ), "utf8" ) );
+    const typeKeys = new Set( benevolence.types.map( t => t.key ) );
+    const resultTypes = new Set( [ "Provided Financial Assistance", "Provided Gift Card", "Provided Services", "Referred to Counseling", "Referred to Food Pantry", "Unable to Make Contact" ] );
+    const roles = guid => people.get( guid )?.person.securityRoles || [];
+    const canOpen = guid => roles( guid ).some( r => r === "Benevolence Workers" || r === "Rock Administrators" );
+    if ( !roles( benevolence.caseWorker.person ).includes( "Benevolence Workers" ) ) {
+        errors.push( `configuration/benevolence.json: the case worker ${benevolence.caseWorker.name} must be in Benevolence Workers, the role Rock's case worker list reads.` );
+    }
+    for ( const r of benevolence.cast ) {
+        const owner = `configuration/benevolence.json ${r.key}`;
+        claimGuid( r.guid, owner );
+        const requester = people.get( r.requester );
+        if ( !requester ) {
+            errors.push( `${owner}: the requester ${r.name} is not a Cast person.` );
+        } else if ( requester.household.campusSlot && requester.household.campusSlot !== "main" ) {
+            errors.push( `${owner}: the requester ${r.name} lives on another campus, so the request would be missing from datasets without it.` );
+        }
+        if ( !typeKeys.has( r.type ) ) {
+            errors.push( `${owner}: type ${r.type} is not a type in the file.` );
+        }
+        for ( const [ label, guid ] of [ [ "enteredBy", r.enteredBy ], [ "decidedBy", r.decidedBy ] ].filter( ( [ , g ] ) => g ) ) {
+            if ( !canOpen( guid ) ) {
+                errors.push( `${owner}: ${label} must be in Benevolence Workers or Rock Administrators, the roles that can open Rock's benevolence pages.` );
+            }
+        }
+        const results = r.results || [];
+        if ( r.status === "Pending" && ( r.decided || r.decidedBy || r.resultSummary || results.length > 0 ) ) {
+            errors.push( `${owner}: a Pending request has no decision, summary, or results yet.` );
+        } else if ( r.status === "Approved" && ( !r.decided || results.length === 0 ) ) {
+            errors.push( `${owner}: an Approved request has a decision and at least one result.` );
+        } else if ( ![ "Pending", "Approved", "Denied" ].includes( r.status ) ) {
+            errors.push( `${owner}: status ${r.status} is not one of Rock's request statuses.` );
+        }
+        for ( const x of results ) {
+            if ( !resultTypes.has( x.type ) || ( x.amount !== undefined && !( x.amount > 0 ) ) ) {
+                errors.push( `${owner}: each result needs one of Rock's result types and an amount over zero, if any.` );
+            }
+        }
+    }
+}
+
 // The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {

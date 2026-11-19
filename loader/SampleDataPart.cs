@@ -91,7 +91,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Background checks for volunteers, small group leaders, and requests to serve, with their reports and requirement results.
         /// </summary>
-        BackgroundChecks
+        BackgroundChecks,
+
+        /// <summary>
+        /// Benevolence requests: who asked for help, who worked each request, and what the church gave.
+        /// </summary>
+        Benevolence
     }
 
     /// <summary>
@@ -168,6 +173,8 @@ namespace RockSampleData.Loader
             every load makes, not from the steps part's rows, so last summer's campers match the camp steps without
             registrations needing steps (decision 206).
 
+            Benevolence needs no other part: its requesters and case worker are people, who always load.
+
             Background checks need small groups and serving. Each check's requirement results point at the team and leader
             memberships those parts wrote, read back like steps, and a check in progress points at its request to serve.
 
@@ -191,6 +198,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Giving, "Giving", "Gifts, scheduled gifts, and batches, with giving analytics, a year of giving alerts, and the building campaign's pledges." ),
             new SampleDataPartInfo( SampleDataPart.Prayer, "Prayer requests", "Prayer requests with the prayer team's prayers, comments, and answers.", SampleDataPart.SmallGroups ),
             new SampleDataPartInfo( SampleDataPart.Notes, "Notes", "Notes on people in six note types, secured to staff." ),
+            new SampleDataPartInfo( SampleDataPart.Benevolence, "Benevolence", "Requests for help with rent, bills, food, cars, and medical costs, with the case worker, what the church gave, and signed assistance agreements, seen only by the benevolence team." ),
             new SampleDataPartInfo( SampleDataPart.Steps, "Steps", "Steps on Rock's Discipleship Path and the Student Path, from baptism and classes to small groups, serving, giving, leading, camps, and mission trips, with program completions.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Giving ),
             new SampleDataPartInfo( SampleDataPart.Assessments, "Assessments", "DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators results for staff, leaders, and class members, with the answers behind them and the requests still waiting.", SampleDataPart.Steps ),
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),

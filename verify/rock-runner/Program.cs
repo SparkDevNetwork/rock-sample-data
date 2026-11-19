@@ -523,12 +523,12 @@ namespace RockSampleData.RockRunner
             {
                 var parts = line.Split( '\t' );
                 object item;
-                if ( parts[0] == "Report" )
+                if ( parts[0] == "Report" || parts[0] == "BenevolenceType" )
                 {
-                    // Rock keeps no cache of reports; its report screens load the report and check it.
-                    var reportService = _rock.GetType( "Rock.Model.ReportService", true );
-                    item = reportService.GetMethod( "Get", new[] { typeof( Guid ) } )
-                        .Invoke( Activator.CreateInstance( reportService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    // Rock keeps no cache of reports or benevolence types; its screens load the item and check it.
+                    var service = _rock.GetType( $"Rock.Model.{parts[0]}Service", true );
+                    item = service.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( service, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
                 }
                 else
                 {

@@ -57,6 +57,7 @@ namespace RockSampleData.Loader
             ("Giving alerts", SampleDataPart.Giving),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
+            ("Benevolence", SampleDataPart.Benevolence),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
             ("Data views", null),
@@ -538,6 +539,15 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Notes" ) )
             {
                 new NotesLoader( db, source, profile, dates, foreignKey, seed, years, keys ).Load( people, castHouseholdKeys, mainCampusKey, securityRoles );
+            }
+
+            // Requests for help come from people already in the data, and the case worker is Cast staff, so benevolence reads
+            // only people.
+            if ( steps.Begin( "Benevolence" ) )
+            {
+                log.Write( source.Benevolence == null
+                    ? "  Skipped (this package has no configuration/benevolence.json)"
+                    : new BenevolenceLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, calendar.HistoryStart ) );
             }
 
             // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and

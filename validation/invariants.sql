@@ -1331,6 +1331,74 @@ WHERE [bc].[ForeignKey] = @ForeignKey
     AND ( ( [bc].[Status] <> 'ReportCompleted' AND ( [cr].[Id] IS NULL OR [cs].[Guid] <> '720EA71A-18F9-4D6B-B3B5-56D39EA403E3' OR [cr].[ConnectionState] <> 0 OR [bc].[RecordFound] = 1 ) )
         OR ( [bc].[Status] = 'ReportCompleted' AND [cr].[Id] IS NOT NULL AND [bc].[ModifiedDateTime] < [cr].[CreatedDateTime] ) );
 
+-- check: benevolence-request-is-worked-by-a-case-worker
+-- why: Decision D-benevolence-1. Rock's request screens offer case workers from RSR - Benevolence, so every request's case worker is an active member of that role.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[CaseWorkerPersonAliasId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+        WHERE [gm].[PersonId] = [pa].[PersonId] AND [g].[Guid] = '02FA0881-3552-42B8-A519-D021139B800F' AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 );
+
+-- check: benevolence-request-matches-its-requester
+-- why: Decision D-benevolence-1. Rock's request block copies the requester onto the request when it saves: the legal first and last name, the email, the connection status, the campus, and the home address's location. The request's date key is its request day, and no government ID is ever recorded.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [p].[Id] IS NULL OR [r].[FirstName] <> [p].[FirstName] OR [r].[LastName] <> [p].[LastName]
+        OR ISNULL( [r].[Email], '' ) <> ISNULL( [p].[Email], '' )
+        OR ISNULL( [r].[ConnectionStatusValueId], -1 ) <> ISNULL( [p].[ConnectionStatusValueId], -1 )
+        OR ISNULL( [r].[CampusId], -1 ) <> ISNULL( [p].[PrimaryCampusId], -1 )
+        OR [r].[RequestDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [r].[RequestDateTime], 112 ) )
+        OR ISNULL( [r].[GovernmentId], '' ) <> ''
+        OR [r].[RequestDateTime] > GETDATE()
+        OR ( [r].[LocationId] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [p].[PrimaryFamilyId] AND [gl].[LocationId] = [r].[LocationId] ) ) );
+
+-- check: benevolence-results-follow-the-status
+-- why: Decision D-benevolence-3. A Pending request has no result and no summary yet, an Approved one has at least one result, and a Denied one gives nothing with an amount. Every amount is more than zero, and every result is saved after the request and before install day.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( ( [s].[Guid] = '67B24629-62A9-436A-A98C-30A454642153' AND ( ISNULL( [r].[ResultSummary], '' ) <> '' OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) ) )
+        OR ( [s].[Guid] = '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' AND NOT EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) )
+        OR ( [s].[Guid] = '3720671E-DA48-405F-A6D5-5E2D47436F9A' AND EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] AND [x].[Amount] IS NOT NULL ) )
+        OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id]
+            AND ( [x].[Amount] <= 0 OR [x].[CreatedDateTime] < [r].[RequestDateTime] OR [x].[CreatedDateTime] > GETDATE() ) ) );
+
+-- check: benevolence-document-is-a-stored-pdf
+-- why: Decision D-benevolence-4. Each request document is a saved PDF in Rock's Benevolence Request Documents file type, which requires view security, with its bytes, on an Approved request.
+SELECT COUNT(*)
+FROM [BenevolenceRequestDocument] AS [d]
+INNER JOIN [BenevolenceRequest] AS [r] ON [r].[Id] = [d].[BenevolenceRequestId]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [d].[BinaryFileId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [data] ON [data].[Id] = [bf].[Id]
+WHERE [d].[ForeignKey] = @ForeignKey
+    AND ( [s].[Guid] <> '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' OR [bft].[Guid] <> '2599DDBE-40E1-158E-4436-AACA6C00556E' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+        OR [data].[Id] IS NULL OR DATALENGTH( [data].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [data].[Content], 1, 5 ) <> 0x255044462D );
+
+-- check: benevolence-type-is-locked
+-- why: Decision D-benevolence-2. Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration, and every benevolence type is locked to the same two roles for View and Edit, so no other screen shows a request to anyone else.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+CROSS JOIN ( VALUES ( 'View' ), ( 'Edit' ) ) AS [a] ( [Action] )
+WHERE EXISTS ( SELECT 1 FROM [BenevolenceRequest] AS [r] WHERE [r].[ForeignKey] = @ForeignKey )
+    AND (
+        SELECT COUNT(*)
+        FROM [Auth] AS [au]
+        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [au].[EntityTypeId]
+        LEFT JOIN [Group] AS [g] ON [g].[Id] = [au].[GroupId]
+        WHERE [et].[Name] = 'Rock.Model.BenevolenceType' AND [au].[EntityId] = [t].[Id] AND [au].[Action] = [a].[Action]
+            AND ( ( [au].[AllowOrDeny] = 'A' AND [g].[Guid] IN ( '02FA0881-3552-42B8-A519-D021139B800F', '628C51A8-4613-43ED-A18D-4A6FB999273E' ) )
+                OR ( [au].[AllowOrDeny] = 'D' AND [au].[SpecialRole] = 1 ) ) ) <> 3;
+
 -- check: event-occurrence-is-listed
 -- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
 SELECT COUNT(*)

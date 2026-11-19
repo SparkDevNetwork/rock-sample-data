@@ -190,6 +190,7 @@
         "tdecker"
       ],
       "securityRoles": [
+        "Benevolence Workers",
         "Communication Administrators",
         "Pastoral Staff",
         "Prayer Team",
