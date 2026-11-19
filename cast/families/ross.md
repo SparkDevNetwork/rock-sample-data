@@ -13,12 +13,12 @@ Richard and Joan Ross are retired and spend winters in Phoenix and summers in Mi
 
 ### Dick (Richard) Ross
 
-- Age 72 · married · email dick.ross@example.org · groups: Wright Group
+- Age 72 · married · email dick.ross@example.org · groups: Rivera Group, Lee Group (left)
 - Person Guid `9E7DC86C-6680-4E81-A6D1-9C8B496B753C`
 
 ### Joan Ross
 
-- Age 70 · married · email joan.ross@example.org · groups: Wright Group
+- Age 70 · married · email joan.ross@example.org · groups: Rivera Group, Lee Group (left)
 - Person Guid `CD422395-C455-4334-A4B8-5D1E6D68E87E`
 
 ## What this family tests

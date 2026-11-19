@@ -13,12 +13,12 @@ James and Nancy Sweeney are a married couple who attend and are in a small group
 
 ### James Sweeney
 
-- Age 54 · married · email jsweeney@example.org · groups: Foster Group (left)
+- Age 54 · married · email jsweeney@example.org
 - Person Guid `DBAE45C0-1980-48FA-8201-41C08910F654`
 
 ### Nancy Sweeney
 
-- Age 54 · married · email nsweeney@example.org · groups: Foster Group (left)
+- Age 54 · married · email nsweeney@example.org · groups: Morgan Group (left)
 - Person Guid `988195A3-1895-492E-839B-653C35307862`
 
 ## What this family tests

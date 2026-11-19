@@ -17,14 +17,14 @@ Marco and Elena Alvarez moved to Phoenix three years ago. Their son Mateo was bo
 
 Marco and his wife Elena moved to Phoenix three years ago. He gives every other week through a scheduled gift.
 
-- Age 31 · married · no email · groups: Decker Group, Murphy Group (group ended)
+- Age 31 · married · no email · groups: Lee Group
 - Person Guid `A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B`
 
 ### Elena Alvarez
 
 Elena brings their newborn Mateo to the nursery and Sofia to preschool.
 
-- Age 30 · married · email elena.alvarez@example.org · groups: Decker Group, Murphy Group (group ended)
+- Age 30 · married · email elena.alvarez@example.org · groups: Morgan Group
 - Person Guid `309FCEB5-8420-42EE-B38E-78A8078C04D5`
 
 ### Sofia Alvarez

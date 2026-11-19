@@ -15,12 +15,12 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 
 ### Mark Fischer
 
-- Age 46 · married · email mark.fischer@example.org · groups: Wright Group
+- Age 46 · married · email mark.fischer@example.org · groups: Wright Group, Raman Group (group ended)
 - Person Guid `C0C87060-A64E-43F6-97AC-855873C83E5E`
 
 ### Julie Fischer
 
-- Age 45 · married · no email · groups: Wright Group
+- Age 45 · married · no email · groups: Wright Group, Raman Group (group ended)
 - Person Guid `CED31D85-2D3F-430A-ACC0-34E436220044`
 
 ### Ethan Fischer

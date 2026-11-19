@@ -7,9 +7,9 @@
   "type": "small-group",
   "campus": "main",
   "topic": "Grief and Loss",
-  "description": "A gentle group for anyone carrying a loss. Come as you are.",
+  "description": "We walk alongside each other through grief, with hope and without hurry.",
   "schedule": {
-    "day": "Wednesday",
+    "day": "Monday",
     "time": "18:00"
   },
   "meetingStyle": {
@@ -19,7 +19,7 @@
   "childCareProvided": true,
   "capacity": 18,
   "isPublic": true,
-  "meetsInSummer": true,
+  "meetsInSummer": false,
   "attendanceHabit": "Spotty",
   "lifecycle": {
     "state": "Active",
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
-      "name": "Jess Hughes",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
-      "name": "Matt Hughes",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "name": "Linda Hayes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -78,6 +78,18 @@
         "day": 1
       },
       "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "name": "Bob Hayes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 1
+      },
+      "attendancePercent": 66
     },
     {
       "state": "Active",
@@ -89,24 +101,12 @@
         "month": 1,
         "day": 1
       },
-      "attendancePercent": 66
-    },
-    {
-      "state": "Active",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 1
-      },
       "attendancePercent": 57
     },
     {
       "state": "Active",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
+      "name": "Drew Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
-      "name": "Megan Patel",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
-      "name": "Ryan Patel",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,69 +141,57 @@
     },
     {
       "state": "Active",
-      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
-      "name": "Amanda Sullivan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 1
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
       "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
       "name": "Chris Sullivan",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 1
+        "month": 12,
+        "day": 20
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Pending",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 12
       },
       "attendancePercent": 48
     },
     {
       "state": "Pending",
-      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
-      "name": "Tori Ramos",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
       "role": "Member",
       "joined": {
-        "daysAgo": 20
+        "daysAgo": 12
       },
       "attendancePercent": 47
     },
     {
-      "state": "Pending",
-      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
-      "name": "Dan Richards",
+      "state": "Inactive",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
       "role": "Member",
       "joined": {
-        "daysAgo": 20
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 14
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 4,
+        "day": 1
       },
       "attendancePercent": 58
     },
     {
       "state": "Inactive",
-      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
-      "name": "Monica Flores",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 1,
-        "day": 6
-      },
-      "left": {
-        "yearsAgo": 1,
-        "month": 3,
-        "day": 14
-      },
-      "attendancePercent": 65
-    },
-    {
-      "state": "Inactive",
-      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
-      "name": "Ben Jones",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -215,7 +203,7 @@
         "month": 7,
         "day": 15
       },
-      "attendancePercent": 51
+      "attendancePercent": 65
     }
   ]
 }

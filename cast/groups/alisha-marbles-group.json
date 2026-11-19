@@ -3,26 +3,391 @@
   "schemaVersion": 1,
   "key": "alisha-marbles-group",
   "guid": "10B60F8D-0F23-4FAA-B35F-9A5F19F5F995",
-  "name": "Alisha Marble’s Group",
+  "name": "Women of the Bible",
   "type": "small-group",
-  "parentGroupGuid": "C05E60C4-6DFC-420D-8DBA-28DBB5F0E3F9",
-  "description": "Small group topics involve studying the women of the Bible.",
-  "studyTopic": "Women of the Bible",
-  "meeting": {
-    "frequency": "weekly",
-    "dayOfWeek": "Wednesday",
-    "time": "19:00",
-    "atHousehold": "marble"
+  "campus": "main",
+  "topic": "Women's Bible Study",
+  "description": "We read the stories of the women of the Bible, one at a time, and talk about what their faith means for ours.",
+  "schedule": {
+    "day": "Sunday",
+    "time": "19:00"
   },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "marble"
+  },
+  "childCareProvided": false,
+  "capacity": 10,
+  "isPublic": true,
+  "meetsInSummer": false,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 7,
+      "month": 1,
+      "day": 10
+    }
+  },
+  "testCase": "Full",
   "members": [
     {
+      "state": "Active",
       "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
       "name": "Alisha Marble",
-      "role": "Leader"
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 1,
+        "day": 10
+      },
+      "attendancePercent": 95
     },
     {
+      "state": "Active",
       "guid": "82309081-A110-496F-8295-CE6A4720D7A8",
-      "name": "Jenny Michaels"
+      "name": "Jenny Michaels",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 1,
+        "day": 10
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Active",
+      "guid": "B3A4494D-0914-447C-A289-30B8ECE5F00D",
+      "name": "Melissa Wood",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 2,
+        "day": 16
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 21
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "42E18942-04CB-49BC-A72B-5D121514520E",
+      "name": "Michelle Nguyen",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 14
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 12,
+        "day": 7
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 2,
+        "day": 23
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Active",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "name": "Barb Jenkins",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 1,
+        "day": 3
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "8DBF7A83-F5B7-4FF5-91A9-0294A9F1F89F",
+      "name": "Tiffany Coleman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 5,
+        "day": 11
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Active",
+      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
+      "name": "Amanda Sullivan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 7,
+        "day": 16
+      },
+      "attendancePercent": 58
+    },
+    {
+      "state": "Archived",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 1,
+        "day": 25
+      },
+      "left": {
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 17
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Inactive",
+      "guid": "4E98A87E-06B9-4822-9C45-88BF1F6E9C12",
+      "name": "Gaby Cruz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 7,
+        "month": 12,
+        "day": 15
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 7,
+        "day": 25
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Inactive",
+      "guid": "D35B865D-BF50-4A7D-848F-6C0ED7A2AE67",
+      "name": "Wendy Gilbert",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 19
+      },
+      "left": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 14
+      },
+      "attendancePercent": 67
+    },
+    {
+      "state": "Inactive",
+      "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Peggy Carter",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 7,
+        "day": 1
+      },
+      "left": {
+        "yearsAgo": 5,
+        "month": 1,
+        "day": 24
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Inactive",
+      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
+      "name": "Sarah Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 9,
+        "day": 15
+      },
+      "left": {
+        "yearsAgo": 4,
+        "month": 8,
+        "day": 15
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Inactive",
+      "guid": "AB789D5A-01BD-499C-BEB8-B6C5465088A2",
+      "name": "Lisa Holloway",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 1,
+        "day": 14
+      },
+      "left": {
+        "yearsAgo": 5,
+        "month": 2,
+        "day": 13
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Inactive",
+      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
+      "name": "Lorraine Greggs",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 5
+      },
+      "left": {
+        "yearsAgo": 4,
+        "month": 11,
+        "day": 19
+      },
+      "attendancePercent": 67
+    },
+    {
+      "state": "Inactive",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "name": "Linda Hayes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 1,
+        "day": 8
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 8,
+        "day": 29
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Inactive",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 1,
+        "day": 26
+      },
+      "left": {
+        "yearsAgo": 4,
+        "month": 7,
+        "day": 3
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Inactive",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 9,
+        "day": 4
+      },
+      "left": {
+        "yearsAgo": 3,
+        "month": 2,
+        "day": 13
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Inactive",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "name": "Dot Wright",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 1
+      },
+      "left": {
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 12
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Inactive",
+      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+      "name": "Corrie Stone",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 23
+      },
+      "left": {
+        "yearsAgo": 2,
+        "month": 8,
+        "day": 14
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Inactive",
+      "guid": "069CF2DC-DD58-4CC6-840E-D770EA2DA96F",
+      "name": "Destiny Young",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 3,
+        "month": 9,
+        "day": 2
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 11,
+        "day": 3
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Inactive",
+      "guid": "E4098D5B-4D01-476A-A951-37FD8E7E901B",
+      "name": "Renee Pierce",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 28
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 12,
+        "day": 10
+      },
+      "attendancePercent": 47
     }
   ]
 }

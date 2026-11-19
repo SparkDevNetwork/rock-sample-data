@@ -12,7 +12,7 @@ Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before 
 
 ### Tori (Victoria) Ramos
 
-- Age 25 · single · email tori.ramos@example.org · groups: Decker Group (left), Greggs Group (asked to join)
+- Age 25 · single · email tori.ramos@example.org · groups: Lee Group (asked to join)
 - Person Guid `C2F7C15E-409D-429C-9D9A-1984A3C42E3F`
 
 ## What this family tests

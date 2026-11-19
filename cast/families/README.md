@@ -119,7 +119,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Miller Family](miller-thomas.md) | legacy | 1 | Prospect | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |
 | [Mitchell Family](mitchell.md) | new | 4 | Engaged | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
-| [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
+| [Morgan Family](morgan.md) | new | 2 | Engaged, Leading | Quarterly giver with a year-end gift. |
 | [Morrow Family](morrow.md) | new | 2 | Engaged | Production Director who oversees every campus's production team. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
 | [Navarro Family](navarro.md) | new | 2 | Engaged | Care Director with the pastoral notes, prayer administration, and benevolence roles. |

@@ -6,20 +6,20 @@
   "name": "Silva Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Money and Generosity",
-  "description": "We learn how to manage money well and give freely, together.",
+  "topic": "Grief and Loss",
+  "description": "A gentle group for anyone carrying a loss. Come as you are.",
   "schedule": {
-    "day": "Wednesday",
+    "day": "Tuesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "bennett"
+    "hostHousehold": "mcclintock"
   },
   "childCareProvided": false,
-  "capacity": 10,
-  "isPublic": true,
-  "meetsInSummer": true,
+  "capacity": 18,
+  "isPublic": false,
+  "meetsInSummer": false,
   "attendanceHabit": "EveryWeek",
   "lifecycle": {
     "state": "Active",
@@ -29,7 +29,7 @@
       "day": 23
     }
   },
-  "testCase": "Full",
+  "testCase": "Closed",
   "members": [
     {
       "state": "Active",
@@ -45,32 +45,20 @@
     },
     {
       "state": "Active",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Ty McClintock",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 6,
+        "day": 23
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
       "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
       "name": "Becca Bennett",
-      "role": "Host",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
-      "name": "Tom Bennett",
-      "role": "Host",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
-      "name": "Deb Bell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
-      "name": "Larry Bell",
+      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
+      "name": "Tom Bennett",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
-      "name": "Frank Dexter",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,56 +105,49 @@
     },
     {
       "state": "Active",
-      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
-      "name": "Dale Tucker",
+      "guid": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+      "name": "Jack Harper",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 6,
-        "day": 23
+        "month": 9,
+        "day": 22
       },
       "attendancePercent": 58
     },
     {
-      "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
+      "state": "Inactive",
+      "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+      "name": "Aaron Mitchell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 22
+        "day": 3
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 24
       },
       "attendancePercent": 59
     },
     {
-      "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 22
-      },
-      "attendancePercent": 66
-    },
-    {
       "state": "Inactive",
-      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
-      "name": "Nancy Turner",
+      "guid": "5C5008BB-6F4B-4A68-A222-DABD1AF8E41C",
+      "name": "Beth Mitchell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 18
+        "day": 3
       },
       "left": {
         "yearsAgo": 1,
-        "month": 11,
-        "day": 13
+        "month": 10,
+        "day": 24
       },
-      "attendancePercent": 51
+      "attendancePercent": 66
     }
   ]
 }

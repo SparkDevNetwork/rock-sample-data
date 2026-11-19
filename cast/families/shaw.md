@@ -15,12 +15,12 @@ Andrew and Lauren Shaw moved from Denver eight months ago and joined after tryin
 
 ### Andy (Andrew) Shaw
 
-- Age 38 · married · no email · groups: Rivera Group
+- Age 38 · married · no email
 - Person Guid `93719445-07BF-4B1F-85E5-2838BF66A13B`
 
 ### Lauren Shaw
 
-- Age 37 · married · email lauren.shaw@example.org · groups: Rivera Group
+- Age 37 · married · email lauren.shaw@example.org
 - Person Guid `EA03C61D-F6B3-4B00-8028-5BC86F24CA09`
 
 ### Owen Shaw

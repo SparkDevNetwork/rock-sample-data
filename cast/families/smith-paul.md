@@ -12,7 +12,7 @@ Paul Smith is a young adult and a friend of Ty McClintock. Both took the DISC as
 
 ### Paul Smith
 
-- Age 20 · single · Teacher, Sonoran Valley University · email paul@example.org · groups: Wright Group, Sonoran Valley University Student Group
+- Age 20 · single · Teacher, Sonoran Valley University · email paul@example.org · groups: Lee Group, Sonoran Valley University Student Group
 - Person Guid `D7CE30DF-58F8-4268-BA19-56FDF17D3890`
 
 ## What this family tests

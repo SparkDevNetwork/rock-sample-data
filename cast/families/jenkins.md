@@ -19,7 +19,7 @@ Gary and Barbara Jenkins are raising their grandson, Austin Reed. Austin's last 
 
 ### Barb (Barbara) Jenkins
 
-- Age 63 · married · email barb.jenkins@example.org · groups: Decker Group, Prayer Team, Jenkins Group (host, group archived)
+- Age 63 · married · email barb.jenkins@example.org · groups: Women of the Bible, Prayer Team, Jenkins Group (host, group archived)
 - Person Guid `6B190521-2A32-4B46-A02B-618174709D59`
 
 ### Austin Reed

@@ -14,7 +14,7 @@ A different John Smith who is not a duplicate. He has his own email, phone, and 
 
 This John Smith is a different person entirely, with his own email, phone, and address. Duplicate detection must not merge him with Jon.
 
-- Age 36 · single · record pending · email jon.smith22@example.org · groups: Jenkins Group (group archived), Foster Group (left)
+- Age 36 · single · record pending · email jon.smith22@example.org · groups: Wright Group (asked to join), Lee Group (left)
 - Person Guid `902984C3-BCE1-405A-8A74-416F7D15B288`
 
 ## What this family tests

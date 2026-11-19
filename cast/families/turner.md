@@ -12,7 +12,7 @@ Nancy Turner asked to serve as an usher after the church promoted online serve s
 
 ### Nancy Turner
 
-- Age 33 · single · email mturner@example.org · groups: Jenkins Group (group archived), Silva Group (left)
+- Age 33 · single · email mturner@example.org · groups: Greggs Group (left), Jenkins Group (group archived)
 - Person Guid `3BB26A8B-F004-43E4-82BB-620D1E657AF9`
 
 ## What this family tests

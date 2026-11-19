@@ -6,11 +6,11 @@
   "name": "Decker Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Parenting",
-  "description": "Parents comparing notes, praying for our kids, and learning from each other.",
+  "topic": "Marriage",
+  "description": "Couples encouraging couples. We talk honestly about building a marriage that lasts.",
   "schedule": {
-    "day": "Thursday",
-    "time": "18:00"
+    "day": "Monday",
+    "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
-      "name": "Elena Alvarez",
+      "guid": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -66,78 +66,6 @@
         "day": 26
       },
       "attendancePercent": 58
-    },
-    {
-      "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 56
-    },
-    {
-      "state": "Active",
-      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
-      "name": "Nathan Brooks",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 48
-    },
-    {
-      "state": "Active",
-      "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
-      "name": "Rachel Brooks",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 49
-    },
-    {
-      "state": "Active",
-      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
-      "name": "Monica Flores",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
-      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
-      "name": "Emily Gray",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
-      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
-      "name": "Barb Jenkins",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 8,
-        "day": 26
-      },
-      "attendancePercent": 52
     },
     {
       "state": "Active",
@@ -149,48 +77,113 @@
         "month": 8,
         "day": 26
       },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
+      "name": "Jim Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
+      "name": "Sarah Simmons",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 8,
+        "day": 26
+      },
       "attendancePercent": 52
     },
     {
       "state": "Active",
-      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
-      "name": "Cathy Price",
+      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
+      "name": "Tony Coleman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
         "day": 12
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Inactive",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 27
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 12,
+        "day": 23
       },
       "attendancePercent": 58
     },
     {
-      "state": "Active",
-      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
-      "name": "Bill Price",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 12
-      },
-      "attendancePercent": 65
-    },
-    {
       "state": "Inactive",
-      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
-      "name": "Tori Ramos",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 28
+        "day": 27
       },
       "left": {
         "yearsAgo": 1,
-        "month": 10,
-        "day": 28
+        "month": 12,
+        "day": 23
       },
-      "attendancePercent": 50
+      "attendancePercent": 65
     }
   ]
 }

@@ -15,14 +15,14 @@ Craig and Trish Lowe visit occasionally. Craig can check in his daughter Madison
 
 Craig is Maddie's dad. He and his wife Trish visit occasionally. He is on the list of people allowed to check Maddie in.
 
-- Age 37 · married · email craig.lowe@example.org · groups: Marble Group (asked to join), Murphy Group (group ended), Foster Group (left)
+- Age 37 · married · email craig.lowe@example.org · groups: Decker Group (left), Greggs Group (asked to join), Foster Group (left)
 - Person Guid `B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0`
 
 ### Trish (Tricia) Lowe
 
 Trish is Craig's wife and Maddie's stepmom. She gives almost every week even though the family rarely attends, which makes her the example of a giver who is not an attender.
 
-- Age 35 · married · email trish.lowe@example.org · groups: Marble Group (asked to join), Murphy Group (group ended), Foster Group (left)
+- Age 35 · married · email trish.lowe@example.org · groups: Women of the Bible (left), Decker Group (left), Greggs Group (asked to join), Foster Group (left)
 - Person Guid `20A2C167-D16E-43B3-A5B0-80CE912589AF`
 
 ## What this family tests

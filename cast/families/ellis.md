@@ -2,7 +2,7 @@
 
 New household · 2 people · Phoenix campus · [source](../households/ellis.json)
 
-Jordan and Hannah Ellis married last year and visited for the first time this summer. They have come most weeks since and just started giving.
+Jordan and Hannah Ellis married last year and visited for the first time this summer. They have come most weeks since, took the Starting Point Class this fall, and just started giving. They asked to join the Marble Group, and Bill has not answered yet.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -13,17 +13,18 @@ Jordan and Hannah Ellis married last year and visited for the first time this su
 
 ### Jordan Ellis
 
-- Age 27 · married · email jordan.ellis@example.org · groups: Jenkins Group (group archived), Marble Group (left), Murphy Group (group ended)
+- Age 27 · married · email jordan.ellis@example.org · groups: Marble Group (asked to join)
 - Person Guid `F82915AE-0E40-4827-9E35-17CC897A0320`
 
 ### Hannah Ellis
 
-- Age 26 · married · email hannah.ellis@example.org · groups: Jenkins Group (group archived), Marble Group (left), Murphy Group (group ended)
+- Age 26 · married · email hannah.ellis@example.org · groups: Marble Group (asked to join)
 - Person Guid `4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA`
 
 ## What this family tests
 
 - New couple: first visit about four months ago.
+- No small group yet: one pending request to join the Marble Group, made after their first four weeks.
 - New giver who started recently.
 - Known status.
 

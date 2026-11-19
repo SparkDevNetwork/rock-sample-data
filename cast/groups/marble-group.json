@@ -9,14 +9,14 @@
   "topic": "Sermon Discussion",
   "description": "A relaxed evening of talking through the weekend sermon, with good questions and good snacks.",
   "schedule": {
-    "day": "Monday",
+    "day": "Wednesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "coffee"
+    "hostHousehold": "ward"
   },
-  "childCareProvided": false,
+  "childCareProvided": true,
   "capacity": 18,
   "isPublic": true,
   "meetsInSummer": false,
@@ -29,7 +29,7 @@
       "day": 6
     }
   },
-  "testCase": "Pending",
+  "testCase": "None",
   "members": [
     {
       "state": "Active",
@@ -45,8 +45,8 @@
     },
     {
       "state": "Active",
-      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
-      "name": "Phil Coffee",
+      "guid": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "name": "Derek Ward",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
-      "name": "Linda Hayes",
+      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "name": "Nathan Brooks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
-      "name": "Bob Hayes",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -78,30 +78,6 @@
         "day": 6
       },
       "attendancePercent": 54
-    },
-    {
-      "state": "Active",
-      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
-      "name": "David Kim",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 6
-      },
-      "attendancePercent": 49
-    },
-    {
-      "state": "Active",
-      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
-      "name": "Susan Kim",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 6
-      },
-      "attendancePercent": 50
     },
     {
       "state": "Active",
@@ -113,12 +89,36 @@
         "month": 9,
         "day": 6
       },
+      "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Active",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 6
+      },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
-      "name": "Ty McClintock",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "name": "Sunil Raman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
-      "name": "Daniel Peak",
+      "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465",
+      "name": "Jon Smith",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -138,30 +138,6 @@
         "day": 6
       },
       "attendancePercent": 57
-    },
-    {
-      "state": "Active",
-      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
-      "name": "Jim Simmons",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 6
-      },
-      "attendancePercent": 47
-    },
-    {
-      "state": "Active",
-      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
-      "name": "Sarah Simmons",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 6
-      },
-      "attendancePercent": 66
     },
     {
       "state": "Active",
@@ -173,59 +149,32 @@
         "month": 9,
         "day": 6
       },
-      "attendancePercent": 61
+      "attendancePercent": 47
     },
     {
       "state": "Pending",
-      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
-      "name": "Sean Hansen",
-      "role": "Member",
-      "joined": {
-        "daysAgo": 6
-      },
-      "attendancePercent": 52
-    },
-    {
-      "state": "Pending",
-      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
-      "name": "Craig Lowe",
-      "role": "Member",
-      "joined": {
-        "daysAgo": 4
-      },
-      "attendancePercent": 60
-    },
-    {
-      "state": "Pending",
-      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
-      "name": "Trish Lowe",
-      "role": "Member",
-      "joined": {
-        "daysAgo": 4
-      },
-      "attendancePercent": 63
-    },
-    {
-      "state": "Inactive",
       "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
       "name": "Hannah Ellis",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 18
+        "daysAgo": 24
       },
-      "left": {
-        "yearsAgo": 1,
-        "month": 10,
-        "day": 23
+      "attendancePercent": 66
+    },
+    {
+      "state": "Pending",
+      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
+      "name": "Jordan Ellis",
+      "role": "Member",
+      "joined": {
+        "daysAgo": 24
       },
-      "attendancePercent": 64
+      "attendancePercent": 61
     },
     {
       "state": "Inactive",
-      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
-      "name": "Jordan Ellis",
+      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
+      "name": "Patty Diaz",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -237,7 +186,24 @@
         "month": 10,
         "day": 23
       },
-      "attendancePercent": 57
+      "attendancePercent": 52
+    },
+    {
+      "state": "Inactive",
+      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
+      "name": "Ricardo Diaz",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 18
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 23
+      },
+      "attendancePercent": 60
     }
   ]
 }

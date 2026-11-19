@@ -21,7 +21,7 @@ Jamal is the Groups Pastor. He joined staff five years ago and helps every campu
 
 ### Renee Pierce
 
-- Age 40 · married · Pharmacist, Ocotillo Market · email renee.pierce@example.org
+- Age 40 · married · Pharmacist, Ocotillo Market · email renee.pierce@example.org · groups: Women of the Bible (left)
 - Person Guid `E4098D5B-4D01-476A-A951-37FD8E7E901B`
 
 ### Micah Pierce

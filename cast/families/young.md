@@ -13,7 +13,7 @@ Destiny Young came to the church's diaper drive with her son Jayden. She has not
 
 ### Destiny Young
 
-- Age 22 · single · email destiny.young@example.org · groups: Jenkins Group (group archived)
+- Age 22 · single · email destiny.young@example.org · groups: Women of the Bible (left)
 - Person Guid `069CF2DC-DD58-4CC6-840E-D770EA2DA96F`
 
 ### Jayden Young

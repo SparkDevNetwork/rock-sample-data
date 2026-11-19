@@ -18,7 +18,7 @@ Gerald and Dorothy Wright are retired teachers who have attended for twenty year
 
 ### Dot (Dorothy) Wright
 
-- Age 73 · married · email dot.wright@example.org · groups: Wright Group, Greeters
+- Age 73 · married · email dot.wright@example.org · groups: Wright Group, Greeters, Women of the Bible (left)
 - Person Guid `A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA`
 
 ## What this family tests

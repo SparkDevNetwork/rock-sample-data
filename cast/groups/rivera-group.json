@@ -6,10 +6,10 @@
   "name": "Rivera Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Marriage",
-  "description": "A group for married couples who want to grow together, with practical conversations and plenty of laughter.",
+  "topic": "Money and Generosity",
+  "description": "We learn how to manage money well and give freely, together.",
   "schedule": {
-    "day": "Tuesday",
+    "day": "Thursday",
     "time": "19:00"
   },
   "meetingStyle": {
@@ -19,7 +19,7 @@
   "childCareProvided": true,
   "capacity": 18,
   "isPublic": false,
-  "meetsInSummer": true,
+  "meetsInSummer": false,
   "attendanceHabit": "Spotty",
   "lifecycle": {
     "state": "Active",
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
-      "name": "Josh Sanders",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "93719445-07BF-4B1F-85E5-2838BF66A13B",
-      "name": "Andy Shaw",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "EA03C61D-F6B3-4B00-8028-5BC86F24CA09",
-      "name": "Lauren Shaw",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
-      "name": "Denise Washington",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
-      "name": "Marcus Washington",
+      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+      "name": "Daniel Peak",
       "role": "Member",
       "joined": {
         "yearsAgo": 2,
@@ -117,88 +117,89 @@
     },
     {
       "state": "Active",
-      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
-      "name": "Jason Wood",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 5,
-        "day": 16
-      },
-      "attendancePercent": 51
-    },
-    {
-      "state": "Active",
-      "guid": "B3A4494D-0914-447C-A289-30B8ECE5F00D",
-      "name": "Melissa Wood",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 2,
-        "month": 5,
-        "day": 16
-      },
-      "attendancePercent": 63
-    },
-    {
-      "state": "Active",
-      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
-      "name": "Ben Jones",
+      "guid": "CD422395-C455-4334-A4B8-5D1E6D68E87E",
+      "name": "Joan Ross",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
         "day": 11
       },
-      "attendancePercent": 62
+      "attendancePercent": 51
     },
     {
-      "state": "Inactive",
-      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
-      "name": "Patty Diaz",
+      "state": "Active",
+      "guid": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
+      "name": "Dick Ross",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 18
+        "day": 11
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Inactive",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "name": "Rob Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 9
       },
       "left": {
         "yearsAgo": 1,
-        "month": 10,
-        "day": 18
+        "month": 12,
+        "day": 9
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Inactive",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 2,
+        "month": 9,
+        "day": 9
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 12,
+        "day": 9
       },
       "attendancePercent": 57
     },
     {
       "state": "Inactive",
-      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
-      "name": "Ricardo Diaz",
+      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
+        "yearsAgo": 2,
         "month": 9,
-        "day": 18
+        "day": 15
       },
       "left": {
-        "yearsAgo": 1,
-        "month": 10,
-        "day": 18
+        "daysAgo": 158
       },
       "attendancePercent": 66
     },
     {
       "state": "Inactive",
-      "guid": "42E18942-04CB-49BC-A72B-5D121514520E",
-      "name": "Michelle Nguyen",
+      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
+        "yearsAgo": 2,
         "month": 9,
-        "day": 20
+        "day": 15
       },
       "left": {
-        "yearsAgo": 1,
-        "month": 10,
-        "day": 29
+        "daysAgo": 158
       },
       "attendancePercent": 60
     }

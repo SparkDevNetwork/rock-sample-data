@@ -15,12 +15,12 @@ Ray Delgado is the Facilities Director. He keeps seven sites running, from rooms
 
 Ray is the Facilities Director. He joined staff ten years ago after a career in building maintenance, and he looks after every campus's buildings, rooms, and safety team.
 
-- Age 58 · married · Facilities Director, Rock Solid Church · email ray@rocksolidchurchdemo.com · 2 security roles
+- Age 58 · married · Facilities Director, Rock Solid Church · email ray@rocksolidchurchdemo.com · groups: Hughes Group (group archived) · 2 security roles
 - Person Guid `201B7E08-7C29-4472-931F-047B4A310347`
 
 ### Carmen Delgado
 
-- Age 56 · married · Store Manager, Ocotillo Market · email carmen.delgado@example.org
+- Age 56 · married · Store Manager, Ocotillo Market · email carmen.delgado@example.org · groups: Hughes Group (group archived)
 - Person Guid `601DC9DE-C9F1-4DDC-8126-88EDB4BDDC23`
 
 ## What this family tests

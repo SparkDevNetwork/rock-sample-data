@@ -21,7 +21,7 @@ Chris and Amanda Sullivan married four years ago. Jake is Chris's son, Madison i
 
 ### Amanda Sullivan
 
-- Age 43 · married · email amanda.sullivan@example.org · groups: Greggs Group, Greeters, Lee Group (left)
+- Age 43 · married · email amanda.sullivan@example.org · groups: Women of the Bible, Greeters, Lee Group (left)
 - Person Guid `0C4F2A1A-A0DB-4A56-8997-225BEBAE5572`
 
 ### Jake (Jacob) Sullivan

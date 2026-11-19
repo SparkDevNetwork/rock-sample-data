@@ -1,0 +1,185 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "raman-group",
+  "guid": "C2FA18FD-1389-4ACB-8554-211F48F38735",
+  "name": "Raman Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Sermon Discussion",
+  "description": "We dig into Sunday's message together and talk about how it plays out in everyday life.",
+  "schedule": {
+    "day": "Thursday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "jackson"
+  },
+  "childCareProvided": false,
+  "capacity": 18,
+  "isPublic": true,
+  "meetsInSummer": true,
+  "attendanceHabit": "EveryWeek",
+  "lifecycle": {
+    "state": "Inactive",
+    "started": {
+      "yearsAgo": 5,
+      "month": 3,
+      "day": 10
+    },
+    "ended": {
+      "yearsAgo": 5,
+      "month": 9,
+      "day": 6
+    },
+    "reason": "Group ended"
+  },
+  "testCase": "Inactive",
+  "members": [
+    {
+      "state": "Active",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "name": "Sunil Raman",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "9C2A020B-CF34-403E-A948-3E91FDFB958B",
+      "name": "Mariah Jackson",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 5,
+        "day": 21
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "FA38A268-6744-4507-9CDC-69A7AC6CC0E5",
+      "name": "Sean Hansen",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Active",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Active",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 10
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "8DE6710B-BDAB-4617-AE0C-83E77D3E77CC",
+      "name": "Rob Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 48
+    },
+    {
+      "state": "Active",
+      "guid": "773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5",
+      "name": "Sheryl Tennant",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 5,
+        "day": 16
+      },
+      "attendancePercent": 65
+    },
+    {
+      "state": "Active",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 6,
+        "day": 3
+      },
+      "attendancePercent": 62
+    },
+    {
+      "state": "Active",
+      "guid": "CED31D85-2D3F-430A-ACC0-34E436220044",
+      "name": "Julie Fischer",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 6,
+        "day": 5
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "C0C87060-A64E-43F6-97AC-855873C83E5E",
+      "name": "Mark Fischer",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 6,
+        "day": 5
+      },
+      "attendancePercent": 57
+    }
+  ]
+}

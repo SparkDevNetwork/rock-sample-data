@@ -6,23 +6,23 @@
   "name": "Hughes Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Sermon Discussion",
-  "description": "We dig into Sunday's message together and talk about how it plays out in everyday life.",
+  "topic": "Prayer",
+  "description": "A small, steady group that gathers to pray and share what God is doing.",
   "schedule": {
-    "day": "Thursday",
+    "day": "Sunday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
     "hostHousehold": "hughes"
   },
-  "childCareProvided": false,
+  "childCareProvided": true,
   "capacity": 18,
   "isPublic": true,
-  "meetsInSummer": true,
-  "attendanceHabit": "EveryWeek",
+  "meetsInSummer": false,
+  "attendanceHabit": "Spotty",
   "lifecycle": {
-    "state": "Inactive",
+    "state": "Archived",
     "started": {
       "yearsAgo": 4,
       "month": 9,
@@ -30,12 +30,16 @@
     },
     "ended": {
       "yearsAgo": 3,
-      "month": 10,
-      "day": 6
+      "month": 7,
+      "day": 26
     },
-    "reason": "Group ended"
+    "archived": {
+      "yearsAgo": 3,
+      "month": 11,
+      "day": 5
+    }
   },
-  "testCase": "Inactive",
+  "testCase": "Archived",
   "members": [
     {
       "state": "Active",
@@ -63,8 +67,8 @@
     },
     {
       "state": "Active",
-      "guid": "93AE5279-3907-4989-949F-3638F4BC5638",
-      "name": "Patty Diaz",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
       "role": "Member",
       "joined": {
         "yearsAgo": 4,
@@ -75,15 +79,27 @@
     },
     {
       "state": "Active",
-      "guid": "A13582E3-1A18-410C-BB50-959EAB752D52",
-      "name": "Ricardo Diaz",
+      "guid": "601DC9DE-C9F1-4DDC-8126-88EDB4BDDC23",
+      "name": "Carmen Delgado",
       "role": "Member",
       "joined": {
         "yearsAgo": 4,
-        "month": 9,
+        "month": 10,
         "day": 13
       },
       "attendancePercent": 49
+    },
+    {
+      "state": "Active",
+      "guid": "201B7E08-7C29-4472-931F-047B4A310347",
+      "name": "Ray Delgado",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 10,
+        "day": 13
+      },
+      "attendancePercent": 60
     },
     {
       "state": "Active",
@@ -92,10 +108,10 @@
       "role": "Member",
       "joined": {
         "yearsAgo": 3,
-        "month": 2,
-        "day": 14
+        "month": 1,
+        "day": 27
       },
-      "attendancePercent": 60
+      "attendancePercent": 48
     },
     {
       "state": "Active",
@@ -104,20 +120,8 @@
       "role": "Member",
       "joined": {
         "yearsAgo": 3,
-        "month": 2,
-        "day": 14
-      },
-      "attendancePercent": 48
-    },
-    {
-      "state": "Active",
-      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
-      "name": "Josh Sanders",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 3,
-        "month": 6,
-        "day": 19
+        "month": 1,
+        "day": 27
       },
       "attendancePercent": 53
     }

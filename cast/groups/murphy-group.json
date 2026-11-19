@@ -6,8 +6,8 @@
   "name": "Murphy Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Prayer",
-  "description": "We spend most of our time praying for each other, our church, and our city.",
+  "topic": "New to Faith",
+  "description": "New to church or just exploring? Bring your questions; there are no wrong ones.",
   "schedule": {
     "day": "Wednesday",
     "time": "18:00"
@@ -30,8 +30,8 @@
     },
     "ended": {
       "yearsAgo": 3,
-      "month": 3,
-      "day": 21
+      "month": 4,
+      "day": 15
     },
     "reason": "Taking a season off"
   },
@@ -63,20 +63,8 @@
     },
     {
       "state": "Active",
-      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
-      "name": "Hannah Ellis",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 6,
-        "month": 1,
-        "day": 14
-      },
-      "attendancePercent": 51
-    },
-    {
-      "state": "Active",
-      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
-      "name": "Jordan Ellis",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -95,7 +83,7 @@
         "month": 1,
         "day": 14
       },
-      "attendancePercent": 63
+      "attendancePercent": 51
     },
     {
       "state": "Active",
@@ -107,77 +95,89 @@
         "month": 1,
         "day": 14
       },
+      "attendancePercent": 63
+    },
+    {
+      "state": "Active",
+      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
+      "name": "Deb Webb",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
+      },
       "attendancePercent": 66
     },
     {
       "state": "Active",
-      "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0",
-      "name": "Jen Rivera",
+      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
+      "name": "Marty Webb",
       "role": "Member",
       "joined": {
-        "yearsAgo": 5,
-        "month": 9,
-        "day": 2
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
       },
       "attendancePercent": 65
     },
     {
       "state": "Active",
-      "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC",
-      "name": "Mike Rivera",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
       "role": "Member",
       "joined": {
         "yearsAgo": 5,
-        "month": 9,
-        "day": 2
+        "month": 3,
+        "day": 3
       },
       "attendancePercent": 47
     },
     {
       "state": "Active",
-      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
-      "name": "Craig Lowe",
+      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
+      "name": "Denise Washington",
       "role": "Member",
       "joined": {
         "yearsAgo": 4,
-        "month": 9,
-        "day": 3
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
-      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
-      "name": "Trish Lowe",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 3
-      },
-      "attendancePercent": 61
-    },
-    {
-      "state": "Active",
-      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
-      "name": "Elena Alvarez",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
+        "month": 1,
         "day": 19
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
+      "name": "Marcus Washington",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 1,
+        "day": 19
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 4,
+        "month": 4,
+        "day": 7
       },
       "attendancePercent": 47
     },
     {
       "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 19
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 6
       },
       "attendancePercent": 47
     }

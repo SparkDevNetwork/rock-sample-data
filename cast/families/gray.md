@@ -12,7 +12,7 @@ Emily Gray is an ER nurse whose shifts change every week, so she attends whichev
 
 ### Emily Gray
 
-- Age 45 · single · email emily.gray@example.org · groups: Decker Group
+- Age 45 · single · email emily.gray@example.org · groups: Women of the Bible
 - Person Guid `8E2E806E-C63B-4258-B3E3-73D9354ABDF5`
 
 ## What this family tests

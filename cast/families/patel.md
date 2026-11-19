@@ -13,12 +13,12 @@ Ryan and Megan Patel watch online most weeks and give every week, but they rarel
 
 ### Ryan Patel
 
-- Age 36 · married · email ryan.patel@example.org · groups: Greggs Group
+- Age 36 · married · email ryan.patel@example.org · groups: Decker Group
 - Person Guid `3EA5E361-0D2A-423C-8D81-4AF563613155`
 
 ### Megan Patel
 
-- Age 35 · married · email megan.patel@example.org · groups: Greggs Group
+- Age 35 · married · email megan.patel@example.org · groups: Decker Group
 - Person Guid `36E19312-6935-4153-B21E-8EA32AA5FEA1`
 
 ## What this family tests
