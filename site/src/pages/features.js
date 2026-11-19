@@ -260,7 +260,7 @@ module.exports = function features( { model } ) {
         {
             id: "benevolence", eyebrow: "Benevolence", title: "Help when someone asks.", sand: true,
             text: html`People ask the church for help with rent, bills, food, cars, and medical costs. ${esc( benevolence.caseWorker.name )}, the Care Director, works each request, and the team records what it gave. ${benevolence.types.length - 1} church types join Rock's own, and every one is locked to the benevolence team.`,
-            checks: [ "Requests that are Approved, Denied, and Pending", "Help paid straight to a landlord, a utility, a shop, or a pharmacy", "Signed assistance agreements as PDFs" ],
+            checks: [ "Requests that are Approved, Denied, and Pending", "Help paid straight to a landlord, a utility, a shop, or a pharmacy", "Signed assistance agreements as PDFs", "A workflow that gives each new request to the case worker and sends no email" ],
             look: [ html`${person( model, "Ashley Kelly" )}'s rent help, which matches her notes`, "Rock's Benevolence page under Finance, signed in as admin", html`${person( model, "Dee Navarro" )}, the case worker` ],
             links: [ { label: "How benevolence loads", href: doc( "loader/README.md#how-benevolence-loads" ) } ]
         },

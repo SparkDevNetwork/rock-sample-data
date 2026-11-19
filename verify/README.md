@@ -64,6 +64,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `process-workflows` | Rock's own Process Workflows job (`rock-runner --task process-workflows`), run as Rock's scheduler runs it, leaves every workflow the load wrote as it was, apart from an open workflow's processed times, and reports no error ([Process Workflows](../docs/verification.md#process-workflows)). |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `group-requirements` | Rock's own Calculate Group Requirements job inserts, deletes, and changes no requirement result, apart from its last-checked time. Judged only when today is the anchor. |
+| `benevolence-workflow-launch` | Rock's own launch of the benevolence Request Started workflow, on up to 25 requests whose case worker the check cleared first, gives each back to the configured case worker with no error. It runs last, because it changes those rows. |
 | `anchor-sweep` | Core 1 only. Every Cast giving and reminder expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving and reminders parts. |
 
 ### The trusted base
@@ -143,6 +144,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
+| `benevolence-workflow-launch` | Rock's workflow left a request without its case worker or reported an error. Fix the actions or Lava in `WriteWorkflow` in `loader/loading/BenevolenceLoader.cs`. |
 | `group-requirements` | Each line names a member whose result Rock's job would insert, delete, or change. Fix `loader/generation/BackgroundCheckPlanner.cs`, or `rules` in `configuration/background-checks.json` if Rock's data views changed. |
 | `process-reminders`, "Process Reminders was not judged" | Today's date is not the loads' anchor. Run it again, without `--anchor`, as for `rock-cleanup`. |
 | `process-reminders` | Rock's job changed a reminder or a reminder count, or reported an error. Fix how `loader/loading/RemindersLoader.cs` dates each reminder or counts each owner's reminders due. |

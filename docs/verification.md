@@ -47,6 +47,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Step workflow launch](#step-workflow-launch) | Verify tool | Rock's own code launches each step workflow as the load wrote it: the same name, assignee, person, and waiting form. |
 | [Process Workflows](#process-workflows) | Verify tool | Rock's own Process Workflows job leaves every workflow as it was, apart from the times it processed them. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
+| [Benevolence workflow launch](#benevolence-workflow-launch) | Verify tool | Rock's own launch of the Request Started workflow gives each new benevolence request to the case worker. |
 | [Group requirements](#group-requirements) | Verify tool | Rock's own Calculate Group Requirements job inserts, deletes, and changes no requirement result. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving and reminder story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
@@ -258,6 +259,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `benevolence-request-matches-its-requester` | Decision D-benevolence-1. Each request holds what Rock's block copies from the requester: name, email, connection status, campus, and home location, with its date key, and no government ID. |
 | `benevolence-results-follow-the-status` | Decision D-benevolence-3. Pending requests have no result or summary, Approved ones have a result, Denied ones give nothing with an amount, and every amount is more than zero and saved after the request. |
 | `benevolence-document-is-a-stored-pdf` | Decision D-benevolence-4. Each request document is a PDF with its bytes in Rock's Benevolence Request Documents file type, on an Approved request. |
+| `benevolence-trigger-sends-no-email` | Decision D-benevolence-6. Each church type has one Request Started trigger, saved as Rock saves it, to an active workflow that is not persisted and has no action that sends an email, a text, or a communication. |
 | `benevolence-type-is-locked` | Decision D-benevolence-2. Every benevolence type allows View and Edit only to RSR - Benevolence and RSR - Rock Administration. |
 | `security-role-member-can-sign-in` | Everyone the load puts in a security role can sign in to see what the role allows (decision 79). |
 | `app-user-can-sign-in` | A church app device tied to a person means they signed in to the app. |
@@ -390,6 +392,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** Last, `verify/rock-runner` runs Rock's own group sync (`GroupSyncService.SyncGroups`, what the Group Sync job calls) on every sync the load wrote, whatever its interval. Rock evaluates each data view with its real data filters and compares it with its group. The check passes when Rock syncs every sync and adds, removes, and refuses nobody, with no warnings. Like Rock Cleanup, it is judged only when today is the loads' anchor, because the views count from today.
 
 **Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision 187). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
+
+### Benevolence workflow launch
+
+**What it does.** Last of the load's checks, the tool clears the case worker on up to 25 of the load's benevolence requests in its throwaway copy, as on a request entered without one. Then `verify/rock-runner` launches each request's Request Started workflow with Rock's own code, the way Rock's BenevolenceRequestChangeTransaction does when a request is added, and the tool reads back the case worker Rock saved. The check passes when every request has the configured case worker again and Rock reported no error.
+
+**Why it's there.** The workflow is not persisted, so a load leaves nothing of its runs to compare (decision D-benevolence-6). Only Rock's own run proves the type's entity type, its Lava, and Rock's Entity Property Set action work together, on both Rock builds.
 
 ### Group requirements
 

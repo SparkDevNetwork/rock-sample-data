@@ -1,5 +1,5 @@
 {
-  "$comment": "Benevolence (decisions D-benevolence-1 to D-benevolence-4): who asked the church for help, who worked each request, and what the church gave. Each request is saved the way Rock's Benevolence Request Detail block saves it: the requester's name, email, phones, home address, connection status, and campus copied onto the request, a case worker from RSR - Benevolence, a status, and results with amounts. Requesters are people already in the data. No government ID is ever recorded, and gifts are results on the request, not gifts from a fund.",
+  "$comment": "Benevolence (decisions D-benevolence-1 to D-benevolence-6): who asked the church for help, who worked each request, and what the church gave. Each request is saved the way Rock's Benevolence Request Detail block saves it: the requester's name, email, phones, home address, connection status, and campus copied onto the request, a case worker from RSR - Benevolence, a status, and results with amounts. Requesters are people already in the data. No government ID is ever recorded, and gifts are results on the request, not gifts from a fund.",
   "types": [
     {
       "key": "benevolence",
