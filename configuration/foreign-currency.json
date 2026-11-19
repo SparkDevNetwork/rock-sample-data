@@ -1,0 +1,14 @@
+{
+  "$comment": "Canadian dollar gifts (decision D-uncommon-3). A few generated households are Canadian winter visitors: retirees, at least minimumGiverAge on install day, who give by check on Sundays and do not pledge to the building campaign. Households that give weekly, every other week, or monthly come first, so their checks run through the winter. In the months they are in Phoenix, their checks are drawn on a Canadian bank, in Canadian dollars. No gateway that ships with Rock takes a gift in another currency, so these come as checks: staff enter each one in the Transaction Detail block with the currency code, the Canadian amount on each line, and the amount in dollars that the bank credited at its rate that day, which falls in rate. A US check scanner cannot read a Canadian check, so a Sunday's Canadian checks are deposited at the bank in a batch of their own. householdsPerThousand counts against the dataset's generated households, with at least minimumHouseholds when it has any. Rock refuses to refund a gift in a foreign currency, so these gifts never have a refund. The church turns on Enable Foreign Currency on each block of the block types listed (Transaction Detail and Transaction List), so staff see the currency and the Canadian amounts.",
+  "currencyCode": "CAD",
+  "householdsPerThousand": 0.3,
+  "minimumHouseholds": 1,
+  "minimumGiverAge": 60,
+  "months": [ 11, 12, 1, 2, 3 ],
+  "rate": { "min": 0.70, "max": 0.76 },
+  "batchName": "Canadian Checks",
+  "blockTypes": [
+    "1DE16F87-4A49-4A3C-A03E-B8488ECBEEBE",
+    "E04320BC-67C3-452D-9EF6-D74D8C177154"
+  ]
+}

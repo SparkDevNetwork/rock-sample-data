@@ -123,39 +123,15 @@ WHERE [p].[Guid] = @PageGuid AND [bt].[Guid] IN ( {typeNames} )",
 
                 foreach ( var block in blocks )
                 {
-                    SetBlockValues( block, values );
+                    BlockSettings.Set( _db, block["Id"], block["BlockTypeId"], "Pledge Entry", values, _foreignKey );
                 }
             }
         }
 
         /// <summary>
-        /// Saves setting values on one block, by the setting keys its block type has.
-        /// </summary>
-        private void SetBlockValues( Dictionary<string, object> block, Dictionary<string, string> values )
-        {
-            foreach ( var value in values )
-            {
-                var attributeId = _db.Scalar( @"
-SELECT TOP 1 [a].[Id]
-FROM [Attribute] AS [a]
-INNER JOIN [EntityType] AS [e] ON [e].[Id] = [a].[EntityTypeId]
-WHERE [e].[Name] = 'Rock.Model.Block' AND [a].[Key] = @Key
-    AND [a].[EntityTypeQualifierColumn] = 'BlockTypeId' AND [a].[EntityTypeQualifierValue] = @BlockTypeId",
-                    P( "@Key", value.Key ), P( "@BlockTypeId", block["BlockTypeId"].ToString() ) )
-                    ?? throw new InvalidOperationException( $"Rock's Pledge Entry block has no '{value.Key}' setting." );
-
-                _db.Execute( @"
-IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId )
-    INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [IsPersistedValueDirty], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
-    VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, GETDATE(), GETDATE() )
-ELSE
-    UPDATE [AttributeValue] SET [Value] = @Value, [ValueAsNumeric] = @ValueAsNumeric, [ValueAsDateTime] = @ValueAsDateTime, [ValueAsBoolean] = @ValueAsBoolean, [IsPersistedValueDirty] = 1 WHERE [AttributeId] = @AttributeId AND [EntityId] = @EntityId",
-                    new[] { P( "@AttributeId", attributeId ), P( "@EntityId", block["Id"] ), P( "@Value", value.Value ), P( "@ForeignKey", _foreignKey ) }.Concat( AttributeValueHook.Parameters( value.Value, DateTime.Today.Year ) ).ToArray() );
-            }
-        }
-
-        /// <summary>
-        /// Shows the campaign's pledges on the contribution statement, with gifts to its campus accounts counted.
+        /// Shows the campaign's pledges on the contribution statement, with gifts to its campus accounts counted. Its stock
+        /// gifts count too, as they do in Pledge Analytics, so the statement agrees with Rock's pledge screens
+        /// (decision D-uncommon-2).
         /// </summary>
         private void LoadStatementTemplate( Guid templateGuid, int fundId )
         {
@@ -166,6 +142,7 @@ ELSE
             var pledges = settings["PledgeSettings"] as JsonObject ?? new JsonObject();
             pledges["AccountIds"] = new JsonArray( fundId );
             pledges["IncludeGiftsToChildAccounts"] = true;
+            pledges["IncludeNonCashGifts"] = true;
             settings["PledgeSettings"] = pledges;
 
             _db.Execute( "UPDATE [FinancialStatementTemplate] SET [ReportSettingsJson] = @Json WHERE [Guid] = @Guid",

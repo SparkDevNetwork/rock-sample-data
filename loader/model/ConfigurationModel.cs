@@ -410,7 +410,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// One kind of refund: duplicate, incorrect-amount, one-fund, or earlier-year.
+    /// One kind of refund: duplicate, incorrect-amount, one-fund, earlier-year, insufficient-funds, or returned-check.
     /// </summary>
     internal sealed class RefundKindDefinition
     {
@@ -454,6 +454,109 @@ namespace RockSampleData.Loader.Model
         public int Min { get; set; }
 
         public int Max { get; set; }
+    }
+
+    /// <summary>
+    /// configuration/in-kind-gifts.json: gifts of stock, vehicles, and equipment, which Rock records with the Non-Cash
+    /// Asset currency type (decision D-uncommon-2).
+    /// </summary>
+    internal sealed class InKindGiftsConfiguration
+    {
+        public List<InKindKindDefinition> Kinds { get; set; } = new List<InKindKindDefinition>();
+    }
+
+    /// <summary>
+    /// One kind of in-kind gift: stock, vehicle, or equipment.
+    /// </summary>
+    internal sealed class InKindKindDefinition
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// One of Rock's shipped Non-Cash Asset Types, by its value, such as Stocks And Bonds.
+        /// </summary>
+        public string AssetType { get; set; }
+
+        /// <summary>
+        /// The chance each year that a generated household that gives makes a gift of this kind, per 1,000 households.
+        /// Zero for stock, which the giving patterns and the building campaign plan.
+        /// </summary>
+        public double PerThousandGivingHouseholdsPerYear { get; set; }
+
+        /// <summary>
+        /// The fund the gift goes to, by name in configuration/accounts.json.
+        /// </summary>
+        public string Fund { get; set; }
+
+        public List<InKindItem> Items { get; set; } = new List<InKindItem>();
+    }
+
+    /// <summary>
+    /// One thing a household might give: what staff typed as the gift's summary, and its fair value. Stock has no
+    /// value here, since its giving pattern sizes it.
+    /// </summary>
+    internal sealed class InKindItem
+    {
+        public string Summary { get; set; }
+
+        public AmountRange Value { get; set; }
+    }
+
+    /// <summary>
+    /// A dollar or rate range, at least and at most.
+    /// </summary>
+    internal sealed class AmountRange
+    {
+        public decimal Min { get; set; }
+
+        public decimal Max { get; set; }
+    }
+
+    /// <summary>
+    /// configuration/foreign-currency.json: the Canadian winter visitors who give Canadian checks (decision D-uncommon-3).
+    /// </summary>
+    internal sealed class ForeignCurrencyConfiguration
+    {
+        /// <summary>
+        /// The currency's value in Rock's Currency Code defined type, such as CAD.
+        /// </summary>
+        public string CurrencyCode { get; set; }
+
+        /// <summary>
+        /// How many generated households give in the currency, per 1,000 generated households.
+        /// </summary>
+        public double HouseholdsPerThousand { get; set; }
+
+        /// <summary>
+        /// The fewest households that give in the currency, in a dataset with generated households.
+        /// </summary>
+        public int MinimumHouseholds { get; set; }
+
+        /// <summary>
+        /// The youngest a giver can be on install day: winter visitors are retired.
+        /// </summary>
+        public int MinimumGiverAge { get; set; }
+
+        /// <summary>
+        /// The months the visitors are in Phoenix, when their checks are in the currency.
+        /// </summary>
+        public List<int> Months { get; set; } = new List<int>();
+
+        /// <summary>
+        /// What one unit of the currency is worth in the church's currency, at least and at most. The bank's rate on
+        /// each deposit day falls in this range.
+        /// </summary>
+        public AmountRange Rate { get; set; } = new AmountRange();
+
+        /// <summary>
+        /// The name of the batch that holds a Sunday's checks in the currency, before its date.
+        /// </summary>
+        public string BatchName { get; set; }
+
+        /// <summary>
+        /// The block types whose Enable Foreign Currency setting the church turns on, by Guid.
+        /// </summary>
+        public List<Guid> BlockTypes { get; set; } = new List<Guid>();
     }
 
     /// <summary>

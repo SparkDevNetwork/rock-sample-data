@@ -545,13 +545,17 @@ for ( const { file, data: h } of households ) {
         }
 
         // A designed refund names a kind in configuration/refunds.json and a day. A refund of an online gift needs a
-        // pattern that gives online on every install day, so it names card or ach.
+        // pattern that gives online on every install day, so it names card or ach. A returned check needs a pattern
+        // that writes checks, so it names check.
         for ( const refund of gv.refunds || [] ) {
             if ( !REFUND_KIND_KEYS.includes( refund.kind ) ) {
                 errors.push( `${file}: a refund for "${gv.person}" has kind "${refund.kind}", which is not in configuration/refunds.json.` );
             }
             if ( [ "duplicate", "incorrect-amount" ].includes( refund.kind ) && ![ "card", "ach" ].includes( gv.currency ) ) {
                 errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds an online gift, so the pattern's currency must be card or ach.` );
+            }
+            if ( [ "insufficient-funds", "returned-check" ].includes( refund.kind ) && gv.currency !== "check" ) {
+                errors.push( `${file}: a ${refund.kind} refund for "${gv.person}" refunds a check the bank returned, so the pattern's currency must be check.` );
             }
             if ( refund.near === undefined ) {
                 errors.push( `${file}: a refund for "${gv.person}" needs a near date.` );

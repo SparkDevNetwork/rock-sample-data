@@ -14,9 +14,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Check-in relationships,** such as a grandparent who may check in a grandchild, loaded from the Cast's known relationships.
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
 
-## Giving
-
-- **Other uncommon transactions,** such as a gift in a foreign currency, a returned check, or an in-kind gift. Refunds are built (see [Refunds](refunds.md)).
 
 ## Other Rock features
 
