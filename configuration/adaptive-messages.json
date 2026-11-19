@@ -642,13 +642,6 @@
       "message": "your-next-step",
       "adaptation": "invite-a-friend",
       "reason": "Leads the Foster Group and the Prayer Team, so his next step is to invite a friend."
-    },
-    {
-      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
-      "name": "Bri Hall",
-      "message": "your-next-step",
-      "adaptation": "plan-a-visit",
-      "reason": "Has not come on a Sunday yet, so no next-step segment fits her and she sees the fallback."
     }
   ]
 }
