@@ -711,9 +711,14 @@ function checkServingTeam( file, g ) {
  */
 function checkSmallGroupPlan( file, g ) {
     const isActiveGroup = g.lifecycle.state === "Active";
-    if ( !smallGroups.topics.some( t => t.value === g.topic ) ) {
+    const topic = smallGroups.topics.find( t => t.value === g.topic );
+    if ( !topic ) {
         errors.push( `${file}: topic "${g.topic}" is not in configuration/small-groups.json.` );
     }
+
+    // A topic that sets a leader gender is for that gender: its leader and every member (decision D-womens-groups-1).
+    const leaderGender = ( topic && topic.leaderGender ) || smallGroups.leaders.gender;
+    const groupGender = topic && topic.leaderGender;
     if ( g.lifecycle.state === "Inactive" && !smallGroups.inactiveReasons.some( r => r.value === g.lifecycle.reason ) ) {
         errors.push( `${file}: inactive reason "${g.lifecycle.reason}" is not in configuration/small-groups.json.` );
     }
@@ -761,8 +766,11 @@ function checkSmallGroupPlan( file, g ) {
         if ( p.recordStatus === "inactive" && isActiveGroup ) {
             errors.push( `${owner}: has an inactive record, so may only be a former member of an ended group.` );
         }
-        if ( m.role === "Leader" && ( p.gender !== smallGroups.leaders.gender || !smallGroups.leaders.statuses.concat( smallGroups.leaders.becomeStatus ).includes( p.connectionStatus ) ) ) {
+        if ( m.role === "Leader" && ( p.gender !== leaderGender || !smallGroups.leaders.statuses.concat( smallGroups.leaders.becomeStatus ).includes( p.connectionStatus ) ) ) {
             errors.push( `${owner}: does not meet the leader rules.` );
+        }
+        if ( groupGender && p.gender !== groupGender ) {
+            errors.push( `${owner}: is not ${groupGender}, and the ${g.topic} topic is for ${groupGender} members only.` );
         }
         if ( ( m.state === "Inactive" || m.state === "Archived" ) !== ( m.left !== undefined ) ) {
             errors.push( `${owner}: only members who left (Inactive or Archived) have a left date.` );

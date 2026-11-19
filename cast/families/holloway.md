@@ -15,12 +15,12 @@ Greg Holloway is the Executive Pastor. He runs the staff, the budget, and the se
 
 Greg is the Executive Pastor. He came on staff six years ago from a business career and leads the staff, the budget, and the campus pastors.
 
-- Age 55 · married · Executive Pastor, Rock Solid Church · email greg@rocksolidchurchdemo.com · 3 security roles
+- Age 55 · married · Executive Pastor, Rock Solid Church · email greg@rocksolidchurchdemo.com · groups: Marble Group (host), Rivera Group (left) · 3 security roles
 - Person Guid `4003BF59-F243-4BF9-8E60-2FB3735459CE`
 
 ### Lisa Holloway
 
-- Age 53 · married · Program Manager, Greywash Water District · email lisa.holloway@example.org
+- Age 53 · married · Program Manager, Greywash Water District · email lisa.holloway@example.org · groups: Marble Group (host), Women of the Bible (left), Rivera Group (left)
 - Person Guid `AB789D5A-01BD-499C-BEB8-B6C5465088A2`
 
 ## What this family tests

@@ -356,6 +356,7 @@ namespace RockSampleData.Loader
             // The Cast's small groups come from cast/groups. Generated households get theirs here, before
             // people load, so their new leaders load with the leader status.
             var groupPlans = source.ReadCastSmallGroupPlans();
+            var groupLaunches = new GroupLaunchCalendar( source.Communications?.Events );
             var generator = new CrowdGenerator( profile, source, seed, dates.Anchor );
             List<CastHousehold> generated = null;
             using ( log.TimePart( "Generate the Crowd" ) )
@@ -383,7 +384,7 @@ namespace RockSampleData.Loader
 
                 if ( generated != null )
                 {
-                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
+                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, groupLaunches, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
                     households.AddRange( generated );
                     groupPlans.AddRange( generatedPlans );
                     var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
@@ -398,11 +399,13 @@ namespace RockSampleData.Loader
                 }
             }
 
-            // Serving is planned before people load too, so new team leaders load as Leading.
+            // Serving is planned before people load too, so new team leaders load as Leading. A leader who launched a
+            // group from Ready to Lead was serving before then (decision D-launch-groups-1).
+            var readyToLead = groupLaunches.ReadyToLeadLeaders( groupPlans, source.SmallGroups, dates );
             List<ServingTeamPlan> servingPlans;
             using ( log.TimePart( "Plan serving" ) )
             {
-                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey, readyToLead );
             }
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
@@ -596,7 +599,7 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Steps" ) )
             {
                 stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun, readyToLead );
 
                 // The follow-up workflows completed steps started, read back from the steps just written (issue 18).
                 if ( stepsLoaded.Facts != null )

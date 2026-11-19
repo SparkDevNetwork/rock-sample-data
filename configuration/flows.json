@@ -150,7 +150,7 @@
         { "key": "lead-invitation-training", "name": "Group Leader Training", "daysToWait": 7, "time": "10:00" },
         { "key": "lead-invitation-support", "name": "What Leaders Get", "daysToWait": 14, "time": "09:00" }
       ],
-      "goal": { "type": "tookStep", "stepType": "lead", "days": 60, "targetPercent": 1, "$targetPercentComment": "Set from the data: on Full 7, none of 1,861 took the Lead step within 60 days. The small group data makes most new leaders from people who had left their group or were not serving, so few were Ready to Lead. 1% is the lowest whole target, so the flow shows Missed." },
+      "goal": { "type": "tookStep", "stepType": "lead", "days": 60, "targetPercent": 4, "$targetPercentComment": "Set from the data (decision D-launch-groups-2): on Full 7, 64 of 1,368 people took the Lead step within 60 days (4.7%), from 3.5% to 7.5% a run, rounded down to a whole 1%. Most launch groups are led by someone who was Ready to Lead on the run's day. Core 1 converts 1 of 82 and Core 3 3 of 94." },
       "exit": "conversionAchieved"
     },
     {

@@ -15,7 +15,7 @@ Ben and Sarah Jones attended rarely and divorced. Ben now shares custody of thei
 
 Ben attended rarely before his divorce from Sarah, now Sarah Simmons. He shares custody of their son Brian and comes mostly on weekends when Brian is with him.
 
-- Age 36 · single · email ben.jones@example.org · groups: Rivera Group, Greggs Group (left)
+- Age 36 · single · email ben.jones@example.org
 - Person Guid `3C402382-3BD2-4337-A996-9E62F1BAB09D`
 
 ### Brian Jones

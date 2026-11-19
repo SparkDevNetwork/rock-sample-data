@@ -14,7 +14,7 @@ Monica Flores has never married and is raising two kids on her own.
 
 ### Monica Flores
 
-- Age 38 · single · email monica.flores@example.org · groups: Decker Group, Greggs Group (left)
+- Age 38 · single · email monica.flores@example.org · groups: Morgan Group
 - Person Guid `E66BEA83-0D78-4AF1-A48E-BB56731A48E3`
 
 ### Sebastian Flores

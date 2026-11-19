@@ -15,14 +15,14 @@ Marty and Deb Webb found the church online and joined a small group.
 
 Marty and his wife Deb found the church online and joined the Greggs small group before they ever settled into Sunday services. They are still Prospects.
 
-- Age 36 · married · email mwebb@example.org
+- Age 36 · married · email mwebb@example.org · groups: Greggs Group
 - Person Guid `00E0DBB3-5451-456E-ADAB-E12C5EF4C285`
 
 ### Deb (Debbie) Webb
 
 Deb is in the Greggs small group with Marty. The Webbs are the example of a couple who connected through a group first.
 
-- Age 36 · married · email dwebb@example.org
+- Age 36 · married · email dwebb@example.org · groups: Greggs Group
 - Person Guid `6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB`
 
 ## What this family tests

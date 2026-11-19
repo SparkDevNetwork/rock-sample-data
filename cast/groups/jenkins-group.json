@@ -6,8 +6,8 @@
   "name": "Jenkins Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "New to Faith",
-  "description": "A welcoming place to learn the basics of faith alongside others who are new too.",
+  "topic": "Prayer",
+  "description": "A small, steady group that gathers to pray and share what God is doing.",
   "schedule": {
     "day": "Sunday",
     "time": "19:00"
@@ -24,19 +24,19 @@
   "lifecycle": {
     "state": "Archived",
     "started": {
-      "yearsAgo": 1,
-      "month": 2,
-      "day": 27
+      "yearsAgo": 3,
+      "month": 11,
+      "day": 17
     },
     "ended": {
-      "yearsAgo": 1,
-      "month": 8,
-      "day": 26
+      "yearsAgo": 2,
+      "month": 5,
+      "day": 16
     },
     "archived": {
-      "yearsAgo": 1,
+      "yearsAgo": 2,
       "month": 10,
-      "day": 17
+      "day": 21
     }
   },
   "testCase": "Archived",
@@ -47,9 +47,9 @@
       "name": "Gary Jenkins",
       "role": "Leader",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 95
     },
@@ -59,117 +59,117 @@
       "name": "Barb Jenkins",
       "role": "Host",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 90
     },
     {
       "state": "Active",
-      "guid": "4E98A87E-06B9-4822-9C45-88BF1F6E9C12",
-      "name": "Gaby Cruz",
+      "guid": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 56
     },
     {
       "state": "Active",
-      "guid": "CBE5E38E-4824-4472-904F-9BDCF77BD433",
-      "name": "Jose Cruz",
+      "guid": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 58
     },
     {
       "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 66
     },
     {
       "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
+      "guid": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+      "name": "Jack Harper",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 51
     },
     {
       "state": "Active",
-      "guid": "902984C3-BCE1-405A-8A74-416F7D15B288",
-      "name": "John Smith",
+      "guid": "52F2BD19-573B-485C-836A-9562389AF2E4",
+      "name": "Dale Tucker",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 2,
-        "day": 27
+        "yearsAgo": 3,
+        "month": 11,
+        "day": 17
       },
       "attendancePercent": 64
     },
     {
       "state": "Active",
-      "guid": "069CF2DC-DD58-4CC6-840E-D770EA2DA96F",
-      "name": "Destiny Young",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 3,
-        "day": 17
+        "yearsAgo": 3,
+        "month": 12,
+        "day": 9
       },
       "attendancePercent": 55
     },
     {
       "state": "Active",
-      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
-      "name": "Hannah Ellis",
+      "guid": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+      "name": "Will Jones",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 3,
-        "day": 18
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 8
       },
       "attendancePercent": 51
     },
     {
       "state": "Active",
-      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
-      "name": "Jordan Ellis",
+      "guid": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+      "name": "Aaron Mitchell",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 3,
-        "day": 18
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 26
       },
       "attendancePercent": 62
     },
     {
       "state": "Active",
-      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
-      "name": "Nancy Turner",
+      "guid": "5C5008BB-6F4B-4A68-A222-DABD1AF8E41C",
+      "name": "Beth Mitchell",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 4,
-        "day": 10
+        "yearsAgo": 2,
+        "month": 1,
+        "day": 26
       },
       "attendancePercent": 63
     }

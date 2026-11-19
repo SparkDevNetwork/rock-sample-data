@@ -49,8 +49,9 @@ dotnet run -- --plan-cast-groups
 
 It rewrites every small group file and marks each new leader Leading in the household files. A second run changes nothing. Then run `node validate-cast.js` and `node build-pages.js`.
 
-- Legacy groups keep their keys and Guids. Pins in the configuration keep Ted Decker, Bill Marble, Pete Foster, and Bob Greggs as leaders, and keep the Greggs and Gilbert groups in those homes.
-- Groups in `cast.notInPattern` (Alisha Marble's group and the university group) keep their old shape and are not loaded.
+- Legacy groups keep their keys and Guids. Pins in the configuration hold what Cast stories, notes, and prayer requests say: who leads each established group, the Greggs and Gilbert groups in those homes, James Lee's online New to Faith group, Alisha Marble's Women of the Bible, Karen Morgan's launch from Ready to Lead, the Ellises' and Victoria Ramos's requests to join, and the households a story, bio, note, or prayer request puts in a group. When you write one of those about a group, add a pin for it. A Cast expectation checks every pin on every load.
+- Only main-campus households join Cast groups. A family that started coming joins none until four weeks later, and a family that stopped coming leaves its groups a few weeks after its last Sunday.
+- Groups in `cast.notInPattern` (the university group) keep their old shape and are not loaded.
 - Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. General groups still mark leaders with `isLeader`.
 - A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups.
 - People with an inactive record (the Murphys, who moved) appear only as former members of inactive or archived groups.

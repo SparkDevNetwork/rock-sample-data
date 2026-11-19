@@ -87,7 +87,7 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [perry](households/perry.json) | Dennis (Known) | Married man attending without his spouse (spouse not in the database). |
 | [price](households/price.json) | Bill (Engaged), Cathy (Engaged) | Top 1% giver with large quarterly gifts. |
 | [ramirez](households/ramirez.json) | Carlos (Prospect), Ana (Prospect), Lucas 9 (Prospect), Mia 6 (Prospect) | First-time guests: first visit two weeks ago. |
-| [ramos](households/ramos.json) | Tori (Known) | Group-first connection (Phase 1). |
+| [ramos](households/ramos.json) | Tori (Known) | New in town: one pending request to join a small group, made after her first four weeks. |
 | [rivera](households/rivera.json) | Mike (Engaged), Jen (Engaged), Joy 10 (Engaged) | Adopted child whose photo ethnicity is set on her own record. |
 | [ross](households/ross.json) | Dick (Connected), Joan (Connected) | Seasonal attenders (winter visitors). |
 | [russell](households/russell.json) | Hal (Engaged) | Homebound senior and widower. |

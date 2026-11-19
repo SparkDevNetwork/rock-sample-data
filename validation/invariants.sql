@@ -831,6 +831,30 @@ WITH [Leading] AS (
 SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [x].[PersonId] ) )
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
 
+-- check: small-group-gender-topics
+-- why: Decision D-womens-groups-1. A Women's Bible Study group has a woman leader and only women, and a Men's Bible Study group a man leader and only men, in every member state, including pending requests, so a women's group never shows a man.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [AttributeValue] AS [topic] ON [topic].[EntityId] = [g].[Id]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [topic].[AttributeId]
+WHERE [g].[ForeignKey] = @ForeignKey AND [a].[Guid] = '04BFAC9B-6D1A-E089-446A-B2C604C76764'
+    AND ( ( [topic].[Value] = '7d82898f-4936-479e-b568-c6c787fa770a' AND [p].[Gender] <> 2 )
+        OR ( [topic].[Value] = '0ad6c058-a314-4d27-a290-824d71e4dcb1' AND [p].[Gender] <> 1 ) );
+
+-- check: lead-a-group-converts
+-- why: Decision D-launch-groups-1. Most launch groups are led by someone who was Ready to Lead on the day the Lead a Group flow ran six weeks before the launch, so the flow shows people who took the Lead step. A load with the flow and no conversion means the small group, serving, and step plans no longer agree.
+SELECT CASE WHEN EXISTS ( SELECT 1 FROM [CommunicationFlow] AS [f] WHERE [f].[ForeignKey] = @ForeignKey AND [f].[Name] = 'Lead a Group' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [CommunicationFlowInstanceCommunicationConversion] AS [c]
+        INNER JOIN [CommunicationFlowInstanceCommunication] AS [ic] ON [ic].[Id] = [c].[CommunicationFlowInstanceCommunicationId]
+        INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [ic].[CommunicationFlowInstanceId]
+        INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
+        WHERE [f].[ForeignKey] = @ForeignKey AND [f].[Name] = 'Lead a Group' )
+    THEN 1 ELSE 0 END;
+
 -- check: group-sync-targets-a-sync-group
 -- why: Decision 186. Rock's group detail shows the sync panel only on group types that allow group sync, and a sync's role must be one of its group's roles, so every sync opens and edits in Rock. Its data view is a person view, as Rock's sync requires.
 SELECT COUNT(*)

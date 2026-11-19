@@ -155,6 +155,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             // The follow-up tasks completed steps started, and who has them (issue 18).
             checks += parts.Contains( SampleDataPart.Steps ) ? CastStepWorkflowExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
+            // Each Cast family's small group memberships fit when it came, and each Cast group pin holds (issue 37).
+            checks += parts.Contains( SampleDataPart.SmallGroups ) ? CastGroupExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );

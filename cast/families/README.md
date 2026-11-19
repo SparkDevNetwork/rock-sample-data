@@ -119,7 +119,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Miller Family](miller-thomas.md) | legacy | 1 | Prospect | Duplicate half of a merge-testing pair (same email and phone, different address). |
 | [Miller Family](miller-tom.md) | legacy | 1 | Engaged | Original half of a duplicate pair for merge testing. |
 | [Mitchell Family](mitchell.md) | new | 4 | Engaged | Named campus pastor of the main campus: writes notes, welcomes first-time guests, and is the contact for Phoenix campus events. |
-| [Morgan Family](morgan.md) | new | 2 | Engaged | Quarterly giver with a year-end gift. |
+| [Morgan Family](morgan.md) | new | 2 | Engaged, Leading | Quarterly giver with a year-end gift. |
 | [Morrow Family](morrow.md) | new | 2 | Engaged | Production Director who oversees every campus's production team. |
 | [Murphy Family](murphy.md) | new | 3 | Engaged | Inactive record with the Moved reason. |
 | [Navarro Family](navarro.md) | new | 2 | Engaged | Care Director with the pastoral notes, prayer administration, and benevolence roles. |
@@ -135,7 +135,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Price Family](price.md) | new | 2 | Engaged | Top 1% giver with large quarterly gifts. |
 | [Raman Family](raman.md) | new | 3 | Engaged | Finance Director with Rock's finance administration role. |
 | [Ramirez Family](ramirez.md) | new | 4 | Prospect | First-time guests: first visit two weeks ago. |
-| [Ramos Family](ramos.md) | new | 1 | Known | Group-first connection (Phase 1). |
+| [Ramos Family](ramos.md) | new | 1 | Known | New in town: one pending request to join a small group, made after her first four weeks. |
 | [Richards](richards.md) | legacy | 1 | Prospect | Single Prospect who is already in a small group. |
 | [Rivera Family](rivera.md) | new | 3 | Leading, Engaged | Adopted child whose photo ethnicity is set on her own record. |
 | [Ross Family](ross.md) | new | 2 | Connected | Seasonal attenders (winter visitors). |

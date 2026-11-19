@@ -1,0 +1,161 @@
+{
+  "$schema": "../group.schema.json",
+  "schemaVersion": 1,
+  "key": "morgan-group",
+  "guid": "F7BF9F20-344D-4BC6-A3EC-DEDFD7C36B41",
+  "name": "Morgan Group",
+  "type": "small-group",
+  "campus": "main",
+  "topic": "Women's Bible Study",
+  "description": "Women reading the Bible together, praying for each other, and sharing real life.",
+  "schedule": {
+    "day": "Tuesday",
+    "time": "19:00"
+  },
+  "meetingStyle": {
+    "style": "InPerson",
+    "hostHousehold": "stone"
+  },
+  "childCareProvided": false,
+  "capacity": 9,
+  "isPublic": true,
+  "meetsInSummer": true,
+  "attendanceHabit": "Spotty",
+  "lifecycle": {
+    "state": "Active",
+    "started": {
+      "yearsAgo": 1,
+      "month": 9,
+      "day": 12
+    }
+  },
+  "testCase": "Full",
+  "leaderWasReadyToLead": true,
+  "members": [
+    {
+      "state": "Active",
+      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
+      "name": "Karen Morgan",
+      "role": "Leader",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 95
+    },
+    {
+      "state": "Active",
+      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+      "name": "Corrie Stone",
+      "role": "Host",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 90
+    },
+    {
+      "state": "Active",
+      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 57
+    },
+    {
+      "state": "Active",
+      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
+      "name": "Emily Gray",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 51
+    },
+    {
+      "state": "Active",
+      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
+      "name": "Jess Hughes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 61
+    },
+    {
+      "state": "Active",
+      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
+      "name": "Barb Jenkins",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 54
+    },
+    {
+      "state": "Active",
+      "guid": "AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592",
+      "name": "Kayla Ward",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 12
+      },
+      "attendancePercent": 64
+    },
+    {
+      "state": "Active",
+      "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Peggy Carter",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 15
+      },
+      "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
+      "name": "Elena Alvarez",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 24
+      },
+      "attendancePercent": 56
+    },
+    {
+      "state": "Inactive",
+      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
+      "name": "Nancy Turner",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 27
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 27
+      },
+      "attendancePercent": 56
+    }
+  ]
+}

@@ -16,12 +16,12 @@ Priya Raman is the Finance Director. She runs payroll, deposits, giving statemen
 
 Priya is the Finance Director. She joined staff seven years ago and runs payroll, deposits, giving statements, and the building campaign's books.
 
-- Age 46 · married · Finance Director, Rock Solid Church · email priya@rocksolidchurchdemo.com · 2 security roles
+- Age 46 · married · Finance Director, Rock Solid Church · email priya@rocksolidchurchdemo.com · groups: Silva Group, Women of the Bible (left), Lee Group (left, archived) · 2 security roles
 - Person Guid `309570C0-7196-42DB-A23C-A525E0CDAA75`
 
 ### Sunil Raman
 
-- Age 48 · married · Electrical Engineer, Mesa Ridge Electronics · email sunil.raman@example.org
+- Age 48 · married · Electrical Engineer, Mesa Ridge Electronics · email sunil.raman@example.org · groups: Silva Group, Lee Group (left, archived)
 - Person Guid `1267552C-D912-4D89-8A13-E42F376B75F2`
 
 ### Anika Raman

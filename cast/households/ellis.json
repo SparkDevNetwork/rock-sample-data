@@ -7,9 +7,10 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Jordan and Hannah Ellis married last year and visited for the first time this summer. They have come most weeks since and just started giving.",
+  "story": "Jordan and Hannah Ellis married last year and visited for the first time this summer. They have come most weeks since, took the Starting Point Class this fall, and just started giving. They asked to join the Marble Group, and Bill has not answered yet.",
   "testPurposes": [
     "New couple: first visit about four months ago.",
+    "No small group yet: one pending request to join the Marble Group, made after their first four weeks.",
     "New giver who started recently.",
     "Known status."
   ],
@@ -80,6 +81,11 @@
           "daysAgo": 120
         }
       },
+      "steps": {
+        "starting-point-class": {
+          "classesAgo": 2
+        }
+      },
       "logins": [
         "jellis"
       ]
@@ -115,6 +121,11 @@
       "attributes": {
         "FirstVisit": {
           "daysAgo": 120
+        }
+      },
+      "steps": {
+        "starting-point-class": {
+          "classesAgo": 2
         }
       }
     }

@@ -511,6 +511,31 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            // A leader who launched a group from Ready to Lead had an Equip step by the day they were Ready to Lead. One with
+            // no such step by then took this class in the two years before (decision D-launch-groups-1).
+            if ( source.EquipsReadyToLead )
+            {
+                var stageTypes = _programByType[type.Key].StepTypes.Where( t => t.Stage == type.Stage ).Select( t => t.Key ).ToList();
+                foreach ( var (personId, readyOn) in _facts.ReadyToLead.Where( r => _people.ContainsKey( r.Key ) ).OrderBy( r => _people[r.Key].Guid ) )
+                {
+                    var person = _people[personId];
+                    if ( holders.Contains( personId ) || stageTypes.Any( t => CompletedOn( personId, t ) < readyOn ) )
+                    {
+                        continue;
+                    }
+
+                    var after = source.After == null ? null : CompletedOn( personId, source.After );
+                    var oldest = person.BirthDate?.AddYears( source.MinimumAge ) ?? DateTime.MinValue;
+                    var options = schedule.CompletedBetween( readyOn.AddDays( -730 ), readyOn.AddDays( -1 ) )
+                        .Where( k => schedule.Start( k ) >= oldest && ( after == null || schedule.Start( k ) > after.Value ) )
+                        .ToList();
+                    if ( options.Count > 0 )
+                    {
+                        Take( person, PersonRandom( type, person ).Pick( options ) );
+                    }
+                }
+            }
+
             foreach ( var campus in _facts.People.Where( p => p.IsActiveAdult ).GroupBy( p => p.CampusKey ).OrderBy( g => g.Key ) )
             {
                 var random = new SeededRandom( $"{_seed}:steps:{type.Key}:{campus.Key}" );
@@ -828,6 +853,11 @@ namespace RockSampleData.Loader.Generation
         /// People with an open request to serve.
         /// </summary>
         public HashSet<int> OpenServeRequests { get; set; } = new HashSet<int>();
+
+        /// <summary>
+        /// Each leader who launched a small group from Ready to Lead, by person Id, and the day they were Ready to Lead.
+        /// </summary>
+        public Dictionary<int, DateTime> ReadyToLead { get; set; } = new Dictionary<int, DateTime>();
 
     }
 

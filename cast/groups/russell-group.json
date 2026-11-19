@@ -14,7 +14,7 @@
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "greggs"
+    "hostHousehold": "stone"
   },
   "childCareProvided": false,
   "capacity": 18,
@@ -29,14 +29,14 @@
       "day": 27
     },
     "ended": {
-      "yearsAgo": 5,
-      "month": 4,
-      "day": 19
+      "yearsAgo": 4,
+      "month": 3,
+      "day": 2
     },
     "archived": {
-      "yearsAgo": 5,
-      "month": 10,
-      "day": 9
+      "yearsAgo": 4,
+      "month": 7,
+      "day": 26
     }
   },
   "testCase": "Archived",
@@ -55,8 +55,8 @@
     },
     {
       "state": "Active",
-      "guid": "1A5A4E5F-E0A4-4EFA-B7D7-6698153ED718",
-      "name": "Lorraine Greggs",
+      "guid": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+      "name": "Corrie Stone",
       "role": "Host",
       "joined": {
         "yearsAgo": 8,
@@ -67,63 +67,15 @@
     },
     {
       "state": "Active",
-      "guid": "28C4F2C0-0691-468F-B40E-550BD2976B9E",
-      "name": "Bob Greggs",
-      "role": "Host",
-      "joined": {
-        "yearsAgo": 8,
-        "month": 4,
-        "day": 27
-      },
-      "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
-      "name": "Daniel Peak",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
-        "yearsAgo": 8,
-        "month": 4,
-        "day": 27
+        "yearsAgo": 7,
+        "month": 1,
+        "day": 5
       },
       "attendancePercent": 52
-    },
-    {
-      "state": "Active",
-      "guid": "613519D8-909C-4E3B-9553-B7C345159C7A",
-      "name": "Denise Washington",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 8,
-        "month": 4,
-        "day": 27
-      },
-      "attendancePercent": 53
-    },
-    {
-      "state": "Active",
-      "guid": "DDB9DE7A-977F-4A44-8097-2F5A00DD7C30",
-      "name": "Marcus Washington",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 8,
-        "month": 4,
-        "day": 27
-      },
-      "attendancePercent": 52
-    },
-    {
-      "state": "Active",
-      "guid": "E21428D1-CF39-4880-8AF3-21BEB38F9CFF",
-      "name": "Dennis Perry",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 8,
-        "month": 8,
-        "day": 18
-      },
-      "attendancePercent": 50
     },
     {
       "state": "Active",
@@ -132,10 +84,10 @@
       "role": "Member",
       "joined": {
         "yearsAgo": 7,
-        "month": 4,
-        "day": 19
+        "month": 2,
+        "day": 25
       },
-      "attendancePercent": 55
+      "attendancePercent": 53
     },
     {
       "state": "Active",
@@ -144,34 +96,82 @@
       "role": "Member",
       "joined": {
         "yearsAgo": 7,
-        "month": 4,
-        "day": 19
+        "month": 2,
+        "day": 25
+      },
+      "attendancePercent": 52
+    },
+    {
+      "state": "Active",
+      "guid": "92D04619-3F97-4EFF-932E-61DA56441995",
+      "name": "Brian Gilbert",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 21
+      },
+      "attendancePercent": 50
+    },
+    {
+      "state": "Active",
+      "guid": "D35B865D-BF50-4A7D-848F-6C0ED7A2AE67",
+      "name": "Wendy Gilbert",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 21
+      },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+      "name": "Linda Hayes",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 6,
+        "month": 9,
+        "day": 10
       },
       "attendancePercent": 58
     },
     {
       "state": "Active",
-      "guid": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33",
-      "name": "Jim Simmons",
+      "guid": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+      "name": "Bob Hayes",
       "role": "Member",
       "joined": {
-        "yearsAgo": 7,
+        "yearsAgo": 6,
         "month": 9,
-        "day": 9
+        "day": 10
       },
       "attendancePercent": 65
     },
     {
       "state": "Active",
-      "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
-      "name": "Sarah Simmons",
+      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+      "name": "Deb Bell",
       "role": "Member",
       "joined": {
-        "yearsAgo": 7,
-        "month": 9,
+        "yearsAgo": 5,
+        "month": 3,
         "day": 9
       },
       "attendancePercent": 60
+    },
+    {
+      "state": "Active",
+      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
+      "name": "Larry Bell",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 9
+      },
+      "attendancePercent": 47
     }
   ]
 }

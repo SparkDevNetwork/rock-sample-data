@@ -14,7 +14,7 @@ Kevin Dawson is divorced and has his kids every other weekend. They come when th
 
 ### Kevin Dawson
 
-- Age 39 · divorced · email kevin.dawson@example.org · groups: Lee Group
+- Age 39 · divorced · email kevin.dawson@example.org · groups: Decker Group
 - Person Guid `DE3E4484-6818-4919-978A-A2A2EBEFC64A`
 
 ### Tyler Dawson
