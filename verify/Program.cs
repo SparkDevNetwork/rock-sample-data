@@ -240,6 +240,8 @@ try
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "staff-homepage";
+            checks.Add( StaffHomepageCheck( rock, sql, database, foreignKey, source ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -790,6 +792,179 @@ static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string databa
     }
 
     return CheckResult.From( "segments", problems.Count == 0 ? $"Rock's segment update changed nothing in the {expected.Count} personalization segments" : "Rock's segment update would change the segments", problems );
+}
+
+/// <summary>
+/// Rock's staff homepage (decisions D-homepage-1 to D-homepage-4). The load wrote one update for each Monday of the
+/// configured weeks. The item Rock's Internal Communication View block picks, the newest approved one whose start has
+/// passed, is this week's update, and Rock's own Lava engine renders it with the block's Body Template, showing its
+/// feature title, image, and every article. Each homepage metric's newest value is the metric's last run. A daily
+/// metric's newest value equals Rock's own SQL when that run was today, and each campus's newest Active Families value
+/// is no more than Rock's SQL gives it today and above zero where Rock's is. The block lists the path metrics, and the
+/// Quick Links hold the church's links.
+/// </summary>
+static CheckResult StaffHomepageCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, SampleDataSource source )
+{
+    var homepage = source.ReadStaffHomepage();
+    if ( homepage == null )
+    {
+        return CheckResult.From( "staff-homepage", "This package has no staff homepage", new List<string>() );
+    }
+
+    var problems = new List<string>();
+    var notes = new List<string>();
+    var channel = new SqlParameter( "@Channel", homepage.Updates.ContentChannel );
+    var updates = sql.Query( database, @"
+SELECT [i].[Id], [i].[StartDateTime]
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId]
+WHERE [c].[Guid] = @Channel AND ( [i].[ForeignKey] = @ForeignKey OR [i].[Guid] = @RockItem )
+ORDER BY [i].[StartDateTime]", channel, new SqlParameter( "@ForeignKey", foreignKey ), new SqlParameter( "@RockItem", homepage.Updates.RockItem ) );
+    var mondays = updates.Select( u => ( DateTime ) u["StartDateTime"] ).ToList();
+    if ( mondays.Count != homepage.Updates.Weeks || mondays.Any( d => d.DayOfWeek != DayOfWeek.Monday || d != d.Date ) || mondays.Zip( mondays.Skip( 1 ), ( a, b ) => ( b - a ).Days ).Any( d => d != 7 ) )
+    {
+        problems.Add( $"The load wrote {mondays.Count} staff updates, not one on each of {homepage.Updates.Weeks} Mondays in a row." );
+    }
+
+    // Rock's block: the newest approved item in the channel whose start has passed (InternalCommunicationView).
+    var shown = sql.Query( database, @"
+SELECT TOP 1 [i].[Id], [i].[StartDateTime], [i].[ForeignKey], [i].[Guid]
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId]
+WHERE [c].[Guid] = @Channel AND [i].[Status] = 2 AND [i].[StartDateTime] <= GETDATE()
+ORDER BY [i].[StartDateTime] DESC", new SqlParameter( "@Channel", homepage.Updates.ContentChannel ) ).SingleOrDefault();
+    var title = string.Empty;
+    if ( shown == null || mondays.Count == 0 || ( DateTime ) shown["StartDateTime"] != mondays[mondays.Count - 1] || ( DateTime ) shown["StartDateTime"] < sql.Today().AddDays( -7 ) )
+    {
+        problems.Add( "Rock's homepage block does not show this week's staff update." );
+    }
+    else
+    {
+        var itemId = ( int ) shown["Id"];
+        var values = sql.Query( database, @"
+SELECT [a].[Key], [v].[Value]
+FROM [AttributeValue] AS [v]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[EntityTypeQualifierColumn] = 'ContentChannelTypeId'
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] AND [et].[Name] = 'Rock.Model.ContentChannelItem'
+WHERE [v].[EntityId] = @ItemId", new SqlParameter( "@ItemId", itemId ) ).ToDictionary( r => ( string ) r["Key"], r => r["Value"] as string );
+        title = values.GetValueOrDefault( "FeatureTitle" ) ?? string.Empty;
+        var articles = sql.Query( database, @"
+SELECT [v].[Value]
+FROM [AttributeMatrix] AS [m]
+INNER JOIN [AttributeMatrixItem] AS [mi] ON [mi].[AttributeMatrixId] = [m].[Id]
+INNER JOIN [AttributeValue] AS [v] ON [v].[EntityId] = [mi].[Id]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Key] = 'ArticleTitle' AND [a].[EntityTypeQualifierColumn] = 'AttributeMatrixTemplateId'
+WHERE [m].[Guid] = TRY_CAST( @Matrix AS UNIQUEIDENTIFIER )", new SqlParameter( "@Matrix", values.GetValueOrDefault( "Articles" ) ?? string.Empty ) ).Select( r => ( string ) r["Value"] ).ToList();
+        var html = RockRunner.Run( rock, sql, database, "staff-homepage", new[] { homepage.Block.ToString(), itemId.ToString() } ).Trim();
+        bool Shows( string text ) => !string.IsNullOrEmpty( text ) && ( html.Contains( text, StringComparison.Ordinal ) || html.Contains( System.Net.WebUtility.HtmlEncode( text ), StringComparison.Ordinal ) );
+        if ( html.StartsWith( "error", StringComparison.Ordinal ) )
+        {
+            problems.Add( $"Rock could not render the staff homepage: {html}" );
+        }
+        else
+        {
+            if ( !Shows( title ) || !Shows( values.GetValueOrDefault( "FeatureImage" ) ) )
+            {
+                problems.Add( $"Rock's homepage block does not show the update's feature title and image ({title})." );
+            }
+
+            if ( articles.Count is < 1 or > 3 )
+            {
+                problems.Add( $"This week's update has {articles.Count} articles. Rock's article list holds one to three." );
+            }
+            else if ( html.Contains( "IRockRequestContextAccessor", StringComparison.Ordinal ) )
+            {
+                // Rock 21's hotfix 322 builds each article's image link with ResolveRockUrl, which needs a web request.
+                notes.Add( "Rock's article list resolves its image links through a web request, which verify does not have, so Rock did not render the articles here. The staff-updates-are-complete invariant checks them." );
+            }
+            else if ( articles.Any( a => !Shows( a ) ) )
+            {
+                problems.Add( $"Rock's homepage block shows {articles.Count( Shows )} of the update's {articles.Count} articles." );
+            }
+        }
+    }
+
+    // The homepage metrics.
+    var today = sql.Today();
+    foreach ( var metric in homepage.Metrics )
+    {
+        var row = sql.Query( database, "SELECT [Id], [SourceSql], [LastRunDateTime] FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ).SingleOrDefault();
+        if ( row == null )
+        {
+            notes.Add( $"This Rock has no {metric.Key} metric." );
+            continue;
+        }
+
+        var newest = sql.Query( database, @"
+SELECT [v].[MetricValueDateTime], [v].[YValue], [p].[EntityId]
+FROM [MetricValue] AS [v]
+INNER JOIN [MetricValuePartition] AS [p] ON [p].[MetricValueId] = [v].[Id]
+WHERE [v].[MetricId] = @Id AND [v].[MetricValueDateTime] = ( SELECT MAX( [MetricValueDateTime] ) FROM [MetricValue] WHERE [MetricId] = @Id )", new SqlParameter( "@Id", row["Id"] ) );
+        var lastRun = row["LastRunDateTime"] as DateTime?;
+        if ( newest.Count == 0 || lastRun == null || ( DateTime ) newest[0]["MetricValueDateTime"] != lastRun || lastRun < today.AddDays( -7 ) )
+        {
+            problems.Add( $"The {metric.Key} metric has no value from its last run this week, so its tile would be stale." );
+            continue;
+        }
+
+        var counted = sql.Query( database, ( string ) row["SourceSql"] ).Select( r => (Count: Convert.ToInt32( r.Values.First() ), Campus: r.Count > 1 ? r.Values.Skip( 1 ).First() as int? : null) ).ToList();
+        var newestByCampus = newest.GroupBy( r => r["EntityId"] as int? ).ToDictionary( g => g.Key ?? 0, g => ( int ) g.Sum( r => ( decimal ) r["YValue"] ) );
+        if ( !metric.ByCampus )
+        {
+            var value = newestByCampus.Values.Sum();
+            if ( lastRun.Value.Date != today )
+            {
+                notes.Add( $"{metric.Key} was not judged against Rock's SQL: its last run was {lastRun:yyyy-MM-dd HH:mm}, not today." );
+            }
+            else if ( value != counted.Sum( r => r.Count ) )
+            {
+                problems.Add( $"The {metric.Key} metric's newest value is {value:N0}, but Rock's own SQL counts {counted.Sum( r => r.Count ):N0} today." );
+            }
+        }
+        else
+        {
+            foreach ( var (count, campus) in counted )
+            {
+                var value = newestByCampus.GetValueOrDefault( campus ?? 0 );
+                if ( value > count || ( count > 0 && value == 0 ) )
+                {
+                    problems.Add( $"The {metric.Key} metric's newest value for campus {campus} is {value:N0}, but Rock's own SQL counts {count:N0} today." );
+                }
+            }
+        }
+    }
+
+    // The path metrics on the block, and the church's Quick Links.
+    var blockMetrics = ( sql.Scalar( database, @"
+SELECT [v].[Value]
+FROM [Block] AS [b]
+INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'BlockTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [b].[BlockTypeId] AS NVARCHAR( 200 ) ) AND [a].[Key] = 'Metrics'
+INNER JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[EntityId] = [b].[Id]
+WHERE [b].[Guid] = @Block", new SqlParameter( "@Block", homepage.Block ) ) as string ) ?? string.Empty;
+    if ( homepage.PathMetrics )
+    {
+        foreach ( var metric in source.Reporting?.Metrics ?? new List<MetricDefinition>() )
+        {
+            var isWritten = sql.Scalar( database, "SELECT 1 FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ) != null;
+            if ( isWritten && !blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase ) )
+            {
+                problems.Add( $"The homepage block does not list the {metric.Title} metric." );
+            }
+        }
+    }
+
+    var quickLinks = ( sql.Scalar( database, "SELECT [Content] FROM [HtmlContent] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", homepage.QuickLinks?.Content ?? Guid.Empty ) ) as string ) ?? string.Empty;
+    foreach ( var link in homepage.QuickLinks?.Links ?? new List<QuickLink>() )
+    {
+        if ( !quickLinks.Contains( $"href=\"{link.Href}\"", StringComparison.Ordinal ) )
+        {
+            problems.Add( $"The Quick Links do not have {link.Label} ({link.Href})." );
+        }
+    }
+
+    return CheckResult.From( "staff-homepage", problems.Count == 0
+        ? $"Rock's homepage shows this week's update, {title}, from {mondays.Count} weekly updates, with current metric tiles and the church's Quick Links"
+        : "The staff homepage is not what a church would see", problems, notes );
 }
 
 /// <summary>

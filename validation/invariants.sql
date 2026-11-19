@@ -164,6 +164,25 @@ WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c]
         OR [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodedDateTime] IS NULL OR [l].[GeocodeAttemptedServiceType] IS NULL
         OR [l].[GeoPoint] IS NULL );
 
+-- check: staff-updates-are-complete
+-- why: Decision D-homepage-1. Rock's staff homepage shows an update's feature title, text, link, and image, then its one to three articles, each with a title and content, and Rock's save hook gives every item a global key and a slug. An update missing any of them shows a blank part of the homepage.
+SELECT COUNT(*)
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId] AND [c].[Guid] = '78D01959-0EA6-4FE4-B6F8-A3765F0CEDBF'
+WHERE [i].[ForeignKey] = @ForeignKey
+    AND ( [i].[ItemGlobalKey] IS NULL
+        OR ( SELECT COUNT(*) FROM [ContentChannelItemSlug] AS [s] WHERE [s].[ContentChannelItemId] = [i].[Id] ) <> 1
+        OR ( SELECT COUNT(*) FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId]
+            WHERE [v].[EntityId] = [i].[Id] AND [a].[Guid] IN ( '00692241-04F5-4B08-85A5-DC671294E372', '8D057A30-9BA4-4E56-977A-50870580016B', '453F8D20-C65E-4F44-A5AC-32CDD0493331' ) AND [v].[Value] <> '' ) <> 3
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Guid] = '6B0A2023-A3F9-4208-A688-10A67483A435'
+            INNER JOIN [BinaryFile] AS [f] ON [f].[Guid] = TRY_CAST( [v].[Value] AS UNIQUEIDENTIFIER ) INNER JOIN [BinaryFileData] AS [d] ON [d].[Id] = [f].[Id]
+            WHERE [v].[EntityId] = [i].[Id] )
+        OR ( SELECT COUNT(*) FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Guid] = 'C9C7B33F-DE67-470D-9EFD-39275E00CE81'
+            INNER JOIN [AttributeMatrix] AS [m] ON [m].[Guid] = TRY_CAST( [v].[Value] AS UNIQUEIDENTIFIER ) INNER JOIN [AttributeMatrixItem] AS [mi] ON [mi].[AttributeMatrixId] = [m].[Id]
+            WHERE [v].[EntityId] = [i].[Id]
+                AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = 'DBC9E868-D509-4436-8B11-1343A02DB433' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' )
+                AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = '95FE772F-D799-41DD-9802-F5FD487933FC' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' ) ) NOT BETWEEN 1 AND 3 );
+
 -- check: nothing-dated-in-the-future
 -- why: The timeline counts back from the install day. A future gift, check-in, or step shows up in "upcoming" places.
 --      Requests to serve in the weeks ahead are the one exception: they are scheduled and not attended (decision 74).

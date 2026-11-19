@@ -65,6 +65,8 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Content", SampleDataPart.Content),
+            ("Staff homepage", null),
             ("Logins", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -623,6 +625,39 @@ namespace RockSampleData.Loader
             // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
+
+            // Rock's staff homepage. The weekly updates are the Content part. The metric history, the path metrics on
+            // the block, and the Quick Links read whatever rows the load wrote, so they come after every data step and
+            // always run (decisions D-homepage-1 to D-homepage-4).
+            var staffHomepage = source.ReadStaffHomepage();
+            var homepage = staffHomepage == null ? null : new StaffHomepageLoader( db, source, staffHomepage, dates, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+            if ( steps.Begin( "Content" ) )
+            {
+                if ( homepage == null )
+                {
+                    log.Write( "  Skipped (this package has no configuration/staff-homepage.json)" );
+                }
+                else
+                {
+                    homepage.LoadUpdates( people.People, configuration.CampusPlans, calendar.HistoryStart );
+                }
+            }
+
+            steps.Begin( "Staff homepage" );
+            if ( homepage != null )
+            {
+                var (metricCount, valueCount) = homepage.LoadMetrics();
+                log.Write( $"  Homepage metrics: {metricCount} with {valueCount:N0} values" );
+                if ( staffHomepage.PathMetrics && source.Reporting != null )
+                {
+                    log.Write( $"  Path metrics on the homepage: {homepage.AddPathMetrics( source.Reporting.Metrics )}" );
+                }
+
+                if ( staffHomepage.QuickLinks != null )
+                {
+                    log.Write( $"  Quick Links added: {homepage.AddQuickLinks()}" );
+                }
+            }
 
             // Logins come last, because who has one reads the group, serving, and giving plans, and the prayer team and
             // app devices when those parts load. They load only with a password hash. Account protection follows

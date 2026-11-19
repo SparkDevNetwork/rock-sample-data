@@ -23,6 +23,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Registrations check](#registrations-check) | Before every pull request that changes registrations | Every registration names real events, templates, and groups, makes valid unique slugs, every feature has an always-open home, every registrants rule is one the template allows, releases use only the Lava the loader renders, and data views are filed and replayable. |
 | [Reporting check](#reporting-check) | Before every pull request that changes data views or categories | Every data view is filed under a church category, points only at views that exist, never loops, names real step types, and sits under the same lock as any locked view it builds on, every flow audience in Sample Data carries the email guard, and every personalization segment on a locked view is locked the same way. |
 | [Adaptive messages check](#adaptive-messages-check) | Before every pull request that changes adaptive messages | Every adaptation names real segments, only a message's last one has none, and its text has the right fields, lengths, links, and approved images. |
+| [Staff updates check](#staff-updates-check) | Before every pull request that changes the staff homepage | Every staff update piece names a real occasion, an approved image, and a staff author with a photo, and fits Rock's homepage. |
 | [Package self-check](#package-self-check) | Every time the builder writes a package | A package that would fail to load is never written. |
 | [Trusted base](#trusted-base) | Verify tool, before publishing | Every load starts from a clean copy of exactly this Rock release. |
 | [Contract schema](#contract-schema) | Verify tool | Everything the loader depends on still exists in this Rock, unchanged. |
@@ -39,6 +40,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
+| [Staff homepage](#staff-homepage) | Verify tool | Rock's staff homepage shows this week's update from a year of them, with current metric tiles and the church's Quick Links. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
@@ -88,6 +90,12 @@ These need only Node.js, so every contributor runs them.
 **What it does.** `node content/adaptive-messages/check-messages.js` reads `configuration/adaptive-messages.json` and the text in `content/adaptive-messages/messages.json`. Keys and Guids are unique. Every adaptation names segments the file has, and only a message's last adaptation has none, since Rock shows the first adaptation that fits and one with no segments fits everyone. Every segment is used. Dates rules, saturation, pages, and Cast rows are real. Every adaptation has text and no text is left over. A call to action is 3 to 30 characters, a summary 40 to 160, and each of one to three details paragraphs 20 to 200. A link is a route Rock ships on its External Website or a page in the configuration. An image is an approved calendar event image. Text uses plain characters, no Lava, no full web addresses, and reserved email domains, and no two summaries in one message start with the same five words. When `photos/messages/manifest.json` exists, each of its images belongs to one real adaptation with no event image, and its file is there. It also lists the adaptations that wait for the message image brief.
 
 **Why it's there.** An adaptation with no segments placed early would hide every adaptation after it, and Rock would never say so. A broken link or a missing image only shows on a page after someone installs the data.
+
+### Staff updates check
+
+**What it does.** `node content/internal-news/check-news.js` reads `content/internal-news/updates.json` and `configuration/staff-homepage.json`. Keys are unique. Every dated piece names an occasion the loader dates, or a calendar event, and a week offset from -4 to 12. Every feature shows an approved event image, and every article's author is a staff member with a staff photo. Titles are 5 to 60 characters and paragraphs 20 to 250, in plain characters with no Lava, HTML, or web addresses. There are enough evergreen features and authors to fill a year. The settings have Rock's Guids, an https link, article counts of one to three, and Quick Links that are Rock routes.
+
+**Why it's there.** The loader writes the text into Rock's homepage as it is, so a mistake here shows on every staff member's screen.
 
 ## When packages are built
 
@@ -162,6 +170,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `no-race-or-ethnicity` | Content standard 8. |
 | `home-addresses-are-mapped` | Group Finder, campus distance, and maps need a point for every home. |
 | `loaded-addresses-are-checked` | Every home, business, and campus Location the load wrote carries the marks of a successful check by Rock's address service, and a geocoded one has its map point, so no sample address ever goes to one (decision D-addresses-1). It covers campuses, which have no street yet, so the address services check cannot see them. |
+| `staff-updates-are-complete` | Every staff update has its feature title, text, link, and stored image, one to three articles with a title and content, a global key, and one slug, as Rock's editor and save hook leave them (decision D-homepage-1). |
 | `nothing-dated-in-the-future` | A future gift, check-in, or step shows up in "upcoming" places. |
 | `transaction-has-positive-details` | Rock totals a gift from its details. A refund is the one transaction with negative details. |
 | `transaction-is-inside-its-batch` | A gift outside its batch's date range lands in the wrong batch report. |
@@ -310,6 +319,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** `verify/rock-runner` renders Rock's own `{% adaptivemessage %}` Lava command, with the command enabled and views not tracked, for each Cast row in `configuration/adaptive-messages.json`: the person and the message. Rock finds the person's segments in the database, as it does on a page with no segment cookie, and shows the first adaptation that fits. Each must be the row's adaptation, with its call to action. Rock's answer for Ted Decker, Jordan Ellis, Margaret Carter, and the other Giving layer stories proves each lands in its layer by Rock's own rule. Then it renders the External Website homepage block for each of them, as the block renders it for the signed-in person, and the page must show the row's call to action.
 
 **Why it's there.** The loader writes the segments, adaptations, and attribute values with SQL. Only Rock's own Lava engine proves a page shows each person what the design says.
+
+### Staff homepage
+
+**What it does.** Checks Rock's staff homepage (decision D-homepage-5). The load wrote an update on each of the configured 52 Mondays in a row. The item Rock's Internal Communication View block picks, the newest approved one whose start has passed, is this week's update. `verify/rock-runner` renders it with the block's own Body Template through Rock's Lava engine, and the page must show its feature title and image and each article. Rock 21's article list builds its image links from the web request, which the runner does not have, so on Rock 21 the articles are noted and the `staff-updates-are-complete` invariant checks them. Each homepage metric's newest value must be its last run, from this week. A daily metric's newest value must equal Rock's own SQL when that run was today, and no campus's Active Families value may be above Rock's count today, or zero where Rock's is not. The block must list the Ministry Path metrics, and the Quick Links must hold the church's links.
+
+**Why it's there.** The loader writes the items, matrices, and metric values with SQL. Only Rock's own Lava engine and Rock's own metric SQL prove the homepage a staff member opens is full and current.
 
 ### Segments
 

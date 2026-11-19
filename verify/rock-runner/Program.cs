@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|staff-homepage --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -62,6 +62,9 @@ namespace RockSampleData.RockRunner
     ///            separated by a tab, with views not tracked, and prints the adaptation Id it shows and its call to action,
     ///            separated by a tab, or an empty line when it shows none. For "block:" and an HTML Content block's Guid in
     ///            place of the key, it renders that block's content for the person instead, on one line.
+    ///   staff-homepage  Renders the Internal Communication View block's Body Template, through Rock's Lava engine, for
+    ///            the content channel item whose Id is on the input's second line, as the block on the first line's Guid
+    ///            renders it, and prints the HTML on one line.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -76,10 +79,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "staff-homepage" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "staff-homepage" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|staff-homepage --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +121,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "staff-homepage" => worker.StaffHomepage( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -803,6 +807,52 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Renders the staff homepage's Internal Communication View block body for one item, as the block renders the item
+        /// it picks: the block's own Body Template setting, through Rock's Lava engine, with the item and its attributes.
+        /// The input is the block's Guid, then the item's Id. Returns the rendered HTML on one line, or an error line.
+        /// </summary>
+        public string StaffHomepage( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( string ), typeof( bool ), typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no ResolveMergeFields( string, IDictionary, string, bool, bool ). The runner needs updating for this Rock." );
+            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
+            var blockCache = _rock.GetType( "Rock.Web.Cache.BlockCache", true );
+            var block = blockCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                .Invoke( null, new object[] { new Guid( lines[0].Trim() ) } );
+            if ( block == null )
+            {
+                return "error\tthe block is missing";
+            }
+
+            var template = ( string ) blockCache.GetMethod( "GetAttributeValue", new[] { typeof( string ) } ).Invoke( block, new object[] { "BodyTemplate" } );
+            var itemService = _rock.GetType( "Rock.Model.ContentChannelItemService", true );
+            var item = itemService.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( itemService, createContext.Invoke( null, new[] { app } ) ), new object[] { int.Parse( lines[1].Trim() ) } );
+            if ( item == null || string.IsNullOrWhiteSpace( template ) )
+            {
+                return "error\tthe item or the block's Body Template is missing";
+            }
+
+            loadAttributes.Invoke( null, new[] { item } );
+            try
+            {
+                var mergeFields = new Dictionary<string, object> { ["Item"] = item, ["Metrics"] = new List<object>() };
+                var output = ( string ) resolve.Invoke( null, new object[] { template, mergeFields, string.Empty, false, true } );
+                return string.Join( " ", output.Split( new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries ).Select( s => s.Trim() ) );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                return $"error\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}";
+            }
         }
 
         /// <summary>

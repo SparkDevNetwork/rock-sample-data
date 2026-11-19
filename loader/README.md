@@ -19,7 +19,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, `Assessments`, `Communications`, `Calendar`, and `Registrations`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Steps`, `Assessments`, `Communications`, `Calendar`, `Registrations`, and `Content`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is on another Rock major release than the package, or its Rock version is unknown, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--rock-version` | The database's Rock version, for example `21.0.2`. Without it, the loader reads `RockWeb/bin/Rock.Version.dll` in the `--rock` checkout. |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, content, the staff homepage, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, the staff homepage, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -86,6 +86,7 @@ A load can choose its parts (decision 121). Church setup and people always load.
 | `Communications` | Communications | Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use | Small groups, serving teams, prayer requests, steps |
 | `Calendar` | Calendar events | Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos | |
 | `Registrations` | Event registrations | Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students, kids, and adults who registered, with their payments, payment plans, placements, signed releases, notes, and history, and the data views about registrations | Calendar events |
+| `Content` | Content | Weekly staff updates on Rock's staff homepage for the past year, each with its feature, articles, and images | |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
 `SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
@@ -655,6 +656,14 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 4. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
 
 `AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees.
+
+## Staff homepage
+
+`loading/StaffHomepageLoader.cs` fills Rock's staff homepage from `../configuration/staff-homepage.json`, with the text in `../content/internal-news/updates.json`. See [Staff homepage](../docs/staff-homepage.md).
+
+1. **The weekly updates** (the `Content` part). `generation/StaffUpdatePlanner.cs` picks each of the last 52 Mondays' feature and articles from the church calendar: the message library's occasions, and every calendar event, planned here on its own so the part needs no other. Each image is stored once and shared. Each update is a content channel item saved as Rock's editor saves one, with a global key and a slug by Rock's own rules, its feature attributes, and an Internal Article List matrix with an item per article. Rock's 2018 item becomes the oldest update in place.
+2. **The metric tiles** (always). A year of values for Active Records, Active Families by campus, and Active Connection Requests, on Rock's own schedules, each counting today's active people whose family had come by that day, or the requests open that day. Each metric's last run is its newest value.
+3. **The block and Quick Links** (always). The four Ministry Path metrics join the block's metrics, and the church's links follow Rock's own in the Quick Links block.
 
 ## Calendar
 

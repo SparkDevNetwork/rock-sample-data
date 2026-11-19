@@ -299,6 +299,16 @@ module.exports = function features( { model } ) {
         }
     ];
 
+    // The staff homepage follows the adaptive messages, so the sections keep alternating.
+    const staffHomepage = require( path.join( model.root, "configuration/staff-homepage.json" ) );
+    areas.push( {
+        id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.",
+        text: html`Rock's staff homepage has a staff update for each Monday of the past ${staffHomepage.updates.weeks} weeks, from the Director of Communications, with articles from the staff. They follow the church calendar: Easter planning, VBS volunteers, Commitment Sunday, and year-end statements. The metric tiles show a year of history, and the Quick Links point at the pages staff open most.`,
+        checks: [ "A feature and one to three staff articles every week", "Event images and staff photos, each stored once", "Active Records, Active Families, and Active Connection Requests, with the Ministry Path metrics beside them" ],
+        look: [ "Rock's homepage, signed in as any staff member", "The Prev button, which steps back a week at a time", "The Internal Communications - Homepage content channel" ],
+        links: [ { label: "Staff homepage", href: doc( "docs/staff-homepage.md" ) } ]
+    } );
+
     // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
     const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );

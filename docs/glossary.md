@@ -82,6 +82,7 @@ The words this project uses, in alphabetical order.
 | **Signed release** | A release form, such as the Student Camp Release, that a registrar signs for each registrant with Rock's own electronic signature, typed, while registering. Rock keeps its text, the typed name, a verification hash, and a PDF. Not the package index's signature. See [Event registrations](registrations.md#release-forms). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
+| **Staff update** | A weekly post on Rock's staff homepage: a feature and one to three staff articles, in Rock's Internal Communications - Homepage content channel. See [Staff homepage](staff-homepage.md). |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |

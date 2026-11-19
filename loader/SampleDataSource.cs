@@ -317,6 +317,25 @@ namespace RockSampleData.Loader
 
         public const string MessagePhotoManifestPath = "photos/messages/manifest.json";
 
+        /// <summary>
+        /// Reads configuration/staff-homepage.json, Rock's staff homepage. A package built before it existed has none.
+        /// </summary>
+        public StaffHomepageConfiguration ReadStaffHomepage()
+        {
+            return Files.Exists( StaffHomepageConfigurationPath ) ? Read<StaffHomepageConfiguration>( StaffHomepageConfigurationPath ) : null;
+        }
+
+        public const string StaffHomepageConfigurationPath = "configuration/staff-homepage.json";
+
+        /// <summary>
+        /// Reads content/internal-news/updates.json, the text of the staff homepage's weekly updates.
+        /// </summary>
+        public InternalNewsLibrary ReadInternalNews() => Read<InternalNewsLibrary>( InternalNewsPath );
+
+        public const string InternalNewsFolder = "content/internal-news";
+
+        public const string InternalNewsPath = InternalNewsFolder + "/updates.json";
+
         public const string LoginsConfigurationPath = "configuration/logins.json";
 
         public const string RegistrationsConfigurationPath = "configuration/registrations.json";

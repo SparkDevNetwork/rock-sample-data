@@ -192,6 +192,7 @@ namespace RockSampleData.Builder
             AddFolder( SampleDataSource.CommunicationsContentFolder, ".png" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".json" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".lava" );
+            AddFolder( SampleDataSource.InternalNewsFolder, ".json" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what
@@ -306,6 +307,23 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            // The staff updates read, and each names an event image and a staff photo the package has.
+            if ( source.ReadStaffHomepage() != null )
+            {
+                var news = source.ReadInternalNews();
+                var eventImages = source.ReadEventPhotoManifest().Images.Select( i => i.Event ).ToHashSet( StringComparer.Ordinal );
+                var staffImages = source.ReadStaffPhotoManifest().Images.Select( i => $"{i.Household}/{i.Member}" ).ToHashSet( StringComparer.Ordinal );
+                foreach ( var feature in news.Features.Concat( news.EvergreenFeatures ).Where( f => !eventImages.Contains( f.Image ) ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.InternalNewsPath}: feature {feature.Key} shows event image {feature.Image}, which is not in {SampleDataSource.EventPhotoManifestPath}." );
+                }
+
+                foreach ( var article in news.Articles.Concat( news.EvergreenArticles ).Where( a => !staffImages.Contains( a.Author ) ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.InternalNewsPath}: article {article.Key} is by {article.Author}, who has no staff photo in {SampleDataSource.StaffPhotoManifestPath}." );
                 }
             }
 

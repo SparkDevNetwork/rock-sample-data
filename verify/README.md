@@ -55,6 +55,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
 | `assessment-scores` | Rock's own five assessment scoring services score every saved answer set, and give each person's latest results exactly the person attribute values the load wrote. Rock's own serializer writes the same answer data ([Assessments](../docs/assessments.md#how-it-is-checked)). |
 | `adaptive-messages` | Rock's own `{% adaptivemessage %}` Lava command shows each Cast person in `configuration/adaptive-messages.json` their adaptation, with its call to action. |
+| `staff-homepage` | Rock's staff homepage block picks this week's update from 52 weekly ones, and Rock's own Lava engine renders it with its feature and articles. Each homepage metric's newest value is its last run and agrees with Rock's own SQL, the block lists the path metrics, and the Quick Links hold the church's links. |
 | `segments` | Rock's own segment update, run on every personalization segment the load wrote, adds and removes nobody. Judged only when today is the anchor. |
 | `group-sync` | Rock's own group sync, run on every sync the load wrote, adds, removes, and refuses nobody. Judged only when today is the anchor. |
 | `anchor-sweep` | Core 1 only. Every Cast giving expectation holds on each of the 60 install days from the anchor, in dry-run loads of the giving part. |
@@ -143,5 +144,6 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `metrics` | The loader's weekly values in `loader/loading/MetricsWriter.cs` no longer follow the stage view's rule, or the view changed shape. A metric can count only a view of active people with any of some steps. |
 | `reports` | Fix the column in `configuration/reporting.json`: the property name, attribute key, or the component's selection. |
 | `adaptive-messages` | A Cast person sees another adaptation. Check their segments' data views and the adaptation order in `configuration/adaptive-messages.json`, and their story. |
+| `staff-homepage` | Each line names what is missing. For an update, check `content/internal-news/updates.json` and `loader/loading/StaffHomepageLoader.cs`. For a metric, compare its newest value with the metric's own SQL in Rock. |
 | `segments` | A segment does not hold exactly what its data view finds in Rock. Fix how `loader/loading/DataViewEvaluator.cs` reads the view's filters. |
 | `access` | Rock's answer differs from the walkthrough. Fix the category's `security` in `configuration/categories.json`, or the row in `configuration/reporting.json` if the walkthrough is wrong. |

@@ -305,6 +305,20 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
+        /// Stores one Default file for each distinct image, which many attribute values may share, and returns each
+        /// file's Guid by its path under photos/. Rock deletes an image file only when no attribute value names it any
+        /// longer, so sharing is safe (decision D-homepage-2).
+        /// </summary>
+        /// <param name="files">The images, under photos/. A file may repeat.</param>
+        /// <param name="manifestName">The manifest that lists them, for the error when one is missing.</param>
+        public Dictionary<string, Guid> LoadSharedImages( IEnumerable<string> files, string manifestName )
+        {
+            var distinct = files.Distinct( StringComparer.Ordinal ).ToList();
+            var guids = distinct.Count == 0 ? new List<Guid>() : CopyFiles( distinct, manifestName );
+            return distinct.Select( ( f, i ) => (f, guids[i]) ).ToDictionary( x => x.f, x => x.Item2, StringComparer.Ordinal );
+        }
+
+        /// <summary>
         /// Writes one Default file per item and returns their Guids in order.
         /// </summary>
         private List<Guid> CopyFiles( IReadOnlyList<string> files, string manifestName )
