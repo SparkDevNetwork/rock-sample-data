@@ -13,9 +13,11 @@ SELECT [c].[Name] AS [Campus],
 FROM [Group] AS [g] INNER JOIN [Campus] AS [c] ON [c].[Id] = [g].[CampusId]
 WHERE [g].[GroupTypeId] = @SmallGroupTypeId GROUP BY [c].[Name] ORDER BY [c].[Name];
 
-PRINT '2. Leaders: count, how many are not male or under 18 (expect 0), youngest';
-SELECT COUNT( * ) AS [Leaders], SUM( CASE WHEN [p].[Gender] <> 1 OR [p].[Age] < 18 THEN 1 ELSE 0 END ) AS [NotMaleOrUnder18], MIN( [p].[Age] ) AS [YoungestLeader]
+PRINT '2. Leaders: count, women leading Women''s Bible Study groups, how many are the wrong gender for their topic or under 18 (expect 0), youngest';
+SELECT COUNT( * ) AS [Leaders], SUM( CASE WHEN [topic].[Value] = '7d82898f-4936-479e-b568-c6c787fa770a' THEN 1 ELSE 0 END ) AS [WomenLeading],
+    SUM( CASE WHEN [p].[Gender] <> CASE WHEN [topic].[Value] = '7d82898f-4936-479e-b568-c6c787fa770a' THEN 2 ELSE 1 END OR [p].[Age] < 18 THEN 1 ELSE 0 END ) AS [WrongGenderOrUnder18], MIN( [p].[Age] ) AS [YoungestLeader]
 FROM [GroupMember] AS [gm] INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+LEFT JOIN [AttributeValue] AS [topic] ON [topic].[EntityId] = [gm].[GroupId] AND [topic].[AttributeId] = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = '04BFAC9B-6D1A-E089-446A-B2C604C76764' )
 WHERE [gm].[GroupTypeId] = @SmallGroupTypeId AND [gm].[GroupRoleId] = @LeaderRoleId;
 
 PRINT '3. Members under 18 or without an age (expect 0), youngest member';

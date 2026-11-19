@@ -209,7 +209,7 @@ module.exports = function features( { model } ) {
         {
             id: "groups-and-serving", eyebrow: "Groups and serving", title: "Groups that meet, and teams that serve.", sand: true,
             text: html`${model.counts.smallGroups} Cast small groups plus generated ones at every campus, with leaders, hosts, topics, photos, and a real church year. Every campus also has ${model.opportunities.length} serving teams, with rotations, preferences, and schedules six weeks ahead.`,
-            checks: [ "Group Finder test cases at every campus", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays" ],
+            checks: [ "Group Finder test cases at every campus", "Women's Bible studies led by women, and men's Bible studies", "New groups on launch Sundays, most led by someone who was Ready to Lead", "Members who join after a family starts coming and leave after it stops", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays" ],
             look: [ html`<a href="church.html#groups">The church's small groups</a>`, html`<a href="church.html#serving">The serving teams</a>`, "Rock's Group Scheduler for next Sunday" ],
             links: [ { label: "Small groups", href: doc( "docs/small-groups.md" ) }, { label: "Serving", href: doc( "docs/serving.md" ) } ]
         },

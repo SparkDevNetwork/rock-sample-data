@@ -288,7 +288,7 @@ ${model.staff.length ? html`<section class="section section-sand" id="staff">
 
 <section class="section" id="groups">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week. Each Cast group has a photo of its leaders, made from their profile photos. The original photos of every member are beside them." } )}
+    ${sectionHead( { eyebrow: "Small groups", title: "Where the church gets small.", lede: "Groups of about a dozen adults meet in homes during the week, and some are women's or men's Bible studies. Each established Cast group has a photo of its leaders, made from their profile photos. The original photos of every member are beside them." } )}
     <div class="group-grid group-grid-pairs">
       ${model.smallGroups.filter( g => g.photo ).map( g => {
             const full = model.fullGroupPhotos.find( p => p.key === g.key );

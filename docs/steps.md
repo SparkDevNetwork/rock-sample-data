@@ -91,7 +91,7 @@ A class is complete on its last night. So on any install day, every campus has a
 Who takes a class, in this order:
 
 1. **The Cast's stories.** A Cast person's household file can name a class by how many classes ago it was (`steps`). The load fails if that class cannot hold against the person's other records.
-2. **Everyone the class must come before.** Every volunteer completed Starting Point before their first Serve step, which is Rock's prerequisite. It is dated in the three months before their first group or team.
+2. **Everyone the class must come before.** Every volunteer completed Starting Point before their first Serve step, which is Rock's prerequisite. It is dated in the three months before their first group or team. A small group leader who launched from Ready to Lead had an Equip step six weeks before the launch, so one who was not baptized by then completed Foundations in the two years before that day (decision D-launch-groups-1).
 3. **The current class.** Two to four people per campus, counting any Cast people in it. Starting Point takes people with an open request to serve first, since they need it before they can serve. Then it takes people who started coming or joined a group in the last year.
 4. **Everyone else, up to a share.** Then active adults until the campus reaches its share: those in a group first, then others. Starting Point is dated in the three months before the person's first group or team, or otherwise in the year after the household's first visit. Foundations comes after Starting Point, in the person's first year in a group, or otherwise within two years of Starting Point.
 

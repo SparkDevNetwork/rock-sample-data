@@ -41,6 +41,7 @@ The words this project uses, in alphabetical order.
 | **Giving unit** | The people Rock counts as one giver: a couple who give together, or one person who gives on their own. |
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
+| **Launch Sunday** | A Sunday when the church starts new small groups: the second Sunday of September and the third Sunday of January. About a third of the groups started on one of the last four. See [Small groups](small-groups.md#new-groups-and-new-leaders). |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
@@ -56,6 +57,7 @@ The words this project uses, in alphabetical order.
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
 | **Personalization segment** | The people in one person data view, which Rock keeps in its PersonAliasPersonalization table and refreshes on a schedule. Each of the church's segments points at a view in `configuration/reporting.json`. |
+| **Pin** | A fact about a Cast small group in `configuration/small-groups.json` that the planner keeps on every run, such as its leader, host, topic, or a household in it, because a Cast story, note, or prayer request says so. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
@@ -63,6 +65,7 @@ The words this project uses, in alphabetical order.
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. Rock's Position person attribute is something else: a job title, beside Employer. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
+| **Ready to Lead** | The church's data view of adults who have an Equip step, serve on a team, and are in a small group, but lead nothing yet. The Lead a Group flow invites them six weeks before each launch Sunday, and most new small group leaders come from it. |
 | **Refund** | A transaction that returns part or all of a gift, with negative amounts, a reason, and a link to the gift. Staff make it in Rock, and it lands in the day's " - Refund" batch. See [Refunds](refunds.md). |
 | **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision 209). See [Event registrations](registrations.md). |
 | **Registrant** | A person registered on a registration, such as a camper. One registration can hold several, such as siblings. |
