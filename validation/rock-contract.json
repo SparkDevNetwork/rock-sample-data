@@ -1977,6 +1977,68 @@
         "UsageSummary": "nvarchar(500) not null"
       }
     },
+    "EntitySet": {
+      "written": [
+        "AdditionalSettingsJson",
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntitySetPurposeValueId",
+        "EntityTypeId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Note",
+        "Order"
+      ],
+      "rockColumns": {
+        "AdditionalSettingsJson": "nvarchar(max) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntitySetPurposeValueId": "int null",
+        "EntityTypeId": "int null",
+        "ExpireDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(100) null",
+        "Note": "nvarchar(max) null",
+        "Order": "int not null",
+        "ParentEntitySetId": "int null"
+      }
+    },
+    "EntitySetItem": {
+      "written": [
+        "CreatedByPersonAliasId",
+        "CreatedDateTime",
+        "EntityId",
+        "EntitySetId",
+        "ForeignKey",
+        "Guid",
+        "ModifiedByPersonAliasId",
+        "ModifiedDateTime",
+        "Order"
+      ],
+      "rockColumns": {
+        "AdditionalMergeValuesJson": "nvarchar(max) null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "EntityId": "int not null",
+        "EntitySetId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Order": "int not null"
+      }
+    },
     "EntityType": {
       "written": [
         "AssemblyName",
@@ -4422,6 +4484,58 @@
         "PersonAliasId": "int not null",
         "PersonalizationEntityId": "int not null",
         "PersonalizationType": "int not null"
+      }
+    },
+    "PersonDuplicate": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "IgnoreUntilScoreChanges",
+        "IsConfirmedAsNotDuplicate",
+        "ModifiedByPersonAliasId"
+      ],
+      "rockColumns": {
+        "Capacity": "int null",
+        "ConfidenceScore": "float null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "DuplicatePersonAliasId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "IgnoreUntilScoreChanges": "bit not null",
+        "IsConfirmedAsNotDuplicate": "bit not null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PersonAliasId": "int not null",
+        "Score": "int null",
+        "ScoreDetail": "nvarchar(max) null",
+        "TotalCapacity": "int null"
+      }
+    },
+    "PersonPreviousName": {
+      "written": [
+        "CreatedDateTime",
+        "ForeignKey",
+        "Guid",
+        "LastName",
+        "ModifiedDateTime",
+        "PersonAliasId"
+      ],
+      "rockColumns": {
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null",
+        "LastName": "nvarchar(50) null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "PersonAliasId": "int not null"
       }
     },
     "PersonScheduleExclusion": {
@@ -6917,6 +7031,7 @@
       "1400753C-A0F9-4A45-8A1D-81C98450BD1F",
       "1BD309A1-6AE8-4896-A45D-ED9E116074CC",
       "1DAD99D5-41A9-4865-8366-F269902B80A4",
+      "214EB26F-5493-4540-B2EF-F0887C8FBB9E",
       "283999EC-7346-42E3-B807-BCE9B2BABB49",
       "283BC4AC-CCCD-4FCF-8C94-9848B6B5E734",
       "2CC66D5A-F61C-4B74-9AF9-590A9847C13C",
@@ -7215,6 +7330,7 @@
     "spCrm_FamilyAnalyticsAttendance",
     "spCrm_FamilyAnalyticsEraDataset",
     "spCrm_FamilyAnalyticsGiving",
+    "spCrm_PersonDuplicateFinder",
     "spGivingAutomation_UpdateGivingBinsAndPercentiles",
     "spGivingAutomation_UpdateGivingJourneyStages",
     "spPeerNetwork_UpdateFollowing",
