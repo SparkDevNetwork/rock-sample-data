@@ -66,7 +66,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, signals, personal links, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, signals, personal links, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -660,6 +660,29 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 4. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
 
 `AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees.
+
+## How signals load
+
+`loading/SignalsLoader.cs` writes the person signals in `../configuration/signals.json` (issue 45, decisions D-signals-1 to D-signals-5). Rock 20.0.10 and 21.0.2 store them the same way.
+
+1. **The types.** The church setup writes the four signal types, each at the next order after the last, as Rock's signal type editor gives them, so Safety Team Review is first and wins when a person has several. Each type's View and Edit allow its roles, then deny All Users, as Rock's security editor saves them. View shows a signal's note and end date, and Edit decides who can add one.
+2. **The Cast's signals.** Each signal in the file, with its owner, the person who added it, its note, the day it was added, and its end: never, a number of days after install day, or a number of days before it. An end is midnight, as Rock's date picker saves it. A signal whose person or staff member is not in the dataset is skipped.
+3. **The Crowd's signals.** Each campus with generated households gets six Care Team Follow-ups from its campus pastor, on Connected, Engaged, or Leading adults, one per household at most: one with no end, one that ends in the next few weeks, and four that ended in the last year. Each campus draws from its own stream.
+4. **The top signal.** Rock keeps each person's top signal on the person (`TopSignalId`, `TopSignalColor`, and `TopSignalIconCssClass`), and the Top Person Signal badge draws from them. The loader sets them as `Person.CalculateSignals` does: the first open signal by type order, then type Id. A person whose signals have all ended has none, as Rock's nightly Calculate Person Signals job leaves them.
+
+The Safety Team Review data view in `../configuration/reporting.json` names its type with a `signalType` leaf, and the loader writes Rock's Has Signal selection, the type's Id. Signals load in an always-on step after Adaptive messages, because they read only people and staff.
+
+## How personal links load
+
+`loading/PersonalLinksLoader.cs` writes the bookmarks behind the icon beside Rock's search bar from `../configuration/personal-links.json` (issue 46, decisions D-links-1 to D-links-4). Rock 20.0.10 and 21.0.2 store them the same way.
+
+1. **Links.** Every link is a Rock page, named by Guid and written as Rock's `/page/Id`, with the page parameter a detail page needs, such as a report's Id or a campus's Id. A link names the load part whose rows its page shows. The step checks each link's part against the parts this load wrote, and checks that its target row exists, and skips the link when either is missing. A section with no link left is skipped. A link's order counts up from 1 in its section, as Rock's link list adds them.
+2. **Shared sections.** Written as Rock's shared link editor saves them: shared, with no owner, made by Alisha Marble, and with View, Edit, and Administrate allowed to RSR - Rock Administration, WEB - Administration, and RSR - Communication Administration. Each section's View rule then allows only its roles and denies All Users, as Rock's security editor saves it.
+3. **Personal sections.** Each named staff member's section, and a My Campus section for each loaded campus pastor, are private to their owner for View, Edit, and Administrate, as Rock's bookmark menu makes them. Their links belong to the owner.
+4. **Section orders.** Each owner has an order for every shared section and every section of their own: their own first, then the shared ones in the file's order, dated once every section they order exists. Rock adds an order for each of these sections the first time a person opens their links page, so it finds none missing. Anyone else sees the shared sections they may view by name, as Rock shows a person who has not arranged them.
+5. **The version Rock caches by.** Rock's bookmark block keeps each person's menu in the browser and fetches it again only when a hash changes: of the newest ModifiedDateTime of the shared sections and links, of the person's own sections, links, and orders, and of the person's Guid. Every row has its ModifiedDateTime, from the day its owner made it. With none, Rock uses midnight today, which is also the version of a database with no links, so a browser that cached an empty menu that day would keep showing it.
+
+Inside a running Rock, the shared version and each signed-in person's own version are kept in memory, and clearing Rock's cache does not reset them. So the person who installs through Rock's block, whose browser cached the empty menu on Rock's pages before the install, sees it until they sign in again. A database with people refuses a load, so they are the only one signed in, and every new sign-in gets the filled menu.
 
 ## Calendar
 

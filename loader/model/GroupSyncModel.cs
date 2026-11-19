@@ -235,6 +235,12 @@ namespace RockSampleData.Loader.Model
         public StepsFilterRule Steps { get; set; }
 
         /// <summary>
+        /// For Rock's HasSignalFilter: the signal type's key in configuration/signals.json, in place of a selection, since
+        /// Rock's selection is the type's Id.
+        /// </summary>
+        public string SignalType { get; set; }
+
+        /// <summary>
         /// Rock's FilterExpressionType for this node: Filter (0), GroupAll (1), GroupAny (2), or GroupAllFalse (3), which is "none".
         /// </summary>
         public int ExpressionType => Component != null ? 0 : All != null ? 1 : Any != null ? 2 : None != null ? 3

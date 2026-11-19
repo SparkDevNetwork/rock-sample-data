@@ -238,6 +238,10 @@ try
             checks.Add( EmailSectionsCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "signals";
+            checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "personal-links";
+            checks.Add( PersonalLinksCheck( rock, sql, database, source ) );
 
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
@@ -647,7 +651,8 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
     var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
-        .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() ).ToList();
+        .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Signals?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -666,11 +671,13 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
+    var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
             : a.Category != null ? $"Category\t{categories[a.Category]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
+            : a.SignalType != null ? $"SignalType\t{signalTypes[a.SignalType]}"
             : $"DataView\t{views[a.DataView]}" )
         + $"\t{a.Action}\t{people.Rock( a.Person )}" );
     var answers = RockRunner.Run( rock, sql, database, "authorize", questions ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
@@ -681,7 +688,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? ( access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
@@ -817,6 +824,124 @@ static CheckResult SegmentsCheck( RockRelease rock, SqlServer sql, string databa
     }
 
     return CheckResult.From( "segments", problems.Count == 0 ? $"Rock's segment update changed nothing in the {expected.Count} personalization segments" : "Rock's segment update would change the segments", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Person.CalculateSignals for everyone with a signal and expects it to change no one's top signal, so the
+/// Top Person Signal badge shows each person the flag Rock would. An ended signal counts from now, so like the segments the
+/// check is judged only when today is the loads' anchor.
+/// </summary>
+static CheckResult SignalsCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, DateTime anchor )
+{
+    var expected = Convert.ToInt32( sql.Scalar( database, "SELECT COUNT( DISTINCT [PersonId] ) FROM [PersonSignal] WHERE [ForeignKey] = @ForeignKey", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    if ( expected == 0 )
+    {
+        return CheckResult.From( "signals", "This load wrote no person signals", new List<string>() );
+    }
+
+    if ( sql.Today() != anchor.Date || DateTime.Today != anchor.Date )
+    {
+        return CheckResult.From( "signals", "Signals were not judged: today's date is not the loads' anchor", new List<string>
+        {
+            $"The loads were anchored to {anchor:yyyy-MM-dd}, but today is {DateTime.Today:yyyy-MM-dd}. A signal's end counts from today, so run it again on one day."
+        } );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "signals" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+    var problems = lines.Where( l => l.Contains( '\t' ) ).Select( l => l.Split( '\t' ) )
+        .Select( p => $"Rock would change person {p[0]}'s top signal from \"{p[1]}\" to \"{p[2]}\" (Id|color|icon)." ).ToList();
+    var checkedLine = lines.FirstOrDefault( l => l.StartsWith( "people ", StringComparison.Ordinal ) );
+    if ( checkedLine != $"people {expected}" )
+    {
+        problems.Add( $"Rock checked {checkedLine ?? "no people"}, but the load gave {expected} people signals." );
+    }
+
+    return CheckResult.From( "signals", problems.Count == 0 ? $"Rock's own top signal rule agrees with all {expected} people the load gave signals" : "Rock would change people's top signals", problems );
+}
+
+/// <summary>
+/// Asks Rock's own bookmark menu data for each person in configuration/personal-links.json's menus and expects their
+/// sections in order, each with its links from the file. Rock must find no section order missing for anyone who owns a
+/// section, and the
+/// version Rock caches the menu by must come from the links' own dates, not midnight today, which is the version of a
+/// database with no links, so a browser that cached an empty menu refreshes it.
+/// </summary>
+static CheckResult PersonalLinksCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var configuration = source.PersonalLinks;
+    if ( configuration == null || configuration.Menus.Count == 0 )
+    {
+        return CheckResult.From( "personal-links", "This package has no bookmark menus to check", new List<string>() );
+    }
+
+    CastPersonGuids people;
+    using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
+    {
+        people = new CastPersonGuids( db, source );
+    }
+
+    // Each section's links by section name. A campus pastor's section takes their campus's name in its links.
+    var campusNames = source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
+    var pastorCampus = source.Staff.CampusPastors.ToDictionary( p => source.Staff.Staff.First( s => s.Key == p.Value ).Person, p => p.Key );
+    var links = configuration.SharedSections.ToDictionary( s => s.Name, s => s.Links.Select( l => l.Name ).ToList() );
+    var ownSections = configuration.PersonalSections.ToDictionary( s => (s.Owner, s.Name), s => s.Links.Select( l => l.Name ).ToList() );
+    List<string> Expected( Guid person, string section ) =>
+        ownSections.TryGetValue( (person, section), out var own ) ? own
+        : section == configuration.CampusPastorSection.Name && pastorCampus.TryGetValue( person, out var campus ) ? configuration.CampusPastorSection.Links.Select( l => l.Name.Replace( "{campus}", campusNames[campus] ) ).ToList()
+        : links.TryGetValue( section, out var shared ) ? shared : new List<string>();
+
+    var owners = configuration.PersonalSections.Select( s => s.Owner ).Concat( pastorCampus.Keys ).ToHashSet();
+    var lines = RockRunner.Run( rock, sql, database, "personal-links", configuration.Menus.Select( m => people.Rock( m.Person ).ToString() ) ).Split( '\n' ).Select( l => l.TrimEnd( '\r' ) ).ToList();
+    var problems = new List<string>();
+    var version = lines.FirstOrDefault( l => l.StartsWith( "shared\t", StringComparison.Ordinal ) )?.Substring( 7 );
+    var today = lines.FirstOrDefault( l => l.StartsWith( "today\t", StringComparison.Ordinal ) )?.Substring( 6 );
+    if ( version == null || version == today )
+    {
+        problems.Add( $"Rock's version of the shared links is {version ?? "missing"}, midnight today, the version of a database with no links. Each shared section and link needs a ModifiedDateTime." );
+    }
+
+    var menus = lines.Skip( 2 ).ToList();
+    for ( var i = 0; i < configuration.Menus.Count; i++ )
+    {
+        var menu = configuration.Menus[i];
+        var parts = i < menus.Count ? menus[i].Split( '\t' ) : new[] { "missing" };
+        if ( parts.Length < 2 )
+        {
+            problems.Add( $"{menu.Name}: Rock gave no bookmark menu ({parts[0]})." );
+            continue;
+        }
+
+        // Rock adds orders for anyone the first time they open their links page, so only an owner, who arranged their
+        // sections, must have none missing.
+        if ( owners.Contains( menu.Person ) && parts[0] != "False" )
+        {
+            problems.Add( $"{menu.Name}: Rock would add a missing section order when they open their links." );
+        }
+
+        if ( owners.Contains( menu.Person ) && parts[1] == today )
+        {
+            problems.Add( $"{menu.Name}: Rock's version of their own links is midnight today. Their sections, links, and orders need a ModifiedDateTime." );
+        }
+
+        var sections = parts.Skip( 2 ).Select( s => s.Split( '>' ) ).ToList();
+        var names = sections.Select( s => s[0] ).ToList();
+        if ( !names.SequenceEqual( menu.Sections ) )
+        {
+            problems.Add( $"{menu.Name}: expected the sections {string.Join( ", ", menu.Sections.DefaultIfEmpty( "(none)" ) )}, Rock lists {string.Join( ", ", names.DefaultIfEmpty( "(none)" ) )}." );
+            continue;
+        }
+
+        foreach ( var section in sections )
+        {
+            var expected = Expected( menu.Person, section[0] );
+            if ( !section.Skip( 1 ).SequenceEqual( expected ) )
+            {
+                problems.Add( $"{menu.Name}: expected {section[0]} to list {string.Join( ", ", expected )}, Rock lists {string.Join( ", ", section.Skip( 1 ) )}." );
+            }
+        }
+    }
+
+    return CheckResult.From( "personal-links", problems.Count == 0 ? $"Rock's bookmark menu shows each of the {configuration.Menus.Count} people their sections and links in order, and finds no section order missing" : "Rock's bookmark menus do not match the file", problems );
 }
 
 /// <summary>

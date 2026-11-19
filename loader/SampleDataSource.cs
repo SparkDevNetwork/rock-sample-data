@@ -180,7 +180,23 @@ namespace RockSampleData.Loader
             InKindGifts = Files.Exists( InKindGiftsConfigurationPath ) ? Read<InKindGiftsConfiguration>( InKindGiftsConfigurationPath ) : null;
             ForeignCurrency = Files.Exists( ForeignCurrencyConfigurationPath ) ? Read<ForeignCurrencyConfiguration>( ForeignCurrencyConfigurationPath ) : null;
             AdaptiveMessages = Files.Exists( AdaptiveMessagesConfigurationPath ) ? Read<AdaptiveMessagesConfiguration>( AdaptiveMessagesConfigurationPath ) : null;
+            Signals = Files.Exists( SignalsConfigurationPath ) ? Read<SignalsConfiguration>( SignalsConfigurationPath ) : null;
+            PersonalLinks = Files.Exists( PersonalLinksConfigurationPath ) ? Read<PersonalLinksConfiguration>( PersonalLinksConfigurationPath ) : null;
         }
+
+        /// <summary>
+        /// The bookmarks in Rock's bookmark menu, or null in a package built before personal links.
+        /// </summary>
+        public PersonalLinksConfiguration PersonalLinks { get; }
+
+        public const string PersonalLinksConfigurationPath = "configuration/personal-links.json";
+
+        /// <summary>
+        /// The church's person signal types and the signals on people, or null in a package built before signals.
+        /// </summary>
+        public SignalsConfiguration Signals { get; }
+
+        public const string SignalsConfigurationPath = "configuration/signals.json";
 
         /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built

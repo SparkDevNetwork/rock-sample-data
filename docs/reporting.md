@@ -354,6 +354,9 @@ The category already holds three registration data views (decision 215). One flo
 |---|---|---|---|---|---|---|
 | S1 | Kids and Student Volunteers | Person | In F8, and an active member of a Kids Ministry or Student Ministry team, the two teams with the background check requirement | F8 | No | R11 |
 | K2 | Kids With an Allergy | Person | In K1 (use persisted), and the Allergy person attribute is not blank | K1 | No | R6 |
+| S2 | Safety Team Review | Person | Has a Safety Team Review signal, through Rock's Has Signal filter, which counts ended signals too (issue 45) | None | No | Nothing yet |
+
+S2's filter saves the signal type's Id, so `configuration/reporting.json` names the type with a `signalType` leaf, a key in `configuration/signals.json`, and the loader writes the Id. Verify asks Rock whether Rachel Brooks may view it (yes) and Ted Decker (no).
 
 R11 also shows how Rock's shipped "Background check about to expire" data view (in Rock's Group Requirements category) fits in. Question 5 asks whether Safety is in scope.
 

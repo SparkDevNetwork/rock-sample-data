@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -50,7 +50,8 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, Page, or Snippet), its Guid, an action, and a person's Guid,
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, or Snippet), its Guid, an action, and a
+    ///            person's Guid,
     ///            separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
@@ -64,6 +65,12 @@ namespace RockSampleData.RockRunner
     ///            place of the key, it renders that block's content for the person instead, on one line.
     ///   email-sections  Checks every email section the way Rock's email editor saves one: the model's validation and the
     ///            markup's string validation. Prints "ok" and its Guid, or "error", its Guid, and Rock's message.
+    ///   signals  Runs Rock's own Person.CalculateSignals for everyone with a signal, saving nothing, and prints each
+    ///            person whose top signal it would change, then "people" and how many it checked.
+    ///   personal-links  Asks Rock for each input line's person's bookmark menu (PersonalLinkService.GetPersonalLinksData)
+    ///            and whether Rock would add a section order for them, saving nothing. It prints the version Rock keeps for
+    ///            the shared links and midnight today, then a line for each person: the answer, the version of their own
+    ///            links, and each section with its links' names, separated by tabs.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -78,10 +85,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -121,6 +128,8 @@ namespace RockSampleData.RockRunner
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
                     "email-sections" => worker.EmailSections(),
+                    "signals" => worker.Signals(),
+                    "personal-links" => worker.PersonalLinks( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -585,6 +594,7 @@ namespace RockSampleData.RockRunner
                         "Category" => "Rock.Web.Cache.CategoryCache",
                         "PersonalizationSegment" => "Rock.Web.Cache.PersonalizationSegmentCache",
                         "Page" => "Rock.Web.Cache.PageCache",
+                        "SignalType" => "Rock.Web.Cache.SignalTypeCache",
                         _ => "Rock.Web.Cache.DataViewCache"
                     };
                     var cache = _rock.GetType( cacheName, true );
@@ -809,6 +819,101 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Runs Rock's own Person.CalculateSignals, the method Rock's signal list and its Calculate Person Signals job run,
+        /// for everyone with a signal, and saves nothing. Prints one line for each person whose top signal it would change:
+        /// their Guid, then the stored and the calculated top signal Id, color, and icon. The last line is "people" and how
+        /// many it checked.
+        /// </summary>
+        public string Signals()
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var context = createContext.Invoke( null, new[] { app } );
+            var signalServiceType = _rock.GetType( "Rock.Model.PersonSignalService", true );
+            var signalType = _rock.GetType( "Rock.Model.PersonSignal", true );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var personType = _rock.GetType( "Rock.Model.Person", true );
+            var calculate = personType.GetMethod( "CalculateSignals", Type.EmptyTypes )
+                ?? throw new InvalidOperationException( "This Rock has no Person.CalculateSignals(). The runner needs updating for this Rock." );
+            var signals = ( ( IEnumerable<object> ) signalServiceType.GetMethod( "Queryable", Type.EmptyTypes ).Invoke( Activator.CreateInstance( signalServiceType, context ), null ) ).ToList();
+            var personService = Activator.CreateInstance( personServiceType, context );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( int ) } );
+            string Top( object person ) => string.Join( "|", new[] { "TopSignalId", "TopSignalColor", "TopSignalIconCssClass" }.Select( p => personType.GetProperty( p ).GetValue( person )?.ToString() ?? string.Empty ) );
+
+            var lines = new List<string>();
+            var byPerson = signals.GroupBy( s => ( int ) signalType.GetProperty( "PersonId" ).GetValue( s ) ).ToList();
+            foreach ( var group in byPerson )
+            {
+                var person = getPerson.Invoke( personService, new object[] { group.Key } );
+                var own = ( System.Collections.IList ) Activator.CreateInstance( typeof( List<> ).MakeGenericType( signalType ) );
+                foreach ( var signal in group )
+                {
+                    own.Add( signal );
+                }
+
+                personType.GetProperty( "Signals" ).SetValue( person, own );
+                var stored = Top( person );
+                calculate.Invoke( person, null );
+                var calculated = Top( person );
+                if ( stored != calculated )
+                {
+                    lines.Add( $"{personType.GetProperty( "Guid" ).GetValue( person )}\t{stored}\t{calculated}" );
+                }
+            }
+
+            lines.Add( $"people {byPerson.Count}" );
+            return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Asks Rock for each input line's person's bookmark menu, with PersonalLinkService.GetPersonalLinksData, the call
+        /// Rock's bookmark block makes, and runs AddMissingPersonalLinkSectionOrders, which Rock runs when a person opens
+        /// their links page, without saving. The first line is "shared" and the version Rock keeps for the shared links,
+        /// then "today" and midnight today. Each person's line is whether Rock would add a section order, the version of
+        /// their own links, and each section as its name and its links' names, separated by "&gt;", all separated by tabs.
+        /// </summary>
+        public string PersonalLinks( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var personType = _rock.GetType( "Rock.Model.Person", true );
+            var personServiceType = _rock.GetType( "Rock.Model.PersonService", true );
+            var getPerson = personServiceType.GetMethod( "Get", new[] { typeof( Guid ) } );
+            var linkServiceType = _rock.GetType( "Rock.Model.PersonalLinkService", true );
+            var getData = linkServiceType.GetMethod( "GetPersonalLinksData", BindingFlags.Public | BindingFlags.Static, null, new[] { personType }, null )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalLinkService.GetPersonalLinksData( Person ). The runner needs updating for this Rock." );
+            var addMissing = linkServiceType.GetMethod( "AddMissingPersonalLinkSectionOrders", new[] { personType } )
+                ?? throw new InvalidOperationException( "This Rock has no PersonalLinkService.AddMissingPersonalLinkSectionOrders( Person ). The runner needs updating for this Rock." );
+            var sharedVersion = _rock.GetType( "Rock.Web.Cache.SharedPersonalLinkSectionCache", true ).GetProperty( "LastModifiedDateTime", BindingFlags.Public | BindingFlags.Static ).GetValue( null );
+            var today = _rock.GetType( "Rock.RockDateTime", true ).GetProperty( "Today", BindingFlags.Public | BindingFlags.Static ).GetValue( null );
+            var results = new List<string> { $"shared\t{( DateTime ) sharedVersion:o}", $"today\t{( DateTime ) today:o}" };
+            foreach ( var line in lines.Where( l => Guid.TryParse( l.Trim(), out _ ) ) )
+            {
+                var context = createContext.Invoke( null, new[] { app } );
+                var person = getPerson.Invoke( Activator.CreateInstance( personServiceType, context ), new object[] { new Guid( line.Trim() ) } );
+                if ( person == null )
+                {
+                    results.Add( "missing" );
+                    continue;
+                }
+
+                var data = getData.Invoke( null, new[] { person } );
+                var sections = ( ( System.Collections.IEnumerable ) data.GetType().GetProperty( "PersonLinksSectionList" ).GetValue( data ) ).Cast<object>()
+                    .Select( s => string.Join( ">", new[] { ( string ) s.GetType().GetProperty( "Name" ).GetValue( s ) }
+                        .Concat( ( ( System.Collections.IEnumerable ) s.GetType().GetProperty( "PersonalLinks" ).GetValue( s ) ).Cast<object>().Select( l => ( string ) l.GetType().GetProperty( "Name" ).GetValue( l ) ) ) ) );
+                var added = addMissing.Invoke( Activator.CreateInstance( linkServiceType, context ), new[] { person } );
+                var ownVersion = ( DateTime ) data.GetType().GetProperty( "LastNonSharedLinksModifiedDateTime" ).GetValue( data );
+                results.Add( string.Join( "\t", new[] { added.ToString(), ownVersion.ToString( "o" ) }.Concat( sections ) ) );
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>

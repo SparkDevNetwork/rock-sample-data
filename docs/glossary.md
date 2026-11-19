@@ -57,6 +57,8 @@ The words this project uses, in alphabetical order.
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
+| **Person signal** | A colored flag on a profile that asks staff to act, such as Safety Team Review or Care Team Follow-up, with an owner, a note, and an optional end. Rock's Top Person Signal badge shows the person's first open one by type order. See [How signals load](../loader/README.md#how-signals-load). |
+| **Personal link** | A bookmark to a Rock page in the menu behind the icon beside Rock's search bar. Links sit in sections, shared ones secured by role and personal ones private to one person. See [How personal links load](../loader/README.md#how-personal-links-load). |
 | **Personalization segment** | The people in one person data view, which Rock keeps in its PersonAliasPersonalization table and refreshes on a schedule. Each of the church's segments points at a view in `configuration/reporting.json`. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
