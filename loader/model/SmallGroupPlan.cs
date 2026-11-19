@@ -77,6 +77,14 @@ namespace RockSampleData.Loader.Model
 
         public SmallGroupTestCase TestCase { get; set; }
 
+        /// <summary>
+        /// The group started on a launch Sunday, and its leader was Ready to Lead the launch's readyDaysBefore days
+        /// earlier: in another small group, on a serving team, with an Equip step, and not leading. The serving and
+        /// step plans make the team and the step true (decision D-launch-groups-1).
+        /// </summary>
+        [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingDefault )]
+        public bool LeaderWasReadyToLead { get; set; }
+
         public List<PlannedMember> Members { get; set; } = new List<PlannedMember>();
     }
 

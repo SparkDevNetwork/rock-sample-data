@@ -29,10 +29,10 @@ namespace RockSampleData.Loader.Generation
         /// Active households join at the profile's rate. Every campus but the main one gets its own
         /// test cases; the Cast's groups already cover the main campus.
         /// </summary>
-        public static List<SmallGroupPlan> Plan( SmallGroupRules rules, ProfileTargets profile, DateTime anchor, string seed, IReadOnlyList<CastHousehold> generated,
+        public static List<SmallGroupPlan> Plan( SmallGroupRules rules, GroupLaunchCalendar launches, ProfileTargets profile, DateTime anchor, string seed, IReadOnlyList<CastHousehold> generated,
             IEnumerable<string> campusKeys, string mainCampusKey, IReadOnlyList<SmallGroupPlan> castPlans, IReadOnlyList<CastHousehold> cast )
         {
-            var planner = new SmallGroupPlanner( rules, PlanningClock.ForLoad( anchor ), seed );
+            var planner = new SmallGroupPlanner( rules, PlanningClock.ForLoad( anchor ), launches, seed );
             var joinPercent = profile.Number( rules.Participation.GeneratedProfilePath, 0 );
             var castPeople = cast.SelectMany( h => h.Members ).ToDictionary( p => p.Guid );
             var castLeaders = castPlans.SelectMany( p => p.Members.Where( m => m.Role == SmallGroupRole.Leader ) )
@@ -40,6 +40,8 @@ namespace RockSampleData.Loader.Generation
                 .Select( p => new LeaderName( p.NickName ?? p.FirstName, p.LastName ) )
                 .ToList();
 
+            // A leader from Ready to Lead serves on a team, and only people whose family attends serve.
+            var attenders = generated.Where( Attends ).SelectMany( h => h.Members ).Select( p => p.Guid ).ToHashSet();
             var plans = new List<SmallGroupPlan>();
             foreach ( var campusKey in campusKeys )
             {
@@ -50,6 +52,7 @@ namespace RockSampleData.Loader.Generation
                     KeyPrefix = $"{campusKey}-",
                     Households = generated.Where( h => h.CampusSlot == campusKey ).ToList(),
                     JoinPercent = ( household, _ ) => IsActiveNow( household ) ? joinPercent : 0,
+                    ReadyToLeadCandidate = p => attenders.Contains( p.Guid ),
                     TestCases = isMain ? TestCaseCounts.None : rules.TestCases.EachOtherCampus,
                     TakenLeaderNames = isMain ? castLeaders : new List<LeaderName>()
                 } ) );
@@ -73,8 +76,12 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private static bool IsActiveNow( CastHousehold household )
         {
-            var attends = household.Attendance != null && household.Attendance.PercentAttended > 0 && household.Attendance.Ended == null;
-            return attends || household.Giving.Any( g => g.Ended == null && g.Persona != "one-time" );
+            return Attends( household ) || household.Giving.Any( g => g.Ended == null && g.Persona != "one-time" );
         }
+
+        /// <summary>
+        /// A household that still attends, the rule serving uses for its volunteers.
+        /// </summary>
+        private static bool Attends( CastHousehold household ) => household.Attendance != null && household.Attendance.PercentAttended > 0 && household.Attendance.Ended == null;
     }
 }

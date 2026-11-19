@@ -37,6 +37,26 @@ namespace RockSampleData.Loader.Generation
         Reason: A second --plan-cast-groups run must change nothing.
     */
 
+    /*
+        11/19/26 - CLAUDE
+
+        Three rules shape every group plan (issues 35, 37, and 41).
+
+        1. A topic with a share is planned on purpose: about one in six of a campus's groups study the Women's
+           Bible Study with a woman leader and only women, and one in ten the Men's Bible Study. A married
+           person joins such a group alone, so a wife can be in a women's group while her husband is in a
+           men's group, a mixed group, or none.
+        2. A household joins no group until four weeks after it started coming, and a household that stopped
+           coming leaves its groups two to six weeks after, as an inactive member.
+        3. A third of a campus's active groups started on one of its last four launch Sundays, and two thirds
+           of those are led by someone who was Ready to Lead six weeks before: in another group (which half of
+           them stay in), on a serving team, with an Equip step, and not leading. The plan marks those groups,
+           and the serving and step plans make the team and the step true.
+
+        Reason: The data shows women leading, every membership fits the household's story, and the Lead a
+        Group flow converts (decisions D-womens-groups-1, D-group-fixes-1, and D-launch-groups-1).
+    */
+
     /// <summary>
     /// Plans the small groups for one campus's households.
     /// </summary>
@@ -47,14 +67,21 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private const int YoungChildMaxAge = 12;
 
+        /// <summary>
+        /// How long a Ready to Lead leader had been coming before their launch, so their serving and steps fit before it.
+        /// </summary>
+        private const int ReadyToLeadSettledDays = 365;
+
         private readonly SmallGroupRules _rules;
         private readonly PlanningClock _clock;
+        private readonly GroupLaunchCalendar _launches;
         private readonly string _seed;
 
-        public SmallGroupPlanner( SmallGroupRules rules, PlanningClock clock, string seed )
+        public SmallGroupPlanner( SmallGroupRules rules, PlanningClock clock, GroupLaunchCalendar launches, string seed )
         {
             _rules = rules;
             _clock = clock;
+            _launches = launches;
             _seed = seed;
         }
 
@@ -82,7 +109,11 @@ namespace RockSampleData.Loader.Generation
             // group history never makes an otherwise inactive household look active.
             private readonly List<Unit> _couldJoin = new List<Unit>();
             private readonly List<Unit> _formerOnly = new List<Unit>();
+
+            // Units that joined but whose household stopped coming: they were in a group and left it.
+            private readonly List<Unit> _lapsed = new List<Unit>();
             private readonly Dictionary<Guid, Unit> _unitByPerson = new Dictionary<Guid, Unit>();
+            private readonly Dictionary<Guid, Unit> _alone = new Dictionary<Guid, Unit>();
             private readonly Dictionary<Guid, DateTime> _adultSince = new Dictionary<Guid, DateTime>();
             private readonly Dictionary<Guid, List<(DateTime From, DateTime To)>> _busy = new Dictionary<Guid, List<(DateTime From, DateTime To)>>();
             private readonly HashSet<Guid> _pending = new HashSet<Guid>();
@@ -115,6 +146,12 @@ namespace RockSampleData.Loader.Generation
                     PlanActiveMembers( draft );
                 }
 
+                foreach ( var draft in active.Where( d => d.ReadyToLead ) )
+                {
+                    PlanReadyToLeadHistory( draft, active );
+                }
+
+                PlanLapsedMembers( active );
                 ChooseTopics( active, "active" );
                 foreach ( var draft in active )
                 {
@@ -133,7 +170,7 @@ namespace RockSampleData.Loader.Generation
 
                 var all = active.Concat( former ).ToList();
 
-                foreach ( var draft in active.Where( d => d.TestCase == SmallGroupTestCase.Pending ) )
+                foreach ( var draft in active.Where( d => d.TestCase == SmallGroupTestCase.Pending || d.Legacy?.PendingHouseholds.Count > 0 ) )
                 {
                     PlanPendingRequests( draft );
                 }
@@ -152,9 +189,11 @@ namespace RockSampleData.Loader.Generation
             /// <summary>
             /// Groups each household's eligible adults into units that join together: a married
             /// couple, or a single adult. Inactive records form units that may only be former members.
+            /// Each unit carries its household's attendance window.
             /// </summary>
             private void BuildUnits()
             {
+                var window = _rules.Membership.AttendanceWindow ?? new SmallGroupAttendanceWindow { LeaveAfterEndDays = new IntRange() };
                 foreach ( var household in _request.Households )
                 {
                     if ( household.DuplicateOf != null || household.Kind == "business" )
@@ -164,6 +203,10 @@ namespace RockSampleData.Loader.Generation
 
                     var hasYoungKids = household.Members.Any( p => p.FamilyRole == "child" && p.Birth != null && p.Birth.Age <= YoungChildMaxAge );
                     var hasChildren = household.Members.Any( p => p.FamilyRole == "child" && !p.IsDeceased && p.Birth != null && p.Birth.Age < 18 );
+                    var started = _clock.Dates.Resolve( household.Attendance?.Started );
+                    var ended = _clock.Dates.Resolve( household.Attendance?.Ended );
+                    var leaveRandom = new SeededRandom( $"{_planner._seed}:small-groups:leave:{household.Guid}" );
+                    DateTime? leaveBy = ended?.AddDays( leaveRandom.Between( window.LeaveAfterEndDays.Min, window.LeaveAfterEndDays.Max ) );
                     var adults = household.Members.Where( IsEligibleAdult ).ToList();
                     foreach ( var isInactive in new[] { false, true } )
                     {
@@ -179,6 +222,7 @@ namespace RockSampleData.Loader.Generation
 
                         foreach ( var unitPeople in units )
                         {
+                            var adultSince = unitPeople.Max( p => _adultSince[p.Guid] );
                             var unit = new Unit
                             {
                                 Household = household,
@@ -186,7 +230,8 @@ namespace RockSampleData.Loader.Generation
                                 HasYoungKids = hasYoungKids,
                                 HasChildren = hasChildren,
                                 HasHome = household.Address?.Type == "home",
-                                RecordEnded = isInactive ? _clock.Dates.Resolve( household.Attendance?.Ended ) : null
+                                JoinFrom = started.HasValue && started.Value.AddDays( window.JoinAfterStartDays ) > adultSince ? started.Value.AddDays( window.JoinAfterStartDays ) : adultSince,
+                                LeaveBy = leaveBy
                             };
                             ( isInactive ? _formerOnly : _current ).Add( unit );
                             unitPeople.ForEach( p => _unitByPerson[p.Guid] = unit );
@@ -211,7 +256,59 @@ namespace RockSampleData.Loader.Generation
             }
 
             /// <summary>
+            /// The person on their own, for a group of one gender: their own unit when they are single, otherwise a
+            /// unit of one with their household's window.
+            /// </summary>
+            private Unit Alone( CastPerson person )
+            {
+                var unit = _unitByPerson[person.Guid];
+                if ( unit.People.Count == 1 )
+                {
+                    return unit;
+                }
+
+                if ( !_alone.TryGetValue( person.Guid, out var alone ) )
+                {
+                    alone = new Unit
+                    {
+                        Household = unit.Household,
+                        People = new List<CastPerson> { person },
+                        HasYoungKids = unit.HasYoungKids,
+                        HasChildren = unit.HasChildren,
+                        HasHome = unit.HasHome,
+                        JoinFrom = unit.JoinFrom,
+                        LeaveBy = unit.LeaveBy
+                    };
+                    _alone[person.Guid] = alone;
+                }
+
+                return alone;
+            }
+
+            /// <summary>
+            /// The unit that may join the draft: the unit itself for a mixed group, or its one person of the group's
+            /// gender for a group of one gender, or null when no one in it fits.
+            /// </summary>
+            private Unit FittingUnit( Draft draft, Unit unit )
+            {
+                if ( draft.Gender == null )
+                {
+                    return unit;
+                }
+
+                var person = unit.People.FirstOrDefault( p => p.Gender == draft.Gender );
+                return person == null ? null : Alone( person );
+            }
+
+            /// <summary>
+            /// Whether the household stopped coming long enough ago that its people have left their groups.
+            /// </summary>
+            private bool HasLapsed( Unit unit ) => unit.LeaveBy.HasValue && unit.LeaveBy.Value <= _clock.Anchor;
+
+            /// <summary>
             /// The units in an active group now: pinned leaders and hosts always, others by their join chance.
+            /// A unit whose household stopped coming was in a group and left it, and a unit that started coming too
+            /// recently can only ask to join.
             /// </summary>
             private List<Unit> PickJoiners()
             {
@@ -227,6 +324,21 @@ namespace RockSampleData.Loader.Generation
                     {
                         forced.Add( _current.FirstOrDefault( u => u.Household.Key == legacy.HostHousehold && u.HasHome ) ?? throw new InvalidOperationException( $"Pinned host household of {legacy.Key} has no eligible adults at home." ) );
                     }
+
+                    foreach ( var key in legacy.MemberHouseholds )
+                    {
+                        var units = _current.Where( u => u.Household.Key == key ).ToList();
+                        units.ForEach( u => forced.Add( u ) );
+                        if ( units.Count == 0 )
+                        {
+                            throw new InvalidOperationException( $"Pinned member household {key} of {legacy.Key} has no eligible adults." );
+                        }
+                    }
+                }
+
+                foreach ( var unit in forced.Where( u => HasLapsed( u ) || u.JoinFrom > _clock.LatestChange ) )
+                {
+                    throw new InvalidOperationException( $"A pinned leader or host household ({unit.Household.Key}) is outside its attendance window." );
                 }
 
                 var joiners = new List<Unit>();
@@ -243,7 +355,16 @@ namespace RockSampleData.Loader.Generation
                             _couldJoin.Add( unit );
                         }
 
-                        if ( forced.Contains( unit ) || roll < percent )
+                        var joins = forced.Contains( unit ) || roll < percent;
+                        if ( joins && HasLapsed( unit ) )
+                        {
+                            _lapsed.Add( unit );
+                        }
+                        else if ( HasLapsed( unit ) || unit.JoinFrom > _clock.LatestChange )
+                        {
+                            continue;
+                        }
+                        else if ( joins )
                         {
                             joiners.Add( unit );
                         }
@@ -277,9 +398,10 @@ namespace RockSampleData.Loader.Generation
             /// </summary>
             private void WidenLeaderStatuses()
             {
-                var activePool = _couldJoin.SelectMany( u => u.People ).ToList();
+                var activePool = _couldJoin.Where( u => !HasLapsed( u ) && u.JoinFrom <= _clock.LatestChange ).SelectMany( u => u.People ).ToList();
                 var formerPool = _formerOnly.SelectMany( u => u.People ).ToList();
-                var formerNeeded = _request.TestCases.Inactive + _request.TestCases.Archived;                foreach ( var status in _rules.Leaders.FallbackStatuses )
+                var formerNeeded = _request.TestCases.Inactive + _request.TestCases.Archived;
+                foreach ( var status in _rules.Leaders.FallbackStatuses )
                 {
                     var activeLeaders = activePool.Count( CanLead );
                     var hasEnough = activeLeaders >= MinimumActiveGroups && activeLeaders + formerPool.Count( CanLead ) >= MinimumActiveGroups + formerNeeded;
@@ -337,7 +459,9 @@ namespace RockSampleData.Loader.Generation
             #region Leaders and drafts
 
             /// <summary>
-            /// Picks one leader per active group and creates the group drafts, legacy groups first.
+            /// Plans the campus's active groups and picks one leader for each, legacy groups first. A share of the groups
+            /// study a topic of one gender, and a share started on a recent launch Sunday, some of them led by someone
+            /// who was Ready to Lead.
             /// </summary>
             private List<Draft> CreateActiveDrafts( List<Unit> joiners )
             {
@@ -350,37 +474,76 @@ namespace RockSampleData.Loader.Generation
                 count = Math.Min( count, candidates.Count );
 
                 var drafts = new List<Draft>();
+                var usedPeople = new HashSet<Guid>();
+                var names = new FullNames( _request.TakenLeaderNames );
                 foreach ( var legacy in _request.Legacy.Where( l => l.LeaderGuid.HasValue ) )
                 {
                     var leader = candidates.FirstOrDefault( c => c.Guid == legacy.LeaderGuid ) ?? throw new InvalidOperationException( $"Pinned leader of {legacy.Key} cannot lead a group." );
-                    drafts.Add( new Draft { Legacy = legacy, Leader = leader, LeaderUnit = _unitByPerson[leader.Guid] } );
+                    var topic = legacy.Topic == null ? null : _rules.Topics.FirstOrDefault( t => t.Value == legacy.Topic ) ?? throw new InvalidOperationException( $"The pin for {legacy.Key} names topic {legacy.Topic}, which configuration/small-groups.json does not have." );
+                    var draft = new Draft { Legacy = legacy, Leader = leader, Topic = topic, Gender = topic?.LeaderGender };
+                    if ( draft.Gender != null && leader.Gender != draft.Gender )
+                    {
+                        throw new InvalidOperationException( $"Pinned leader of {legacy.Key} is not {draft.Gender}, as its topic needs." );
+                    }
+
+                    // A pinned leader may also be in their spouse's group (the Cast's one exception to one group a person).
+                    draft.LeaderUnit = draft.Gender == null ? _unitByPerson[leader.Guid] : Alone( leader );
+                    draft.LeaderUnit.People.ForEach( p => usedPeople.Add( p.Guid ) );
+                    names.Add( leader );
+                    drafts.Add( draft );
+
+                    if ( legacy.LaunchesAgo is int launchesAgo )
+                    {
+                        draft.Launch = _planner._launches.Recent( _clock.LatestChange, launchesAgo ).ElementAtOrDefault( launchesAgo - 1 );
+                        draft.ReadyToLead = legacy.ReadyToLead;
+                        var settled = draft.LeaderUnit.JoinFrom <= draft.Launch?.AddDays( legacy.ReadyToLead ? -ReadyToLeadSettledDays : 0 );
+                        if ( draft.Launch == default( DateTime ) || !settled || ( legacy.ReadyToLead && !_request.ReadyToLeadCandidate( leader ) ) )
+                        {
+                            throw new InvalidOperationException( $"The pin for {legacy.Key} launches it from Ready to Lead, but its leader cannot launch it then." );
+                        }
+                    }
                 }
 
-                var pinnedHosts = _request.Legacy.Where( l => l.HostHousehold != null ).Select( l => _current.First( u => u.Household.Key == l.HostHousehold && u.HasHome ) );
-                var usedUnits = drafts.Select( d => d.LeaderUnit ).Concat( pinnedHosts ).ToHashSet();
-                var names = new FullNames( _request.TakenLeaderNames );
-                drafts.ForEach( d => names.Add( d.Leader ) );
-                var picked = new List<CastPerson>();
-                foreach ( var candidate in candidates )
+                foreach ( var member in _request.Legacy.SelectMany( l => l.MemberHouseholds ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ) )
                 {
-                    if ( drafts.Count + picked.Count >= count )
+                    member.People.ForEach( p => usedPeople.Add( p.Guid ) );
+                }
+
+                foreach ( var host in _request.Legacy.Where( l => l.HostHousehold != null ).Select( l => _current.First( u => u.Household.Key == l.HostHousehold && u.HasHome ) ) )
+                {
+                    host.People.ForEach( p => usedPeople.Add( p.Guid ) );
+                }
+
+                var slots = PlanSlots( count - drafts.Count, count, drafts );
+                foreach ( var slot in slots.OrderBy( s => s.ReadyToLead ? 0 : s.Launch.HasValue ? 1 : s.Gender != null ? 2 : 3 ) )
+                {
+                    var leader = PickLeader( slot, candidates, usedPeople, names );
+                    if ( leader == null && slot.ReadyToLead )
                     {
-                        break;
+                        slot.ReadyToLead = false;
+                        leader = PickLeader( slot, candidates, usedPeople, names );
                     }
 
-                    var unit = _unitByPerson[candidate.Guid];
-                    if ( !usedUnits.Contains( unit ) && names.Add( candidate ) )
+                    if ( leader == null && slot.Gender != null )
                     {
-                        usedUnits.Add( unit );
-                        picked.Add( candidate );
+                        slot.Gender = null;
+                        slot.Topic = null;
+                        leader = PickLeader( slot, candidates, usedPeople, names );
+                    }
+
+                    if ( leader != null )
+                    {
+                        slot.Leader = leader;
+                        slot.LeaderUnit = slot.Gender == null ? _unitByPerson[leader.Guid] : Alone( leader );
+                        slot.LeaderUnit.People.ForEach( p => usedPeople.Add( p.Guid ) );
                     }
                 }
 
-                drafts.AddRange( picked.OrderBy( p => p.Guid ).Select( p => new Draft { Leader = p, LeaderUnit = _unitByPerson[p.Guid] } ) );
+                drafts.AddRange( slots.Where( s => s.Leader != null ).OrderBy( s => s.Leader.Guid ) );
 
                 foreach ( var legacy in _request.Legacy.Where( l => !l.LeaderGuid.HasValue ) )
                 {
-                    var draft = drafts.FirstOrDefault( d => d.Legacy == null ) ?? throw new InvalidOperationException( $"No group is left for {legacy.Key}." );
+                    var draft = drafts.FirstOrDefault( d => d.Legacy == null && d.Gender == null ) ?? throw new InvalidOperationException( $"No group is left for {legacy.Key}." );
                     draft.Legacy = legacy;
                 }
 
@@ -393,25 +556,101 @@ namespace RockSampleData.Loader.Generation
             }
 
             /// <summary>
+            /// The new groups beside the pinned ones, each with its gender, topic, launch Sunday, and whether it is led
+            /// from Ready to Lead. Each designated topic gets its share of all the campus's groups, less the pinned
+            /// groups that study it. The launch groups take the newest launches first, in turn, and the first of them
+            /// in that order are led from Ready to Lead, so every launch has some.
+            /// </summary>
+            private List<Draft> PlanSlots( int newCount, int count, List<Draft> pinned )
+            {
+                var slots = Enumerable.Range( 0, Math.Max( 0, newCount ) ).Select( _ => new Draft() ).ToList();
+                var random = Stream( "slots" );
+                var byTopic = slots.OrderBy( _ => random.Between( 0.0, 1.0 ) ).ToList();
+                var next = 0;
+                foreach ( var topic in _rules.Topics.Where( t => t.Share != null ) )
+                {
+                    var wanted = topic.Share.GroupsFor( count ) - pinned.Count( d => d.Topic == topic );
+                    for ( var i = 0; i < wanted && next < byTopic.Count; i++ )
+                    {
+                        byTopic[next].Topic = topic;
+                        byTopic[next].Gender = topic.LeaderGender;
+                        next++;
+                    }
+                }
+
+                var launches = _rules.Launches;
+                var recent = launches == null ? new List<DateTime>() : _planner._launches.Recent( _clock.LatestChange, launches.RecentLaunches );
+                if ( recent.Count == 0 )
+                {
+                    return slots;
+                }
+
+                var totalLaunches = ( int ) Math.Round( count * launches.GroupsPercent / 100.0, MidpointRounding.AwayFromZero );
+                var launchCount = Math.Min( slots.Count, Math.Max( 0, totalLaunches - pinned.Count( d => d.Launch.HasValue ) ) );
+                var readyCount = Math.Max( 0, ( int ) Math.Round( totalLaunches * launches.ReadyToLeadPercent / 100.0, MidpointRounding.AwayFromZero ) - pinned.Count( d => d.ReadyToLead ) );
+                var launched = slots.OrderBy( _ => random.Between( 0.0, 1.0 ) ).Take( launchCount ).ToList();
+                for ( var i = 0; i < launched.Count; i++ )
+                {
+                    launched[i].Launch = recent[i % recent.Count];
+                    launched[i].ReadyToLead = i < readyCount;
+                }
+
+                return slots;
+            }
+
+            /// <summary>
+            /// The first candidate, in seeded order, who can lead the slot: the slot's gender, not used, a full name not
+            /// taken on the campus, and coming since before the launch. A leader from Ready to Lead came a year before,
+            /// and is someone the request lets be Ready to Lead.
+            /// </summary>
+            private CastPerson PickLeader( Draft slot, List<CastPerson> candidates, HashSet<Guid> usedPeople, FullNames names )
+            {
+                var gender = slot.Gender ?? _rules.Leaders.Gender;
+                foreach ( var candidate in candidates.Where( c => c.Gender == gender ) )
+                {
+                    var unit = slot.Gender == null ? _unitByPerson[candidate.Guid] : Alone( candidate );
+                    var settled = !slot.Launch.HasValue || unit.JoinFrom <= ( slot.ReadyToLead ? slot.Launch.Value.AddDays( -ReadyToLeadSettledDays ) : slot.Launch.Value );
+                    if ( unit.People.Any( p => usedPeople.Contains( p.Guid ) ) || !settled || ( slot.ReadyToLead && !_request.ReadyToLeadCandidate( candidate ) ) )
+                    {
+                        continue;
+                    }
+
+                    if ( names.Add( candidate ) )
+                    {
+                        return candidate;
+                    }
+                }
+
+                return null;
+            }
+
+            /// <summary>
             /// People allowed to lead, in a stable order: pinned leaders first, then by a seeded key per person.
             /// </summary>
             private List<CastPerson> LeaderCandidates( IEnumerable<CastPerson> people )
             {
                 var pinned = _request.Legacy.Where( l => l.LeaderGuid.HasValue ).Select( l => l.LeaderGuid.Value ).ToList();
                 return people
-                    .Where( CanLead )
+                    .Where( p => CanLead( p, p.Gender ) )
                     .OrderBy( p => pinned.Contains( p.Guid ) ? pinned.IndexOf( p.Guid ) : int.MaxValue )
                     .ThenBy( p => new SeededRandom( $"{_planner._seed}:small-groups:leader:{p.Guid}" ).Between( 0.0, 1.0 ) )
                     .ToList();
             }
 
             /// <summary>
-            /// Whether the leader rules allow this person to lead a group.
+            /// Whether the leader rules allow this person to lead a group whose topic sets no leader gender.
             /// </summary>
-            private bool CanLead( CastPerson person )
+            private bool CanLead( CastPerson person ) => CanLead( person, _rules.Leaders.Gender );
+
+            /// <summary>
+            /// Whether the leader rules allow this person to lead a group whose leader is the given gender.
+            /// </summary>
+            private bool CanLead( CastPerson person, string gender )
             {
                 var leaders = _rules.Leaders;
-                return person.Gender == leaders.Gender && person.Birth.Age >= leaders.MinimumAge && _leaderStatuses.Contains( person.ConnectionStatus );
+                return person.Gender == gender
+                    && ( gender == leaders.Gender || _rules.Topics.Any( t => t.LeaderGender == gender ) )
+                    && person.Birth.Age >= leaders.MinimumAge && _leaderStatuses.Contains( person.ConnectionStatus );
             }
 
             /// <summary>
@@ -451,9 +690,10 @@ namespace RockSampleData.Loader.Generation
 
                 var names = new FullNames( _request.TakenLeaderNames );
                 active.ForEach( d => names.Add( d.Leader ) );
-                var usedUnits = active.Select( d => d.LeaderUnit ).ToHashSet();
+                var usedPeople = active.SelectMany( d => d.LeaderUnit.People ).Select( p => p.Guid ).ToHashSet();
                 var candidates = LeaderCandidates( _formerOnly.SelectMany( u => u.People ) )
-                    .Concat( LeaderCandidates( _couldJoin.SelectMany( u => u.People ) ) );
+                    .Concat( LeaderCandidates( _couldJoin.SelectMany( u => u.People ) ) )
+                    .Where( CanLead );
                 var earliestStart = new DateTime( _clock.Anchor.Year - _rules.Membership.StartedYearsAgo.Max, 1, 1 );
 
                 foreach ( var candidate in candidates )
@@ -464,11 +704,11 @@ namespace RockSampleData.Loader.Generation
                     }
 
                     var unit = _unitByPerson[candidate.Guid];
-                    var from = Max( earliestStart, AdultSince( unit ) );
-                    var until = Min( _clock.LatestChange.AddDays( -60 ), unit.RecordEnded ?? DateTime.MaxValue, FirstReserved( unit ) );
-                    if ( !usedUnits.Contains( unit ) && ( until - from ).TotalDays >= 365 && names.Add( candidate ) )
+                    var from = Max( earliestStart, unit.JoinFrom );
+                    var until = Min( _clock.LatestChange.AddDays( -60 ), unit.LeaveBy ?? DateTime.MaxValue, FirstReserved( unit ) );
+                    if ( !unit.People.Any( p => usedPeople.Contains( p.Guid ) ) && ( until - from ).TotalDays >= 365 && names.Add( candidate ) )
                     {
-                        usedUnits.Add( unit );
+                        unit.People.ForEach( p => usedPeople.Add( p.Guid ) );
                         drafts.Add( new Draft { Leader = candidate, LeaderUnit = unit, TestCase = cases[drafts.Count], WindowStart = from, WindowEnd = until } );
                     }
                 }
@@ -495,11 +735,13 @@ namespace RockSampleData.Loader.Generation
                 Assign( all, Apportion( Percent( _rules.Calendar.SummerMeetingPercent ), all.Count, random ), ( d, v ) => d.MeetsInSummer = v == "yes" );
                 Assign( all, Apportion( Percent( _rules.Attendance.RecordsEveryWeekPercent ), all.Count, random ), ( d, v ) => d.Habit = v == "yes" ? AttendanceHabit.EveryWeek : AttendanceHabit.Spotty );
 
-                // Groups with a pinned host household always meet in that home.
+                // Groups with a pinned host household always meet in that home, and a group pinned online meets online.
                 var online = Apportion( _rules.MeetingStyle, all.Count, random ).Count( s => s == _rules.OnlineStyle );
-                var free = all.Where( d => d.PinnedHost == null ).OrderBy( d => d.Legacy == null ? 0 : 1 ).ThenBy( _ => random.Between( 0.0, 1.0 ) ).ToList();
+                var pinnedOnline = all.Where( d => d.Legacy?.Online == true ).ToList();
+                var free = all.Where( d => d.PinnedHost == null && d.Legacy?.Online != true ).OrderBy( d => d.Legacy == null ? 0 : 1 ).ThenBy( _ => random.Between( 0.0, 1.0 ) ).ToList();
                 all.ForEach( d => d.InPerson = true );
-                free.Take( online ).ToList().ForEach( d => d.InPerson = false );
+                pinnedOnline.ForEach( d => d.InPerson = false );
+                free.Take( Math.Max( 0, online - pinnedOnline.Count ) ).ToList().ForEach( d => d.InPerson = false );
 
                 // Groups whose leader has young children are the first to provide child care.
                 var withCare = Apportion( Percent( _rules.ChildCareProvidedPercent ), all.Count, random ).Count( v => v == "yes" );
@@ -512,22 +754,28 @@ namespace RockSampleData.Loader.Generation
 
             /// <summary>
             /// Gives each group a topic its members fit (a Marriage group is mostly married couples),
-            /// spreading topics evenly across the campus. Runs after members are planned.
+            /// spreading topics evenly across the campus. Runs after members are planned. A group planned for a
+            /// designated topic keeps it, and no other group gets one.
             /// </summary>
             private void ChooseTopics( List<Draft> drafts, string set )
             {
                 var random = Stream( $"topics:{set}" );
-                var used = _rules.Topics.ToDictionary( t => t.Value, _ => 0 );
+                var chosen = _rules.Topics.Where( t => t.Share == null ).ToList();
+                var used = chosen.ToDictionary( t => t.Value, _ => 0 );
                 foreach ( var draft in drafts )
                 {
-                    var people = draft.Members.Where( m => m.State != MemberState.Pending ).ToList();
-                    var parents = people.Count( m => m.Unit.HasChildren );
-                    var fitting = _rules.Topics.Where( t => t.Fit == null || t.Fit.IsMetBy( people.Select( m => m.Person ).ToList(), parents ) ).ToList();
-                    var fewest = fitting.Min( t => used[t.Value] );
-                    var topic = random.Pick( fitting.Where( t => used[t.Value] == fewest ).ToList() );
-                    used[topic.Value]++;
-                    draft.Topic = topic;
-                    draft.Description = random.Pick( topic.Descriptions );
+                    if ( draft.Topic == null )
+                    {
+                        var people = draft.Members.Where( m => m.State != MemberState.Pending ).ToList();
+                        var parents = people.Count( m => m.Unit.HasChildren );
+                        var fitting = chosen.Where( t => t.Fit == null || t.Fit.IsMetBy( people.Select( m => m.Person ).ToList(), parents ) ).ToList();
+                        var fewest = fitting.Min( t => used[t.Value] );
+                        draft.Topic = random.Pick( fitting.Where( t => used[t.Value] == fewest ).ToList() );
+                        used[draft.Topic.Value]++;
+                    }
+
+                    var description = random.Pick( draft.Topic.Descriptions );
+                    draft.Description = draft.Legacy?.Description ?? description;
                 }
             }
 
@@ -572,8 +820,9 @@ namespace RockSampleData.Loader.Generation
             #region Members
 
             /// <summary>
-            /// Places the joining units into active groups. Families with young children go first,
-            /// into child care groups still under the target size; everyone else fills the smallest group.
+            /// Places the joining units into active groups. Groups of one gender fill first, from single people of that
+            /// gender, then from couples, each spouse to a group of their gender with room. Then families with young
+            /// children go into child care groups still under the target size, and everyone else fills the smallest group.
             /// </summary>
             private void AssignUnits( List<Draft> active, List<Unit> joiners )
             {
@@ -590,19 +839,80 @@ namespace RockSampleData.Loader.Generation
                     {
                         draft.Units.Add( draft.PinnedHost );
                     }
+
+                    foreach ( var unit in ( draft.Legacy?.MemberHouseholds ?? new List<string>() ).SelectMany( key => _current.Where( u => u.Household.Key == key ) ).Select( u => FittingUnit( draft, u ) ).Where( u => u != null ) )
+                    {
+                        draft.Units.Add( unit );
+                    }
                 }
 
-                var placed = active.SelectMany( d => d.Units ).ToHashSet();
-                var rest = joiners.Where( u => !placed.Contains( u ) )
-                    .OrderBy( u => _rules.ChildCareFollowsYoungKids && u.HasYoungKids ? 0 : 1 )
+                var placed = active.SelectMany( d => d.Units ).SelectMany( u => u.People ).Select( p => p.Guid ).ToHashSet();
+                var rest = new List<Unit>();
+                foreach ( var unit in joiners )
+                {
+                    var free = unit.People.Where( p => !placed.Contains( p.Guid ) ).ToList();
+                    if ( free.Count == unit.People.Count )
+                    {
+                        rest.Add( unit );
+                    }
+                    else if ( free.Count > 0 )
+                    {
+                        // The spouse of a leader of a group of one gender joins on their own.
+                        rest.Add( Alone( free[0] ) );
+                    }
+                }
+
+                rest = rest.OrderBy( u => _rules.ChildCareFollowsYoungKids && u.HasYoungKids ? 0 : 1 )
                     .ThenBy( _ => random.Between( 0.0, 1.0 ) )
                     .ToList();
 
+                // Groups of one gender fill to the size the campus's groups will average, so they are no bigger than the rest.
+                var gendered = active.Where( d => d.Gender != null ).ToList();
+                var average = Math.Max( _rules.Size.Min, Math.Min( _rules.Size.Target, ( placed.Count + rest.Sum( u => u.People.Count ) ) / active.Count ) );
+                Draft OpenFor( CastPerson person, int limit ) => gendered.Where( d => d.Gender == person.Gender && d.PeopleCount < limit ).OrderBy( d => d.PeopleCount ).FirstOrDefault();
+
+                foreach ( var unit in rest.Where( u => u.People.Count == 1 ).ToList() )
+                {
+                    if ( OpenFor( unit.People[0], average ) is { } draft )
+                    {
+                        draft.Units.Add( unit );
+                        rest.Remove( unit );
+                    }
+                }
+
+                foreach ( var couple in rest.Where( u => u.People.Count > 1 ).ToList() )
+                {
+                    var homes = couple.People.Select( p => (Person: p, Draft: OpenFor( p, average )) ).ToList();
+                    if ( homes.All( h => h.Draft == null ) )
+                    {
+                        continue;
+                    }
+
+                    rest.Remove( couple );
+                    foreach ( var (person, draft) in homes )
+                    {
+                        if ( draft != null )
+                        {
+                            draft.Units.Add( Alone( person ) );
+                        }
+                        else
+                        {
+                            rest.Add( Alone( person ) );
+                        }
+                    }
+                }
+
+                var mixed = active.Where( d => d.Gender == null ).ToList();
                 foreach ( var unit in rest )
                 {
-                    var open = active.Where( d => d.PeopleCount + unit.People.Count <= _rules.Size.Max ).ToList();
+                    var open = mixed.Where( d => d.PeopleCount + unit.People.Count <= _rules.Size.Max ).ToList();
                     if ( open.Count == 0 )
                     {
+                        if ( unit.People.Count == 1 && OpenFor( unit.People[0], _rules.Size.Max ) is { } single )
+                        {
+                            single.Units.Add( unit );
+                        }
+
                         continue;
                     }
 
@@ -614,19 +924,28 @@ namespace RockSampleData.Loader.Generation
             }
 
             /// <summary>
-            /// Dates the group's start and each current member's join. The leader's family and a
-            /// pinned host family were there from the start; others joined as the group turned over.
+            /// Dates the group's start and each current member's join. A launch group started on its launch Sunday.
+            /// The leader's family and a pinned host family were there from the start; others joined as the group
+            /// turned over, never before four weeks after their household started coming.
             /// </summary>
             private void PlanActiveMembers( Draft draft )
             {
                 var random = DraftStream( draft, "members" );
                 var started = DateInYear( _clock.Anchor.Year - random.Between( _rules.Membership.StartedYearsAgo.Min, _rules.Membership.StartedYearsAgo.Max ), random );
-                draft.Started = Clamp( started, AdultSince( draft.LeaderUnit ), _clock.LatestChange );
+                var founders = Max( draft.LeaderUnit.JoinFrom, draft.PinnedHost?.JoinFrom ?? DateTime.MinValue );
+                if ( draft.Launch < founders )
+                {
+                    // A pinned host household that started coming after the launch: the group starts on another day.
+                    draft.Launch = null;
+                    draft.ReadyToLead = false;
+                }
+
+                draft.Started = draft.Launch ?? Clamp( started, founders, _clock.LatestChange );
 
                 foreach ( var unit in draft.Units )
                 {
                     var isFounder = unit == draft.LeaderUnit || unit == draft.PinnedHost;
-                    var joined = isFounder ? draft.Started : Clamp( TenureStart( draft.Started, random ), Max( draft.Started, AdultSince( unit ) ), _clock.LatestChange );
+                    var joined = isFounder ? draft.Started : Clamp( TenureStart( draft.Started, random ), Max( draft.Started, unit.JoinFrom ), _clock.LatestChange );
                     foreach ( var person in unit.People )
                     {
                         draft.Members.Add( new MemberDraft { Person = person, Unit = unit, Joined = joined, State = MemberState.Active, Role = person == draft.Leader ? SmallGroupRole.Leader : SmallGroupRole.Member } );
@@ -636,16 +955,86 @@ namespace RockSampleData.Loader.Generation
             }
 
             /// <summary>
+            /// Gives a launch group's Ready to Lead leader their place in another group six weeks before the launch:
+            /// a group of a fitting gender that started well before, joined at least a month before that day. Some stay
+            /// in it, and the rest leave it the day before they launch. A leader no group fits leads as usual.
+            /// </summary>
+            private void PlanReadyToLeadHistory( Draft draft, List<Draft> active )
+            {
+                var launches = _rules.Launches;
+                var random = DraftStream( draft, "ready-to-lead" );
+                var readyOn = draft.Started.AddDays( -launches.ReadyDaysBefore );
+                var latestJoin = readyOn.AddDays( -30 );
+                var unit = draft.LeaderUnit;
+                var stays = random.Chance( launches.StaysInOldGroupPercent / 100.0 );
+                var old = active
+                    .Where( d => d != draft && FittingUnit( d, unit ) == unit && d.Members.All( m => !unit.People.Contains( m.Person ) ) )
+                    .Where( d => Max( d.Started, unit.JoinFrom ) <= latestJoin.AddDays( -60 ) && ( !stays || d.PeopleCount + unit.People.Count <= _rules.Size.Max ) )
+                    .OrderBy( d => d.PeopleCount )
+                    .ThenBy( _ => random.Between( 0.0, 1.0 ) )
+                    .FirstOrDefault();
+                if ( old == null )
+                {
+                    draft.ReadyToLead = false;
+                    return;
+                }
+
+                var joined = DateBetween( Max( old.Started, unit.JoinFrom ), latestJoin, random );
+                var left = stays ? ( DateTime? ) null : draft.Started.AddDays( -1 );
+                foreach ( var person in unit.People )
+                {
+                    old.Members.Add( new MemberDraft { Person = person, Unit = unit, Joined = joined, Left = left, State = stays ? MemberState.Active : MemberState.Inactive, Role = SmallGroupRole.Member, LeadsAnotherGroup = true } );
+                    Reserve( person, joined, left ?? DateTime.MaxValue );
+                }
+            }
+
+            /// <summary>
+            /// Places each joining unit whose household stopped coming into an active group that was meeting while they
+            /// came, as inactive members who left two to six weeks after their household's last Sunday.
+            /// </summary>
+            private void PlanLapsedMembers( List<Draft> active )
+            {
+                var random = Stream( "lapsed" );
+                foreach ( var unit in _lapsed.OrderBy( u => u.People[0].Guid ) )
+                {
+                    var leaveBy = unit.LeaveBy.Value;
+                    var latestJoin = Min( _clock.LatestBefore( leaveBy ).AddDays( -60 ), _clock.LatestChange );
+                    var group = active
+                        .Where( d => FittingUnit( d, unit ) == unit && d.Members.All( m => !unit.People.Contains( m.Person ) ) && Max( d.Started, unit.JoinFrom ) <= latestJoin )
+                        .OrderBy( d => d.PeopleCount )
+                        .ThenBy( _ => random.Between( 0.0, 1.0 ) )
+                        .FirstOrDefault();
+                    if ( group == null )
+                    {
+                        continue;
+                    }
+
+                    var joined = DateBetween( Max( group.Started, unit.JoinFrom ), latestJoin, random );
+                    if ( !IsFree( unit, joined, leaveBy ) )
+                    {
+                        continue;
+                    }
+
+                    foreach ( var person in unit.People )
+                    {
+                        group.Members.Add( new MemberDraft { Person = person, Unit = unit, Joined = joined, Left = leaveBy, State = MemberState.Inactive, Role = SmallGroupRole.Member } );
+                        Reserve( person, joined, leaveBy );
+                    }
+                }
+            }
+
+            /// <summary>
             /// Adds people who joined and later left, at the configured yearly turnover. Spouses leave
-            /// together, and nobody is in two groups at once.
+            /// together, and nobody is in two groups at once. Nobody joins before four weeks after their household
+            /// started coming, or stays past the day they left after it stopped.
             /// </summary>
             private void PlanLeavers( Draft draft )
             {
                 var random = DraftStream( draft, "leavers" );
                 var years = ( _clock.LatestChange - draft.Started ).TotalDays / 365.25;
                 var target = ( int ) Math.Round( draft.PeopleCount * _rules.Membership.LeavePercentPerYear / 100.0 * years );
-                var pool = _couldJoin.Where( u => !draft.Units.Contains( u ) ).ToList();
-                var added = 0;
+                var pool = _couldJoin.Select( u => FittingUnit( draft, u ) ).Where( u => u != null && !draft.Units.Contains( u ) ).ToList();
+                var added = draft.Members.Count( m => m.State == MemberState.Inactive );
                 var misses = 0;
 
                 while ( added < target && pool.Count > 0 && misses < 50 )
@@ -653,7 +1042,12 @@ namespace RockSampleData.Loader.Generation
                     var unit = random.Pick( pool );
                     var joined = DateBetween( draft.Started, _clock.LatestChange.AddDays( -60 ), random );
                     var left = joined.AddDays( Math.Max( 30, TruncatedTenureDays( ( _clock.LatestChange - joined ).TotalDays, random ) ) );
-                    if ( draft.Members.Any( m => m.Unit == unit ) || joined < AdultSince( unit ) || left > _clock.LatestChange || !IsFree( unit, joined, left ) )
+                    if ( unit.LeaveBy.HasValue && left > unit.LeaveBy.Value )
+                    {
+                        left = unit.LeaveBy.Value;
+                    }
+
+                    if ( draft.Members.Any( m => unit.People.Contains( m.Person ) ) || joined < unit.JoinFrom || left < joined.AddDays( 30 ) || left > _clock.LatestChange || !IsFree( unit, joined, left ) )
                     {
                         misses++;
                         continue;
@@ -672,7 +1066,7 @@ namespace RockSampleData.Loader.Generation
 
             /// <summary>
             /// Dates an inactive or archived group and fills it with members from before it ended.
-            /// A leader with an inactive record (a family that moved) ends the group when they left.
+            /// A leader whose household stopped coming (a family that moved) ends the group when they left.
             /// </summary>
             private void PlanFormerGroup( Draft draft )
             {
@@ -702,8 +1096,8 @@ namespace RockSampleData.Loader.Generation
                     }
 
                     var joined = random.Chance( 0.5 ) ? draft.Started : DateBetween( draft.Started, draft.Ended.Value.AddDays( -90 ), random );
-                    var end = Min( draft.Ended.Value, unit.RecordEnded ?? DateTime.MaxValue );
-                    if ( joined < AdultSince( unit ) || end < joined.AddDays( 30 ) || !IsFree( unit, joined, end ) )
+                    var end = Min( draft.Ended.Value, unit.LeaveBy ?? DateTime.MaxValue );
+                    if ( joined < unit.JoinFrom || end < joined.AddDays( 30 ) || !IsFree( unit, joined, end ) )
                     {
                         continue;
                     }
@@ -714,12 +1108,12 @@ namespace RockSampleData.Loader.Generation
             }
 
             /// <summary>
-            /// Adds a unit to an ended group. They stay members of the ended group, unless their
-            /// record ended first (they moved away), in which case they left on that date.
+            /// Adds a unit to an ended group. They stay members of the ended group, unless they left
+            /// first because their household stopped coming, in which case they left on that date.
             /// </summary>
             private void AddFormerMembers( Draft draft, Unit unit, DateTime joined )
             {
-                var leftEarly = unit.RecordEnded.HasValue && unit.RecordEnded < draft.Ended;
+                var leftEarly = unit.LeaveBy.HasValue && unit.LeaveBy < draft.Ended;
                 foreach ( var person in unit.People )
                 {
                     draft.Members.Add( new MemberDraft
@@ -727,22 +1121,45 @@ namespace RockSampleData.Loader.Generation
                         Person = person,
                         Unit = unit,
                         Joined = joined,
-                        Left = leftEarly ? unit.RecordEnded : null,
+                        Left = leftEarly ? unit.LeaveBy : null,
                         State = leftEarly ? MemberState.Inactive : MemberState.Active,
                         Role = person == draft.Leader ? SmallGroupRole.Leader : SmallGroupRole.Member
                     } );
-                    Reserve( person, joined, leftEarly ? unit.RecordEnded.Value : draft.Ended.Value );
+                    Reserve( person, joined, leftEarly ? unit.LeaveBy.Value : draft.Ended.Value );
                 }
             }
 
             /// <summary>
-            /// Adds recent join requests from people who are not in a group now.
+            /// Adds recent join requests from people who are not in a group now: first the households the group's pin
+            /// names, then others for a Pending test group. A request comes at least four weeks after the household
+            /// started coming, and never from a household that stopped.
             /// </summary>
             private void PlanPendingRequests( Draft draft )
             {
                 var random = DraftStream( draft, "pending" );
+                foreach ( var key in draft.Legacy?.PendingHouseholds ?? new List<string>() )
+                {
+                    var units = _current.Where( u => u.Household.Key == key ).ToList();
+                    var requested = _clock.Anchor.AddDays( -random.Between( 1, 30 ) );
+                    if ( units.Count == 0 || units.Any( u => HasLapsed( u ) || u.People.Any( IsMemberNow ) ) )
+                    {
+                        throw new InvalidOperationException( $"The pin for {draft.Legacy.Key} names pending household {key}, which has no adults free to ask to join." );
+                    }
+
+                    foreach ( var unit in units )
+                    {
+                        AddRequest( draft, unit, Max( requested, Min( unit.JoinFrom, _clock.Anchor.AddDays( -1 ) ) ) );
+                    }
+                }
+
+                if ( draft.TestCase != SmallGroupTestCase.Pending )
+                {
+                    return;
+                }
+
                 var wanted = random.Between( _rules.Membership.PendingRequests.Min, _rules.Membership.PendingRequests.Max );
-                var pool = _couldJoin.Where( u => draft.Members.All( m => m.Unit != u ) && u.People.All( p => !_pending.Contains( p.Guid ) && !IsMemberNow( p ) ) )
+                var pool = _couldJoin.Select( u => FittingUnit( draft, u ) )
+                    .Where( u => u != null && !HasLapsed( u ) && draft.Members.All( m => !u.People.Contains( m.Person ) ) && u.People.All( p => !_pending.Contains( p.Guid ) && !IsMemberNow( p ) ) )
                     .OrderBy( _ => random.Between( 0.0, 1.0 ) )
                     .ToList();
 
@@ -755,12 +1172,12 @@ namespace RockSampleData.Loader.Generation
                     }
 
                     var requested = _clock.Anchor.AddDays( -random.Between( 1, 30 ) );
-                    foreach ( var person in unit.People )
+                    if ( requested < unit.JoinFrom )
                     {
-                        draft.Members.Add( new MemberDraft { Person = person, Unit = unit, Joined = requested, State = MemberState.Pending, Role = SmallGroupRole.Member, IsRecent = true } );
-                        _pending.Add( person.Guid );
+                        continue;
                     }
 
+                    AddRequest( draft, unit, requested );
                     added += unit.People.Count;
                     if ( added == wanted )
                     {
@@ -769,9 +1186,19 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            private void AddRequest( Draft draft, Unit unit, DateTime requested )
+            {
+                foreach ( var person in unit.People )
+                {
+                    draft.Members.Add( new MemberDraft { Person = person, Unit = unit, Joined = requested, State = MemberState.Pending, Role = SmallGroupRole.Member, IsRecent = true } );
+                    _pending.Add( person.Guid );
+                }
+            }
+
             /// <summary>
-            /// Picks the host for a group that meets in a home: the leader's spouse in the configured
-            /// share of groups, otherwise another member family whose home the group meets in.
+            /// Picks the host for a group that meets in a home: the leader's own home (with their spouse, or a leader of
+            /// a group of one gender) in the configured share of groups, otherwise another member family whose home the
+            /// group meets in. A member who leads another group never hosts this one.
             /// </summary>
             private void ChooseHost( Draft draft )
             {
@@ -782,15 +1209,16 @@ namespace RockSampleData.Loader.Generation
 
                 var random = DraftStream( draft, "host" );
                 var spouse = draft.LeaderUnit.People.FirstOrDefault( p => p != draft.Leader );
-                var current = draft.Members.Where( m => m.State == MemberState.Active ).Select( m => m.Unit ).Distinct().ToList();
+                var current = draft.Members.Where( m => m.State == MemberState.Active && !m.LeadsAnotherGroup ).Select( m => m.Unit ).Distinct().ToList();
                 var others = current.Where( u => u != draft.LeaderUnit && u.HasHome ).ToList();
+                var leaderHome = draft.LeaderUnit.HasHome && ( spouse != null || draft.Gender != null );
 
                 Unit host;
                 if ( draft.PinnedHost != null )
                 {
                     host = draft.PinnedHost;
                 }
-                else if ( spouse != null && draft.LeaderUnit.HasHome && ( others.Count == 0 || random.Chance( _rules.Hosts.SpouseHostsPercent / 100.0 ) ) )
+                else if ( leaderHome && ( others.Count == 0 || random.Chance( _rules.Hosts.SpouseHostsPercent / 100.0 ) ) )
                 {
                     host = draft.LeaderUnit;
                 }
@@ -844,22 +1272,18 @@ namespace RockSampleData.Loader.Generation
                 return unit.People.SelectMany( p => _busy.GetValueOrDefault( p.Guid ) ?? new List<(DateTime From, DateTime To)>() ).Select( s => s.From ).DefaultIfEmpty( DateTime.MaxValue ).Min();
             }
 
-            private DateTime AdultSince( Unit unit )
-            {
-                return unit.People.Max( p => _adultSince[p.Guid] );
-            }
-
             #endregion Members
 
             #region Names and plans
 
             /// <summary>
             /// Names each group for its leader ("Decker Group"), adding the first name when two
-            /// leaders on the campus share a last name. Legacy groups keep their keys and Guids.
+            /// leaders on the campus share a last name. Legacy groups keep their keys and Guids, and a
+            /// pinned name, which does not count toward shared last names.
             /// </summary>
             private void NameGroups( List<Draft> drafts )
             {
-                var lastNames = drafts.Select( d => d.Leader.LastName ).Concat( _request.TakenLeaderNames.Select( n => n.LastName ) )
+                var lastNames = drafts.Where( d => d.Legacy?.Name == null ).Select( d => d.Leader.LastName ).Concat( _request.TakenLeaderNames.Select( n => n.LastName ) )
                     .GroupBy( n => n, StringComparer.OrdinalIgnoreCase )
                     .ToDictionary( g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase );
                 var keys = new HashSet<string>( _request.TakenKeys );
@@ -867,8 +1291,8 @@ namespace RockSampleData.Loader.Generation
                 foreach ( var draft in drafts.OrderBy( d => d.Legacy == null ? 1 : 0 ) )
                 {
                     var leader = draft.Leader;
-                    var format = lastNames[leader.LastName] > 1 ? _rules.Naming.DuplicateFormat : _rules.Naming.Format;
-                    draft.Name = format.Replace( "{firstName}", leader.NickName ?? leader.FirstName ).Replace( "{lastName}", leader.LastName );
+                    var format = lastNames.GetValueOrDefault( leader.LastName ) > 1 ? _rules.Naming.DuplicateFormat : _rules.Naming.Format;
+                    draft.Name = draft.Legacy?.Name ?? format.Replace( "{firstName}", leader.NickName ?? leader.FirstName ).Replace( "{lastName}", leader.LastName );
 
                     if ( draft.Legacy != null )
                     {
@@ -935,6 +1359,7 @@ namespace RockSampleData.Loader.Generation
                         _ => new ActiveLifecycle( _clock.ToRelative( draft.Started ) )
                     },
                     TestCase = draft.TestCase,
+                    LeaderWasReadyToLead = draft.ReadyToLead,
                     Members = members
                 };
             }
@@ -1028,7 +1453,8 @@ namespace RockSampleData.Loader.Generation
         }
 
         /// <summary>
-        /// Adults who join, leave, or ask to join together: a married couple, or one adult.
+        /// Adults who join, leave, or ask to join together: a married couple, or one adult. A married person
+        /// in a group of one gender is a unit of one.
         /// </summary>
         private sealed class Unit
         {
@@ -1046,10 +1472,15 @@ namespace RockSampleData.Loader.Generation
             public bool HasHome { get; set; }
 
             /// <summary>
-            /// For an inactive record, the day the household stopped attending (if known).
-            /// Set only for units that may appear as former members.
+            /// The first day the unit may join a group: four weeks after its household started coming, once its
+            /// people are adults out of high school.
             /// </summary>
-            public DateTime? RecordEnded { get; set; }
+            public DateTime JoinFrom { get; set; }
+
+            /// <summary>
+            /// The day the unit left its groups, two to six weeks after its household stopped coming, or null while it comes.
+            /// </summary>
+            public DateTime? LeaveBy { get; set; }
         }
 
         /// <summary>
@@ -1068,6 +1499,21 @@ namespace RockSampleData.Loader.Generation
             public Unit HostUnit { get; set; }
 
             public SmallGroupTestCase TestCase { get; set; }
+
+            /// <summary>
+            /// The gender of every member, for a group whose topic sets one, or null for a mixed group.
+            /// </summary>
+            public string Gender { get; set; }
+
+            /// <summary>
+            /// The launch Sunday the group started on, or null for a group that started on another day.
+            /// </summary>
+            public DateTime? Launch { get; set; }
+
+            /// <summary>
+            /// The leader was Ready to Lead six weeks before the launch.
+            /// </summary>
+            public bool ReadyToLead { get; set; }
 
             public List<Unit> Units { get; } = new List<Unit>();
 
@@ -1139,6 +1585,11 @@ namespace RockSampleData.Loader.Generation
             /// A recent date (a pending request), written as days ago so it stays recent.
             /// </summary>
             public bool IsRecent { get; set; }
+
+            /// <summary>
+            /// A Ready to Lead leader's old group, which they may stay in beside the group they lead.
+            /// </summary>
+            public bool LeadsAnotherGroup { get; set; }
         }
 
         /// <summary>
@@ -1182,6 +1633,12 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         public Func<CastHousehold, IReadOnlyList<CastPerson>, double> JoinPercent { get; set; }
 
+        /// <summary>
+        /// Whether a person may lead a launch group from Ready to Lead. Generated people always may, since the serving and
+        /// step plans give them their team and Equip step. A Cast person must already be on a serving team, not as its leader.
+        /// </summary>
+        public Func<CastPerson, bool> ReadyToLeadCandidate { get; set; } = _ => true;
+
         public TestCaseCounts TestCases { get; set; } = TestCaseCounts.None;
 
         public IReadOnlyList<LegacyGroup> Legacy { get; set; } = new List<LegacyGroup>();
@@ -1198,14 +1655,84 @@ namespace RockSampleData.Loader.Generation
     }
 
     /// <summary>
-    /// A legacy Cast group that keeps its key and Guid, with its pinned leader or host household.
+    /// A legacy Cast group that keeps its key and Guid, with what its pin fixes (see <see cref="SmallGroupPin"/>).
     /// </summary>
-    internal sealed record LegacyGroup( string Key, Guid Guid, Guid? LeaderGuid, string HostHousehold );
+    internal sealed record LegacyGroup( string Key, Guid Guid, Guid? LeaderGuid, string HostHousehold )
+    {
+        public string Topic { get; init; }
+
+        public string Name { get; init; }
+
+        public string Description { get; init; }
+
+        public bool Online { get; init; }
+
+        public List<string> MemberHouseholds { get; init; } = new List<string>();
+
+        public List<string> PendingHouseholds { get; init; } = new List<string>();
+
+        public int? LaunchesAgo { get; init; }
+
+        public bool ReadyToLead { get; init; }
+    }
 
     /// <summary>
     /// A leader's first (or nick) name and last name.
     /// </summary>
     internal sealed record LeaderName( string FirstName, string LastName );
+
+    /// <summary>
+    /// The fall and spring small group launch Sundays from configuration/communications.json.
+    /// </summary>
+    internal sealed class GroupLaunchCalendar
+    {
+        private readonly List<MonthWeek> _launches;
+
+        public GroupLaunchCalendar( CommunicationEvents events )
+        {
+            _launches = new[] { events?.FallGroupLaunch, events?.SpringGroupLaunch }.Where( l => l != null ).ToList();
+        }
+
+        /// <summary>
+        /// The launch Sundays on or before a date, newest first.
+        /// </summary>
+        public List<DateTime> Recent( DateTime onOrBefore, int count )
+        {
+            var dates = new List<DateTime>();
+            for ( var year = onOrBefore.Year; _launches.Count > 0 && dates.Count < count; year-- )
+            {
+                dates.AddRange( _launches.Select( l => l.In( year ) ).Where( d => d <= onOrBefore ).OrderByDescending( d => d ) );
+            }
+
+            return dates.Take( count ).ToList();
+        }
+
+        /// <summary>
+        /// The launch Sunday nearest a date, or null when there are no launches.
+        /// </summary>
+        public DateTime? Nearest( DateTime date )
+        {
+            return _launches.Count == 0 ? null : Enumerable.Range( date.Year - 1, 3 ).SelectMany( y => _launches.Select( l => l.In( y ) ) ).OrderBy( d => Math.Abs( ( d - date ).TotalDays ) ).First();
+        }
+
+        /// <summary>
+        /// Each leader of a group the plans mark as led from Ready to Lead, and the day they were Ready to Lead: the
+        /// configured days before the real launch Sunday nearest the group's start. A Cast group's start is a month
+        /// and day, so it falls within a few days of that year's launch Sunday.
+        /// </summary>
+        public Dictionary<Guid, DateTime> ReadyToLeadLeaders( IEnumerable<SmallGroupPlan> plans, SmallGroupRules rules, AnchorDates dates )
+        {
+            var leaders = new Dictionary<Guid, DateTime>();
+            foreach ( var plan in plans.Where( p => p.LeaderWasReadyToLead ) )
+            {
+                var leader = plan.Members.First( m => m.Role == SmallGroupRole.Leader );
+                var launch = Nearest( dates.Resolve( plan.Lifecycle.Started ).Value ).Value;
+                leaders[leader.Guid] = launch.AddDays( -rules.Launches.ReadyDaysBefore );
+            }
+
+            return leaders;
+        }
+    }
 
     /*
         10/16/26 - CLAUDE
@@ -1216,6 +1743,17 @@ namespace RockSampleData.Loader.Generation
         use "daysAgo" so they stay recent. Plans made at load time use the load anchor.
 
         Reason: Cast files must be stable, and their dates must stay in order at any anchor.
+    */
+
+    /*
+        11/19/26 - CLAUDE
+
+        A Cast household that stopped coming in the last year leaves its groups a few weeks after its last
+        Sunday, which its file writes as days ago. So a date after the latest change is written as days ago
+        too. A "yearsAgo" date can land up to a year later at another anchor, so a date that must come before
+        a days ago date is held to two or more years back.
+
+        Reason: The Ortizes leave their group a few weeks after they stopped, at any anchor (decision D-group-fixes-1).
     */
 
     /// <summary>
@@ -1241,7 +1779,7 @@ namespace RockSampleData.Loader.Generation
         public DateTime Anchor { get; }
 
         /// <summary>
-        /// The latest date a group can start, or a member can join or leave.
+        /// The latest date a group can start, or a member can join or leave, except a household's leaving after it stopped coming.
         /// </summary>
         public DateTime LatestChange { get; }
 
@@ -1259,7 +1797,7 @@ namespace RockSampleData.Loader.Generation
 
         public RelativeDate ToRelative( DateTime date )
         {
-            return _writesYearsAgo
+            return _writesYearsAgo && date <= LatestChange
                 ? new RelativeDate { YearsAgo = Anchor.Year - date.Year, Month = date.Month, Day = date.Day }
                 : ToRecent( date );
         }
@@ -1267,6 +1805,15 @@ namespace RockSampleData.Loader.Generation
         public RelativeDate ToRecent( DateTime date )
         {
             return new RelativeDate { DaysAgo = ( Anchor - date.Date ).Days };
+        }
+
+        /// <summary>
+        /// The latest date that comes before the given date at any load anchor, once both are written into a plan.
+        /// </summary>
+        public DateTime LatestBefore( DateTime date )
+        {
+            var yearsAgoTwo = new DateTime( Anchor.Year - 2, 12, 31 );
+            return _writesYearsAgo && date > LatestChange && date > yearsAgoTwo ? yearsAgoTwo : date;
         }
     }
 }

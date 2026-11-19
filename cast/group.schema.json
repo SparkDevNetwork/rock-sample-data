@@ -92,6 +92,7 @@
           ]
         },
         "testCase": { "enum": [ "None", "Full", "Closed", "Pending", "Inactive", "Archived" ] },
+        "leaderWasReadyToLead": { "const": true, "description": "The group started on a launch Sunday, and its leader was Ready to Lead six weeks before: in another small group, on a serving team, with an Equip step, and not leading. Left out when false." },
         "members": { "type": "array", "items": { "$ref": "#/$defs/smallGroupMember" } }
       }
     },

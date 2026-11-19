@@ -305,6 +305,7 @@ namespace RockSampleData.Loader
             // The Cast's small groups come from cast/groups. Generated households get theirs here, before
             // people load, so their new leaders load with the leader status.
             var groupPlans = source.ReadCastSmallGroupPlans();
+            var groupLaunches = new GroupLaunchCalendar( source.Communications?.Events );
             var generator = new CrowdGenerator( profile, source, seed, dates.Anchor );
             List<CastHousehold> generated = null;
             using ( log.TimePart( "Generate the Crowd" ) )
@@ -332,7 +333,7 @@ namespace RockSampleData.Loader
 
                 if ( generated != null )
                 {
-                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
+                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, groupLaunches, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
                     households.AddRange( generated );
                     groupPlans.AddRange( generatedPlans );
                     var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
