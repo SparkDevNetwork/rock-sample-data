@@ -470,6 +470,54 @@
       "description": "Workflows that help people grow as followers of Jesus, such as baptism.",
       "iconCssClass": "ti ti-book",
       "guid": "4324A74A-D17D-43C1-95B4-C3859930D923"
+    },
+    {
+      "key": "snippets-guests",
+      "entityType": "Rock.Model.Snippet",
+      "name": "Guests",
+      "description": "Replies for people who are new or thinking about a visit: service times, a first visit, groups, and giving.",
+      "iconCssClass": "ti ti-door-enter",
+      "guid": "FF8E96ED-188A-41B5-9BDA-7F5369FCCF7D"
+    },
+    {
+      "key": "snippets-kids-check-in",
+      "entityType": "Rock.Model.Snippet",
+      "name": "Kids Check-in",
+      "description": "Replies for parents about checking kids in and picking them up.",
+      "iconCssClass": "ti ti-tag",
+      "guid": "F033B919-C83B-48AD-9D15-AEE79F50A71C"
+    },
+    {
+      "key": "snippets-students",
+      "entityType": "Rock.Model.Snippet",
+      "name": "Students",
+      "description": "Replies for students and their parents: camp, trips, and Wednesday nights.",
+      "iconCssClass": "ti ti-school",
+      "guid": "8D37E5E9-FF8A-43F9-B62C-A4A0EBEA2B79"
+    },
+    {
+      "key": "snippets-care",
+      "entityType": "Rock.Model.Snippet",
+      "name": "Care",
+      "description": "Replies for people who ask for prayer or are going through a hard season.",
+      "iconCssClass": "ti ti-heart-handshake",
+      "guid": "60F85931-04C0-49CA-ABE9-05D8DB82CFE1"
+    },
+    {
+      "key": "snippets-events",
+      "entityType": "Rock.Model.Snippet",
+      "name": "Events",
+      "description": "Replies about what is coming up: baptism Sunday, sign-ups, and event details.",
+      "iconCssClass": "ti ti-calendar-event",
+      "guid": "1F1E1072-E746-4D71-B5BC-22FDCDF415BF"
+    },
+    {
+      "key": "church-email-sections",
+      "entityType": "Rock.Model.EmailSection",
+      "name": "Rock Solid Church",
+      "description": "The church's own email sections for Rock's email editor, styled like its branded template.",
+      "iconCssClass": "ti ti-building-church",
+      "guid": "C01161FA-7738-43C2-AC85-321AD5AB145D"
     }
   ]
 }

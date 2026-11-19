@@ -33,6 +33,7 @@ The words this project uses, in alphabetical order.
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
+| **Email section** | A saved block staff drag into an email in Rock's newer email editor, such as Service Times. Rock keeps its markup, a usage summary, and a thumbnail, and the editor's Sections panel lists it by category. See [Email sections](communications.md#email-sections). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Fee item** | One choice of a registration fee, such as a single room or one child of childcare, with its cost. An item can have a usage limit, and Rock hides it once every use is taken. |
@@ -81,6 +82,7 @@ The words this project uses, in alphabetical order.
 | **Signature** | Proof that Spark made the package index. The release workflow signs it with a key in Azure Key Vault, and the loader reads only an index whose signature matches one of the public keys it carries (decision 172). |
 | **Signed release** | A release form, such as the Student Camp Release, that a registrar signs for each registrant with Rock's own electronic signature, typed, while registering. Rock keeps its text, the typed name, a verification hash, and a PDF. Not the package index's signature. See [Event registrations](registrations.md#release-forms). |
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
+| **SMS snippet** | Saved text staff insert in SMS Conversations instead of retyping it, such as service times. A shared snippet shows to every staff member, and a personal one only to its owner. Rock fills in the person's nickname when staff insert it. See [SMS snippets](communications.md#sms-snippets). |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |

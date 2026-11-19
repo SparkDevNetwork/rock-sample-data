@@ -84,14 +84,50 @@ namespace RockSampleData.Loader.Database
             _transaction = null;
         }
 
+        /*
+            11/17/26 - CLAUDE
+
+            SqlClient gives SqlTransaction.Rollback only the connect timeout, 15 seconds by default,
+            not the command timeout. A dry run that wrote a lot could time out rolling back on a busy
+            server, and the catch's second rollback then threw "This SqlTransaction has completed",
+            which hid the timeout. So the rollback is a command with the timeout every other command
+            has. It runs only while the transaction is still open: SqlClient drops a completed
+            transaction's connection, and @@TRANCOUNT is 0 once SQL Server has ended it.
+
+            Reason: A failed load must show what went wrong, not its rollback's error (decision D-rollback-1).
+        */
+
         /// <summary>
-        /// Rolls back the transaction, if one is open.
+        /// Rolls back the transaction while it is still open, with the same timeout as every other command.
+        /// Does nothing when there is no transaction, or when SQL Server or an earlier rollback has ended it.
         /// </summary>
         public void Rollback()
         {
-            _transaction?.Rollback();
+            var transaction = _transaction;
             _transaction = null;
+            if ( transaction == null )
+            {
+                return;
+            }
+
+            try
+            {
+                if ( transaction.Connection != null && _connection.State == ConnectionState.Open )
+                {
+                    using var command = new SqlCommand( "IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION", _connection, transaction ) { CommandTimeout = CommandTimeoutSeconds };
+                    command.ExecuteNonQuery();
+                }
+            }
+            finally
+            {
+                transaction.Dispose();
+            }
         }
+
+        /// <summary>
+        /// How long one command, bulk copy, or rollback may run, in seconds.
+        /// </summary>
+        private const int CommandTimeoutSeconds = 600;
 
         /// <summary>
         /// Creates a SQL parameter, turning null into DBNull.
@@ -181,7 +217,7 @@ namespace RockSampleData.Loader.Database
             {
                 DestinationTableName = $"[{table}]",
                 BatchSize = 0,
-                BulkCopyTimeout = 600
+                BulkCopyTimeout = CommandTimeoutSeconds
             };
 
             foreach ( DataColumn column in rows.Columns )
@@ -351,7 +387,7 @@ namespace RockSampleData.Loader.Database
         {
             var command = new SqlCommand( sql, _connection, _transaction )
             {
-                CommandTimeout = 600
+                CommandTimeout = CommandTimeoutSeconds
             };
             command.Parameters.AddRange( parameters );
             Recorder?.RecordCommand( command );

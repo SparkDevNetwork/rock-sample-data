@@ -249,6 +249,11 @@ namespace RockSampleData.Loader.Model
         public Guid? Page { get; set; }
 
         /// <summary>
+        /// An SMS snippet's Guid in content/communications/snippets.json, or null when the item is not a snippet.
+        /// </summary>
+        public Guid? Snippet { get; set; }
+
+        /// <summary>
         /// Rock's action, such as View or Edit.
         /// </summary>
         public string Action { get; set; }

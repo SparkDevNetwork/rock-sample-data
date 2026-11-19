@@ -56,6 +56,7 @@ Some files are written by tools, never by hand. Two branches each write a correc
 |---|---|
 | `validation/rock-contract.json` | The verify tool with `--record-contract` |
 | `cast/families/*.md` | `node cast/build-pages.js` |
+| `content/communications/email-sections/*.html` and `*.png` | `node content/communications/email-sections/make-sections.js --rock <built Rock checkout>` |
 | `packages/` (ignored by git) | The builder |
 
 The contract is the list of every Rock table, column, Guid, and stored procedure the loader writes or depends on, recorded from real loads. The verify tool checks it against each Rock release, so a Rock change that would break the loader is caught before a package ships.

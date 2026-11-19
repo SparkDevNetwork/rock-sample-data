@@ -38,6 +38,7 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
+| [Email sections](#email-sections) | Verify tool | Rock's own save rules accept every email section the load wrote. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
@@ -303,6 +304,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** The loader writes the segments, adaptations, and attribute values with SQL. Only Rock's own Lava engine proves a page shows each person what the design says.
 
+### Email sections
+
+**What it does.** `verify/rock-runner` loads every email section with Rock's own EmailSectionService and checks it the way Rock saves one from its email editor: the model's own validation, such as a name of at most 100 characters, then the string validation Rock's editor runs on a section's markup, with Rock's Lava and basic HTML rules. Each section must pass, and every section in `content/communications/email-sections.json` must be there (decision D-snippets-3).
+
+**Why it's there.** The loader writes a section's markup with SQL, and Rock never checks it then. A section Rock would refuse to save could not be edited and saved again in the editor. Only Rock's own rules prove a staff member can change it.
+
 ### Segments
 
 **What it does.** `verify/rock-runner` runs Rock's own segment update (`PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment`, what the Update Personalization Data job calls) on every personalization segment, whatever its schedule. Rock evaluates each segment's data view with its real filters and compares it with the segment's people. The check passes when Rock updates every segment the load wrote and adds and removes nobody. Like group sync, it is judged only when today is the loads' anchor.
@@ -329,7 +336,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Access
 
-**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. Each answer must match.
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json` and `configuration/adaptive-messages.json`: may this Cast person view or edit this category, data view, report, personalization segment, or page. Rock walks a data view's categories up to the global default, as it does on every page. It asks an SMS snippet in `access` in `content/communications/snippets.json` through the snippet's own check, as SMS Conversations does, which shows a personal snippet only to its owner (decision D-snippets-1). Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data fails here.
 
@@ -385,7 +392,7 @@ Checks 3 to 5 run inside the load's transaction, so two loads started at once ca
 
 ### Loader compatibility check
 
-**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also opens the configuration of every published release, saved in `loader-compat-check/published/`, and checks that a file the loader cannot read gives a plain message (decision 168). Last, it plans the repository's calendar and registrations for install day October 28, 2026, and checks every registration's event, opening, closing, and payment days and both early birds against the example dates in [Event registrations](registrations.md#dates) (decision 190). It checks the port of Rock's signature verification hash against three values computed by calling Rock 21's own Rock.dll, which Rock 20's matches. It answers and scores 40 people on each of the five assessments and hashes every score and answer data text, so Rock's build scores and writes them exactly as the build verify checks against Rock does (decision 265). Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
+**What it does.** `dotnet run --project loader-compat-check -f net10.0`, then the same with `-f net472`. It checks the loader's key derivations (PBKDF2 and HKDF) against the RFC 6070 and RFC 5869 test vectors, and Rock's key bytes, keyed hash, IdKey, package checksums, and seeded random draws against values from .NET 10's own methods. It also opens the configuration of every published release, saved in `loader-compat-check/published/`, and checks that a file the loader cannot read gives a plain message (decision 168). Last, it plans the repository's calendar and registrations for install day October 28, 2026, and checks every registration's event, opening, closing, and payment days and both early birds against the example dates in [Event registrations](registrations.md#dates) (decision 190). It checks the port of Rock's signature verification hash against three values computed by calling Rock 21's own Rock.dll, which Rock 20's matches. It answers and scores 40 people on each of the five assessments and hashes every score and answer data text, so Rock's build scores and writes them exactly as the build verify checks against Rock does (decision 265). It plays a failed load whose rollback fails too, and checks that the load's own error is still the one thrown, with the rollback's error attached, even when .NET Framework cannot serialize that error (decision D-rollback-1). Both runs must pass. See [Loader](../loader/README.md#the-net-framework-build).
 
 **Why it's there.** Rock runs the loader's .NET Framework build, which fills .NET 10's missing key derivation with its own code (decision 120). Check scanning and note mentions in Rock work only if those bytes are exactly right, and nothing else would notice if they were not.
 

@@ -234,6 +234,8 @@ try
             checks.Add( AssessmentScoresCheck( rock, sql, database, connection ) );
             stage = "adaptive-messages";
             checks.Add( AdaptiveMessagesCheck( rock, sql, database, source ) );
+            stage = "email-sections";
+            checks.Add( EmailSectionsCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
 
@@ -251,7 +253,13 @@ try
         }
         catch ( Exception ex ) when ( ex is not InvalidDataException )
         {
-            checks.Add( CheckResult.From( stage, "Could not finish", new List<string> { ex.Message } ) );
+            var problems = new List<string> { ex.Message };
+            if ( ex.Data[DatasetLoader.RollbackErrorKey] is { } rollbackError )
+            {
+                problems.Add( $"The rollback reported an error too: {( rollbackError as Exception )?.Message ?? rollbackError}" );
+            }
+
+            checks.Add( CheckResult.From( stage, "Could not finish", problems ) );
         }
         finally
         {
@@ -638,7 +646,8 @@ WHERE [a].[Key] IN ( 'AdaptiveD', 'AdaptiveI', 'AdaptiveS', 'AdaptiveC', 'Natura
 
 static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
 {
-    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() ).ToList();
+    var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -657,7 +666,8 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     }
 
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
-    var questions = access.Select( a => ( a.Category != null ? $"Category\t{categories[a.Category]}"
+    var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
+            : a.Category != null ? $"Category\t{categories[a.Category]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
             : a.Segment != null ? $"PersonalizationSegment\t{segments[a.Segment]}"
             : a.Page != null ? $"Page\t{a.Page}"
@@ -671,11 +681,32 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? $"page {access[i].Page}"}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? ( access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
     return CheckResult.From( "access", problems.Count == 0 ? $"Rock answered all {access.Count} security walkthrough questions as expected" : "Rock's security does not match the walkthrough", problems );
+}
+
+/// <summary>
+/// Rock's own save rules accept every email section the load wrote, as they are: the model's validation, and the string
+/// validation Rock's email editor runs on a section's markup when staff save it (decision D-snippets-3).
+/// </summary>
+static CheckResult EmailSectionsCheck( RockRelease rock, SqlServer sql, string database, SampleDataSource source )
+{
+    var names = ( source.ReadEmailSectionLibrary()?.Sections ?? new List<EmailSectionDefinition>() ).ToDictionary( s => s.Guid, s => s.Name );
+    if ( names.Count == 0 )
+    {
+        return CheckResult.From( "email-sections", "This package has no email sections", new List<string>() );
+    }
+
+    var lines = RockRunner.Run( rock, sql, database, "email-sections" ).Split( '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).Select( l => l.Split( '\t' ) ).ToList();
+    var found = lines.Select( p => Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) ? guid : Guid.Empty ).ToHashSet();
+    var problems = lines.Where( p => p[0] != "ok" )
+        .Select( p => $"{( Guid.TryParse( p.ElementAtOrDefault( 1 ), out var guid ) && names.TryGetValue( guid, out var name ) ? name : $"Email section {p.ElementAtOrDefault( 1 )}" )}: {p.ElementAtOrDefault( 2 )}" )
+        .Concat( names.Where( n => !found.Contains( n.Key ) ).Select( n => $"{n.Value}: the load did not write it." ) )
+        .ToList();
+    return CheckResult.From( "email-sections", problems.Count == 0 ? $"Rock's email editor would save all {lines.Count} email sections as they are" : "Rock's email editor would refuse an email section", problems );
 }
 
 /// <summary>
