@@ -1,14 +1,16 @@
-# Message image brief: images for nine next-step cards
+# Message image brief: images for ten next-step cards
 
-You create nine images for Rock Solid Church's next-step messages in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
+You create ten images for Rock Solid Church's next-step messages in Rock RMS sample data. You are the image model: read the files named here, make each image, and save it. Everything you need is filled in below. Read this whole page before you start.
+
+Images 1 to 9 are delivered, on branch `codex/message-card-images`, and this page records them as made. Make image 10, and remake an earlier one only when Jon asks.
 
 Work in your own branch from `main`, in the `rock-sample-data` repository. All paths are from the root of the repository. This is the same kind of work as `photos/event-brief.md`, and the same rules apply where this page does not say otherwise.
 
 ## Where the images show
 
-Rock shows each signed-in person a few "next step" cards on the church website's homepage. Each card has an image on top, then the card's title, a sentence, and a button. Rock picks the card that fits the person. A visitor who is not signed in sees "Plan a Visit" and "Ways to Give".
+Rock shows each signed-in person a few "next step" cards on the church website's homepage. Each card has an image on top, then the card's title, a sentence, and a button. Rock picks the card that fits the person. A visitor who is not signed in sees each message's last card, such as "Plan a Visit" and "Ways to Give".
 
-Ten cards already use approved event images from `photos/events/`. These nine have no image yet. Look at a few event images first, such as `photos/events/group-leader-training.jpg` and `photos/events/baptism-sunday.jpg`, so the new images sit well beside them.
+Fifteen cards already use approved event images from `photos/events/`. These ten get their own. Look at a few event images first, such as `photos/events/group-leader-training.jpg` and `photos/events/baptism-sunday.jpg`, so the new images sit well beside them.
 
 ## Image size
 
@@ -25,7 +27,7 @@ The card prints its title right under the image. So **no image has any text**: n
 ## Two kinds of image
 
 1. **Photo.** A real-looking photo, like one a church staff member took. Natural light, real places, slightly imperfect framing. Follow "The look of a photo" in `photos/event-brief.md`.
-2. **Design.** A simple graphic in the church's brand colors: warm ivory, charcoal, deep teal, and a little coral. Follow "The look of a design" in `photos/event-brief.md`, except that a design here has no title.
+2. **Design.** A dimensional papercraft still life in the church's brand colors: warm ivory, sand, sea-glass, deep teal, and a little coral. Layered, finely textured paper with soft, real shadows, like the approved event artwork. Follow "The look of a design" in `photos/event-brief.md`, except that a design here has no title and no people's faces.
 
 ## The images
 
@@ -58,44 +60,46 @@ Each heading gives the image's **key**. Save the image under that key (see "Savi
 ### 4. `giving/scheduled`: Thank You for Your Scheduled Gift
 
 - **Card:** "Thank you for giving faithfully. This year your gifts sent students to camp and filled food boxes for neighbors."
-- **Kind:** Photo.
-- **Scene:** Volunteers pack grocery boxes for neighbors along long folding tables. Boxes fill with cans, bread, and fresh produce.
-- **Setting:** A bright church multipurpose room, midday. Teal and ivory tablecloths. No printing on any box or can.
-- **People:** Four to six adults and a teenager, from the side and behind, mid-motion.
+- **Kind:** Design.
+- **Concept:** An ivory paper wall calendar with a blank header and an empty grid of days. Two teal checkmarks sit on the same weekday, two weeks apart: a gift that comes on its own rhythm. A small coral heart and paper ribbons finish it. No numbers or day names.
 
 ### 5. `giving/first-gift`: Thank You for Your First Gift
 
 - **Card:** "Thank you for your first gift! Here is what happens next: a thank you note, and a giving statement each January."
-- **Kind:** Design. **Style:** Flat illustration.
-- **Concept:** A small green seedling rising from warm soil toward a soft sun. A beginning that will grow. Ivory background, teal and coral accents.
+- **Kind:** Design.
+- **Concept:** One young seedling with two sea-glass and teal paper leaves rises from a low mound of warm paper soil, in a landscape of layered ivory and sand contours, under a soft pale coral sun. A beginning that will grow.
 
 ### 6. `giving/make-it-automatic`: Make It Automatic
 
 - **Card:** "You give faithfully. A recurring gift makes it automatic, so it happens even on the weeks you are away."
-- **Kind:** Design. **Style:** Paper cut.
-- **Concept:** A circular arrow made of layered cut paper wraps around a small coral heart, photographed from above with soft shadows. Steady and repeating. No numbers or calendar marks.
+- **Kind:** Design.
+- **Concept:** A circular arrow of overlapping teal and sea-glass paper strips curls around one small coral paper heart, seen from above with soft shadows. Steady and repeating. No numbers or calendar marks.
 
 ### 7. `giving/give-online`: Give Online Any Time
 
 - **Card:** "Give online any time, from any phone or computer. Or set up a recurring gift that fits your own rhythm."
-- **Kind:** Photo.
-- **Scene:** A hand holds a phone over a kitchen table, next to a coffee mug, in early morning light. The phone's screen is a soft glow with nothing readable.
-- **Setting:** A modern Arizona kitchen, warm light through a window, a desert plant on the sill.
-- **People:** Only a hand and forearm.
+- **Kind:** Design.
+- **Concept:** A plain, unbranded paper smartphone stands in front of an open paper laptop on an ivory ground. Each screen shows one simple coral heart on a pale panel, so the screens are not blank. No interface text, numbers, or key letters.
 
 ### 8. `giving/this-year`: What God Did This Year
 
 - **Card:** "We're glad you're part of this church. This year we baptized new believers, sent students to camp, and served our city."
-- **Kind:** Photo.
-- **Scene:** A serve day at a neighborhood park. Volunteers paint a fence, plant shrubs, and carry mulch, at golden hour. This card is a gentle note to people who stopped giving, so it shows the church at work, not money.
-- **Setting:** A city park in the Phoenix area, gravel paths, mesquite trees, late afternoon sun.
-- **People:** A mix of ages, from behind and the side, busy and smiling. No child's face shows.
+- **Kind:** Design.
+- **Concept:** A small paper diorama of a neighborhood park on a serve day: five simple paper figures with no faces plant a shrub, paint a low fence, and carry a bucket of mulch along a curving path, under folded paper mesquite trees. This card is a gentle note to people who stopped giving, so it shows the church at work, not money.
 
 ### 9. `giving/ways-to-give`: Ways to Give
 
 - **Card:** "Give online, set up a recurring gift, or drop a check in the offering. Every gift helps our church serve the Valley."
-- **Kind:** Design. **Style:** Block print.
-- **Concept:** An open hand holds a small house shape with a heart inside, framed by desert plants: a saguaro and a palo verde branch. Two or three inks on ivory.
+- **Kind:** Design.
+- **Concept:** An open paper hand holds a small warm-white house with a coral heart inside, between a folded sea-glass saguaro and a palo verde branch.
+
+### 10. `your-next-step/we-miss-you`: We Miss You
+
+- **Card:** "We've missed you on Sundays. Life gets full, and that's okay. Your seat is still here whenever you're ready."
+- **Kind:** Photo.
+- **Scene:** Just before a Sunday service, an adult steps into a row in the worship center, and a seated friend turns to welcome them with a side hug.
+- **Setting:** The Phoenix campus worship center. Attach `photos/references/church/worship-center-from-rear.jpg` and keep the room as it is. The screens show no words.
+- **People:** The two friends, with their faces partly hidden by the angle or the hug, and a few people in nearby rows. Warm and glad, not staged.
 
 ## Rules you must not break
 

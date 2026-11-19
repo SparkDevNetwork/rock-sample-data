@@ -579,6 +579,45 @@
       }
     },
     {
+      "key": "families-of-students",
+      "name": "Families of Students",
+      "description": "Everyone in a family with a student in grades 7 to 12, through Rock's Family Members transformation.",
+      "category": "belong-data-views",
+      "guid": "2919306A-2F35-4F00-9CDD-270E38EFCF07",
+      "transform": "Rock.Reporting.DataTransform.Person.FamilyMembersTransform",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|3fe728ac-be25-409a-98cb-3cfce5fa063b"
+          }
+        ]
+      }
+    },
+    {
+      "key": "parents-of-students",
+      "name": "Parents of Students",
+      "description": "Adults whose family has a student in grades 7 to 12. While camp registration is open, they are asked to register their student.",
+      "category": "belong-data-views",
+      "guid": "A8421FDF-14F2-4F47-8E16-E4083EE451A1",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "families-of-students"
+          }
+        ]
+      }
+    },
+    {
       "key": "ready-to-grow",
       "name": "Ready to Grow",
       "description": "Adults who have taken a Belong step but no Equip step yet, to invite to Foundations or baptism.",
@@ -679,6 +718,32 @@
       }
     },
     {
+      "key": "baptized-regular-attenders",
+      "name": "Baptized Regular Attenders",
+      "description": "Adults who come regularly and have been baptized. Before each Baptism Sunday, they are asked to pray for one friend and invite them.",
+      "category": "equip-data-views",
+      "guid": "E0581881-3433-4E5E-9D7D-8196879AA80B",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "regular-attenders"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+            "steps": {
+              "program": "discipleship-path",
+              "stepType": "baptism"
+            }
+          }
+        ]
+      }
+    },
+    {
       "key": "baptized-this-year",
       "name": "Baptized This Year",
       "description": "Active people whose Baptism Date is in the last 12 months, to celebrate.",
@@ -693,6 +758,29 @@
           {
             "component": "Rock.Reporting.DataFilter.PropertyFilter",
             "selection": "[\"BaptismDate\",\"256\",\"CURRENT:-365\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "serving-without-equip",
+      "name": "Serving Without an Equip Step",
+      "description": "Adults on an active serving team who have not taken an Equip step yet. Their next step is Foundations.",
+      "category": "equip-data-views",
+      "guid": "88C1E40C-A9EF-4212-9D24-974F16D97D0F",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "serving"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "equip-stage"
           }
         ]
       }

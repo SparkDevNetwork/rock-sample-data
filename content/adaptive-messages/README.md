@@ -20,6 +20,10 @@ Each field fills one of the attributes Rock gives every adaptation, so the text 
 | `details` | Details | 1 to 3 paragraphs of 20 to 200 characters. The loader writes them as Rock's structured content, one paragraph block each. |
 | `image` | Summary Image | Optional. The event key of an approved image in [photos/events/manifest.json](../../photos/events/manifest.json). The loader stores a copy for the adaptation. Leave it out for an adaptation that gets its own image from the [message image brief](../../photos/message-brief.md), which Jon's image agent lists in `photos/messages/manifest.json` by `message` and `adaptation`. An adaptation has one or the other, never both. Never generate an image here. |
 
+## Every message ends with a fallback
+
+Every message ends with a fallback: an adaptation with no segments, which fits everyone in the message's season. Most messages have two or more targeted adaptations above it. Rock shows nothing for a message when none of its adaptations fits a person, so a message with no fallback leaves its slot empty for most people. `check-messages.js` fails a message whose last adaptation has segments (decision D-leading-5).
+
 ## Writing rules
 
 1. Follow the [content standards](../../docs/content-standards.md): warm, plain, and fictional.

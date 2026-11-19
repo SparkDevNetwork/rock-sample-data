@@ -17,8 +17,8 @@
 
 /*
     Checks the adaptive messages against README.md: configuration/adaptive-messages.json and messages.json in this
-    folder. For the configuration it checks unique keys and Guids, real segments and categories, that only a
-    message's last adaptation has no segments, the dates rules, saturation, pages, and the Cast rows. For the text it
+    folder. For the configuration it checks unique keys and Guids, real segments and categories, that every
+    message's last adaptation, and only it, has no segments, the dates rules, saturation, pages, and the Cast rows. For the text it
     checks that every adaptation has text and no text is left over, the lengths, links to real External Website routes
     or the configuration's pages, approved event images, plain characters, no Lava or full web addresses, and no two
     summaries in one message that start with the same five words. For photos/messages/manifest.json, when the image
@@ -161,6 +161,12 @@ for ( const message of configuration.messages || [] ) {
 
     if ( adaptationKeys.size === 0 ) {
         errors.push( `${at}: has no adaptations.` );
+    }
+
+    // Rock shows nothing for a message when none of its adaptations fits, so every message ends with a fallback.
+    const last = ( message.adaptations || [] )[( message.adaptations || [] ).length - 1];
+    if ( last && ( last.segments || [] ).length > 0 ) {
+        errors.push( `${at}: its last adaptation, ${last.key}, has segments. End the message with a fallback that has none, or most people see nothing in its slot.` );
     }
 }
 

@@ -389,6 +389,22 @@ WHERE [rt].[Guid] = @Template AND [ri].[EndDateTime] >= @Today AND [ri].[StartDa
         }
 
         /// <summary>
+        /// Whether an adaptation is in season on a day: written, active, and inside its own and its message's dates. A Cast
+        /// row for a seasonal adaptation, such as Baptism Sunday's, is judged only in its season (decision D-leading-5).
+        /// </summary>
+        internal static bool IsInSeason( RockDatabase db, Guid adaptation, DateTime day )
+        {
+            return Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [AdaptiveMessageAdaptation] AS [a]
+INNER JOIN [AdaptiveMessage] AS [m] ON [m].[Id] = [a].[AdaptiveMessageId]
+WHERE [a].[Guid] = @Adaptation
+    AND [m].[IsActive] = 1 AND ( [m].[StartDate] IS NULL OR [m].[StartDate] <= @Day ) AND ( [m].[EndDate] IS NULL OR [m].[EndDate] > @Day )
+    AND [a].[IsActive] = 1 AND ( [a].[StartDate] IS NULL OR [a].[StartDate] <= @Day ) AND ( [a].[EndDate] IS NULL OR [a].[EndDate] > @Day )",
+                P( "@Adaptation", adaptation ), P( "@Day", day.Date ) ) ) > 0;
+        }
+
+        /// <summary>
         /// The adaptation of a message Rock's adaptivemessage command shows a person on a day, before any views: the first
         /// active adaptation, by order then name, whose segments include the person's primary alias, or that has no segments.
         /// Null when none fits or the message is not active. This is the rule in AdaptiveMessageBlock.OnRender.

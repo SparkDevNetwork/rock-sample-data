@@ -746,13 +746,29 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
         return CheckResult.From( "adaptive-messages", "This package has no adaptive message expectations", new List<string>() );
     }
 
+    // A seasonal adaptation, such as Baptism Sunday's, is judged only in its season (decision D-leading-5).
+    var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
+    var notes = new List<string>();
     CastPersonGuids people;
     using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
     {
         people = new CastPersonGuids( db, source );
+        var inSeason = cast.Where( c =>
+        {
+            var message = messages[c.Message];
+            var expected = c.Adaptation == null ? null : message.Adaptations.First( a => a.Key == c.Adaptation );
+            var isSeasonal = expected != null && ( expected.Dates != null || message.Dates != null );
+            if ( isSeasonal && !AdaptiveMessagesLoader.IsInSeason( db, expected.Guid, DateTime.Today ) )
+            {
+                notes.Add( $"{c.Name}: {expected.Name} is out of season today, so it was not judged." );
+                return false;
+            }
+
+            return true;
+        } ).ToList();
+        cast = inSeason;
     }
 
-    var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
     var adaptationIds = sql.Query( database, "SELECT [Id], [Guid] FROM [AdaptiveMessageAdaptation]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
 
     // The page block, when the load added one, is rendered for each Cast person too, as the homepage shows it to them.
@@ -799,7 +815,7 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
     }
 
     var onPage = display == null ? string.Empty : $", and the {display.Name} block showed each one on the page";
-    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems );
+    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems, notes );
 }
 
 /// <summary>

@@ -66,6 +66,13 @@
       "description": "Adults who belong and have not taken an Equip step yet."
     },
     {
+      "key": "serving-without-equip",
+      "name": "Serving Without an Equip Step",
+      "dataView": "serving-without-equip",
+      "guid": "9A7B9E53-25C1-45FE-96B0-97C1F04CA2BA",
+      "description": "Adults on an active serving team who have not taken an Equip step yet."
+    },
+    {
       "key": "ready-to-belong",
       "name": "Ready to Belong",
       "dataView": "ready-to-belong",
@@ -78,6 +85,13 @@
       "dataView": "attended-last-8-weeks",
       "guid": "1BA3B5E0-01AD-4E2D-9C62-A42712F22BD8",
       "description": "Adults who came to a worship service in the last 8 weeks."
+    },
+    {
+      "key": "drifting-adults",
+      "name": "Drifting Adults",
+      "dataView": "drifting-adults",
+      "guid": "3AFC5F9B-02E3-476D-AF9E-CE7DBF3DB80B",
+      "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days."
     },
     {
       "key": "guests-coming-back",
@@ -94,11 +108,25 @@
       "description": "Regular attenders who have not taken the Baptism step."
     },
     {
+      "key": "baptized-regular-attenders",
+      "name": "Baptized Regular Attenders",
+      "dataView": "baptized-regular-attenders",
+      "guid": "92F759A4-938F-4D0D-AEC2-FE74656903B0",
+      "description": "Regular attenders who have taken the Baptism step."
+    },
+    {
       "key": "students-attending",
       "name": "Students Attending the Student Service",
       "dataView": "students-attending",
       "guid": "33E20107-A061-47CF-8FEA-478BE46538E7",
       "description": "Students in grades 7 to 12 who checked in to the student service in the last 12 weeks."
+    },
+    {
+      "key": "parents-of-students",
+      "name": "Parents of Students",
+      "dataView": "parents-of-students",
+      "guid": "055444C1-7B25-4B24-BC24-B07A8F37A653",
+      "description": "Adults whose family has a student in grades 7 to 12."
     },
     {
       "key": "built-on-the-rock-pledge-households",
@@ -298,7 +326,8 @@
           "key": "grow",
           "name": "Take Foundations",
           "segments": [
-            "ready-to-grow"
+            "ready-to-grow",
+            "serving-without-equip"
           ],
           "guid": "483D9B44-9BD4-40CD-830C-6CDB1448AE58"
         },
@@ -325,6 +354,18 @@
             "attended-last-8-weeks"
           ],
           "guid": "7F20C4AF-A95C-4BD5-9731-8C9E168B5A19"
+        },
+        {
+          "key": "we-miss-you",
+          "name": "We Miss You",
+          "segments": [
+            "drifting-adults"
+          ],
+          "guid": "17C5316A-37C1-4D68-A6B6-5AE8146D8300",
+          "saturation": {
+            "views": 2,
+            "days": 30
+          }
         },
         {
           "key": "plan-a-visit",
@@ -362,6 +403,12 @@
             "views": 3,
             "days": 7
           }
+        },
+        {
+          "key": "see-what-were-building",
+          "name": "See What We're Building",
+          "segments": [],
+          "guid": "AC2645F6-A389-4E4C-B7F5-70B3EB280244"
         }
       ]
     },
@@ -386,6 +433,32 @@
             "views": 3,
             "days": 7
           }
+        },
+        {
+          "key": "whos-your-one",
+          "name": "Who's Your One",
+          "segments": [
+            "baptized-regular-attenders"
+          ],
+          "guid": "C3E0A734-24A1-4B1C-A41D-7BBB409D9EBA",
+          "dates": {
+            "rule": "before-baptism-sunday",
+            "days": 35
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "come-celebrate",
+          "name": "Come Celebrate",
+          "segments": [],
+          "guid": "5CF28B06-DB05-45C2-A4EF-9B0D105A6DFB",
+          "dates": {
+            "rule": "before-baptism-sunday",
+            "days": 35
+          }
         }
       ]
     },
@@ -408,6 +481,30 @@
           "saturation": {
             "views": 3,
             "days": 7
+          }
+        },
+        {
+          "key": "get-your-student-to-camp",
+          "name": "Get Your Student to Camp",
+          "segments": [
+            "parents-of-students"
+          ],
+          "guid": "BD62EE3F-BC44-40D9-BA56-75CF0F4BB815",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "know-a-student",
+          "name": "Know a Student",
+          "segments": [],
+          "guid": "7792B0C4-A92B-44D3-9E29-954BDFCC87F6",
+          "dates": {
+            "rule": "camp-registration"
           }
         }
       ]
@@ -664,6 +761,41 @@
       "message": "your-next-step",
       "adaptation": "find-your-next-step",
       "reason": "Comes most Sundays, is in a small group, and serves with the students, but fits no other next-step layer."
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "message": "baptism-sunday",
+      "adaptation": "whos-your-one",
+      "reason": "Comes every week and was baptized, so before each Baptism Sunday she is asked to pray for one friend and invite them. Judged only in its season."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "baptism-sunday",
+      "adaptation": "come-celebrate",
+      "reason": "Has not come on a Sunday yet, so she sees the invitation to come celebrate. Judged only in its season."
+    },
+    {
+      "person": "9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2",
+      "name": "Sarah Lee",
+      "message": "student-camp",
+      "adaptation": "get-your-student-to-camp",
+      "reason": "Her children Ben and Abigail are students, so she is asked to register them for camp. Judged only while camp registration is open."
+    },
+    {
+      "person": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Margaret Carter",
+      "message": "student-camp",
+      "adaptation": "know-a-student",
+      "reason": "Has no student at home, so she is asked to share camp with one. Judged only while camp registration is open."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "built-on-the-rock",
+      "adaptation": "see-what-were-building",
+      "reason": "Has not made a commitment and is not an Involved Adult yet, so she sees the plans with no ask."
     }
   ]
 }

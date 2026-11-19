@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-4 add the Leading layer, Invite a Friend, the message images, and Find Your Next Step.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-5 add the Leading layer, Invite a Friend, the message images, Find Your Next Step, and a fallback on every message.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -24,13 +24,21 @@ The messages sit in a Rock Solid Church category under Rock's All Church categor
 
 | Message | Adaptations, in order | When |
 |---|---|---|
-| Your Next Step | Already Leading: invite a friend. Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Attended in the Last 8 Weeks: find your next step. Everyone else: plan a visit. | Always |
-| Built on the Rock | Built on the Rock Pledge Households: thank you. Involved Adults Not Yet Pledged: make a commitment. | While the campaign runs, from the fund's start date through its last day |
-| Baptism Sunday | Unbaptized Regular Attenders: be baptized. | From 35 days before the next baptism Sunday until that Sunday begins |
-| Student Camp | Students Attending the Student Service: register for camp. | While the next camp's registration is open, through the day it closes |
+| Your Next Step | Already Leading: invite a friend. Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow or Serving Without an Equip Step: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Attended in the Last 8 Weeks: find your next step. Drifting Adults: we miss you. Everyone else: plan a visit. | Always |
+| Built on the Rock | Built on the Rock Pledge Households: thank you. Involved Adults Not Yet Pledged: make a commitment. Everyone else: see what we're building, with no ask. | While the campaign runs, from the fund's start date through its last day |
+| Baptism Sunday | Unbaptized Regular Attenders: be baptized. Baptized Regular Attenders: who's your one? Everyone else: come celebrate. | From 35 days before the next baptism Sunday until that Sunday begins |
+| Student Camp | Students Attending the Student Service: register for camp. Parents of Students: get your student to camp. Everyone else: know a student? | While the next camp's registration is open, through the day it closes |
 | Giving | The seven layers below | Always |
 
 Rock shows a message or an adaptation from its start date until its end date begins, because it stores dates without a time. So an adaptation that should show on its last day ends the next day.
+
+### Every message ends with a fallback
+
+Every message ends with a fallback that has no segment, so everyone in the message's season sees something in its slot (decision D-leading-5). Rock shows nothing for a message when none of its adaptations fits a person. Before the fallbacks, most people saw nothing from Baptism Sunday, Student Camp, or Built on the Rock. `check-messages.js` fails a message whose last adaptation has a segment.
+
+The homepage block shows at most four cards, one per message, in message order. On most install days four messages are in season, so everyone sees Your Next Step, Built on the Rock, Student Camp, and Giving. In the 35 days before each baptism Sunday, five are in season, and Giving, the last message, drops off the homepage for everyone. Rock's adaptivemessage command still shows it anywhere else it is used.
+
+We Miss You sits just above the fallback, so a drifting adult who fits an earlier layer, such as Ready to Grow, sees that layer instead. In Core 1, Luis and Teresa Ortiz are the Cast's drifting adults: Luis sees Take Foundations, and Teresa sees Find a Team.
 
 ### The Giving layers
 
@@ -66,7 +74,7 @@ Verify asks Rock's own security check about Ted Decker, Alisha Marble, and Pete 
 
 Each adaptation's text is in `content/adaptive-messages/messages.json`, checked by `check-messages.js` ([its README](../content/adaptive-messages/README.md)). Each field fills one of Rock's own adaptation attributes: Call To Action Text and Link, Summary, Details, and Summary Image. Rock 20 and Rock 21 ship no Mobile App Summary XAML attribute, so there is none to fill. Links point at real External Website pages, by route or as Rock's `/page/Id` link.
 
-Ten adaptations reuse an approved calendar event image. Nine have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
+Fifteen adaptations reuse an approved calendar event image. Ten have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, We Miss You, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
 
 ## How it loads
 
