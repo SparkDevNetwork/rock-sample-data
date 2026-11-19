@@ -295,8 +295,8 @@ WHERE [pa].[AliasPersonGuid] = @OldGuid", P( "@OldGuid", merge.Record.Guid ) ).F
 SELECT COUNT(*)
 FROM [History] AS [h]
 INNER JOIN [EntityType] AS [et] ON [et].[Id] = [h].[EntityTypeId]
-WHERE [et].[Name] = 'Rock.Model.Person' AND [h].[EntityId] = @PersonId AND [h].[Verb] = 'MERGE' AND [h].[ChangeType] = 'Record' AND [h].[ValueName] = @ValueName",
-                    P( "@PersonId", alias["PersonId"] ), P( "@ValueName", valueName ) ) );
+WHERE [et].[Name] = 'Rock.Model.Person' AND [h].[EntityId] = @PersonId AND [h].[Verb] = @Verb AND [h].[ChangeType] = @ChangeType AND [h].[ValueName] = @ValueName",
+                    P( "@PersonId", alias["PersonId"] ), P( "@Verb", DuplicatesLoader.MergeVerb ), P( "@ChangeType", DuplicatesLoader.RecordChangeType ), P( "@ValueName", valueName ) ) );
                 if ( historyLines != 1 )
                 {
                     failures.Add( $"{name}: expected one Merged line \"{valueName}\" in {merge.Person.Name}'s History, Rock shows {historyLines}" );

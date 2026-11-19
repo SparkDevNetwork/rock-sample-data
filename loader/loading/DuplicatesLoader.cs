@@ -51,6 +51,14 @@ namespace RockSampleData.Loader.Loading
         internal static readonly Guid MergeRequestPurposeGuid = new Guid( "214EB26F-5493-4540-B2EF-F0887C8FBB9E" );
 
         /// <summary>
+        /// The verb and change type of Rock's Merged History line. They go as parameters: the contract recorder reads the word
+        /// MERGE in a command as a SQL MERGE, which the loader never runs.
+        /// </summary>
+        internal const string MergeVerb = "MERGE";
+
+        internal const string RecordChangeType = "Record";
+
+        /// <summary>
         /// The Calculate Person Duplicates job's CommandTimeout setting, in seconds.
         /// </summary>
         private const int FinderTimeoutSeconds = 1800;
@@ -128,7 +136,7 @@ INSERT INTO [PersonAlias] ( [PersonId], [AliasPersonId], [AliasPersonGuid], [Gui
 VALUES ( @PersonId, @OldId, @OldGuid, NEWID(), @ForeignKey );
 
 INSERT INTO [History] ( [IsSystem], [CategoryId], [EntityTypeId], [EntityId], [Verb], [ChangeType], [ValueName], [IsSensitive], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId] )
-VALUES ( 0, @CategoryId, @PersonTypeId, @PersonId, 'MERGE', 'Record', @ValueName, 0, NEWID(), @ForeignKey, @When, @When, @MergedBy, @MergedBy );
+VALUES ( 0, @CategoryId, @PersonTypeId, @PersonId, @Verb, @ChangeType, @ValueName, 0, NEWID(), @ForeignKey, @When, @When, @MergedBy, @MergedBy );
 
 DECLARE @LastName NVARCHAR(50) = ( SELECT LTRIM( RTRIM( [LastName] ) ) FROM [Person] WHERE [Id] = @PersonId );
 IF @OldLastName <> @LastName AND NOT EXISTS (
@@ -139,7 +147,7 @@ BEGIN
     VALUES ( @AliasId, @OldLastName, NEWID(), @ForeignKey, @When, @When );
 END",
                     P( "@PersonId", person.PersonId ), P( "@AliasId", person.AliasId ), P( "@OldId", oldId ), P( "@OldGuid", merge.Record.Guid ), P( "@OldLastName", merge.Record.LastName.Trim() ),
-                    P( "@CategoryId", categoryId ), P( "@PersonTypeId", personTypeId ), P( "@ValueName", $"{merge.Record.FullName} [ID: {oldId}]" ),
+                    P( "@CategoryId", categoryId ), P( "@PersonTypeId", personTypeId ), P( "@Verb", MergeVerb ), P( "@ChangeType", RecordChangeType ), P( "@ValueName", $"{merge.Record.FullName} [ID: {oldId}]" ),
                     P( "@MergedBy", mergedBy ), P( "@When", when ), P( "@ForeignKey", _foreignKey ) );
             }
 
