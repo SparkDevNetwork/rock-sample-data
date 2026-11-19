@@ -76,10 +76,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "notifications" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "notifications" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|notifications --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -118,6 +118,7 @@ namespace RockSampleData.RockRunner
                     "assessment-scores" => worker.AssessmentScores(),
                     "segments" => worker.Segments(),
                     "adaptive-messages" => worker.AdaptiveMessages( lines ),
+                    "notifications" => worker.Notifications( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -757,6 +758,49 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", lines );
+        }
+
+        /// <summary>
+        /// Answers what Rock's top-bar bell shows, on Rock's internal site. "count" and a person's Guid gives how many unread
+        /// notification messages Rock counts for them (NotificationMessageService.GetUnreadMessagesForPerson, which the bell
+        /// reads). "link" and a message's Guid gives the link Rock's Note Mention component opens for it.
+        /// </summary>
+        public string Notifications( string[] lines )
+        {
+            Start();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var context = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null )
+                .Invoke( null, new[] { app } );
+            var siteCache = _rock.GetType( "Rock.Web.Cache.SiteCache", true );
+            var internalSite = siteCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                .Invoke( null, new object[] { new Guid( "C2D29296-6A87-47A9-A753-EE4E9159C4C4" ) } );
+            var serviceType = _rock.GetType( "Rock.Model.NotificationMessageService", true );
+            var service = Activator.CreateInstance( serviceType, context );
+            var messageType = _rock.GetType( "Rock.Model.NotificationMessage", true );
+            var unread = serviceType.GetMethod( "GetUnreadMessagesForPerson", new[] { typeof( Guid ), siteCache } )
+                ?? throw new InvalidOperationException( "This Rock has no NotificationMessageService.GetUnreadMessagesForPerson( Guid, SiteCache ). The runner needs updating for this Rock." );
+            var count = typeof( Queryable ).GetMethods().First( m => m.Name == "Count" && m.GetParameters().Length == 1 ).MakeGenericMethod( messageType );
+            // Rock builds a page's link from the web route table, which its start-up fills from the PageRoute rows.
+            _rock.GetType( "Rock.Web.RockRouteHandler", true ).GetMethod( "RegisterRoutes", BindingFlags.Public | BindingFlags.Static ).Invoke( null, null );
+            var mention = Activator.CreateInstance( _rock.GetType( "Rock.Core.NotificationMessageTypes.NoteMention", true ), nonPublic: true );
+            var action = mention.GetType().GetMethod( "GetActionForNotificationMessage" );
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                if ( parts[0] == "count" )
+                {
+                    results.Add( count.Invoke( null, new[] { unread.Invoke( service, new[] { new Guid( parts[1] ), internalSite } ) } ).ToString() );
+                    continue;
+                }
+
+                var message = serviceType.GetMethod( "Get", new[] { typeof( Guid ) } ).Invoke( service, new object[] { new Guid( parts[1] ) } );
+                var bag = message == null ? null : action.Invoke( mention, new[] { message, internalSite, null } );
+                results.Add( bag?.GetType().GetProperty( "Url" ).GetValue( bag ) as string ?? "none" );
+            }
+
+            return string.Join( "\n", results );
         }
 
         /// <summary>

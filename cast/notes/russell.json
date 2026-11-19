@@ -43,6 +43,19 @@
       "time": "15:30",
       "text": "Stopped by to see Hal. He is in good spirits and still mails his check every month, even though I told him we would gladly pick it up. He asked about the old Book of John group, one person at a time.",
       "testPurpose": "A note from the last seven days."
+    },
+    {
+      "key": "hal-prayer-guide",
+      "guid": "8E1BF07C-7E73-4192-A4A2-DF41D55693CE",
+      "about": "harold",
+      "type": "followUp",
+      "author": "dee",
+      "written": {
+        "daysAgo": 1
+      },
+      "time": "10:15",
+      "text": "Called Hal this morning. He is out of large-print prayer guides and would love the new one before the first Saturday visit. {@alisha}, could you mail him a copy this week?",
+      "testPurpose": "A recent mention of Alisha Marble, so signing in as admin shows an unread mention in the bell (decision D-notify-2)."
     }
   ]
 }
