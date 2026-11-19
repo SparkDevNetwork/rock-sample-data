@@ -217,14 +217,16 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Gives each Cast small group in photos/groups/manifest.json its photo, the way Rock stores a
         /// photo uploaded on the group's page: a Default file, not temporary, set as the group's PhotoId.
-        /// Run after the small groups load. Returns how many groups got a photo.
+        /// A photo loads only when everyone in it is a member of the group, so a men's or women's group
+        /// never shows the leader's spouse. Run after the small groups load. Returns how many groups got a photo.
         /// </summary>
         /// <param name="plans">The loaded small group plans; photos match them by group key.</param>
         public int LoadGroupPhotos( IReadOnlyList<SmallGroupPlan> plans )
         {
             var guids = plans.ToDictionary( p => p.Key, p => p.Guid );
+            var members = plans.ToDictionary( p => p.Key, p => p.Members.Where( m => m is not PendingMember ).Select( m => m.Name ).ToHashSet( StringComparer.OrdinalIgnoreCase ) );
             var photos = _source.ReadGroupPhotoManifest().Images
-                .Where( p => guids.ContainsKey( p.Group ) )
+                .Where( p => guids.ContainsKey( p.Group ) && p.People.All( members[p.Group].Contains ) )
                 .OrderBy( p => p.Group, StringComparer.Ordinal )
                 .ToList();
             if ( photos.Count == 0 )

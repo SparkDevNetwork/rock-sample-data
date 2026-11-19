@@ -76,6 +76,11 @@ namespace RockSampleData.Loader.Model
         /// The Cast small group's key, as in cast/groups.
         /// </summary>
         public string Group { get; set; }
+
+        /// <summary>
+        /// The names of the Cast people in the photo, as the group's plan writes them.
+        /// </summary>
+        public List<string> People { get; set; } = new List<string>();
     }
 
     /// <summary>
