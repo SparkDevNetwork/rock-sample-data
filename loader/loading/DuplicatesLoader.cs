@@ -38,11 +38,13 @@ namespace RockSampleData.Loader.Loading
     */
 
     /// <summary>
-    /// Writes cast/duplicates.json: Rock's duplicate finder's pairs, staff decisions on the Cast's pairs, and the Cast's merge requests.
+    /// Writes cast/duplicates.json: what Rock's merge left for each finished merge, Rock's duplicate finder's pairs,
+    /// staff decisions on the Cast's pairs, and the Cast's merge requests.
     /// </summary>
     internal sealed class DuplicatesLoader
     {
         private static readonly Guid PersonEntityTypeGuid = new Guid( "72657ED8-D16E-492E-AC12-144C5E7567E7" );
+        private static readonly Guid DemographicHistoryCategoryGuid = new Guid( "51D3EC5A-D079-45ED-909E-B0AB2FD06835" );
         /// <summary>
         /// Rock's Person Merge Request entity set purpose.
         /// </summary>
@@ -77,17 +79,71 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Runs Rock's duplicate finder, then writes the Cast's decisions and merge requests.
+        /// Writes the finished merges, runs Rock's duplicate finder, then writes the Cast's decisions and merge requests.
         /// </summary>
         public void Load( PeopleLoader people )
         {
             var duplicates = _source.ReadCastDuplicates();
+            WriteMerges( duplicates.Merges, people );
             RunFinder();
             WriteDecisions( duplicates.Pairs, people );
             WriteMergeRequests( duplicates.MergeRequests, people );
 
             var listed = Convert.ToInt32( _db.Scalar( "SELECT COUNT(*) FROM [PersonDuplicate] WHERE [ConfidenceScore] > @Minimum AND [IsConfirmedAsNotDuplicate] = 0 AND [IgnoreUntilScoreChanges] = 0", P( "@Minimum", FinderListMinimum ) ) );
             _db.Log.Write( $"  Pairs the Duplicate Finder lists (confidence above {FinderListMinimum:N0}, not decided): {listed:N0}" );
+        }
+
+        /*
+            11/19/26 - CLAUDE
+
+            Rock's Person Merge block writes a Merged line in the kept person's History, then runs spCrm_PersonMerge,
+            which points the old record's aliases at the kept person and saves the old record's last name as a previous
+            name when it differs. Then the old Person row is gone. The merge also deletes the old record's family
+            memberships and phones, so nothing else is left.
+
+            Reason: A merge already made looks the way Rock's merge leaves it (decision D-duplicates-3).
+        */
+
+        /// <summary>
+        /// Writes what Rock's merge left for each finished merge: the old record's alias, the Merged History line, and a previous name.
+        /// </summary>
+        private void WriteMerges( List<CastMerge> merges, PeopleLoader people )
+        {
+            if ( merges.Count == 0 )
+            {
+                return;
+            }
+
+            var personTypeId = _db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid );
+            var categoryId = _db.RequireIdByGuid( "Category", DemographicHistoryCategoryGuid );
+            foreach ( var merge in merges )
+            {
+                var person = people.People[merge.Person.Guid];
+                var oldId = people.MergedRecordIds[merge.Record.Guid];
+                var mergedBy = people.People[merge.MergedBy.Guid].AliasId;
+                var when = _dates.Resolve( merge.Merged ).Value;
+
+                _db.Execute( @"
+INSERT INTO [PersonAlias] ( [PersonId], [AliasPersonId], [AliasPersonGuid], [Guid], [ForeignKey] )
+VALUES ( @PersonId, @OldId, @OldGuid, NEWID(), @ForeignKey );
+
+INSERT INTO [History] ( [IsSystem], [CategoryId], [EntityTypeId], [EntityId], [Verb], [ChangeType], [ValueName], [IsSensitive], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime], [CreatedByPersonAliasId], [ModifiedByPersonAliasId] )
+VALUES ( 0, @CategoryId, @PersonTypeId, @PersonId, 'MERGE', 'Record', @ValueName, 0, NEWID(), @ForeignKey, @When, @When, @MergedBy, @MergedBy );
+
+DECLARE @LastName NVARCHAR(50) = ( SELECT LTRIM( RTRIM( [LastName] ) ) FROM [Person] WHERE [Id] = @PersonId );
+IF @OldLastName <> @LastName AND NOT EXISTS (
+    SELECT 1 FROM [PersonPreviousName] AS [pn] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pn].[PersonAliasId]
+    WHERE [pa].[PersonId] = @PersonId AND LTRIM( RTRIM( [pn].[LastName] ) ) = @OldLastName )
+BEGIN
+    INSERT INTO [PersonPreviousName] ( [PersonAliasId], [LastName], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+    VALUES ( @AliasId, @OldLastName, NEWID(), @ForeignKey, @When, @When );
+END",
+                    P( "@PersonId", person.PersonId ), P( "@AliasId", person.AliasId ), P( "@OldId", oldId ), P( "@OldGuid", merge.Record.Guid ), P( "@OldLastName", merge.Record.LastName.Trim() ),
+                    P( "@CategoryId", categoryId ), P( "@PersonTypeId", personTypeId ), P( "@ValueName", $"{merge.Record.FullName} [ID: {oldId}]" ),
+                    P( "@MergedBy", mergedBy ), P( "@When", when ), P( "@ForeignKey", _foreignKey ) );
+            }
+
+            _db.Log.Write( $"  Merges already made: {merges.Count:N0} ({string.Join( ", ", merges.Select( m => $"{m.Record.FullName} into {m.Person.Name}" ) )})" );
         }
 
         /// <summary>

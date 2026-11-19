@@ -20,7 +20,7 @@ The Cast is the set of hand-designed households: today **104 households and 230 
 | `staff-emails.json` | The Cast staff's hand-written personal emails to Cast people, tied to their stories. See [staff-emails.md](staff-emails.md). |
 | `sms-threads.json` | The Cast's hand-written text conversations, covering every SMS Conversations state, with several always from the last few days. See [sms-threads.md](sms-threads.md). |
 | `prayer-requests.json` | The Cast's own prayer requests, tied to their stories, covering every prayer screen state, with at least 8 always current. Format: `prayer-requests.schema.json`. |
-| `duplicates.json` | The Cast's duplicate pairs and what staff decided about them, and merge requests. Format: `duplicates.schema.json`. See [Duplicates](../docs/duplicates.md). |
+| `duplicates.json` | The Cast's duplicate pairs and what staff decided about them, merge requests, and merges already made, such as Sarah Simmons's old Sarah Jones record. Format: `duplicates.schema.json`. See [Duplicates](../docs/duplicates.md). |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |
 | `families/*.md` | Generated family pages. Never edit them; rerun `build-pages.js`. |
 | `INVENTORY.md` | What came over from the legacy sample data, what was added, open issues, and remaining gaps. |

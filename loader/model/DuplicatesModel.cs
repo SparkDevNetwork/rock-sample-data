@@ -25,6 +25,8 @@ namespace RockSampleData.Loader.Model
         public List<CastDuplicatePair> Pairs { get; set; } = new List<CastDuplicatePair>();
 
         public List<CastMergeRequest> MergeRequests { get; set; } = new List<CastMergeRequest>();
+
+        public List<CastMerge> Merges { get; set; } = new List<CastMerge>();
     }
 
     /// <summary>
@@ -107,4 +109,41 @@ namespace RockSampleData.Loader.Model
         public bool NotifyAfterMerge { get; set; }
     }
 
+    /// <summary>
+    /// A merge staff already made: a record Rock merged into a Cast person and deleted.
+    /// </summary>
+    internal sealed class CastMerge
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// The Cast person Rock kept.
+        /// </summary>
+        public CastPersonReference Person { get; set; }
+
+        public CastMergedRecord Record { get; set; }
+
+        public CastPersonReference MergedBy { get; set; }
+
+        public RelativeDate Merged { get; set; }
+    }
+
+    /// <summary>
+    /// The record Rock merged away. Its Guid lives on as the AliasPersonGuid of the alias Rock moved to the person.
+    /// </summary>
+    internal sealed class CastMergedRecord
+    {
+        public Guid Guid { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string NickName { get; set; }
+
+        public string LastName { get; set; }
+
+        /// <summary>
+        /// The record's full name as Rock wrote it in the Merged History line: the nick name, or else the first name, and the last name.
+        /// </summary>
+        public string FullName => $"{NickName ?? FirstName} {LastName}";
+    }
 }

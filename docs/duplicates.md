@@ -1,6 +1,6 @@
 # Duplicates
 
-How duplicate person records work in the sample data, and why. The decisions are D-duplicates-1, D-duplicates-2, and D-duplicates-4 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
+How duplicate person records work in the sample data, and why. The decisions are D-duplicates-1 to D-duplicates-4 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
 
 ## The idea
 
@@ -14,6 +14,7 @@ Every church has duplicate records. A visitor fills out a card twice, a check-in
 | Duplicate Detail | A person on the Duplicate Finder | The person's possible duplicates from a confidence of 40, side by side, with Not Duplicate and Ignore buttons. |
 | Merge Requests | Tools > Reporting > Data Integrity > Merge Requests | Merges asked for by people who cannot merge, with the requester's note. |
 | Merge People | People > Manage > Merge People | The merge itself. |
+| History | A person's History tab | A Merged line for each record merged into the person. |
 
 Rock's Calculate Person Duplicates job runs every night at 3 AM. It is a Run SQL job, and its SQL runs one stored procedure, `spCrm_PersonDuplicateFinder`. The procedure scores every pair of people who share an email, a home or mobile number, a home address, or a last name and the first two letters of a first name. A score adds points for each match, and the confidence compares the score with how much the two records could match. Each run resets every score and finds the pairs again, keeps each pair's Not Duplicate and Ignore flags, shows an ignored pair again if its score changes, and deletes pairs that no longer match. Rock 21.0.2 and Rock 20.0.10 have the same procedure, job, and pages.
 
@@ -32,7 +33,7 @@ Households with the same address share one Location, as Rock's address editor sa
 
 ## The Cast's duplicates
 
-The Cast has two people with duplicate records and a different man with the same name (decision D-duplicates-2).
+The Cast has two people with duplicate records, a different man with the same name, and a merge already made (decision D-duplicates-2).
 
 | Pair | Decision | Story |
 |---|---|---|
@@ -52,10 +53,20 @@ Jamal Pierce, the groups pastor, found Jon's three records two days before insta
 
 Rock's grid saves the selection as an entity set that expires in 5 minutes, and the merge page turns it into a merge request that never expires. The load writes the finished request: the entity set with Rock's Person Merge Request purpose, no expiration, Jamal as its creator, his note, the box in its settings, and one item for each person.
 
+### A merge already made
+
+Sarah Simmons's first record was Sarah Jones, from when she came with Ben. After she married Jim, she got a second record as Sarah Simmons in his family. About two years before install, Alisha merged the old Sarah Jones record into it (decision D-duplicates-3). Rock's merge leaves three things, and the load writes each the way Rock does:
+
+1. **The old alias.** Rock points the old record's alias at Sarah. Its AliasPersonId is the old record's Id, which no person has any more, and its AliasPersonGuid is the old record's Guid.
+2. **A Merged History line.** Rock's merge block writes "Sarah Jones [ID: n]" in Sarah's History, by Alisha, with the verb Merge.
+3. **A previous name.** Rock's merge procedure saves the old record's last name, Jones, as Sarah's previous last name, since it differs from Simmons.
+
+The merge also deletes the old record's phones and family memberships, so nothing else is left.
+
 ## How it is checked
 
-1. **validate-cast.js** checks `cast/duplicates.json`: every person is a Cast person with that name, each pair is listed once, a decided pair names a staff member and a date.
-2. **Cast expectations** (every CLI load and the verify tool) check each pair's decision, that the Duplicate Finder lists each open pair, and the merge request. A missing pair or a wrong decision fails.
+1. **validate-cast.js** checks `cast/duplicates.json`: every person is a Cast person with that name, each pair is listed once, a decided pair names a staff member and a date, and a merged record's Guid is no Cast person's.
+2. **Cast expectations** (every CLI load and the verify tool) check each pair's decision, that the Duplicate Finder lists each open pair, the merge request, and Sarah's alias, History line, and previous name. A missing pair or a wrong decision fails.
 3. **The verify tool's `person-duplicates` check** runs Rock's own Calculate Person Duplicates job after each load, as its scheduler does, and compares every pair before and after. A pair added, removed, or rescored, or a decision lost, fails. See [Verification](verification.md).
 
 ## Not built yet

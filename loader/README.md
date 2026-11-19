@@ -658,11 +658,12 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 
 ## Duplicates
 
-The Duplicates step comes after logins, the last step that writes people, and always runs (`loading/DuplicatesLoader.cs`, decisions D-duplicates-1, D-duplicates-2, and D-duplicates-4; see [Duplicates](../docs/duplicates.md)):
+The Duplicates step comes after logins, the last step that writes people, and always runs (`loading/DuplicatesLoader.cs`, decisions D-duplicates-1 to D-duplicates-4; see [Duplicates](../docs/duplicates.md)):
 
-1. **Rock's duplicate finder.** It runs `EXEC [dbo].[spCrm_PersonDuplicateFinder]`, the SQL of Rock's Calculate Person Duplicates job, with the job's 1,800-second timeout, and gives the pairs it writes the dataset's ForeignKey. About 10 seconds on Full 7.
-2. **The Cast's decisions.** Each decided pair gets its Not Duplicate or Ignore flag, the staff member as its last modifier, and a created date of 3 AM on the day they decided. A pair the finder did not score is skipped, and the Cast expectations report it.
-3. **Merge requests.** Each is Rock's Person Merge Request entity set: made by the requester, no expiration, the note, the Notify Me When Merged box in its settings, and one item for each person.
+1. **Merges already made.** For each merge in `cast/duplicates.json`, what Rock's merge leaves: the old record's alias on the person, a Merged line in their History by the staff member who merged, and the old last name as a previous name when it differs. The people step gave the old record the Person Id just below the person's, and no Person row has it.
+2. **Rock's duplicate finder.** It runs `EXEC [dbo].[spCrm_PersonDuplicateFinder]`, the SQL of Rock's Calculate Person Duplicates job, with the job's 1,800-second timeout, and gives the pairs it writes the dataset's ForeignKey. About 10 seconds on Full 7.
+3. **The Cast's decisions.** Each decided pair gets its Not Duplicate or Ignore flag, the staff member as its last modifier, and a created date of 3 AM on the day they decided. A pair the finder did not score is skipped, and the Cast expectations report it.
+4. **Merge requests.** Each is Rock's Person Merge Request entity set: made by the requester, no expiration, the note, the Notify Me When Merged box in its settings, and one item for each person.
 
 The verify tool then runs Rock's own job and fails if it changes any pair (see [Verification](../docs/verification.md#person-duplicates)).
 

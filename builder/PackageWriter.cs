@@ -236,6 +236,7 @@ namespace RockSampleData.Builder
             var duplicates = source.ReadCastDuplicates();
             var duplicatePeople = duplicates.Pairs.SelectMany( p => p.People.Append( p.DecidedBy ) )
                 .Concat( duplicates.MergeRequests.SelectMany( r => r.People.Append( r.Requester ) ) )
+                .Concat( duplicates.Merges.SelectMany( m => new[] { m.Person, m.MergedBy } ) )
                 .Where( p => p != null );
             foreach ( var person in duplicatePeople.Where( p => !packagedPeople.Contains( p.Guid ) ) )
             {

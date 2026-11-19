@@ -1627,7 +1627,8 @@ if ( fs.existsSync( staffEmailFile ) ) {
 /*
     Pass 8: the Cast's duplicates (cast/duplicates.json, docs/duplicates.md). Every person is a Cast person with that
     name. A pair is two different people, listed once. A decided pair names the staff member who decided and when, and
-    an open pair names neither. A merge request names two or more people.
+    an open pair names neither. A merge request names two or more people. A merge keeps a Cast person who is not Rock's
+    admin, and its merged record's Guid is no Cast person's.
 */
 const duplicatesFile = path.join( castDir, "duplicates.json" );
 const DUPLICATE_DECISIONS = [ "open", "not-a-duplicate", "ignored" ];
@@ -1710,6 +1711,22 @@ if ( fs.existsSync( duplicatesFile ) ) {
         checkDate( owner, request.requested );
     }
 
+    for ( const merge of duplicates.merges || [] ) {
+        const owner = `duplicates.json merge ${merge.key}`;
+        checkKey( owner, merge.key );
+        const kept = checkPerson( owner, merge.person, false );
+        if ( kept && ( kept.person.replacesAdmin || kept.person.recordType === "business" ) ) {
+            errors.push( `${owner}: Rock's admin person and businesses do not take merges here.` );
+        }
+        checkPerson( owner, merge.mergedBy, true );
+        if ( !merge.record || !merge.record.firstName || !merge.record.lastName ) {
+            errors.push( `${owner}: the merged record needs a guid, firstName, and lastName.` );
+        }
+        else {
+            claimGuid( merge.record.guid, `${owner} (merged record)` );
+        }
+        checkDate( owner, merge.merged );
+    }
 }
 
 // One line instead of one per person, since photo ethnicity is filled in household by household.

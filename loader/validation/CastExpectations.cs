@@ -198,7 +198,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
         /// <summary>
         /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
         /// decision, and the Duplicate Finder lists each open pair (decisions D-duplicates-1 and D-duplicates-2). Each merge
-        /// request is a Person Merge Request that never expires, with its requester, note, and people.
+        /// request is a Person Merge Request that never expires, with its requester, note, and people. Each finished merge
+        /// left the old record's alias on the person, the Merged History line, and the old last name as a previous name when
+        /// it differs (decision D-duplicates-3).
         /// </summary>
         private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
@@ -267,6 +269,51 @@ WHERE [i].[EntitySetId] = @SetId", P( "@SetId", row["Id"] ) ).Select( r => ( Gui
                 else if ( !people.SetEquals( expectedPeople ) )
                 {
                     failures.Add( $"{name}: expected {string.Join( ", ", request.People.Select( p => p.Name ) )} in the request, Rock has {people.Count} other people" );
+                }
+            }
+
+            foreach ( var merge in duplicates.Merges )
+            {
+                var name = $"Merge {merge.Key} ({merge.Record.FullName} into {merge.Person.Name})";
+                var alias = db.Query( @"
+SELECT [pa].[AliasPersonId], [p].[Id] AS [PersonId], [p].[Guid] AS [PersonGuid], [p].[LastName], [p].[PrimaryAliasId],
+    ( SELECT COUNT(*) FROM [Person] AS [old] WHERE [old].[Id] = [pa].[AliasPersonId] OR [old].[Guid] = [pa].[AliasPersonGuid] ) AS [OldRecords]
+FROM [PersonAlias] AS [pa]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [pa].[AliasPersonGuid] = @OldGuid", P( "@OldGuid", merge.Record.Guid ) ).FirstOrDefault();
+
+                checks++;
+                if ( alias == null || ( Guid ) alias["PersonGuid"] != guids.Rock( merge.Person.Guid ) || alias["AliasPersonId"] == null || Convert.ToInt32( alias["OldRecords"] ) != 0 )
+                {
+                    failures.Add( $"{name}: expected the old record's alias on {merge.Person.Name}, with no Person row left for the old record" );
+                    continue;
+                }
+
+                checks++;
+                var valueName = $"{merge.Record.FullName} [ID: {alias["AliasPersonId"]}]";
+                var historyLines = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [History] AS [h]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [h].[EntityTypeId]
+WHERE [et].[Name] = 'Rock.Model.Person' AND [h].[EntityId] = @PersonId AND [h].[Verb] = 'MERGE' AND [h].[ChangeType] = 'Record' AND [h].[ValueName] = @ValueName",
+                    P( "@PersonId", alias["PersonId"] ), P( "@ValueName", valueName ) ) );
+                if ( historyLines != 1 )
+                {
+                    failures.Add( $"{name}: expected one Merged line \"{valueName}\" in {merge.Person.Name}'s History, Rock shows {historyLines}" );
+                }
+
+                if ( !string.Equals( merge.Record.LastName.Trim(), ( ( string ) alias["LastName"] ).Trim(), StringComparison.OrdinalIgnoreCase ) )
+                {
+                    checks++;
+                    var previousNames = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [PersonPreviousName] AS [pn]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pn].[PersonAliasId]
+WHERE [pa].[PersonId] = @PersonId AND [pn].[LastName] = @LastName", P( "@PersonId", alias["PersonId"] ), P( "@LastName", merge.Record.LastName.Trim() ) ) );
+                    if ( previousNames != 1 )
+                    {
+                        failures.Add( $"{name}: expected {merge.Record.LastName} once as a previous last name, Rock shows it {previousNames} times" );
+                    }
                 }
             }
 
