@@ -112,7 +112,7 @@
     "LegalNotes",
     "DoNotSendGivingStatement"
   ],
-  "$excludedComment": "Nothing writes these. Membership Date stays empty. A social media link or driver's license number could reach a real person. First Visit and Second Visit are written by Rock's Family Analytics job (issue 11). Special Needs is left out. Assessment results are not here, because the assessments step writes them (decision 265).",
+  "$excludedComment": "Nothing writes these. Membership Date stays empty. A social media link or driver's license number could reach a real person. First Visit and Second Visit are Rock's Family Analytics job's, which the load turns on with Set Visit Dates off until visit dates load (issue 2, decision D-era-3). Special Needs is left out. Assessment results are not here, because the assessments step writes them (decision 265).",
   "excluded": [
     "MembershipDate",
     "Facebook",

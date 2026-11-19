@@ -73,6 +73,10 @@ With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so s
 
 Alisha wrote a celebration on six of them: Lauren Shaw, Derek Ward, Mark Fischer, Brian and Wendy Gilbert, and Sheryl Tennant. The three she has not reached yet have none, so her board shows both. Bri Hall's greeters leader and Rachel Brooks, for Helen Evans, wrote two more. A Cast expectation checks every one, and that Alisha has at least six, on every load (decision 219).
 
+## eRA
+
+Serving check-ins count toward eRA, because Rock's Serving Team type counts as a weekend service. A family with a volunteer who serves most Sundays stays an eRA. See [eRA](steps.md#era).
+
 ## How the numbers compare
 
 On Full 7, these serving and connection values pass validation: the share of active adults who serve, the share of serving attendance attended, the share of leaders, the state mix, the connector rate, and time to connect.

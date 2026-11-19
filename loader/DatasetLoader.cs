@@ -54,6 +54,7 @@ namespace RockSampleData.Loader
             ("Giving", SampleDataPart.Giving),
             ("Giving analytics", SampleDataPart.Giving),
             ("Giving alerts", SampleDataPart.Giving),
+            ("Family analytics", null),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Steps", SampleDataPart.Steps),
@@ -506,6 +507,13 @@ namespace RockSampleData.Loader
                 new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             }
 
+            // eRA, as if Rock's Family Analytics job had run every Tuesday, then Rock's own giving and attendance counts. It
+            // reads the families, gifts, and weekend attendance from the rows, so it always runs, and it comes before the
+            // data views, which read Last Gave (decisions D-era-1 to D-era-4).
+            steps.Begin( "Family analytics" );
+            var familyAnalytics = new FamilyAnalyticsLoader( db, dates, calendar.HistoryStart, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            familyAnalytics.Load();
+
             // Prayer requests and the prayer team's activity. Who asks depends on who attended, gave, or is in a group.
             var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
             if ( steps.Begin( "Prayer" ) )
@@ -660,7 +668,7 @@ namespace RockSampleData.Loader
             db.RebuildDeferredIndexes( "History" );
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
-            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor ):N0} values set" );
+            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor, familyAnalytics.ProcedureAttributeIds ):N0} values set" );
 
             /*
                 10/30/26 - CLAUDE
@@ -675,7 +683,7 @@ namespace RockSampleData.Loader
             if ( options.IsCastExpectationsChecked )
             {
                 steps.Begin( CastExpectationsStep );
-                CastExpectations.Check( db, source, parts );
+                CastExpectations.Check( db, source, parts, dates.Anchor );
             }
             else
             {

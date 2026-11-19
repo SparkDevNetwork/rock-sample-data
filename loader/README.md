@@ -501,6 +501,18 @@ The math for attributes and alerts lives in Rock's C#, so `loading/RockGivingAut
 
 Speed: with Full 7 and the crowd, the attributes take about 6 seconds and the alerts about 2. Core 1 takes under 1 second for each. Full 7 raises about 1,500 alerts a year: about 300 large gifts, 300 smaller than usual, and 900 late gifts (about one per giver who stops). Core 1 raises about 20.
 
+## Family analytics (eRA)
+
+`loading/FamilyAnalyticsLoader.cs` fills eRA as if Rock's Family Analytics job had run every Tuesday at 8 PM, its default schedule, from the start of the history window (decision D-era-1). The design is in [Steps](../docs/steps.md#era).
+
+1. **Read.** It reads every family and its members, each person's record status and primary family, the Sunday of each contribution with a tax-deductible line, by giving id, and the Sundays each family attended a group whose type counts as a weekend service: worship, the kids' rooms, and serving teams. It reads rows, not plans, so it always runs, after giving and before the data views, which read Last Gave.
+2. **Replay.** For each Tuesday, `loading/RockFamilyAnalytics.cs`, a line-for-line port of Rock's eRA procedure and job, works out the procedure's counts per family as of the previous Sunday, moves families in and out, and keeps each person's flag, start and end dates, eRA steps, and history lines. The last run is at the start of install day, so Rock's first run changes nothing (decision D-era-2).
+3. **Write.** It bulk-copies the attribute values, the eRA steps with the history lines Rock's step save hook writes, each person's Core Steps completion, and the "Entered" and "Exited" history lines, as the job writes them with Write eRA History on. Then it turns the job on with Set Visit Dates off (decision D-era-3).
+4. **Rock's counts.** It runs Rock's own `spCrm_FamilyAnalyticsGiving` and `spCrm_FamilyAnalyticsAttendance` from the text this Rock installed, with each clock call swapped for the install-day run (`database/RockProcedureClock.cs`), and refreshes the statistics of the tables they read first. They fill the giving and check-in counts and dates (decision D-era-4). The load's run of Rock's attribute value save hook leaves their values as they wrote them.
+5. **Check.** With the Cast expectations on (the CLI and verify), it runs Rock's own eRA procedure, run as of install day, inside a savepoint, and warns if it would move a family or change a value. Then it rolls the procedure back.
+
+Speed: Full 7 replays 158 weeks for about 2,900 eRA families in about 2 seconds, and writes about 11,800 eRA steps and 18,800 history lines in about 3. Rock's count procedures take about 27 seconds on Full 7 and 1 on Core 1. The check takes about 3 seconds on Full 7.
+
 ## Prayer requests
 
 `generation/PrayerPlanner.cs` plans every request and what the prayer team did with it, and `loading/PrayerLoader.cs` writes it (decision 67). Every number comes from the profile's `prayer` section.

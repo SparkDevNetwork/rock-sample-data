@@ -560,6 +560,39 @@ namespace RockSampleData.Loader.Model
         public CastStepsExpect Steps { get; set; }
 
         public CastAssessmentsExpect Assessments { get; set; }
+
+        public CastEraExpect Era { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock's eRA shows for a Cast person on install day (decision D-era-5).
+    /// </summary>
+    internal sealed class CastEraExpect
+    {
+        /// <summary>
+        /// current (an eRA now), former (was one and exited), or never.
+        /// </summary>
+        public string Status { get; set; }
+
+        /// <summary>
+        /// For current: how many days before install day the eRA Start Date may be.
+        /// </summary>
+        public CastDaysAgoRange StartedDaysAgo { get; set; }
+
+        /// <summary>
+        /// For former: how many days before install day the eRA End Date may be.
+        /// </summary>
+        public CastDaysAgoRange EndedDaysAgo { get; set; }
+    }
+
+    /// <summary>
+    /// A range of days before install day. Either end may be left out.
+    /// </summary>
+    internal sealed class CastDaysAgoRange
+    {
+        public int? Min { get; set; }
+
+        public int? Max { get; set; }
     }
 
     /// <summary>

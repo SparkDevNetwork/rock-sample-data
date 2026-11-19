@@ -262,6 +262,17 @@ function familyPage( h ) {
             ];
             facts.push( `Rock shows ${shows.join( ", " )}` );
         }
+        const era = p.expect?.era;
+        if ( era ) {
+            // What Rock's eRA shows for this person; every load checks it.
+            const days = r => r?.min !== undefined && r?.max !== undefined ? `${r.min} to ${r.max} days ago` : r?.min !== undefined ? `at least ${r.min} days ago` : r?.max !== undefined ? `within the last ${r.max} days` : "";
+            const shows = {
+                current: `an eRA that started ${era.startedDaysAgo ? days( era.startedDaysAgo ) : "before install day"}`,
+                former: `a former eRA${era.endedDaysAgo ? ` that ended ${days( era.endedDaysAgo )}` : ""}`,
+                never: "no eRA, now or before"
+            }[era.status];
+            facts.push( `Rock shows ${shows}` );
+        }
         lines.push( `- ${facts.join( " · " )}` );
         lines.push( `- Person Guid \`${p.guid}\``, "" );
     }

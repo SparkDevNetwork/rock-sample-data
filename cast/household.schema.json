@@ -84,6 +84,15 @@
         "C": { "type": "integer", "minimum": 0, "maximum": 100 }
       }
     },
+    "daysAgoRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A range of days before install day. Either end may be left out.",
+      "properties": {
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 }
+      }
+    },
     "relativeDate": {
       "type": "object",
       "description": "A calendar date relative to the anchor. Either yearsAgo, month, and day (the year is the anchor year minus yearsAgo; a result after the anchor moves back one year), or daysAgo alone for recent events that must stay recent.",
@@ -280,6 +289,17 @@
               "properties": {
                 "complete": { "type": "array", "items": { "type": "string" }, "description": "Types with a completed result, whose values Rock shows on the person." },
                 "pending": { "type": "array", "items": { "type": "string" }, "description": "Types whose latest request is still pending, with a requester." }
+              }
+            },
+            "era": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [ "status" ],
+              "description": "Rock's eRA on install day, from its Family Analytics job (docs/glossary.md).",
+              "properties": {
+                "status": { "enum": [ "current", "former", "never" ], "description": "current: an eRA now, with an In Progress eRA step. former: was one and exited, with an eRA End Date. never: no eRA values, steps, or history." },
+                "startedDaysAgo": { "$ref": "#/$defs/daysAgoRange", "description": "For current: how many days before install day the eRA Start Date may be." },
+                "endedDaysAgo": { "$ref": "#/$defs/daysAgoRange", "description": "For former: how many days before install day the eRA End Date may be." }
               }
             }
           }

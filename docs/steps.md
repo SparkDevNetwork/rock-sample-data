@@ -22,7 +22,7 @@ Published church pathways agree on the same spine: commit, belong, grow, serve, 
 A new Rock database already has two step programs:
 
 - **Discipleship Path,** with four step types: Baptism, Starting Point Class, Serve, and Small Group. Serve requires Starting Point Class first. Baptism, Serve, and Small Group are system step types with fixed Guids.
-- **Core Steps,** a system program that holds eRA. Rock's Calculate Family Analytics job writes it.
+- **Core Steps,** a system program that holds eRA. Rock's Family Analytics job writes it, and the load fills it the same way (see [eRA](#era)).
 
 The build follows the serving pattern (decision 68): it keeps Rock's program, its step types, and their Guids, and builds them out. Any Rock feature that looks them up by Guid still works.
 
@@ -144,6 +144,16 @@ A student's baptism goes on the Discipleship Path's Baptism step, with the Bapti
 - **Campus.** Every step's campus is the person's campus, and every step is on their primary alias.
 - **Person history.** Every step has the History tab line Rock's step save hook writes: "Added" with the step's name and campus on the day it started (decision 134). A step that started In Progress and was completed later (a class, or a Pending volunteer who became Active) also has its status change and completion date on the day it was completed. A step that ended has its end date on the day it ended.
 - **Program completions.** A person whose Complete steps cover every step type in a program gets a completion for that program, the way Rock's Update Step Program Completions job records it: from their earliest Complete step's start to their latest Complete step's completion. Every step of theirs in the program, In Progress ones too, points at it. Rock's job finds nothing to add after install, in either program.
+
+## eRA
+
+eRA, "estimated regular attender," is Rock's flag for a family that attends or gives regularly. Rock's Family Analytics job sets it, and the person profile shows it as a badge, in the Family Analytics attributes, and as an eRA step in Rock's Core Steps program. The load fills it as if the job had run every Tuesday at 8 PM since the start of the history window, with a port of Rock's own rule (decision D-era-1):
+
+- **Entering.** A family enters when an adult gave four times in the last year, with one gift in the last six weeks, or when the family came on eight of the last sixteen Sundays. Rock counts a Sunday when anyone in the family checked in to a weekend service, a kids' room, or a serving team. Each member gets Currently an eRA, an eRA Start Date, an In Progress eRA step, and an "Entered" line on their History tab.
+- **Exiting.** A family exits when it has given nothing in eight weeks, come on no Sunday in four weeks, and come on fewer than eight of sixteen. Each member loses the flag, gets an eRA End Date, and has their eRA step completed, with an "Exited" history line. A person's first exit gives them a Core Steps completion, and their later eRA steps point at it, as Rock's step save hook and its Update Step Program Completions job do.
+- **On install day.** The replay ends with one more run at the start of install day, so Rock's first run changes nothing (decision D-era-2). The job is on, with its Set Visit Dates setting off until visit dates load (decision D-era-3). The load also runs Rock's own count procedures, which fill Times Given, First and Last Checked-In, Times Checked-In, and First and Last Gave (decision D-era-4).
+
+Core 1 has 66 eRA families on install day, and Full 7 about 2,900. The Deckers have been eRAs for years, the Ellises became eRAs a few weeks ago, the Ortizes stopped about four months ago, and Bri Hall never has (decision D-era-5).
 
 ## How many
 

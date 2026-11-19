@@ -183,6 +183,12 @@
             "emotional-intelligence",
             "motivators"
           ]
+        },
+        "era": {
+          "status": "current",
+          "startedDaysAgo": {
+            "min": 730
+          }
         }
       },
       "logins": [

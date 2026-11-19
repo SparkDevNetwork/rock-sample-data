@@ -237,6 +237,10 @@ try
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
 
+            // Rock's own Family Analytics procedures, rolled back after (decision D-era-2).
+            stage = "family-analytics";
+            checks.Add( JobReplayChecks.FamilyAnalytics( sql, database, anchor ) );
+
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );

@@ -41,9 +41,10 @@ namespace RockSampleData.Loader.Validation
         /// <summary>
         /// Prints each expectation's result and returns how many failed.
         /// </summary>
-        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day. Null is the database server's today.</param>
+        public static int Check( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
-            var (checks, failures) = Evaluate( db, source, parts );
+            var (checks, failures) = Evaluate( db, source, parts, anchor );
             db.Log.Write( failures.Count == 0
                 ? $"  Cast expectations: all {checks} hold"
                 : $"  WARNING: {failures.Count} of {checks} Cast expectations do not hold" );
@@ -59,7 +60,8 @@ namespace RockSampleData.Loader.Validation
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
         /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
-        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts )
+        /// <param name="anchor">The load's install day, which the eRA stories count back from. Null is the database server's today.</param>
+        public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
             var guids = new CastPersonGuids( db, source );
@@ -155,6 +157,10 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
             checks += CheckPersonAttributes( db, source, failures );
+
+            // The eRA stories follow attendance and giving (decision D-era-5).
+            checks += parts.Contains( SampleDataPart.Attendance ) && parts.Contains( SampleDataPart.Giving ) ? CastEraExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 

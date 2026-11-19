@@ -14,7 +14,7 @@ Luis and Teresa Ortiz were regulars for seven years. They stopped coming about s
 
 ### Luis Ortiz
 
-- Age 48 · married · email luis.ortiz@example.org · groups: Greggs Group, Murphy Group (group ended)
+- Age 48 · married · email luis.ortiz@example.org · groups: Greggs Group, Murphy Group (group ended) · Rock shows a former eRA that ended 60 to 200 days ago
 - Person Guid `F24B151A-4679-4066-A52F-78DF11FFEA9A`
 
 ### Teresa Ortiz

@@ -80,6 +80,15 @@
           "daysAgo": 120
         }
       },
+      "expect": {
+        "era": {
+          "status": "current",
+          "startedDaysAgo": {
+            "min": 21,
+            "max": 100
+          }
+        }
+      },
       "logins": [
         "jellis"
       ]
