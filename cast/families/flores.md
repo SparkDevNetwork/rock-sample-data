@@ -31,6 +31,7 @@ Monica Flores has never married and is raising two kids on her own.
 
 - Never-married single parent.
 - Irregular giver.
+- Pending benevolence request for a car repair.
 
 ## Activity
 

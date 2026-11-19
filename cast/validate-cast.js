@@ -310,6 +310,95 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
+// Background checks (configuration/background-checks.json, decision D-checks-1): a Cast story's check has a date and a
+// result of Pass or Fail, a person without a check has no check in their file, and each story the file expects names a
+// Cast person whose file agrees with it.
+{
+    const checks = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "background-checks.json" ), "utf8" ) );
+    for ( const [ guid, { person: p, file } ] of people ) {
+        const a = p.attributes || {};
+        if ( a.BackgroundCheckResult !== undefined && ![ "Pass", "Fail" ].includes( a.BackgroundCheckResult ) ) {
+            errors.push( `${file} ${p.key}: BackgroundCheckResult must be Pass or Fail, Rock's two values.` );
+        }
+        if ( a.BackgroundCheckResult !== undefined && a.BackgroundCheckDate === undefined ) {
+            errors.push( `${file} ${p.key}: has a BackgroundCheckResult but no BackgroundCheckDate.` );
+        }
+    }
+    for ( const c of checks.castWithoutCheck || [] ) {
+        const found = people.get( c.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name} (${c.person}), who is not a Cast person.` );
+        } else if ( found.person.attributes?.BackgroundCheckDate !== undefined ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name}, but their file has a BackgroundCheckDate.` );
+        }
+    }
+    const withoutCheck = new Set( ( checks.castWithoutCheck || [] ).map( c => c.person ) );
+    for ( const e of checks.castExpectations || [] ) {
+        const found = people.get( e.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castExpectations names ${e.name} (${e.person}), who is not a Cast person.` );
+            continue;
+        }
+        const a = found.person.attributes || {};
+        const fileResult = a.BackgroundCheckDate === undefined ? null : a.BackgroundCheckResult || "Pass";
+        if ( ( e.check === "Pass" || e.check === "Fail" ) && fileResult !== e.check ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check to be ${e.check}, but their file says ${fileResult || "nothing"}.` );
+        }
+        if ( e.check === "None" && !withoutCheck.has( e.person ) ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name} to have no check, so castWithoutCheck must name them.` );
+        }
+        const requests = ( found.person.connectionRequests || [] ).filter( r => r.status === "Background Check" && r.state === "Active" );
+        if ( e.linkedToRequest && requests.length !== 1 ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check linked to a request, but their file has ${requests.length} active requests in the Background Check status.` );
+        }
+    }
+}
+
+// Benevolence (configuration/benevolence.json, decision D-benevolence-1): each Cast request names a Cast requester, a
+// type the file lists, and staff who can open Rock's benevolence pages. Pending requests have no decision or results yet,
+// Approved ones have at least one result, and every amount is more than zero. The case worker is in Benevolence Workers.
+{
+    const benevolence = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "benevolence.json" ), "utf8" ) );
+    const typeKeys = new Set( benevolence.types.map( t => t.key ) );
+    const resultTypes = new Set( [ "Provided Financial Assistance", "Provided Gift Card", "Provided Services", "Referred to Counseling", "Referred to Food Pantry", "Unable to Make Contact" ] );
+    const roles = guid => people.get( guid )?.person.securityRoles || [];
+    const canOpen = guid => roles( guid ).some( r => r === "Benevolence Workers" || r === "Rock Administrators" );
+    if ( !roles( benevolence.caseWorker.person ).includes( "Benevolence Workers" ) ) {
+        errors.push( `configuration/benevolence.json: the case worker ${benevolence.caseWorker.name} must be in Benevolence Workers, the role Rock's case worker list reads.` );
+    }
+    for ( const r of benevolence.cast ) {
+        const owner = `configuration/benevolence.json ${r.key}`;
+        claimGuid( r.guid, owner );
+        const requester = people.get( r.requester );
+        if ( !requester ) {
+            errors.push( `${owner}: the requester ${r.name} is not a Cast person.` );
+        } else if ( requester.household.campusSlot && requester.household.campusSlot !== "main" ) {
+            errors.push( `${owner}: the requester ${r.name} lives on another campus, so the request would be missing from datasets without it.` );
+        }
+        if ( !typeKeys.has( r.type ) ) {
+            errors.push( `${owner}: type ${r.type} is not a type in the file.` );
+        }
+        for ( const [ label, guid ] of [ [ "enteredBy", r.enteredBy ], [ "decidedBy", r.decidedBy ] ].filter( ( [ , g ] ) => g ) ) {
+            if ( !canOpen( guid ) ) {
+                errors.push( `${owner}: ${label} must be in Benevolence Workers or Rock Administrators, the roles that can open Rock's benevolence pages.` );
+            }
+        }
+        const results = r.results || [];
+        if ( r.status === "Pending" && ( r.decided || r.decidedBy || r.resultSummary || results.length > 0 ) ) {
+            errors.push( `${owner}: a Pending request has no decision, summary, or results yet.` );
+        } else if ( r.status === "Approved" && ( !r.decided || results.length === 0 ) ) {
+            errors.push( `${owner}: an Approved request has a decision and at least one result.` );
+        } else if ( ![ "Pending", "Approved", "Denied" ].includes( r.status ) ) {
+            errors.push( `${owner}: status ${r.status} is not one of Rock's request statuses.` );
+        }
+        for ( const x of results ) {
+            if ( !resultTypes.has( x.type ) || ( x.amount !== undefined && !( x.amount > 0 ) ) ) {
+                errors.push( `${owner}: each result needs one of Rock's result types and an amount over zero, if any.` );
+            }
+        }
+    }
+}
+
 // The staff (configuration/staff.json, decisions 198 and 201): every staff member is a Cast person on
 // their campus, every campus has a campus pastor, supervisors are staff, and a staff page has what it shows.
 {

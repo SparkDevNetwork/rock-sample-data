@@ -209,7 +209,7 @@ namespace RockSampleData.Loader.Model
 
     /// <summary>
     /// One answer Rock's security check must give: whether a Cast person may take an action on a category, data view,
-    /// report, personalization segment, page, signal type, or tag.
+    /// report, personalization segment, page, signal type, tag, or benevolence type.
     /// </summary>
     internal sealed class AccessExpectation
     {
@@ -262,6 +262,9 @@ namespace RockSampleData.Loader.Model
         /// A tag's key in configuration/tags.json, or null when the item is not a tag.
         /// </summary>
         public string Tag { get; set; }
+        /// A benevolence type's key in configuration/benevolence.json, or null when the item is not a benevolence type.
+        /// </summary>
+        public string BenevolenceType { get; set; }
 
         /// <summary>
         /// Rock's action, such as View or Edit.

@@ -521,11 +521,6 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public bool Connector { get; set; }
 
-        /// <summary>
-        /// A background check result recorded a week after the request, or null.
-        /// </summary>
-        public string BackgroundCheck { get; set; }
-
         public string Comment { get; set; }
 
         /// <summary>
@@ -621,6 +616,16 @@ namespace RockSampleData.Loader.Model
         public RelativeDate BaptismDate { get; set; }
 
         public RelativeDate FirstVisit { get; set; }
+
+        /// <summary>
+        /// The day the person's latest background check came back, when their story sets it.
+        /// </summary>
+        public RelativeDate BackgroundCheckDate { get; set; }
+
+        /// <summary>
+        /// Pass or Fail, the latest check's result. A story that sets a date and no result passed.
+        /// </summary>
+        public string BackgroundCheckResult { get; set; }
 
         /// <summary>
         /// Every other value in the file, by attribute key, for registration form answers that have no property of their own.

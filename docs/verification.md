@@ -50,6 +50,8 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Family Analytics](#family-analytics) | Verify tool | Rock's own Family Analytics procedures, run on install day, move no family in or out of eRA and change no count, gift date, or eRA value. |
 | [Peer network](#peer-network) | Verify tool | Rock's own Calculate Peer Network procedures, run on install day, add, remove, and rescore no peer network row. |
 | [Group sync](#group-sync) | Verify tool | Rock's own group sync finds nothing to add or remove, so nothing sends at install. |
+| [Benevolence workflow launch](#benevolence-workflow-launch) | Verify tool | Rock's own launch of the Request Started workflow gives each new benevolence request to the case worker. |
+| [Group requirements](#group-requirements) | Verify tool | Rock's own Calculate Group Requirements job inserts, deletes, and changes no requirement result. |
 | [Anchor sweep](#anchor-sweep) | Verify tool, on Core 1 | Every Cast giving and reminder story holds on each of the 60 install days from the run's anchor, not only on the day verify runs. |
 | [Unchanged during run](#unchanged-during-run) | Verify tool | The receipt describes the exact bytes and code that were checked. |
 | [Publishing gate](#publishing-gate) | Before any upload | Only packages with a passing receipt are published. |
@@ -258,6 +260,16 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `login-is-a-database-login-rock-can-check` | Every login is a Database login with a BCrypt hash Rock reads, on a person, never locked out or sent to change its password, and last used only after it was made and only when confirmed (decision 180). |
 | `login-username-is-plain` | Usernames are lowercase letters and digits only, and never Rock's own `admin`. |
 | `login-belongs-to-an-adult` | Only adults 18 and older have logins, never a child or a business. |
+| `background-check-requirement-agrees-with-check` | Decision D-checks-1. Each Background Check Required result agrees with the person's check on the night it was last checked: Meets when Rock's still-valid view holds, Meets With Warning in a Pass's last 60 days, and Not Met otherwise, with the dates Rock's job sets. |
+| `finished-background-check-has-report` | Decision D-checks-4. Every finished check has its report: a PDF in Rock's Background Check file type, with its bytes, linked as the response document. A check in progress has none. |
+| `background-check-agrees-with-person` | Decision D-checks-4. A person's Background Checked, date, and result are what Checkr's workflow set from their latest finished check, and every check is one Rock's Checkr provider wrote. |
+| `background-check-in-progress-waits-on-its-request` | Decision D-checks-1. A check in progress belongs to an active request in the Background Check status, and a finished check linked to a request finished after the request. |
+| `benevolence-request-is-worked-by-a-case-worker` | Decision D-benevolence-1. Every request's case worker is an active member of RSR - Benevolence, the role Rock's case worker list reads. |
+| `benevolence-request-matches-its-requester` | Decision D-benevolence-1. Each request holds what Rock's block copies from the requester: name, email, connection status, campus, and home location, with its date key, and no government ID. |
+| `benevolence-results-follow-the-status` | Decision D-benevolence-3. Pending requests have no result or summary, Approved ones have a result, Denied ones give nothing with an amount, and every amount is more than zero and saved after the request. |
+| `benevolence-document-is-a-stored-pdf` | Decision D-benevolence-4. Each request document is a PDF with its bytes in Rock's Benevolence Request Documents file type, on an Approved request. |
+| `benevolence-trigger-sends-no-email` | Decision D-benevolence-6. Each church type has one Request Started trigger, saved as Rock saves it, to an active workflow that is not persisted and has no action that sends an email, a text, or a communication. |
+| `benevolence-type-is-locked` | Decision D-benevolence-2. Every benevolence type allows View and Edit only to RSR - Benevolence and RSR - Rock Administration. |
 | `security-role-member-can-sign-in` | Everyone the load puts in a security role can sign in to see what the role allows (decision 79). |
 | `app-user-can-sign-in` | A church app device tied to a person means they signed in to the app. |
 | `login-has-its-history` | Every login has the "User Login" line Rock's save hook writes on the person's History tab (decision 181). |
@@ -408,6 +420,18 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** The loader fills each synced group by evaluating the data views in SQL (decision 187). Only Rock's own run proves the loader picked exactly the people Rock picks. Nothing changing also proves that the syncs' welcome and exit emails and logins wait for a person to join or leave later, so a new install sends nothing (decision 95).
 
+### Benevolence workflow launch
+
+**What it does.** Last of the load's checks, the tool clears the case worker on up to 25 of the load's benevolence requests in its throwaway copy, as on a request entered without one. Then `verify/rock-runner` launches each request's Request Started workflow with Rock's own code, the way Rock's BenevolenceRequestChangeTransaction does when a request is added, and the tool reads back the case worker Rock saved. The check passes when every request has the configured case worker again and Rock reported no error.
+
+**Why it's there.** The workflow is not persisted, so a load leaves nothing of its runs to compare (decision D-benevolence-6). Only Rock's own run proves the type's entity type, its Lava, and Rock's Entity Property Set action work together, on both Rock builds.
+
+### Group requirements
+
+**What it does.** After group sync, `verify/rock-runner` runs Rock's own Calculate Group Requirements job once, with its default settings. The tool reads every requirement result before and after, and the check passes when the job inserted, deleted, and changed none of them. The job also stamps its last-checked time on every result it looks at, so that one column is left out. Like group sync, it is judged only when today is the loads' anchor, because Rock's requirement data views count from today.
+
+**Why it's there.** The loader writes each kids and student volunteer's and each small group leader's requirement result the way the job would leave them after running every night (decision D-checks-1). Rock's scheduler and group screens read the stored result, not the rule, so only the real job proves every result is right, on both Rock builds.
+
 ### Data views
 
 **What it does.** `verify/rock-runner` runs every data view in the load, the church's and Rock's own, through Rock's own engine (`DataViewCache.GetEntityIds`), the call Rock's data view screens and jobs make. Any error fails the check, and each church view's count and time are printed. A persisted view runs live, since Rock's job has not persisted it yet.
@@ -422,7 +446,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Access
 
-**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`, `configuration/adaptive-messages.json`, `configuration/signals.json`, and `configuration/tags.json`: may this Cast person view or edit this category, data view, report, personalization segment, page, or signal type, or view or use this tag. Rock walks a data view's categories up to the global default, as it does on every page. It asks an SMS snippet in `access` in `content/communications/snippets.json` through the snippet's own check, as SMS Conversations does, which shows a personal snippet only to its owner (decision 299). For a tag, the runner loads the tag and asks the tag itself, as Rock's tag bar does. That lets a personal tag's owner do anything with it and keeps everyone else out, before the tag category's rules (decision 303). Each answer must match.
+**What it does.** `verify/rock-runner` asks Rock's own security check (`Authorization.Authorized`) each question in `access` in `configuration/reporting.json`, `configuration/adaptive-messages.json`, `configuration/signals.json`, `configuration/tags.json`, and `configuration/benevolence.json`: may this Cast person view or edit this category, data view, report, personalization segment, page, signal type, or benevolence type, or view or use this tag. Rock walks a data view's categories up to the global default, as it does on every page. It asks an SMS snippet in `access` in `content/communications/snippets.json` through the snippet's own check, as SMS Conversations does, which shows a personal snippet only to its owner (decision 299). For a tag, the runner loads the tag and asks the tag itself, as Rock's tag bar does. That lets a personal tag's owner do anything with it and keeps everyone else out, before the tag category's rules (decision 303). Each answer must match.
 
 **Why it's there.** The security walkthrough in the design is a claim about Rock's code. This makes it a test, so a change to a category's rules, or to Rock, that changes who can see finance data or the Homebound tag fails here.
 

@@ -375,7 +375,6 @@ namespace RockSampleData.Loader.Loading
                             FollowUp = cast.FollowUpInDays.HasValue ? context.Today.AddDays( cast.FollowUpInDays.Value ) : null,
                             IsPending = state == StateConnected,
                             WantsConnector = cast.Connector,
-                            BackgroundCheck = cast.BackgroundCheck,
                             Comment = cast.Comment,
                             IsCastStory = true,
                             Celebration = cast.Celebration
@@ -388,7 +387,7 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Adds the request, its activity history, any background check it records, and the Pending
+        /// Adds the request, its activity history, and the Pending
         /// membership of someone who just connected.
         /// </summary>
         private void AddRequest( Tables tables, RequestContext context, SeededRandom random, SeededRandom celebrationRandom, PlannedRequest request )
@@ -459,11 +458,6 @@ namespace RockSampleData.Loader.Loading
 
             AddPersonHistory( tables, random, request, requestId, connector, statusChanged, end );
             AddCelebration( tables, context, celebrationRandom, request, requestId, connector, statusChanged, end );
-
-            if ( request.BackgroundCheck != null )
-            {
-                AddBackgroundCheck( tables, request.Person, request.Created.AddDays( 7 ), request.BackgroundCheck );
-            }
 
             if ( request.IsPending )
             {
@@ -560,17 +554,6 @@ namespace RockSampleData.Loader.Loading
             var written = from.AddDays( random.Between( 0, Math.Max( 0, ( int ) ( to - from ).TotalDays ) ) );
             tables.Celebrations.Rows.Add( false, context.CelebrationNoteTypeId.Value, requestId, string.Empty, false, text, Guid.NewGuid(), written, written, connector.Value, connector.Value, _foreignKey, false,
                 NoteApproved, true, true, written, connector.Value, false );
-        }
-
-        /// <summary>
-        /// Records a background check result on the person, as Rock's background check attributes hold it.
-        /// </summary>
-        private void AddBackgroundCheck( Tables tables, LoadedPerson person, DateTime checkedOn, string result )
-        {
-            var ids = tables.BackgroundCheckAttributeIds;
-            tables.PersonValues.Rows.Add( false, ids["BackgroundChecked"], person.PersonId, "True", DBNull.Value, true, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
-            tables.PersonValues.Rows.Add( false, ids["BackgroundCheckDate"], person.PersonId, checkedOn.ToString( "o" ), checkedOn, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
-            tables.PersonValues.Rows.Add( false, ids["BackgroundCheckResult"], person.PersonId, result, DBNull.Value, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
         }
 
         /*
@@ -716,8 +699,6 @@ WHERE [pa].[Id] = @AliasId
 
             public string TransferredFrom { get; set; }
 
-            public string BackgroundCheck { get; set; }
-
             public string Comment { get; set; }
 
             /// <summary>
@@ -811,18 +792,11 @@ WHERE [pa].[Id] = @AliasId
                 PersonEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person'" ) );
                 RequestEntityTypeId = Convert.ToInt32( db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.ConnectionRequest'" ) );
                 HistoryCategoryId = db.RequireIdByGuid( "Category", PersonConnectionRequestHistoryCategoryGuid );
-                BackgroundCheckAttributeIds = db.Query( @"
-SELECT [a].[Key], [a].[Id]
-FROM [Attribute] AS [a]
-INNER JOIN [EntityType] AS [e] ON [e].[Id] = [a].[EntityTypeId]
-WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', 'BackgroundCheckDate', 'BackgroundCheckResult' )" ).ToDictionary( r => ( string ) r["Key"], r => Convert.ToInt32( r["Id"] ) );
             }
 
             public int NextRequestId { get; set; }
 
             public int NextMemberId { get; set; }
-
-            public Dictionary<string, int> BackgroundCheckAttributeIds { get; }
 
             public int PersonEntityTypeId { get; }
 
@@ -847,8 +821,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
             public DataTable MemberHistory { get; } = TableFactory.Create( "GroupMemberId:int", "GroupId:int", "GroupRoleId:int", "GroupRoleName:string", "IsLeader:bool", "GroupMemberStatus:int", "IsArchived:bool",
                 "EffectiveDateTime:date", "ExpireDateTime:date", "CurrentRowIndicator:bool", "CreatedDateTime:date", "ModifiedDateTime:date", "Guid:guid", "ForeignKey:string" );
 
-            public DataTable PersonValues { get; } = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "ValueAsDateTime:date", "ValueAsBoolean:bool", "IsPersistedValueDirty:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-
             /// <summary>
             /// Bulk-copies every table, parents before the rows that point to them.
             /// </summary>
@@ -859,7 +831,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 db.BulkInsert( "Note", Celebrations, keepIdentity: false );
                 db.BulkInsert( "GroupMember", Members, keepIdentity: true );
                 db.BulkInsert( "GroupMemberHistorical", MemberHistory, keepIdentity: false );
-                db.BulkInsert( "AttributeValue", PersonValues, keepIdentity: false );
                 db.BulkInsert( "History", History, keepIdentity: false );
             }
         }

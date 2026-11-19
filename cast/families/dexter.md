@@ -19,7 +19,7 @@ Frank is a long-time member. After his divorce he was convicted of a misdemeanor
 
 ## What this family tests
 
-- Failed background check that needs review.
+- Failed background check, linked to his request to serve, that the safety team reviews.
 - Divorced adult living alone.
 - Monthly giver.
 

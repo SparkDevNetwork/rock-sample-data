@@ -68,6 +68,8 @@ Where the project stands: the team's working list. Update this page whenever som
 - **Peer network** (issue 17, decisions D-peers-1 to D-peers-5; see [Peer network](small-groups.md#peer-network)). Both slices are built. Peer Network is on for small groups (close) and serving teams (casual), and the load writes Rock's Calculate Peer Network job's last two monthly runs, with Rock's trend arrows. Campus pastors follow their small group leaders, and staff follow up to 25 people in their care. Ted Decker's profile shows Cindy, his small group, and the Production Team he leads, rising. Full 7 has 165,718 peer network rows.
 - [After you install](after-install.md): every Rock job on Rock 21.0.2 and Rock 20.0.10, which the load already covers, which to run after install (the analytics tables), which run on their own, and which can send or reach an outside service. The Datasets page links to it.
 - **Women's groups, the attendance window, and launch groups** (issues 35, 37, and 41, decisions D-womens-groups-1 and D-womens-groups-2, D-group-fixes-1 and D-group-fixes-2, and D-launch-groups-1 and D-launch-groups-2; see [Small groups](small-groups.md)). One planner change, one re-roll of every dataset's groups. About one in six of each campus's groups study the Women's Bible Study with a woman leader, and one in ten the Men's Bible Study. Alisha Marble's Women of the Bible loads with her as leader. No household is in a group before four weeks after it started coming, or after six weeks past its last Sunday, which fixes the Ortizes and the Ellises. A third of the groups started on a recent launch Sunday, two thirds of those led by someone who was Ready to Lead, so the Lead a Group flow converts. Verify fails a women's group with a man, a Cast family in a group outside its attendance window, or a Lead a Group flow with no conversions.
+- **Leader background checks** (issue 36, decisions D-checks-1 to D-checks-5; see [How background checks load](../loader/README.md#how-background-checks-load)). Every small group leader needs a current background check, which leaders cannot override, and a new Background checks part writes every person's latest check the way Rock's Checkr provider writes it, with a PDF report, the person attributes Checkr's workflow sets, and the requirement results Rock's Calculate Group Requirements job would save. Generated leaders are 85% current, 6% expiring, 5% expired, and 4% never checked. Ted Decker's check is too old, Bill Marble's runs out in about five weeks, and Jerry Wright has none. Verify runs Rock's real job and fails if it changes any result. A Leader Background Checks report sits in Safety.
+- **Benevolence** (issue 21, decisions D-benevolence-1 to D-benevolence-6; see [How benevolence loads](../loader/README.md#how-benevolence-loads)). Three church types beside Rock's own, locked to the benevolence team, with Dee Navarro as case worker. The Cast's four requests match their notes: Ashley Kelly's rent, the Wards' electric bill and groceries, and two waiting as Pending. Generated requests come at about 2 a year for every 1,000 adults, and approved bills have a signed assistance agreement PDF. Each church type starts a workflow when a request is entered, which gives it to Dee and sends no email.
 
 ## In progress
 
@@ -95,10 +97,6 @@ Nothing right now. (Tempe was confirmed as the seventh campus on 2026-10-16; see
 ## To do (parked)
 
 Ideas we agreed on but set aside for later. Move an item into "Next" when we pick it up.
-
-### Small groups
-
-1. **Leader requirements.** Use Rock's group requirements (for example, a background check for leaders), with a few leaders whose check is missing or expired so Rock shows the warning.
 
 ### People
 
@@ -130,7 +128,7 @@ Publishing packages to Azure is in the release workflow (see In progress). Signi
 
 ## Later (Phase 1 and beyond)
 
-Connection requests beyond serving, learning (LMS), and benevolence.
+Connection requests beyond serving, and learning (LMS).
 
 ## Open questions
 

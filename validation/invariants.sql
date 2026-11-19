@@ -1393,6 +1393,180 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR [cr].[ConnectionState] NOT IN ( 0, 3 )
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
 
+-- check: background-check-requirement-agrees-with-check
+-- why: Decision D-checks-1. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also an adult whose Pass is older than 1,035 days, and Not Met otherwise. A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+SELECT COUNT(*)
+FROM (
+    SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
+        CASE
+            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsMinor] = 0 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
+            ELSE 1
+        END AS [Expected]
+    FROM [GroupMemberRequirement] AS [gmr]
+    INNER JOIN [GroupRequirement] AS [gr] ON [gr].[Id] = [gmr].[GroupRequirementId]
+    INNER JOIN [GroupRequirementType] AS [grt] ON [grt].[Id] = [gr].[GroupRequirementTypeId]
+    INNER JOIN [GroupMember] AS [gm] ON [gm].[Id] = [gmr].[GroupMemberId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    CROSS APPLY ( SELECT CAST( [gmr].[LastRequirementCheckDateTime] AS DATE ) AS [Night] ) AS [n]
+    CROSS APPLY (
+        SELECT
+            MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+            MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN TRY_CAST( [av].[Value] AS DATETIME2 ) END ) AS [CheckDate],
+            MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+        FROM [AttributeValue] AS [av]
+        INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+        WHERE [av].[EntityId] = [p].[Id] AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' ) ) AS [c]
+    CROSS APPLY (
+        SELECT
+            CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [n].[Night] THEN 1 ELSE 0 END AS [IsMinor],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) >= DATEADD( DAY, -1095, [n].[Night] ) THEN 1 ELSE 0 END AS [IsValid],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) < DATEADD( DAY, -1035, [n].[Night] ) THEN 1 ELSE 0 END AS [IsOld] ) AS [rule]
+    WHERE [gmr].[ForeignKey] = @ForeignKey AND [grt].[Guid] = '1C21C346-A861-4A9A-BD6D-BAA7D92419D5'
+) AS [r]
+WHERE [r].[State] <> [r].[Expected]
+    OR ( [r].[State] IN ( 0, 2 ) AND ( [r].[Met] IS NULL OR [r].[Failed] IS NOT NULL ) )
+    OR ( [r].[State] = 2 AND [r].[Warned] IS NULL )
+    OR ( [r].[State] = 1 AND ( [r].[Failed] IS NULL OR [r].[Met] IS NOT NULL OR [r].[Warned] IS NOT NULL ) );
+
+-- check: finished-background-check-has-report
+-- why: Decision D-checks-4. Every check whose report came back has the report: a PDF in Rock's Background Check file type, which requires view security, linked as the check's response document, with its bytes. A check still in progress has none.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [bc].[ResponseDocumentId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [d] ON [d].[Id] = [bf].[Id]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] = 'ReportCompleted'
+            AND ( [bf].[Id] IS NULL OR [bft].[Guid] <> '5C701472-8A6B-4BBE-AEC6-EC833C859F2D' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+                OR [d].[Id] IS NULL OR DATALENGTH( [d].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [d].[Content], 1, 5 ) <> 0x255044462D ) )
+        OR ( [bc].[Status] <> 'ReportCompleted' AND [bc].[ResponseDocumentId] IS NOT NULL ) );
+
+-- check: background-check-agrees-with-person
+-- why: Decision D-checks-4. A person's Background Checked, Background Check Date, and Background Check Result are what Rock's Checkr workflow set from their latest finished check: the day it finished, Pass and True when Checkr found nothing, and Fail and False when it found a record. Every person with those values has that check, and each check is one Rock's Checkr provider wrote (ForeignId 2, with its candidate key and package).
+SELECT COUNT(*)
+FROM (
+    SELECT [pa].[PersonId], [bc].[RecordFound], CAST( [bc].[ModifiedDateTime] AS DATE ) AS [Finished],
+        ROW_NUMBER() OVER ( PARTITION BY [pa].[PersonId] ORDER BY [bc].[RequestDate] DESC ) AS [Latest]
+    FROM [BackgroundCheck] AS [bc]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [bc].[PersonAliasId]
+    WHERE [bc].[ForeignKey] = @ForeignKey AND [bc].[Status] = 'ReportCompleted'
+) AS [k]
+FULL OUTER JOIN (
+    SELECT [av].[EntityId] AS [PersonId],
+        MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+        MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN CAST( TRY_CAST( [av].[Value] AS DATETIME2 ) AS DATE ) END ) AS [CheckDate],
+        MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [av].[ForeignKey] = @ForeignKey AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' )
+    GROUP BY [av].[EntityId]
+) AS [v] ON [v].[PersonId] = [k].[PersonId] AND [k].[Latest] = 1
+WHERE ( [k].[Latest] = 1 OR [k].[PersonId] IS NULL )
+    AND ( [k].[PersonId] IS NULL OR [v].[PersonId] IS NULL
+        OR [v].[CheckDate] IS NULL OR [v].[CheckDate] <> [k].[Finished]
+        OR [v].[Result] <> CASE WHEN [k].[RecordFound] = 1 THEN 'Fail' ELSE 'Pass' END
+        OR [v].[Checked] <> CASE WHEN [k].[RecordFound] = 1 THEN 'False' ELSE 'True' END )
+    OR EXISTS ( SELECT 1 FROM [BackgroundCheck] AS [bad] WHERE [bad].[ForeignKey] = @ForeignKey
+        AND ( ISNULL( [bad].[ForeignId], 0 ) <> 2 OR ISNULL( [bad].[RequestId], '' ) = '' OR ISNULL( [bad].[PackageName], '' ) = '' OR [bad].[RequestDate] > GETDATE() ) );
+
+-- check: background-check-in-progress-waits-on-its-request
+-- why: Decision D-checks-1. A check still in progress belongs to a request to serve that waits in the Background Check status, Checkr has found nothing yet, and the person's attributes still show their last finished check, if any. A finished check linked to a request finished after the request was made.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [ConnectionRequest] AS [cr] ON [cr].[Id] = [bc].[ConnectionRequestId]
+LEFT JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] <> 'ReportCompleted' AND ( [cr].[Id] IS NULL OR [cs].[Guid] <> '720EA71A-18F9-4D6B-B3B5-56D39EA403E3' OR [cr].[ConnectionState] <> 0 OR [bc].[RecordFound] = 1 ) )
+        OR ( [bc].[Status] = 'ReportCompleted' AND [cr].[Id] IS NOT NULL AND [bc].[ModifiedDateTime] < [cr].[CreatedDateTime] ) );
+
+-- check: benevolence-request-is-worked-by-a-case-worker
+-- why: Decision D-benevolence-1. Rock's request screens offer case workers from RSR - Benevolence, so every request's case worker is an active member of that role.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[CaseWorkerPersonAliasId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+        WHERE [gm].[PersonId] = [pa].[PersonId] AND [g].[Guid] = '02FA0881-3552-42B8-A519-D021139B800F' AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 );
+
+-- check: benevolence-request-matches-its-requester
+-- why: Decision D-benevolence-1. Rock's request block copies the requester onto the request when it saves: the legal first and last name, the email, the connection status, the campus, and the home address's location. The request's date key is its request day, and no government ID is ever recorded.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [p].[Id] IS NULL OR [r].[FirstName] <> [p].[FirstName] OR [r].[LastName] <> [p].[LastName]
+        OR ISNULL( [r].[Email], '' ) <> ISNULL( [p].[Email], '' )
+        OR ISNULL( [r].[ConnectionStatusValueId], -1 ) <> ISNULL( [p].[ConnectionStatusValueId], -1 )
+        OR ISNULL( [r].[CampusId], -1 ) <> ISNULL( [p].[PrimaryCampusId], -1 )
+        OR [r].[RequestDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [r].[RequestDateTime], 112 ) )
+        OR ISNULL( [r].[GovernmentId], '' ) <> ''
+        OR [r].[RequestDateTime] > GETDATE()
+        OR ( [r].[LocationId] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [p].[PrimaryFamilyId] AND [gl].[LocationId] = [r].[LocationId] ) ) );
+
+-- check: benevolence-results-follow-the-status
+-- why: Decision D-benevolence-3. A Pending request has no result and no summary yet, an Approved one has at least one result, and a Denied one gives nothing with an amount. Every amount is more than zero, and every result is saved after the request and before install day.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( ( [s].[Guid] = '67B24629-62A9-436A-A98C-30A454642153' AND ( ISNULL( [r].[ResultSummary], '' ) <> '' OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) ) )
+        OR ( [s].[Guid] = '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' AND NOT EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) )
+        OR ( [s].[Guid] = '3720671E-DA48-405F-A6D5-5E2D47436F9A' AND EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] AND [x].[Amount] IS NOT NULL ) )
+        OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id]
+            AND ( [x].[Amount] <= 0 OR [x].[CreatedDateTime] < [r].[RequestDateTime] OR [x].[CreatedDateTime] > GETDATE() ) ) );
+
+-- check: benevolence-document-is-a-stored-pdf
+-- why: Decision D-benevolence-4. Each request document is a saved PDF in Rock's Benevolence Request Documents file type, which requires view security, with its bytes, on an Approved request.
+SELECT COUNT(*)
+FROM [BenevolenceRequestDocument] AS [d]
+INNER JOIN [BenevolenceRequest] AS [r] ON [r].[Id] = [d].[BenevolenceRequestId]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [d].[BinaryFileId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [data] ON [data].[Id] = [bf].[Id]
+WHERE [d].[ForeignKey] = @ForeignKey
+    AND ( [s].[Guid] <> '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' OR [bft].[Guid] <> '2599DDBE-40E1-158E-4436-AACA6C00556E' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+        OR [data].[Id] IS NULL OR DATALENGTH( [data].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [data].[Content], 1, 5 ) <> 0x255044462D );
+
+-- check: benevolence-trigger-sends-no-email
+-- why: Decision D-benevolence-6. Each church benevolence type starts one workflow when a request is entered, saved as Rock's type editor saves a Request Started trigger. The workflow is active and not persisted, and none of its actions sends an email, a text, or a communication, so entering a request after install reaches nobody.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ( SELECT COUNT(*) FROM [BenevolenceWorkflow] AS [bw] WHERE [bw].[BenevolenceTypeId] = [t].[Id] AND [bw].[TriggerType] = 0 AND [bw].[QualifierValue] = '|||' ) <> 1
+        OR EXISTS (
+            SELECT 1
+            FROM [BenevolenceWorkflow] AS [bw]
+            INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [bw].[WorkflowTypeId]
+            WHERE [bw].[BenevolenceTypeId] = [t].[Id]
+                AND ( [wt].[IsActive] = 0 OR [wt].[IsPersisted] = 1
+                    OR EXISTS (
+                        SELECT 1
+                        FROM [WorkflowActivityType] AS [at]
+                        INNER JOIN [WorkflowActionType] AS [act] ON [act].[ActivityTypeId] = [at].[Id]
+                        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [act].[EntityTypeId]
+                        WHERE [at].[WorkflowTypeId] = [wt].[Id]
+                            AND ( [et].[Name] LIKE 'Rock.Workflow.Action.Send%' OR [et].[Name] LIKE '%Communication%' OR [act].[WorkflowFormId] IS NOT NULL ) ) ) ) );
+
+-- check: benevolence-type-is-locked
+-- why: Decision D-benevolence-2. Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration, and every benevolence type is locked to the same two roles for View and Edit, so no other screen shows a request to anyone else.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+CROSS JOIN ( VALUES ( 'View' ), ( 'Edit' ) ) AS [a] ( [Action] )
+WHERE EXISTS ( SELECT 1 FROM [BenevolenceRequest] AS [r] WHERE [r].[ForeignKey] = @ForeignKey )
+    AND (
+        SELECT COUNT(*)
+        FROM [Auth] AS [au]
+        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [au].[EntityTypeId]
+        LEFT JOIN [Group] AS [g] ON [g].[Id] = [au].[GroupId]
+        WHERE [et].[Name] = 'Rock.Model.BenevolenceType' AND [au].[EntityId] = [t].[Id] AND [au].[Action] = [a].[Action]
+            AND ( ( [au].[AllowOrDeny] = 'A' AND [g].[Guid] IN ( '02FA0881-3552-42B8-A519-D021139B800F', '628C51A8-4613-43ED-A18D-4A6FB999273E' ) )
+                OR ( [au].[AllowOrDeny] = 'D' AND [au].[SpecialRole] = 1 ) ) ) <> 3;
+
 -- check: event-occurrence-is-listed
 -- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
 SELECT COUNT(*)

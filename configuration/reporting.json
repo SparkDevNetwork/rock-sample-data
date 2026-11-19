@@ -1041,6 +1041,25 @@
       }
     },
     {
+      "key": "leaders-of-small-groups",
+      "name": "Small Group Leaders",
+      "category": "safety-data-views",
+      "guid": "BF1B663F-DFE4-4D5F-9562-770B4F307513",
+      "description": "Active people who lead an active small group: the role with the background check requirement (decision D-checks-2).",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+            "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B|6D798EFA-0110-41D5-BCE4-30ACEFE4317E|1|True"
+          }
+        ]
+      }
+    },
+    {
       "key": "kids-with-an-allergy",
       "name": "Kids With an Allergy",
       "category": "safety-data-views",
@@ -1710,6 +1729,20 @@
       "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
       "name": "Pete Foster",
       "category": "safety-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "report": "leader-background-checks",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "report": "leader-background-checks",
       "action": "View",
       "allowed": false
     },
@@ -2480,6 +2513,40 @@
           "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
           "selection": "1|{dataView}||1",
           "dataView": "active-serving-teams"
+        },
+        {
+          "header": "Background Checked",
+          "attribute": "BackgroundChecked"
+        },
+        {
+          "header": "Background Check Date",
+          "attribute": "BackgroundCheckDate",
+          "sort": 1
+        },
+        {
+          "header": "Background Check Result",
+          "attribute": "BackgroundCheckResult"
+        }
+      ]
+    },
+    {
+      "key": "leader-background-checks",
+      "name": "Leader Background Checks",
+      "description": "Which small group leaders need a check before their next group night.",
+      "category": "safety-reports",
+      "guid": "21D1D2E1-6FC2-4266-9B9A-CA72C2F4D0BC",
+      "dataView": "leaders-of-small-groups",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
         },
         {
           "header": "Background Checked",

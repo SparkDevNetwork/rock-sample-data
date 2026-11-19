@@ -30,6 +30,7 @@ Kevin Dawson is divorced and has his kids every other weekend. They come when th
 ## What this family tests
 
 - Single dad with every-other-weekend attendance.
+- Pending benevolence request for groceries on a weekend he has his kids.
 - Irregular giver.
 - Left the Men list from its newest email: its breakfasts fall on weekends he has the kids (a communication list unsubscribe).
 

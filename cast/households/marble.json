@@ -16,6 +16,7 @@
     "Business owner linked to a business record.",
     "Weekly giver with year-end gifts and check images.",
     "Leads one small group and belongs to another.",
+    "Bill's background check runs out in about five weeks, so Rock warns on his small group leader requirement.",
     "Has taken all five assessments."
   ],
   "address": {
@@ -193,7 +194,11 @@
       ],
       "attributes": {
         "Employer": "Saguaro Ridge Glass and Screen",
-        "Position": "Owner"
+        "Position": "Owner",
+        "BackgroundCheckDate": {
+          "daysAgo": 1060
+        },
+        "BackgroundCheckResult": "Pass"
       }
     }
   ]

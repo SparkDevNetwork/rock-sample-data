@@ -51,6 +51,7 @@ namespace RockSampleData.Loader
             ("Small groups", SampleDataPart.SmallGroups),
             ("Serving", SampleDataPart.Serving),
             ("Connection requests", SampleDataPart.Serving),
+            ("Background checks", SampleDataPart.BackgroundChecks),
             ("Giving", SampleDataPart.Giving),
             ("Giving analytics", SampleDataPart.Giving),
             ("Giving alerts", SampleDataPart.Giving),
@@ -58,6 +59,7 @@ namespace RockSampleData.Loader
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Reminders", SampleDataPart.Reminders),
+            ("Benevolence", SampleDataPart.Benevolence),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
             ("Peer network", null),
@@ -301,6 +303,7 @@ namespace RockSampleData.Loader
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
+            LeaderRequirementSetup.Load( db, source.BackgroundChecks, dates, foreignKey );
             new CampaignLoader( db, source, dates, foreignKey ).Load();
             // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision D-peers-1).
             var peerNetwork = new PeerNetworkLoader( db, source, dates, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
@@ -524,6 +527,21 @@ namespace RockSampleData.Loader
                 new ConnectionRequestLoader( db, source, connectionSetup, servingSetup, profile, dates, foreignKey, seed ).Load( servingPlans, people );
             }
 
+            // A check's requirement results point at the team and leader memberships and the requests to serve just
+            // written, so background checks follow them and read them back, like steps (SampleDataParts.All).
+            if ( steps.Begin( "Background checks" ) )
+            {
+                if ( source.BackgroundChecks == null )
+                {
+                    log.Write( "  Skipped (this package has no configuration/background-checks.json)" );
+                }
+                else
+                {
+                    var castPersonGuids = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Cast.Members ).Select( m => m.Guid ).ToHashSet();
+                    log.Write( new BackgroundChecksLoader( db, source, dates, foreignKey, seed ).Load( people, castPersonGuids ) );
+                }
+            }
+
             // Rock's PasswordKey fills the check scanner's matching fields. Without it, the fields stay
             // empty and everything else still loads.
             var isGivingLoaded = steps.Begin( "Giving" );
@@ -602,6 +620,15 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Reminders" ) )
             {
                 new RemindersLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, smallGroupSetup.GroupTypeId );
+            }
+
+            // Requests for help come from people already in the data, and the case worker is Cast staff, so benevolence reads
+            // only people.
+            if ( steps.Begin( "Benevolence" ) )
+            {
+                log.Write( source.Benevolence == null
+                    ? "  Skipped (this package has no configuration/benevolence.json)"
+                    : new BenevolenceLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, calendar.HistoryStart ) );
             }
 
             // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and

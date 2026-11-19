@@ -88,14 +88,6 @@ namespace RockSampleData.Loader.Loading
             var roles = _db.Query( "SELECT [Id], [Name], [IsLeader] FROM [GroupTypeRole] WHERE [Id] IN ( @Leader, @Member )", P( "@Leader", _setup.LeaderRoleId ), P( "@Member", _setup.MemberRoleId ) )
                 .ToDictionary( r => Convert.ToInt32( r["Id"] ), r => (Name: ( string ) r["Name"], IsLeader: Convert.ToBoolean( r["IsLeader"] )) );
 
-            var backgroundCheckAttributeIds = _db.Query( @"
-SELECT [a].[Key], [a].[Id]
-FROM [Attribute] AS [a]
-INNER JOIN [EntityType] AS [e] ON [e].[Id] = [a].[EntityTypeId]
-WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', 'BackgroundCheckDate', 'BackgroundCheckResult' )" ).ToDictionary( r => ( string ) r["Key"], r => Convert.ToInt32( r["Id"] ) );
-            var requirementIds = _db.Query( "SELECT [GroupId], [Id] FROM [GroupRequirement] WHERE [GroupId] IS NOT NULL" ).ToDictionary( r => Convert.ToInt32( r["GroupId"] ), r => Convert.ToInt32( r["Id"] ) );
-            var checkedPeople = new Dictionary<int, DateTime>();
-
             var tables = new Tables( _db );
             var today = _dates.Anchor.Date;
             _reminderOffsetDays = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( [ScheduleReminderEmailOffsetDays], 2 ) FROM [GroupType] WHERE [Id] = @Id", P( "@Id", _setup.GroupTypeId ) ) );
@@ -127,12 +119,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
                     tables.Members.Rows.Add( memberId, false, groupId, _setup.GroupTypeId, person.PersonId, role, 1, member.Joined, templateIds[member.Rotation], startSunday, Guid.NewGuid(), _foreignKey, member.Joined, member.Joined );
                     tables.MemberHistory.Rows.Add( memberId, groupId, role, roles[role].Name, roles[role].IsLeader, 1, false, member.Joined, MaxExpireDateTime, true, member.Joined, member.Joined, Guid.NewGuid(), _foreignKey );
-
-                    if ( team.RequiresBackgroundCheck && requirementIds.TryGetValue( groupId, out var requirementId ) )
-                    {
-                        var checkedOn = AddBackgroundCheck( tables, random, person, today, backgroundCheckAttributeIds, checkedPeople );
-                        tables.Requirements.Rows.Add( memberId, requirementId, checkedOn, today, 0, false, false, Guid.NewGuid(), _foreignKey, checkedOn, today );
-                    }
 
                     if ( member.PreferredService.HasValue || member.PreferredPosition.HasValue )
                     {
@@ -238,37 +224,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 "2nd and 4th Week" => weekOfMonth == 2 || weekOfMonth == 4,
                 _ => throw new InvalidOperationException( $"serving.json rotation '{rotation}' is not one of Rock's schedule templates." )
             };
-        }
-
-        /*
-            10/19/26 - CLAUDE
-
-            Rock's Background Check Required requirement is met by the "Background check is still valid"
-            data view: Background Checked is True, the Background Check Date is within the last 1,095
-            days, and the Background Check Result is Pass. The scheduler reads the stored
-            GroupMemberRequirement rows that Rock's Calculate Group Requirements job writes, not the
-            data view, so both are written here, agreeing with each other.
-
-            Reason: without them every kids and student volunteer shows as not meeting the requirement.
-        */
-
-        /// <summary>
-        /// Gives a volunteer on a team that needs one a passing background check from the last few
-        /// years, once per person. Returns the check date.
-        /// </summary>
-        private DateTime AddBackgroundCheck( Tables tables, SeededRandom random, LoadedPerson person, DateTime today, Dictionary<string, int> attributeIds, Dictionary<int, DateTime> checkedPeople )
-        {
-            if ( checkedPeople.TryGetValue( person.PersonId, out var existing ) )
-            {
-                return existing;
-            }
-
-            var checkedOn = today.AddDays( -random.Between( 30, 900 ) );
-            checkedPeople[person.PersonId] = checkedOn;
-            tables.PersonValues.Rows.Add( false, attributeIds["BackgroundChecked"], person.PersonId, "True", DBNull.Value, true, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
-            tables.PersonValues.Rows.Add( false, attributeIds["BackgroundCheckDate"], person.PersonId, checkedOn.ToString( "o" ), checkedOn, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
-            tables.PersonValues.Rows.Add( false, attributeIds["BackgroundCheckResult"], person.PersonId, "Pass", DBNull.Value, DBNull.Value, true, Guid.NewGuid(), _foreignKey, checkedOn, checkedOn );
-            return checkedOn;
         }
 
         /// <summary>
@@ -384,11 +339,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
 
             public DataTable Assignments { get; } = TableFactory.Create( "GroupMemberId:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
-            public DataTable PersonValues { get; } = TableFactory.Create( "IsSystem:bool", "AttributeId:int", "EntityId:int", "Value:string", "ValueAsDateTime:date", "ValueAsBoolean:bool", "IsPersistedValueDirty:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-
-            public DataTable Requirements { get; } = TableFactory.Create( "GroupMemberId:int", "GroupRequirementId:int", "RequirementMetDateTime:date", "LastRequirementCheckDateTime:date", "GroupMemberRequirementState:int",
-                "WasManuallyCompleted:bool", "WasOverridden:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-
             public DataTable Exclusions { get; } = TableFactory.Create( "PersonAliasId:int", "Title:string", "StartDate:date", "EndDate:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable Occurrences { get; } = TableFactory.Create( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "DidNotOccur:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -420,8 +370,6 @@ WHERE [e].[Name] = 'Rock.Model.Person' AND [a].[Key] IN ( 'BackgroundChecked', '
                 db.BulkInsert( "GroupMember", Members, keepIdentity: true );
                 db.BulkInsert( "GroupMemberHistorical", MemberHistory, keepIdentity: false );
                 db.BulkInsert( "GroupMemberAssignment", Assignments, keepIdentity: false );
-                db.BulkInsert( "GroupMemberRequirement", Requirements, keepIdentity: false );
-                db.BulkInsert( "AttributeValue", PersonValues, keepIdentity: false );
                 db.BulkInsert( "PersonScheduleExclusion", Exclusions, keepIdentity: false );
                 db.BulkInsert( "AttendanceOccurrence", Occurrences, keepIdentity: true );
                 db.BulkInsert( "Attendance", Attendance, keepIdentity: false );

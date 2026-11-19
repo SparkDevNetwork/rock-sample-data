@@ -25,6 +25,7 @@ Gerald and Dorothy Wright are retired teachers who have attended for twenty year
 
 - Weekly cash giver.
 - Long-tenured senior couple.
+- Small group leader who has never had a background check, so Rock shows his leader requirement as not met.
 
 ## Activity
 

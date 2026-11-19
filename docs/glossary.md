@@ -11,6 +11,8 @@ The words this project uses, in alphabetical order.
 | **Adaptive message** | A Rock message with several adaptations, shown by Rock's `{% adaptivemessage %}` Lava command so each person sees the version that fits them, such as their next step or their giving layer. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day: today on the database server. Tests pin it with `--anchor`. |
 | **Assessment** | One of Rock's five personal assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, or Motivators. A request waits as Pending, a result is Complete with its answers, and the scores are person attributes. See [Assessments](assessments.md). |
+| **Background check** | A screening a church runs before someone serves with kids or leads a group. Rock stores each one as a check row from its provider, Checkr, and sets the person's Background Checked, date, and result. See [How background checks load](../loader/README.md#how-background-checks-load). |
+| **Benevolence request** | A person's request for help from the church, such as rent or groceries, in Rock's Benevolence pages, with its case worker, status, and results. See [How benevolence loads](../loader/README.md#how-benevolence-loads). |
 | **Built on the Rock** | The sample church's two-year building campaign, about 38% through on install day. Its fund has a campus account per campus. See [Pledges](pledges.md). |
 | **Business contact** | A person linked to a business record in Rock's Known Relationships. Business Detail lists the contacts, and each contact's Known Relationships shows the business. |
 | **Blackout date** | Days a volunteer is away, set in Rock's schedule toolbox. Nobody is scheduled to serve inside them. |
@@ -75,6 +77,7 @@ The words this project uses, in alphabetical order.
 | **Placement group** | A group that registrants are placed in after they register, such as a camp bus or cabin. It belongs to one placement of the template and is linked to each instance that uses it. |
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. Rock's Position person attribute is something else: a job title, beside Employer. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
+| **Requirement result** | Whether a group member meets a group requirement, such as a current background check: Meets, Meets With Warning, or Not Met. Rock's Calculate Group Requirements job saves it, and the scheduler and group screens read it. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
 | **Ready to Lead** | The church's data view of adults who have an Equip step, serve on a team, and are in a small group, but lead nothing yet. The Lead a Group flow invites them six weeks before each launch Sunday, and most new small group leaders come from it. |
 | **Refund** | A transaction that returns part or all of a gift, with negative amounts, a reason, and a link to the gift. Staff make it in Rock, and it lands in the day's " - Refund" batch. See [Refunds](refunds.md). |

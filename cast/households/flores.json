@@ -10,7 +10,8 @@
   "story": "Monica Flores has never married and is raising two kids on her own.",
   "testPurposes": [
     "Never-married single parent.",
-    "Irregular giver."
+    "Irregular giver.",
+    "Pending benevolence request for a car repair."
   ],
   "address": {
     "type": "home",

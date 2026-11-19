@@ -265,6 +265,15 @@ try
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
 
+            // After group sync, because Rock's requirement job reads the members a sync could have changed.
+            stage = "group-requirements";
+            checks.Add( GroupRequirementsCheck.Run( rock, sql, database, anchor ) );
+
+            // After every other check of the load, because it clears case workers on this throwaway copy for Rock's
+            // workflow to fill again.
+            stage = "benevolence-workflow-launch";
+            checks.Add( BenevolenceWorkflowCheck.Run( rock, sql, database, foreignKey, source ) );
+
             // The Cast giving stories must hold on every install day, not only this run's (decision 218). Core 1
             // holds every main-campus Cast giver, so it is the one swept.
             if ( dataset == "core-1" )
@@ -671,7 +680,8 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
         .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() )
         .Concat( source.Signals?.Access ?? new List<AccessExpectation>() )
-        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() ).ToList();
+        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Benevolence?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -692,7 +702,9 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
     var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var tags = ( source.Tags?.Tags ?? new List<TagDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
+    var benevolenceTypes = ( source.Benevolence?.Types ?? new List<BenevolenceTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
+            : a.BenevolenceType != null ? $"BenevolenceType\t{benevolenceTypes[a.BenevolenceType]}"
             : a.Category != null ? $"Category\t{categories[a.Category]}"
             : a.Tag != null ? $"Tag\t{tags[a.Tag]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
@@ -709,7 +721,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? access[i].BenevolenceType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
