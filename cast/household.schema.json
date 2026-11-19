@@ -228,7 +228,6 @@
         "middleName": { "type": "string" },
         "lastName": { "type": "string" },
         "bio": { "type": "string", "description": "A short backstory for documentation and test writers. Never written to Rock." },
-        "previousLastNames": { "type": "array", "items": { "type": "string" } },
         "gender": { "enum": [ "male", "female", "unknown" ] },
         "familyRole": { "enum": [ "adult", "child" ] },
         "birth": { "$ref": "#/$defs/birth" },

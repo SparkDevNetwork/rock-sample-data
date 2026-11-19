@@ -127,6 +127,32 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
         WHERE [ga].[PersonId] = [pa].[Id] AND [gb].[PersonId] = [pb].[Id]
             AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
 
+-- check: emails-are-not-shared-across-households
+-- why: Decision D-duplicates-5. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller. Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
+SELECT COUNT( DISTINCT [pa].[Email] )
+FROM [Person] AS [pa]
+INNER JOIN [Person] AS [pb] ON [pb].[Email] = [pa].[Email] AND [pb].[Id] > [pa].[Id]
+WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
+    AND ( [pb].[ForeignKey] = @ForeignKey OR [pb].[Id] = @AdminPersonId )
+    AND ISNULL( [pa].[Email], '' ) <> ''
+    AND NOT ( [pa].[LastName] = [pb].[LastName] AND (
+        EXISTS ( SELECT 1 FROM [PhoneNumber] AS [na] INNER JOIN [PhoneNumber] AS [nb] ON [nb].[Number] = [na].[Number] WHERE [na].[PersonId] = [pa].[Id] AND [nb].[PersonId] = [pb].[Id] )
+        OR EXISTS (
+            SELECT 1
+            FROM [GroupMember] AS [ma]
+            INNER JOIN [GroupLocation] AS [la] ON [la].[GroupId] = [ma].[GroupId]
+            INNER JOIN [GroupLocation] AS [lb] ON [lb].[LocationId] = [la].[LocationId]
+            INNER JOIN [GroupMember] AS [mb] ON [mb].[GroupId] = [lb].[GroupId]
+            WHERE [ma].[PersonId] = [pa].[Id] AND [mb].[PersonId] = [pb].[Id]
+                AND [ma].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' )
+                AND [mb].[GroupTypeId] = [ma].[GroupTypeId] ) ) )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [ga]
+        INNER JOIN [GroupMember] AS [gb] ON [gb].[GroupId] = [ga].[GroupId]
+        WHERE [ga].[PersonId] = [pa].[Id] AND [gb].[PersonId] = [pb].[Id]
+            AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
+
 -- check: emails-use-reserved-domains
 -- why: Content standard 3. Emails use example.org, or rocksolidchurchdemo.com for the sample church's staff.
 SELECT COUNT(*)

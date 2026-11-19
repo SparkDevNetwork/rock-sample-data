@@ -202,10 +202,136 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CheckDuplicates( db, source, guids, failures );
             checks += CheckSignals( db, source, guids, failures );
             checks += CastTagExpectations.Check( db, source, guids, failures );
 
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
+        /// decision, and the Duplicate Finder lists each open pair (decisions D-duplicates-1 and D-duplicates-2). Each merge
+        /// request is a Person Merge Request that never expires, with its requester, note, and people. Each finished merge
+        /// left the old record's alias on the person, the Merged History line, and the old last name as a previous name when
+        /// it differs (decision D-duplicates-3).
+        /// </summary>
+        private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var duplicates = source.ReadCastDuplicates();
+            var checks = 0;
+            foreach ( var pair in duplicates.Pairs )
+            {
+                checks++;
+                var name = $"Duplicate pair {pair.Key} ({pair.People[0].Name} and {pair.People[1].Name})";
+                var row = db.Query( @"
+SELECT [pd].[IsConfirmedAsNotDuplicate], [pd].[IgnoreUntilScoreChanges], [pd].[ConfidenceScore]
+FROM [PersonDuplicate] AS [pd]
+INNER JOIN [Person] AS [p1] ON [p1].[PrimaryAliasId] = [pd].[PersonAliasId]
+INNER JOIN [Person] AS [p2] ON [p2].[PrimaryAliasId] = [pd].[DuplicatePersonAliasId]
+WHERE ( [p1].[Guid] = @First AND [p2].[Guid] = @Second ) OR ( [p1].[Guid] = @Second AND [p2].[Guid] = @First )",
+                    P( "@First", guids.Value( pair.People[0].Guid ) ), P( "@Second", guids.Value( pair.People[1].Guid ) ) ).FirstOrDefault();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected Rock's duplicate finder to score the pair, Rock has no such pair" );
+                    continue;
+                }
+
+                var isNotDuplicate = ( bool ) row["IsConfirmedAsNotDuplicate"];
+                var isIgnored = ( bool ) row["IgnoreUntilScoreChanges"];
+                var actual = isNotDuplicate && isIgnored ? "both Not Duplicate and ignored" : isNotDuplicate ? "not-a-duplicate" : isIgnored ? "ignored" : "open";
+                var confidence = Convert.ToDouble( row["ConfidenceScore"] ?? 0d );
+                if ( actual != pair.Decision )
+                {
+                    failures.Add( $"{name}: expected {pair.Decision}, Rock shows {actual}" );
+                }
+                else if ( pair.DecisionValue == DuplicateDecision.Open && confidence <= DuplicatesLoader.FinderListMinimum )
+                {
+                    failures.Add( $"{name}: expected the Duplicate Finder to list it (confidence above {DuplicatesLoader.FinderListMinimum:N0}), Rock scores it {confidence:N1}" );
+                }
+            }
+
+            foreach ( var request in duplicates.MergeRequests )
+            {
+                checks++;
+                var name = $"Merge request {request.Key}";
+                var row = db.Query( @"
+SELECT [es].[Id], [es].[Note], [es].[ExpireDateTime], [dv].[Guid] AS [Purpose], [p].[Guid] AS [Requester]
+FROM [EntitySet] AS [es]
+LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [es].[EntitySetPurposeValueId]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [es].[CreatedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [es].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
+                var people = row == null ? new HashSet<Guid>() : db.Query( @"
+SELECT [p].[Guid]
+FROM [EntitySetItem] AS [i]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [i].[EntityId]
+WHERE [i].[EntitySetId] = @SetId", P( "@SetId", row["Id"] ) ).Select( r => ( Guid ) r["Guid"] ).ToHashSet();
+                var expectedPeople = request.People.Select( p => guids.Rock( p.Guid ) ).ToHashSet();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected a merge request, Rock has none" );
+                }
+                else if ( row["Purpose"] as Guid? != DuplicatesLoader.MergeRequestPurposeGuid || row["ExpireDateTime"] != null )
+                {
+                    failures.Add( $"{name}: expected a Person Merge Request that never expires, so the Merge Requests page lists it" );
+                }
+                else if ( row["Requester"] as Guid? != guids.Rock( request.Requester.Guid ) || ( string ) row["Note"] != request.Note )
+                {
+                    failures.Add( $"{name}: expected {request.Requester.Name}'s request with its note" );
+                }
+                else if ( !people.SetEquals( expectedPeople ) )
+                {
+                    failures.Add( $"{name}: expected {string.Join( ", ", request.People.Select( p => p.Name ) )} in the request, Rock has {people.Count} other people" );
+                }
+            }
+
+            foreach ( var merge in duplicates.Merges )
+            {
+                var name = $"Merge {merge.Key} ({merge.Record.FullName} into {merge.Person.Name})";
+                var alias = db.Query( @"
+SELECT [pa].[AliasPersonId], [p].[Id] AS [PersonId], [p].[Guid] AS [PersonGuid], [p].[LastName], [p].[PrimaryAliasId],
+    ( SELECT COUNT(*) FROM [Person] AS [old] WHERE [old].[Id] = [pa].[AliasPersonId] OR [old].[Guid] = [pa].[AliasPersonGuid] ) AS [OldRecords]
+FROM [PersonAlias] AS [pa]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [pa].[AliasPersonGuid] = @OldGuid", P( "@OldGuid", merge.Record.Guid ) ).FirstOrDefault();
+
+                checks++;
+                if ( alias == null || ( Guid ) alias["PersonGuid"] != guids.Rock( merge.Person.Guid ) || alias["AliasPersonId"] == null || Convert.ToInt32( alias["OldRecords"] ) != 0 )
+                {
+                    failures.Add( $"{name}: expected the old record's alias on {merge.Person.Name}, with no Person row left for the old record" );
+                    continue;
+                }
+
+                checks++;
+                var valueName = $"{merge.Record.FullName} [ID: {alias["AliasPersonId"]}]";
+                var historyLines = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [History] AS [h]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [h].[EntityTypeId]
+WHERE [et].[Name] = 'Rock.Model.Person' AND [h].[EntityId] = @PersonId AND [h].[Verb] = @Verb AND [h].[ChangeType] = @ChangeType AND [h].[ValueName] = @ValueName",
+                    P( "@PersonId", alias["PersonId"] ), P( "@Verb", DuplicatesLoader.MergeVerb ), P( "@ChangeType", DuplicatesLoader.RecordChangeType ), P( "@ValueName", valueName ) ) );
+                if ( historyLines != 1 )
+                {
+                    failures.Add( $"{name}: expected one Merged line \"{valueName}\" in {merge.Person.Name}'s History, Rock shows {historyLines}" );
+                }
+
+                if ( !string.Equals( merge.Record.LastName.Trim(), ( ( string ) alias["LastName"] ).Trim(), StringComparison.OrdinalIgnoreCase ) )
+                {
+                    checks++;
+                    var previousNames = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [PersonPreviousName] AS [pn]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pn].[PersonAliasId]
+WHERE [pa].[PersonId] = @PersonId AND [pn].[LastName] = @LastName", P( "@PersonId", alias["PersonId"] ), P( "@LastName", merge.Record.LastName.Trim() ) ) );
+                    if ( previousNames != 1 )
+                    {
+                        failures.Add( $"{name}: expected {merge.Record.LastName} once as a previous last name, Rock shows it {previousNames} times" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>

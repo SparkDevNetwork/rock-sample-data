@@ -177,6 +177,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **The bookmark menu is full.** The bookmarks beside Rock's search bar have shared sections for Sunday morning, care, finance, and communications, each locked to its roles, and personal sections for six staff and every campus pastor. Every link opens a Rock page with sample data on it. Sign in as `pfoster` to see Pete Foster's Leadership section. See [How personal links load](loader/README.md#how-personal-links-load).
 - **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, gifts from an earlier year, and checks the bank returned, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
 - **Some gifts are uncommon:** stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement. See [Uncommon gifts](docs/uncommon-gifts.md).
+- **Duplicates are waiting to be found.** Rock's Duplicate Finder lists the Cast's duplicate records on install day, with staff decisions already made on some, a merge request waiting, and an old record already merged into Sarah Simmons. See [Duplicates](docs/duplicates.md).
 
 ## What is where
 

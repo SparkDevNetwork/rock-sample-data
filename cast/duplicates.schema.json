@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cast duplicates",
+  "description": "The Cast's duplicate records and what staff did about them (cast/duplicates.json, docs/duplicates.md). validate-cast.js checks the rules a schema cannot: every person is a Cast person with that name, pairs are unique, a decided pair names who decided, and a merged record's Guid is no Cast person's.",
+  "type": "object",
+  "required": [ "pairs", "mergeRequests", "merges" ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" },
+    "pairs": {
+      "type": "array",
+      "description": "Pairs Rock's duplicate finder scores. Each load runs the finder, then writes each pair's decision. A pair that is missing after the finder runs fails the load's Cast expectations.",
+      "items": {
+        "type": "object",
+        "required": [ "key", "people", "decision", "story" ],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "people": { "type": "array", "items": { "$ref": "#/$defs/person" }, "minItems": 2, "maxItems": 2 },
+          "decision": {
+            "enum": [ "open", "not-a-duplicate", "ignored" ],
+            "description": "open: nobody has decided, so the Duplicate Finder lists the pair (its confidence must be above the list's 60). not-a-duplicate: a staff member clicked Not Duplicate. ignored: a staff member clicked Ignore, which hides the pair until its score changes."
+          },
+          "decidedBy": { "$ref": "#/$defs/person", "description": "The staff member who decided. Required for not-a-duplicate and ignored." },
+          "decided": { "$ref": "#/$defs/date", "description": "When they decided. Required for not-a-duplicate and ignored." },
+          "story": { "type": "string" }
+        }
+      }
+    },
+    "mergeRequests": {
+      "type": "array",
+      "description": "Merges asked for by someone who cannot merge people. Rock keeps each as a Person Merge Request entity set, listed on the Merge Requests page.",
+      "items": {
+        "type": "object",
+        "required": [ "key", "guid", "requester", "people", "note", "requested", "story" ],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "guid": { "$ref": "#/$defs/guid" },
+          "requester": { "$ref": "#/$defs/person" },
+          "people": { "type": "array", "items": { "$ref": "#/$defs/person" }, "minItems": 2 },
+          "note": { "type": "string", "maxLength": 500 },
+          "requested": { "$ref": "#/$defs/date" },
+          "notifyAfterMerge": { "type": "boolean", "description": "The request's Notify Me When Merged box. Rock emails the requester after the merge." },
+          "story": { "type": "string" }
+        }
+      }
+    },
+    "merges": {
+      "type": "array",
+      "description": "Merges staff already made. The merged record is gone. Rock left its alias on the person, a Merged line in their History, and its last name as a previous name when it differs.",
+      "items": {
+        "type": "object",
+        "required": [ "key", "person", "record", "mergedBy", "merged", "story" ],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "person": { "$ref": "#/$defs/person", "description": "The Cast person Rock kept." },
+          "record": {
+            "type": "object",
+            "description": "The record Rock merged into the person and deleted.",
+            "required": [ "guid", "firstName", "lastName" ],
+            "additionalProperties": false,
+            "properties": {
+              "guid": { "$ref": "#/$defs/guid" },
+              "firstName": { "type": "string" },
+              "nickName": { "type": "string" },
+              "lastName": { "type": "string" }
+            }
+          },
+          "mergedBy": { "$ref": "#/$defs/person" },
+          "merged": { "$ref": "#/$defs/date" },
+          "story": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" },
+    "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "person": {
+      "type": "object",
+      "description": "A Cast person, by Guid, with their name for people reading the file.",
+      "required": [ "guid", "name" ],
+      "additionalProperties": false,
+      "properties": { "guid": { "$ref": "#/$defs/guid" }, "name": { "type": "string" } }
+    },
+    "date": {
+      "type": "object",
+      "description": "A date that counts back from the install day: daysAgo, or yearsAgo with a month and day. The time is optional.",
+      "additionalProperties": false,
+      "properties": {
+        "daysAgo": { "type": "integer", "minimum": 0 },
+        "yearsAgo": { "type": "integer", "minimum": 0 },
+        "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "day": { "type": "integer", "minimum": 1, "maximum": 31 },
+        "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" }
+      }
+    }
+  }
+}

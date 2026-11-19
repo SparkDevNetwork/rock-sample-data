@@ -37,7 +37,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 | `--login-password <password>` | Loads logins, every one with this password, hashed the way Rock's Database login does (see [How logins load](#how-logins-load)). Without it, no logins load. |
 | `--dry-run` | Do everything, then roll it all back. |
 
-The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` and `PersonAliasPersonalization` rows, which have no such column (see [How people load](#how-people-load) and [Adaptive messages](#adaptive-messages)).
+The whole load runs in one transaction, so a failure leaves nothing behind. Every inserted row carries `ForeignKey = SampleData:<dataset>`, except `Metaphone` and `PersonAliasPersonalization` rows, which have no such column (see [How people load](#how-people-load) and [Adaptive messages](#adaptive-messages)). Rock's duplicate finder procedure writes the `PersonDuplicate` rows, and the loader then gives them the ForeignKey too (see [Duplicates](#duplicates)).
 
 After a load, Rock's own jobs take over. [After you install](../docs/after-install.md) says which jobs the load already covers, which to run, such as Family Analytics for eRA, and which can send or reach an outside service.
 
@@ -68,7 +68,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, reminders, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, signals, personal links, tags, logins, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, signals, personal links, tags, and logins always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, prayer, notes, reminders, steps, assessments, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, signals, personal links, tags, logins, duplicates, Cast and business expectations, and check images. Configuration, people, data views, reports, adaptive messages, signals, personal links, tags, logins, and duplicates always run. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -377,6 +377,8 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 | An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
 | Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. SQL Server decides which names are new, as it does for Rock, so its collation matches "Strauß" to "Strauss". The table is keyed by name and shared, so these rows have no `ForeignKey`. |
 | A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Business contacts go into these groups. |
+
+Households with the same street, city, state, and postal code share one `Location`, the way Rock's address editor saves an address through `LocationService.Get`. Jon Smith's duplicate records share his home, and a home business shares its owner's Location (decision D-duplicates-4).
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 
@@ -739,6 +741,17 @@ Inside a running Rock, the shared version and each signed-in person's own versio
 4. **The rows.** One `TaggedItem` per person and tag, pointing at the person by Guid, with the tagger as its maker.
 
 The load prints each tag, with its owner for a personal tag, and how many people it holds.
+
+## Duplicates
+
+The Duplicates step comes after logins, the last step that writes people, and always runs (`loading/DuplicatesLoader.cs`, decisions D-duplicates-1 to D-duplicates-3 and D-duplicates-4; see [Duplicates](../docs/duplicates.md)):
+
+1. **Merges already made.** For each merge in `cast/duplicates.json`, what Rock's merge leaves: the old record's alias on the person, a Merged line in their History by the staff member who merged, and the old last name as a previous name when it differs. The people step gave the old record the Person Id just below the person's, and no Person row has it.
+2. **Rock's duplicate finder.** It runs `EXEC [dbo].[spCrm_PersonDuplicateFinder]`, the SQL of Rock's Calculate Person Duplicates job, with the job's 1,800-second timeout, and gives the pairs it writes the dataset's ForeignKey. About 10 seconds on Full 7.
+3. **The Cast's decisions.** Each decided pair gets its Not Duplicate or Ignore flag, the staff member as its last modifier, and a created date of 3 AM on the day they decided. A pair the finder did not score is skipped, and the Cast expectations report it.
+4. **Merge requests.** Each is Rock's Person Merge Request entity set: made by the requester, no expiration, the note, the Notify Me When Merged box in its settings, and one item for each person.
+
+The verify tool then runs Rock's own job and fails if it changes any pair (see [Verification](../docs/verification.md#person-duplicates)).
 
 ## Calendar
 

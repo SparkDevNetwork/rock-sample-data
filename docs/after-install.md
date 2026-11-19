@@ -6,9 +6,9 @@ It covers Rock 21.0.2 and Rock 20.0.10. Both ship the same 56 jobs, with the sam
 
 ## The short version
 
-1. **Most jobs need nothing from you.** The load already wrote what twelve of Rock's jobs would have, such as giving analytics, group sync, step program completions, and person signals. See [Already done by the load](#already-done-by-the-load).
+1. **Most jobs need nothing from you.** The load already wrote what thirteen of Rock's jobs would have, such as giving analytics, group sync, step program completions, person signals, and the Duplicate Finder. See [Already done by the load](#already-done-by-the-load).
 2. **Run Family Analytics once if you want eRA.** It ships turned off, and the load does not fill eRA yet. Turn off its Set Visit Dates setting first. See [Run after install](#run-after-install).
-3. **Run Calculate Person Duplicates, Calculate Peer Network, and Process BI Analytics now** if you want the Duplicate Finder, peer networks, or Rock's analytics tables on day one. They are on, but their first run is that night or later.
+3. **Run Calculate Peer Network and Process BI Analytics now** if you want peer networks or Rock's analytics tables on day one. They are on, but their first run is that night or later.
 4. **Turn off Location Services Verify** on a sample site. Otherwise it sends the sample addresses to an address service every night. See [Be careful](#be-careful).
 5. **Keep real email and texting off** unless you mean to send. Reminders that do send reach only `example.org` and the Cast staff's `rocksolidchurchdemo.com`, a domain Spark owns for the sample church with no mailbox attached.
 
@@ -35,17 +35,18 @@ The load writes what these jobs would have written by install day, so running th
 1. **Rock Cleanup.** The load fills what Rock's save hooks and Rock Cleanup set, such as aliases, ages, family salutations, streak counts, daily interaction counts, and event dates (see [How people load](../loader/README.md#how-people-load)). Verify runs Rock's own Rock Cleanup after every load and fails if it changes anything (decision 66).
 2. **Group Sync.** Each synced group already holds exactly the people its data view finds, and its last refresh is the install time (decisions 186 and 187). Verify runs Rock's own group sync on every load and fails if it adds or removes anyone.
 3. **Process Workflows.** Each step workflow is open or completed as Rock would leave it, and its form sends no email (decision 294). Verify runs Rock's own job and fails if any workflow changes beyond the times it was processed.
-4. **Update Personalization Data.** Each personalization segment already holds the people Rock's update would put in it on install day (decision 271). Verify runs Rock's own segment update and fails if it adds or removes anyone.
-5. **Calculate Person Signals.** Each person's top signal is the one Rock sets, so the Top Person Signal badge is right from the start (decision 281). Verify runs Rock's own `Person.CalculateSignals` and fails if it would change anyone.
-6. **Giving Automation.** Giving attributes, bins and percentiles, journey stages with a year of history, and a year of giving alerts are filled as if the job ran every night (decision 44). Rock's settings record the job's last run, so its next run starts there.
-7. **Update Step Program Completions.** Everyone whose complete steps cover every step type in a program has a completion for it, so the job finds nothing to add (see [Steps](steps.md#campus-history-and-program-completions)). An invariant checks it.
-8. **Process Elevated Security.** Every person's account protection profile is set the way this job sets it (decision 182). An invariant checks it.
-9. **Calculate Group Requirements.** Kids and student volunteers have the background check results this job would have saved (decision 73).
-10. **Process Group History.** Groups, members, and meeting places have the history rows Rock writes (decision 38).
-11. **Send Group Schedule Notifications.** Every serving confirmation and reminder the job could send is marked sent, including those for Sundays ahead, so it has nothing to send (decision 165).
-12. **Send Note Notifications.** Every note is marked as notified and approved, so the job never emails staff about old notes (see [Notes](../loader/README.md#notes)).
+4. **Calculate Person Duplicates.** The load runs the job's own SQL, Rock's duplicate finder procedure, as its last step, so the Duplicate Finder is full on install day (decision D-duplicates-1). The Cast's duplicates show with the decisions staff already made and a waiting merge request, and every generated email and phone number is its own, so no strangers show up (see [Duplicates](duplicates.md)). Verify runs Rock's own job on every load and fails if it adds, removes, or rescores any pair. It takes about 10 seconds on Full 7.
+5. **Update Personalization Data.** Each personalization segment already holds the people Rock's update would put in it on install day (decision 271). Verify runs Rock's own segment update and fails if it adds or removes anyone.
+6. **Calculate Person Signals.** Each person's top signal is the one Rock sets, so the Top Person Signal badge is right from the start (decision 281). Verify runs Rock's own `Person.CalculateSignals` and fails if it would change anyone.
+7. **Giving Automation.** Giving attributes, bins and percentiles, journey stages with a year of history, and a year of giving alerts are filled as if the job ran every night (decision 44). Rock's settings record the job's last run, so its next run starts there.
+8. **Update Step Program Completions.** Everyone whose complete steps cover every step type in a program has a completion for it, so the job finds nothing to add (see [Steps](steps.md#campus-history-and-program-completions)). An invariant checks it.
+9. **Process Elevated Security.** Every person's account protection profile is set the way this job sets it (decision 182). An invariant checks it.
+10. **Calculate Group Requirements.** Kids and student volunteers have the background check results this job would have saved (decision 73).
+11. **Process Group History.** Groups, members, and meeting places have the history rows Rock writes (decision 38).
+12. **Send Group Schedule Notifications.** Every serving confirmation and reminder the job could send is marked sent, including those for Sundays ahead, so it has nothing to send (decision 165).
+13. **Send Note Notifications.** Every note is marked as notified and approved, so the job never emails staff about old notes (see [Notes](../loader/README.md#notes)).
 
-Verify runs Rock's own job for items 1 to 3, and the code the job calls for items 4 and 5. For items 6 to 12, the load follows Rock's code, but verify does not run the job.
+Verify runs Rock's own job for items 1 to 4, and the code the job calls for items 5 and 6. For items 7 to 13, the load follows Rock's code, but verify does not run the job.
 
 ## Run after install
 
@@ -58,14 +59,10 @@ These jobs fill something the load leaves empty. Each one says whether it is on 
    - **It rewrites First Gave and Last Gave** for adult givers, by its own rule. The load fills them the way Giving Automation does. Data views that read Last Gave, such as Involved Adults, can change.
    - **Its Write eRA History setting is on,** so each person who enters eRA gets an eRA line on their History tab, dated the day it runs.
    - Run it once by hand. Turn it on only if you want eRA to follow attendance and gifts you add later. Issue [#11](https://github.com/SparkDevNetwork/rock-sample-data/issues/11) would load eRA with its history, so the job's first run would change nothing.
-2. **Calculate Person Duplicates.** On by default, every night at 3 AM. It runs Rock's duplicate finder procedure and fills the Duplicate Finder with scored pairs of records that may be one person.
-   - **History: not needed.** It scores the records as they are when it runs.
-   - The Cast has duplicate records on purpose (`duplicateOf` in the [Cast README](../cast/README.md)), so the finder has real cases to show. Every generated phone number is its own (decision 259), so shared phones add no pairs. On Full 7, the Crowd's common names can still add low-scoring pairs. How long the job takes on Full 7 is not measured yet.
-   - Run it now, or wait for 3 AM. Issue [#1](https://github.com/SparkDevNetwork/rock-sample-data/issues/1) would score the Cast's pairs during the load and add merges and merge requests.
-3. **Calculate Peer Network.** On by default, at 2:05 AM on the 1st of each month. It fills each person's peer network from the groups they share with others.
+2. **Calculate Peer Network.** On by default, at 2:05 AM on the 1st of each month. It fills each person's peer network from the groups they share with others.
    - **History: yes.** It reads each membership's start and end dates, so years of shared groups count.
    - Without a run, profiles show no peer network until the 1st of next month. Issue [#17](https://github.com/SparkDevNetwork/rock-sample-data/issues/17) would load it.
-4. **Process BI Analytics.** On by default, every night at 5 AM. It fills Rock's analytics tables, which analytics reports and outside reporting tools read.
+3. **Process BI Analytics.** On by default, every night at 5 AM. It fills Rock's analytics tables, which analytics reports and outside reporting tools read.
    - **History: partly.** Gifts and attendance are copied for all of history. People and families get a snapshot as of the day it runs, so their history starts that day.
    - Run it now only if you need these tables before morning.
 
@@ -132,7 +129,7 @@ Rock 21.0.2 and Rock 20.0.10 ship the same jobs. "On" is the job's state in a ne
 | Calculate Group Requirements | Yes | Daily, 3 AM | [Already done](#already-done-by-the-load) |
 | Calculate Metrics | Yes | Every 15 minutes | [Runs on its own](#runs-on-its-own) |
 | Calculate Peer Network | Yes | 1st of the month, 2:05 AM | [Run after install](#run-after-install) |
-| Calculate Person Duplicates | Yes | Daily, 3 AM | [Run after install](#run-after-install) |
+| Calculate Person Duplicates | Yes | Daily, 3 AM | [Already done](#already-done-by-the-load) |
 | Calculate Person Signals | Yes | Daily, 3:15 AM | [Already done](#already-done-by-the-load) |
 | Campaign Manager | Yes | Daily, 7 AM | [Nothing to do](#nothing-to-do-yet) |
 | Charge Future Transactions | Yes | Every 10 minutes | [Nothing to do](#nothing-to-do-yet) |

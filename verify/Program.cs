@@ -215,6 +215,10 @@ try
             var cleanup = ClockCheck( sql, anchor ) ?? referee.Referee( database, baseDatabase );
             checks.Add( ClockCheck( sql, anchor ) ?? cleanup );
 
+            // Rock's nightly Calculate Person Duplicates job runs at 3 AM, after Rock Cleanup.
+            stage = "person-duplicates";
+            checks.Add( PersonDuplicatesCheck( rock, sql, database ) );
+
             // After the referee, because a sign-in can rewrite a password hash.
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
@@ -1064,6 +1068,44 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 
     problems.AddRange( lines.Where( l => l.StartsWith( "warning ", StringComparison.Ordinal ) ).Select( l => $"Rock's group sync warned: {l.Substring( 8 )}" ) );
     return CheckResult.From( "group-sync", problems.Count == 0 ? $"Rock's group sync changed nothing in the {expected} synced groups" : "Rock's group sync would change the synced groups", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Calculate Person Duplicates job once, as Rock's scheduler runs it at 3 AM, and compares every duplicate
+/// pair before and after (decision D-duplicates-1). The load ran Rock's duplicate finder last and then wrote the Cast's
+/// decisions, so the job must add, remove, or rescore no pair, and keep every decision. Each run rewrites every pair's
+/// ModifiedDateTime, so that column alone is not compared.
+/// </summary>
+static CheckResult PersonDuplicatesCheck( RockRelease rock, SqlServer sql, string database )
+{
+    const string pairsSql = @"
+SELECT [pd].[Id], [pd].[PersonAliasId], [pd].[DuplicatePersonAliasId], [pd].[Score], [pd].[ScoreDetail], [pd].[Capacity], [pd].[TotalCapacity],
+    [pd].[ConfidenceScore], [pd].[IsConfirmedAsNotDuplicate], [pd].[IgnoreUntilScoreChanges], [pd].[CreatedDateTime], [pd].[ModifiedByPersonAliasId],
+    [pd].[Guid], [pd].[ForeignKey], CONCAT( [p1].[NickName], ' ', [p1].[LastName], ' and ', [p2].[NickName], ' ', [p2].[LastName] ) AS [Names]
+FROM [PersonDuplicate] AS [pd]
+INNER JOIN [PersonAlias] AS [a1] ON [a1].[Id] = [pd].[PersonAliasId]
+INNER JOIN [Person] AS [p1] ON [p1].[Id] = [a1].[PersonId]
+INNER JOIN [PersonAlias] AS [a2] ON [a2].[Id] = [pd].[DuplicatePersonAliasId]
+INNER JOIN [Person] AS [p2] ON [p2].[Id] = [a2].[PersonId]";
+    static string Values( Dictionary<string, object> pair ) => string.Join( " | ", pair.Where( c => c.Key != "Names" ).Select( c => $"{c.Key} {Convert.ToString( c.Value, System.Globalization.CultureInfo.InvariantCulture )}" ) );
+
+    var before = sql.Query( database, pairsSql ).ToDictionary( r => ( int ) r["Id"] );
+    var ran = RockRunner.Run( rock, sql, database, "person-duplicates" ).Trim();
+    var after = sql.Query( database, pairsSql ).ToDictionary( r => ( int ) r["Id"] );
+
+    var problems = before.Keys.Except( after.Keys ).Select( id => $"Rock's job removed the pair {before[id]["Names"]}." )
+        .Concat( after.Keys.Except( before.Keys ).Select( id => $"Rock's job added the pair {after[id]["Names"]}: {Values( after[id] )}." ) )
+        .Concat( before.Keys.Intersect( after.Keys ).Where( id => Values( before[id] ) != Values( after[id] ) ).Select( id => $"Rock's job changed the pair {after[id]["Names"]}: was {Values( before[id] )}, now {Values( after[id] )}." ) )
+        .ToList();
+    if ( problems.Count > 20 )
+    {
+        problems = problems.Take( 20 ).Append( $"And {problems.Count - 20:N0} more." ).ToList();
+    }
+
+    var listed = after.Values.Count( r => Convert.ToDouble( r["ConfidenceScore"] ?? 0d ) > DuplicatesLoader.FinderListMinimum && !( bool ) r["IsConfirmedAsNotDuplicate"] && !( bool ) r["IgnoreUntilScoreChanges"] );
+    return CheckResult.From( "person-duplicates", problems.Count == 0
+        ? $"Rock's Calculate Person Duplicates job changed none of the {after.Count:N0} duplicate pairs, {listed:N0} of them in the Duplicate Finder ({ran})"
+        : "Rock's Calculate Person Duplicates job would change the duplicate pairs", problems );
 }
 
 /// <summary>

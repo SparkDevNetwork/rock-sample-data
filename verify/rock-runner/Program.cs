@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -36,6 +36,8 @@ namespace RockSampleData.RockRunner
     ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
     ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
+    ///   person-duplicates  Rock's Calculate Person Duplicates job once, as its own stored job, so it runs the SQL and
+    ///            timeout its settings hold (Rock's duplicate finder procedure). It prints how long the job took.
     ///   hash-password  Rock's Database login hash of the password on the input file's first line, the way the
     ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
     ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
@@ -96,10 +98,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -144,6 +146,7 @@ namespace RockSampleData.RockRunner
                     "notifications" => worker.Notifications( lines ),
                     "process-reminders" => worker.ProcessReminders(),
                     "process-workflows" => worker.ProcessWorkflows(),
+                    "person-duplicates" => worker.PersonDuplicates(),
                     "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
                     _ => worker.Cleanup()
                 } );
@@ -284,6 +287,19 @@ namespace RockSampleData.RockRunner
                 ?? throw new InvalidOperationException( "This Rock's Process Reminders job has no _jobErrors. The runner needs updating for this Rock." ) ).GetValue( job );
             var processed = jobType.GetField( "_totalProcessedReminders", Hidden )?.GetValue( job );
             return string.Join( "\n", new[] { $"processed {processed}" }.Concat( ( errors ?? Enumerable.Empty<string>() ).Select( e => $"error {e.Replace( '\r', ' ' ).Replace( '\n', ' ' )}" ) ) );
+        }
+
+        /// <summary>
+        /// Runs Rock's Calculate Person Duplicates job once, as Rock's scheduler runs it at 3 AM: a Run SQL job whose stored SQL
+        /// runs Rock's duplicate finder procedure. The caller compares the duplicate pairs before and after.
+        /// </summary>
+        public string PersonDuplicates()
+        {
+            Start();
+            StartMessageBus();
+            var timer = Stopwatch.StartNew();
+            RunStoredJob( Activator.CreateInstance( _rock.GetType( "Rock.Jobs.RunSQL", true ) ), new Guid( "C386528C-3AC6-44E8-884E-A57B571B65D5" ) );
+            return $"Calculate Person Duplicates ran in {timer.ElapsedMilliseconds} ms";
         }
 
         /// <summary>

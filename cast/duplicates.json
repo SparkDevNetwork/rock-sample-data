@@ -1,0 +1,103 @@
+{
+  "$schema": "./duplicates.schema.json",
+  "$comment": "The Cast's duplicate records and what staff did about them (docs/duplicates.md, decisions D-duplicates-1 to D-duplicates-3 and D-duplicates-4). Every load runs Rock's duplicate finder at its end, then writes each pair's decision. A pair names two Cast people in either order. Dates count back from the install day.",
+  "pairs": [
+    {
+      "key": "tom-and-thomas-miller",
+      "people": [
+        { "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3", "name": "Tom Miller" },
+        { "guid": "955BF3E9-D38A-4DCB-A6F2-EDF5EC2571C5", "name": "Thomas Miller" }
+      ],
+      "decision": "open",
+      "story": "A connection card made the Thomas record after Tom moved. Nobody has merged them yet, so the Duplicate Finder lists Tom."
+    },
+    {
+      "key": "jon-and-john-smith-a",
+      "people": [
+        { "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith" },
+        { "guid": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE", "name": "John Smith" }
+      ],
+      "decision": "open",
+      "story": "The first John Smith record, with Jon's home phone saved as a mobile. Jamal's merge request covers it."
+    },
+    {
+      "key": "jon-and-john-smith-b",
+      "people": [
+        { "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith" },
+        { "guid": "C966D4EC-C84A-4F70-BA86-90E1F8480831", "name": "John Smith" }
+      ],
+      "decision": "open",
+      "story": "The second John Smith record, with Jon's home phone saved as a work number. Jamal's merge request covers it."
+    },
+    {
+      "key": "john-smith-a-and-b",
+      "people": [
+        { "guid": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE", "name": "John Smith" },
+        { "guid": "C966D4EC-C84A-4F70-BA86-90E1F8480831", "name": "John Smith" }
+      ],
+      "decision": "ignored",
+      "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "decided": { "daysAgo": 41, "time": "09:18" },
+      "story": "Alisha set the two John Smith records aside from each other, since both belong in Jon's record. Rock shows the pair again if its score changes."
+    },
+    {
+      "key": "john-smith-and-jon-smith",
+      "people": [
+        { "guid": "902984C3-BCE1-405A-8A74-416F7D15B288", "name": "John Smith" },
+        { "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith" }
+      ],
+      "decision": "not-a-duplicate",
+      "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "decided": { "daysAgo": 41, "time": "09:14" },
+      "story": "A different John Smith, with his own email, phone, and address. Alisha marked him Not a Duplicate of Jon."
+    },
+    {
+      "key": "john-smith-and-john-smith-a",
+      "people": [
+        { "guid": "902984C3-BCE1-405A-8A74-416F7D15B288", "name": "John Smith" },
+        { "guid": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE", "name": "John Smith" }
+      ],
+      "decision": "not-a-duplicate",
+      "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "decided": { "daysAgo": 41, "time": "09:15" },
+      "story": "The other John Smith is not the first of Jon's duplicate records either."
+    },
+    {
+      "key": "john-smith-and-john-smith-b",
+      "people": [
+        { "guid": "902984C3-BCE1-405A-8A74-416F7D15B288", "name": "John Smith" },
+        { "guid": "C966D4EC-C84A-4F70-BA86-90E1F8480831", "name": "John Smith" }
+      ],
+      "decision": "not-a-duplicate",
+      "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "decided": { "daysAgo": 41, "time": "09:15" },
+      "story": "The other John Smith is not the second of Jon's duplicate records either."
+    }
+  ],
+  "mergeRequests": [
+    {
+      "key": "jon-smith",
+      "guid": "CAC3A4A9-7732-4DDA-B192-12EC8F8BF4F3",
+      "requester": { "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2", "name": "Jamal Pierce" },
+      "people": [
+        { "guid": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith" },
+        { "guid": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE", "name": "John Smith" },
+        { "guid": "C966D4EC-C84A-4F70-BA86-90E1F8480831", "name": "John Smith" }
+      ],
+      "note": "Jon Smith signed up for a small group as John, and I found three records for him. Same email and address on all three. Can someone merge them into Jon's?",
+      "requested": { "daysAgo": 2, "time": "16:22" },
+      "notifyAfterMerge": true,
+      "story": "Jamal cannot merge people, so Rock turned his merge into a request. It waits in Merge Requests."
+    }
+  ],
+  "merges": [
+    {
+      "key": "sarah-simmons",
+      "person": { "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F", "name": "Sarah Simmons" },
+      "record": { "guid": "1414FC84-B0B5-476D-AECC-FA6F5DAE75D3", "firstName": "Sarah", "lastName": "Jones" },
+      "mergedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+      "merged": { "yearsAgo": 2, "month": 4, "day": 14, "time": "10:05" },
+      "story": "Sarah's first record was Sarah Jones, from when she came with Ben. After she married Jim, she got a second record as Sarah Simmons in his family. Alisha merged the old Sarah Jones record into it. Rock kept the old record's alias, wrote a Merged line in Sarah's History, and saved Jones as her previous last name."
+    }
+  ]
+}

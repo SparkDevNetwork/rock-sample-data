@@ -10,7 +10,7 @@
   "story": "Jim Simmons married Sarah (formerly Sarah Jones) and is step-parent to her son Brian, who lives with them most of the time. They attend almost every week, nearly always at the same service.",
   "testPurposes": [
     "Blended family with a child shared with another household.",
-    "Previous last name (Sarah was a Jones).",
+    "A merge already made: Sarah's old Sarah Jones record, which left its alias, a Merged line in her History, and Jones as her previous last name.",
     "Core attender who almost always uses one service time.",
     "Serving team member (Production Team)."
   ],
@@ -75,10 +75,7 @@
       "guid": "FC6B9819-EF2E-44C9-93DB-05571B39E58F",
       "firstName": "Sarah",
       "lastName": "Simmons",
-      "bio": "Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service.",
-      "previousLastNames": [
-        "Jones"
-      ],
+      "bio": "Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service. Her old Sarah Jones record was merged into this one, which left Jones as her previous last name.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {

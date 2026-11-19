@@ -20,7 +20,7 @@ Jim married Sarah after her divorce and is stepdad to Brian. He serves on the Pr
 
 ### Sarah Simmons
 
-Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service.
+Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most of the time. They attend almost every week, nearly always at the same service. Her old Sarah Jones record was merged into this one, which left Jones as her previous last name.
 
 - Age 34 · married · email sarah.simmons@example.org · groups: Foster Group, First Aid Team, Women of the Bible (left)
 - Person Guid `FC6B9819-EF2E-44C9-93DB-05571B39E58F`
@@ -28,7 +28,7 @@ Sarah, formerly Sarah Jones, is Brian's mom. Brian lives with her and Jim most o
 ## What this family tests
 
 - Blended family with a child shared with another household.
-- Previous last name (Sarah was a Jones).
+- A merge already made: Sarah's old Sarah Jones record, which left its alias, a Merged line in her History, and Jones as her previous last name.
 - Core attender who almost always uses one service time.
 - Serving team member (Production Team).
 
