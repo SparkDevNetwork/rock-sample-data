@@ -38,6 +38,13 @@
   },
   "segments": [
     {
+      "key": "already-leading",
+      "name": "Already Leading",
+      "dataView": "already-leading",
+      "guid": "407E4CB6-BBBD-49C8-B37B-A6DEB3400664",
+      "description": "Adults who lead an active small group or an active serving team today."
+    },
+    {
       "key": "ready-to-lead",
       "name": "Ready to Lead",
       "dataView": "ready-to-lead",
@@ -253,9 +260,17 @@
     {
       "key": "your-next-step",
       "name": "Your Next Step",
-      "description": "One next step on the path for each person, from the stage they have reached. People who fit no stage are invited to plan a visit.",
+      "description": "One next step on the path for each person, from the stage they have reached. People who already lead are asked to invite a friend, and people who fit no stage are invited to plan a visit.",
       "guid": "2316296B-C84A-4845-A339-340E9925443E",
       "adaptations": [
+        {
+          "key": "invite-a-friend",
+          "name": "Invite a Friend",
+          "segments": [
+            "already-leading"
+          ],
+          "guid": "8C17E48E-FC0D-4B4C-805C-ED4713871E9F"
+        },
         {
           "key": "lead",
           "name": "Lead a Group",
@@ -618,8 +633,22 @@
       "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
       "name": "Ted Decker",
       "message": "your-next-step",
+      "adaptation": "invite-a-friend",
+      "reason": "Leads the Decker Group, so his next step is to invite a friend."
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "message": "your-next-step",
+      "adaptation": "invite-a-friend",
+      "reason": "Leads the Foster Group and the Prayer Team, so his next step is to invite a friend."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "your-next-step",
       "adaptation": "plan-a-visit",
-      "reason": "Already leads, so no next-step segment fits him and he sees the fallback."
+      "reason": "Has not come on a Sunday yet, so no next-step segment fits her and she sees the fallback."
     }
   ]
 }

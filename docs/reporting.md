@@ -185,6 +185,7 @@ Active People (F1)
 │   ├── Ready to Grow (N2)                              = F2 + P1 − P2
 │   ├── Ready to Serve (N3)                             = F2 + P2 − F8
 │   ├── Ready to Lead (N4)                              = F2 + P2 + F8 + F7 − P4
+│   ├── Already Leading (N6)                            = F2 + leads an active group or team
 │   ├── Guests Coming Back (C1)
 │   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
 │   ├── Drifting Adults (C3)
@@ -257,7 +258,7 @@ All data views use Rock's own filter components and selection strings, as `confi
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | F1 | Active People | Person | Record status is Active. Deceased people left out (the data view default) | None. It is the root | No. One indexed column | Every Person view below |
-| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
+| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, N6, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
 | F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1 and C7 |
@@ -331,6 +332,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and X8, the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
+| N6 | Already Leading | Person | In F2, and an active Leader of an active small group or an active serving team (Rock's In Group of Group Type filter, with each type's Leader role) | F2 | No | The Already Leading personalization segment, whose card asks leaders to invite a friend (decision D-leading-1). It reads who leads today, not the Lead step, which stays complete after a person stops leading |
 
 ### 4.8 Re-engage (category: Rock Solid Church > Re-engage)
 
@@ -402,7 +404,7 @@ The communication flows proposal (`docs/communication-flows-proposal.md` on bran
 | Women Who Attend (Women's Retreat flow audience) | X6 Women Who Attend, Reserved Email | `women-who-attend-reserved-email` | Sample Data | Guards RG1 `women-who-attend` |
 | Involved Adults (Christmas flow audience) | X7 Involved Adults, Reserved Email | `involved-adults-reserved-email` | Sample Data | Guards F10 `involved-adults`. "Gave" uses Rock's Last Gave attribute (question 14) |
 
-The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
+The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, `already-leading`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
 
 A Communication Flows category would hold data views by who uses them, not by what they are. Then a care view and a flow view with the same rule would drift apart. Filing by Ministry System keeps one definition, and Rock's data view screen lists every flow and report that uses each one.
 

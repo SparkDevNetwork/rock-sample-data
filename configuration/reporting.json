@@ -733,6 +733,33 @@
       }
     },
     {
+      "key": "already-leading",
+      "name": "Already Leading",
+      "description": "Adults who lead an active small group or an active serving team today. Their next step is to invite a friend to church.",
+      "category": "lead-data-views",
+      "guid": "9EC7CC67-C084-40DA-926A-28302D59C238",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+                "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B|6D798EFA-0110-41D5-BCE4-30ACEFE4317E|1|True"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+                "selection": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4|F6CECB48-52C1-4D25-9411-F1465755EB70|1|True"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "key": "drifting-adults",
       "name": "Drifting Adults",
       "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days.",

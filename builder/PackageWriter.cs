@@ -152,6 +152,17 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // Every dataset has the adaptive messages, so every package carries the message images delivered so far
+            // (photos/message-brief.md). Until the image agent writes the manifest there are none.
+            if ( repository.Exists( SampleDataSource.MessagePhotoManifestPath ) )
+            {
+                AddFile( SampleDataSource.MessagePhotoManifestPath );
+                foreach ( var photo in source.ReadMessagePhotoManifest().Images )
+                {
+                    AddFile( $"photos/{photo.File}" );
+                }
+            }
+
             // The staff photos delivered so far, for the staff in this dataset (decision 201).
             if ( repository.Exists( SampleDataSource.StaffPhotoManifestPath ) )
             {
@@ -267,6 +278,34 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.EventPhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            // A message image belongs to one adaptation that exists and has no event image (decision D-leading-3).
+            var messageText = source.AdaptiveMessages == null ? null : source.ReadAdaptiveMessageText();
+            var imaged = new HashSet<string>( StringComparer.Ordinal );
+            foreach ( var photo in source.ReadMessagePhotoManifest().Images )
+            {
+                var key = $"{photo.Message} {photo.Adaptation}";
+                var message = source.AdaptiveMessages?.Messages.FirstOrDefault( m => m.Key == photo.Message );
+                if ( message == null || !message.Adaptations.Any( a => a.Key == photo.Adaptation ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has an image for {key}, which is not an adaptation in configuration/adaptive-messages.json." );
+                }
+
+                if ( messageText.Messages.TryGetValue( photo.Message, out var texts ) && texts.TryGetValue( photo.Adaptation, out var text ) && text.Image != null )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has an image for {key}, which already shows the {text.Image} event image in {SampleDataSource.AdaptiveMessageTextPath}. Remove one." );
+                }
+
+                if ( !imaged.Add( key ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has two images for {key}." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

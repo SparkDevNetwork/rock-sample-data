@@ -306,6 +306,17 @@ namespace RockSampleData.Loader
 
         public const string EventPhotoManifestPath = "photos/events/manifest.json";
 
+        /// <summary>
+        /// Reads photos/messages/manifest.json, the adaptive message images. Until the image agent delivers them, and in
+        /// a package built before they existed, there is none, and no adaptation gets one.
+        /// </summary>
+        public MessagePhotoManifest ReadMessagePhotoManifest()
+        {
+            return Files.Exists( MessagePhotoManifestPath ) ? Read<MessagePhotoManifest>( MessagePhotoManifestPath ) : new MessagePhotoManifest();
+        }
+
+        public const string MessagePhotoManifestPath = "photos/messages/manifest.json";
+
         public const string LoginsConfigurationPath = "configuration/logins.json";
 
         public const string RegistrationsConfigurationPath = "configuration/registrations.json";

@@ -209,9 +209,24 @@ VALUES ( @Name, @Key, 1, @ViewId, @Filters, 0, @Description, @Interval, @Now, @G
                 plans.Add( (message, messageDates.Value, adaptations) );
             }
 
+            var photoLoader = new PhotoLoader( _db, _source, _foreignKey, _seed );
             var withImages = plans.SelectMany( p => p.Adaptations ).Where( a => a.Text.Image != null ).ToList();
-            var imageGuids = new PhotoLoader( _db, _source, _foreignKey, _seed ).LoadEventImageCopies( withImages.Select( a => a.Text.Image ).ToList() );
+            var imageGuids = photoLoader.LoadEventImageCopies( withImages.Select( a => a.Text.Image ).ToList() );
             var images = withImages.Select( ( a, i ) => (a.Adaptation.Guid, imageGuids[i]) ).ToDictionary( p => p.Guid, p => p.Item2 );
+
+            // An adaptation with no event image gets its own image from photos/messages/manifest.json, once the image agent
+            // delivers it. A missing manifest or entry means no image yet. The builder refuses an entry for an adaptation
+            // that has an event image, so each adaptation has at most one (decision D-leading-3).
+            var messageImages = _source.ReadMessagePhotoManifest().Images.ToDictionary( i => $"{i.Message}/{i.Adaptation}", i => i.File, StringComparer.Ordinal );
+            var withMessageImages = plans
+                .SelectMany( p => p.Adaptations.Select( a => (Key: $"{p.Message.Key}/{a.Adaptation.Key}", a.Adaptation, a.Text) ) )
+                .Where( a => a.Text.Image == null && messageImages.ContainsKey( a.Key ) )
+                .ToList();
+            var messageImageGuids = photoLoader.LoadMessageImageCopies( withMessageImages.Select( a => messageImages[a.Key] ).ToList() );
+            for ( var i = 0; i < withMessageImages.Count; i++ )
+            {
+                images[withMessageImages[i].Adaptation.Guid] = messageImageGuids[i];
+            }
 
             var attributeIds = new Dictionary<Guid, int>();
             int AttributeId( Guid guid ) => attributeIds.TryGetValue( guid, out var id ) ? id : attributeIds[guid] = _db.RequireIdByGuid( "Attribute", guid );

@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-3 add the Leading layer, Invite a Friend, and the message images.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -16,7 +16,7 @@ Rock ships no block that shows adaptive messages. A page shows them only through
 
 The External Website homepage has a "Your Next Steps" HTML Content block in its Section A zone, below the feature banner (decision 277). Its Lava, `content/adaptive-messages/homepage.lava`, runs the command on the church's category, one adaptation per message and up to four in all, and shows each as a card with its image, name, summary, and call to action. The block enables the AdaptiveMessage command, and its cache stays off, because each person sees their own cards. A visitor who is not signed in sees each message's fallback: Plan a Visit and Ways to Give. Rock records a view of an adaptation with saturation each time the page shows it.
 
-Sign in as `tdecker` to see Ted Decker's cards: Plan a Visit, the Built on the Rock thanks, and the thanks for his scheduled gift. The app's Home page waits for the Sample Mobile App (issue 10).
+Sign in as `tdecker` to see Ted Decker's cards: Invite a Friend, the Built on the Rock thanks, and the thanks for his scheduled gift. The app's Home page waits for the Sample Mobile App (issue 10).
 
 ## The five messages
 
@@ -24,7 +24,7 @@ The messages sit in a Rock Solid Church category under Rock's All Church categor
 
 | Message | Adaptations, in order | When |
 |---|---|---|
-| Your Next Step | Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Everyone else: plan a visit. | Always |
+| Your Next Step | Already Leading: invite a friend. Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Everyone else: plan a visit. | Always |
 | Built on the Rock | Built on the Rock Pledge Households: thank you. Involved Adults Not Yet Pledged: make a commitment. | While the campaign runs, from the fund's start date through its last day |
 | Baptism Sunday | Unbaptized Regular Attenders: be baptized. | From 35 days before the next baptism Sunday until that Sunday begins |
 | Student Camp | Students Attending the Student Service: register for camp. | While the next camp's registration is open, through the day it closes |
@@ -66,7 +66,7 @@ Verify asks Rock's own security check about Ted Decker, Alisha Marble, and Pete 
 
 Each adaptation's text is in `content/adaptive-messages/messages.json`, checked by `check-messages.js` ([its README](../content/adaptive-messages/README.md)). Each field fills one of Rock's own adaptation attributes: Call To Action Text and Link, Summary, Details, and Summary Image. Rock 20 and Rock 21 ship no Mobile App Summary XAML attribute, so there is none to fill. Links point at real External Website pages, by route or as Rock's `/page/Id` link.
 
-Ten adaptations reuse an approved calendar event image. Seven have none yet and wait for an image brief: Plan a Visit, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give.
+Ten adaptations reuse an approved calendar event image. Eight have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
 
 ## How it loads
 
@@ -90,4 +90,3 @@ The Adaptive messages step runs after the Reports step, when every data view is 
 
 - **View history (slice 2).** A year of "Viewed" interactions in Rock's Adaptive Messages channel, after Interaction Data (issue 12) brings website sessions.
 - **The app.** The Rock Solid Church App's Home page waits for the Sample Mobile App (issue 10).
-- **Leaders see the fallback.** Ted Decker and Pete Foster already lead, so no next-step segment fits them and they see Plan a Visit. A Lead Stage layer, such as "invite a friend", would give leaders their own next step.

@@ -1,7 +1,16 @@
 {
-  "$comment": "The text of each adaptation in configuration/adaptive-messages.json, by message key and adaptation key. Each field fills one of Rock's own adaptation attributes: callToAction is Call To Action Text, link is Call To Action Link, summary is Summary, details is Details (one paragraph each), and image is Summary Image, an approved event image from photos/events/manifest.json by event key. An adaptation with no image leaves Summary Image empty until its image brief is done. A link is one of the External Website's routes, or page:<key> for a page in the configuration's 'pages'. README.md has the rules, and check-messages.js checks them.",
+  "$comment": "The text of each adaptation in configuration/adaptive-messages.json, by message key and adaptation key. Each field fills one of Rock's own adaptation attributes: callToAction is Call To Action Text, link is Call To Action Link, summary is Summary, details is Details (one paragraph each), and image is Summary Image, an approved event image from photos/events/manifest.json by event key. An adaptation with no image here gets its own image from photos/messages/manifest.json once the message image brief (photos/message-brief.md) delivers it, and leaves Summary Image empty until then. A link is one of the External Website's routes, or page:<key> for a page in the configuration's 'pages'. README.md has the rules, and check-messages.js checks them.",
   "messages": {
     "your-next-step": {
+      "invite-a-friend": {
+        "callToAction": "Invite a friend",
+        "link": "page:new-here",
+        "summary": "You already help people grow. This month, invite one friend to church, and save them a seat beside you on Sunday.",
+        "details": [
+          "Most people first come to church because a friend asked them. Think of one person who would enjoy a Sunday with you.",
+          "Send them the New Here page for service times and what to expect, then meet them at the welcome tent."
+        ]
+      },
       "lead": {
         "callToAction": "Lead a group",
         "link": "page:small-groups",

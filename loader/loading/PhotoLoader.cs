@@ -291,7 +291,25 @@ namespace RockSampleData.Loader.Loading
             var photos = _source.ReadEventPhotoManifest().Images.ToDictionary( p => p.Event, p => p.File, StringComparer.Ordinal );
             var files = eventKeys.Select( k => photos.TryGetValue( k, out var file ) ? file
                 : throw new InvalidDataException( $"{SampleDataSource.EventPhotoManifestPath} has no image for event {k}." ) ).ToList();
-            var ids = WriteFiles( DefaultFileTypeGuid, files, SampleDataSource.EventPhotoManifestPath );
+            return CopyFiles( files, SampleDataSource.EventPhotoManifestPath );
+        }
+
+        /// <summary>
+        /// Stores one copy of each adaptive message image (photos/messages/manifest.json) the same way, so each adaptation
+        /// owns its own file. Returns each file's Guid, in the files' order.
+        /// </summary>
+        /// <param name="files">Each image's file under photos/, in order.</param>
+        public List<Guid> LoadMessageImageCopies( IReadOnlyList<string> files )
+        {
+            return files.Count == 0 ? new List<Guid>() : CopyFiles( files, SampleDataSource.MessagePhotoManifestPath );
+        }
+
+        /// <summary>
+        /// Writes one Default file per item and returns their Guids in order.
+        /// </summary>
+        private List<Guid> CopyFiles( IReadOnlyList<string> files, string manifestName )
+        {
+            var ids = WriteFiles( DefaultFileTypeGuid, files, manifestName );
             var guids = _db.Query( $"SELECT [Id], [Guid] FROM [BinaryFile] WHERE [Id] IN ( {string.Join( ", ", ids )} )" )
                 .ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
             return ids.Select( id => guids[id] ).ToList();
