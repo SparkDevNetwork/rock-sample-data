@@ -182,6 +182,7 @@ Person data views
 Active People (F1)
 ├── Adults (F2)
 │   ├── Ready to Belong (N1)                            = F2 + F5 − F7
+│   ├── Attended in the Last 8 Weeks (N7)               = F2 + worship in the last 8 weeks
 │   ├── Ready to Grow (N2)                              = F2 + P1 − P2
 │   ├── Ready to Serve (N3)                             = F2 + P2 − F8
 │   ├── Ready to Lead (N4)                              = F2 + P2 + F8 + F7 − P4
@@ -258,7 +259,7 @@ All data views use Rock's own filter components and selection strings, as `confi
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | F1 | Active People | Person | Record status is Active. Deceased people left out (the data view default) | None. It is the root | No. One indexed column | Every Person view below |
-| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, N6, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
+| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, N6, N7, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
 | F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1 and C7 |
@@ -308,6 +309,7 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N1 | Ready to Belong | Person | In F2, in F5 (use persisted), not in F7 | F2, F5, F7 | No. F5 already carries the slow part | R3 |
+| N7 | Attended in the Last 8 Weeks | Person | In F2, and attended a worship service at least once in the last 8 weeks | F2 | No | The Attended in the Last 8 Weeks personalization segment, the last Your Next Step layer before the fallback. Under the next-step views, it catches people who come but fit none of them (decision D-leading-4) |
 | G3 | Small Groups With Room | Group | In F9, and fewer than 12 active members, the church's target size (Rock's member count filter) | F9 | No | R4 |
 | K1 | Kids Checked In Recently | Person | In F3, and checked in to the Nursery/Preschool or Elementary area at least once in the last 4 weeks | F3 | **Yes, every 60 minutes**. Kids staff open it on Sunday, so it should be fresh that afternoon. This is the interval example, beside F5's named schedule | K2, R7 |
 | K3 | Students Attending the Student Service | Person | In F1, grade 7 to 12, and checked in to the Jr High or High School area at least once in the last 12 weeks | F1 | No | R8. The registration views keep their own rules (section 8.2) |
@@ -404,7 +406,7 @@ The communication flows proposal (`docs/communication-flows-proposal.md` on bran
 | Women Who Attend (Women's Retreat flow audience) | X6 Women Who Attend, Reserved Email | `women-who-attend-reserved-email` | Sample Data | Guards RG1 `women-who-attend` |
 | Involved Adults (Christmas flow audience) | X7 Involved Adults, Reserved Email | `involved-adults-reserved-email` | Sample Data | Guards F10 `involved-adults`. "Gave" uses Rock's Last Gave attribute (question 14) |
 
-The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, `already-leading`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
+The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, `already-leading`, `attended-last-8-weeks`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
 
 A Communication Flows category would hold data views by who uses them, not by what they are. Then a care view and a flow view with the same rule would drift apart. Filing by Ministry System keeps one definition, and Rock's data view screen lists every flow and report that uses each one.
 

@@ -61,6 +61,15 @@
         ],
         "image": "starting-point"
       },
+      "find-your-next-step": {
+        "callToAction": "Find your next step",
+        "link": "/connect/get-connected",
+        "summary": "You're part of Sundays here. Tell us what interests you, and we'll help you find the next step that fits.",
+        "details": [
+          "Groups, classes, and serving teams all start with a short conversation. Fill out the form, and someone from your campus will reach out this week.",
+          "Not sure what fits? That is what the conversation is for."
+        ]
+      },
       "plan-a-visit": {
         "callToAction": "Plan a visit",
         "link": "page:new-here",

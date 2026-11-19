@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-3 add the Leading layer, Invite a Friend, and the message images.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-4 add the Leading layer, Invite a Friend, the message images, and Find Your Next Step.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -24,7 +24,7 @@ The messages sit in a Rock Solid Church category under Rock's All Church categor
 
 | Message | Adaptations, in order | When |
 |---|---|---|
-| Your Next Step | Already Leading: invite a friend. Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Everyone else: plan a visit. | Always |
+| Your Next Step | Already Leading: invite a friend. Ready to Lead: lead a group. Ready to Serve: find a team. Ready to Grow: take Foundations. Ready to Belong: join a small group. Guests Coming Back: Starting Point Class. Attended in the Last 8 Weeks: find your next step. Everyone else: plan a visit. | Always |
 | Built on the Rock | Built on the Rock Pledge Households: thank you. Involved Adults Not Yet Pledged: make a commitment. | While the campaign runs, from the fund's start date through its last day |
 | Baptism Sunday | Unbaptized Regular Attenders: be baptized. | From 35 days before the next baptism Sunday until that Sunday begins |
 | Student Camp | Students Attending the Student Service: register for camp. | While the next camp's registration is open, through the day it closes |
@@ -66,7 +66,7 @@ Verify asks Rock's own security check about Ted Decker, Alisha Marble, and Pete 
 
 Each adaptation's text is in `content/adaptive-messages/messages.json`, checked by `check-messages.js` ([its README](../content/adaptive-messages/README.md)). Each field fills one of Rock's own adaptation attributes: Call To Action Text and Link, Summary, Details, and Summary Image. Rock 20 and Rock 21 ship no Mobile App Summary XAML attribute, so there is none to fill. Links point at real External Website pages, by route or as Rock's `/page/Id` link.
 
-Ten adaptations reuse an approved calendar event image. Eight have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
+Ten adaptations reuse an approved calendar event image. Nine have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
 
 ## How it loads
 

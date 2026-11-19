@@ -73,6 +73,13 @@
       "description": "Regular attenders who are not in a small group."
     },
     {
+      "key": "attended-last-8-weeks",
+      "name": "Attended in the Last 8 Weeks",
+      "dataView": "attended-last-8-weeks",
+      "guid": "1BA3B5E0-01AD-4E2D-9C62-A42712F22BD8",
+      "description": "Adults who came to a worship service in the last 8 weeks."
+    },
+    {
       "key": "guests-coming-back",
       "name": "Guests Coming Back",
       "dataView": "guests-coming-back",
@@ -310,6 +317,14 @@
             "guests-coming-back"
           ],
           "guid": "985756FC-DDFA-4885-992D-DD5731577E1E"
+        },
+        {
+          "key": "find-your-next-step",
+          "name": "Find Your Next Step",
+          "segments": [
+            "attended-last-8-weeks"
+          ],
+          "guid": "7F20C4AF-A95C-4BD5-9731-8C9E168B5A19"
         },
         {
           "key": "plan-a-visit",
@@ -642,6 +657,13 @@
       "message": "your-next-step",
       "adaptation": "invite-a-friend",
       "reason": "Leads the Foster Group and the Prayer Team, so his next step is to invite a friend."
+    },
+    {
+      "person": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
+      "message": "your-next-step",
+      "adaptation": "find-your-next-step",
+      "reason": "Comes most Sundays, is in a small group, and serves with the students, but fits no other next-step layer."
     }
   ]
 }

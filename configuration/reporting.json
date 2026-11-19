@@ -495,6 +495,25 @@
       }
     },
     {
+      "key": "attended-last-8-weeks",
+      "name": "Attended in the Last 8 Weeks",
+      "description": "Adults who came to a worship service in the last 8 weeks. Under the next-step views, it catches people who come but fit none of them, to help them find a next step.",
+      "category": "belong-data-views",
+      "guid": "F8D1A510-C501-428F-AF1E-F7AE03B8BD0D",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,8,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
       "key": "small-groups-with-room",
       "name": "Small Groups With Room",
       "description": "Active small groups with fewer than 12 active members, the church's target size (configuration/small-groups.json), where a new person can join.",
