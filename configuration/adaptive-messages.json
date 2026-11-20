@@ -1,5 +1,5 @@
 {
-  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names.",
+  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. A row is judged only on a day its adaptation is in season and its message makes the homepage's cards. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names. Rock shows the messages in the order listed here, and the homepage shows at most four cards, one per message, so in the weeks before a baptism Sunday Student Camp, the last message, is cut.",
   "category": "church-adaptive-messages",
   "segmentRefreshMinutes": 1440,
   "pages": {
@@ -295,9 +295,21 @@
     {
       "key": "your-next-step",
       "name": "Your Next Step",
-      "description": "One next step on the path for each person, from the stage they have reached. People who already lead are asked to invite a friend, and people who fit no stage are invited to plan a visit.",
+      "description": "One next step on the path for each person, from the stage they have reached. People who stopped coming hear first that we miss them, people who already lead are asked to invite a friend, and people who fit no stage are invited to plan a visit.",
       "guid": "2316296B-C84A-4845-A339-340E9925443E",
       "adaptations": [
+        {
+          "key": "we-miss-you",
+          "name": "We Miss You",
+          "segments": [
+            "drifting-adults"
+          ],
+          "guid": "17C5316A-37C1-4D68-A6B6-5AE8146D8300",
+          "saturation": {
+            "views": 2,
+            "days": 30
+          }
+        },
         {
           "key": "invite-a-friend",
           "name": "Invite a Friend",
@@ -354,18 +366,6 @@
             "attended-last-8-weeks"
           ],
           "guid": "7F20C4AF-A95C-4BD5-9731-8C9E168B5A19"
-        },
-        {
-          "key": "we-miss-you",
-          "name": "We Miss You",
-          "segments": [
-            "drifting-adults"
-          ],
-          "guid": "17C5316A-37C1-4D68-A6B6-5AE8146D8300",
-          "saturation": {
-            "views": 2,
-            "days": 30
-          }
         },
         {
           "key": "plan-a-visit",
@@ -463,53 +463,6 @@
       ]
     },
     {
-      "key": "student-camp",
-      "name": "Student Camp",
-      "description": "An invitation to Student Camp, for students who come to the student service, while camp registration is open.",
-      "guid": "8B08ED64-76ED-4E69-9C36-B9553BB3C712",
-      "adaptations": [
-        {
-          "key": "register",
-          "name": "Register for Camp",
-          "segments": [
-            "students-attending"
-          ],
-          "guid": "DC1048A1-8036-4A8A-848F-33AF00919F79",
-          "dates": {
-            "rule": "camp-registration"
-          },
-          "saturation": {
-            "views": 3,
-            "days": 7
-          }
-        },
-        {
-          "key": "get-your-student-to-camp",
-          "name": "Get Your Student to Camp",
-          "segments": [
-            "parents-of-students"
-          ],
-          "guid": "BD62EE3F-BC44-40D9-BA56-75CF0F4BB815",
-          "dates": {
-            "rule": "camp-registration"
-          },
-          "saturation": {
-            "views": 3,
-            "days": 7
-          }
-        },
-        {
-          "key": "know-a-student",
-          "name": "Know a Student",
-          "segments": [],
-          "guid": "7792B0C4-A92B-44D3-9E29-954BDFCC87F6",
-          "dates": {
-            "rule": "camp-registration"
-          }
-        }
-      ]
-    },
-    {
       "key": "giving",
       "name": "Giving",
       "description": "The next step that fits how each person gives, from Rock's giving journey and scheduled gifts. Rock shows the first layer that fits, so a scheduled giver who is also new sees the thank you for their scheduled gift.",
@@ -577,6 +530,53 @@
           "name": "Ways to Give",
           "segments": [],
           "guid": "DF521D63-ACD5-4392-8E36-2E71284DA561"
+        }
+      ]
+    },
+    {
+      "key": "student-camp",
+      "name": "Student Camp",
+      "description": "An invitation to Student Camp, for students who come to the student service, while camp registration is open.",
+      "guid": "8B08ED64-76ED-4E69-9C36-B9553BB3C712",
+      "adaptations": [
+        {
+          "key": "register",
+          "name": "Register for Camp",
+          "segments": [
+            "students-attending"
+          ],
+          "guid": "DC1048A1-8036-4A8A-848F-33AF00919F79",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "get-your-student-to-camp",
+          "name": "Get Your Student to Camp",
+          "segments": [
+            "parents-of-students"
+          ],
+          "guid": "BD62EE3F-BC44-40D9-BA56-75CF0F4BB815",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "know-a-student",
+          "name": "Know a Student",
+          "segments": [],
+          "guid": "7792B0C4-A92B-44D3-9E29-954BDFCC87F6",
+          "dates": {
+            "rule": "camp-registration"
+          }
         }
       ]
     }
@@ -761,6 +761,20 @@
       "message": "your-next-step",
       "adaptation": "find-your-next-step",
       "reason": "Comes most Sundays, is in a small group, and serves with the students, but fits no other next-step layer."
+    },
+    {
+      "person": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "message": "your-next-step",
+      "adaptation": "we-miss-you",
+      "reason": "A regular for seven years who stopped coming about six months ago, so he hears that we miss him before any growth ask."
+    },
+    {
+      "person": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
+      "message": "your-next-step",
+      "adaptation": "we-miss-you",
+      "reason": "A regular for seven years who stopped coming about six months ago, so she hears that we miss her before any growth ask."
     },
     {
       "person": "B71494DB-D809-451A-A950-28898D0FD92C",

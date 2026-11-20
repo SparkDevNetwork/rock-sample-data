@@ -708,7 +708,7 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 3. **The homepage.** An HTML Content block on the External Website homepage, in Section A, with the AdaptiveMessage Lava command enabled and its Lava from `../content/adaptive-messages/homepage.lava`, with the category's Id filled in (`AdaptiveMessagesLoader.Display.cs`).
 4. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
 
-`AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees. `AdaptiveMessagesLoader.IsInSeason` says whether a message and adaptation show on a day, so a seasonal Cast row is checked only in its season (decision D-leading-5).
+`AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees. `AdaptiveMessagesLoader.NotJudged` says why a Cast row is not checked on a day: its adaptation is out of season, or the messages ahead of it fill the homepage's cards. Verify asks the same rule (decisions D-leading-5 and D-leading-6).
 
 ## How signals load
 

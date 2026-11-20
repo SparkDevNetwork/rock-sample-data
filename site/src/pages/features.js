@@ -29,6 +29,11 @@ const { sectionHead } = require( "../components" );
 const doc = file => `${repoUrl}/blob/main/${file}`;
 
 /**
+ * Names joined as a sentence list: "A and B", or "A, B, and C".
+ */
+const messageList = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
+
+/**
  * A Cast person's name, linked to their household page. The name is plain text when no Cast person has it.
  */
 function person( model, name ) {
@@ -313,9 +318,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "adaptive-messages", eyebrow: "Adaptive messages", title: "A next step for each person.", sand: true,
-            text: html`${model.adaptiveMessages.messages.length} adaptive messages, from ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[0].name : "Your Next Step" )} to ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[model.adaptiveMessages.messages.length - 1].name : "Giving" )}, each with versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
-            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Leaders of a group or team asked to invite a friend", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp", "A card for everyone in each message's season" ],
-            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift and asked to invite a friend`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
+            text: html`${model.adaptiveMessages.messages.length} adaptive messages, in this order on the homepage: ${esc( messageList( model.adaptiveMessages.messages.map( m => m.name ) ) )}. Each has versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
+            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Leaders of a group or team asked to invite a friend", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp", "A card for everyone in each message's season", "People who stopped coming hear first that we miss them" ],
+            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift and asked to invite a friend`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic`, html`${person( model, "Luis Ortiz" )}, told we miss him before any growth ask` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
         },
         {

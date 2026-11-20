@@ -841,8 +841,8 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
                 var isWritten = db.IdByGuid( "AdaptiveMessage", message.Guid ) != null;
                 var expected = expectation.Adaptation == null ? null : message.Adaptations.First( a => a.Key == expectation.Adaptation );
 
-                // A seasonal adaptation, such as Baptism Sunday's, is judged only in its season (decision D-leading-5).
-                if ( expected != null && ( expected.Dates != null || message.Dates != null ) && !AdaptiveMessagesLoader.IsInSeason( db, expected.Guid, DateTime.Today ) )
+                // A row is judged only when its card can show: in season, and not cut from the homepage (decision D-leading-6).
+                if ( AdaptiveMessagesLoader.NotJudged( db, source, expectation, guids.Value( expectation.Person ), DateTime.Today ) != null )
                 {
                     continue;
                 }

@@ -24,6 +24,8 @@ Each field fills one of the attributes Rock gives every adaptation, so the text 
 
 Every message ends with a fallback: an adaptation with no segments, which fits everyone in the message's season. Most messages have two or more targeted adaptations above it. Rock shows nothing for a message when none of its adaptations fits a person, so a message with no fallback leaves its slot empty for most people. `check-messages.js` fails a message whose last adaptation has segments (decision D-leading-5).
 
+The homepage shows at most four cards, one per message, in the order of `configuration/adaptive-messages.json`. Student Camp is last, so in the weeks before a baptism Sunday it is the card that drops off, and Giving shows every day. Your Next Step starts with We Miss You, so someone who stopped coming hears that first (decision D-leading-6).
+
 ## Writing rules
 
 1. Follow the [content standards](../../docs/content-standards.md): warm, plain, and fictional.

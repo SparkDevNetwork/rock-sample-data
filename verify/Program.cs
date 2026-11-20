@@ -746,27 +746,24 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
         return CheckResult.From( "adaptive-messages", "This package has no adaptive message expectations", new List<string>() );
     }
 
-    // A seasonal adaptation, such as Baptism Sunday's, is judged only in its season (decision D-leading-5).
+    // A row is judged only when its card can show: in season, and not cut from the homepage (decisions D-leading-5 and D-leading-6).
     var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
     var notes = new List<string>();
     CastPersonGuids people;
     using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
     {
         people = new CastPersonGuids( db, source );
-        var inSeason = cast.Where( c =>
+        var judged = cast.Where( c =>
         {
-            var message = messages[c.Message];
-            var expected = c.Adaptation == null ? null : message.Adaptations.First( a => a.Key == c.Adaptation );
-            var isSeasonal = expected != null && ( expected.Dates != null || message.Dates != null );
-            if ( isSeasonal && !AdaptiveMessagesLoader.IsInSeason( db, expected.Guid, DateTime.Today ) )
+            var reason = AdaptiveMessagesLoader.NotJudged( db, source, c, people.Value( c.Person ), DateTime.Today );
+            if ( reason != null )
             {
-                notes.Add( $"{c.Name}: {expected.Name} is out of season today, so it was not judged." );
-                return false;
+                notes.Add( $"{c.Name}: {reason} today, so the row was not judged." );
             }
 
-            return true;
+            return reason == null;
         } ).ToList();
-        cast = inSeason;
+        cast = judged;
     }
 
     var adaptationIds = sql.Query( database, "SELECT [Id], [Guid] FROM [AdaptiveMessageAdaptation]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );

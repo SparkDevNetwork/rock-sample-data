@@ -388,11 +388,64 @@ WHERE [rt].[Guid] = @Template AND [ri].[EndDateTime] >= @Today AND [ri].[StartDa
             } );
         }
 
+        /*
+            11/20/26 - CLAUDE
+
+            A Cast row says which card a person sees, so it is judged only on a day the card can show. A seasonal
+            adaptation, such as Baptism Sunday's, shows only in its season (decision D-leading-5). The homepage shows at
+            most its maxadaptations cards, one per message in message order, so a message behind that many messages that
+            show the person a card is cut. In the 35 days before each baptism Sunday, that cuts Student Camp, the last
+            message (decision D-leading-6). The loader's Cast expectations and verify both ask this one rule.
+
+            Reason: Jon kept four cards in a row and put Student Camp last, so its rows hold only outside baptism season.
+        */
+
         /// <summary>
-        /// Whether an adaptation is in season on a day: written, active, and inside its own and its message's dates. A Cast
-        /// row for a seasonal adaptation, such as Baptism Sunday's, is judged only in its season (decision D-leading-5).
+        /// Why a Cast row is not judged on a day, or null when it is: its adaptation is out of season, or its message is
+        /// cut from the homepage by the messages ahead of it that show the person a card.
         /// </summary>
-        internal static bool IsInSeason( RockDatabase db, Guid adaptation, DateTime day )
+        /// <param name="person">The person's Guid, as a SQL parameter value (CastPersonGuids.Value).</param>
+        internal static string NotJudged( RockDatabase db, SampleDataSource source, CastAdaptation row, object person, DateTime day )
+        {
+            var messages = source.AdaptiveMessages.Messages;
+            var message = messages.First( m => m.Key == row.Message );
+            var expected = row.Adaptation == null ? null : message.Adaptations.First( a => a.Key == row.Adaptation );
+            if ( expected != null && ( expected.Dates != null || message.Dates != null ) && !IsInSeason( db, expected.Guid, day ) )
+            {
+                return $"{expected.Name} is out of season";
+            }
+
+            var cards = HomepageCards( source );
+            if ( cards == null )
+            {
+                return null;
+            }
+
+            var ahead = messages.TakeWhile( m => m != message ).Where( m => ShownAdaptation( db, m.Guid, person, day ) != null ).Select( m => m.Name ).ToList();
+            return ahead.Count >= cards ? $"{message.Name} is cut from the homepage's {cards} cards by {string.Join( ", ", ahead )}" : null;
+        }
+
+        /// <summary>
+        /// The most cards the homepage block shows, from its adaptivemessage command's maxadaptations, or null when the
+        /// load adds no homepage block.
+        /// </summary>
+        internal static int? HomepageCards( SampleDataSource source )
+        {
+            var display = source.AdaptiveMessages?.Display;
+            if ( display == null )
+            {
+                return null;
+            }
+
+            var match = System.Text.RegularExpressions.Regex.Match( source.Files.ReadText( display.Content ), @"maxadaptations:'(\d+)'" );
+            return match.Success ? int.Parse( match.Groups[1].Value )
+                : throw new InvalidDataException( $"{display.Content} has no maxadaptations, so the homepage's card count is unknown." );
+        }
+
+        /// <summary>
+        /// Whether an adaptation is in season on a day: written, active, and inside its own and its message's dates.
+        /// </summary>
+        private static bool IsInSeason( RockDatabase db, Guid adaptation, DateTime day )
         {
             return Convert.ToInt32( db.Scalar( @"
 SELECT COUNT(*)
