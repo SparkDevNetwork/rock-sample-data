@@ -620,7 +620,9 @@ WHERE [e].[Guid] = @Event
 
         /// <summary>
         /// Checks that each Cast text thread shows in SMS Conversations the way its file says: every text the person sent
-        /// and every staff text, and the thread unread, read, or stopped.
+        /// and every staff text, and the thread unread, read, or stopped. A staff text in the thread is a reply named
+        /// "From: " and the sender, as Rock's SMS medium names one. A class reminder from the same line, such as Starting
+        /// Point's to a Cast person with a generated class step, also shows in the thread but is not part of its story.
         /// </summary>
         private static int CheckThreads( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
@@ -634,7 +636,8 @@ SELECT
     ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] ) AS [FromPerson],
     ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] AND [r].[IsRead] = 0 ) AS [Unread],
     ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
-        WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [c].[SmsFromSystemPhoneNumberId] = [spn].[Id] AND [cr].[Status] = 1 AND [c].[IsBulkCommunication] = 0 ) AS [FromStaff],
+        WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [c].[SmsFromSystemPhoneNumberId] = [spn].[Id] AND [cr].[Status] = 1 AND [c].[IsBulkCommunication] = 0
+            AND [c].[Name] LIKE 'From: %' ) AS [FromStaff],
     ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [cr].[UnsubscribeLevel] = 1 ) AS [Stops]
 FROM [Person] AS [p]
 CROSS JOIN [SystemPhoneNumber] AS [spn]

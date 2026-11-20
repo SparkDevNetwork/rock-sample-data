@@ -68,6 +68,13 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid FamilyGroupTypeGuid = new Guid( "790E3215-3B10-442B-AF69-616C0DCB998E" );
 
         /// <summary>
+        /// Rock's Known Relationships and Peer Network group types, which hold every person and say nothing about when a
+        /// family came.
+        /// </summary>
+        private static readonly Guid KnownRelationshipsGroupTypeGuid = new Guid( "E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF" );
+        private static readonly Guid PeerNetworkGroupTypeGuid = new Guid( "8C0E5852-F08F-4327-9AA5-87800A6AB53E" );
+
+        /// <summary>
         /// Rock's file field types, the ones its DeleteBinaryFileAttribute task checks: Audio File, Background Check,
         /// Binary File, File, Image, and Video File.
         /// </summary>
@@ -293,13 +300,17 @@ DELETE FROM [AttributeMatrixItem] WHERE [AttributeMatrixId] = {matrixId};
 UPDATE [AttributeMatrix] SET [ModifiedByPersonAliasId] = @Author, [ModifiedDateTime] = @Posted WHERE [Id] = {matrixId};", P( "@Author", authorAliasId ), P( "@Posted", posted ) );
 
             // Rock's DeleteBinaryFileAttribute task: a replaced image goes only when no file attribute's value or default names it.
+            // The file attributes are read inline, not into a table variable, so the contract recorder can read every write.
             foreach ( var old in oldImages.Distinct() )
             {
                 _db.Execute( $@"
-DECLARE @FileAttributes TABLE ( [Id] INT PRIMARY KEY );
-INSERT INTO @FileAttributes SELECT [a].[Id] FROM [Attribute] AS [a] INNER JOIN [FieldType] AS [f] ON [f].[Id] = [a].[FieldTypeId] WHERE [f].[Guid] IN ( {FileFieldTypes} );
-IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] WHERE [AttributeId] IN ( SELECT [Id] FROM @FileAttributes ) AND [Value] = @Guid )
-    AND NOT EXISTS ( SELECT 1 FROM [Attribute] WHERE [Id] IN ( SELECT [Id] FROM @FileAttributes ) AND [DefaultValue] = @Guid )
+IF NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [v]
+        INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId]
+        INNER JOIN [FieldType] AS [f] ON [f].[Id] = [a].[FieldTypeId]
+        WHERE [f].[Guid] IN ( {FileFieldTypes} ) AND [v].[Value] = @Guid )
+    AND NOT EXISTS ( SELECT 1 FROM [Attribute] AS [a]
+        INNER JOIN [FieldType] AS [f] ON [f].[Id] = [a].[FieldTypeId]
+        WHERE [f].[Guid] IN ( {FileFieldTypes} ) AND [a].[DefaultValue] = @Guid )
 BEGIN
     DELETE FROM [BinaryFileData] WHERE [Id] IN ( SELECT [Id] FROM [BinaryFile] WHERE [Guid] = @Guid );
     DELETE FROM [BinaryFile] WHERE [Guid] = @Guid;
@@ -485,7 +496,9 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @When, @Wh
 
         /// <summary>
         /// The day each family first came, by family Id: its first check-in, gift, request to serve, or group membership.
-        /// A family with none has always been there, and has no entry.
+        /// A family with none has always been there, and has no entry. Rock's relationship groups, Known Relationships and
+        /// Peer Network, are left out: Rock makes one for every person, and the load adds each on install day, so they
+        /// would make every family that never checked in, gave, or asked to serve look new today.
         /// </summary>
         private Dictionary<int, DateTime?> FamilyArrivals()
         {
@@ -508,13 +521,14 @@ WITH [Firsts] AS (
     SELECT [gm].[PersonId], MIN( [gm].[DateTimeAdded] )
     FROM [GroupMember] AS [gm]
     WHERE [gm].[GroupTypeId] <> @FamilyTypeId
+        AND [gm].[GroupTypeId] NOT IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( @KnownRelationships, @PeerNetwork ) )
     GROUP BY [gm].[PersonId]
 )
 SELECT [fm].[GroupId], MIN( [f].[At] ) AS [At]
 FROM [GroupMember] AS [fm]
 INNER JOIN [Firsts] AS [f] ON [f].[PersonId] = [fm].[PersonId]
 WHERE [fm].[GroupTypeId] = @FamilyTypeId
-GROUP BY [fm].[GroupId]", P( "@FamilyType", FamilyGroupTypeGuid ) )
+GROUP BY [fm].[GroupId]", P( "@FamilyType", FamilyGroupTypeGuid ), P( "@KnownRelationships", KnownRelationshipsGroupTypeGuid ), P( "@PeerNetwork", PeerNetworkGroupTypeGuid ) )
                 .ToDictionary( r => ( int ) r["GroupId"], r => r["At"] as DateTime? );
         }
 
@@ -531,15 +545,24 @@ GROUP BY [fm].[GroupId]", P( "@FamilyType", FamilyGroupTypeGuid ) )
 
         /// <summary>
         /// Rock's Active Families: by each active person's primary campus, the distinct families they belong to, each
-        /// from the day it came.
+        /// from the day it came. The campus is the one Rock Cleanup leaves each night, the campus of the person's first
+        /// family (PersonService.UpdatePersonsPrimaryFamily). Rock's own Giver Anonymous has no primary campus in a new
+        /// Rock until that job gives it its family's, and a church's past runs all came after many such nights.
         /// </summary>
         private Dictionary<DateTime, List<(int? EntityId, int Count)>> ActiveFamilies( List<DateTime> runs, Dictionary<int, DateTime?> arrivals )
         {
             var rows = _db.Query( @"
-SELECT DISTINCT [p].[PrimaryCampusId], [g].[Id] AS [FamilyId]
+DECLARE @FamilyTypeId INT = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = @FamilyType );
+SELECT DISTINCT
+    ( SELECT TOP 1 [pg].[CampusId]
+      FROM [GroupMember] AS [pgm]
+      INNER JOIN [Group] AS [pg] ON [pg].[Id] = [pgm].[GroupId]
+      WHERE [pg].[GroupTypeId] = @FamilyTypeId AND [pgm].[IsArchived] = 0 AND [pgm].[PersonId] = [p].[Id]
+      ORDER BY [pgm].[GroupOrder], [pgm].[GroupId] ) AS [PrimaryCampusId],
+    [g].[Id] AS [FamilyId]
 FROM [Person] AS [p]
 INNER JOIN [GroupMember] AS [gm] ON [gm].[PersonId] = [p].[Id]
-INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] AND [g].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = @FamilyType )
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] AND [g].[GroupTypeId] = @FamilyTypeId
 WHERE ( [p].[RecordTypeValueId] = 1 ) AND ( [p].[RecordStatusValueId] = 3 )", P( "@FamilyType", FamilyGroupTypeGuid ) )
                 .Select( r => (Campus: r["PrimaryCampusId"] as int?, Family: ( int ) r["FamilyId"], At: arrivals.TryGetValue( ( int ) r["FamilyId"], out var at ) ? at?.Date : null) )
                 .ToList();
