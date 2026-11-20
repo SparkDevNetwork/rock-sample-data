@@ -1,6 +1,6 @@
 # Duplicates
 
-How duplicate person records work in the sample data, and why. The decisions are D-duplicates-1 to D-duplicates-3, D-duplicates-4, and D-duplicates-5 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
+How duplicate person records work in the sample data, and why. The decisions are 310 to 312, 314, and 313 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
 
 ## The idea
 
@@ -20,20 +20,20 @@ Rock's Calculate Person Duplicates job runs every night at 3 AM. It is a Run SQL
 
 ## How the load fills it
 
-The load runs Rock's procedure itself, as its last step, after every person, phone, and address is in (decision D-duplicates-1). So the Duplicate Finder is full on install day, and the job's first night finds nothing new. The pairs it writes carry the dataset's ForeignKey, like every row the load adds.
+The load runs Rock's procedure itself, as its last step, after every person, phone, and address is in (decision 310). So the Duplicate Finder is full on install day, and the job's first night finds nothing new. The pairs it writes carry the dataset's ForeignKey, like every row the load adds.
 
 | Dataset | Time | Pairs | Listed in the Duplicate Finder |
 |---|---|---|---|
 | Core 1 | under a second | 9 | 3, all the Cast's |
 | Full 7 | about 10 seconds | about 76,000 | 4: the Cast's 3 and one Crowd pair |
 
-Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, often the whole name, since the Crowd's names come from short lists. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database with those names. One Crowd pair shares a name and a birth date and scores above 60, a look-alike any church with those names would see. Every generated email is one person's (decision D-duplicates-5), so no two strangers share an address.
+Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, often the whole name, since the Crowd's names come from short lists. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database with those names. One Crowd pair shares a name and a birth date and scores above 60, a look-alike any church with those names would see. Every generated email is one person's (decision 313), so no two strangers share an address.
 
-Households with the same address share one Location, as Rock's address editor saves them (decision D-duplicates-4). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
+Households with the same address share one Location, as Rock's address editor saves them (decision 314). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
 
 ## The Cast's duplicates
 
-The Cast has two people with duplicate records, a different man with the same name, and a merge already made (decision D-duplicates-2).
+The Cast has two people with duplicate records, a different man with the same name, and a merge already made (decision 311).
 
 | Pair | Decision | Story |
 |---|---|---|
@@ -55,7 +55,7 @@ Rock's grid saves the selection as an entity set that expires in 5 minutes, and 
 
 ### A merge already made
 
-Sarah Simmons's first record was Sarah Jones, from when she came with Ben. After she married Jim, she got a second record as Sarah Simmons in his family. About two years before install, Alisha merged the old Sarah Jones record into it (decision D-duplicates-3). Rock's merge leaves three things, and the load writes each the way Rock does:
+Sarah Simmons's first record was Sarah Jones, from when she came with Ben. After she married Jim, she got a second record as Sarah Simmons in his family. About two years before install, Alisha merged the old Sarah Jones record into it (decision 312). Rock's merge leaves three things, and the load writes each the way Rock does:
 
 1. **The old alias.** Rock points the old record's alias at Sarah. Its AliasPersonId is the old record's Id, which no person has any more, and its AliasPersonGuid is the old record's Guid.
 2. **A Merged History line.** Rock's merge block writes "Sarah Jones [ID: n]" in Sarah's History, by Alisha, with the verb Merge.

@@ -34,7 +34,7 @@ namespace RockSampleData.Loader.Loading
         Rock after a night's run, and the procedure keeps them on later runs.
 
         Reason: The Duplicate Finder shows the Cast's duplicates on day one, and Rock's job changes nothing
-        (decisions D-duplicates-1 and D-duplicates-2).
+        (decisions 310 and 311).
     */
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace RockSampleData.Loader.Loading
             name when it differs. Then the old Person row is gone. The merge also deletes the old record's family
             memberships and phones, so nothing else is left.
 
-            Reason: A merge already made looks the way Rock's merge leaves it (decision D-duplicates-3).
+            Reason: A merge already made looks the way Rock's merge leaves it (decision 312).
         */
 
         /// <summary>
@@ -177,7 +177,7 @@ END",
             score and rewrite ModifiedDateTime, but they keep both flags and the modifier, and the pair's created date
             stays the night the job first found it. So a decided pair was found at 3 AM on or before the decision.
 
-            Reason: A pair staff decided on reads the way Rock leaves it after more nights (decision D-duplicates-2).
+            Reason: A pair staff decided on reads the way Rock leaves it after more nights (decision 311).
         */
 
         /// <summary>
@@ -216,7 +216,7 @@ WHERE ( [PersonAliasId] = @First AND [DuplicatePersonAliasId] = @Second ) OR ( [
             that never expires. Then the requester saves a note and the Notify Me When Merged box. The grid bulk-inserts the
             items, which stamps them with the requester and the time.
 
-            Reason: Rock's Merge Requests page lists the request the way Rock saved it (decision D-duplicates-2).
+            Reason: Rock's Merge Requests page lists the request the way Rock saved it (decision 311).
         */
 
         /// <summary>

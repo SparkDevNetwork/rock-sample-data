@@ -310,7 +310,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// Background checks (configuration/background-checks.json, decision D-checks-1): a Cast story's check has a date and a
+// Background checks (configuration/background-checks.json, decision 333): a Cast story's check has a date and a
 // result of Pass or Fail, a person without a check has no check in their file, and each story the file expects names a
 // Cast person whose file agrees with it.
 {
@@ -354,7 +354,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// Benevolence (configuration/benevolence.json, decision D-benevolence-1): each Cast request names a Cast requester, a
+// Benevolence (configuration/benevolence.json, decision 350): each Cast request names a Cast requester, a
 // type the file lists, and staff who can open Rock's benevolence pages. Pending requests have no decision or results yet,
 // Approved ones have at least one result, and every amount is more than zero. The case worker is in Benevolence Workers.
 {
@@ -805,7 +805,7 @@ function checkSmallGroupPlan( file, g ) {
         errors.push( `${file}: topic "${g.topic}" is not in configuration/small-groups.json.` );
     }
 
-    // A topic that sets a leader gender is for that gender: its leader and every member (decision D-womens-groups-1).
+    // A topic that sets a leader gender is for that gender: its leader and every member (decision 318).
     const leaderGender = ( topic && topic.leaderGender ) || smallGroups.leaders.gender;
     const groupGender = topic && topic.leaderGender;
     if ( g.lifecycle.state === "Inactive" && !smallGroups.inactiveReasons.some( r => r.value === g.lifecycle.reason ) ) {

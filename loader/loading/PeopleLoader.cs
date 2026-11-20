@@ -162,7 +162,7 @@ namespace RockSampleData.Loader.Loading
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var aliases = NewTable( "Id:int", "PersonId:int", "AliasPersonId:int", "AliasPersonGuid:guid", "Guid:guid", "ForeignKey:string" );
             var members = NewTable( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            // Every address carries the marks of a check by Rock's address service, so it never goes to one (decision D-addresses-1).
+            // Every address carries the marks of a check by Rock's address service, so it never goes to one (decision 315).
             var locations = NewTable( new[] { "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" }
                 .Concat( CheckedAddress.Columns ).ToArray() );
             var geo = NewTable( "Id:int", "Latitude:double", "Longitude:double" );
@@ -183,7 +183,7 @@ namespace RockSampleData.Loader.Loading
                 foreach ( var person in household.Members )
                 {
                     // A record Rock merged into this person was made before them, so it had the Id just before theirs.
-                    // No Person row keeps it: it lives on only as the AliasPersonId of the record's alias (decision D-duplicates-3).
+                    // No Person row keeps it: it lives on only as the AliasPersonId of the record's alias (decision 312).
                     foreach ( var merge in merges[person.Guid] )
                     {
                         MergedRecordIds[merge.Record.Guid] = nextPersonId++;
@@ -301,7 +301,7 @@ namespace RockSampleData.Loader.Loading
                         Location, and Rock's duplicate finder scores Address only for people on the same Location.
                         Jon Smith's duplicate records each had their own copy of his address, so the finder never saw it.
 
-                        Reason: Duplicate records at one address score the way Rock scores them (decision D-duplicates-4).
+                        Reason: Duplicate records at one address score the way Rock scores them (decision 314).
                     */
                     var address = household.Address;
                     var addressKey = string.Join( "|", address.Street1, address.Street2, address.City, address.State, address.PostalCode );

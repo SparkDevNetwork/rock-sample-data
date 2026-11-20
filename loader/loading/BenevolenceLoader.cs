@@ -35,7 +35,7 @@ namespace RockSampleData.Loader.Loading
         key is set from its date. Rock 20 and 21 save the same columns. No government ID is recorded, and nothing is given
         from a fund: the amounts are results on the request, as Rock's own Benevolence screens show them.
 
-        Reason: Decisions D-benevolence-1 and D-benevolence-3. The Benevolence list, each request, and the person's
+        Reason: Decisions 350 and 352. The Benevolence list, each request, and the person's
         Benevolence tab read the way Rock's block left them.
     */
 
@@ -149,7 +149,7 @@ namespace RockSampleData.Loader.Loading
             action, and sends no email. It is not persisted, so a run that finishes at once saves no workflow, only the
             request's case worker, which every loaded request already has.
 
-            Reason: Decision D-benevolence-6. The types show the church's trigger, and the requests agree with it.
+            Reason: Decision 355. The types show the church's trigger, and the requests agree with it.
         */
 
         /// <summary>
@@ -267,7 +267,7 @@ VALUES ( @Name, @Description, 1, 1, @Guid, @ForeignKey, @Now, @Now )",
             family asks once. Each request's day, type, decision, and help come from its own stream, seeded by the
             requester, so adding a person or a rule elsewhere moves nothing here.
 
-            Reason: Decision D-benevolence-3. Full 7 gets a few dozen requests, and Core 1, which is only the Cast, gets the
+            Reason: Decision 352. Full 7 gets a few dozen requests, and Core 1, which is only the Cast, gets the
             Cast's stories.
         */
 

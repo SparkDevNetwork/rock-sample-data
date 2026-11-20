@@ -283,7 +283,7 @@ namespace RockSampleData.Loader.Loading
             Rock stores a campus's photo on the campus's Location, as Location.ImageId, and its Location Detail block's
             image editor saves the upload in Rock's Location Image file type. The loader does the same for each loaded
             campus with a photo in photos/campuses/manifest.json, so a dataset gets only its own campuses' photos. The
-            same type exists, stored in the database, in Rock 20.0.10 and Rock 21.0.2 (decision D-campus-photos-1).
+            same type exists, stored in the database, in Rock 20.0.10 and Rock 21.0.2 (decision 317).
 
             Reason: Lava pages and the app can show each campus's building, as issue 43 asks.
         */
@@ -347,7 +347,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Stores one Default file for each distinct image, which many attribute values may share, and returns each
         /// file's Guid by its path under photos/. Rock deletes an image file only when no attribute value names it any
-        /// longer, so sharing is safe (decision D-homepage-2).
+        /// longer, so sharing is safe (decision 346).
         /// </summary>
         /// <param name="files">The images, under photos/. A file may repeat.</param>
         /// <param name="manifestName">The manifest that lists them, for the error when one is missing.</param>

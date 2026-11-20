@@ -124,7 +124,7 @@ namespace RockSampleData.Loader.Generation
         meet Rock's rule by age, so they have none. A person waiting in the Background Check status has a check in
         progress, unless their story already has its result.
 
-        Reason: Decision D-checks-1. Rock's job, its scheduler, and the reports read the same facts.
+        Reason: Decision 333. Rock's job, its scheduler, and the reports read the same facts.
     */
 
     /// <summary>

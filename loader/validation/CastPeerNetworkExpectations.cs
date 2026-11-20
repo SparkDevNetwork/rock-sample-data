@@ -23,7 +23,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Validation
 {
     /// <summary>
-    /// Checks the Cast's peer network stories against the loaded database (decision D-peers-5): the people each story's
+    /// Checks the Cast's peer network stories against the loaded database (decision 332): the people each story's
     /// profile must show rising, and that every Cast person who left a group sees its people falling.
     /// </summary>
     internal static class CastPeerNetworkExpectations

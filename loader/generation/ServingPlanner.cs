@@ -32,7 +32,7 @@ namespace RockSampleData.Loader.Generation
         private const string LeaderRotation = "Every Week";
 
         /// <param name="readyToLead">Each leader who launched a small group from Ready to Lead, and the day they were Ready to Lead. Each
-        /// was serving by then, and never leads a team (decision D-launch-groups-1).</param>
+        /// was serving by then, and never leads a team (decision 322).</param>
         public static List<ServingTeamPlan> Plan( ServingConfiguration config, ProfileTargets profile, AnchorDates dates, string seed, IReadOnlyList<CastHousehold> households,
             HashSet<string> castHouseholdKeys, Dictionary<string, CastServingTeam> castTeams, Dictionary<string, CampusPlan> campuses, string mainCampusKey,
             IReadOnlyDictionary<Guid, DateTime> readyToLead )

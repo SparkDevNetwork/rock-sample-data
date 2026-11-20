@@ -216,7 +216,7 @@ VALUES ( @Name, @Key, 1, @ViewId, @Filters, 0, @Description, @Interval, @Now, @G
 
             // An adaptation with no event image gets its own image from photos/messages/manifest.json, once the image agent
             // delivers it. A missing manifest or entry means no image yet. The builder refuses an entry for an adaptation
-            // that has an event image, so each adaptation has at most one (decision D-leading-3).
+            // that has an event image, so each adaptation has at most one (decision 341).
             var messageImages = _source.ReadMessagePhotoManifest().Images.ToDictionary( i => $"{i.Message}/{i.Adaptation}", i => i.File, StringComparer.Ordinal );
             var withMessageImages = plans
                 .SelectMany( p => p.Adaptations.Select( a => (Key: $"{p.Message.Key}/{a.Adaptation.Key}", a.Adaptation, a.Text) ) )
@@ -392,10 +392,10 @@ WHERE [rt].[Guid] = @Template AND [ri].[EndDateTime] >= @Today AND [ri].[StartDa
             11/20/26 - CLAUDE
 
             A Cast row says which card a person sees, so it is judged only on a day the card can show. A seasonal
-            adaptation, such as Baptism Sunday's, shows only in its season (decision D-leading-5). The homepage shows at
+            adaptation, such as Baptism Sunday's, shows only in its season (decision 343). The homepage shows at
             most its maxadaptations cards, one per message in message order, so a message behind that many messages that
             show the person a card is cut. In the 35 days before each baptism Sunday, that cuts Student Camp, the last
-            message (decision D-leading-6). The loader's Cast expectations and verify both ask this one rule.
+            message (decision 344). The loader's Cast expectations and verify both ask this one rule.
 
             Reason: Jon kept four cards in a row and put Student Camp last, so its rows hold only outside baptism season.
         */

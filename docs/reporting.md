@@ -162,7 +162,7 @@ Five of the framework's ideas shape the data views and reports:
 
 ### 2.3 What is not covered yet
 
-- **Pastoral Care** has no data views. Its data today is prayer requests and benevolence requests, which have their own Rock screens and security (decision D-benevolence-2). A Care category is added when one of them needs a data view.
+- **Pastoral Care** has no data views. Its data today is prayer requests and benevolence requests, which have their own Rock screens and security (decision 351). A Care category is added when one of them needs a data view.
 - **Notice** has no step. Rock's first-visit attendance and the First Visit attribute stand in for it.
 - **Counts over time.** Rock's Step Program page already charts each step type by month. Rock's Step Flow block, which draws movement between steps, ships in both builds, but no page uses it on a new install. Stage counts over time would be Rock Metrics fed by the stage views (question 15).
 
@@ -313,12 +313,12 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N1 | Ready to Belong | Person | In F2, in F5 (use persisted), not in F7 | F2, F5, F7 | No. F5 already carries the slow part | R3 |
-| N7 | Attended in the Last 8 Weeks | Person | In F2, and attended a worship service at least once in the last 8 weeks | F2 | No | The Attended in the Last 8 Weeks personalization segment, the last Your Next Step layer before the fallback. Under the next-step views, it catches people who come but fit none of them (decision D-leading-4) |
+| N7 | Attended in the Last 8 Weeks | Person | In F2, and attended a worship service at least once in the last 8 weeks | F2 | No | The Attended in the Last 8 Weeks personalization segment, the last Your Next Step layer before the fallback. Under the next-step views, it catches people who come but fit none of them (decision 342) |
 | G3 | Small Groups With Room | Group | In F9, and fewer than 12 active members, the church's target size (Rock's member count filter) | F9 | No | R4 |
 | K1 | Kids Checked In Recently | Person | In F3, and checked in to the Nursery/Preschool or Elementary area at least once in the last 4 weeks | F3 | **Yes, every 60 minutes**. Kids staff open it on Sunday, so it should be fresh that afternoon. This is the interval example, beside F5's named schedule | K2, R7 |
 | K3 | Students Attending the Student Service | Person | In F1, grade 7 to 12, and checked in to the Jr High or High School area at least once in the last 12 weeks | F1 | No | R8. The registration views keep their own rules (section 8.2) |
 | K4 | Families of Students | Person | In F1, and in grades 7 to 12, then Rock's Family Members transformation: everyone in a family with such a student | F1 | No | K5 |
-| K5 | Parents of Students | Person | In F2, and in K4 | F2, K4 | No | The Parents of Students personalization segment, Student Camp's layer for parents (decision D-leading-5) |
+| K5 | Parents of Students | Person | In F2, and in K4 | F2, K4 | No | The Parents of Students personalization segment, Student Camp's layer for parents (decision 343) |
 
 ### 4.5 Equip (category: Rock Solid Church > Equip)
 
@@ -327,8 +327,8 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | N2 | Ready to Grow | Person | In F2, in P1, not in P2 | F2, P1, P2 | No | R23 |
 | N5 | Belonging a Year, Not Yet Growing | Person | In P1, in F7, a "none" group holding "a Belong step completed in the last 12 months", and not in P2 | P1, F7, P2 | No | R24. The one "stalled" view |
 | C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience, through X4 |
-| C8 | Baptized Regular Attenders | Person | In F2, in F5 (use persisted), and took the Baptism step | F2, F5 | No | The Baptized Regular Attenders personalization segment, Baptism Sunday's Who's Your One layer (decision D-leading-5) |
-| N8 | Serving Without an Equip Step | Person | In F2, in F8, not in P2 | F2, F8, P2 | No | The Serving Without an Equip Step personalization segment, a second segment on Take Foundations (decision D-leading-5) |
+| C8 | Baptized Regular Attenders | Person | In F2, in F5 (use persisted), and took the Baptism step | F2, F5 | No | The Baptized Regular Attenders personalization segment, Baptism Sunday's Who's Your One layer (decision 343) |
+| N8 | Serving Without an Equip Step | Person | In F2, in F8, not in P2 | F2, F8, P2 | No | The Serving Without an Equip Step personalization segment, a second segment on Take Foundations (decision 343) |
 | C2 | Baptized This Year | Person | In F1, and the Baptism Date attribute is in the last 12 months | F1 | No | R2 |
 
 ### 4.6 Contribute (category: Rock Solid Church > Contribute)
@@ -342,13 +342,13 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and X8, the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
-| N6 | Already Leading | Person | In F2, and an active Leader of an active small group or an active serving team (Rock's In Group of Group Type filter, with each type's Leader role) | F2 | No | The Already Leading personalization segment, whose card asks leaders to invite a friend (decision D-leading-1). It reads who leads today, not the Lead step, which stays complete after a person stops leading |
+| N6 | Already Leading | Person | In F2, and an active Leader of an active small group or an active serving team (Rock's In Group of Group Type filter, with each type's Leader role) | F2 | No | The Already Leading personalization segment, whose card asks leaders to invite a friend (decision 339). It reads who leads today, not the Lead step, which stays complete after a person stops leading |
 
 ### 4.8 Re-engage (category: Rock Solid Church > Re-engage)
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, the We Miss You sync, and the Drifting Adults personalization segment, Your Next Step's We Miss You layer (decision D-leading-5) |
+| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, the We Miss You sync, and the Drifting Adults personalization segment, Your Next Step's We Miss You layer (decision 343) |
 | C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
 | C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
 
@@ -365,7 +365,7 @@ The category already holds three registration data views (decision 215). One flo
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | S1 | Kids and Student Volunteers | Person | In F8, and an active member of a Kids Ministry or Student Ministry team, the two teams with the background check requirement | F8 | No | R11 |
-| S2 | Small Group Leaders | Person | In F8, and an active leader of an active small group, the role with the background check requirement (decision D-checks-2) | F8 | No | R26 |
+| S2 | Small Group Leaders | Person | In F8, and an active leader of an active small group, the role with the background check requirement (decision 334) | F8 | No | R26 |
 | K2 | Kids With an Allergy | Person | In K1 (use persisted), and the Allergy person attribute is not blank | K1 | No | R6 |
 | S2 | Safety Team Review | Person | Has a Safety Team Review signal, through Rock's Has Signal filter, which counts ended signals too (issue 45) | None | No | Nothing yet |
 
@@ -514,7 +514,7 @@ The path reports give the senior team the whole path in one place. Each stage re
 | # | Report | Data view | Columns | What a staff member learns |
 |---|---|---|---|---|
 | R11 | Volunteer Background Checks | S1 | Name (Property), Team (Select: In Group of Group Type), Background Checked (Attribute), Background Check Date (Attribute), Background Check Result (Attribute) | Who needs a renewal before they serve again |
-| R26 | Leader Background Checks | S2 | Name (Property), Group (Select: In Group of Group Type), Background Checked (Attribute), Background Check Date (Attribute), Background Check Result (Attribute) | Which small group leaders need a check before their next group night (decision D-checks-5) |
+| R26 | Leader Background Checks | S2 | Name (Property), Group (Select: In Group of Group Type), Background Checked (Attribute), Background Check Date (Attribute), Background Check Result (Attribute) | Which small group leaders need a check before their next group night (decision 338) |
 | R6 | Kids Allergy List | K2 | Photo (Select: Photo), Name (Property), Grade (Select), Allergy (Attribute), Parents (Select), Parent Phone (Select: Parent Phone Number), Allergy alert (Lava: a red label) | The sheet a classroom leader keeps by the snack table |
 
 R11's and R26's three attributes are locked by Rock to RSR - Safety & Security Workers and RSR - Rock Administration. As section 1.3 says, the columns would still show to anyone who can view the report. That is why the report category is locked too.

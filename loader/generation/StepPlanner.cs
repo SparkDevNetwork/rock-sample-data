@@ -512,7 +512,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             // A leader who launched a group from Ready to Lead had an Equip step by the day they were Ready to Lead. One with
-            // no such step by then took this class in the two years before (decision D-launch-groups-1).
+            // no such step by then took this class in the two years before (decision 322).
             if ( source.EquipsReadyToLead )
             {
                 var stageTypes = _programByType[type.Key].StepTypes.Where( t => t.Stage == type.Stage ).Select( t => t.Key ).ToList();

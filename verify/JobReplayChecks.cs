@@ -27,7 +27,7 @@ namespace RockSampleData.Verify
         procedure returns as entering or exiting, so those rows stand for the job's own changes. The procedures count
         from today, so like Rock Cleanup the checks are judged only when today is the loads' anchor.
 
-        Reason: Rock's own first run of each job changes nothing the load wrote (decisions D-era-2 and D-peers-2).
+        Reason: Rock's own first run of each job changes nothing the load wrote (decisions 324 and 329).
     */
 
     /// <summary>
@@ -68,7 +68,7 @@ LEFT JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[Entit
 WHERE [j].[Guid] = '{FamilyAnalyticsJobGuid}'" ).FirstOrDefault();
             if ( job == null || !( bool ) job["IsActive"] || !string.Equals( job["SetVisitDates"] as string, "False", StringComparison.OrdinalIgnoreCase ) )
             {
-                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates off (decision D-era-3)." );
+                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates off (decision 325)." );
             }
 
             var guids = string.Join( ", ", FamilyAnalyticsAttributeGuids.Select( g => $"'{g}'" ) );
@@ -136,7 +136,7 @@ WHERE [b].[EntityId] IS NULL OR [n].[EntityId] IS NULL
             var problems = new List<string>();
             if ( !Convert.ToBoolean( sql.Scalar( database, $"SELECT [IsActive] FROM [ServiceJob] WHERE [Guid] = '{PeerNetworkJobGuid}'" ) ?? false ) )
             {
-                problems.Add( "Rock's Calculate Peer Network job must stay on (decision D-peers-2)." );
+                problems.Add( "Rock's Calculate Peer Network job must stay on (decision 329)." );
             }
 
             var rows = sql.Query( database, @"

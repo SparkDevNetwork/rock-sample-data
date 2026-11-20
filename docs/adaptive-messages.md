@@ -1,6 +1,6 @@
 # Adaptive messages
 
-Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions D-leading-1 to D-leading-6 add the Leading layer, Invite a Friend, the message images, Find Your Next Step, a fallback on every message, and the order of the cards.
+Status: slice 1 of [issue 6](https://github.com/SparkDevNetwork/rock-sample-data/issues/6) is built: the personalization segments, five adaptive messages with their adaptations and text, and the segment rows Rock's Update Personalization Data job would leave on install day. Slice 2, a year of view history, waits for Interaction Data (issue 12). Decisions 270 to 277 record what is built, and decisions 339 to 344 add the Leading layer, Invite a Friend, the message images, Find Your Next Step, a fallback on every message, and the order of the cards.
 
 **The idea in one line:** each person sees a next step that fits them, in the same spot on a page, chosen by Rock from the data views the church already keeps.
 
@@ -34,11 +34,11 @@ Rock shows a message or an adaptation from its start date until its end date beg
 
 ### Every message ends with a fallback
 
-Every message ends with a fallback that has no segment, so everyone in the message's season sees something in its slot (decision D-leading-5). Rock shows nothing for a message when none of its adaptations fits a person. Before the fallbacks, most people saw nothing from Baptism Sunday, Student Camp, or Built on the Rock. `check-messages.js` fails a message whose last adaptation has a segment.
+Every message ends with a fallback that has no segment, so everyone in the message's season sees something in its slot (decision 343). Rock shows nothing for a message when none of its adaptations fits a person. Before the fallbacks, most people saw nothing from Baptism Sunday, Student Camp, or Built on the Rock. `check-messages.js` fails a message whose last adaptation has a segment.
 
 ### The order of the cards
 
-The homepage block shows at most four cards, one per message, in message order. On most install days four messages are in season, so everyone sees Your Next Step, Built on the Rock, Giving, and Student Camp. In the 35 days before each baptism Sunday, five are in season, and Student Camp, the last message, drops off the homepage for everyone. Jon kept four cards, because a fifth card would sit alone on a second row, and put Student Camp last, so Giving shows every day (decision D-leading-6). Rock's adaptivemessage command still shows Student Camp anywhere else it is used.
+The homepage block shows at most four cards, one per message, in message order. On most install days four messages are in season, so everyone sees Your Next Step, Built on the Rock, Giving, and Student Camp. In the 35 days before each baptism Sunday, five are in season, and Student Camp, the last message, drops off the homepage for everyone. Jon kept four cards, because a fifth card would sit alone on a second row, and put Student Camp last, so Giving shows every day (decision 344). Rock's adaptivemessage command still shows Student Camp anywhere else it is used.
 
 We Miss You is the first layer of Your Next Step. So someone who stopped coming hears "We've missed you" before any growth ask, as the Re-engage system in Ministry by Design asks. After two views in 30 days, Rock steps it aside, and the person sees their usual growth card. A group leader who stopped coming on Sundays sees We Miss You before Invite a Friend, and Jon accepted that.
 
@@ -90,7 +90,7 @@ Verify asks Rock's own security check about Ted Decker, Alisha Marble, and Pete 
 
 Each adaptation's text is in `content/adaptive-messages/messages.json`, checked by `check-messages.js` ([its README](../content/adaptive-messages/README.md)). Each field fills one of Rock's own adaptation attributes: Call To Action Text and Link, Summary, Details, and Summary Image. Rock 20 and Rock 21 ship no Mobile App Summary XAML attribute, so there is none to fill. Links point at real External Website pages, by route or as Rock's `/page/Id` link.
 
-Fifteen adaptations reuse an approved calendar event image. Ten have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, We Miss You, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision D-leading-3).
+Fifteen adaptations reuse an approved calendar event image. Ten have none yet and wait for the [message image brief](../photos/message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, We Miss You, and the Giving layers Scheduled Gift, First Gift, Make It Automatic, Give Online, What God Did This Year, and Ways to Give. Jon's image agent lists each image it makes in `photos/messages/manifest.json`, by `message` and `adaptation`. The builder carries them into every package, and the loader stores a copy of each as its adaptation's Summary Image. Until an adaptation is listed, its card shows no image, so images arrive with no code change. The builder and `check-messages.js` refuse an entry for an adaptation that does not exist or already shows an event image (decision 341).
 
 ## How it loads
 

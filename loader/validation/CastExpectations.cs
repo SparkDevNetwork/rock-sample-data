@@ -168,8 +168,8 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckPersonAttributes( db, source, failures );
 
-            // The eRA stories follow attendance and giving (decision D-era-5), and the peer network stories follow small
-            // groups and serving teams (decision D-peers-5).
+            // The eRA stories follow attendance and giving (decision 327), and the peer network stories follow small
+            // groups and serving teams (decision 332).
             checks += parts.Contains( SampleDataPart.Attendance ) && parts.Contains( SampleDataPart.Giving ) ? CastEraExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
             checks += parts.Contains( SampleDataPart.SmallGroups ) && parts.Contains( SampleDataPart.Serving ) ? CastPeerNetworkExpectations.Check( db, source, guids, failures ) : 0;
 
@@ -220,10 +220,10 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
         /// <summary>
         /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
-        /// decision, and the Duplicate Finder lists each open pair (decisions D-duplicates-1 and D-duplicates-2). Each merge
+        /// decision, and the Duplicate Finder lists each open pair (decisions 310 and 311). Each merge
         /// request is a Person Merge Request that never expires, with its requester, note, and people. Each finished merge
         /// left the old record's alias on the person, the Merged History line, and the old last name as a previous name when
-        /// it differs (decision D-duplicates-3).
+        /// it differs (decision 312).
         /// </summary>
         private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
@@ -982,7 +982,7 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
                 var isWritten = db.IdByGuid( "AdaptiveMessage", message.Guid ) != null;
                 var expected = expectation.Adaptation == null ? null : message.Adaptations.First( a => a.Key == expectation.Adaptation );
 
-                // A row is judged only when its card can show: in season, and not cut from the homepage (decision D-leading-6).
+                // A row is judged only when its card can show: in season, and not cut from the homepage (decision 344).
                 if ( AdaptiveMessagesLoader.NotJudged( db, source, expectation, guids.Value( expectation.Person ), DateTime.Today ) != null )
                 {
                     continue;

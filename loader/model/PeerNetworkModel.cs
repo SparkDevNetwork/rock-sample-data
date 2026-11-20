@@ -19,7 +19,7 @@ namespace RockSampleData.Loader.Model
 {
     /// <summary>
     /// configuration/peer-network.json: the group types with Rock's Peer Network on, and who follows whom
-    /// (decisions D-peers-1 to D-peers-4).
+    /// (decisions 328 to 331).
     /// </summary>
     internal sealed class PeerNetworkConfiguration
     {

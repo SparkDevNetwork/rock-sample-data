@@ -110,7 +110,7 @@ A class is complete on its last night. So on any install day, every campus has a
 Who takes a class, in this order:
 
 1. **The Cast's stories.** A Cast person's household file can name a class by how many classes ago it was (`steps`). The load fails if that class cannot hold against the person's other records.
-2. **Everyone the class must come before.** Every volunteer completed Starting Point before their first Serve step, which is Rock's prerequisite. It is dated in the three months before their first group or team. A small group leader who launched from Ready to Lead had an Equip step six weeks before the launch, so one who was not baptized by then completed Foundations in the two years before that day (decision D-launch-groups-1).
+2. **Everyone the class must come before.** Every volunteer completed Starting Point before their first Serve step, which is Rock's prerequisite. It is dated in the three months before their first group or team. A small group leader who launched from Ready to Lead had an Equip step six weeks before the launch, so one who was not baptized by then completed Foundations in the two years before that day (decision 322).
 3. **The current class.** Two to four people per campus, counting any Cast people in it. Starting Point takes people with an open request to serve first, since they need it before they can serve. Then it takes people who started coming or joined a group in the last year.
 4. **Everyone else, up to a share.** Then active adults until the campus reaches its share: those in a group first, then others. Starting Point is dated in the three months before the person's first group or team, or otherwise in the year after the household's first visit. Foundations comes after Starting Point, in the person's first year in a group, or otherwise within two years of Starting Point.
 
@@ -166,13 +166,13 @@ A student's baptism goes on the Discipleship Path's Baptism step, with the Bapti
 
 ## eRA
 
-eRA, "estimated regular attender," is Rock's flag for a family that attends or gives regularly. Rock's Family Analytics job sets it, and the person profile shows it as a badge, in the Family Analytics attributes, and as an eRA step in Rock's Core Steps program. The load fills it as if the job had run every Tuesday at 8 PM since the start of the history window, with a port of Rock's own rule (decision D-era-1):
+eRA, "estimated regular attender," is Rock's flag for a family that attends or gives regularly. Rock's Family Analytics job sets it, and the person profile shows it as a badge, in the Family Analytics attributes, and as an eRA step in Rock's Core Steps program. The load fills it as if the job had run every Tuesday at 8 PM since the start of the history window, with a port of Rock's own rule (decision 323):
 
 - **Entering.** A family enters when an adult gave four times in the last year, with one gift in the last six weeks, or when the family came on eight of the last sixteen Sundays. Rock counts a Sunday when anyone in the family checked in to a weekend service, a kids' room, or a serving team. Each member gets Currently an eRA, an eRA Start Date, an In Progress eRA step, and an "Entered" line on their History tab.
 - **Exiting.** A family exits when it has given nothing in eight weeks, come on no Sunday in four weeks, and come on fewer than eight of sixteen. Each member loses the flag, gets an eRA End Date, and has their eRA step completed, with an "Exited" history line. A person's first exit gives them a Core Steps completion, and their later eRA steps point at it, as Rock's step save hook and its Update Step Program Completions job do.
-- **On install day.** The replay ends with one more run at the start of install day, so Rock's first run changes nothing (decision D-era-2). The job is on, with its Set Visit Dates setting off until visit dates load (decision D-era-3). The load also runs Rock's own count procedures, which fill Times Given, First and Last Checked-In, Times Checked-In, and First and Last Gave (decision D-era-4).
+- **On install day.** The replay ends with one more run at the start of install day, so Rock's first run changes nothing (decision 324). The job is on, with its Set Visit Dates setting off until visit dates load (decision 325). The load also runs Rock's own count procedures, which fill Times Given, First and Last Checked-In, Times Checked-In, and First and Last Gave (decision 326).
 
-Core 1 has 66 eRA families on install day, and Full 7 about 2,900. The Deckers have been eRAs for years, the Ellises became eRAs a few weeks ago, the Ortizes stopped about four months ago, and Bri Hall never has (decision D-era-5).
+Core 1 has 66 eRA families on install day, and Full 7 about 2,900. The Deckers have been eRAs for years, the Ellises became eRAs a few weeks ago, the Ortizes stopped about four months ago, and Bri Hall never has (decision 327).
 
 ## How many
 

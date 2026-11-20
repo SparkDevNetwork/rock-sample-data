@@ -1179,7 +1179,7 @@
       "name": "Small Group Leaders",
       "category": "safety-data-views",
       "guid": "BF1B663F-DFE4-4D5F-9562-770B4F307513",
-      "description": "Active people who lead an active small group: the role with the background check requirement (decision D-checks-2).",
+      "description": "Active people who lead an active small group: the role with the background check requirement (decision 334).",
       "filter": {
         "all": [
           {

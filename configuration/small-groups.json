@@ -33,7 +33,7 @@
       { "guid": "3CBC1A3F-DD26-430A-9B53-B476CB385ABC", "name": "Section B" }
     ]
   },
-  "$topicsComment": "A topic with a fit goes only to a group whose members meet it. A topic with a share is planned on purpose: about one in oneIn of a campus's active groups get it, and at least one when the campus has minimumGroups or more. Its leader is leaderGender, and its members are that gender too, so a wife can join without her husband (decision D-womens-groups-1).",
+  "$topicsComment": "A topic with a fit goes only to a group whose members meet it. A topic with a share is planned on purpose: about one in oneIn of a campus's active groups get it, and at least one when the campus has minimumGroups or more. Its leader is leaderGender, and its members are that gender too, so a wife can join without her husband (decision 318).",
   "topics": [
     { "guid": "1E7C3054-73E6-4D07-90B6-BD53739E40E7", "value": "Sermon Discussion", "descriptions": [ "We dig into Sunday's message together and talk about how it plays out in everyday life.", "A relaxed evening of talking through the weekend sermon, with good questions and good snacks." ] },
     { "guid": "8FB24369-CEE8-4033-9A61-0C0B30600A58", "value": "Book of John", "descriptions": [ "We read through the Gospel of John a chapter at a time. No background needed.", "A slow, honest walk through John, one conversation at a time." ] },
@@ -104,11 +104,11 @@
     "leavePercentPerYear": 20,
     "archivedPercentOfLeavers": 10,
     "pendingRequests": { "min": 1, "max": 3 },
-    "$attendanceWindowComment": "A household joins no group until joinAfterStartDays after it started coming, and a household that stopped coming leaves its groups leaveAfterEndDays after, as an inactive member (decision D-group-fixes-1).",
+    "$attendanceWindowComment": "A household joins no group until joinAfterStartDays after it started coming, and a household that stopped coming leaves its groups leaveAfterEndDays after, as an inactive member (decision 320).",
     "attendanceWindow": { "joinAfterStartDays": 28, "leaveAfterEndDays": { "min": 14, "max": 42 } }
   },
   "launches": {
-    "$comment": "Groups start on the fall and spring launch Sundays in configuration/communications.json. About groupsPercent of a campus's active groups started on one of its last recentLaunches launch Sundays, and readyToLeadPercent of those are led by someone who was Ready to Lead readyDaysBefore days before: in a group, on a serving team, with an Equip step, and not leading. staysInOldGroupPercent of them stay in their old group; the rest leave it the day before they launch (decision D-launch-groups-1).",
+    "$comment": "Groups start on the fall and spring launch Sundays in configuration/communications.json. About groupsPercent of a campus's active groups started on one of its last recentLaunches launch Sundays, and readyToLeadPercent of those are led by someone who was Ready to Lead readyDaysBefore days before: in a group, on a serving team, with an Equip step, and not leading. staysInOldGroupPercent of them stay in their old group; the rest leave it the day before they launch (decision 322).",
     "groupsPercent": 33,
     "recentLaunches": 4,
     "readyToLeadPercent": 67,

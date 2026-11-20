@@ -261,7 +261,7 @@ try
             stage = "process-workflows";
             checks.Add( WorkflowsCheck( rock, sql, database, foreignKey ) );
 
-            // Rock's own Family Analytics and Calculate Peer Network procedures, rolled back after (decisions D-era-2 and D-peers-2).
+            // Rock's own Family Analytics and Calculate Peer Network procedures, rolled back after (decisions 324 and 329).
             stage = "family-analytics";
             checks.Add( JobReplayChecks.FamilyAnalytics( sql, database, anchor ) );
             stage = "peer-network";
@@ -768,7 +768,7 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
         return CheckResult.From( "adaptive-messages", "This package has no adaptive message expectations", new List<string>() );
     }
 
-    // A row is judged only when its card can show: in season, and not cut from the homepage (decisions D-leading-5 and D-leading-6).
+    // A row is judged only when its card can show: in season, and not cut from the homepage (decisions 343 and 344).
     var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
     var notes = new List<string>();
     CastPersonGuids people;
@@ -1071,7 +1071,7 @@ GROUP BY [p].[PrimaryAliasId]", new SqlParameter( "@ForeignKey", foreignKey ), n
 }
 
 /// <summary>
-/// Rock's staff homepage (decisions D-homepage-1 to D-homepage-4). The load wrote one update for each Monday of the
+/// Rock's staff homepage (decisions 345 to 348). The load wrote one update for each Monday of the
 /// configured weeks. The item Rock's Internal Communication View block picks, the newest approved one whose start has
 /// passed, is this week's update, and Rock's own Lava engine renders it with the block's Body Template, showing its
 /// feature title, image, and every article. Each homepage metric's newest value is the metric's last run. A daily
@@ -1247,7 +1247,7 @@ WHERE [b].[Guid] = @Block", new SqlParameter( "@Block", homepage.Block ) ) as st
 /// Runs the selection of Rock's Location Services Verify job (Rock/Jobs/LocationServicesVerify.cs, the same in Rock 20
 /// and Rock 21, pinned in validation/rock-lock.json) and fails if it would pick any Location the load wrote: this
 /// dataset's rows and every campus's Location, Rock's main campus included. The job sends what it picks to Rock's
-/// address service, and sample addresses never go to one (decision D-addresses-2). The retry date is left in the far
+/// address service, and sample addresses never go to one (decision 316). The retry date is left in the far
 /// future, so the check judges every later night, not only tonight: an address with only an attempted date would pass
 /// tonight and go out once the job's retry period ends. The check never runs the job, so verify never calls an address
 /// service. Rock's own addresses that a new Rock already sends, such as its Organization Address, are noted.
@@ -1327,7 +1327,7 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 
 /// <summary>
 /// Runs Rock's own Calculate Person Duplicates job once, as Rock's scheduler runs it at 3 AM, and compares every duplicate
-/// pair before and after (decision D-duplicates-1). The load ran Rock's duplicate finder last and then wrote the Cast's
+/// pair before and after (decision 310). The load ran Rock's duplicate finder last and then wrote the Cast's
 /// decisions, so the job must add, remove, or rescore no pair, and keep every decision. Each run rewrites every pair's
 /// ModifiedDateTime, so that column alone is not compared.
 /// </summary>

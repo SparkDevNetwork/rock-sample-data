@@ -54,7 +54,7 @@ namespace RockSampleData.Loader.Generation
            and the serving and step plans make the team and the step true.
 
         Reason: The data shows women leading, every membership fits the household's story, and the Lead a
-        Group flow converts (decisions D-womens-groups-1, D-group-fixes-1, and D-launch-groups-1).
+        Group flow converts (decisions 318, 320, and 322).
     */
 
     /// <summary>
@@ -1792,7 +1792,7 @@ namespace RockSampleData.Loader.Generation
         too. A "yearsAgo" date can land up to a year later at another anchor, so a date that must come before
         a days ago date is held to two or more years back.
 
-        Reason: The Ortizes leave their group a few weeks after they stopped, at any anchor (decision D-group-fixes-1).
+        Reason: The Ortizes leave their group a few weeks after they stopped, at any anchor (decision 320).
     */
 
     /// <summary>

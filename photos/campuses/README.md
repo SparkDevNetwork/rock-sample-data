@@ -20,4 +20,4 @@ Use the relevant campus image as an actual visual reference for future scenes at
 
 These venue assignments define visual references. No real property, school, or address is depicted. Existing campus names, Guids, service times, and data about rooms are unchanged. The original twelve-view [church reference pack](../references/church/README.md) describes Phoenix, not all seven buildings.
 
-The public site's campus cards and brand downloads use this set. Each dataset package carries only its own campuses' photos, and the loader sets each as the image of its campus's Location, in Rock's Location Image file type (decision D-campus-photos-1). Rock shows it on Location Detail, and Lava pages can print it.
+The public site's campus cards and brand downloads use this set. Each dataset package carries only its own campuses' photos, and the loader sets each as the image of its campus's Location, in Rock's Location Image file type (decision 317). Rock shows it on Location Detail, and Lava pages can print it.

@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Generation
         out, every year, on the dates the rest of the data uses. A Monday with no occasion feature takes the next
         evergreen feature, from a seeded order that uses each one before any repeats. Articles start with the week's
         occasion articles, then fill from the evergreen articles to the week's drawn count, one per author, at most
-        three, the most Rock's article list allows (decision D-homepage-1).
+        three, the most Rock's article list allows (decision 345).
 
         Reason: A real staff homepage talks about what is coming up, and the same seed and install day give the same updates.
     */

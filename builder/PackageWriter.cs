@@ -147,7 +147,7 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // Only the dataset's own campuses' photos, as with addresses and staff photos (decision D-campus-photos-1).
+            // Only the dataset's own campuses' photos, as with addresses and staff photos (decision 317).
             if ( repository.Exists( SampleDataSource.CampusPhotoManifestPath ) )
             {
                 var campusManifest = JsonNode.Parse( repository.ReadText( SampleDataSource.CampusPhotoManifestPath ) ).AsObject();
@@ -322,7 +322,7 @@ namespace RockSampleData.Builder
                 }
             }
 
-            // A message image belongs to one adaptation that exists and has no event image (decision D-leading-3).
+            // A message image belongs to one adaptation that exists and has no event image (decision 341).
             var messageText = source.AdaptiveMessages == null ? null : source.ReadAdaptiveMessageText();
             var imaged = new HashSet<string>( StringComparer.Ordinal );
             foreach ( var photo in source.ReadMessagePhotoManifest().Images )

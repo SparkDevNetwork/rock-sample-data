@@ -562,7 +562,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// What Rock's eRA shows for a Cast person on install day (decision D-era-5).
+    /// What Rock's eRA shows for a Cast person on install day (decision 327).
     /// </summary>
     internal sealed class CastEraExpect
     {
@@ -593,7 +593,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// What a Cast person's peer network shows on install day (decision D-peers-5).
+    /// What a Cast person's peer network shows on install day (decision 332).
     /// </summary>
     internal sealed class CastPeerNetworkExpect
     {

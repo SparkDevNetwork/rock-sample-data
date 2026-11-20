@@ -40,7 +40,7 @@ namespace RockSampleData.Loader.Loading
         attributes, and an Internal Article List matrix with an item per article. Rock's 2018 item becomes the oldest
         update in place, and its old images are deleted, as Rock deletes an image file no value names any longer.
         Images are shared: one file per approved event image or staff photo, named by every value that shows it
-        (decisions D-homepage-1 to D-homepage-3).
+        (decisions 345 to 347).
 
         Reason: Staff land on this page every day, and it should look like a church that uses it.
     */
@@ -127,7 +127,7 @@ namespace RockSampleData.Loader.Loading
             var occasions = OccasionDates( campusPlans, historyStart, mondays[0] );
             var updates = StaffUpdatePlanner.Plan( library, settings.ArticleCounts, mondays, occasions, _seed );
 
-            // One shared file per image (decision D-homepage-2).
+            // One shared file per image (decision 346).
             var photoLoader = new PhotoLoader( _db, _source, _foreignKey, _seed );
             var eventFiles = _source.ReadEventPhotoManifest().Images.ToDictionary( i => i.Event, i => i.File, StringComparer.Ordinal );
             var staffFiles = _source.ReadStaffPhotoManifest().Images.ToDictionary( i => $"{i.Household}/{i.Member}", i => i.File, StringComparer.Ordinal );
@@ -415,7 +415,7 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @When, @Wh
             check-in, gift, request, or group membership, and a family with none has always been there. A request counts
             while it was open: from the day it was made until the day it was connected or set inactive. The newest daily
             values equal Rock's own SQL on install day, and LastRunDateTime is the newest run, so the job's next run is the
-            next scheduled one (decision D-homepage-3).
+            next scheduled one (decision 347).
 
             Reason: The tiles show real numbers on install day, and Rock's metric charts show a year.
         */

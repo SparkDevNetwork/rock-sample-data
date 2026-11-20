@@ -307,7 +307,7 @@ namespace RockSampleData.Loader
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             LeaderRequirementSetup.Load( db, source.BackgroundChecks, dates, foreignKey );
             new CampaignLoader( db, source, dates, foreignKey ).Load();
-            // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision D-peers-1).
+            // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision 328).
             var peerNetwork = new PeerNetworkLoader( db, source, dates, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
             peerNetwork.LoadSetup();
             var categoryCount = new CategoriesLoader( db, source, foreignKey ).Load();
@@ -411,7 +411,7 @@ namespace RockSampleData.Loader
             }
 
             // Serving is planned before people load too, so new team leaders load as Leading. A leader who launched a
-            // group from Ready to Lead was serving before then (decision D-launch-groups-1).
+            // group from Ready to Lead was serving before then (decision 322).
             var readyToLead = groupLaunches.ReadyToLeadLeaders( groupPlans, source.SmallGroups, dates );
             List<ServingTeamPlan> servingPlans;
             using ( log.TimePart( "Plan serving" ) )
@@ -460,7 +460,7 @@ namespace RockSampleData.Loader
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
 
-                // Each campus's exterior photo, on its Location (decision D-campus-photos-1).
+                // Each campus's exterior photo, on its Location (decision 317).
                 log.Write( $"  Campus photos: {photoLoader.LoadCampusPhotos( configuration.CampusPlans.ToDictionary( c => c.Key, c => c.Value.LocationId ) )}" );
 
                 // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
@@ -598,7 +598,7 @@ namespace RockSampleData.Loader
 
             // eRA, as if Rock's Family Analytics job had run every Tuesday, then Rock's own giving and attendance counts. It
             // reads the families, gifts, and weekend attendance from the rows, so it always runs, and it comes before the
-            // data views, which read Last Gave (decisions D-era-1 to D-era-4).
+            // data views, which read Last Gave (decisions 323 to 326).
             steps.Begin( "Family analytics" );
             var familyAnalytics = new FamilyAnalyticsLoader( db, dates, calendar.HistoryStart, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
             familyAnalytics.Load();
@@ -671,7 +671,7 @@ namespace RockSampleData.Loader
 
             // The follows and the peer network, as Rock's Calculate Peer Network job's last two monthly runs left them. They
             // read the small groups, serving teams, and care notes from the rows, so they always run, after every step that
-            // writes those (decisions D-peers-1 to D-peers-4).
+            // writes those (decisions 328 to 331).
             steps.Begin( "Peer network" );
             if ( peerNetwork.HasConfiguration )
             {
@@ -760,7 +760,7 @@ namespace RockSampleData.Loader
 
             // Rock's staff homepage. The weekly updates are the Content part. The metric history, the path metrics on
             // the block, and the Quick Links read whatever rows the load wrote, so they come after every data step and
-            // always run (decisions D-homepage-1 to D-homepage-4).
+            // always run (decisions 345 to 348).
             var staffHomepage = source.ReadStaffHomepage();
             var homepage = staffHomepage == null ? null : new StaffHomepageLoader( db, source, staffHomepage, dates, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
             if ( steps.Begin( "Content" ) )

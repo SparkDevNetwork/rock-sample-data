@@ -1,5 +1,5 @@
 {
-  "$comment": "Benevolence (decisions D-benevolence-1 to D-benevolence-6): who asked the church for help, who worked each request, and what the church gave. Each request is saved the way Rock's Benevolence Request Detail block saves it: the requester's name, email, phones, home address, connection status, and campus copied onto the request, a case worker from RSR - Benevolence, a status, and results with amounts. Requesters are people already in the data. No government ID is ever recorded, and gifts are results on the request, not gifts from a fund.",
+  "$comment": "Benevolence (decisions 350 to 355): who asked the church for help, who worked each request, and what the church gave. Each request is saved the way Rock's Benevolence Request Detail block saves it: the requester's name, email, phones, home address, connection status, and campus copied onto the request, a case worker from RSR - Benevolence, a status, and results with amounts. Requesters are people already in the data. No government ID is ever recorded, and gifts are results on the request, not gifts from a fund.",
   "types": [
     {
       "key": "benevolence",
@@ -25,7 +25,7 @@
       "description": "A car repair that keeps someone working, or a prescription or medical bill, paid straight to the shop or the provider."
     }
   ],
-  "$securityComment": "Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration. Each type is locked to the same two roles, so a request shows only to them on every screen that checks the request, such as a person's Benevolence tab (decision D-benevolence-2).",
+  "$securityComment": "Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration. Each type is locked to the same two roles, so a request shows only to them on every screen that checks the request, such as a person's Benevolence tab (decision 351).",
   "security": [
     { "action": "View", "allow": [ "RSR - Benevolence", "RSR - Rock Administration" ], "denyAllUsers": true },
     { "action": "Edit", "allow": [ "RSR - Benevolence", "RSR - Rock Administration" ], "denyAllUsers": true }
@@ -41,7 +41,7 @@
     { "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "benevolenceType": "benevolence", "action": "View", "allowed": false }
   ],
   "workflow": {
-    "$comment": "The workflow each church type starts when a request is entered (Rock's Request Started trigger, decision D-benevolence-6). It gives a request with no case worker to the case worker, through Rock's Entity Property Set action, and sends no email. Its work finishes the moment it runs, so it is not persisted and leaves no workflow behind. It was built before the history window, so every loaded request has the case worker it would have set.",
+    "$comment": "The workflow each church type starts when a request is entered (Rock's Request Started trigger, decision 355). It gives a request with no case worker to the case worker, through Rock's Entity Property Set action, and sends no email. Its work finishes the moment it runs, so it is not persisted and leaves no workflow behind. It was built before the history window, so every loaded request has the case worker it would have set.",
     "guid": "906A7AD0-49FC-44D4-9998-53B93B0CFB75",
     "name": "Benevolence Request Started",
     "description": "Gives a new benevolence request with no case worker to the Care Director. It sends no email.",
@@ -124,7 +124,7 @@
     }
   ],
   "generated": {
-    "$comment": "About 2 requests a year for every 1,000 active adults in the generated households, over the history window (decision D-benevolence-3). Requesters lean toward people the church knows but who are not yet deeply involved, one request per family. Requests from the last two weeks wait as Pending. Older ones are mostly Approved, some Denied.",
+    "$comment": "About 2 requests a year for every 1,000 active adults in the generated households, over the history window (decision 352). Requesters lean toward people the church knows but who are not yet deeply involved, one request per family. Requests from the last two weeks wait as Pending. Older ones are mostly Approved, some Denied.",
     "perThousandAdultsPerYear": 2,
     "requesterWeights": { "Known": 3, "Connected": 3, "Participant": 1, "Engaged": 1, "Leading": 0.3 },
     "pendingDays": 14,

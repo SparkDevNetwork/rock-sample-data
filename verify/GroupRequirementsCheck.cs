@@ -26,7 +26,7 @@ namespace RockSampleData.Verify
         which is the only change it makes to a result that is already right. So the check runs the real job and compares
         every result before and after, leaving that time out.
 
-        Reason: Decision D-checks-1. A requirement result the job would change is one the loader got wrong, and Rock's
+        Reason: Decision 333. A requirement result the job would change is one the loader got wrong, and Rock's
         scheduler and group screens read the stored result, not the rule.
     */
 

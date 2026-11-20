@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Loading
         the row's own created time, as when Rock checks an address the moment a person enters it. The result is the
         one Smarty Streets writes for a street match (DPV match code Y, at ZIP+4 precision). Rooms and buildings have
         no address and no map point, so Rock never checks them and they stay unmarked. Rock 20.0.10 and Rock 21.0.2
-        select and mark addresses the same way (decision D-addresses-1).
+        select and mark addresses the same way (decision 315).
 
         Reason: Jon's rule: sample addresses never go to an address service.
     */

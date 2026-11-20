@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// Turns on Rock's Peer Network for the group types in configuration/peer-network.json, writes the follows, and fills
     /// the PeerNetwork table as Rock's Calculate Peer Network job's last two monthly runs would have left it
-    /// (decisions D-peers-1 to D-peers-4).
+    /// (decisions 328 to 331).
     /// </summary>
     /// <remarks>
     /// It reads the groups, memberships, and notes from the rows the earlier steps wrote, so it always runs, and it shows
@@ -76,7 +76,7 @@ namespace RockSampleData.Loader.Loading
             then, so each trend says what Rock's would: rising while two people stay, falling after one leaves, and
             flat for a follow.
 
-            Reason: Rock's own Calculate Peer Network, run on install day, changes no score (decision D-peers-2).
+            Reason: Rock's own Calculate Peer Network, run on install day, changes no score (decision 329).
         */
 
         /// <summary>

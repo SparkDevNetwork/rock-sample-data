@@ -23,7 +23,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Validation
 {
     /// <summary>
-    /// Checks the Cast's eRA stories against the loaded database (decision D-era-5): the flag, the start or end date, the
+    /// Checks the Cast's eRA stories against the loaded database (decision 327): the flag, the start or end date, the
     /// eRA step, and the history line each story's state leaves.
     /// </summary>
     internal static class CastEraExpectations

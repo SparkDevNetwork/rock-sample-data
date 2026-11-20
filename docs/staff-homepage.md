@@ -1,6 +1,6 @@
 # Staff homepage
 
-Status: built for [issue 9](https://github.com/SparkDevNetwork/rock-sample-data/issues/9). Decisions D-homepage-1 to D-homepage-5 record it.
+Status: built for [issue 9](https://github.com/SparkDevNetwork/rock-sample-data/issues/9). Decisions 345 to 349 record it.
 
 **The idea in one line:** when staff sign in, Rock's homepage looks like a church that uses it every week.
 

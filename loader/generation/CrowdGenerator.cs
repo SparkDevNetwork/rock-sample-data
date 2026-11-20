@@ -92,7 +92,7 @@ namespace RockSampleData.Loader.Generation
         private readonly PhoneNumberPool _phones;
 
         /// <summary>
-        /// Every email address already given, the Cast's and each generated person's, lowercase (decision D-duplicates-5).
+        /// Every email address already given, the Cast's and each generated person's, lowercase (decision 313).
         /// </summary>
         private readonly HashSet<string> _emails;
 
@@ -314,7 +314,7 @@ namespace RockSampleData.Loader.Generation
             an earlier generated person, gets a new number from its own stream. The household's draw still happens, so
             every other value stays where it was, and only the colliding addresses change.
 
-            Reason: Each generated email is one person's, so the Duplicate Finder lists only real look-alikes (decision D-duplicates-5).
+            Reason: Each generated email is one person's, so the Duplicate Finder lists only real look-alikes (decision 313).
         */
 
         /// <summary>

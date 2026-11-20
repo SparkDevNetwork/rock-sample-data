@@ -106,7 +106,7 @@ A Cast person can say what eRA shows for them on install day (see [eRA](../docs/
 - `status` is `current` (Currently an eRA, an eRA Start Date, one In Progress eRA step from that day, and an Entered history line), `former` (no flag, an eRA End Date, a Complete eRA step and an Exited history line on that day), or `never` (no eRA values, steps, or history).
 - `startedDaysAgo` and `endedDaysAgo` give the days before install day the start or end may be, with a `min`, a `max`, or both.
 
-They cover Ted Decker (current for at least 730 days), Jordan Ellis (current, from 21 to 100 days), Luis Ortiz (former, ended 60 to 200 days before install day), and Bri Hall (never). They held on five install days, a Monday, a Tuesday, the 1st of a month, February, and June (decision D-era-5).
+They cover Ted Decker (current for at least 730 days), Jordan Ellis (current, from 21 to 100 days), Luis Ortiz (former, ended 60 to 200 days before install day), and Bri Hall (never). They held on five install days, a Monday, a Tuesday, the 1st of a month, February, and June (decision 327).
 
 A Cast person can say what their peer network shows (see [Peer network](../docs/small-groups.md#peer-network)):
 
@@ -117,7 +117,7 @@ A Cast person can say what their peer network shows (see [Peer network](../docs/
 - `includes` lists people in the same household who show in the person's peer network, rising.
 - `currentGroupsRising` means everyone who shares one of the person's current groups, of a type with Peer Network on, shows rising.
 
-Ted Decker has both. Every load also checks that each Cast person who left a group, or whose group closed, sees its people falling, and that at least one has (decision D-peers-5). These read whatever groups exist, so they hold when the Cast's small groups are planned again.
+Ted Decker has both. Every load also checks that each Cast person who left a group, or whose group closed, sees its people falling, and that at least one has (decision 332). These read whatever groups exist, so they hold when the Cast's small groups are planned again.
 
 The Cast's duplicates in `cast/duplicates.json` are checked too (see [Duplicates](../docs/duplicates.md)). Rock's duplicate finder must score each pair, with its decision: open, Not a Duplicate, or ignored. An open pair must score above the Duplicate Finder's 60, so the list shows it. Each merge request must be a Person Merge Request that never expires, with its requester, note, and people. Each merge must leave the old record's alias on the person, one Merged line in their History, and the old last name as a previous name when it differs. These need no part, since people always load.
 

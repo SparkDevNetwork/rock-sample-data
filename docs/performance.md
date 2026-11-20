@@ -84,7 +84,7 @@ Measured on 2026-11-19 with one CLI load of Full 7 at the default seed, on a mac
 | Peer network: follows, two monthly runs, and 165,718 rows | about 10 |
 | Peer network: check with Rock's two procedures (CLI and verify only) | about 15 |
 
-Rock's count procedures look up each person in turn, so they grow with the Crowd. Fresh statistics on the tables they read cut them about four times on Core 1, from 12.5 to 3 seconds (decision D-era-4). The PeerNetwork table takes 76 MB with its indexes.
+Rock's count procedures look up each person in turn, so they grow with the Crowd. Fresh statistics on the tables they read cut them about four times on Core 1, from 12.5 to 3 seconds (decision 326). The PeerNetwork table takes 76 MB with its indexes.
 
 ## Before the speed pass
 

@@ -1,5 +1,5 @@
 {
-  "$comment": "Background checks and the requirements that read them (decision D-checks-1). Rock's Background Check Required type is met by its 'Background check is still valid' data view (under 18, or Background Checked, a Pass, and a date in the last 1,095 days) and warns from its 'Background check about to expire' view (a Pass older than 1,035 days). The loader writes each person's check, the person attributes Rock's Checkr workflow sets, and the requirement results Rock's Calculate Group Requirements job would save, and verify runs that job to prove it changes nothing.",
+  "$comment": "Background checks and the requirements that read them (decision 333). Rock's Background Check Required type is met by its 'Background check is still valid' data view (under 18, or Background Checked, a Pass, and a date in the last 1,095 days) and warns from its 'Background check about to expire' view (a Pass older than 1,035 days). The loader writes each person's check, the person attributes Rock's Checkr workflow sets, and the requirement results Rock's Calculate Group Requirements job would save, and verify runs that job to prove it changes nothing.",
   "requirementTypeGuid": "1C21C346-A861-4A9A-BD6D-BAA7D92419D5",
   "rules": {
     "$comment": "Rock's two data views, in days before install day. They are Rock's numbers, not ours. Verify's group-requirements check fails if they ever disagree with Rock.",
@@ -7,7 +7,7 @@
     "warningAfterDays": 1035
   },
   "leaderRequirement": {
-    "$comment": "Every active leader of an active small group needs a current background check, and leaders cannot override it (decision D-checks-2). Members and hosts do not.",
+    "$comment": "Every active leader of an active small group needs a current background check, and leaders cannot override it (decision 334). Members and hosts do not.",
     "guid": "9D4B3A8D-BFD6-494A-A241-B0B3BCF2D8CC",
     "groupTypeGuid": "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
     "role": "Leader",
@@ -18,7 +18,7 @@
     "checkedDaysAgo": [ 30, 900 ]
   },
   "leaders": {
-    "$comment": "Generated small group leaders' checks (decision D-checks-3). Current checks are clear of Rock's warning, expiring ones are in its last 60 days, and expired ones are a Pass older than 1,095 days. Cast leaders have a current check unless their file or castWithoutCheck says otherwise. A leader who also serves on a team with the requirement has that team's current check.",
+    "$comment": "Generated small group leaders' checks (decision 335). Current checks are clear of Rock's warning, expiring ones are in its last 60 days, and expired ones are a Pass older than 1,095 days. Cast leaders have a current check unless their file or castWithoutCheck says otherwise. A leader who also serves on a team with the requirement has that team's current check.",
     "mix": { "current": 85, "expiring": 6, "expired": 5, "never": 4 },
     "daysAgo": {
       "current": [ 30, 1030 ],
@@ -48,7 +48,7 @@
     "requestedDaysAfterStatus": [ 1, 3 ]
   },
   "checkr": {
-    "$comment": "Each check row is the one Rock's Checkr provider writes (decision D-checks-4): ForeignId 2, Checkr's candidate and document keys, its webhook status, and Record Found when the report says consider. Checkr never sets a response date. The report PDF is the loader's own drawing, stored as a Background Check file and linked as the check's response document.",
+    "$comment": "Each check row is the one Rock's Checkr provider writes (decision 336): ForeignId 2, Checkr's candidate and document keys, its webhook status, and Record Found when the report says consider. Checkr never sets a response date. The report PDF is the loader's own drawing, stored as a Background Check file and linked as the check's response document.",
     "packageName": "basic_plus",
     "packageTitle": "Basic Plus",
     "requestedDaysBeforeResult": [ 2, 6 ],

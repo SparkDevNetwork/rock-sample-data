@@ -1,6 +1,6 @@
 {
   "$schema": "./duplicates.schema.json",
-  "$comment": "The Cast's duplicate records and what staff did about them (docs/duplicates.md, decisions D-duplicates-1 to D-duplicates-3 and D-duplicates-4). Every load runs Rock's duplicate finder at its end, then writes each pair's decision. A pair names two Cast people in either order. Dates count back from the install day.",
+  "$comment": "The Cast's duplicate records and what staff did about them (docs/duplicates.md, decisions 310 to 312 and 314). Every load runs Rock's duplicate finder at its end, then writes each pair's decision. A pair names two Cast people in either order. Dates count back from the install day.",
   "pairs": [
     {
       "key": "tom-and-thomas-miller",

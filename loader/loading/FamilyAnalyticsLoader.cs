@@ -25,7 +25,7 @@ namespace RockSampleData.Loader.Loading
 {
     /// <summary>
     /// Fills eRA as if Rock's Family Analytics job had run every Tuesday at 8 PM through the history window, then
-    /// runs Rock's own giving and attendance count procedures, and turns the job on (decisions D-era-1 to D-era-4).
+    /// runs Rock's own giving and attendance count procedures, and turns the job on (decisions 323 to 326).
     /// </summary>
     /// <remarks>
     /// It reads the families, the gifts, and the weekend service attendance from the rows the earlier steps wrote,
@@ -110,7 +110,7 @@ namespace RockSampleData.Loader.Loading
             gives the flag to a newly entered family's inactive members only on the run after. So the replay ends
             with one more run at the start of install day, which settles both. On most days it changes nothing.
 
-            Reason: The job's first run after install finds nothing to change (decision D-era-2).
+            Reason: The job's first run after install finds nothing to change (decision 324).
         */
 
         /// <summary>
@@ -351,7 +351,7 @@ WHERE [a].[DidAttend] = 1 AND [fgm].[IsArchived] = 0 AND [fg].[IsArchived] = 0",
 
         /// <summary>
         /// Turns the job on (it ships off) with Set Visit Dates off, so its first run changes nothing: the visit dates wait
-        /// for realistic record dates (decision D-era-3).
+        /// for realistic record dates (decision 325).
         /// </summary>
         private void TurnOnJob()
         {
@@ -392,7 +392,7 @@ VALUES ( 0, @AttributeId, @JobId, 'False', 0, NEWID(), @Now, @Now, @ForeignKey )
 
         /// <summary>
         /// Runs Rock's giving and attendance count procedures as of the job's last run, the rest of what the job does,
-        /// and marks the values they added as this dataset's (decision D-era-4).
+        /// and marks the values they added as this dataset's (decision 326).
         /// </summary>
         private void RunCountProcedures( DateTime now )
         {

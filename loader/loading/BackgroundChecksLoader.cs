@@ -69,7 +69,7 @@ IF NOT EXISTS ( SELECT 1 FROM [GroupRequirement] WHERE [Guid] = @Guid )
         began. The loader writes what the job would have left after running every night, so verify can run the real job
         and see it change nothing but its last-checked time.
 
-        Reason: Decisions D-checks-1 and D-checks-4. The person, the check, the report, and the requirement agree.
+        Reason: Decisions 333 and 336. The person, the check, the report, and the requirement agree.
     */
 
     /// <summary>
