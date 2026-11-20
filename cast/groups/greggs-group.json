@@ -7,9 +7,9 @@
   "type": "small-group",
   "campus": "main",
   "topic": "Grief and Loss",
-  "description": "A gentle group for anyone carrying a loss. Come as you are.",
+  "description": "We walk alongside each other through grief, with hope and without hurry.",
   "schedule": {
-    "day": "Wednesday",
+    "day": "Monday",
     "time": "18:00"
   },
   "meetingStyle": {
@@ -19,7 +19,7 @@
   "childCareProvided": true,
   "capacity": 18,
   "isPublic": true,
-  "meetsInSummer": true,
+  "meetsInSummer": false,
   "attendanceHabit": "Spotty",
   "lifecycle": {
     "state": "Active",
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "F7968EF9-34DA-4B7B-97E7-4BBC099269CD",
-      "name": "Jess Hughes",
+      "guid": "3459286F-18C8-4548-9938-53DAC8483D01",
+      "name": "Phil Coffee",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
-      "name": "Matt Hughes",
+      "guid": "E7A4AA3B-41AB-4AB2-8636-8D5AEC38084D",
+      "name": "Tony Coleman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
+      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
+      "name": "Dan Richards",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "D593F194-9DC3-4936-A1C3-FB7E5CB09145",
+      "name": "Allie Song",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
-      "name": "Megan Patel",
+      "guid": "6C42BB46-67F7-4D58-93F3-73A7FBE1ADBB",
+      "name": "Deb Webb",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
-      "name": "Ryan Patel",
+      "guid": "00E0DBB3-5451-456E-ADAB-E12C5EF4C285",
+      "name": "Marty Webb",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,8 +141,8 @@
     },
     {
       "state": "Active",
-      "guid": "0C4F2A1A-A0DB-4A56-8997-225BEBAE5572",
-      "name": "Amanda Sullivan",
+      "guid": "F44BD9E3-4205-4ED2-B2E1-00A0C11DC0B6",
+      "name": "Jason Wood",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -153,67 +153,67 @@
     },
     {
       "state": "Active",
-      "guid": "080DB22C-4790-4E9E-9122-58BE67AF23BD",
-      "name": "Chris Sullivan",
+      "guid": "BD9C173B-18CD-4B78-AE52-3F2377B80DCB",
+      "name": "Hal Russell",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 1
+        "month": 12,
+        "day": 20
       },
       "attendancePercent": 48
     },
     {
       "state": "Pending",
-      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
-      "name": "Tori Ramos",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
       "role": "Member",
       "joined": {
-        "daysAgo": 20
+        "daysAgo": 21
       },
       "attendancePercent": 47
     },
     {
       "state": "Pending",
-      "guid": "B5FCBA2E-765C-4B46-9913-8FE83CD2874B",
-      "name": "Dan Richards",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
       "role": "Member",
       "joined": {
-        "daysAgo": 20
+        "daysAgo": 21
       },
       "attendancePercent": 58
     },
     {
       "state": "Inactive",
-      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
-      "name": "Monica Flores",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
+        "month": 6,
         "day": 6
       },
       "left": {
         "yearsAgo": 1,
-        "month": 3,
-        "day": 14
+        "month": 7,
+        "day": 16
       },
       "attendancePercent": 65
     },
     {
       "state": "Inactive",
-      "guid": "3C402382-3BD2-4337-A996-9E62F1BAB09D",
-      "name": "Ben Jones",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
-        "month": 1,
-        "day": 16
+        "month": 6,
+        "day": 6
       },
       "left": {
         "yearsAgo": 1,
         "month": 7,
-        "day": 15
+        "day": 16
       },
       "attendancePercent": 51
     }

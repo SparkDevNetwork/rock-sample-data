@@ -51,14 +51,18 @@ namespace RockSampleData.Loader
             ("Small groups", SampleDataPart.SmallGroups),
             ("Serving", SampleDataPart.Serving),
             ("Connection requests", SampleDataPart.Serving),
+            ("Background checks", SampleDataPart.BackgroundChecks),
             ("Giving", SampleDataPart.Giving),
             ("Giving analytics", SampleDataPart.Giving),
             ("Giving alerts", SampleDataPart.Giving),
+            ("Family analytics", null),
             ("Prayer", SampleDataPart.Prayer),
             ("Notes", SampleDataPart.Notes),
             ("Reminders", SampleDataPart.Reminders),
+            ("Benevolence", SampleDataPart.Benevolence),
             ("Steps", SampleDataPart.Steps),
             ("Assessments", SampleDataPart.Assessments),
+            ("Peer network", null),
             ("Data views", null),
             ("Calendar", SampleDataPart.Calendar),
             ("Registrations", SampleDataPart.Registrations),
@@ -66,10 +70,13 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Content", SampleDataPart.Content),
+            ("Staff homepage", null),
             ("Signals", null),
             ("Personal links", null),
             ("Tags", null),
             ("Logins", null),
+            ("Duplicates", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -298,7 +305,11 @@ namespace RockSampleData.Loader
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
+            LeaderRequirementSetup.Load( db, source.BackgroundChecks, dates, foreignKey );
             new CampaignLoader( db, source, dates, foreignKey ).Load();
+            // Rock's Peer Network, on for the group types in configuration/peer-network.json (decision 328).
+            var peerNetwork = new PeerNetworkLoader( db, source, dates, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            peerNetwork.LoadSetup();
             var categoryCount = new CategoriesLoader( db, source, foreignKey ).Load();
             if ( categoryCount > 0 )
             {
@@ -356,6 +367,7 @@ namespace RockSampleData.Loader
             // The Cast's small groups come from cast/groups. Generated households get theirs here, before
             // people load, so their new leaders load with the leader status.
             var groupPlans = source.ReadCastSmallGroupPlans();
+            var groupLaunches = new GroupLaunchCalendar( source.Communications?.Events );
             var generator = new CrowdGenerator( profile, source, seed, dates.Anchor );
             List<CastHousehold> generated = null;
             using ( log.TimePart( "Generate the Crowd" ) )
@@ -383,7 +395,7 @@ namespace RockSampleData.Loader
 
                 if ( generated != null )
                 {
-                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
+                    var generatedPlans = GeneratedSmallGroups.Plan( source.SmallGroups, groupLaunches, profile, dates.Anchor, seed, generated, configuration.CampusIds.Keys, mainCampusKey, groupPlans, households );
                     households.AddRange( generated );
                     groupPlans.AddRange( generatedPlans );
                     var perCampusText = string.Join( ", ", generated.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
@@ -398,11 +410,13 @@ namespace RockSampleData.Loader
                 }
             }
 
-            // Serving is planned before people load too, so new team leaders load as Leading.
+            // Serving is planned before people load too, so new team leaders load as Leading. A leader who launched a
+            // group from Ready to Lead was serving before then (decision 322).
+            var readyToLead = groupLaunches.ReadyToLeadLeaders( groupPlans, source.SmallGroups, dates );
             List<ServingTeamPlan> servingPlans;
             using ( log.TimePart( "Plan serving" ) )
             {
-                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey );
+                servingPlans = ServingPlanner.Plan( source.Serving, profile, dates, seed, households, castHouseholdKeys, source.ReadCastServingTeams(), configuration.CampusPlans, mainCampusKey, readyToLead );
             }
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
@@ -445,6 +459,9 @@ namespace RockSampleData.Loader
                 var photoLoader = new PhotoLoader( db, source, foreignKey, seed );
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
+
+                // Each campus's exterior photo, on its Location (decision 317).
+                log.Write( $"  Campus photos: {photoLoader.LoadCampusPhotos( configuration.CampusPlans.ToDictionary( c => c.Key, c => c.Value.LocationId ) )}" );
 
                 // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
                 var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
@@ -515,6 +532,21 @@ namespace RockSampleData.Loader
                 new ConnectionRequestLoader( db, source, connectionSetup, servingSetup, profile, dates, foreignKey, seed ).Load( servingPlans, people );
             }
 
+            // A check's requirement results point at the team and leader memberships and the requests to serve just
+            // written, so background checks follow them and read them back, like steps (SampleDataParts.All).
+            if ( steps.Begin( "Background checks" ) )
+            {
+                if ( source.BackgroundChecks == null )
+                {
+                    log.Write( "  Skipped (this package has no configuration/background-checks.json)" );
+                }
+                else
+                {
+                    var castPersonGuids = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Cast.Members ).Select( m => m.Guid ).ToHashSet();
+                    log.Write( new BackgroundChecksLoader( db, source, dates, foreignKey, seed ).Load( people, castPersonGuids ) );
+                }
+            }
+
             // Rock's PasswordKey fills the check scanner's matching fields. Without it, the fields stay
             // empty and everything else still loads.
             var isGivingLoaded = steps.Begin( "Giving" );
@@ -564,6 +596,13 @@ namespace RockSampleData.Loader
                 new GivingAlertsLoader( db, source, foreignKey, analytics.RunAt, analytics.Gifts ).Load();
             }
 
+            // eRA, as if Rock's Family Analytics job had run every Tuesday, then Rock's own giving and attendance counts. It
+            // reads the families, gifts, and weekend attendance from the rows, so it always runs, and it comes before the
+            // data views, which read Last Gave (decisions 323 to 326).
+            steps.Begin( "Family analytics" );
+            var familyAnalytics = new FamilyAnalyticsLoader( db, dates, calendar.HistoryStart, foreignKey ) { IsChecked = options.IsCastExpectationsChecked };
+            familyAnalytics.Load();
+
             // Prayer requests and the prayer team's activity. Who asks depends on who attended, gave, or is in a group.
             var prayer = new PrayerLoader( db, source, dates, foreignKey, seed );
             if ( steps.Begin( "Prayer" ) )
@@ -588,6 +627,15 @@ namespace RockSampleData.Loader
                 new RemindersLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, smallGroupSetup.GroupTypeId );
             }
 
+            // Requests for help come from people already in the data, and the case worker is Cast staff, so benevolence reads
+            // only people.
+            if ( steps.Begin( "Benevolence" ) )
+            {
+                log.Write( source.Benevolence == null
+                    ? "  Skipped (this package has no configuration/benevolence.json)"
+                    : new BenevolenceLoader( db, source, dates, foreignKey, seed ).Load( people, castHouseholdKeys, calendar.HistoryStart ) );
+            }
+
             // The adult and student step programs. Every step comes from a record the earlier steps wrote: group and
             // team memberships, the giving journey, the Baptism Date (decision 86), and the student check-ins in the
             // attendance plan. Steps need giving (SampleDataParts.All), so the giving analytics have run whenever
@@ -596,7 +644,7 @@ namespace RockSampleData.Loader
             if ( steps.Begin( "Steps" ) )
             {
                 stepsLoaded = new StepsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart, smallGroupSetup.GroupTypeId, servingSetup.GroupTypeId )
-                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun );
+                    .Load( people, castHouseholdKeys, attendance, studentPath, analytics.Gifts, analytics.FinalJourneyRun, readyToLead );
 
                 // The follow-up workflows completed steps started, read back from the steps just written (issue 18).
                 if ( stepsLoaded.Facts != null )
@@ -619,6 +667,20 @@ namespace RockSampleData.Loader
                     var campusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
                     new AssessmentsLoader( db, source, dates, foreignKey, seed, calendar.HistoryStart ).Load( people, castHouseholdKeys, stepsLoaded.Facts, stepsLoaded.Plan, campusPastors );
                 }
+            }
+
+            // The follows and the peer network, as Rock's Calculate Peer Network job's last two monthly runs left them. They
+            // read the small groups, serving teams, and care notes from the rows, so they always run, after every step that
+            // writes those (decisions 328 to 331).
+            steps.Begin( "Peer network" );
+            if ( peerNetwork.HasConfiguration )
+            {
+                var peerCampusPastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
+                peerNetwork.Load( peerCampusPastors, configuration.CampusIds, smallGroupSetup.GroupTypeId );
+            }
+            else
+            {
+                log.Write( "  Skipped (this package has no configuration/peer-network.json)" );
             }
 
             // The church's layered data views (docs/reporting.md). The group sync views are built on their foundations, so
@@ -696,6 +758,39 @@ namespace RockSampleData.Loader
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
 
+            // Rock's staff homepage. The weekly updates are the Content part. The metric history, the path metrics on
+            // the block, and the Quick Links read whatever rows the load wrote, so they come after every data step and
+            // always run (decisions 345 to 348).
+            var staffHomepage = source.ReadStaffHomepage();
+            var homepage = staffHomepage == null ? null : new StaffHomepageLoader( db, source, staffHomepage, dates, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+            if ( steps.Begin( "Content" ) )
+            {
+                if ( homepage == null )
+                {
+                    log.Write( "  Skipped (this package has no configuration/staff-homepage.json)" );
+                }
+                else
+                {
+                    homepage.LoadUpdates( people.People, configuration.CampusPlans, calendar.HistoryStart );
+                }
+            }
+
+            steps.Begin( "Staff homepage" );
+            if ( homepage != null )
+            {
+                var (metricCount, valueCount) = homepage.LoadMetrics();
+                log.Write( $"  Homepage metrics: {metricCount} with {valueCount:N0} values" );
+                if ( staffHomepage.PathMetrics && source.Reporting != null )
+                {
+                    log.Write( $"  Path metrics on the homepage: {homepage.AddPathMetrics( source.Reporting.Metrics )}" );
+                }
+
+                if ( staffHomepage.QuickLinks != null )
+                {
+                    log.Write( $"  Quick Links added: {homepage.AddQuickLinks()}" );
+                }
+            }
+
             // The Cast's signals and each campus pastor's Care Team Follow-ups. They read only people and staff.
             steps.Begin( "Signals" );
             var pastors = CampusPastors.Pick( people, people.Households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.Kind != "business" ), mainCampusKey, source.Staff );
@@ -762,7 +857,12 @@ namespace RockSampleData.Loader
             db.RebuildDeferredIndexes( "History" );
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
-            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor ):N0} values set" );
+            log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor, familyAnalytics.ProcedureAttributeIds ):N0} values set" );
+
+            // Rock's duplicate finder runs last, after every person, phone, and address, so the Calculate Person Duplicates
+            // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.
+            steps.Begin( "Duplicates" );
+            new DuplicatesLoader( db, source, dates, foreignKey ).Load( people );
 
             /*
                 10/30/26 - CLAUDE

@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -36,6 +36,8 @@ namespace RockSampleData.RockRunner
     ///            The trusted base runs it once after EF's migrations, so it matches a Rock that has started and run
     ///            its first night, not just a migrated database.
     ///   cleanup  Rock's Rock Cleanup job once, with its default settings. It prints the job's result.
+    ///   person-duplicates  Rock's Calculate Person Duplicates job once, as its own stored job, so it runs the SQL and
+    ///            timeout its settings hold (Rock's duplicate finder procedure). It prints how long the job took.
     ///   hash-password  Rock's Database login hash of the password on the input file's first line, the way the
     ///            Sample Data Installer block makes the hash it passes the loader (decision 180).
     ///   sign-in  Signs in through Rock's Database login with each input line's username and password, separated by
@@ -50,9 +52,8 @@ namespace RockSampleData.RockRunner
     ///   reports  Checks every report's columns the way Rock's report grid reads them, and renders each Lava column, and
     ///            prints "ok" and its Guid, or "error", its Guid, and the problems.
     ///   authorize  Asks Rock's own security check (Authorization.Authorized) each input line's question: an item kind
-    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, Snippet, or Tag), its Guid, an action, and a
-    ///            person's Guid,
-    ///            separated by tabs. Prints True or False for each, in order.
+    ///            (Category, DataView, Report, PersonalizationSegment, Page, SignalType, Snippet, Tag, or BenevolenceType), its Guid, an action,
+    ///            and a person's Guid, separated by tabs. Prints True or False for each, in order.
     ///   assessment-scores  Scores every assessment's saved answers with Rock's own scoring services and writes its answer
     ///            data again with Rock's own serializer. Prints each assessment's Id, "same" or "differs" for the answer
     ///            data, and the person attribute values Rock's service would save, as key=value, separated by tabs.
@@ -82,6 +83,14 @@ namespace RockSampleData.RockRunner
     ///            links, and each section with its links' names, separated by tabs.
     ///   notifications  Answers what Rock's top-bar bell shows: for "count" and a person's Guid, how many unread messages
     ///            Rock counts for them, and for "link" and a message's Guid, the link Rock's Note Mention component opens.
+    ///   group-requirements  Runs Rock's Calculate Group Requirements job once, with its default settings, and prints its result.
+    ///   launch-benevolence-workflows  For each input line's benevolence request Id and benevolence workflow trigger Id, separated
+    ///            by a tab, launches the trigger's workflow on the request as Rock does when a request is entered. Its actions
+    ///            save what they change, so run it only on a throwaway copy. Prints the request Id and Rock's errors, separated
+    ///            by a tab.
+    ///   staff-homepage  Renders the Internal Communication View block's Body Template, through Rock's Lava engine, for
+    ///            the content channel item whose Id is on the input's second line, as the block on the first line's Guid
+    ///            renders it, and prints the HTML on one line.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -96,10 +105,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows" };
-            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" && input == null ) )
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates", "group-requirements", "launch-benevolence-workflows", "staff-homepage" };
+            if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" or "launch-benevolence-workflows" or "staff-homepage" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -144,7 +153,11 @@ namespace RockSampleData.RockRunner
                     "notifications" => worker.Notifications( lines ),
                     "process-reminders" => worker.ProcessReminders(),
                     "process-workflows" => worker.ProcessWorkflows(),
+                    "person-duplicates" => worker.PersonDuplicates(),
                     "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
+                    "group-requirements" => worker.GroupRequirements(),
+                    "launch-benevolence-workflows" => worker.LaunchBenevolenceWorkflows( lines ),
+                    "staff-homepage" => worker.StaffHomepage( lines ),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -269,6 +282,70 @@ namespace RockSampleData.RockRunner
         }
 
         /// <summary>
+        /// Launches each input line's benevolence workflow trigger on its request, the way Rock's BenevolenceRequestChangeTransaction
+        /// does when a request is entered: it activates the workflow type and processes it with the request as its entity.
+        /// The workflow's own actions save what they change, so the caller runs this only on a copy it throws away. Prints the
+        /// request Id and Rock's errors, separated by a tab.
+        /// </summary>
+        public string LaunchBenevolenceWorkflows( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var contextType = _rock.GetType( "Rock.Data.RockContext", true );
+            var workflowType = _rock.GetType( "Rock.Model.Workflow", true );
+            var typeCache = _rock.GetType( "Rock.Web.Cache.WorkflowTypeCache", true );
+            var activate = workflowType.GetMethod( "Activate", new[] { typeCache, typeof( string ), contextType } )
+                ?? throw new InvalidOperationException( "This Rock has no Workflow.Activate( WorkflowTypeCache, string, RockContext ). The runner needs updating for this Rock." );
+            var workflowService = _rock.GetType( "Rock.Model.WorkflowService", true );
+            var process = workflowService.GetMethod( "Process", new[] { workflowType, typeof( object ), typeof( List<string> ).MakeByRefType() } )
+                ?? throw new InvalidOperationException( "This Rock has no WorkflowService.Process( Workflow, object, out List<string> ). The runner needs updating for this Rock." );
+            var getType = typeCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( int ) }, null );
+            object Get( object item, string name ) => item?.GetType().GetProperty( name )?.GetValue( item );
+            object Find( string service, int id, object context ) => _rock.GetType( service, true ).GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( _rock.GetType( service, true ), context ), new object[] { id } );
+
+            var results = new List<string>();
+            foreach ( var line in lines.Where( l => l.Contains( '\t' ) ) )
+            {
+                var parts = line.Split( '\t' );
+                var context = createContext.Invoke( null, new[] { app } );
+                try
+                {
+                    var request = Find( "Rock.Model.BenevolenceRequestService", int.Parse( parts[0] ), context );
+                    var trigger = Find( "Rock.Model.BenevolenceWorkflowService", int.Parse( parts[1] ), context );
+                    var workflow = activate.Invoke( null, new[] { getType.Invoke( null, new[] { Get( trigger, "WorkflowTypeId" ) } ), "Request Started", context } );
+                    var arguments = new object[] { workflow, request, null };
+                    process.Invoke( Activator.CreateInstance( workflowService, context ), arguments );
+                    var errors = string.Join( " ", ( ( IEnumerable<string> ) arguments[2] ?? Enumerable.Empty<string>() ).Select( e => e.Replace( '\t', ' ' ).Replace( '\n', ' ' ) ) );
+                    results.Add( $"{parts[0]}\t{errors}" );
+                }
+                catch ( TargetInvocationException ex )
+                {
+                    results.Add( $"{parts[0]}\t{ex.GetBaseException().Message.Replace( '\t', ' ' ).Replace( '\n', ' ' )}" );
+                }
+            }
+
+            return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Runs Rock's Calculate Group Requirements job with its default settings and returns its result text: how many
+        /// requirement results it inserted, updated, and deleted. Verify compares the results before and after.
+        /// </summary>
+        public string GroupRequirements()
+        {
+            Start();
+            StartMessageBus();
+            var jobType = _rock.GetType( "Rock.Jobs.CalculateGroupRequirements", true );
+            var job = Activator.CreateInstance( jobType );
+            Execute( job );
+            return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
+        }
+
+        /// <summary>
         /// Runs Rock's Process Reminders job as Rock's scheduler does and returns how many reminders it notified about, then
         /// every error it recorded. The job's own result keeps only five errors, so the runner reads its full list.
         /// </summary>
@@ -284,6 +361,19 @@ namespace RockSampleData.RockRunner
                 ?? throw new InvalidOperationException( "This Rock's Process Reminders job has no _jobErrors. The runner needs updating for this Rock." ) ).GetValue( job );
             var processed = jobType.GetField( "_totalProcessedReminders", Hidden )?.GetValue( job );
             return string.Join( "\n", new[] { $"processed {processed}" }.Concat( ( errors ?? Enumerable.Empty<string>() ).Select( e => $"error {e.Replace( '\r', ' ' ).Replace( '\n', ' ' )}" ) ) );
+        }
+
+        /// <summary>
+        /// Runs Rock's Calculate Person Duplicates job once, as Rock's scheduler runs it at 3 AM: a Run SQL job whose stored SQL
+        /// runs Rock's duplicate finder procedure. The caller compares the duplicate pairs before and after.
+        /// </summary>
+        public string PersonDuplicates()
+        {
+            Start();
+            StartMessageBus();
+            var timer = Stopwatch.StartNew();
+            RunStoredJob( Activator.CreateInstance( _rock.GetType( "Rock.Jobs.RunSQL", true ) ), new Guid( "C386528C-3AC6-44E8-884E-A57B571B65D5" ) );
+            return $"Calculate Person Duplicates ran in {timer.ElapsedMilliseconds} ms";
         }
 
         /// <summary>
@@ -715,12 +805,12 @@ namespace RockSampleData.RockRunner
                     continue;
                 }
 
-                if ( parts[0] == "Report" )
+                if ( parts[0] == "Report" || parts[0] == "BenevolenceType" )
                 {
-                    // Rock keeps no cache of reports; its report screens load the report and check it.
-                    var reportService = _rock.GetType( "Rock.Model.ReportService", true );
-                    item = reportService.GetMethod( "Get", new[] { typeof( Guid ) } )
-                        .Invoke( Activator.CreateInstance( reportService, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
+                    // Rock keeps no cache of reports or benevolence types; its screens load the item and check it.
+                    var service = _rock.GetType( $"Rock.Model.{parts[0]}Service", true );
+                    item = service.GetMethod( "Get", new[] { typeof( Guid ) } )
+                        .Invoke( Activator.CreateInstance( service, personServiceType.GetProperty( "Context" ).GetValue( personService ) ), new object[] { new Guid( parts[1] ) } );
                 }
                 else
                 {
@@ -1149,6 +1239,52 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Renders the staff homepage's Internal Communication View block body for one item, as the block renders the item
+        /// it picks: the block's own Body Template setting, through Rock's Lava engine, with the item and its attributes.
+        /// The input is the block's Guid, then the item's Id. Returns the rendered HTML on one line, or an error line.
+        /// </summary>
+        public string StaffHomepage( string[] lines )
+        {
+            Start();
+            StartMessageBus();
+            StartLava();
+            var rockAppType = _rock.GetType( "Rock.Configuration.RockApp", true );
+            var app = rockAppType.GetProperty( "Current" ).GetValue( null );
+            var createContext = _rock.GetType( "Rock.Configuration.RockAppExtensions", true ).GetMethod( "CreateRockContext", BindingFlags.Public | BindingFlags.Static, null, new[] { rockAppType }, null );
+            var resolve = _rock.GetType( "Rock.ExtensionMethods", true ).GetMethod( "ResolveMergeFields", new[] { typeof( string ), typeof( IDictionary<string, object> ), typeof( string ), typeof( bool ), typeof( bool ) } )
+                ?? throw new InvalidOperationException( "This Rock has no ResolveMergeFields( string, IDictionary, string, bool, bool ). The runner needs updating for this Rock." );
+            var loadAttributes = _rock.GetType( "Rock.Attribute.Helper", true ).GetMethods( BindingFlags.Public | BindingFlags.Static )
+                .First( m => m.Name == "LoadAttributes" && m.GetParameters().Length == 1 );
+            var blockCache = _rock.GetType( "Rock.Web.Cache.BlockCache", true );
+            var block = blockCache.GetMethod( "Get", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new[] { typeof( Guid ) }, null )
+                .Invoke( null, new object[] { new Guid( lines[0].Trim() ) } );
+            if ( block == null )
+            {
+                return "error\tthe block is missing";
+            }
+
+            var template = ( string ) blockCache.GetMethod( "GetAttributeValue", new[] { typeof( string ) } ).Invoke( block, new object[] { "BodyTemplate" } );
+            var itemService = _rock.GetType( "Rock.Model.ContentChannelItemService", true );
+            var item = itemService.GetMethod( "Get", new[] { typeof( int ) } ).Invoke( Activator.CreateInstance( itemService, createContext.Invoke( null, new[] { app } ) ), new object[] { int.Parse( lines[1].Trim() ) } );
+            if ( item == null || string.IsNullOrWhiteSpace( template ) )
+            {
+                return "error\tthe item or the block's Body Template is missing";
+            }
+
+            loadAttributes.Invoke( null, new[] { item } );
+            try
+            {
+                var mergeFields = new Dictionary<string, object> { ["Item"] = item, ["Metrics"] = new List<object>() };
+                var output = ( string ) resolve.Invoke( null, new object[] { template, mergeFields, string.Empty, false, true } );
+                return string.Join( " ", output.Split( new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries ).Select( s => s.Trim() ) );
+            }
+            catch ( TargetInvocationException ex )
+            {
+                return $"error\t{ex.GetBaseException().Message.Replace( '\n', ' ' ).Replace( '\r', ' ' )}";
+            }
         }
 
         /// <summary>

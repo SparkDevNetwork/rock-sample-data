@@ -14,7 +14,7 @@ Dan Richards is a single adult who signed up online and joined a small group.
 
 Dan is a single adult who signed up online and joined the Greggs small group. He is still a Prospect.
 
-- Age 28 · single · email drichards@example.org · groups: Greggs Group (asked to join), Foster Group (left)
+- Age 28 · single · email drichards@example.org · groups: Greggs Group, Jenkins Group (group archived)
 - Person Guid `B5FCBA2E-765C-4B46-9913-8FE83CD2874B`
 
 ## What this family tests

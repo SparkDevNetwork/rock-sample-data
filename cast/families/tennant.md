@@ -2,7 +2,7 @@
 
 Legacy household · 2 people · Phoenix campus · [source](../households/tennant.json)
 
-Rob and Sheryl Tennant are a married couple who attend and are in a small group. Sheryl is a little older than Rob.
+Rob and Sheryl Tennant are a married couple who attend. Sheryl is a little older than Rob.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -13,12 +13,12 @@ Rob and Sheryl Tennant are a married couple who attend and are in a small group.
 
 ### Rob (Robert) Tennant
 
-- Age 56 · married · Supply Manager, Palo Verde Technical College · email rtennant@example.org · groups: Wright Group (left)
+- Age 56 · married · Supply Manager, Palo Verde Technical College · email rtennant@example.org · groups: Wright Group (left), Foster Group (left)
 - Person Guid `8DE6710B-BDAB-4617-AE0C-83E77D3E77CC`
 
 ### Sheryl Tennant
 
-- Age 58 · married · Art Director, Acmewell Art · email stennant@example.org · groups: Wright Group (left)
+- Age 58 · married · Art Director, Acmewell Art · email stennant@example.org · groups: Wright Group (left), Foster Group (left)
 - Person Guid `773AD0F9-369A-47BC-BEBB-2E8EE4C5FEF5`
 
 ## What this family tests

@@ -29,6 +29,11 @@ const { sectionHead } = require( "../components" );
 const doc = file => `${repoUrl}/blob/main/${file}`;
 
 /**
+ * Names joined as a sentence list: "A and B", or "A, B, and C".
+ */
+const messageList = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
+
+/**
  * A Cast person's name, linked to their household page. The name is plain text when no Cast person has it.
  */
 function person( model, name ) {
@@ -205,13 +210,15 @@ module.exports = function features( { model } ) {
             : html`${person( model, story.personName )}'s ${esc( workflow.name )}, completed by ${ownerName}`;
     } );
 
+    const backgroundChecks = require( path.join( model.root, "configuration/background-checks.json" ) );
+    const benevolence = require( path.join( model.root, "configuration/benevolence.json" ) );
     const areas = [
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
             text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
-            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates to merge, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave" ],
-            look: [ html`${person( model, "Jon Smith" )}, with two duplicate records to merge`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
-            links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) } ]
+            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Mapped addresses, each marked as checked, so none ever goes to an address service", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
+            look: [ html`${person( model, "Jon Smith" )}, with two duplicate records and a merge request`, html`${person( model, "Sarah Simmons" )}'s History, where her old Sarah Jones record was merged`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
+            links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) }, { label: "Duplicates", href: doc( "docs/duplicates.md" ) } ]
         },
         {
             id: "giving", eyebrow: "Giving and check images", title: "Gifts on each giver's rhythm.", sand: true,
@@ -223,15 +230,15 @@ module.exports = function features( { model } ) {
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
             text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
-            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve" ],
-            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday` ],
+            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
+            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
         },
         {
             id: "groups-and-serving", eyebrow: "Groups and serving", title: "Groups that meet, and teams that serve.", sand: true,
             text: html`${model.counts.smallGroups} Cast small groups plus generated ones at every campus, with leaders, hosts, topics, photos, and a real church year. Every campus also has ${model.opportunities.length} serving teams, with rotations, preferences, and schedules six weeks ahead.`,
-            checks: [ "Group Finder test cases at every campus", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays" ],
-            look: [ html`<a href="church.html#groups">The church's small groups</a>`, html`<a href="church.html#serving">The serving teams</a>`, "Rock's Group Scheduler for next Sunday" ],
+            checks: [ "Group Finder test cases at every campus", "Women's Bible studies led by women, and men's Bible studies", "New groups on launch Sundays, most led by someone who was Ready to Lead", "Members who join after a family starts coming and leave after it stops", "Weekly group attendance, with holiday weeks marked \"did not meet\"", "Blackout dates, and volunteer check-in on Sundays", "Peer networks from shared groups, teams, and follows, with Rock's trend arrows" ],
+            look: [ html`<a href="church.html#groups">The church's small groups</a>`, html`<a href="church.html#serving">The serving teams</a>`, "Rock's Group Scheduler for next Sunday", html`Ted Decker's Peer Network, in the <a href="${castDecker}">Decker family</a>` ],
             links: [ { label: "Small groups", href: doc( "docs/small-groups.md" ) }, { label: "Serving", href: doc( "docs/serving.md" ) } ]
         },
         {
@@ -247,6 +254,20 @@ module.exports = function features( { model } ) {
             checks: [ "Team leaders connect their teams' requests", "Celebrations: the story a connector records, which the Celebrations Report lists", "Active and inactive requests in a real mix" ],
             look: [ html`${person( model, "Alisha Marble" )}'s requests in the Connections Hub, when you sign in as <code>admin</code>`, "Rock's Celebrations Report", "A request's activity history" ],
             links: [ { label: "Requests to serve", href: doc( "docs/serving.md#requests-to-serve" ) } ]
+        },
+        {
+            id: "background-checks", eyebrow: "Background checks", title: "Who is cleared to lead.",
+            text: html`Every small group leader needs a current background check, and so does every adult on the kids and student teams. Rock shows who meets it: ${backgroundChecks.leaders.mix.current}% of generated leaders are current, and the rest expire soon, have expired, or were never checked. Each check is saved the way Rock's Checkr provider saves it, with its report as a PDF.`,
+            checks: [ "Requirement results that Rock's own job leaves unchanged", "Checks in progress for requests to serve that wait on one", "A Leader Background Checks report, locked to the safety team" ],
+            look: [ html`${person( model, "Ted Decker" )}, whose only check is too old to count`, html`${person( model, "Bill Marble" )}, whose check runs out in about five weeks`, html`${person( model, "Frank Dexter" )}'s failed check, linked to his request to serve` ],
+            links: [ { label: "How background checks load", href: doc( "loader/README.md#how-background-checks-load" ) }, { label: "Serving", href: doc( "docs/serving.md" ) } ]
+        },
+        {
+            id: "benevolence", eyebrow: "Benevolence", title: "Help when someone asks.", sand: true,
+            text: html`People ask the church for help with rent, bills, food, cars, and medical costs. ${esc( benevolence.caseWorker.name )}, the Care Director, works each request, and the team records what it gave. ${benevolence.types.length - 1} church types join Rock's own, and every one is locked to the benevolence team.`,
+            checks: [ "Requests that are Approved, Denied, and Pending", "Help paid straight to a landlord, a utility, a shop, or a pharmacy", "Signed assistance agreements as PDFs", "A workflow that gives each new request to the case worker and sends no email" ],
+            look: [ html`${person( model, "Ashley Kelly" )}'s rent help, which matches her notes`, "Rock's Benevolence page under Finance, signed in as admin", html`${person( model, "Dee Navarro" )}, the case worker` ],
+            links: [ { label: "How benevolence loads", href: doc( "loader/README.md#how-benevolence-loads" ) } ]
         },
         {
             id: "notes", eyebrow: "Notes", title: "What staff write down.",
@@ -313,9 +334,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "adaptive-messages", eyebrow: "Adaptive messages", title: "A next step for each person.", sand: true,
-            text: html`${model.adaptiveMessages.messages.length} adaptive messages, from ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[0].name : "Your Next Step" )} to ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[model.adaptiveMessages.messages.length - 1].name : "Giving" )}, each with versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
-            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
-            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
+            text: html`${model.adaptiveMessages.messages.length} adaptive messages, in this order on the homepage: ${esc( messageList( model.adaptiveMessages.messages.map( m => m.name ) ) )}. Each has versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
+            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Leaders of a group or team asked to invite a friend", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp", "A card for everyone in each message's season", "People who stopped coming hear first that we miss them" ],
+            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift and asked to invite a friend`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic`, html`${person( model, "Luis Ortiz" )}, told we miss him before any growth ask` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
         },
         {
@@ -340,6 +361,16 @@ module.exports = function features( { model } ) {
             links: [ { label: "Tags setup", href: doc( "configuration/README.md#tags" ) } ]
         }
     ];
+
+    // The staff homepage follows the adaptive messages, so the sections keep alternating.
+    const staffHomepage = require( path.join( model.root, "configuration/staff-homepage.json" ) );
+    areas.push( {
+        id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.",
+        text: html`Rock's staff homepage has a staff update for each Monday of the past ${staffHomepage.updates.weeks} weeks, from the Director of Communications, with articles from the staff. They follow the church calendar: Easter planning, VBS volunteers, Commitment Sunday, and year-end statements. The metric tiles show a year of history, and the Quick Links point at the pages staff open most.`,
+        checks: [ "A feature and one to three staff articles every week", "Event images and staff photos, each stored once", "Active Records, Active Families, and Active Connection Requests, with the Ministry Path metrics beside them" ],
+        look: [ "Rock's homepage, signed in as any staff member", "The Prev button, which steps back a week at a time", "The Internal Communications - Homepage content channel" ],
+        links: [ { label: "Staff homepage", href: doc( "docs/staff-homepage.md" ) } ]
+    } );
 
     // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );

@@ -16,7 +16,6 @@
 //
 
 using System.Data;
-using System.Text.RegularExpressions;
 
 using RockSampleData.Loader.Database;
 using RockSampleData.Loader.Generation;
@@ -65,8 +64,6 @@ namespace RockSampleData.Loader.Loading
             "Mozilla/5.0 (iPad; CPU OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
         };
 
-        private static readonly Regex InvalidFileNameCharacters = new Regex( "[\"<>|\u0000-\u001f:*?\\\\/]+", RegexOptions.CultureInvariant );
-
         private readonly RockDatabase _db;
         private readonly string _foreignKey;
         private readonly string _seed;
@@ -96,17 +93,14 @@ namespace RockSampleData.Loader.Loading
 SELECT [sdt].[Id], [sdt].[BinaryFileTypeId], [bft].[StorageEntityTypeId], [sdt].[CompletionSystemCommunicationId]
 FROM [SignatureDocumentTemplate] AS [sdt]
 INNER JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [sdt].[BinaryFileTypeId]" )
-                .ToDictionary( r => Convert.ToInt32( r["Id"] ), r => (FileTypeId: Convert.ToInt32( r["BinaryFileTypeId"] ), StorageTypeId: Convert.ToInt32( r["StorageEntityTypeId"] ), SendsReceipt: r["CompletionSystemCommunicationId"] is int) );
+                .ToDictionary( r => Convert.ToInt32( r["Id"] ), r => (FileType: new BinaryFileRows.BinaryFileType( Convert.ToInt32( r["BinaryFileTypeId"] ), Convert.ToInt32( r["StorageEntityTypeId"] ) ), SendsReceipt: r["CompletionSystemCommunicationId"] is int) );
 
-            var files = TableFactory.Create( "Id:int", "IsTemporary:bool", "IsSystem:bool", "BinaryFileTypeId:int", "FileName:string", "MimeType:string", "StorageEntityTypeId:int", "FileSize:int",
-                "ParentEntityTypeId:int", "ParentEntityId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date", "ContentLastModified:date" );
-            var data = TableFactory.Create( "Id:int", "Content:bytes", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            var files = new BinaryFileRows( _db, _foreignKey );
             var documents = TableFactory.Create( "Id:int", "SignatureDocumentTemplateId:int", "Name:string", "AppliesToPersonAliasId:int", "AssignedToPersonAliasId:int", "Status:int", "LastStatusDate:date",
                 "BinaryFileId:int", "SignedByPersonAliasId:int", "InviteCount:int", "SignedDocumentText:string", "SignedName:string", "SignedClientIp:string", "SignedClientUserAgent:string",
                 "SignedDateTime:date", "SignedByEmail:string", "CompletionEmailSentDateTime:date", "SignatureVerificationHash:string", "SignatureDataEncrypted:string",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
-            var nextFileId = NextId( "BinaryFile" );
             var nextDocumentId = NextId( "SignatureDocument" );
             foreach ( var registration in signed )
             {
@@ -138,29 +132,20 @@ INNER JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [sdt].[BinaryFileTypeId]" )
                     var pdf = SignedReleasePdf.Draw( name, text, FullName( registrar ), signedAt, IpAddress( registrar ), hash );
                     var receiptSent = release.SendsReceipt ? registration.When.AddSeconds( random.Between( 5, 40 ) ) : ( DateTime? ) null;
 
-                    var fileId = nextFileId++;
+                    var fileId = files.AddPdf( release.FileType, BinaryFileRows.PdfFileName( name ), pdf, SeededRandom.StableGuid( $"{registrant.Guid}:signed-release-file" ),
+                        SeededRandom.StableGuid( $"{registrant.Guid}:signed-release-data" ), registration.When, templateEntityTypeId, template.SignatureTemplateId.Value );
                     var documentId = nextDocumentId++;
                     documentIds[registrant] = documentId;
-                    files.Rows.Add( fileId, false, false, release.FileTypeId, FileName( name ), "application/pdf", release.StorageTypeId, pdf.Length, templateEntityTypeId, template.SignatureTemplateId.Value,
-                        SeededRandom.StableGuid( $"{registrant.Guid}:signed-release-file" ), _foreignKey, registration.When, registration.When, registration.When );
-                    data.Rows.Add( fileId, pdf, SeededRandom.StableGuid( $"{registrant.Guid}:signed-release-data" ), _foreignKey, registration.When, registration.When );
                     documents.Rows.Add( documentId, template.SignatureTemplateId.Value, name, registrant.Person.AliasId, registrar.AliasId, StatusSigned, signedAt,
                         fileId, registrar.AliasId, 0, text, signedName, ipAddress, userAgent, signedAt, signedEmail, ( object ) receiptSent ?? DBNull.Value, hash, string.Empty,
                         SeededRandom.StableGuid( $"{registrant.Guid}:signed-release" ), _foreignKey, registration.When, ( object ) receiptSent ?? registration.When );
                 }
             }
 
-            _db.BulkInsert( "BinaryFile", files, keepIdentity: true );
-            _db.BulkInsert( "BinaryFileData", data, keepIdentity: false );
+            files.Write( _db );
             _db.BulkInsert( "SignatureDocument", documents, keepIdentity: true );
             return documentIds;
         }
-
-        /// <summary>
-        /// The name Rock's PDF generator gives the file: spaces as underscores, characters a file name cannot hold
-        /// replaced (MakeValidFileName, with Windows' list), and ".pdf".
-        /// </summary>
-        private static string FileName( string name ) => InvalidFileNameCharacters.Replace( name.Replace( " ", "_" ), "_" ).Replace( ";", string.Empty ).Replace( ",", string.Empty ) + ".pdf";
 
         /// <summary>
         /// The registrar's address, from the ranges reserved for documentation, the same one their email opens use.

@@ -16,7 +16,7 @@ Ashley Kelly is a single mom of two. She asked the benevolence team for help wit
 
 Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows.
 
-- Age 33 · divorced · email ashley.kelly@example.org · groups: Lee Group
+- Age 33 · divorced · email ashley.kelly@example.org · groups: Women of the Bible
 - Person Guid `6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171`
 
 ### Mason Kelly
@@ -35,7 +35,8 @@ Chloe is four and in the preschool room.
 
 ## What this family tests
 
-- Benevolence request (Phase 1).
+- Benevolence request: one month's rent, paid to her landlord.
+- Registered for the next Money Matters class after her benevolence request.
 - Single mom with preschool and Grades 2-3 check-in.
 - Known status, no giving.
 

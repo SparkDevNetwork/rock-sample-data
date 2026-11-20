@@ -2,7 +2,7 @@
 
 New household · 1 person · Phoenix campus · [source](../households/ramos.json)
 
-Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before ever attending on a Sunday.
+Victoria Ramos is 25 and new to Phoenix. She started coming on Sundays this summer and has asked to join a small group, which has not answered yet.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -12,12 +12,12 @@ Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before 
 
 ### Tori (Victoria) Ramos
 
-- Age 25 · single · email tori.ramos@example.org · groups: Decker Group (left), Greggs Group (asked to join)
+- Age 25 · single · email tori.ramos@example.org · groups: Silva Group (asked to join)
 - Person Guid `C2F7C15E-409D-429C-9D9A-1984A3C42E3F`
 
 ## What this family tests
 
-- Group-first connection (Phase 1).
+- New in town: one pending request to join a small group, made after her first four weeks.
 - Young adult living alone with Known status.
 
 ## Activity
@@ -27,7 +27,7 @@ Victoria Ramos is 25 and new to Phoenix. She joined a young adults group before 
 
 ## Prayer requests
 
-- **Current**, from Tori Ramos, 4 days ago (Life Transitions, 5 prayers): I moved to Phoenix this year for work and do not know many people yet. My young adults group has been a gift. Pray that I would find real friends here, and that this city would start to feel like home.
+- **Current**, from Tori Ramos, 4 days ago (Life Transitions, 5 prayers): I moved to Phoenix this year for work and do not know many people yet. I asked to join a small group and hope to hear back soon. Pray that I would find real friends here, and that this city would start to feel like home.
 
 ## Address
 

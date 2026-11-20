@@ -19,8 +19,8 @@
     Validates the Cast registry: required fields, Guid format, unique Guids,
     every cross-reference between households and groups, the delivered
     photos in photos/manifest.json, the prayer requests, the notes, and the
-    text threads in sms-threads.json, and the staff emails in
-    staff-emails.json. Prints errors
+    text threads in sms-threads.json, the staff emails in
+    staff-emails.json, and the duplicates in duplicates.json. Prints errors
     (exit code 1) and warnings (exit code 0).
 
     Usage: node validate-cast.js
@@ -248,7 +248,7 @@ for ( const h of households.map( x => x.data ) ) {
     const shared = [
         ...households.filter( x => x.data.campusSlot === "main" ).map( x => path.join( castDir, x.file ) ),
         ...[ "groups", "notes" ].flatMap( d => fs.readdirSync( path.join( castDir, d ) ).filter( f => f.endsWith( ".json" ) ).map( f => path.join( castDir, d, f ) ) ),
-        ...[ "sms-threads.json", "staff-emails.json", "prayer-requests.json" ].map( f => path.join( castDir, f ) ),
+        ...[ "sms-threads.json", "staff-emails.json", "prayer-requests.json", "duplicates.json" ].map( f => path.join( castDir, f ) ),
         ...fs.readdirSync( path.join( root, "configuration" ) ).filter( f => f.endsWith( ".json" ) && f !== "staff.json" ).map( f => path.join( root, "configuration", f ) )
     ].filter( f => fs.existsSync( f ) );
     for ( const file of shared ) {
@@ -307,6 +307,95 @@ for ( const h of households.map( x => x.data ) ) {
     }
     if ( noStatement.length !== 2 ) {
         errors.push( `Exactly two Cast givers have Do Not Send Giving Statement (decision 258), but ${noStatement.length} do: ${noStatement.join( ", " ) || "none"}.` );
+    }
+}
+
+// Background checks (configuration/background-checks.json, decision 333): a Cast story's check has a date and a
+// result of Pass or Fail, a person without a check has no check in their file, and each story the file expects names a
+// Cast person whose file agrees with it.
+{
+    const checks = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "background-checks.json" ), "utf8" ) );
+    for ( const [ guid, { person: p, file } ] of people ) {
+        const a = p.attributes || {};
+        if ( a.BackgroundCheckResult !== undefined && ![ "Pass", "Fail" ].includes( a.BackgroundCheckResult ) ) {
+            errors.push( `${file} ${p.key}: BackgroundCheckResult must be Pass or Fail, Rock's two values.` );
+        }
+        if ( a.BackgroundCheckResult !== undefined && a.BackgroundCheckDate === undefined ) {
+            errors.push( `${file} ${p.key}: has a BackgroundCheckResult but no BackgroundCheckDate.` );
+        }
+    }
+    for ( const c of checks.castWithoutCheck || [] ) {
+        const found = people.get( c.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name} (${c.person}), who is not a Cast person.` );
+        } else if ( found.person.attributes?.BackgroundCheckDate !== undefined ) {
+            errors.push( `configuration/background-checks.json: castWithoutCheck names ${c.name}, but their file has a BackgroundCheckDate.` );
+        }
+    }
+    const withoutCheck = new Set( ( checks.castWithoutCheck || [] ).map( c => c.person ) );
+    for ( const e of checks.castExpectations || [] ) {
+        const found = people.get( e.person );
+        if ( !found ) {
+            errors.push( `configuration/background-checks.json: castExpectations names ${e.name} (${e.person}), who is not a Cast person.` );
+            continue;
+        }
+        const a = found.person.attributes || {};
+        const fileResult = a.BackgroundCheckDate === undefined ? null : a.BackgroundCheckResult || "Pass";
+        if ( ( e.check === "Pass" || e.check === "Fail" ) && fileResult !== e.check ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check to be ${e.check}, but their file says ${fileResult || "nothing"}.` );
+        }
+        if ( e.check === "None" && !withoutCheck.has( e.person ) ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name} to have no check, so castWithoutCheck must name them.` );
+        }
+        const requests = ( found.person.connectionRequests || [] ).filter( r => r.status === "Background Check" && r.state === "Active" );
+        if ( e.linkedToRequest && requests.length !== 1 ) {
+            errors.push( `configuration/background-checks.json: expects ${e.name}'s check linked to a request, but their file has ${requests.length} active requests in the Background Check status.` );
+        }
+    }
+}
+
+// Benevolence (configuration/benevolence.json, decision 350): each Cast request names a Cast requester, a
+// type the file lists, and staff who can open Rock's benevolence pages. Pending requests have no decision or results yet,
+// Approved ones have at least one result, and every amount is more than zero. The case worker is in Benevolence Workers.
+{
+    const benevolence = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "benevolence.json" ), "utf8" ) );
+    const typeKeys = new Set( benevolence.types.map( t => t.key ) );
+    const resultTypes = new Set( [ "Provided Financial Assistance", "Provided Gift Card", "Provided Services", "Referred to Counseling", "Referred to Food Pantry", "Unable to Make Contact" ] );
+    const roles = guid => people.get( guid )?.person.securityRoles || [];
+    const canOpen = guid => roles( guid ).some( r => r === "Benevolence Workers" || r === "Rock Administrators" );
+    if ( !roles( benevolence.caseWorker.person ).includes( "Benevolence Workers" ) ) {
+        errors.push( `configuration/benevolence.json: the case worker ${benevolence.caseWorker.name} must be in Benevolence Workers, the role Rock's case worker list reads.` );
+    }
+    for ( const r of benevolence.cast ) {
+        const owner = `configuration/benevolence.json ${r.key}`;
+        claimGuid( r.guid, owner );
+        const requester = people.get( r.requester );
+        if ( !requester ) {
+            errors.push( `${owner}: the requester ${r.name} is not a Cast person.` );
+        } else if ( requester.household.campusSlot && requester.household.campusSlot !== "main" ) {
+            errors.push( `${owner}: the requester ${r.name} lives on another campus, so the request would be missing from datasets without it.` );
+        }
+        if ( !typeKeys.has( r.type ) ) {
+            errors.push( `${owner}: type ${r.type} is not a type in the file.` );
+        }
+        for ( const [ label, guid ] of [ [ "enteredBy", r.enteredBy ], [ "decidedBy", r.decidedBy ] ].filter( ( [ , g ] ) => g ) ) {
+            if ( !canOpen( guid ) ) {
+                errors.push( `${owner}: ${label} must be in Benevolence Workers or Rock Administrators, the roles that can open Rock's benevolence pages.` );
+            }
+        }
+        const results = r.results || [];
+        if ( r.status === "Pending" && ( r.decided || r.decidedBy || r.resultSummary || results.length > 0 ) ) {
+            errors.push( `${owner}: a Pending request has no decision, summary, or results yet.` );
+        } else if ( r.status === "Approved" && ( !r.decided || results.length === 0 ) ) {
+            errors.push( `${owner}: an Approved request has a decision and at least one result.` );
+        } else if ( ![ "Pending", "Approved", "Denied" ].includes( r.status ) ) {
+            errors.push( `${owner}: status ${r.status} is not one of Rock's request statuses.` );
+        }
+        for ( const x of results ) {
+            if ( !resultTypes.has( x.type ) || ( x.amount !== undefined && !( x.amount > 0 ) ) ) {
+                errors.push( `${owner}: each result needs one of Rock's result types and an amount over zero, if any.` );
+            }
+        }
     }
 }
 
@@ -711,9 +800,14 @@ function checkServingTeam( file, g ) {
  */
 function checkSmallGroupPlan( file, g ) {
     const isActiveGroup = g.lifecycle.state === "Active";
-    if ( !smallGroups.topics.some( t => t.value === g.topic ) ) {
+    const topic = smallGroups.topics.find( t => t.value === g.topic );
+    if ( !topic ) {
         errors.push( `${file}: topic "${g.topic}" is not in configuration/small-groups.json.` );
     }
+
+    // A topic that sets a leader gender is for that gender: its leader and every member (decision 318).
+    const leaderGender = ( topic && topic.leaderGender ) || smallGroups.leaders.gender;
+    const groupGender = topic && topic.leaderGender;
     if ( g.lifecycle.state === "Inactive" && !smallGroups.inactiveReasons.some( r => r.value === g.lifecycle.reason ) ) {
         errors.push( `${file}: inactive reason "${g.lifecycle.reason}" is not in configuration/small-groups.json.` );
     }
@@ -761,8 +855,11 @@ function checkSmallGroupPlan( file, g ) {
         if ( p.recordStatus === "inactive" && isActiveGroup ) {
             errors.push( `${owner}: has an inactive record, so may only be a former member of an ended group.` );
         }
-        if ( m.role === "Leader" && ( p.gender !== smallGroups.leaders.gender || !smallGroups.leaders.statuses.concat( smallGroups.leaders.becomeStatus ).includes( p.connectionStatus ) ) ) {
+        if ( m.role === "Leader" && ( p.gender !== leaderGender || !smallGroups.leaders.statuses.concat( smallGroups.leaders.becomeStatus ).includes( p.connectionStatus ) ) ) {
             errors.push( `${owner}: does not meet the leader rules.` );
+        }
+        if ( groupGender && p.gender !== groupGender ) {
+            errors.push( `${owner}: is not ${groupGender}, and the ${g.topic} topic is for ${groupGender} members only.` );
         }
         if ( ( m.state === "Inactive" || m.state === "Archived" ) !== ( m.left !== undefined ) ) {
             errors.push( `${owner}: only members who left (Inactive or Archived) have a left date.` );
@@ -1047,6 +1144,30 @@ for ( const { file, data: h } of households ) {
         }
         if ( ( p.assessments || p.expect?.assessments ) && p.familyRole !== "adult" ) {
             errors.push( `${file}: "${p.key}" has an assessment story, but only adults take assessments.` );
+        }
+
+        // eRA: a status, and only the range that status reads, in order.
+        const era = p.expect?.era;
+        if ( era ) {
+            if ( ![ "current", "former", "never" ].includes( era.status ) ) {
+                errors.push( `${file}: "${p.key}" expects eRA status "${era.status}", which is not current, former, or never.` );
+            }
+            for ( const [ field, status ] of [ [ "startedDaysAgo", "current" ], [ "endedDaysAgo", "former" ] ] ) {
+                const range = era[field];
+                if ( range && era.status !== status ) {
+                    errors.push( `${file}: "${p.key}" expects eRA ${field}, which only a ${status} eRA has.` );
+                }
+                if ( range && range.min !== undefined && range.max !== undefined && range.min > range.max ) {
+                    errors.push( `${file}: "${p.key}" expects eRA ${field} from ${range.min} to ${range.max} days ago, which is empty.` );
+                }
+            }
+        }
+
+        // Peer network: the people it includes are others in this household.
+        for ( const key of p.expect?.peerNetwork?.includes || [] ) {
+            if ( key === p.key || !( h.members || [] ).some( m => m.key === key ) ) {
+                errors.push( `${file}: "${p.key}" expects "${key}" in their peer network, who is not someone else in this household.` );
+            }
         }
         for ( const [ key, story ] of Object.entries( p.assessments || {} ) ) {
             const who = `${file}: "${p.key}" ${key}`;
@@ -1919,6 +2040,111 @@ if ( fs.existsSync( staffEmailFile ) ) {
     }
 }
 
+/*
+    Pass 8: the Cast's duplicates (cast/duplicates.json, docs/duplicates.md). Every person is a Cast person with that
+    name. A pair is two different people, listed once. A decided pair names the staff member who decided and when, and
+    an open pair names neither. A merge request names two or more people. A merge keeps a Cast person who is not Rock's
+    admin, and its merged record's Guid is no Cast person's.
+*/
+const duplicatesFile = path.join( castDir, "duplicates.json" );
+const DUPLICATE_DECISIONS = [ "open", "not-a-duplicate", "ignored" ];
+const STAFF_GUIDS = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "staff.json" ), "utf8" ) ).staff.map( s => s.person ) );
+let duplicatePairCount = 0;
+if ( fs.existsSync( duplicatesFile ) ) {
+    const duplicates = JSON.parse( fs.readFileSync( duplicatesFile, "utf8" ) );
+    const keys = new Set();
+    const checkKey = ( owner, key ) => {
+        if ( !KEY.test( key || "" ) || keys.has( key ) ) {
+            errors.push( `${owner}: key must be unique and lowercase with hyphens.` );
+        }
+        keys.add( key );
+    };
+    const checkPerson = ( owner, ref, mustBeStaff ) => {
+        const entry = ref && people.get( ref.guid );
+        if ( !entry ) {
+            errors.push( `${owner}: ${ref && ref.guid} is not a Cast person.` );
+            return null;
+        }
+        const name = `${entry.person.nickName || entry.person.firstName} ${entry.person.lastName}`;
+        if ( ref.name !== name ) {
+            errors.push( `${owner}: ${ref.guid} is ${name}, not ${ref.name}.` );
+        }
+        if ( mustBeStaff && !STAFF_GUIDS.has( ref.guid ) ) {
+            errors.push( `${owner}: ${name} is not on staff in configuration/staff.json.` );
+        }
+        return entry;
+    };
+    const checkDate = ( owner, date ) => {
+        const isDaysAgo = date && Number.isInteger( date.daysAgo ) && date.daysAgo >= 0;
+        const isYearsAgo = date && Number.isInteger( date.yearsAgo ) && Number.isInteger( date.month ) && Number.isInteger( date.day );
+        if ( isDaysAgo === isYearsAgo || ( date.time !== undefined && !/^[0-2][0-9]:[0-5][0-9]$/.test( date.time ) ) ) {
+            errors.push( `${owner}: a date is daysAgo, or yearsAgo with a month and day, and an optional HH:mm time.` );
+        }
+    };
+
+    const pairKeys = new Set();
+    for ( const pair of duplicates.pairs || [] ) {
+        duplicatePairCount++;
+        const owner = `duplicates.json pair ${pair.key}`;
+        checkKey( owner, pair.key );
+        const pairPeople = Array.isArray( pair.people ) ? pair.people : [];
+        pairPeople.forEach( p => checkPerson( owner, p, false ) );
+        const pairKey = pairPeople.map( p => p.guid ).sort().join( "|" );
+        if ( pairPeople.length !== 2 || pairPeople[0].guid === pairPeople[1].guid || pairKeys.has( pairKey ) ) {
+            errors.push( `${owner}: a pair is two different people, and each pair is listed once.` );
+        }
+        pairKeys.add( pairKey );
+        if ( !DUPLICATE_DECISIONS.includes( pair.decision ) ) {
+            errors.push( `${owner}: decision must be one of ${DUPLICATE_DECISIONS.join( ", " )}.` );
+        }
+        else if ( pair.decision === "open" && ( pair.decidedBy || pair.decided ) ) {
+            errors.push( `${owner}: an open pair has no decidedBy or decided.` );
+        }
+        else if ( pair.decision !== "open" ) {
+            if ( !pair.decidedBy || !pair.decided ) {
+                errors.push( `${owner}: a ${pair.decision} pair names who decided (decidedBy) and when (decided).` );
+            }
+            else {
+                checkPerson( owner, pair.decidedBy, true );
+                checkDate( owner, pair.decided );
+            }
+        }
+    }
+
+    for ( const request of duplicates.mergeRequests || [] ) {
+        const owner = `duplicates.json merge request ${request.key}`;
+        checkKey( owner, request.key );
+        claimGuid( request.guid, owner );
+        checkPerson( owner, request.requester, true );
+        const requestPeople = Array.isArray( request.people ) ? request.people : [];
+        requestPeople.forEach( p => checkPerson( owner, p, false ) );
+        if ( requestPeople.length < 2 || new Set( requestPeople.map( p => p.guid ) ).size !== requestPeople.length ) {
+            errors.push( `${owner}: a merge request names two or more different people.` );
+        }
+        if ( typeof request.note !== "string" || !request.note.trim() || request.note.length > 500 || !isPlainText( request.note ) ) {
+            errors.push( `${owner}: the note is plain text of 1 to 500 characters.` );
+        }
+        checkDate( owner, request.requested );
+    }
+
+    for ( const merge of duplicates.merges || [] ) {
+        const owner = `duplicates.json merge ${merge.key}`;
+        checkKey( owner, merge.key );
+        const kept = checkPerson( owner, merge.person, false );
+        if ( kept && ( kept.person.replacesAdmin || kept.person.recordType === "business" ) ) {
+            errors.push( `${owner}: Rock's admin person and businesses do not take merges here.` );
+        }
+        checkPerson( owner, merge.mergedBy, true );
+        if ( !merge.record || !merge.record.firstName || !merge.record.lastName ) {
+            errors.push( `${owner}: the merged record needs a guid, firstName, and lastName.` );
+        }
+        else {
+            claimGuid( merge.record.guid, `${owner} (merged record)` );
+        }
+        checkDate( owner, merge.merged );
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -1931,5 +2157,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

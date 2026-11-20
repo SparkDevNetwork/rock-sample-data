@@ -11,6 +11,8 @@ The words this project uses, in alphabetical order.
 | **Adaptive message** | A Rock message with several adaptations, shown by Rock's `{% adaptivemessage %}` Lava command so each person sees the version that fits them, such as their next step or their giving layer. |
 | **Anchor** | The date every relative date counts back from. It defaults to install day: today on the database server. Tests pin it with `--anchor`. |
 | **Assessment** | One of Rock's five personal assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, or Motivators. A request waits as Pending, a result is Complete with its answers, and the scores are person attributes. See [Assessments](assessments.md). |
+| **Background check** | A screening a church runs before someone serves with kids or leads a group. Rock stores each one as a check row from its provider, Checkr, and sets the person's Background Checked, date, and result. See [How background checks load](../loader/README.md#how-background-checks-load). |
+| **Benevolence request** | A person's request for help from the church, such as rent or groceries, in Rock's Benevolence pages, with its case worker, status, and results. See [How benevolence loads](../loader/README.md#how-benevolence-loads). |
 | **Built on the Rock** | The sample church's two-year building campaign, about 38% through on install day. Its fund has a campus account per campus. See [Pledges](pledges.md). |
 | **Business contact** | A person linked to a business record in Rock's Known Relationships. Business Detail lists the contacts, and each contact's Known Relationships shows the business. |
 | **Blackout date** | Days a volunteer is away, set in Rock's schedule toolbox. Nobody is scheduled to serve inside them. |
@@ -32,9 +34,10 @@ The words this project uses, in alphabetical order.
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
+| **Duplicate pair** | Two person records Rock's duplicate finder scores as maybe one person. Staff leave a pair open, mark it Not Duplicate, or Ignore it until its score changes. The Duplicate Finder lists open pairs above a confidence of 60. See [Duplicates](duplicates.md). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Email section** | A saved block staff drag into an email in Rock's newer email editor, such as Service Times. Rock keeps its markup, a usage summary, and a thumbnail, and the editor's Sections panel lists it by category. See [Email sections](communications.md#email-sections). |
-| **eRA** | Rock's "estimated regular attender" status for a family that comes or gives regularly. Rock's Family Analytics job sets it, and the job ships turned off. The load does not fill eRA yet. See [After you install](after-install.md#run-after-install). |
+| **eRA** | Rock's "estimated regular attender" status for a family that comes or gives regularly. Rock's Family Analytics job sets it each Tuesday, with an eRA step in Rock's Core Steps program. The load fills it as if the job had run every week of the history window, and turns the job on. See [Steps](steps.md#era). |
 | **Event item** | One event on a Rock calendar, such as Easter Sunday, with its summary, description, audiences, and photo. Its dates are in its occurrences. See [Calendar](calendar.md). |
 | **Event occurrence** | One campus's instance of an event at one start time, with its own schedule, place, and contact. Easter at Phoenix has one per service. |
 | **Fee item** | One choice of a registration fee, such as a single room or one child of childcare, with its cost. An item can have a usage limit, and Rock hides it once every use is taken. |
@@ -44,11 +47,13 @@ The words this project uses, in alphabetical order.
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **In-kind gift** | A gift of something other than money, such as stock, a vehicle, or a piano. Rock records it with the Non-Cash Asset currency type, one of its Non-Cash Asset Types, a summary, and its fair value. See [Uncommon gifts](uncommon-gifts.md). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
+| **Launch Sunday** | A Sunday when the church starts new small groups: the second Sunday of September and the third Sunday of January. About a third of the groups started on one of the last four. See [Small groups](small-groups.md#new-groups-and-new-leaders). |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
+| **Merge request** | A merge asked for by someone who cannot merge people. Rock keeps it until someone merges or deletes it, on the Merge Requests page. See [Duplicates](duplicates.md). |
 | **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view. See [Data views and reports](reporting.md). |
 | **Notification message** | A message in a person's bell in Rock's top bar, which counts the unread ones. A mention in a recent note leaves one for the staff member it mentions, and it opens the note (decision 307). |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
@@ -59,18 +64,22 @@ The words this project uses, in alphabetical order.
 | **Payment plan** | A registration's scheduled payments of what is left after the first payment, at a set frequency, ending by the payment deadline. Rock keeps it as a scheduled transaction of type Event Registration. See [Event registrations](registrations.md#payments). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
+| **Peer network** | Rock's score of how well two people likely know each other, from the groups they share and the people they follow, with a trend arrow. Rock's Calculate Peer Network job updates it on the 1st of each month. The sample church has it on for small groups and serving teams. See [Peer network](small-groups.md#peer-network). |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
 | **Person signal** | A colored flag on a profile that asks staff to act, such as Safety Team Review or Care Team Follow-up, with an owner, a note, and an optional end. Rock's Top Person Signal badge shows the person's first open one by type order. See [How signals load](../loader/README.md#how-signals-load). |
 | **Personal link** | A bookmark to a Rock page in the menu behind the icon beside Rock's search bar. Links sit in sections, shared ones secured by role and personal ones private to one person. See [How personal links load](../loader/README.md#how-personal-links-load). |
 | **Personal tag** | A tag one staff member owns. Only its owner sees it and tags people with it, such as Jamal Pierce's Possible Group Leaders. |
 | **Personalization segment** | The people in one person data view, which Rock keeps in its PersonAliasPersonalization table and refreshes on a schedule. Each of the church's segments points at a view in `configuration/reporting.json`. |
+| **Pin** | A fact about a Cast small group in `configuration/small-groups.json` that the planner keeps on every run, such as its leader, host, topic, or a household in it, because a Cast story, note, or prayer request says so. |
 | **Pledge** | A promise to give a total to a fund over set dates, with an optional frequency. Rock's Pledge Analytics compares it with what the giving unit gave. |
 | **Photo ethnicity** | A value used only to generate photos that look like a family. It is never written to Rock. |
 | **Pool** | A set of ready-made items the builder draws from: the address pool, or the Core 3 photo pool. |
 | **Placement group** | A group that registrants are placed in after they register, such as a camp bus or cabin. It belongs to one placement of the template and is linked to each instance that uses it. |
 | **Position** | A room a serving team serves in, with a minimum, desired, and maximum number of people at each service. Rock's Position person attribute is something else: a job title, beside Employer. |
 | **Profile** | The blended target numbers the builder uses, in `calibration/profiles/`. |
+| **Requirement result** | Whether a group member meets a group requirement, such as a current background check: Meets, Meets With Warning, or Not Met. Rock's Calculate Group Requirements job saves it, and the scheduler and group screens read it. |
 | **Recent graduate** | A generated adult aged 18 to 20 who finished high school inside the history window. They check in as a student until they graduate. |
+| **Ready to Lead** | The church's data view of adults who have an Equip step, serve on a team, and are in a small group, but lead nothing yet. The Lead a Group flow invites them six weeks before each launch Sunday, and most new small group leaders come from it. |
 | **Refund** | A transaction that returns part or all of a gift, with negative amounts, a reason, and a link to the gift. Staff make it in Rock, and it lands in the day's " - Refund" batch. See [Refunds](refunds.md). |
 | **Registrant audience** | Who registers for an instance: students, kids by family, married couples, adults, or volunteers. Each instance rule names one, and only the choosing differs between them (decision 209). See [Event registrations](registrations.md). |
 | **Registrant** | A person registered on a registration, such as a camper. One registration can hold several, such as siblings. |
@@ -93,6 +102,7 @@ The words this project uses, in alphabetical order.
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **SMS snippet** | Saved text staff insert in SMS Conversations instead of retyping it, such as service times. A shared snippet shows to every staff member, and a personal one only to its owner. Rock fills in the person's nickname when staff insert it. See [SMS snippets](communications.md#sms-snippets). |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
+| **Staff update** | A weekly post on Rock's staff homepage: a feature and one to three staff articles, in Rock's Internal Communications - Homepage content channel. See [Staff homepage](staff-homepage.md). |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Step workflow** | A Rock workflow tied to a step type by a trigger. Rock starts it when a person completes the step, or staff start it by hand from the step. The sample church has three staff follow-up tasks, such as Baptism Follow-Up, which goes to the campus pastor. See [Steps](steps.md#step-workflows). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |

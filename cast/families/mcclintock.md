@@ -12,7 +12,7 @@ Ty McClintock is a graduate assistant and a friend of Paul Smith. Both took the 
 
 ### Ty (Taylor) McClintock
 
-- Age 20 · single · Graduate Assistant, Sonoran Valley University · email taylor@example.org · groups: Marble Group, Sonoran Valley University Student Group
+- Age 20 · single · Graduate Assistant, Sonoran Valley University · email taylor@example.org · groups: Decker Group, Sonoran Valley University Student Group
 - Person Guid `A08C02C7-ED75-4F24-8F75-FB3956521804`
 
 ## What this family tests

@@ -495,6 +495,25 @@
       }
     },
     {
+      "key": "attended-last-8-weeks",
+      "name": "Attended in the Last 8 Weeks",
+      "description": "Adults who came to a worship service in the last 8 weeks. Under the next-step views, it catches people who come but fit none of them, to help them find a next step.",
+      "category": "belong-data-views",
+      "guid": "F8D1A510-C501-428F-AF1E-F7AE03B8BD0D",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+            "selection": "235BAE2B-5760-4763-AADF-3938F34BA100|256|1|Last,8,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
       "key": "small-groups-with-room",
       "name": "Small Groups With Room",
       "description": "Active small groups with fewer than 12 active members, the church's target size (configuration/small-groups.json), where a new person can join.",
@@ -555,6 +574,45 @@
           {
             "component": "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
             "selection": "7A17235B-69AD-439B-BAB0-1A0A472DB96F,9A88743B-F336-4404-B877-2A623689195D|256|1|Last,12,Week,,|False"
+          }
+        ]
+      }
+    },
+    {
+      "key": "families-of-students",
+      "name": "Families of Students",
+      "description": "Everyone in a family with a student in grades 7 to 12, through Rock's Family Members transformation.",
+      "category": "belong-data-views",
+      "guid": "2919306A-2F35-4F00-9CDD-270E38EFCF07",
+      "transform": "Rock.Reporting.DataTransform.Person.FamilyMembersTransform",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.GradeFilter",
+            "selection": "256|3fe728ac-be25-409a-98cb-3cfce5fa063b"
+          }
+        ]
+      }
+    },
+    {
+      "key": "parents-of-students",
+      "name": "Parents of Students",
+      "description": "Adults whose family has a student in grades 7 to 12. While camp registration is open, they are asked to register their student.",
+      "category": "belong-data-views",
+      "guid": "A8421FDF-14F2-4F47-8E16-E4083EE451A1",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "families-of-students"
           }
         ]
       }
@@ -660,6 +718,32 @@
       }
     },
     {
+      "key": "baptized-regular-attenders",
+      "name": "Baptized Regular Attenders",
+      "description": "Adults who come regularly and have been baptized. Before each Baptism Sunday, they are asked to pray for one friend and invite them.",
+      "category": "equip-data-views",
+      "guid": "E0581881-3433-4E5E-9D7D-8196879AA80B",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "regular-attenders"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+            "steps": {
+              "program": "discipleship-path",
+              "stepType": "baptism"
+            }
+          }
+        ]
+      }
+    },
+    {
       "key": "baptized-this-year",
       "name": "Baptized This Year",
       "description": "Active people whose Baptism Date is in the last 12 months, to celebrate.",
@@ -674,6 +758,29 @@
           {
             "component": "Rock.Reporting.DataFilter.PropertyFilter",
             "selection": "[\"BaptismDate\",\"256\",\"CURRENT:-365\"]"
+          }
+        ]
+      }
+    },
+    {
+      "key": "serving-without-equip",
+      "name": "Serving Without an Equip Step",
+      "description": "Adults on an active serving team who have not taken an Equip step yet. Their next step is Foundations.",
+      "category": "equip-data-views",
+      "guid": "88C1E40C-A9EF-4212-9D24-974F16D97D0F",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "serving"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
+            "dataView": "equip-stage"
           }
         ]
       }
@@ -728,6 +835,33 @@
           {
             "component": "Rock.Reporting.DataFilter.NotInOtherDataViewFilter",
             "dataView": "lead-stage"
+          }
+        ]
+      }
+    },
+    {
+      "key": "already-leading",
+      "name": "Already Leading",
+      "description": "Adults who lead an active small group or an active serving team today. Their next step is to invite a friend to church.",
+      "category": "lead-data-views",
+      "guid": "9EC7CC67-C084-40DA-926A-28302D59C238",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "adults"
+          },
+          {
+            "any": [
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+                "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B|6D798EFA-0110-41D5-BCE4-30ACEFE4317E|1|True"
+              },
+              {
+                "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+                "selection": "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4|F6CECB48-52C1-4D25-9411-F1465755EB70|1|True"
+              }
+            ]
           }
         ]
       }
@@ -1036,6 +1170,25 @@
             "component": "Rock.Reporting.DataFilter.Person.GroupDataViewFilter",
             "dataView": "kids-and-student-teams",
             "selection": "{dataView}|1|0"
+          }
+        ]
+      }
+    },
+    {
+      "key": "leaders-of-small-groups",
+      "name": "Small Group Leaders",
+      "category": "safety-data-views",
+      "guid": "BF1B663F-DFE4-4D5F-9562-770B4F307513",
+      "description": "Active people who lead an active small group: the role with the background check requirement (decision 334).",
+      "filter": {
+        "all": [
+          {
+            "component": "Rock.Reporting.DataFilter.OtherDataViewFilter",
+            "dataView": "active-people"
+          },
+          {
+            "component": "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
+            "selection": "50FCFB30-F51A-49DF-86F4-2B176EA1820B|6D798EFA-0110-41D5-BCE4-30ACEFE4317E|1|True"
           }
         ]
       }
@@ -1710,6 +1863,20 @@
       "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
       "name": "Pete Foster",
       "category": "safety-reports",
+      "action": "View",
+      "allowed": false
+    },
+    {
+      "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
+      "name": "Rachel Brooks",
+      "report": "leader-background-checks",
+      "action": "View",
+      "allowed": true
+    },
+    {
+      "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "name": "Ted Decker",
+      "report": "leader-background-checks",
       "action": "View",
       "allowed": false
     },
@@ -2480,6 +2647,40 @@
           "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
           "selection": "1|{dataView}||1",
           "dataView": "active-serving-teams"
+        },
+        {
+          "header": "Background Checked",
+          "attribute": "BackgroundChecked"
+        },
+        {
+          "header": "Background Check Date",
+          "attribute": "BackgroundCheckDate",
+          "sort": 1
+        },
+        {
+          "header": "Background Check Result",
+          "attribute": "BackgroundCheckResult"
+        }
+      ]
+    },
+    {
+      "key": "leader-background-checks",
+      "name": "Leader Background Checks",
+      "description": "Which small group leaders need a check before their next group night.",
+      "category": "safety-reports",
+      "guid": "21D1D2E1-6FC2-4266-9B9A-CA72C2F4D0BC",
+      "dataView": "leaders-of-small-groups",
+      "columns": [
+        {
+          "header": "Name",
+          "component": "Rock.Reporting.DataSelect.Person.PersonLinkSelect",
+          "selection": "{\"ShowAsLink\":\"True\",\"DisplayOrder\":\"0\"}"
+        },
+        {
+          "header": "Group",
+          "component": "Rock.Reporting.DataSelect.Person.GroupParticipationSelect",
+          "selection": "1|{dataView}||1",
+          "dataView": "active-small-groups"
         },
         {
           "header": "Background Checked",

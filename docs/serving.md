@@ -20,13 +20,14 @@ Every campus has the same eight teams. Each one is a Rock Serving Team group, so
 - **Structure.** Each team sits under its campus's parent ("Phoenix Serving Teams"), under Rock's own Serving Teams group. Names are plain, with the campus set on the group. Rock's shipped Greeters, Ushers, and Children's groups become Phoenix's Greeters, Ushers, and Kids Ministry, and the old A/V Team becomes Phoenix's Production Team.
 - **Positions are rooms.** A team's rooms are its scheduling positions. The kids and student rooms are the check-in rooms; the other rooms are added to each campus building. Each room has a minimum, desired, and maximum number of people at each service.
 - **Staffing fits the campus.** The configured numbers are for a campus that can staff them. A small campus asks for about the people it usually has, so its scheduler is mostly staffed with some open spots. Phoenix in Core 1 is a church of about 180 people running six kids rooms at three services, so many kids rooms still show an open spot. That is realistic, and it gives the scheduler work to show.
-- **Requirements.** Kids Ministry and Student Ministry require Rock's Background Check Required, and only volunteers who meet it can be scheduled. Every volunteer on those teams has a passing check from the last few years and the requirement results Rock's job would have saved.
+- **Requirements.** Kids Ministry and Student Ministry require Rock's Background Check Required, and only volunteers who meet it can be scheduled. Every adult on those teams has a passing check from the last few years, with its report, and the requirement results Rock's job would have saved. Volunteers under 18 meet Rock's rule by age. The Background checks part writes them (decision 333), and small group leaders have the same requirement (decision 334).
 
 ## The volunteers
 
 - **The Cast.** Phoenix's 47 Cast volunteers are hand-picked in `cast/groups/serving-*.json`, one file per team, so tests can rely on them. Their stories hold: the Bells greet, Ted Decker leads the Production Team, Gabriel Hernandez plays on the Worship Team, the Fosters and Cindy Decker pray, and Michelle Nguyen leads First Aid. Natalie Silva serves on two teams.
 - **Generated households.** Adults in households that still attend serve at the profile's share of active adults (22.6%). They come from Engaged and Leading adults first, then Connected and Known adults when a campus needs them, who become Engaged. Every team gets a leader and at least two people. Couples often serve together. Volunteers are out of high school, and nobody joined a team before then (decision 169).
 - **Leaders.** Every team has a leader, who is Leading. A large team also has co-leaders at the measured share of leaders (8.5%), the way a big team has a coordinator for each service.
+- **Small group leaders from Ready to Lead.** A small group leader who launched from Ready to Lead serves on a team the volunteer's own seed picks, by the teams' need, and joined it by half a year before the day they were Ready to Lead. They are never a team leader, so their Lead step starts with their group (decision 322, and see [Small groups](small-groups.md#new-groups-and-new-leaders)).
 - **Rotation.** Each volunteer has one of Rock's four schedule templates: Every Week (15%), Every Other Week (40%), 1st and 3rd Week (25%), or 2nd and 4th Week (20%). Leaders serve every week. On a fifth Sunday, about half of the 1st and 3rd and the 2nd and 4th volunteers fill in.
 - **Preferences.** Most volunteers prefer one service (85%), and most on a team with several rooms prefer one room (70%). These are Rock's scheduling preferences, which Auto Schedule uses.
 - **Pending.** People who connected in the last few weeks wait on their team as Pending, as Rock ships it. The team leader makes them Active as part of onboarding.
@@ -61,8 +62,8 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 | Brian and Wendy Gilbert | Greeters, In Progress | A couple asking to serve together |
 | Sean Hansen | Ushers, No Contact | A new request with no connector |
 | Nancy Turner | Ushers, No Contact | An idle, overdue request with no connector |
-| Helen Evans | Kids Ministry, Background Check | Waiting on a background check |
-| Frank Dexter | Kids Ministry, Background Check | A failed background check that needs review |
+| Helen Evans | Kids Ministry, Background Check | Waiting on a background check, still in progress and linked to her request |
+| Frank Dexter | Kids Ministry, Background Check | A failed background check, linked to his request, that the safety team reviews |
 | Sam Hanks | Production Team, No Contact | 75 days with no follow-up |
 | Bri Hall | Greeters, Connected | Just connected, waiting as a Pending greeter |
 | Ryan Patel | Production Team, future follow-up | Contact him again after his work travel |
@@ -72,6 +73,14 @@ Requests use Rock's Involvement connection type, which keeps its name. Many chur
 With the Gilberts, Alisha Marble connects nine of the Cast's open requests, so signing in as admin shows at least eight on her connection board in every dataset. A Cast expectation checks that floor on every load (decision 178).
 
 Alisha wrote a celebration on six of them: Lauren Shaw, Derek Ward, Mark Fischer, Brian and Wendy Gilbert, and Sheryl Tennant. The three she has not reached yet have none, so her board shows both. Bri Hall's greeters leader and Rachel Brooks, for Helen Evans, wrote two more. A Cast expectation checks every one, and that Alisha has at least six, on every load (decision 219).
+
+## eRA
+
+Serving check-ins count toward eRA, because Rock's Serving Team type counts as a weekend service. A family with a volunteer who serves most Sundays stays an eRA. See [eRA](steps.md#era).
+
+## Peer network
+
+Serving teams count toward Rock's Peer Network as casual relationships: 5 points, plus 0.1 a month while two volunteers serve on the same team. Ted Decker's profile shows the Production Team he leads. See [Peer network](small-groups.md#peer-network).
 
 ## How the numbers compare
 

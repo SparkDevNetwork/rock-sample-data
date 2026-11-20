@@ -31,8 +31,11 @@ namespace RockSampleData.Loader.Generation
     {
         private const string LeaderRotation = "Every Week";
 
+        /// <param name="readyToLead">Each leader who launched a small group from Ready to Lead, and the day they were Ready to Lead. Each
+        /// was serving by then, and never leads a team (decision 322).</param>
         public static List<ServingTeamPlan> Plan( ServingConfiguration config, ProfileTargets profile, AnchorDates dates, string seed, IReadOnlyList<CastHousehold> households,
-            HashSet<string> castHouseholdKeys, Dictionary<string, CastServingTeam> castTeams, Dictionary<string, CampusPlan> campuses, string mainCampusKey )
+            HashSet<string> castHouseholdKeys, Dictionary<string, CastServingTeam> castTeams, Dictionary<string, CampusPlan> campuses, string mainCampusKey,
+            IReadOnlyDictionary<Guid, DateTime> readyToLead )
         {
             var servePercent = profile.Number( config.Volunteers.GeneratedProfilePath, 0 );
             var leaderPercent = profile.Number( config.Volunteers.LeadersProfilePath, 0 );
@@ -52,13 +55,13 @@ namespace RockSampleData.Loader.Generation
                         foreach ( var member in castTeam.Members )
                         {
                             var (person, household) = castPeople[member.Guid];
-                            teams[castTeam.Team].Members.Add( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader", joinedMonths ) );
+                            teams[castTeam.Team].Members.Add( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader", joinedMonths, ServingBy( readyToLead, person ) ) );
                         }
                     }
                 }
 
                 var generated = households.Where( h => h.CampusSlot == campus.Key && !castHouseholdKeys.Contains( h.Key ) ).ToList();
-                AssignGenerated( config, dates, seed, campus, generated, teams, servePercent, leaderPercent, joinedMonths );
+                AssignGenerated( config, dates, seed, campus, generated, teams, servePercent, leaderPercent, joinedMonths, readyToLead );
                 plans.AddRange( teams.Values.Where( t => t.Members.Count > 0 ) );
             }
 
@@ -71,7 +74,7 @@ namespace RockSampleData.Loader.Generation
         /// without a leader takes the volunteer whose family attends most, who becomes Leading.
         /// </summary>
         private static void AssignGenerated( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, List<CastHousehold> households,
-            Dictionary<string, ServingTeamPlan> teams, double servePercent, double leaderPercent, Dictionary<int, double> joinedMonths )
+            Dictionary<string, ServingTeamPlan> teams, double servePercent, double leaderPercent, Dictionary<int, double> joinedMonths, IReadOnlyDictionary<Guid, DateTime> readyToLead )
         {
             var rules = config.Volunteers;
             var random = new SeededRandom( $"{seed}:serving:{campus.Key}" );
@@ -101,7 +104,7 @@ namespace RockSampleData.Loader.Generation
 
             void Add( ServingTeamDefinition team, CastPerson person, CastHousehold household )
             {
-                teams[team.Key].Members.Add( PlanMember( config, dates, seed, campus, team.Key, person, household, false, joinedMonths ) );
+                teams[team.Key].Members.Add( PlanMember( config, dates, seed, campus, team.Key, person, household, false, joinedMonths, ServingBy( readyToLead, person ) ) );
                 assigned.Add( person.Guid );
                 if ( rules.FallbackStatuses.Contains( person.ConnectionStatus ) )
                 {
@@ -144,6 +147,16 @@ namespace RockSampleData.Loader.Generation
                 return null;
             }
 
+            // A leader who launched a small group from Ready to Lead serves on the team their own seed picks, by the teams' need.
+            foreach ( var (person, household) in active.SelectMany( h => h.Members.Where( p => readyToLead.ContainsKey( p.Guid ) ).Select( p => (Person: p, Household: h) ) ).OrderBy( x => x.Person.Guid ) )
+            {
+                var fitting = config.Teams.Where( t => Fits( t, person, rules, dates ) ).ToDictionary( t => t.Key, t => Math.Max( 0.1, need[t.Key] ) );
+                if ( fitting.Count > 0 && !assigned.Contains( person.Guid ) )
+                {
+                    Add( config.Teams.Single( t => t.Key == new SeededRandom( $"{seed}:serving:ready-to-lead:{person.Guid}" ).Pick( fitting ) ), person, household );
+                }
+            }
+
             foreach ( var team in config.Teams )
             {
                 while ( teams[team.Key].Members.Count < rules.MinimumTeamSize && assigned.Count < target && NextFor( team ) is { } pick )
@@ -179,7 +192,7 @@ namespace RockSampleData.Loader.Generation
             {
                 var wanted = Math.Max( 1, ( int ) Math.Round( plan.Members.Count * leaderPercent / 100.0 ) );
                 var promote = plan.Members
-                    .Where( m => !m.IsLeader && generatedPeople.ContainsKey( m.Person ) )
+                    .Where( m => !m.IsLeader && generatedPeople.ContainsKey( m.Person ) && !readyToLead.ContainsKey( m.Person ) )
                     .OrderByDescending( m => generatedPeople[m.Person].Household.Attendance?.PercentAttended ?? 0 )
                     .Take( wanted - plan.Members.Count( m => m.IsLeader ) )
                     .ToList();
@@ -196,7 +209,9 @@ namespace RockSampleData.Loader.Generation
         /// Leaders serve every week and have served longer. Nobody joined in the last month; new
         /// volunteers arrive through connection requests.
         /// </summary>
-        private static ServingMemberPlan PlanMember( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, string teamKey, CastPerson person, CastHousehold household, bool isLeader, Dictionary<int, double> joinedMonths )
+        /// <param name="servingBy">The latest day this volunteer may have joined, or null.</param>
+        private static ServingMemberPlan PlanMember( ServingConfiguration config, AnchorDates dates, string seed, CampusPlan campus, string teamKey, CastPerson person, CastHousehold household, bool isLeader, Dictionary<int, double> joinedMonths,
+            DateTime? servingBy )
         {
             var rules = config.Volunteers;
             var team = config.Teams.Single( t => t.Key == teamKey );
@@ -228,6 +243,13 @@ namespace RockSampleData.Loader.Generation
                 joined = dates.Anchor.AddDays( -30 );
             }
 
+            // A Ready to Lead leader joined in the two years before the day they must be serving by.
+            if ( servingBy.HasValue && joined > servingBy.Value )
+            {
+                var earliest = new[] { servingBy.Value.AddDays( -730 ), adultSince, started?.AddDays( 30 ) ?? DateTime.MinValue }.Max();
+                joined = earliest >= servingBy.Value ? servingBy.Value : earliest.AddDays( random.Between( 0, ( int ) ( servingBy.Value - earliest ).TotalDays ) );
+            }
+
             var serviceCount = ServingConfigurationLoader.TeamServices( team, campus ).Count;
             int? service = random.Chance( rules.PreferredServicePercent / 100.0 ) ? random.Between( 0, serviceCount - 1 ) : null;
             int? position = team.Positions.Count > 1 && random.Chance( rules.PreferredPositionPercent / 100.0 ) ? random.Between( 0, team.Positions.Count - 1 ) : null;
@@ -235,6 +257,13 @@ namespace RockSampleData.Loader.Generation
         }
 
         private static bool Fits( ServingTeamDefinition team, CastPerson person, VolunteerRules rules, AnchorDates dates ) => IsOutOfHighSchool( person, team.MinimumAge ?? rules.MinimumAge, dates );
+
+        /// <summary>
+        /// The latest day a leader who launched from Ready to Lead joined their team: half a year before they were Ready to
+        /// Lead, so Starting Point before serving and Foundations after it both fit before that day. Null for anyone else.
+        /// </summary>
+        private static DateTime? ServingBy( IReadOnlyDictionary<Guid, DateTime> readyToLead, CastPerson person ) =>
+            readyToLead.TryGetValue( person.Guid, out var readyOn ) ? readyOn.AddDays( -182 ) : null;
 
         /// <summary>
         /// An adult who was out of high school and old enough by the latest join date, a month before the anchor.

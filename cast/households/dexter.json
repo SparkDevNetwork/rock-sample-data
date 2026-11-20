@@ -9,7 +9,7 @@
   "campusSlot": "main",
   "story": "Frank Dexter is a long-time member. After his divorce he was convicted of a misdemeanor, so his recent background check failed and needs review before he can serve.",
   "testPurposes": [
-    "Failed background check that needs review.",
+    "Failed background check, linked to his request to serve, that the safety team reviews.",
     "Divorced adult living alone.",
     "Monthly giver."
   ],
@@ -98,9 +98,7 @@
         "Employer": "First Bank of Main",
         "Position": "Analyst",
         "BackgroundCheckDate": {
-          "yearsAgo": 8,
-          "month": 10,
-          "day": 4
+          "daysAgo": 33
         },
         "BackgroundCheckResult": "Fail"
       },
@@ -116,7 +114,6 @@
             "daysAgo": 40
           },
           "connector": true,
-          "backgroundCheck": "Fail",
           "comment": "I'd like to help with the elementary kids on Sundays."
         }
       ],

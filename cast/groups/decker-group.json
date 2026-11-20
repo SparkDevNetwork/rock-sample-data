@@ -6,11 +6,11 @@
   "name": "Decker Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Parenting",
-  "description": "Parents comparing notes, praying for our kids, and learning from each other.",
+  "topic": "Prayer",
+  "description": "We spend most of our time praying for each other, our church, and our city.",
   "schedule": {
-    "day": "Thursday",
-    "time": "18:00"
+    "day": "Monday",
+    "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
@@ -57,8 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
-      "name": "Elena Alvarez",
+      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
+      "name": "Nathan Brooks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -69,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
+      "guid": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +81,8 @@
     },
     {
       "state": "Active",
-      "guid": "CADE3046-BF77-4131-9527-D52E4700E038",
-      "name": "Nathan Brooks",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -93,8 +93,8 @@
     },
     {
       "state": "Active",
-      "guid": "9AA2688D-534C-4FC2-9C7D-DAA224041338",
-      "name": "Rachel Brooks",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -105,8 +105,8 @@
     },
     {
       "state": "Active",
-      "guid": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
-      "name": "Monica Flores",
+      "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -117,8 +117,8 @@
     },
     {
       "state": "Active",
-      "guid": "8E2E806E-C63B-4258-B3E3-73D9354ABDF5",
-      "name": "Emily Gray",
+      "guid": "A08C02C7-ED75-4F24-8F75-FB3956521804",
+      "name": "Ty McClintock",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -129,8 +129,8 @@
     },
     {
       "state": "Active",
-      "guid": "6B190521-2A32-4B46-A02B-618174709D59",
-      "name": "Barb Jenkins",
+      "guid": "36E19312-6935-4153-B21E-8EA32AA5FEA1",
+      "name": "Megan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -141,8 +141,8 @@
     },
     {
       "state": "Active",
-      "guid": "086C4989-5D61-4F4B-BD41-B2B1FE0556DE",
-      "name": "Gary Jenkins",
+      "guid": "3EA5E361-0D2A-423C-8D81-4AF563613155",
+      "name": "Ryan Patel",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -153,8 +153,8 @@
     },
     {
       "state": "Active",
-      "guid": "F9635310-8A62-4F4D-A0A3-CA2BA574889E",
-      "name": "Cathy Price",
+      "guid": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "name": "Josh Sanders",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -164,21 +164,26 @@
       "attendancePercent": 58
     },
     {
-      "state": "Active",
-      "guid": "6995F11F-500F-479B-8979-E7D5B6E48FE5",
-      "name": "Bill Price",
+      "state": "Inactive",
+      "guid": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+      "name": "Jamal Pierce",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 12
+        "day": 28
+      },
+      "left": {
+        "yearsAgo": 1,
+        "month": 10,
+        "day": 28
       },
       "attendancePercent": 65
     },
     {
       "state": "Inactive",
-      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
-      "name": "Tori Ramos",
+      "guid": "E4098D5B-4D01-476A-A951-37FD8E7E901B",
+      "name": "Renee Pierce",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,

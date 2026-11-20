@@ -521,11 +521,6 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public bool Connector { get; set; }
 
-        /// <summary>
-        /// A background check result recorded a week after the request, or null.
-        /// </summary>
-        public string BackgroundCheck { get; set; }
-
         public string Comment { get; set; }
 
         /// <summary>
@@ -560,6 +555,57 @@ namespace RockSampleData.Loader.Model
         public CastStepsExpect Steps { get; set; }
 
         public CastAssessmentsExpect Assessments { get; set; }
+
+        public CastEraExpect Era { get; set; }
+
+        public CastPeerNetworkExpect PeerNetwork { get; set; }
+    }
+
+    /// <summary>
+    /// What Rock's eRA shows for a Cast person on install day (decision 327).
+    /// </summary>
+    internal sealed class CastEraExpect
+    {
+        /// <summary>
+        /// current (an eRA now), former (was one and exited), or never.
+        /// </summary>
+        public string Status { get; set; }
+
+        /// <summary>
+        /// For current: how many days before install day the eRA Start Date may be.
+        /// </summary>
+        public CastDaysAgoRange StartedDaysAgo { get; set; }
+
+        /// <summary>
+        /// For former: how many days before install day the eRA End Date may be.
+        /// </summary>
+        public CastDaysAgoRange EndedDaysAgo { get; set; }
+    }
+
+    /// <summary>
+    /// A range of days before install day. Either end may be left out.
+    /// </summary>
+    internal sealed class CastDaysAgoRange
+    {
+        public int? Min { get; set; }
+
+        public int? Max { get; set; }
+    }
+
+    /// <summary>
+    /// What a Cast person's peer network shows on install day (decision 332).
+    /// </summary>
+    internal sealed class CastPeerNetworkExpect
+    {
+        /// <summary>
+        /// Keys of people in the same household who show in the person's peer network, rising.
+        /// </summary>
+        public List<string> Includes { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Every person who shares one of the person's current groups of a type with Peer Network on shows, rising.
+        /// </summary>
+        public bool CurrentGroupsRising { get; set; }
     }
 
     /// <summary>
@@ -570,6 +616,16 @@ namespace RockSampleData.Loader.Model
         public RelativeDate BaptismDate { get; set; }
 
         public RelativeDate FirstVisit { get; set; }
+
+        /// <summary>
+        /// The day the person's latest background check came back, when their story sets it.
+        /// </summary>
+        public RelativeDate BackgroundCheckDate { get; set; }
+
+        /// <summary>
+        /// Pass or Fail, the latest check's result. A story that sets a date and no result passed.
+        /// </summary>
+        public string BackgroundCheckResult { get; set; }
 
         /// <summary>
         /// Every other value in the file, by attribute key, for registration form answers that have no property of their own.

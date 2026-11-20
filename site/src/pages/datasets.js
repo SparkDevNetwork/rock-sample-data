@@ -27,7 +27,9 @@ const inside = model => [
     [ "Small groups", "Groups with leaders, hosts, topics, history, photos, and Group Finder test cases at every campus." ],
     [ "Serving and scheduling", "Eight teams per campus, with rotations, preferences, blackout dates, six weeks of future schedules, and volunteer check-in." ],
     [ "Connections", "Requests to serve that follow each household's journey, with activities and placements. Due dates run by status, so each board has requests due later, due this week, and past due." ],
+    [ "Background checks", "Checks for kids and student volunteers and every small group leader, each with its report as a PDF, and the requirement results Rock shows, including leaders whose check expires soon, has expired, or never happened." ],
     [ "Prayer", "Requests in every state, the prayer team's prayers and comments, and the Cast's own requests tied to their stories." ],
+    [ "Benevolence", "Requests for help with rent, bills, food, cars, and medical costs, worked by the Care Director, with what the church gave and signed agreements, seen only by the benevolence team." ],
     [ "Notes", "Six note types with View security, the Cast's hand-written notes, and generated notes with replies, alerts, and mentions. A mention in a recent note waits unread in that staff member's bell. The profiles demos open first, such as the Deckers and the Fosters, have notes from other staff." ],
     [ "Reminders", "Reminders staff set about people they wrote notes on, and small group leaders about their groups: some due, some upcoming, some complete, and a few that repeat. Rock's bell counts each person's reminders due, as its own job would." ],
     [ "Tags", "Organizational tags, such as Homebound and Car Show Volunteers, locked to the roles that use them, personal tags staff keep for themselves, and Rock's own Staff tag on every staff member. Generated people carry tags too, drawn by each tag's rules." ],
@@ -153,9 +155,9 @@ dotnet run -- --package ../packages/core-1.zip --login-password "choose-one" --c
   <div class="wrap">
     ${sectionHead( { eyebrow: "After you install", title: "Know which Rock jobs to run.", lede: "Rock's background jobs keep a church's data current. The load already wrote most of what they would have, so most need nothing from you." } )}
     <div class="card-grid">
-      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, group sync, step program completions, personalization segments, top signals, and what Rock Cleanup sets are filled as if Rock's jobs ran every night. Their next runs change nothing.</p></div>
-      <div class="card reveal"><h3>Run once</h3><p>Family Analytics ships turned off, and the load does not fill eRA yet. Run it once for eRA as of today. Duplicates, peer networks, and the analytics tables fill on their first scheduled run, or run them now.</p></div>
-      <div class="card reveal"><h3>Be careful</h3><p>Turn off Location Services Verify on a sample site, or it sends the sample addresses to an address service each night. Keep real email off, because a few reminders reach Cast staff.</p></div>
+      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, eRA, peer networks, the Duplicate Finder, group sync, step program completions, personalization segments, top signals, and what Rock Cleanup sets are filled as if Rock's jobs had run on their schedules. Every address is marked as checked, so none goes to an address service. Their next runs change nothing.</p></div>
+      <div class="card reveal"><h3>Run once</h3><p>Rock's analytics tables fill on their job's first scheduled run that night, or run it now.</p></div>
+      <div class="card reveal"><h3>Be careful</h3><p>Keep real email off, because a few reminders reach Cast staff. Communication flows keep sending after install, only to reserved addresses.</p></div>
     </div>
     <p class="fine">Every date counts back from install day, so Rock's jobs move the church forward from there. See <a href="${repoUrl}/blob/main/docs/after-install.md">After you install</a> for every Rock job and what it does to the sample data.</p>
   </div>

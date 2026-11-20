@@ -217,14 +217,16 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Gives each Cast small group in photos/groups/manifest.json its photo, the way Rock stores a
         /// photo uploaded on the group's page: a Default file, not temporary, set as the group's PhotoId.
-        /// Run after the small groups load. Returns how many groups got a photo.
+        /// A photo loads only when everyone in it is a member of the group, so a men's or women's group
+        /// never shows the leader's spouse. Run after the small groups load. Returns how many groups got a photo.
         /// </summary>
         /// <param name="plans">The loaded small group plans; photos match them by group key.</param>
         public int LoadGroupPhotos( IReadOnlyList<SmallGroupPlan> plans )
         {
             var guids = plans.ToDictionary( p => p.Key, p => p.Guid );
+            var members = plans.ToDictionary( p => p.Key, p => p.Members.Where( m => m is not PendingMember ).Select( m => m.Name ).ToHashSet( StringComparer.OrdinalIgnoreCase ) );
             var photos = _source.ReadGroupPhotoManifest().Images
-                .Where( p => guids.ContainsKey( p.Group ) )
+                .Where( p => guids.ContainsKey( p.Group ) && p.People.All( members[p.Group].Contains ) )
                 .OrderBy( p => p.Group, StringComparer.Ordinal )
                 .ToList();
             if ( photos.Count == 0 )
@@ -275,6 +277,44 @@ namespace RockSampleData.Loader.Loading
             return photos.Count;
         }
 
+        /*
+            11/19/26 - CLAUDE
+
+            Rock stores a campus's photo on the campus's Location, as Location.ImageId, and its Location Detail block's
+            image editor saves the upload in Rock's Location Image file type. The loader does the same for each loaded
+            campus with a photo in photos/campuses/manifest.json, so a dataset gets only its own campuses' photos. The
+            same type exists, stored in the database, in Rock 20.0.10 and Rock 21.0.2 (decision 317).
+
+            Reason: Lava pages and the app can show each campus's building, as issue 43 asks.
+        */
+
+        /// <summary>
+        /// Rock's Location Image file type, which its Location Detail block saves a location's image in.
+        /// </summary>
+        private static readonly Guid LocationImageFileTypeGuid = new Guid( "DAB74416-3272-4411-BA69-70944B549A4B" );
+
+        /// <summary>
+        /// Stores each loaded campus's photo as a Location Image file and sets it as the image of the campus's Location.
+        /// Returns how many campuses got a photo.
+        /// </summary>
+        /// <param name="campusLocationIds">The Location Id of each loaded campus, by campus key.</param>
+        public int LoadCampusPhotos( IReadOnlyDictionary<string, int> campusLocationIds )
+        {
+            var photos = _source.ReadCampusPhotoManifest().Images
+                .Where( p => campusLocationIds.ContainsKey( p.Campus ) )
+                .OrderBy( p => p.Campus, StringComparer.Ordinal )
+                .ToList();
+            if ( photos.Count == 0 )
+            {
+                return 0;
+            }
+
+            var fileIds = WriteFiles( LocationImageFileTypeGuid, photos.Select( p => p.File ).ToList(), SampleDataSource.CampusPhotoManifestPath );
+            var values = string.Join( ", ", photos.Select( ( p, i ) => $"( {campusLocationIds[p.Campus]}, {fileIds[i]} )" ) );
+            _db.Execute( $"UPDATE [l] SET [l].[ImageId] = [v].[FileId] FROM [Location] AS [l] INNER JOIN ( VALUES {values} ) AS [v] ( [Id], [FileId] ) ON [v].[Id] = [l].[Id]" );
+            return photos.Count;
+        }
+
         /// <summary>
         /// Stores one copy of a calendar event's image (photos/events/manifest.json) for each event key, the way Rock's
         /// image picker stores an upload (a Default file, not temporary), so each adaptation that shows it owns its own
@@ -291,7 +331,39 @@ namespace RockSampleData.Loader.Loading
             var photos = _source.ReadEventPhotoManifest().Images.ToDictionary( p => p.Event, p => p.File, StringComparer.Ordinal );
             var files = eventKeys.Select( k => photos.TryGetValue( k, out var file ) ? file
                 : throw new InvalidDataException( $"{SampleDataSource.EventPhotoManifestPath} has no image for event {k}." ) ).ToList();
-            var ids = WriteFiles( DefaultFileTypeGuid, files, SampleDataSource.EventPhotoManifestPath );
+            return CopyFiles( files, SampleDataSource.EventPhotoManifestPath );
+        }
+
+        /// <summary>
+        /// Stores one copy of each adaptive message image (photos/messages/manifest.json) the same way, so each adaptation
+        /// owns its own file. Returns each file's Guid, in the files' order.
+        /// </summary>
+        /// <param name="files">Each image's file under photos/, in order.</param>
+        public List<Guid> LoadMessageImageCopies( IReadOnlyList<string> files )
+        {
+            return files.Count == 0 ? new List<Guid>() : CopyFiles( files, SampleDataSource.MessagePhotoManifestPath );
+        }
+
+        /// <summary>
+        /// Stores one Default file for each distinct image, which many attribute values may share, and returns each
+        /// file's Guid by its path under photos/. Rock deletes an image file only when no attribute value names it any
+        /// longer, so sharing is safe (decision 346).
+        /// </summary>
+        /// <param name="files">The images, under photos/. A file may repeat.</param>
+        /// <param name="manifestName">The manifest that lists them, for the error when one is missing.</param>
+        public Dictionary<string, Guid> LoadSharedImages( IEnumerable<string> files, string manifestName )
+        {
+            var distinct = files.Distinct( StringComparer.Ordinal ).ToList();
+            var guids = distinct.Count == 0 ? new List<Guid>() : CopyFiles( distinct, manifestName );
+            return distinct.Select( ( f, i ) => (f, guids[i]) ).ToDictionary( x => x.f, x => x.Item2, StringComparer.Ordinal );
+        }
+
+        /// <summary>
+        /// Writes one Default file per item and returns their Guids in order.
+        /// </summary>
+        private List<Guid> CopyFiles( IReadOnlyList<string> files, string manifestName )
+        {
+            var ids = WriteFiles( DefaultFileTypeGuid, files, manifestName );
             var guids = _db.Query( $"SELECT [Id], [Guid] FROM [BinaryFile] WHERE [Id] IN ( {string.Join( ", ", ids )} )" )
                 .ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
             return ids.Select( id => guids[id] ).ToList();

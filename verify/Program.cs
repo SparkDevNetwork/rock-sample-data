@@ -215,6 +215,14 @@ try
             var cleanup = ClockCheck( sql, anchor ) ?? referee.Referee( database, baseDatabase );
             checks.Add( ClockCheck( sql, anchor ) ?? cleanup );
 
+            // After the referee, so a mark Rock Cleanup cleared would show.
+            stage = "address-services";
+            checks.Add( AddressServicesCheck( sql, database, foreignKey ) );
+
+            // Rock's nightly Calculate Person Duplicates job runs at 3 AM, after Rock Cleanup.
+            stage = "person-duplicates";
+            checks.Add( PersonDuplicatesCheck( rock, sql, database ) );
+
             // After the referee, because a sign-in can rewrite a password hash.
             stage = "sign-in";
             checks.Add( SignIn( rock, sql, database, foreignKey, TestLoginPassword ) );
@@ -238,6 +246,8 @@ try
             checks.Add( EmailSectionsCheck( rock, sql, database, source ) );
             stage = "segments";
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
+            stage = "staff-homepage";
+            checks.Add( StaffHomepageCheck( rock, sql, database, foreignKey, source ) );
             stage = "signals";
             checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
             stage = "personal-links";
@@ -251,9 +261,24 @@ try
             stage = "process-workflows";
             checks.Add( WorkflowsCheck( rock, sql, database, foreignKey ) );
 
+            // Rock's own Family Analytics and Calculate Peer Network procedures, rolled back after (decisions 324 and 329).
+            stage = "family-analytics";
+            checks.Add( JobReplayChecks.FamilyAnalytics( sql, database, anchor ) );
+            stage = "peer-network";
+            checks.Add( JobReplayChecks.PeerNetwork( sql, database, anchor ) );
+
             // Last, because a failing sync adds or removes members, and could make logins.
             stage = "group-sync";
             checks.Add( GroupSyncCheck( rock, sql, database, foreignKey, anchor ) );
+
+            // After group sync, because Rock's requirement job reads the members a sync could have changed.
+            stage = "group-requirements";
+            checks.Add( GroupRequirementsCheck.Run( rock, sql, database, anchor ) );
+
+            // After every other check of the load, because it clears case workers on this throwaway copy for Rock's
+            // workflow to fill again.
+            stage = "benevolence-workflow-launch";
+            checks.Add( BenevolenceWorkflowCheck.Run( rock, sql, database, foreignKey, source ) );
 
             // The Cast giving stories must hold on every install day, not only this run's (decision 218). Core 1
             // holds every main-campus Cast giver, so it is the one swept.
@@ -661,7 +686,8 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var access = ( source.Reporting?.Access ?? new List<AccessExpectation>() ).Concat( source.AdaptiveMessages?.Access ?? new List<AccessExpectation>() )
         .Concat( source.ReadSnippetLibrary()?.Access ?? new List<AccessExpectation>() )
         .Concat( source.Signals?.Access ?? new List<AccessExpectation>() )
-        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() ).ToList();
+        .Concat( source.Tags?.Access ?? new List<AccessExpectation>() )
+        .Concat( source.Benevolence?.Access ?? new List<AccessExpectation>() ).ToList();
     if ( access.Count == 0 )
     {
         return CheckResult.From( "access", "This package has no access expectations", new List<string>() );
@@ -682,7 +708,9 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
     var reports = source.Reporting.Reports.ToDictionary( r => r.Key, r => r.Guid );
     var signalTypes = ( source.Signals?.Types ?? new List<SignalTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var tags = ( source.Tags?.Tags ?? new List<TagDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
+    var benevolenceTypes = ( source.Benevolence?.Types ?? new List<BenevolenceTypeDefinition>() ).ToDictionary( t => t.Key, t => t.Guid );
     var questions = access.Select( a => ( a.Snippet != null ? $"Snippet\t{a.Snippet}"
+            : a.BenevolenceType != null ? $"BenevolenceType\t{benevolenceTypes[a.BenevolenceType]}"
             : a.Category != null ? $"Category\t{categories[a.Category]}"
             : a.Tag != null ? $"Tag\t{tags[a.Tag]}"
             : a.Report != null ? $"Report\t{reports[a.Report]}"
@@ -699,7 +727,7 @@ static CheckResult AccessCheck( RockRelease rock, SqlServer sql, string database
         var actual = i < answers.Length ? answers[i] : "no answer";
         if ( actual != expected )
         {
-            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
+            problems.Add( $"{access[i].Name} {access[i].Action} {access[i].Category ?? access[i].DataView ?? access[i].Report ?? access[i].Segment ?? access[i].SignalType ?? access[i].BenevolenceType ?? ( access[i].Tag != null ? $"tag {access[i].Tag}" : access[i].Snippet != null ? $"snippet {access[i].Snippet}" : $"page {access[i].Page}" )}: expected {expected}, but Rock answered {actual}." );
         }
     }
 
@@ -740,13 +768,26 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
         return CheckResult.From( "adaptive-messages", "This package has no adaptive message expectations", new List<string>() );
     }
 
+    // A row is judged only when its card can show: in season, and not cut from the homepage (decisions 343 and 344).
+    var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
+    var notes = new List<string>();
     CastPersonGuids people;
     using ( var db = new RockDatabase( sql.ConnectionString( database ) ) )
     {
         people = new CastPersonGuids( db, source );
+        var judged = cast.Where( c =>
+        {
+            var reason = AdaptiveMessagesLoader.NotJudged( db, source, c, people.Value( c.Person ), DateTime.Today );
+            if ( reason != null )
+            {
+                notes.Add( $"{c.Name}: {reason} today, so the row was not judged." );
+            }
+
+            return reason == null;
+        } ).ToList();
+        cast = judged;
     }
 
-    var messages = source.AdaptiveMessages.Messages.ToDictionary( m => m.Key );
     var adaptationIds = sql.Query( database, "SELECT [Id], [Guid] FROM [AdaptiveMessageAdaptation]" ).ToDictionary( r => ( int ) r["Id"], r => ( Guid ) r["Guid"] );
 
     // The page block, when the load added one, is rendered for each Cast person too, as the homepage shows it to them.
@@ -793,7 +834,7 @@ static CheckResult AdaptiveMessagesCheck( RockRelease rock, SqlServer sql, strin
     }
 
     var onPage = display == null ? string.Empty : $", and the {display.Name} block showed each one on the page";
-    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems );
+    return CheckResult.From( "adaptive-messages", problems.Count == 0 ? $"Rock's adaptivemessage command showed each of the {cast.Count} Cast people their adaptation{onPage}" : "Rock's adaptivemessage command did not show the Cast their adaptations", problems, notes );
 }
 
 /// <summary>
@@ -1030,6 +1071,224 @@ GROUP BY [p].[PrimaryAliasId]", new SqlParameter( "@ForeignKey", foreignKey ), n
 }
 
 /// <summary>
+/// Rock's staff homepage (decisions 345 to 348). The load wrote one update for each Monday of the
+/// configured weeks. The item Rock's Internal Communication View block picks, the newest approved one whose start has
+/// passed, is this week's update, and Rock's own Lava engine renders it with the block's Body Template, showing its
+/// feature title, image, and every article. Each homepage metric's newest value is the metric's last run. A daily
+/// metric's newest value equals Rock's own SQL when that run was today, and each campus's newest Active Families value
+/// is no more than Rock's SQL gives it today and above zero where Rock's is. The block lists the path metrics, and the
+/// Quick Links hold the church's links.
+/// </summary>
+static CheckResult StaffHomepageCheck( RockRelease rock, SqlServer sql, string database, string foreignKey, SampleDataSource source )
+{
+    var homepage = source.ReadStaffHomepage();
+    if ( homepage == null )
+    {
+        return CheckResult.From( "staff-homepage", "This package has no staff homepage", new List<string>() );
+    }
+
+    var problems = new List<string>();
+    var notes = new List<string>();
+    var channel = new SqlParameter( "@Channel", homepage.Updates.ContentChannel );
+    var updates = sql.Query( database, @"
+SELECT [i].[Id], [i].[StartDateTime]
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId]
+WHERE [c].[Guid] = @Channel AND ( [i].[ForeignKey] = @ForeignKey OR [i].[Guid] = @RockItem )
+ORDER BY [i].[StartDateTime]", channel, new SqlParameter( "@ForeignKey", foreignKey ), new SqlParameter( "@RockItem", homepage.Updates.RockItem ) );
+    var mondays = updates.Select( u => ( DateTime ) u["StartDateTime"] ).ToList();
+    if ( mondays.Count != homepage.Updates.Weeks || mondays.Any( d => d.DayOfWeek != DayOfWeek.Monday || d != d.Date ) || mondays.Zip( mondays.Skip( 1 ), ( a, b ) => ( b - a ).Days ).Any( d => d != 7 ) )
+    {
+        problems.Add( $"The load wrote {mondays.Count} staff updates, not one on each of {homepage.Updates.Weeks} Mondays in a row." );
+    }
+
+    // Rock's block: the newest approved item in the channel whose start has passed (InternalCommunicationView).
+    var shown = sql.Query( database, @"
+SELECT TOP 1 [i].[Id], [i].[StartDateTime], [i].[ForeignKey], [i].[Guid]
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId]
+WHERE [c].[Guid] = @Channel AND [i].[Status] = 2 AND [i].[StartDateTime] <= GETDATE()
+ORDER BY [i].[StartDateTime] DESC", new SqlParameter( "@Channel", homepage.Updates.ContentChannel ) ).SingleOrDefault();
+    var title = string.Empty;
+    if ( shown == null || mondays.Count == 0 || ( DateTime ) shown["StartDateTime"] != mondays[mondays.Count - 1] || ( DateTime ) shown["StartDateTime"] < sql.Today().AddDays( -7 ) )
+    {
+        problems.Add( "Rock's homepage block does not show this week's staff update." );
+    }
+    else
+    {
+        var itemId = ( int ) shown["Id"];
+        var values = sql.Query( database, @"
+SELECT [a].[Key], [v].[Value]
+FROM [AttributeValue] AS [v]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[EntityTypeQualifierColumn] = 'ContentChannelTypeId'
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] AND [et].[Name] = 'Rock.Model.ContentChannelItem'
+WHERE [v].[EntityId] = @ItemId", new SqlParameter( "@ItemId", itemId ) ).ToDictionary( r => ( string ) r["Key"], r => r["Value"] as string );
+        title = values.GetValueOrDefault( "FeatureTitle" ) ?? string.Empty;
+        var articles = sql.Query( database, @"
+SELECT [v].[Value]
+FROM [AttributeMatrix] AS [m]
+INNER JOIN [AttributeMatrixItem] AS [mi] ON [mi].[AttributeMatrixId] = [m].[Id]
+INNER JOIN [AttributeValue] AS [v] ON [v].[EntityId] = [mi].[Id]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Key] = 'ArticleTitle' AND [a].[EntityTypeQualifierColumn] = 'AttributeMatrixTemplateId'
+WHERE [m].[Guid] = TRY_CAST( @Matrix AS UNIQUEIDENTIFIER )", new SqlParameter( "@Matrix", values.GetValueOrDefault( "Articles" ) ?? string.Empty ) ).Select( r => ( string ) r["Value"] ).ToList();
+        var html = RockRunner.Run( rock, sql, database, "staff-homepage", new[] { homepage.Block.ToString(), itemId.ToString() } ).Trim();
+        bool Shows( string text ) => !string.IsNullOrEmpty( text ) && ( html.Contains( text, StringComparison.Ordinal ) || html.Contains( System.Net.WebUtility.HtmlEncode( text ), StringComparison.Ordinal ) );
+        if ( html.StartsWith( "error", StringComparison.Ordinal ) )
+        {
+            problems.Add( $"Rock could not render the staff homepage: {html}" );
+        }
+        else
+        {
+            if ( !Shows( title ) || !Shows( values.GetValueOrDefault( "FeatureImage" ) ) )
+            {
+                problems.Add( $"Rock's homepage block does not show the update's feature title and image ({title})." );
+            }
+
+            if ( articles.Count is < 1 or > 3 )
+            {
+                problems.Add( $"This week's update has {articles.Count} articles. Rock's article list holds one to three." );
+            }
+            else if ( html.Contains( "IRockRequestContextAccessor", StringComparison.Ordinal ) )
+            {
+                // Rock 21's hotfix 322 builds each article's image link with ResolveRockUrl, which needs a web request.
+                notes.Add( "Rock's article list resolves its image links through a web request, which verify does not have, so Rock did not render the articles here. The staff-updates-are-complete invariant checks them." );
+            }
+            else if ( articles.Any( a => !Shows( a ) ) )
+            {
+                problems.Add( $"Rock's homepage block shows {articles.Count( Shows )} of the update's {articles.Count} articles." );
+            }
+        }
+    }
+
+    // The homepage metrics.
+    var today = sql.Today();
+    foreach ( var metric in homepage.Metrics )
+    {
+        var row = sql.Query( database, "SELECT [Id], [SourceSql], [LastRunDateTime] FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ).SingleOrDefault();
+        if ( row == null )
+        {
+            notes.Add( $"This Rock has no {metric.Key} metric." );
+            continue;
+        }
+
+        var newest = sql.Query( database, @"
+SELECT [v].[MetricValueDateTime], [v].[YValue], [p].[EntityId]
+FROM [MetricValue] AS [v]
+INNER JOIN [MetricValuePartition] AS [p] ON [p].[MetricValueId] = [v].[Id]
+WHERE [v].[MetricId] = @Id AND [v].[MetricValueDateTime] = ( SELECT MAX( [MetricValueDateTime] ) FROM [MetricValue] WHERE [MetricId] = @Id )", new SqlParameter( "@Id", row["Id"] ) );
+        var lastRun = row["LastRunDateTime"] as DateTime?;
+        if ( newest.Count == 0 || lastRun == null || ( DateTime ) newest[0]["MetricValueDateTime"] != lastRun || lastRun < today.AddDays( -7 ) )
+        {
+            problems.Add( $"The {metric.Key} metric has no value from its last run this week, so its tile would be stale." );
+            continue;
+        }
+
+        var counted = sql.Query( database, ( string ) row["SourceSql"] ).Select( r => (Count: Convert.ToInt32( r.Values.First() ), Campus: r.Count > 1 ? r.Values.Skip( 1 ).First() as int? : null) ).ToList();
+        var newestByCampus = newest.GroupBy( r => r["EntityId"] as int? ).ToDictionary( g => g.Key ?? 0, g => ( int ) g.Sum( r => ( decimal ) r["YValue"] ) );
+        if ( !metric.ByCampus )
+        {
+            var value = newestByCampus.Values.Sum();
+            if ( lastRun.Value.Date != today )
+            {
+                notes.Add( $"{metric.Key} was not judged against Rock's SQL: its last run was {lastRun:yyyy-MM-dd HH:mm}, not today." );
+            }
+            else if ( value != counted.Sum( r => r.Count ) )
+            {
+                problems.Add( $"The {metric.Key} metric's newest value is {value:N0}, but Rock's own SQL counts {counted.Sum( r => r.Count ):N0} today." );
+            }
+        }
+        else
+        {
+            foreach ( var (count, campus) in counted )
+            {
+                var value = newestByCampus.GetValueOrDefault( campus ?? 0 );
+                if ( value > count || ( count > 0 && value == 0 ) )
+                {
+                    problems.Add( $"The {metric.Key} metric's newest value for campus {campus} is {value:N0}, but Rock's own SQL counts {count:N0} today." );
+                }
+            }
+        }
+    }
+
+    // The path metrics on the block, and the church's Quick Links.
+    var blockMetrics = ( sql.Scalar( database, @"
+SELECT [v].[Value]
+FROM [Block] AS [b]
+INNER JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'BlockTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [b].[BlockTypeId] AS NVARCHAR( 200 ) ) AND [a].[Key] = 'Metrics'
+INNER JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[EntityId] = [b].[Id]
+WHERE [b].[Guid] = @Block", new SqlParameter( "@Block", homepage.Block ) ) as string ) ?? string.Empty;
+    if ( homepage.PathMetrics )
+    {
+        foreach ( var metric in source.Reporting?.Metrics ?? new List<MetricDefinition>() )
+        {
+            var isWritten = sql.Scalar( database, "SELECT 1 FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ) != null;
+            if ( isWritten && !blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase ) )
+            {
+                problems.Add( $"The homepage block does not list the {metric.Title} metric." );
+            }
+        }
+    }
+
+    var quickLinks = ( sql.Scalar( database, "SELECT [Content] FROM [HtmlContent] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", homepage.QuickLinks?.Content ?? Guid.Empty ) ) as string ) ?? string.Empty;
+    foreach ( var link in homepage.QuickLinks?.Links ?? new List<QuickLink>() )
+    {
+        if ( !quickLinks.Contains( $"href=\"{link.Href}\"", StringComparison.Ordinal ) )
+        {
+            problems.Add( $"The Quick Links do not have {link.Label} ({link.Href})." );
+        }
+    }
+
+    return CheckResult.From( "staff-homepage", problems.Count == 0
+        ? $"Rock's homepage shows this week's update, {title}, from {mondays.Count} weekly updates, with current metric tiles and the church's Quick Links"
+        : "The staff homepage is not what a church would see", problems, notes );
+}
+
+/// <summary>
+/// Runs the selection of Rock's Location Services Verify job (Rock/Jobs/LocationServicesVerify.cs, the same in Rock 20
+/// and Rock 21, pinned in validation/rock-lock.json) and fails if it would pick any Location the load wrote: this
+/// dataset's rows and every campus's Location, Rock's main campus included. The job sends what it picks to Rock's
+/// address service, and sample addresses never go to one (decision 316). The retry date is left in the far
+/// future, so the check judges every later night, not only tonight: an address with only an attempted date would pass
+/// tonight and go out once the job's retry period ends. The check never runs the job, so verify never calls an address
+/// service. Rock's own addresses that a new Rock already sends, such as its Organization Address, are noted.
+/// </summary>
+static CheckResult AddressServicesCheck( SqlServer sql, string database, string foreignKey )
+{
+    var picked = sql.Query( database, @"
+SELECT [l].[Id], [l].[Street1], [l].[City], CASE WHEN [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) THEN 1 ELSE 0 END AS [IsLoaded]
+FROM [Location] AS [l]
+WHERE ( [l].[IsGeoPointLocked] IS NULL OR [l].[IsGeoPointLocked] = 0 )
+    AND [l].[IsActive] = 1
+    AND [l].[Street1] IS NOT NULL
+    AND [l].[Street1] <> N''
+    AND ( ( [l].[GeocodedDateTime] IS NULL AND ( [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodeAttemptedDateTime] < @RetryDate ) )
+        OR ( [l].[StandardizedDateTime] IS NULL AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizeAttemptedDateTime] < @RetryDate ) ) )
+ORDER BY [l].[Id]",
+        new SqlParameter( "@ForeignKey", foreignKey ),
+        new SqlParameter( "@RetryDate", new DateTime( 9999, 12, 31 ) ) );
+    var loaded = Convert.ToInt32( sql.Scalar( database, @"
+SELECT COUNT(*)
+FROM [Location] AS [l]
+WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
+    AND [l].[Street1] IS NOT NULL
+    AND [l].[Street1] <> N''", new SqlParameter( "@ForeignKey", foreignKey ) ) );
+    var problems = picked.Where( r => Convert.ToInt32( r["IsLoaded"] ) == 1 )
+        .Select( r => $"Location {r["Id"]} ({r["Street1"]}, {r["City"]}) has no standardized or geocoded date, so Rock's Location Services Verify job would send it to the address service. Mark it as CheckedAddress does." )
+        .ToList();
+    if ( loaded == 0 )
+    {
+        problems.Add( "The load wrote no street addresses, so this check proves nothing." );
+    }
+
+    var notes = picked.Where( r => Convert.ToInt32( r["IsLoaded"] ) == 0 )
+        .Select( r => $"Rock's own Location {r["Id"]} ({r["Street1"]}, {r["City"]}) is not sample data. Rock would send it on any install." )
+        .ToList();
+    return CheckResult.From( "address-services", problems.Count == 0
+        ? $"Rock's Location Services Verify job would pick none of the {loaded:N0} loaded street addresses on any night"
+        : $"Rock's Location Services Verify job would send {problems.Count:N0} loaded addresses to the address service", problems, notes );
+}
+
+/// <summary>
 /// Runs Rock's own group sync on every sync the load wrote and expects it to add, remove, and refuse nobody (decision
 /// 187). Nothing changing proves the loader filled each group exactly as Rock's data views pick, and that the
 /// syncs' welcome and exit emails and logins wait for a later change. The views count from today, so like Rock Cleanup
@@ -1064,6 +1323,44 @@ static CheckResult GroupSyncCheck( RockRelease rock, SqlServer sql, string datab
 
     problems.AddRange( lines.Where( l => l.StartsWith( "warning ", StringComparison.Ordinal ) ).Select( l => $"Rock's group sync warned: {l.Substring( 8 )}" ) );
     return CheckResult.From( "group-sync", problems.Count == 0 ? $"Rock's group sync changed nothing in the {expected} synced groups" : "Rock's group sync would change the synced groups", problems );
+}
+
+/// <summary>
+/// Runs Rock's own Calculate Person Duplicates job once, as Rock's scheduler runs it at 3 AM, and compares every duplicate
+/// pair before and after (decision 310). The load ran Rock's duplicate finder last and then wrote the Cast's
+/// decisions, so the job must add, remove, or rescore no pair, and keep every decision. Each run rewrites every pair's
+/// ModifiedDateTime, so that column alone is not compared.
+/// </summary>
+static CheckResult PersonDuplicatesCheck( RockRelease rock, SqlServer sql, string database )
+{
+    const string pairsSql = @"
+SELECT [pd].[Id], [pd].[PersonAliasId], [pd].[DuplicatePersonAliasId], [pd].[Score], [pd].[ScoreDetail], [pd].[Capacity], [pd].[TotalCapacity],
+    [pd].[ConfidenceScore], [pd].[IsConfirmedAsNotDuplicate], [pd].[IgnoreUntilScoreChanges], [pd].[CreatedDateTime], [pd].[ModifiedByPersonAliasId],
+    [pd].[Guid], [pd].[ForeignKey], CONCAT( [p1].[NickName], ' ', [p1].[LastName], ' and ', [p2].[NickName], ' ', [p2].[LastName] ) AS [Names]
+FROM [PersonDuplicate] AS [pd]
+INNER JOIN [PersonAlias] AS [a1] ON [a1].[Id] = [pd].[PersonAliasId]
+INNER JOIN [Person] AS [p1] ON [p1].[Id] = [a1].[PersonId]
+INNER JOIN [PersonAlias] AS [a2] ON [a2].[Id] = [pd].[DuplicatePersonAliasId]
+INNER JOIN [Person] AS [p2] ON [p2].[Id] = [a2].[PersonId]";
+    static string Values( Dictionary<string, object> pair ) => string.Join( " | ", pair.Where( c => c.Key != "Names" ).Select( c => $"{c.Key} {Convert.ToString( c.Value, System.Globalization.CultureInfo.InvariantCulture )}" ) );
+
+    var before = sql.Query( database, pairsSql ).ToDictionary( r => ( int ) r["Id"] );
+    var ran = RockRunner.Run( rock, sql, database, "person-duplicates" ).Trim();
+    var after = sql.Query( database, pairsSql ).ToDictionary( r => ( int ) r["Id"] );
+
+    var problems = before.Keys.Except( after.Keys ).Select( id => $"Rock's job removed the pair {before[id]["Names"]}." )
+        .Concat( after.Keys.Except( before.Keys ).Select( id => $"Rock's job added the pair {after[id]["Names"]}: {Values( after[id] )}." ) )
+        .Concat( before.Keys.Intersect( after.Keys ).Where( id => Values( before[id] ) != Values( after[id] ) ).Select( id => $"Rock's job changed the pair {after[id]["Names"]}: was {Values( before[id] )}, now {Values( after[id] )}." ) )
+        .ToList();
+    if ( problems.Count > 20 )
+    {
+        problems = problems.Take( 20 ).Append( $"And {problems.Count - 20:N0} more." ).ToList();
+    }
+
+    var listed = after.Values.Count( r => Convert.ToDouble( r["ConfidenceScore"] ?? 0d ) > DuplicatesLoader.FinderListMinimum && !( bool ) r["IsConfirmedAsNotDuplicate"] && !( bool ) r["IgnoreUntilScoreChanges"] );
+    return CheckResult.From( "person-duplicates", problems.Count == 0
+        ? $"Rock's Calculate Person Duplicates job changed none of the {after.Count:N0} duplicate pairs, {listed:N0} of them in the Duplicate Finder ({ran})"
+        : "Rock's Calculate Person Duplicates job would change the duplicate pairs", problems );
 }
 
 /// <summary>

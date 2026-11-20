@@ -209,6 +209,9 @@ VALUES ( 0, @Name, @ShortCode, @LocationId, @StatusId, @TypeId, 1, @Order, @Guid
                         P( "@ForeignKey", _foreignKey ) ) );
                 }
 
+                // A campus's map point carries the marks of a check by Rock's address service, so it never goes to
+                // one, even after someone gives the campus a street address (decision 315).
+                _db.Execute( $"UPDATE [Location] SET {CheckedAddress.SetSql} WHERE [Id] = @Id", CheckedAddress.Parameters( DateTime.Now ).Append( P( "@Id", locationId ) ).ToArray() );
                 CampusIds[campus.Key] = campusId;
                 order++;
             }

@@ -7,18 +7,18 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
 | <img src="../../photos/cast/morgan-steve.jpg" width="96" alt="Steve Morgan"> | Steve (Steven) Morgan | 58 | adult | Engaged |
-| <img src="../../photos/cast/morgan-karen.jpg" width="96" alt="Karen Morgan"> | Karen Morgan | 57 | adult | Engaged |
+| <img src="../../photos/cast/morgan-karen.jpg" width="96" alt="Karen Morgan"> | Karen Morgan | 57 | adult | Leading |
 
 ## People
 
 ### Steve (Steven) Morgan
 
-- Age 58 · married · Owner, Mesquite Tree Bookkeeping · email steve.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left) · business contact for Mesquite Tree Bookkeeping
+- Age 58 · married · Owner, Mesquite Tree Bookkeeping · email steve.morgan@example.org · groups: Ushers, Silva Group (host) · business contact for Mesquite Tree Bookkeeping
 - Person Guid `26ECA7AC-9EF7-403A-B053-C852CBA7DB4C`
 
 ### Karen Morgan
 
-- Age 57 · married · email karen.morgan@example.org · groups: Ushers, Silva Group, Jenkins Group (group archived), Foster Group (left)
+- Age 57 · married · email karen.morgan@example.org · groups: Women of the Bible, Morgan Group (leader), Ushers
 - Person Guid `4CB52244-023C-46BA-8C3A-FA24D9611ADF`
 
 ## What this family tests

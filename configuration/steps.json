@@ -139,6 +139,8 @@
             "after": "starting-point-class",
             "$preferComment": "Leaders and volunteers take it first, as many churches ask of them.",
             "prefer": [ "lead", "serve" ],
+            "$equipsReadyToLeadComment": "A leader who launched a small group from Ready to Lead had an Equip step six weeks before the launch. One who was not baptized by then took Foundations in the two years before (decision 322).",
+            "equipsReadyToLead": true,
             "$nearComment": "Often in the person's first year in a group.",
             "near": { "stepTypes": [ "small-group" ], "daysAfter": 365 },
             "otherwise": { "daysAfter": 730 },

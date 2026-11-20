@@ -14,7 +14,7 @@
   "households": 95,
   "campuses": 1,
   "typicalInstallSeconds": 13,
-  "databaseSpaceMegabytes": 1500,
+  "databaseSpaceMegabytes": 1300,
   "checkImages": {
     "$comment": "Every check in the Cast gets images.",
     "months": 0

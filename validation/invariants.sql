@@ -127,6 +127,32 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
         WHERE [ga].[PersonId] = [pa].[Id] AND [gb].[PersonId] = [pb].[Id]
             AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
 
+-- check: emails-are-not-shared-across-households
+-- why: Decision 313. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller. Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
+SELECT COUNT( DISTINCT [pa].[Email] )
+FROM [Person] AS [pa]
+INNER JOIN [Person] AS [pb] ON [pb].[Email] = [pa].[Email] AND [pb].[Id] > [pa].[Id]
+WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
+    AND ( [pb].[ForeignKey] = @ForeignKey OR [pb].[Id] = @AdminPersonId )
+    AND ISNULL( [pa].[Email], '' ) <> ''
+    AND NOT ( [pa].[LastName] = [pb].[LastName] AND (
+        EXISTS ( SELECT 1 FROM [PhoneNumber] AS [na] INNER JOIN [PhoneNumber] AS [nb] ON [nb].[Number] = [na].[Number] WHERE [na].[PersonId] = [pa].[Id] AND [nb].[PersonId] = [pb].[Id] )
+        OR EXISTS (
+            SELECT 1
+            FROM [GroupMember] AS [ma]
+            INNER JOIN [GroupLocation] AS [la] ON [la].[GroupId] = [ma].[GroupId]
+            INNER JOIN [GroupLocation] AS [lb] ON [lb].[LocationId] = [la].[LocationId]
+            INNER JOIN [GroupMember] AS [mb] ON [mb].[GroupId] = [lb].[GroupId]
+            WHERE [ma].[PersonId] = [pa].[Id] AND [mb].[PersonId] = [pb].[Id]
+                AND [ma].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' )
+                AND [mb].[GroupTypeId] = [ma].[GroupTypeId] ) ) )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [ga]
+        INNER JOIN [GroupMember] AS [gb] ON [gb].[GroupId] = [ga].[GroupId]
+        WHERE [ga].[PersonId] = [pa].[Id] AND [gb].[PersonId] = [pb].[Id]
+            AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
+
 -- check: emails-use-reserved-domains
 -- why: Content standard 3. Emails use example.org, or rocksolidchurchdemo.com for the sample church's staff.
 SELECT COUNT(*)
@@ -153,6 +179,48 @@ INNER JOIN [DefinedValue] AS [t] ON [t].[Id] = [gl].[GroupLocationTypeValueId]
 WHERE [g].[ForeignKey] = @ForeignKey
     AND [t].[Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC'
     AND [l].[GeoPoint] IS NULL;
+
+-- check: loaded-addresses-are-checked
+-- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point.
+SELECT COUNT(*)
+FROM [Location] AS [l]
+WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
+    AND ( ISNULL( [l].[Street1], '' ) <> '' OR [l].[GeoPoint] IS NOT NULL )
+    AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizedDateTime] IS NULL OR [l].[StandardizeAttemptedServiceType] IS NULL
+        OR [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodedDateTime] IS NULL OR [l].[GeocodeAttemptedServiceType] IS NULL
+        OR [l].[GeoPoint] IS NULL );
+
+-- check: staff-updates-are-complete
+-- why: Decision 345. Rock's staff homepage shows an update's feature title, text, link, and image, then its one to three articles, each with a title and content, and Rock's save hook gives every item a global key and a slug. An update missing any of them shows a blank part of the homepage.
+SELECT COUNT(*)
+FROM [ContentChannelItem] AS [i]
+INNER JOIN [ContentChannel] AS [c] ON [c].[Id] = [i].[ContentChannelId] AND [c].[Guid] = '78D01959-0EA6-4FE4-B6F8-A3765F0CEDBF'
+WHERE [i].[ForeignKey] = @ForeignKey
+    AND ( [i].[ItemGlobalKey] IS NULL
+        OR ( SELECT COUNT(*) FROM [ContentChannelItemSlug] AS [s] WHERE [s].[ContentChannelItemId] = [i].[Id] ) <> 1
+        OR ( SELECT COUNT(*) FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId]
+            WHERE [v].[EntityId] = [i].[Id] AND [a].[Guid] IN ( '00692241-04F5-4B08-85A5-DC671294E372', '8D057A30-9BA4-4E56-977A-50870580016B', '453F8D20-C65E-4F44-A5AC-32CDD0493331' ) AND [v].[Value] <> '' ) <> 3
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Guid] = '6B0A2023-A3F9-4208-A688-10A67483A435'
+            INNER JOIN [BinaryFile] AS [f] ON [f].[Guid] = TRY_CAST( [v].[Value] AS UNIQUEIDENTIFIER ) INNER JOIN [BinaryFileData] AS [d] ON [d].[Id] = [f].[Id]
+            WHERE [v].[EntityId] = [i].[Id] )
+        OR ( SELECT COUNT(*) FROM [AttributeValue] AS [v] INNER JOIN [Attribute] AS [a] ON [a].[Id] = [v].[AttributeId] AND [a].[Guid] = 'C9C7B33F-DE67-470D-9EFD-39275E00CE81'
+            INNER JOIN [AttributeMatrix] AS [m] ON [m].[Guid] = TRY_CAST( [v].[Value] AS UNIQUEIDENTIFIER ) INNER JOIN [AttributeMatrixItem] AS [mi] ON [mi].[AttributeMatrixId] = [m].[Id]
+            WHERE [v].[EntityId] = [i].[Id]
+                AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = 'DBC9E868-D509-4436-8B11-1343A02DB433' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' )
+                AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [t] INNER JOIN [Attribute] AS [ta] ON [ta].[Id] = [t].[AttributeId] AND [ta].[Guid] = '95FE772F-D799-41DD-9802-F5FD487933FC' WHERE [t].[EntityId] = [mi].[Id] AND [t].[Value] <> '' ) ) NOT BETWEEN 1 AND 3 );
+
+-- check: campus-has-its-photo
+-- why: Decision 317. Every campus the dataset has shows its exterior photo on its Location, stored in Rock's Location Image file type with its content, as Rock's Location Detail block saves one. Lava pages and the app read it from there.
+SELECT COUNT(*)
+FROM [Campus] AS [c]
+INNER JOIN [Location] AS [l] ON [l].[Id] = [c].[LocationId]
+WHERE ( [c].[ForeignKey] = @ForeignKey OR [c].[Guid] = '76882AE3-1CE8-42A6-A2B6-8C0B29CF8CF8' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [BinaryFile] AS [f]
+        INNER JOIN [BinaryFileType] AS [t] ON [t].[Id] = [f].[BinaryFileTypeId] AND [t].[Guid] = 'DAB74416-3272-4411-BA69-70944B549A4B'
+        INNER JOIN [BinaryFileData] AS [d] ON [d].[Id] = [f].[Id]
+        WHERE [f].[Id] = [l].[ImageId] AND [f].[IsTemporary] = 0 AND DATALENGTH( [d].[Content] ) > 0 );
 
 -- check: nothing-dated-in-the-future
 -- why: The timeline counts back from the install day. A future gift, check-in, or step shows up in "upcoming" places.
@@ -519,12 +587,12 @@ SELECT ( SELECT COUNT(*) FROM [Stages] AS [x] WHERE [x].[Stage] = '2' AND NOT EX
     + ( SELECT COUNT(*) FROM [OpenGive] AS [o] WHERE NOT EXISTS ( SELECT 1 FROM [Stages] AS [x] WHERE [x].[PrimaryAliasId] = [o].[PersonAliasId] AND [x].[Stage] IN ( '2', '3' ) ) );
 
 -- check: program-completions-follow-rocks-rule
--- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type in a program, dated from those steps, and points every step of theirs in the program at it. It runs for every program the dataset has steps in. Rock's job must find nothing to add or fix after install.
+-- why: Rock's Update Step Program Completions job records a completion for each person whose Complete steps cover every active step type in a program, dated from those steps, and points every step of theirs in the program at it. It runs for every program the dataset has steps in, except Rock's Core Steps, whose eRA steps follow era-completion-follows-rocks-rule. Rock's job must find nothing to add or fix after install.
 WITH [Programs] AS (
     SELECT DISTINCT [st].[StepProgramId] AS [Id]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
-    WHERE [s].[ForeignKey] = @ForeignKey
+    WHERE [s].[ForeignKey] = @ForeignKey AND [st].[Guid] <> 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3'
 ),
 [PeopleWithAllSteps] AS (
     SELECT [st].[StepProgramId], [s].[PersonAliasId],
@@ -556,6 +624,72 @@ SELECT ( SELECT COUNT(*) FROM [PeopleWithAllSteps] AS [w] WHERE NOT EXISTS (
         LEFT JOIN [Completions] AS [c] ON [c].[StepProgramId] = [st].[StepProgramId] AND [c].[PersonAliasId] = [s].[PersonAliasId]
         WHERE [st].[StepProgramId] IN ( SELECT [Id] FROM [Programs] ) AND [s].[ForeignKey] = @ForeignKey
             AND ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: era-flag-and-step-agree
+-- why: Decision 323. Rock's Family Analytics job opens an eRA step when a family enters eRA and completes it, with an eRA End Date, when the family exits. So every In Progress eRA step belongs to someone who is Currently an eRA, with an eRA Start Date on or before the step's start and no eRA End Date, and nobody has two In Progress eRA steps. A child in two homes follows each family's entries and exits on their own, as Rock's job does, so only people in one family are held to that. Every Complete eRA step ended on the day it was completed.
+WITH [EraSteps] AS (
+    SELECT [s].[Id], [pa].[PersonId], [s].[StartDateTime], [s].[EndDateTime], [s].[CompletedDateTime], [ss].[IsCompleteStatus],
+        ( SELECT COUNT(*) FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [gm].[PersonId] = [pa].[PersonId] AND [gt].[Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) AS [Families]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [s].[ForeignKey] = @ForeignKey
+),
+[Values] AS (
+    SELECT [av].[EntityId], [a].[Guid], [av].[Value], [av].[ValueAsDateTime]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [a].[Guid] IN ( 'CE5739C5-2156-E2AB-48E5-1337C38B935E', 'A106610C-A7A1-469E-4097-9DE6400FDFC2', '4711D67E-7526-9582-4A8E-1CD7BBE1B3A2' )
+)
+SELECT ( SELECT COUNT(*) FROM [EraSteps] AS [s]
+        WHERE [s].[IsCompleteStatus] = 0 AND [s].[Families] = 1
+            AND ( NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = 'CE5739C5-2156-E2AB-48E5-1337C38B935E' AND [v].[Value] = 'True' )
+                OR NOT EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = 'A106610C-A7A1-469E-4097-9DE6400FDFC2' AND CAST( [v].[ValueAsDateTime] AS DATE ) <= CAST( [s].[StartDateTime] AS DATE ) )
+                OR EXISTS ( SELECT 1 FROM [Values] AS [v] WHERE [v].[EntityId] = [s].[PersonId] AND [v].[Guid] = '4711D67E-7526-9582-4A8E-1CD7BBE1B3A2' ) ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [PersonId] FROM [EraSteps] WHERE [IsCompleteStatus] = 0 AND [Families] = 1 GROUP BY [PersonId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM [EraSteps] WHERE [IsCompleteStatus] = 1 AND ( [CompletedDateTime] IS NULL OR [EndDateTime] IS NULL OR [CompletedDateTime] <> [EndDateTime] OR [CompletedDateTime] < [StartDateTime] ) );
+
+-- check: era-completion-follows-rocks-rule
+-- why: Decision 323. A family's first exit from eRA completes each member's eRA step, and Rock's step save hook gives the person a Core Steps completion dated from that step. Rock's nightly Update Step Program Completions job then points each later eRA step of theirs at it, so the job finds nothing to add or fix after install. Nobody else has a Core Steps completion.
+WITH [EraSteps] AS (
+    SELECT [s].[Id], [s].[PersonAliasId], [s].[StartDateTime], [s].[CompletedDateTime], [s].[CampusId], [s].[StepProgramCompletionId], [ss].[IsCompleteStatus]
+    FROM [Step] AS [s]
+    INNER JOIN [StepType] AS [st] ON [st].[Id] = [s].[StepTypeId]
+    INNER JOIN [StepStatus] AS [ss] ON [ss].[Id] = [s].[StepStatusId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [s].[ForeignKey] = @ForeignKey
+),
+[FirstExit] AS (
+    SELECT [PersonAliasId], [StartDateTime], [CompletedDateTime], [CampusId], ROW_NUMBER() OVER ( PARTITION BY [PersonAliasId] ORDER BY [CompletedDateTime], [Id] ) AS [Row]
+    FROM [EraSteps]
+    WHERE [IsCompleteStatus] = 1
+),
+[Completions] AS (
+    SELECT [c].[Id], [c].[PersonAliasId], [c].[StartDateTime], [c].[EndDateTime], [c].[CampusId]
+    FROM [StepProgramCompletion] AS [c]
+    INNER JOIN [StepType] AS [st] ON [st].[StepProgramId] = [c].[StepProgramId]
+    WHERE [st].[Guid] = 'E57468BE-15BF-48B6-AAB2-F8E2B02720F3' AND [c].[ForeignKey] = @ForeignKey
+)
+SELECT ( SELECT COUNT(*) FROM [FirstExit] AS [f]
+        WHERE [f].[Row] = 1 AND ( SELECT COUNT(*) FROM [Completions] AS [c]
+            WHERE [c].[PersonAliasId] = [f].[PersonAliasId] AND [c].[StartDateTime] = [f].[StartDateTime] AND [c].[EndDateTime] = [f].[CompletedDateTime]
+                AND ISNULL( [c].[CampusId], 0 ) = ISNULL( [f].[CampusId], 0 ) ) <> 1 )
+    + ( SELECT COUNT(*) FROM [Completions] AS [c] WHERE NOT EXISTS ( SELECT 1 FROM [FirstExit] AS [f] WHERE [f].[PersonAliasId] = [c].[PersonAliasId] ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [PersonAliasId] FROM [Completions] GROUP BY [PersonAliasId] HAVING COUNT(*) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM [EraSteps] AS [s] LEFT JOIN [Completions] AS [c] ON [c].[PersonAliasId] = [s].[PersonAliasId]
+        WHERE ISNULL( [s].[StepProgramCompletionId], 0 ) <> ISNULL( [c].[Id], 0 ) );
+
+-- check: follows-come-from-staff
+-- why: Decision 330. Every follow the load writes is a staff member's: a campus pastor following a small group leader, or staff following someone in their care, each a person following a person with no purpose. Rock's Send Following Event Notification job, which ships off and which the load leaves off, emails only its Eligible Followers role (RSR - Staff Workers), so if a church turns it on, its notices reach only staff on the sample church's own domain.
+SELECT ( SELECT COUNT(*)
+        FROM [Following] AS [f]
+        INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [f].[PersonAliasId]
+        INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+        WHERE [f].[ForeignKey] = @ForeignKey
+            AND ( ISNULL( [p].[Email], '' ) NOT LIKE '%@rocksolidchurchdemo.com' OR ISNULL( [f].[PurposeKey], '' ) <> ''
+                OR [f].[EntityTypeId] <> ( SELECT [Id] FROM [EntityType] WHERE [Guid] = '90F5E87B-F0D5-4617-8AE9-EB57E673F36F' ) ) )
+    + ( SELECT COUNT(*) FROM [ServiceJob] WHERE [Guid] = '893A745F-8642-4095-9E91-F8C54547DEF0' AND [IsActive] = 1 );
 
 -- check: people-match-the-dataset-card
 -- why: Rock's installer shows the people count from datasets/{key}.json (@CardPeople). Returns how many people the load is off by when that is more than 2%.
@@ -830,6 +964,30 @@ WITH [Leading] AS (
 )
 SELECT ( SELECT COUNT(*) FROM [Leading] AS [x] WHERE NOT EXISTS ( SELECT 1 FROM [Listed] AS [l] WHERE [l].[PersonId] = [x].[PersonId] ) )
     + ( SELECT COUNT(*) FROM [Listed] AS [l] WHERE NOT EXISTS ( SELECT 1 FROM [Leading] AS [x] WHERE [x].[PersonId] = [l].[PersonId] ) );
+
+-- check: small-group-gender-topics
+-- why: Decision 318. A Women's Bible Study group has a woman leader and only women, and a Men's Bible Study group a man leader and only men, in every member state, including pending requests, so a women's group never shows a man.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+INNER JOIN [AttributeValue] AS [topic] ON [topic].[EntityId] = [g].[Id]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [topic].[AttributeId]
+WHERE [g].[ForeignKey] = @ForeignKey AND [a].[Guid] = '04BFAC9B-6D1A-E089-446A-B2C604C76764'
+    AND ( ( [topic].[Value] = '7d82898f-4936-479e-b568-c6c787fa770a' AND [p].[Gender] <> 2 )
+        OR ( [topic].[Value] = '0ad6c058-a314-4d27-a290-824d71e4dcb1' AND [p].[Gender] <> 1 ) );
+
+-- check: lead-a-group-converts
+-- why: Decision 322. Most launch groups are led by someone who was Ready to Lead on the day the Lead a Group flow ran six weeks before the launch, so the flow shows people who took the Lead step. A load with the flow and no conversion means the small group, serving, and step plans no longer agree.
+SELECT CASE WHEN EXISTS ( SELECT 1 FROM [CommunicationFlow] AS [f] WHERE [f].[ForeignKey] = @ForeignKey AND [f].[Name] = 'Lead a Group' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [CommunicationFlowInstanceCommunicationConversion] AS [c]
+        INNER JOIN [CommunicationFlowInstanceCommunication] AS [ic] ON [ic].[Id] = [c].[CommunicationFlowInstanceCommunicationId]
+        INNER JOIN [CommunicationFlowInstance] AS [i] ON [i].[Id] = [ic].[CommunicationFlowInstanceId]
+        INNER JOIN [CommunicationFlow] AS [f] ON [f].[Id] = [i].[CommunicationFlowId]
+        WHERE [f].[ForeignKey] = @ForeignKey AND [f].[Name] = 'Lead a Group' )
+    THEN 1 ELSE 0 END;
 
 -- check: group-sync-targets-a-sync-group
 -- why: Decision 186. Rock's group detail shows the sync panel only on group types that allow group sync, and a sync's role must be one of its group's roles, so every sync opens and edits in Rock. Its data view is a person view, as Rock's sync requires.
@@ -1276,6 +1434,180 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR [cs].[IsDefault] = 1
         OR [cr].[ConnectionState] NOT IN ( 0, 3 )
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
+
+-- check: background-check-requirement-agrees-with-check
+-- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also an adult whose Pass is older than 1,035 days, and Not Met otherwise. A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+SELECT COUNT(*)
+FROM (
+    SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
+        CASE
+            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsMinor] = 0 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
+            ELSE 1
+        END AS [Expected]
+    FROM [GroupMemberRequirement] AS [gmr]
+    INNER JOIN [GroupRequirement] AS [gr] ON [gr].[Id] = [gmr].[GroupRequirementId]
+    INNER JOIN [GroupRequirementType] AS [grt] ON [grt].[Id] = [gr].[GroupRequirementTypeId]
+    INNER JOIN [GroupMember] AS [gm] ON [gm].[Id] = [gmr].[GroupMemberId]
+    INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+    CROSS APPLY ( SELECT CAST( [gmr].[LastRequirementCheckDateTime] AS DATE ) AS [Night] ) AS [n]
+    CROSS APPLY (
+        SELECT
+            MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+            MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN TRY_CAST( [av].[Value] AS DATETIME2 ) END ) AS [CheckDate],
+            MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+        FROM [AttributeValue] AS [av]
+        INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+        WHERE [av].[EntityId] = [p].[Id] AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' ) ) AS [c]
+    CROSS APPLY (
+        SELECT
+            CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [n].[Night] THEN 1 ELSE 0 END AS [IsMinor],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) >= DATEADD( DAY, -1095, [n].[Night] ) THEN 1 ELSE 0 END AS [IsValid],
+            CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) < DATEADD( DAY, -1035, [n].[Night] ) THEN 1 ELSE 0 END AS [IsOld] ) AS [rule]
+    WHERE [gmr].[ForeignKey] = @ForeignKey AND [grt].[Guid] = '1C21C346-A861-4A9A-BD6D-BAA7D92419D5'
+) AS [r]
+WHERE [r].[State] <> [r].[Expected]
+    OR ( [r].[State] IN ( 0, 2 ) AND ( [r].[Met] IS NULL OR [r].[Failed] IS NOT NULL ) )
+    OR ( [r].[State] = 2 AND [r].[Warned] IS NULL )
+    OR ( [r].[State] = 1 AND ( [r].[Failed] IS NULL OR [r].[Met] IS NOT NULL OR [r].[Warned] IS NOT NULL ) );
+
+-- check: finished-background-check-has-report
+-- why: Decision 336. Every check whose report came back has the report: a PDF in Rock's Background Check file type, which requires view security, linked as the check's response document, with its bytes. A check still in progress has none.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [bc].[ResponseDocumentId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [d] ON [d].[Id] = [bf].[Id]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] = 'ReportCompleted'
+            AND ( [bf].[Id] IS NULL OR [bft].[Guid] <> '5C701472-8A6B-4BBE-AEC6-EC833C859F2D' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+                OR [d].[Id] IS NULL OR DATALENGTH( [d].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [d].[Content], 1, 5 ) <> 0x255044462D ) )
+        OR ( [bc].[Status] <> 'ReportCompleted' AND [bc].[ResponseDocumentId] IS NOT NULL ) );
+
+-- check: background-check-agrees-with-person
+-- why: Decision 336. A person's Background Checked, Background Check Date, and Background Check Result are what Rock's Checkr workflow set from their latest finished check: the day it finished, Pass and True when Checkr found nothing, and Fail and False when it found a record. Every person with those values has that check, and each check is one Rock's Checkr provider wrote (ForeignId 2, with its candidate key and package).
+SELECT COUNT(*)
+FROM (
+    SELECT [pa].[PersonId], [bc].[RecordFound], CAST( [bc].[ModifiedDateTime] AS DATE ) AS [Finished],
+        ROW_NUMBER() OVER ( PARTITION BY [pa].[PersonId] ORDER BY [bc].[RequestDate] DESC ) AS [Latest]
+    FROM [BackgroundCheck] AS [bc]
+    INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [bc].[PersonAliasId]
+    WHERE [bc].[ForeignKey] = @ForeignKey AND [bc].[Status] = 'ReportCompleted'
+) AS [k]
+FULL OUTER JOIN (
+    SELECT [av].[EntityId] AS [PersonId],
+        MAX( CASE WHEN [a].[Guid] = 'DAF87B87-3D1E-463D-A197-52227FE4EA28' THEN [av].[Value] END ) AS [Checked],
+        MAX( CASE WHEN [a].[Guid] = '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F' THEN CAST( TRY_CAST( [av].[Value] AS DATETIME2 ) AS DATE ) END ) AS [CheckDate],
+        MAX( CASE WHEN [a].[Guid] = '44490089-E02C-4E54-A456-454845ABBC9D' THEN [av].[Value] END ) AS [Result]
+    FROM [AttributeValue] AS [av]
+    INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+    WHERE [av].[ForeignKey] = @ForeignKey AND [a].[Guid] IN ( 'DAF87B87-3D1E-463D-A197-52227FE4EA28', '3DAFF000-7F74-47D7-8CB0-E4A4E6C81F5F', '44490089-E02C-4E54-A456-454845ABBC9D' )
+    GROUP BY [av].[EntityId]
+) AS [v] ON [v].[PersonId] = [k].[PersonId] AND [k].[Latest] = 1
+WHERE ( [k].[Latest] = 1 OR [k].[PersonId] IS NULL )
+    AND ( [k].[PersonId] IS NULL OR [v].[PersonId] IS NULL
+        OR [v].[CheckDate] IS NULL OR [v].[CheckDate] <> [k].[Finished]
+        OR [v].[Result] <> CASE WHEN [k].[RecordFound] = 1 THEN 'Fail' ELSE 'Pass' END
+        OR [v].[Checked] <> CASE WHEN [k].[RecordFound] = 1 THEN 'False' ELSE 'True' END )
+    OR EXISTS ( SELECT 1 FROM [BackgroundCheck] AS [bad] WHERE [bad].[ForeignKey] = @ForeignKey
+        AND ( ISNULL( [bad].[ForeignId], 0 ) <> 2 OR ISNULL( [bad].[RequestId], '' ) = '' OR ISNULL( [bad].[PackageName], '' ) = '' OR [bad].[RequestDate] > GETDATE() ) );
+
+-- check: background-check-in-progress-waits-on-its-request
+-- why: Decision 333. A check still in progress belongs to a request to serve that waits in the Background Check status, Checkr has found nothing yet, and the person's attributes still show their last finished check, if any. A finished check linked to a request finished after the request was made.
+SELECT COUNT(*)
+FROM [BackgroundCheck] AS [bc]
+LEFT JOIN [ConnectionRequest] AS [cr] ON [cr].[Id] = [bc].[ConnectionRequestId]
+LEFT JOIN [ConnectionStatus] AS [cs] ON [cs].[Id] = [cr].[ConnectionStatusId]
+WHERE [bc].[ForeignKey] = @ForeignKey
+    AND ( ( [bc].[Status] <> 'ReportCompleted' AND ( [cr].[Id] IS NULL OR [cs].[Guid] <> '720EA71A-18F9-4D6B-B3B5-56D39EA403E3' OR [cr].[ConnectionState] <> 0 OR [bc].[RecordFound] = 1 ) )
+        OR ( [bc].[Status] = 'ReportCompleted' AND [cr].[Id] IS NOT NULL AND [bc].[ModifiedDateTime] < [cr].[CreatedDateTime] ) );
+
+-- check: benevolence-request-is-worked-by-a-case-worker
+-- why: Decision 350. Rock's request screens offer case workers from RSR - Benevolence, so every request's case worker is an active member of that role.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[CaseWorkerPersonAliasId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [gm]
+        INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId]
+        WHERE [gm].[PersonId] = [pa].[PersonId] AND [g].[Guid] = '02FA0881-3552-42B8-A519-D021139B800F' AND [gm].[GroupMemberStatus] = 1 AND [gm].[IsArchived] = 0 );
+
+-- check: benevolence-request-matches-its-requester
+-- why: Decision 350. Rock's request block copies the requester onto the request when it saves: the legal first and last name, the email, the connection status, the campus, and the home address's location. The request's date key is its request day, and no government ID is ever recorded.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( [p].[Id] IS NULL OR [r].[FirstName] <> [p].[FirstName] OR [r].[LastName] <> [p].[LastName]
+        OR ISNULL( [r].[Email], '' ) <> ISNULL( [p].[Email], '' )
+        OR ISNULL( [r].[ConnectionStatusValueId], -1 ) <> ISNULL( [p].[ConnectionStatusValueId], -1 )
+        OR ISNULL( [r].[CampusId], -1 ) <> ISNULL( [p].[PrimaryCampusId], -1 )
+        OR [r].[RequestDateKey] <> CONVERT( INT, CONVERT( CHAR(8), [r].[RequestDateTime], 112 ) )
+        OR ISNULL( [r].[GovernmentId], '' ) <> ''
+        OR [r].[RequestDateTime] > GETDATE()
+        OR ( [r].[LocationId] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [p].[PrimaryFamilyId] AND [gl].[LocationId] = [r].[LocationId] ) ) );
+
+-- check: benevolence-results-follow-the-status
+-- why: Decision 352. A Pending request has no result and no summary yet, an Approved one has at least one result, and a Denied one gives nothing with an amount. Every amount is more than zero, and every result is saved after the request and before install day.
+SELECT COUNT(*)
+FROM [BenevolenceRequest] AS [r]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+WHERE [r].[ForeignKey] = @ForeignKey
+    AND ( ( [s].[Guid] = '67B24629-62A9-436A-A98C-30A454642153' AND ( ISNULL( [r].[ResultSummary], '' ) <> '' OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) ) )
+        OR ( [s].[Guid] = '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' AND NOT EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] ) )
+        OR ( [s].[Guid] = '3720671E-DA48-405F-A6D5-5E2D47436F9A' AND EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id] AND [x].[Amount] IS NOT NULL ) )
+        OR EXISTS ( SELECT 1 FROM [BenevolenceResult] AS [x] WHERE [x].[BenevolenceRequestId] = [r].[Id]
+            AND ( [x].[Amount] <= 0 OR [x].[CreatedDateTime] < [r].[RequestDateTime] OR [x].[CreatedDateTime] > GETDATE() ) ) );
+
+-- check: benevolence-document-is-a-stored-pdf
+-- why: Decision 353. Each request document is a saved PDF in Rock's Benevolence Request Documents file type, which requires view security, with its bytes, on an Approved request.
+SELECT COUNT(*)
+FROM [BenevolenceRequestDocument] AS [d]
+INNER JOIN [BenevolenceRequest] AS [r] ON [r].[Id] = [d].[BenevolenceRequestId]
+INNER JOIN [DefinedValue] AS [s] ON [s].[Id] = [r].[RequestStatusValueId]
+LEFT JOIN [BinaryFile] AS [bf] ON [bf].[Id] = [d].[BinaryFileId]
+LEFT JOIN [BinaryFileType] AS [bft] ON [bft].[Id] = [bf].[BinaryFileTypeId]
+LEFT JOIN [BinaryFileData] AS [data] ON [data].[Id] = [bf].[Id]
+WHERE [d].[ForeignKey] = @ForeignKey
+    AND ( [s].[Guid] <> '18D3A2DA-F2BA-49AE-83EB-7E60DCD18A3B' OR [bft].[Guid] <> '2599DDBE-40E1-158E-4436-AACA6C00556E' OR [bf].[MimeType] <> 'application/pdf' OR [bf].[IsTemporary] = 1
+        OR [data].[Id] IS NULL OR DATALENGTH( [data].[Content] ) <> [bf].[FileSize] OR SUBSTRING( [data].[Content], 1, 5 ) <> 0x255044462D );
+
+-- check: benevolence-trigger-sends-no-email
+-- why: Decision 355. Each church benevolence type starts one workflow when a request is entered, saved as Rock's type editor saves a Request Started trigger. The workflow is active and not persisted, and none of its actions sends an email, a text, or a communication, so entering a request after install reaches nobody.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+WHERE [t].[ForeignKey] = @ForeignKey
+    AND ( ( SELECT COUNT(*) FROM [BenevolenceWorkflow] AS [bw] WHERE [bw].[BenevolenceTypeId] = [t].[Id] AND [bw].[TriggerType] = 0 AND [bw].[QualifierValue] = '|||' ) <> 1
+        OR EXISTS (
+            SELECT 1
+            FROM [BenevolenceWorkflow] AS [bw]
+            INNER JOIN [WorkflowType] AS [wt] ON [wt].[Id] = [bw].[WorkflowTypeId]
+            WHERE [bw].[BenevolenceTypeId] = [t].[Id]
+                AND ( [wt].[IsActive] = 0 OR [wt].[IsPersisted] = 1
+                    OR EXISTS (
+                        SELECT 1
+                        FROM [WorkflowActivityType] AS [at]
+                        INNER JOIN [WorkflowActionType] AS [act] ON [act].[ActivityTypeId] = [at].[Id]
+                        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [act].[EntityTypeId]
+                        WHERE [at].[WorkflowTypeId] = [wt].[Id]
+                            AND ( [et].[Name] LIKE 'Rock.Workflow.Action.Send%' OR [et].[Name] LIKE '%Communication%' OR [act].[WorkflowFormId] IS NOT NULL ) ) ) ) );
+
+-- check: benevolence-type-is-locked
+-- why: Decision 351. Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration, and every benevolence type is locked to the same two roles for View and Edit, so no other screen shows a request to anyone else.
+SELECT COUNT(*)
+FROM [BenevolenceType] AS [t]
+CROSS JOIN ( VALUES ( 'View' ), ( 'Edit' ) ) AS [a] ( [Action] )
+WHERE EXISTS ( SELECT 1 FROM [BenevolenceRequest] AS [r] WHERE [r].[ForeignKey] = @ForeignKey )
+    AND (
+        SELECT COUNT(*)
+        FROM [Auth] AS [au]
+        INNER JOIN [EntityType] AS [et] ON [et].[Id] = [au].[EntityTypeId]
+        LEFT JOIN [Group] AS [g] ON [g].[Id] = [au].[GroupId]
+        WHERE [et].[Name] = 'Rock.Model.BenevolenceType' AND [au].[EntityId] = [t].[Id] AND [au].[Action] = [a].[Action]
+            AND ( ( [au].[AllowOrDeny] = 'A' AND [g].[Guid] IN ( '02FA0881-3552-42B8-A519-D021139B800F', '628C51A8-4613-43ED-A18D-4A6FB999273E' ) )
+                OR ( [au].[AllowOrDeny] = 'D' AND [au].[SpecialRole] = 1 ) ) ) <> 3;
 
 -- check: event-occurrence-is-listed
 -- why: Rock's calendar pages and the app list only active, approved events on a calendar. An occurrence of any other event never shows (decision 174).
@@ -1922,7 +2254,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits once its Set Visit Dates setting is on, which the load leaves off (decision 325), and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
@@ -2324,10 +2656,11 @@ SELECT CASE WHEN (
     THEN 0 ELSE 1 END;
 
 -- check: attribute-value-has-rock-derived-columns
--- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias.
+-- why: Decision 249. Rock's save hook (AttributeValue.UpdateValueAsProperties, the same in Rock 20 and 21) fills ValueAsBoolean, ValueAsNumeric, ValueAsDateTime, and ValueAsPersonId from Value, and a data view filter on an attribute reads those columns, not Value. Every value a load wrote has them as Rock would: the boolean for a value of 1 to 5 characters, the number whenever SQL Server reads Value as one, the date whenever Value is an ISO date, and the person behind a Person attribute's alias. The seven values Rock's own Family Analytics procedures write (First and Last Gave, Times Given, First and Last Checked-In, and Times Checked-In) keep the columns those procedures set, since Rock's hook never runs over them (decision 326).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
-INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] NOT IN ( 'EE5EC76A-D4B9-56B5-4B48-29627D945F10', '02F64263-E290-399E-4487-FC236F4DE81F', 'AC11EF53-AE55-79A0-4CAD-43721750E988',
+    '57700E8F-ED11-D787-415A-04DDF411BB10', 'AB12B3B0-55B8-D6A5-4C1F-DB9CCB2C4342', '5F4C6462-018E-D19C-4AB0-9843CB21C57E', '45A1E978-DC5B-CFA1-4AF4-EA098A24C914' )
 INNER JOIN [FieldType] AS [ft] ON [ft].[Id] = [a].[FieldTypeId]
 LEFT JOIN [PersonAlias] AS [pa] ON [ft].[Guid] = 'E4EAB7B2-0B76-429B-AFE4-AD86D7428C70' AND [pa].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
 CROSS APPLY ( SELECT

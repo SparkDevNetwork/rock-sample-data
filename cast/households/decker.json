@@ -13,6 +13,8 @@
     "Two adults and two children; kids check-in with an allergy attribute.",
     "Monthly giver by recurring credit card, with a building campaign line on each gift.",
     "Small group leader and serving team member.",
+    "Ted's only background check passed 13 years ago, so his small group leader requirement is not met.",
+    "Ted approves benevolence requests as one of the Benevolence Workers.",
     "Completes the whole Discipleship Path, with a program completion.",
     "Staff member with many security roles, logins, all five assessments, and personal notes including an alert. Ted's DISC result is from before the church used Rock's assessments.",
     "Cindy has an old Spiritual Gifts result and a pending retake that the Groups Pastor asked for."
@@ -125,7 +127,8 @@
           "yearsAgo": 13,
           "month": 10,
           "day": 4
-        }
+        },
+        "BackgroundCheckResult": "Pass"
       },
       "steps": {
         "foundations": {
@@ -183,12 +186,25 @@
             "emotional-intelligence",
             "motivators"
           ]
+        },
+        "era": {
+          "status": "current",
+          "startedDaysAgo": {
+            "min": 730
+          }
+        },
+        "peerNetwork": {
+          "includes": [
+            "cindy"
+          ],
+          "currentGroupsRising": true
         }
       },
       "logins": [
         "tdecker"
       ],
       "securityRoles": [
+        "Benevolence Workers",
         "Communication Administrators",
         "Pastoral Staff",
         "Prayer Team",

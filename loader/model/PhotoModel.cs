@@ -76,6 +76,11 @@ namespace RockSampleData.Loader.Model
         /// The Cast small group's key, as in cast/groups.
         /// </summary>
         public string Group { get; set; }
+
+        /// <summary>
+        /// The names of the Cast people in the photo, as the group's plan writes them.
+        /// </summary>
+        public List<string> People { get; set; } = new List<string>();
     }
 
     /// <summary>
@@ -100,5 +105,29 @@ namespace RockSampleData.Loader.Model
         /// The opportunity's team key, as in configuration/connections.json.
         /// </summary>
         public string Opportunity { get; set; }
+    }
+
+    /// <summary>
+    /// The contents of photos/campuses/manifest.json: one exterior photo per campus.
+    /// </summary>
+    internal sealed class CampusPhotoManifest
+    {
+        public List<CampusPhotoEntry> Images { get; set; } = new List<CampusPhotoEntry>();
+    }
+
+    /// <summary>
+    /// One delivered campus photo.
+    /// </summary>
+    internal sealed class CampusPhotoEntry
+    {
+        /// <summary>
+        /// The file, relative to the photos folder (for example "campuses/phoenix.jpg").
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The campus key, as in configuration/campuses.json.
+        /// </summary>
+        public string Campus { get; set; }
     }
 }

@@ -33,12 +33,14 @@
       { "guid": "3CBC1A3F-DD26-430A-9B53-B476CB385ABC", "name": "Section B" }
     ]
   },
+  "$topicsComment": "A topic with a fit goes only to a group whose members meet it. A topic with a share is planned on purpose: about one in oneIn of a campus's active groups get it, and at least one when the campus has minimumGroups or more. Its leader is leaderGender, and its members are that gender too, so a wife can join without her husband (decision 318).",
   "topics": [
     { "guid": "1E7C3054-73E6-4D07-90B6-BD53739E40E7", "value": "Sermon Discussion", "descriptions": [ "We dig into Sunday's message together and talk about how it plays out in everyday life.", "A relaxed evening of talking through the weekend sermon, with good questions and good snacks." ] },
     { "guid": "8FB24369-CEE8-4033-9A61-0C0B30600A58", "value": "Book of John", "descriptions": [ "We read through the Gospel of John a chapter at a time. No background needed.", "A slow, honest walk through John, one conversation at a time." ] },
     { "guid": "8DD86736-70F0-4A38-856C-33C1173AB23A", "value": "Marriage", "fit": { "marriedPercentMin": 80 }, "descriptions": [ "Couples encouraging couples. We talk honestly about building a marriage that lasts.", "A group for married couples who want to grow together, with practical conversations and plenty of laughter." ] },
     { "guid": "33354ACE-50D5-40A6-A197-374FF2F0819A", "value": "Parenting", "fit": { "parentsPercentMin": 60 }, "descriptions": [ "Parents comparing notes, praying for our kids, and learning from each other.", "From toddlers to teens, we share what is working, what is not, and where we need help." ] },
-    { "guid": "0AD6C058-A314-4D27-A290-824D71E4DCB1", "value": "Men's Bible Study", "fit": { "menPercentMin": 100 }, "descriptions": [ "Men studying the Bible together and keeping each other honest.", "A weekly study for men who want real friendships and a deeper faith." ] },
+    { "guid": "0AD6C058-A314-4D27-A290-824D71E4DCB1", "value": "Men's Bible Study", "fit": { "menPercentMin": 100 }, "leaderGender": "male", "share": { "oneIn": 10 }, "descriptions": [ "Men studying the Bible together and keeping each other honest.", "A weekly study for men who want real friendships and a deeper faith." ] },
+    { "guid": "7D82898F-4936-479E-B568-C6C787FA770A", "value": "Women's Bible Study", "fit": { "womenPercentMin": 100 }, "leaderGender": "female", "share": { "oneIn": 6, "minimumGroups": 4 }, "descriptions": [ "Women reading the Bible together, praying for each other, and sharing real life.", "A weekly study for women who want deeper friendships and a stronger faith." ] },
     { "guid": "963B7693-0797-478A-8E43-41F33BB30FD6", "value": "Young Adults", "fit": { "medianAgeMax": 35 }, "descriptions": [ "Twenties and thirties figuring out faith, work, and life together.", "A group for young adults who want community that goes deeper than small talk." ] },
     { "guid": "67E7A9E5-AA78-4FB5-8369-6DDB1F107DD3", "value": "Prayer", "descriptions": [ "We spend most of our time praying for each other, our church, and our city.", "A small, steady group that gathers to pray and share what God is doing." ] },
     { "guid": "2032CFCA-0701-483E-BD74-38B0668821B0", "value": "New to Faith", "descriptions": [ "New to church or just exploring? Bring your questions; there are no wrong ones.", "A welcoming place to learn the basics of faith alongside others who are new too." ] },
@@ -60,6 +62,7 @@
   },
   "size": { "target": 12, "min": 6, "max": 18, "capacity": 18 },
   "leaders": {
+    "$genderComment": "The leader of a group whose topic has no leaderGender.",
     "gender": "male",
     "minimumAge": 18,
     "statuses": [ "Engaged", "Leading" ],
@@ -100,7 +103,17 @@
     "startedYearsAgo": { "min": 1, "max": 8 },
     "leavePercentPerYear": 20,
     "archivedPercentOfLeavers": 10,
-    "pendingRequests": { "min": 1, "max": 3 }
+    "pendingRequests": { "min": 1, "max": 3 },
+    "$attendanceWindowComment": "A household joins no group until joinAfterStartDays after it started coming, and a household that stopped coming leaves its groups leaveAfterEndDays after, as an inactive member (decision 320).",
+    "attendanceWindow": { "joinAfterStartDays": 28, "leaveAfterEndDays": { "min": 14, "max": 42 } }
+  },
+  "launches": {
+    "$comment": "Groups start on the fall and spring launch Sundays in configuration/communications.json. About groupsPercent of a campus's active groups started on one of its last recentLaunches launch Sundays, and readyToLeadPercent of those are led by someone who was Ready to Lead readyDaysBefore days before: in a group, on a serving team, with an Equip step, and not leading. staysInOldGroupPercent of them stay in their old group; the rest leave it the day before they launch (decision 322).",
+    "groupsPercent": 33,
+    "recentLaunches": 4,
+    "readyToLeadPercent": 67,
+    "readyDaysBefore": 42,
+    "staysInOldGroupPercent": 50
   },
   "participation": {
     "$comment": "Cast: percent of eligible adults in an active group, by connection status. Generated households use the profile's share of active adults in a group.",
@@ -113,14 +126,24 @@
     "eachOtherCampus": { "full": 1, "closed": 1, "pending": 1, "inactive": 1, "archived": 1 }
   },
   "cast": {
-    "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader or host; groups listed in notInPattern are left alone.",
+    "$comment": "Legacy Cast small groups keep their Guids. A pin fixes a group's leader, host, topic, or name, and the households that have a pending request to join it. A pinned leader may also be in their spouse's group, and a household pinned into two groups is in both: the Cast's exceptions to one group per person. Groups listed in notInPattern are left alone.",
+    "$pinsComment": "Each pin holds what a Cast story, bio, note, or prayer request says about the group: James Lee leads the online New to Faith group, and Bill Marble leads a group for people new to faith too; Mariah Jackson, the Webbs, Dan Richards, Phil Coffee, and Allie Song are in the Greggs's grief and loss group; Jim Simmons is in Pete Foster's group and the Petersons in the Marble Group; the Fischers share prayer requests with the group at the Gilberts' home; the Sweeneys are in one group together; Jenny Michaels is in two groups; the Ellises asked to join the Marble Group and Victoria Ramos the Silva Group; and Karen Morgan launched a women's group from Ready to Lead. launchesAgo 1 is the newest launch Sunday at least a year back. A pin with ended is one of the main campus's ended test groups, whose photo shows its leader.",
     "pins": {
       "decker-group": { "leader": "decker/ted" },
-      "marble-group": { "leader": "marble/bill" },
-      "petes-group": { "leader": "foster/pete" },
-      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs" },
-      "gilbert-group": { "hostHousehold": "gilbert" }
+      "marble-group": { "leader": "marble/bill", "topic": "New to Faith", "memberHouseholds": [ "peterson" ], "pendingHouseholds": [ "ellis" ] },
+      "petes-group": { "leader": "foster/pete", "memberHouseholds": [ "michaels", "simmons" ] },
+      "greggs-group": { "leader": "greggs/bob", "hostHousehold": "greggs", "topic": "Grief and Loss", "memberHouseholds": [ "jackson", "webb", "richards", "coffee", "song" ] },
+      "gilbert-group": { "leader": "wright/gerald", "hostHousehold": "gilbert", "memberHouseholds": [ "fischer" ] },
+      "lee-group": { "leader": "lee/james", "topic": "New to Faith", "online": true },
+      "rivera-group": { "leader": "rivera/michael", "memberHouseholds": [ "sweeney" ] },
+      "silva-group": { "leader": "silva/isaac", "pendingHouseholds": [ "ramos" ] },
+      "alisha-marbles-group": { "leader": "marble/alisha", "topic": "Women's Bible Study", "name": "Women of the Bible", "description": "We read the stories of the women of the Bible, one at a time, and talk about what their faith means for ours.", "memberHouseholds": [ "michaels" ] },
+      "morgan-group": { "leader": "morgan/karen", "topic": "Women's Bible Study", "launchesAgo": 1, "readyToLead": true },
+      "murphy-group": { "leader": "murphy/patrick", "ended": "Inactive" },
+      "hughes-group": { "leader": "hughes/matthew", "ended": "Inactive" },
+      "jenkins-group": { "leader": "jenkins/gary", "ended": "Archived" },
+      "russell-group": { "leader": "russell/harold", "ended": "Archived" }
     },
-    "notInPattern": [ "alisha-marbles-group", "svu-student-group" ]
+    "notInPattern": [ "svu-student-group" ]
   }
 }

@@ -155,7 +155,9 @@ function load() {
     const smallGroups = groups
         .filter( g => g.type === "small-group" )
         .map( g => {
-            const photo = groupPhotos.find( p => p.group === g.key );
+            // A group photo shows only when everyone in it is a member, as the loader loads it (decision 319).
+            const memberNames = new Set( g.members.filter( m => m.state !== "Pending" ).map( m => m.name ) );
+            const photo = groupPhotos.find( p => p.group === g.key && p.people.every( n => memberNames.has( n ) ) );
             return {
                 key: g.key,
                 name: g.name,

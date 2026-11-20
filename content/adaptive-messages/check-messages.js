@@ -17,11 +17,13 @@
 
 /*
     Checks the adaptive messages against README.md: configuration/adaptive-messages.json and messages.json in this
-    folder. For the configuration it checks unique keys and Guids, real segments and categories, that only a
-    message's last adaptation has no segments, the dates rules, saturation, pages, and the Cast rows. For the text it
+    folder. For the configuration it checks unique keys and Guids, real segments and categories, that every
+    message's last adaptation, and only it, has no segments, the dates rules, saturation, pages, and the Cast rows. For the text it
     checks that every adaptation has text and no text is left over, the lengths, links to real External Website routes
     or the configuration's pages, approved event images, plain characters, no Lava or full web addresses, and no two
-    summaries in one message that start with the same five words. Prints a summary and exits with 1 when anything fails.
+    summaries in one message that start with the same five words. For photos/messages/manifest.json, when the image
+    agent has written it, it checks that each image belongs to one real adaptation with no event image, and that its
+    file is there. Prints a summary and exits with 1 when anything fails.
 
     Usage: node content/adaptive-messages/check-messages.js
 */
@@ -35,6 +37,10 @@ const configuration = read( "configuration/adaptive-messages.json" );
 const text = read( "content/adaptive-messages/messages.json" );
 const categories = read( "configuration/categories.json" ).categories;
 const eventImages = read( "photos/events/manifest.json" ).images;
+// The images made for adaptations with no event image (photos/message-brief.md). The image agent writes the manifest,
+// so until it does there is none.
+const MESSAGE_IMAGES_PATH = "photos/messages/manifest.json";
+const messageImages = fs.existsSync( path.join( root, MESSAGE_IMAGES_PATH ) ) ? read( MESSAGE_IMAGES_PATH ).images || [] : [];
 
 // Routes Rock ships on its External Website, the same in Rock 20 and Rock 21.
 const ROUTES = [ "/Give", "/GroupFinder", "/MyAccount", "/watch", "/learn", "/connect/get-connected" ];
@@ -155,6 +161,12 @@ for ( const message of configuration.messages || [] ) {
 
     if ( adaptationKeys.size === 0 ) {
         errors.push( `${at}: has no adaptations.` );
+    }
+
+    // Rock shows nothing for a message when none of its adaptations fits, so every message ends with a fallback.
+    const last = ( message.adaptations || [] )[( message.adaptations || [] ).length - 1];
+    if ( last && ( last.segments || [] ).length > 0 ) {
+        errors.push( `${at}: its last adaptation, ${last.key}, has segments. End the message with a fallback that has none, or most people see nothing in its slot.` );
     }
 }
 
@@ -277,7 +289,32 @@ for ( const key of Object.keys( text.messages || {} ).filter( k => !messageKeys.
     errors.push( `${key}: text for a message the configuration does not have.` );
 }
 
-const withoutImage = ( configuration.messages || [] ).flatMap( m => ( m.adaptations || [] ).filter( a => text.messages[m.key] && text.messages[m.key][a.key] && !text.messages[m.key][a.key].image ).map( a => `${m.key} ${a.key}` ) );
+// Each message image belongs to one adaptation that exists and has no event image, and its file is there.
+const imaged = new Set();
+for ( const image of messageImages ) {
+    const key = `${image.message} ${image.adaptation}`;
+    const message = ( configuration.messages || [] ).find( m => m.key === image.message );
+    if ( !message || !( message.adaptations || [] ).some( a => a.key === image.adaptation ) ) {
+        errors.push( `${MESSAGE_IMAGES_PATH}: has an image for ${key}, which is not an adaptation in the configuration.` );
+        continue;
+    }
+
+    const entry = ( text.messages[image.message] || {} )[image.adaptation];
+    if ( entry && entry.image ) {
+        errors.push( `${MESSAGE_IMAGES_PATH}: has an image for ${key}, which already shows the ${entry.image} event image. Remove one.` );
+    }
+
+    if ( imaged.has( key ) ) {
+        errors.push( `${MESSAGE_IMAGES_PATH}: has two images for ${key}.` );
+    }
+
+    imaged.add( key );
+    if ( typeof image.file !== "string" || !image.file.startsWith( "messages/" ) || !image.file.endsWith( ".jpg" ) || !fs.existsSync( path.join( root, "photos", image.file ) ) ) {
+        errors.push( `${MESSAGE_IMAGES_PATH}: ${key} lists ${image.file}. The file must be a .jpg under photos/messages/, and it must be there.` );
+    }
+}
+
+const withoutImage = ( configuration.messages || [] ).flatMap( m => ( m.adaptations || [] ).filter( a => text.messages[m.key] && text.messages[m.key][a.key] && !text.messages[m.key][a.key].image && !imaged.has( `${m.key} ${a.key}` ) ).map( a => `${m.key} ${a.key}` ) );
 console.log( `Adaptive messages: ${segments.size} segments, ${messageKeys.size} messages, ${adaptations} adaptations with text, ${withoutImage.length} waiting for an image (${withoutImage.join( ", " )}). ${errors.length} problems.` );
 for ( const error of errors ) {
     console.log( `  ${error}` );

@@ -15,14 +15,14 @@ Isaac Silva is the Student Pastor. He and Natalie split every gift between the G
 
 Isaac led the Student Ministry team as a volunteer for three years, then joined staff this year as the Student Pastor. He texts students and parents from the student ministry line and has his own texting number. He started Javelina Wash Coffee, and Natalie took it over when he joined staff.
 
-- Age 29 · married · Student Pastor, Rock Solid Church · email isaac.silva@example.org · groups: Student Ministry (leader), Silva Group (leader), Lee Group (left) · 2 security roles
+- Age 29 · married · Student Pastor, Rock Solid Church · email isaac.silva@example.org · groups: Student Ministry (leader), Silva Group (leader) · 2 security roles
 - Person Guid `581C940E-A788-4F32-BCF3-33F4D1948390`
 
 ### Natalie Silva
 
 Natalie owns and runs Javelina Wash Coffee, which Isaac started. She took it over when he joined staff as the Student Pastor. She mails the shop's monthly gift as a business check.
 
-- Age 28 · married · Owner, Javelina Wash Coffee · email natalie.silva@example.org · groups: Kids Ministry, Worship Team, Silva Group, Lee Group (left) · business contact for Javelina Wash Coffee
+- Age 28 · married · Owner, Javelina Wash Coffee · email natalie.silva@example.org · groups: Kids Ministry, Worship Team, Silva Group · business contact for Javelina Wash Coffee
 - Person Guid `8424C30D-A967-4603-AFAB-10B8235DC371`
 
 ## What this family tests

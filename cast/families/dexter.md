@@ -14,12 +14,12 @@ Frank Dexter is a long-time member. After his divorce he was convicted of a misd
 
 Frank is a long-time member. After his divorce he was convicted of a misdemeanor, so his latest background check failed and needs review before he can serve.
 
-- Age 42 · divorced · Analyst, First Bank of Main · email frank@example.org · groups: Silva Group · background check: Fail
+- Age 42 · divorced · Analyst, First Bank of Main · email frank@example.org · groups: Decker Group, Wright Group (left), Jenkins Group (group archived), Murphy Group (group ended), Russell Group (group archived) · background check: Fail
 - Person Guid `9C609974-A8E1-4363-8F5E-51F61828E2BA`
 
 ## What this family tests
 
-- Failed background check that needs review.
+- Failed background check, linked to his request to serve, that the safety team reviews.
 - Divorced adult living alone.
 - Monthly giver.
 

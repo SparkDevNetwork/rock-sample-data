@@ -14,12 +14,12 @@ Tom and Rebecca Bennett both teach. Their son Nick is in eighth grade and plays 
 
 ### Tom (Thomas) Bennett
 
-- Age 44 · married · Palo Verde Technical College · email tom.bennett@example.org · groups: Silva Group (host), Lee Group (left)
+- Age 44 · married · Palo Verde Technical College · email tom.bennett@example.org · groups: Rivera Group
 - Person Guid `79557805-4355-43FB-B5D9-D563685F13DE`
 
 ### Becca (Rebecca) Bennett
 
-- Age 42 · married · email becca.bennett@example.org · groups: Silva Group (host), Lee Group (left)
+- Age 42 · married · email becca.bennett@example.org · groups: Rivera Group
 - Person Guid `F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD`
 
 ### Nick (Nicholas) Bennett

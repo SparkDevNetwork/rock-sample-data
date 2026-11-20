@@ -91,18 +91,21 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Runs Rock's hook over every value the load wrote, and returns how many it changed.
+        /// Runs Rock's hook over every value the load wrote, and returns how many it changed. Values of
+        /// <paramref name="procedureAttributeIds"/> are left as Rock's own procedures wrote them, since Rock's hook never
+        /// runs over those either.
         /// </summary>
-        public static int Apply( RockDatabase db, string foreignKey, DateTime anchor )
+        public static int Apply( RockDatabase db, string foreignKey, DateTime anchor, IReadOnlyCollection<int> procedureAttributeIds = null )
         {
             var personFieldTypeId = db.RequireIdByGuid( "FieldType", PersonFieldTypeGuid );
             var changes = TableFactory.Create( "Id:int", "ValueAsNumeric:decimal", "ValueAsDateTime:date", "ValueAsBoolean:bool", "ValueAsPersonId:int" );
-            foreach ( var row in db.Query( @"
+            var leftAlone = procedureAttributeIds is { Count: > 0 } ? $" AND [av].[AttributeId] NOT IN ( {string.Join( ", ", procedureAttributeIds )} )" : string.Empty;
+            foreach ( var row in db.Query( $@"
 SELECT [av].[Id], [av].[Value], [av].[ValueAsNumeric], [av].[ValueAsDateTime], [av].[ValueAsBoolean], [av].[ValueAsPersonId], [pa].[PersonId] AS [AliasPersonId]
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
 LEFT JOIN [PersonAlias] AS [pa] ON [a].[FieldTypeId] = @PersonFieldTypeId AND [pa].[Guid] = TRY_CONVERT( UNIQUEIDENTIFIER, [av].[Value] )
-WHERE [av].[ForeignKey] = @ForeignKey", P( "@PersonFieldTypeId", personFieldTypeId ), P( "@ForeignKey", foreignKey ) ) )
+WHERE [av].[ForeignKey] = @ForeignKey{leftAlone}", P( "@PersonFieldTypeId", personFieldTypeId ), P( "@ForeignKey", foreignKey ) ) )
             {
                 var (numeric, dateTime, boolean) = ValueAs( row["Value"] as string, anchor.Year );
                 numeric = numeric.HasValue ? Math.Round( numeric.Value, 2, MidpointRounding.AwayFromZero ) : null;

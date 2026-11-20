@@ -68,6 +68,8 @@ namespace RockSampleData.Loader.Model
 
         public SmallGroupMembershipRules Membership { get; set; }
 
+        public SmallGroupLaunchRules Launches { get; set; }
+
         public SmallGroupParticipation Participation { get; set; }
 
         public SmallGroupTestCases TestCases { get; set; }
@@ -146,11 +148,43 @@ namespace RockSampleData.Loader.Model
         /// Who the topic suits. A group gets this topic only when its members meet every rule set here.
         /// </summary>
         public SmallGroupTopicFit Fit { get; set; }
+
+        /// <summary>
+        /// The leader's gender ("male" or "female") when the topic sets one. Its members are that gender too.
+        /// </summary>
+        public string LeaderGender { get; set; }
+
+        /// <summary>
+        /// The share of a campus's active groups planned with this topic on purpose, or null for a topic chosen by fit.
+        /// </summary>
+        public SmallGroupTopicShare Share { get; set; }
+    }
+
+    /// <summary>
+    /// A topic planned on purpose: about one in <see cref="OneIn"/> of a campus's active groups, and at least one when
+    /// the campus has <see cref="MinimumGroups"/> or more.
+    /// </summary>
+    internal sealed class SmallGroupTopicShare
+    {
+        public int OneIn { get; set; }
+
+        public int? MinimumGroups { get; set; }
+
+        /// <summary>
+        /// How many of a campus's active groups get the topic.
+        /// </summary>
+        public int GroupsFor( int activeGroups )
+        {
+            var count = ( int ) Math.Round( ( double ) activeGroups / OneIn, MidpointRounding.AwayFromZero );
+            return MinimumGroups is int minimum && activeGroups >= minimum ? Math.Max( 1, count ) : count;
+        }
     }
 
     internal sealed class SmallGroupTopicFit
     {
         public double? MenPercentMin { get; set; }
+
+        public double? WomenPercentMin { get; set; }
 
         public double? MarriedPercentMin { get; set; }
 
@@ -173,6 +207,7 @@ namespace RockSampleData.Loader.Model
             var median = ages.Count == 0 ? int.MaxValue : ages[ages.Count / 2];
 
             return ( MenPercentMin == null || Percent( people.Count( p => p.Gender == "male" ) ) >= MenPercentMin )
+                && ( WomenPercentMin == null || Percent( people.Count( p => p.Gender == "female" ) ) >= WomenPercentMin )
                 && ( MarriedPercentMin == null || Percent( people.Count( p => string.Equals( p.MaritalStatus, "married", StringComparison.OrdinalIgnoreCase ) ) ) >= MarriedPercentMin )
                 && ( ParentsPercentMin == null || Percent( parents ) >= ParentsPercentMin )
                 && ( MedianAgeMax == null || median <= MedianAgeMax );
@@ -325,6 +360,37 @@ namespace RockSampleData.Loader.Model
         public int ArchivedPercentOfLeavers { get; set; }
 
         public IntRange PendingRequests { get; set; }
+
+        public SmallGroupAttendanceWindow AttendanceWindow { get; set; }
+    }
+
+    /// <summary>
+    /// When a household may be in a group: from some days after it started coming, until some days after it stopped.
+    /// </summary>
+    internal sealed class SmallGroupAttendanceWindow
+    {
+        public int JoinAfterStartDays { get; set; }
+
+        public IntRange LeaveAfterEndDays { get; set; }
+    }
+
+    /// <summary>
+    /// Groups that started on a recent launch Sunday, and the share led by someone who was Ready to Lead.
+    /// </summary>
+    internal sealed class SmallGroupLaunchRules
+    {
+        public int GroupsPercent { get; set; }
+
+        public int RecentLaunches { get; set; }
+
+        public int ReadyToLeadPercent { get; set; }
+
+        /// <summary>
+        /// How many days before the launch the leader was Ready to Lead: the Lead a Group flow's run.
+        /// </summary>
+        public int ReadyDaysBefore { get; set; }
+
+        public int StaysInOldGroupPercent { get; set; }
     }
 
     internal sealed class IntRange
@@ -388,12 +454,38 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// A legacy group's fixed leader ("household/person" keys) or host household.
+    /// What a Cast story fixes about a legacy group: its leader ("household/person" keys), host household, topic, name,
+    /// description, whether it meets online, households in it and households with a pending request to join it, and the
+    /// launch it started on, with whether its leader came from Ready to Lead.
     /// </summary>
     internal sealed class SmallGroupPin
     {
         public string Leader { get; set; }
 
         public string HostHousehold { get; set; }
+
+        public string Topic { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public bool Online { get; set; }
+
+        public List<string> MemberHouseholds { get; set; } = new List<string>();
+
+        public List<string> PendingHouseholds { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The launch Sunday the group started on, counted back: 1 is the newest launch before the plan's latest change.
+        /// </summary>
+        public int? LaunchesAgo { get; set; }
+
+        public bool ReadyToLead { get; set; }
+
+        /// <summary>
+        /// "Inactive" or "Archived" for one of the campus's ended test groups, or null for a group still meeting.
+        /// </summary>
+        public string Ended { get; set; }
     }
 }

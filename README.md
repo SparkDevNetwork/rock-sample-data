@@ -145,9 +145,9 @@ and push. Ask me before anything that removes or rewrites history.
 
 | Dataset | People | Campuses | Load time | Database space |
 |---|---|---|---|---|
-| **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds | About 1.5 GB |
-| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds | About 1.8 GB |
-| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 3 minutes | About 14 GB |
+| **Core 1** | The Cast at Phoenix (95 households, 204 people) | 1 | About 13 seconds | About 1.3 GB |
+| **Core 3** | The Cast plus 75 generated households at each of 2 more campuses | 3 | About 17 seconds | About 1.7 GB |
+| **Full 7** | The Cast plus the Crowd (about 25,000 people) | 7 | About 3 minutes | About 15 GB |
 
 Load times and database space are each dataset's `typicalInstallSeconds` and `databaseSpaceMegabytes` in [datasets/](datasets/README.md). The public site reads them from there, so change them there. [Performance](docs/performance.md) has where Full 7's time goes, step by step.
 
@@ -170,13 +170,18 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 - **Connections have celebrations.** Connectors record the story behind a request, so the Connections Hub and the Celebrations Report show them. Sign in as `admin` to see the ones Alisha Marble wrote.
 - **Group sync keeps lists current.** Five data views, filed in the church's own category tree, keep the Volunteers and Small Group Leaders lists, the RSR - Prayer Access role, and the New Here and We Miss You care lists in step. See [Group sync](docs/communications.md#group-sync).
 - **A building campaign is under way.** Built on the Rock is about 38% through on install day, with pledges from people and businesses in every state Pledge Analytics can show.
-- **Each person sees a next step.** Five adaptive messages, from Your Next Step to Giving, show each signed-in person the version that fits them, chosen by Rock from 16 personalization segments on the church's own data views. See [Adaptive messages](docs/adaptive-messages.md).
+- **Each person sees a next step.** Five adaptive messages, from Your Next Step to Giving and Student Camp, show each signed-in person the version that fits them, chosen by Rock from 22 personalization segments on the church's own data views. People who stopped coming hear first that we miss them. Leaders are asked to invite a friend, and people who come but fit no other step are asked to find one. Every message ends with a card for everyone, so each slot shows something in its season. See [Adaptive messages](docs/adaptive-messages.md).
+- **Staff see a homepage in use.** Rock's staff homepage has a staff update for every Monday of the past year, following the church calendar, with metric tiles that show a year of history and the church's Quick Links. See [Staff homepage](docs/staff-homepage.md).
 - **Giving analytics work on install.** Giving attributes, journey stages, and a year of giving alerts are filled in the way Rock computes them, and a version guard catches Rock changing that math.
+- **eRA and peer networks are filled.** Each family's eRA, Rock's regular attender status, has years of eRA steps and history, as Rock's weekly Family Analytics job would leave it, and the job is on. Each person's Peer Network shows the people they share a small group or serving team with, and the people staff follow, with Rock's trend arrows. Rock's own jobs, run on install day, change nothing. See [eRA](docs/steps.md#era) and [Peer network](docs/small-groups.md#peer-network).
 - **People take assessments.** Most staff took all five of Rock's assessments, every leader took DISC and Conflict Profile, and the Starting Point and Foundations classes ask for them, so some requests are always pending. Every result comes from real answers scored the way Rock scores them. See [Assessments](docs/assessments.md).
+- **Leaders have background checks.** Every small group leader needs a current check, and Rock shows who meets it. Most leaders are current, and a few expire soon, have expired, or were never checked, such as Ted Decker. Kids and student volunteers are checked too, and each check has its report as a PDF. See [How background checks load](loader/README.md#how-background-checks-load).
+- **People ask for help.** Benevolence requests for rent, bills, food, cars, and medical costs, worked by the Care Director, with what the church gave and signed agreements, seen only by the benevolence team. Ashley Kelly's rent help matches her notes. See [How benevolence loads](loader/README.md#how-benevolence-loads).
 - **Profiles have signals.** Four signal types, each locked to its roles, flag the Cast's stories, such as Frank Dexter's Safety Team Review, Maddie Lowe's Pickup Instructions, and Hal Russell's Care Team Follow-up. Each campus pastor follows up with a few people, most of them done. The Top Person Signal badge shows each person's flag, and an ended signal shows none. See [How signals load](loader/README.md#how-signals-load).
 - **The bookmark menu is full.** The bookmarks beside Rock's search bar have shared sections for Sunday morning, care, finance, and communications, each locked to its roles, and personal sections for six staff and every campus pastor. Every link opens a Rock page with sample data on it. Sign in as `pfoster` to see Pete Foster's Leadership section. See [How personal links load](loader/README.md#how-personal-links-load).
 - **Some gifts are refunded,** at a real church's rate: duplicate online gifts, amounts typed with an extra zero, one fund of a split gift, gifts from an earlier year, and checks the bank returned, each in a refund batch with Rock's reason. See [Refunds](docs/refunds.md).
 - **Some gifts are uncommon:** stock, vehicles, and equipment given in kind, each with Rock's asset type and a description for the statement. See [Uncommon gifts](docs/uncommon-gifts.md).
+- **Duplicates are waiting to be found.** Rock's Duplicate Finder lists the Cast's duplicate records on install day, with staff decisions already made on some, a merge request waiting, and an old record already merged into Sarah Simmons. See [Duplicates](docs/duplicates.md).
 
 ## What is where
 
@@ -223,7 +228,7 @@ You need the .NET 10 SDK, Node.js 20 or later, and SQL Server with a freshly ins
    dotnet run -- --package ../packages/core-1.zip --rock C:\Development\Rock --connection "Server=localhost;Database=RockSample;Integrated Security=true;TrustServerCertificate=true"
    ```
 
-   Then read [After you install](docs/after-install.md). It says which of Rock's jobs to run, such as Family Analytics for eRA, and which to turn off on a sample site.
+   Then read [After you install](docs/after-install.md). It says which of Rock's jobs the load already covers, such as Family Analytics for eRA, which to run, and which to turn off on a sample site.
 
 4. Grade the result against the profile. See [Validation](validation/README.md) for the three commands.
 

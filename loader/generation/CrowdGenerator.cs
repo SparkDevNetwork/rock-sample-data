@@ -91,6 +91,11 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private readonly PhoneNumberPool _phones;
 
+        /// <summary>
+        /// Every email address already given, the Cast's and each generated person's, lowercase (decision 313).
+        /// </summary>
+        private readonly HashSet<string> _emails;
+
         public CrowdGenerator( ProfileTargets profile, SampleDataSource source, string seed, DateTime anchor )
         {
             _profile = profile;
@@ -100,6 +105,7 @@ namespace RockSampleData.Loader.Generation
             var cast = source.ReadHouseholds();
             _addresses = AddressPool.Load( source.Files, seed, cast.Select( h => h.Address ) );
             _adultAges = PlanAdultAges();
+            _emails = cast.SelectMany( h => h.Members ).Where( m => !string.IsNullOrEmpty( m.Email ) ).Select( m => m.Email.ToLowerInvariant() ).ToHashSet();
 
             var numbers = source.Communications?.PhoneNumbers;
             _churchNumbers = ( numbers?.Numbers.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
@@ -273,7 +279,7 @@ namespace RockSampleData.Loader.Generation
                 MaritalStatus = marital,
                 RecordStatus = "active",
                 ConnectionStatus = status,
-                Email = hasEmail ? $"{firstName}.{lastName}{random.Between( 1, 999 )}@example.org".ToLowerInvariant() : null,
+                Email = hasEmail ? UniqueEmail( firstName, lastName, random.Between( 1, 999 ) ) : null,
                 Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
 
@@ -297,6 +303,34 @@ namespace RockSampleData.Loader.Generation
             }
 
             return person;
+        }
+
+        /*
+            11/19/26 - CLAUDE
+
+            A generated email is the name and a number from 1 to 999, drawn from the household's stream. Two people with
+            the same name drew the same number about 20 times in Full 7, so two strangers shared one address, and Rock's
+            duplicate finder listed each pair with the Cast's real duplicates. Now an address already taken, by the Cast or
+            an earlier generated person, gets a new number from its own stream. The household's draw still happens, so
+            every other value stays where it was, and only the colliding addresses change.
+
+            Reason: Each generated email is one person's, so the Duplicate Finder lists only real look-alikes (decision 313).
+        */
+
+        /// <summary>
+        /// The generated person's email: first.last and the drawn number, or a new number from 1 to 9999 when that address is taken.
+        /// </summary>
+        private string UniqueEmail( string firstName, string lastName, int drawn )
+        {
+            var name = $"{firstName}.{lastName}".ToLowerInvariant();
+            var email = $"{name}{drawn}@example.org";
+            var redraw = new SeededRandom( $"{_seed}:crowd:unique-email:{email}" );
+            while ( !_emails.Add( email ) )
+            {
+                email = $"{name}{redraw.Between( 1, 9999 )}@example.org";
+            }
+
+            return email;
         }
 
         /// <summary>

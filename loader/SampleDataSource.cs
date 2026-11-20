@@ -184,6 +184,9 @@ namespace RockSampleData.Loader
             Tags = Files.Exists( TagsConfigurationPath ) ? Read<TagsConfiguration>( TagsConfigurationPath ) : null;
             Reminders = Files.Exists( RemindersConfigurationPath ) ? Read<RemindersConfiguration>( RemindersConfigurationPath ) : null;
             StepWorkflows = Files.Exists( StepWorkflowsConfigurationPath ) ? Read<StepWorkflowsConfiguration>( StepWorkflowsConfigurationPath ) : null;
+            PeerNetwork = Files.Exists( PeerNetworkConfigurationPath ) ? Read<PeerNetworkConfiguration>( PeerNetworkConfigurationPath ) : null;
+            BackgroundChecks = Files.Exists( BackgroundChecksConfigurationPath ) ? Read<BackgroundChecksConfiguration>( BackgroundChecksConfigurationPath ) : null;
+            Benevolence = Files.Exists( BenevolenceConfigurationPath ) ? Read<BenevolenceConfiguration>( BenevolenceConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -215,6 +218,14 @@ namespace RockSampleData.Loader
         public const string RemindersConfigurationPath = "configuration/reminders.json";
 
         /// <summary>
+        /// The group types with Rock's Peer Network on, and who follows whom, or null in a package built before peer
+        /// networks loaded, which leaves Peer Network off as Rock ships it.
+        /// </summary>
+        public PeerNetworkConfiguration PeerNetwork { get; }
+
+        public const string PeerNetworkConfigurationPath = "configuration/peer-network.json";
+
+        /// <summary>
         /// The person attributes the sample data fills and the Date Engaged attribute it adds, or null in a package built
         /// before them, which fills only the Cast's allergies.
         /// </summary>
@@ -243,6 +254,20 @@ namespace RockSampleData.Loader
         public InKindGiftsConfiguration InKindGifts { get; }
 
         public const string InKindGiftsConfigurationPath = "configuration/in-kind-gifts.json";
+        /// Who has a background check and the requirements that read it, or null in a package built before background
+        /// check records, which loads none.
+        /// </summary>
+        public BackgroundChecksConfiguration BackgroundChecks { get; }
+
+        public const string BackgroundChecksConfigurationPath = "configuration/background-checks.json";
+
+        /// <summary>
+        /// The benevolence types, the case worker, and who asks for help, or null in a package built before benevolence,
+        /// which loads none.
+        /// </summary>
+        public BenevolenceConfiguration Benevolence { get; }
+
+        public const string BenevolenceConfigurationPath = "configuration/benevolence.json";
 
         /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.
@@ -355,6 +380,46 @@ namespace RockSampleData.Loader
 
         public const string EventPhotoManifestPath = "photos/events/manifest.json";
 
+        /// <summary>
+        /// Reads photos/messages/manifest.json, the adaptive message images. Until the image agent delivers them, and in
+        /// a package built before they existed, there is none, and no adaptation gets one.
+        /// </summary>
+        public MessagePhotoManifest ReadMessagePhotoManifest()
+        {
+            return Files.Exists( MessagePhotoManifestPath ) ? Read<MessagePhotoManifest>( MessagePhotoManifestPath ) : new MessagePhotoManifest();
+        }
+
+        public const string MessagePhotoManifestPath = "photos/messages/manifest.json";
+
+        /// <summary>
+        /// Reads photos/campuses/manifest.json, the campus photos. A package built before campus photos loaded has none.
+        /// </summary>
+        public CampusPhotoManifest ReadCampusPhotoManifest()
+        {
+            return Files.Exists( CampusPhotoManifestPath ) ? Read<CampusPhotoManifest>( CampusPhotoManifestPath ) : new CampusPhotoManifest();
+        }
+
+        public const string CampusPhotoManifestPath = "photos/campuses/manifest.json";
+
+        /// <summary>
+        /// Reads configuration/staff-homepage.json, Rock's staff homepage. A package built before it existed has none.
+        /// </summary>
+        public StaffHomepageConfiguration ReadStaffHomepage()
+        {
+            return Files.Exists( StaffHomepageConfigurationPath ) ? Read<StaffHomepageConfiguration>( StaffHomepageConfigurationPath ) : null;
+        }
+
+        public const string StaffHomepageConfigurationPath = "configuration/staff-homepage.json";
+
+        /// <summary>
+        /// Reads content/internal-news/updates.json, the text of the staff homepage's weekly updates.
+        /// </summary>
+        public InternalNewsLibrary ReadInternalNews() => Read<InternalNewsLibrary>( InternalNewsPath );
+
+        public const string InternalNewsFolder = "content/internal-news";
+
+        public const string InternalNewsPath = InternalNewsFolder + "/updates.json";
+
         public const string LoginsConfigurationPath = "configuration/logins.json";
 
         public const string RegistrationsConfigurationPath = "configuration/registrations.json";
@@ -434,6 +499,13 @@ namespace RockSampleData.Loader
         /// Reads the Cast staff's hand-written personal emails, or none for a package built before they existed.
         /// </summary>
         public List<CastStaffEmail> ReadCastStaffEmails() => Files.Exists( CastStaffEmailsPath ) ? Read<CastStaffEmailFile>( CastStaffEmailsPath ).Emails : new List<CastStaffEmail>();
+
+        public const string CastDuplicatesPath = "cast/duplicates.json";
+
+        /// <summary>
+        /// Reads the Cast's duplicate pairs, merge requests, and finished merges, or none for a package built before they existed.
+        /// </summary>
+        public CastDuplicatesFile ReadCastDuplicates() => Files.Exists( CastDuplicatesPath ) ? Read<CastDuplicatesFile>( CastDuplicatesPath ) : new CastDuplicatesFile();
 
         /// <summary>
         /// Reads every Cast note file in cast/notes, in file name order so loads are repeatable.

@@ -5,11 +5,11 @@ How small groups look in the sample data, and why. Every number here lives in [c
 ## What a group looks like
 
 - **Size.** About 12 members, never fewer than 6 or more than 18. Capacity is 18.
-- **Leader.** One leader, a man who is at least 18, out of high school, and already Engaged or Leading. Leading a group makes him Leading. A campus with too few such men for its groups also takes Connected men, then Known men.
-- **Members.** Adults only, 18 and older and out of high school (decision 169). Spouses join together.
+- **Leader.** One leader, who is at least 18, out of high school, and already Engaged or Leading. A Women's Bible Study group has a woman leader, and every other group a man. Leading a group makes the leader Leading. A campus with too few possible leaders for its groups also takes Connected people, then Known people.
+- **Members.** Adults only, 18 and older and out of high school (decision 169). Spouses join together, except in a women's or men's group, which a married person joins alone. Everyone is in one group at a time, with two exceptions: a leader from Ready to Lead who stays in their old group, and a Cast person whose story puts them in two groups, such as Alisha Marble and Jenny Michaels.
 - **Host.** In 60% of groups the leader's spouse is the host. In the rest, another member hosts, and the group meets at that member's home.
 - **Name.** The leader's last name plus "Group", for example "Decker Group." When two leaders share a last name, the first name is added: "Ben Jones Group."
-- **Topic.** One of ten topics: Sermon Discussion, Book of John, Marriage, Parenting, Men's Bible Study, Young Adults, Prayer, New to Faith, Grief and Loss, and Money and Generosity. A group only gets a topic its members fit: Marriage needs mostly married couples (80%), Parenting mostly parents (60%), Young Adults a median age of 35 or under, and Men's Bible Study only men. Each group gets a short, real description for Group Finder.
+- **Topic.** One of eleven topics: Sermon Discussion, Book of John, Marriage, Parenting, Men's Bible Study, Women's Bible Study, Young Adults, Prayer, New to Faith, Grief and Loss, and Money and Generosity. Two are planned on purpose (decision 318). About one in six of a campus's active groups study the Women's Bible Study, and at least one when the campus has four or more groups. About one in ten study the Men's Bible Study. Their leaders and members are all women or all men. Every other group gets a topic its members fit: Marriage needs mostly married couples (80%), Parenting mostly parents (60%), and Young Adults a median age of 35 or under. Each group gets a short, real description for Group Finder.
 - **Schedule.** Weekly, Sunday through Thursday, never Friday or Saturday. Most meet at 7:00 PM, and about a quarter at 6:00 PM.
 - **Meeting style.** 90% meet in person at the host's home, which puts them on Group Finder's map. 10% meet online, with a meeting link at `meet.example.org`.
 - **Child care.** About half provide child care. Families with young children usually join groups that do.
@@ -34,6 +34,22 @@ Groups have history, so Rock's history screens show real change.
 - About 20% of members leave each year. Most become inactive members; about 1 in 10 is archived.
 - Every change is recorded in group history.
 
+## When a household is in a group
+
+A household's group memberships fit when it came to church (decision 320).
+
+- A household joins no group until four weeks after it started coming. A newer household can only ask to join, as a pending request.
+- A household that stopped coming leaves its groups two to six weeks after its last Sunday, as an inactive member with a left date, and its Small Group step ends that day. A member of a group that ended earlier stays a member of the ended group, as Rock keeps them.
+
+## New groups and new leaders
+
+New groups start on launch Sundays, and most new leaders come from people who are Ready to Lead, so the Lead a Group flow shows people who took the Lead step (decision 322).
+
+- About a third of a campus's active groups started on one of its last four launch Sundays: the second Sunday of September and the third Sunday of January, from `configuration/communications.json`.
+- Two thirds of those are led by someone who was Ready to Lead six weeks before the launch, the day the Lead a Group flow runs. That day they were in another small group, on a serving team, and had an Equip step, and they led nothing. Women can be Ready to Lead too, and some launch a women's group.
+- Half of these leaders stay in their old group. The other half leave it the day before they launch.
+- The serving and step plans make the rest true. Each of these leaders joined a serving team by half a year before that day, and never leads one. One who was not baptized by then took Foundations in the two years before it (see [Steps](steps.md)).
+
 ## Test cases
 
 Each dataset includes groups made for testing Group Finder and group history.
@@ -48,14 +64,43 @@ Each dataset includes groups made for testing Group Finder and group history.
 
 ## How many people are in groups
 
-- **The Cast** joins at high rates so Core datasets have plenty of full, lively groups: about 95% of Leading, 85% of Engaged, 80% of Connected, and 30% of Known adults, and a few Prospects and Participants. That gives Core 1 about 8 active groups.
-- **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower. A campus too small to fill its test groups at that rate adds the households that came closest to joining, until each group can reach the minimum size. Core 3 gets 6 groups at each companion campus, 24 in all.
+- **The Cast** joins at high rates so Core datasets have plenty of full, lively groups: about 95% of Leading, 85% of Engaged, 80% of Connected, and 30% of Known adults, and a few Prospects and Participants. That gives Core 1 10 active groups.
+- **Generated households** (Core 3 companions and the Full 7 crowd) join at the rate the calibration profile measured, which is much lower. A campus too small to fill its test groups at that rate adds the households that came closest to joining, until each group can reach the minimum size. Core 3 gets 6 groups at each companion campus, 26 in all with the Cast's 14.
 - **Registrations** read the small group plan, not its rows: a share of the members on the day of the Community Serve Day signed up for it, and some active groups send two to four women to the Women's Retreat on one registration (decision 209). See [Event registrations](registrations.md#who-registered-kids-and-adults).
+
+## Peer network
+
+Rock's Peer Network scores how well two people likely know each other, and the person profile shows each person's peers with a score and a trend arrow. The sample data turns it on for small groups and serving teams, from `configuration/peer-network.json` (decision 328):
+
+| Group type | Strength | Score |
+|---|---|---|
+| Small Group | Close | 10 points, plus 0.1 a month while both stay |
+| Serving Team | Casual | 5 points, plus 0.1 a month while both stay |
+
+Every other group type stays off, as Rock ships it. After someone leaves, or the group closes, the score falls 0.2 a month until it reaches 0, and Rock removes it. A small group pair takes about four years to fade, and a serving pair about two.
+
+The load scores the last two runs of Rock's Calculate Peer Network job, which runs at 2:05 AM on the 1st of each month. The last run sees the groups as they stand on install day, and the run before it sees them as they stood a month earlier, so each trend is Rock's: rising while two people stay, falling after one leaves, and flat for a follow (decision 329).
+
+People follow each other too (decision 330). Each campus pastor follows their campus's small group leaders, and each staff member follows up to 25 people in their care, from their recent Pastoral and Counseling notes. Rock scores a follow 5 points, and it stays flat.
+
+Ted Decker's profile shows Cindy, his small group, and the Production Team he leads, all rising. Every Cast person who left a group sees its people falling. Every load checks both (decision 332). Full 7 has about 166,000 peer network rows.
 
 ## The Cast's groups
 
-The Cast's groups are fixed files in `cast/groups/`, so tests can rely on them. Legacy groups keep their Guids. Ted Decker, Bill Marble, and Pete Foster keep leading their groups, and the Greggs and Gilbert groups keep meeting in those homes.
+The Cast's groups are fixed files in `cast/groups/`, which the builder plans with `--plan-cast-groups`, so tests can rely on them. Legacy groups keep their Guids. The Cast plans only main-campus households, so a campus pastor's family on another campus joins no Cast group.
+
+Pins in `configuration/small-groups.json` hold what Cast stories, notes, and prayer requests say (decision 321):
+
+- Ted Decker, Bill Marble, Pete Foster, Bob Greggs, Jerry Wright, James Lee, Mike Rivera, and Isaac Silva keep leading their groups, and the Greggs and Gilbert groups keep meeting in those homes. The ended groups stay the Murphy and Hughes groups (inactive) and the Jenkins and Russell groups (archived), each with its photo.
+- James Lee's New to Faith group meets online, and Bill Marble's Marble Group is a New to Faith group too, as his story says. Mariah Jackson, the Webbs, Dan Richards, Phil Coffee, and Allie Song are in the Greggs's Grief and Loss group. The Simmonses are in Pete Foster's group, the Petersons in the Marble Group, the Fischers in the group at the Gilberts' home, and the Sweeneys in the Rivera Group together.
+- Alisha Marble leads Women of the Bible, a Women's Bible Study, and stays in Bill's Marble Group. Jenny Michaels is in Women of the Bible and Pete Foster's group. They are the Cast people in two groups by design.
+- Karen Morgan launched a women's group from Ready to Lead on the fall launch Sunday a year or more back, and stays in Women of the Bible. Cast plans change nothing within a year of install day, so the Cast's launch is never more recent than that.
+- The Ellises took the Starting Point Class this fall and have one pending request to the Marble Group, and no other group. Victoria Ramos has one pending request to the Silva Group. The Ortizes left their group five weeks after their last Sunday.
+
+A Cast expectation checks every pin on every load: the pinned leader leads the group, and each pinned household's adults are in it or have asked to join.
+
+A group photo loads only when everyone in it is a member, so a women's or men's group never shows the leader's spouse (decision 319).
 
 ## Later
 
-Women's groups, leader requirements, and group photos are on the [roadmap](roadmap.md). Alisha Marble's group becomes a women's group then.
+Leader requirements are on the [roadmap](roadmap.md).

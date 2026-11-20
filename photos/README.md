@@ -2,7 +2,7 @@
 
 An image model makes the people photos from the [photo brief](brief.md). This folder holds the photo rules, the delivered photos, and the manifest the builder reads.
 
-[Campus exteriors](campuses/README.md) show all seven Rock Solid Church locations ready for Sunday morning without people. The set includes a high school auditorium and a traditional church campus. It is available in the public site's campus cards and downloads; campus images are not yet installed into Rock by the loader.
+[Campus exteriors](campuses/README.md) show all seven Rock Solid Church locations ready for Sunday morning without people. The set includes a high school auditorium and a traditional church campus. The public site's campus cards and downloads use it, and each dataset loads its own campuses' photos into Rock, as each campus Location's image (decision 317).
 
 Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.md), with one folder per initiative. The Starting Point campaign master lives there; its installed lobby appearance remains in [the church reference pack](references/church/README.md).
 
@@ -15,7 +15,9 @@ Reusable campaign artwork belongs in [graphics/initiatives/](../graphics/README.
 | Cast small groups | `Group.PhotoId` | AI-generated photos of each group's leader and spouse (Hal Russell alone), made from their profile photos, from the [group photo brief](group-brief.md) (decisions 56 and 196). The original full-group photos are [download-only assets](groups-full-members/README.md). |
 | Serving opportunities | `ConnectionOpportunity.PhotoId` | AI-generated photos of Phoenix's Cast volunteers doing each job, made from their profile photos, from the [opportunity photo brief](opportunity-brief.md). They replace the three photos Rock ships. |
 | Calendar events | `EventItem.PhotoId` | AI-generated 2:1 images of each event on the church calendar from the [event image brief](event-brief.md): titled designs for most events, and photos with anonymous people for the rest (decisions 176 and 184) |
-| Scenes | Other groups' `Group.PhotoId`, connection opportunities, campuses, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
+| Adaptive message cards | The adaptation's Summary Image attribute, a copy of the file in Rock's Default type | Fifteen cards reuse an event image. The ten with none get AI-generated 2:1 images with no text, from the [message image brief](message-brief.md). The image agent lists them in `messages/manifest.json` by `message` and `adaptation`, and each loads as soon as it is listed (decision 341). |
+| Campus exteriors | `Location.ImageId` of each campus's Location, a file of Rock's Location Image type | AI-generated photos of each campus building, ready for Sunday without people (decision 135). A dataset loads only its own campuses' photos (decision 317). |
+| Scenes | Other groups' `Group.PhotoId`, connection opportunities, accounts, LMS courses | A small themed library (small group, serving team, youth night, building), with faces small or in the background |
 | Scanned checks | `FinancialTransactionImage` | Drawn at install from fictional check templates, for the months each [dataset](../datasets/README.md) sets |
 
 ## Photo style
@@ -77,6 +79,8 @@ The field is `photo.ethnicity` (decision 29 in [docs/decisions.md](../docs/decis
 | Cast small groups (in every dataset) | All 12, each showing the group's leader and spouse, set as each group's photo and shown on Group Finder cards. Core 3's companion groups get none. |
 | Serving opportunities (in every dataset) | All 8, set as each opportunity's photo and shown on the public Serve page. |
 | Calendar events (in every dataset) | All 51, set as each event's photo and shown on its web and app pages (decision 197). |
+| Adaptive message cards (in every dataset) | Fifteen of 25 show an event image. The other ten wait for the [message image brief](message-brief.md): Plan a Visit, Invite a Friend, Find Your Next Step, We Miss You, and six Giving layers. Until `messages/manifest.json` lists one, its card shows no image. |
+| Campus exteriors | Each dataset's own campuses: Phoenix in Core 1, three in Core 3, and all seven in Full 7, set as each campus Location's image. |
 | Full 7 crowd | None. Full 7 shows the Cast photos only. |
 
 ## Generating the photos

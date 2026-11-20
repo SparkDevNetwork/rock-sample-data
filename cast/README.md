@@ -20,6 +20,7 @@ The Cast is the set of hand-designed households: today **104 households and 230 
 | `staff-emails.json` | The Cast staff's hand-written personal emails to Cast people, tied to their stories. See [staff-emails.md](staff-emails.md). |
 | `sms-threads.json` | The Cast's hand-written text conversations, covering every SMS Conversations state, with several always from the last few days. See [sms-threads.md](sms-threads.md). |
 | `prayer-requests.json` | The Cast's own prayer requests, tied to their stories, covering every prayer screen state, with at least 8 always current. Format: `prayer-requests.schema.json`. |
+| `duplicates.json` | The Cast's duplicate pairs and what staff decided about them, merge requests, and merges already made, such as Sarah Simmons's old Sarah Jones record. Format: `duplicates.schema.json`. See [Duplicates](../docs/duplicates.md). |
 | `groups/*.json` | One file per Cast group. Group membership lives here only. Format: `group.schema.json`. Small groups are plans written by the builder; see [Small groups](#small-groups). |
 | `families/*.md` | Generated family pages. Never edit them; rerun `build-pages.js`. |
 | `INVENTORY.md` | What came over from the legacy sample data, what was added, open issues, and remaining gaps. |
@@ -49,17 +50,18 @@ dotnet run -- --plan-cast-groups
 
 It rewrites every small group file and marks each new leader Leading in the household files. A second run changes nothing. Then run `node validate-cast.js` and `node build-pages.js`.
 
-- Legacy groups keep their keys and Guids. Pins in the configuration keep Ted Decker, Bill Marble, Pete Foster, and Bob Greggs as leaders, and keep the Greggs and Gilbert groups in those homes.
-- Groups in `cast.notInPattern` (Alisha Marble's group and the university group) keep their old shape and are not loaded.
+- Legacy groups keep their keys and Guids. Pins in the configuration hold what Cast stories, notes, and prayer requests say: who leads each established group, the Greggs and Gilbert groups in those homes, James Lee's online New to Faith group, Alisha Marble's Women of the Bible, Karen Morgan's launch from Ready to Lead, the Ellises' and Victoria Ramos's requests to join, and the households a story, bio, note, or prayer request puts in a group. When you write one of those about a group, add a pin for it. A Cast expectation checks every pin on every load.
+- Only main-campus households join Cast groups. A family that started coming joins none until four weeks later, and a family that stopped coming leaves its groups a few weeks after its last Sunday.
+- Groups in `cast.notInPattern` (the university group) keep their old shape and are not loaded.
 - Each member has a `role` (Leader, Host, or Member) and a `state`: Active, Inactive or Archived after leaving (with a `left` date), or Pending for a request to join. General groups still mark leaders with `isLeader`.
-- A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups.
+- A household with `duplicateOf` is a duplicate record of another household. Duplicate records never join groups. What Rock's duplicate finder scores for each, and what staff decided, is in `duplicates.json`.
 - People with an inactive record (the Murphys, who moved) appear only as former members of inactive or archived groups.
 
 ## Serving teams and requests to serve
 
 Each of the main campus's eight serving teams has a roster in `groups/serving-{team}.json`: the team key from `configuration/serving.json`, the team's Guid, and its members, each a Leader or a Member. These rosters are hand-picked, so edit them directly; `validate-cast.js` checks each team key, name, and single leader. The loader adds each volunteer's rotation, preferences, and serving history. Generated households fill the teams at every campus.
 
-A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, an optional background check result, and an optional `celebration`: the story the connector recorded, which Rock shows on the request and in its Celebrations Report (decision 219). A celebration needs a connector and a request someone has reached, Connected or Active past No Contact. The loader adds the activity history. See [Serving](../docs/serving.md).
+A person's `connectionRequests` in their household file tell their story of asking to serve: the team, the state and status, when they asked, whether the team leader is the connector, and an optional `celebration`: the story the connector recorded, which Rock shows on the request and in its Celebrations Report (decision 219). A celebration needs a connector and a request someone has reached, Connected or Active past No Contact. The loader adds the activity history. See [Serving](../docs/serving.md).
 
 A staff person's `connects` rule names the active request statuses they connect at their campus instead of the team leader, an optional `minimum`, and an optional `celebrationMinimum`. Alisha Marble connects the main campus's No Contact and In Progress requests, at least 8 in every dataset (decision 178), with at least 6 celebrations (decision 219). `validate-cast.js` checks that the Cast's own requests and celebrations reach both, so a Cast change cannot leave her board thin.
 

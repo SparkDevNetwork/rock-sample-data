@@ -90,6 +90,15 @@
       "photo": {
         "ethnicity": "black"
       },
+      "expect": {
+        "era": {
+          "status": "former",
+          "endedDaysAgo": {
+            "min": 60,
+            "max": 200
+          }
+        }
+      },
       "logins": [
         "lortiz"
       ]

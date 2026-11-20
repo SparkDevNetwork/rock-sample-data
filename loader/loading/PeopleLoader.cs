@@ -116,6 +116,11 @@ namespace RockSampleData.Loader.Loading
         public Dictionary<Guid, LoadedPerson> People { get; } = new Dictionary<Guid, LoadedPerson>();
 
         /// <summary>
+        /// The Person Id each record in cast/duplicates.json's merges had before Rock merged it away, keyed by the record's Guid.
+        /// </summary>
+        public Dictionary<Guid, int> MergedRecordIds { get; } = new Dictionary<Guid, int>();
+
+        /// <summary>
         /// The loaded family groups, keyed by household key.
         /// </summary>
         public Dictionary<string, int> FamilyIds { get; } = new Dictionary<string, int>();
@@ -157,12 +162,16 @@ namespace RockSampleData.Loader.Loading
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var aliases = NewTable( "Id:int", "PersonId:int", "AliasPersonId:int", "AliasPersonGuid:guid", "Guid:guid", "ForeignKey:string" );
             var members = NewTable( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var locations = NewTable( "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            // Every address carries the marks of a check by Rock's address service, so it never goes to one (decision 315).
+            var locations = NewTable( new[] { "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" }
+                .Concat( CheckedAddress.Columns ).ToArray() );
             var geo = NewTable( "Id:int", "Latitude:double", "Longitude:double" );
             var groupLocations = NewTable( "Id:int", "GroupId:int", "LocationId:int", "GroupLocationTypeValueId:int", "IsMailingLocation:bool", "IsMappedLocation:bool", "Order:int", "IsOverflowLocation:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var phones = NewTable( "Id:int", "IsSystem:bool", "PersonId:int", "CountryCode:string", "Number:string", "NumberFormatted:string", "FullNumber:string", "NumberTypeValueId:int", "IsMessagingEnabled:bool", "IsUnlisted:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             var homeLocationIds = new Dictionary<string, int>();
+            var locationIds = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase );
+            var merges = _source.ReadCastDuplicates().Merges.ToLookup( m => m.Person.Guid );
             var familyRows = new Dictionary<int, DataRow>();
             var salutationMembers = new Dictionary<int, List<SalutationMember>>();
 
@@ -173,6 +182,13 @@ namespace RockSampleData.Loader.Loading
                 var campusId = _campusIds[CampusKeyFor( household )];
                 foreach ( var person in household.Members )
                 {
+                    // A record Rock merged into this person was made before them, so it had the Id just before theirs.
+                    // No Person row keeps it: it lives on only as the AliasPersonId of the record's alias (decision 312).
+                    foreach ( var merge in merges[person.Guid] )
+                    {
+                        MergedRecordIds[merge.Record.Guid] = nextPersonId++;
+                    }
+
                     People[person.Guid] = person.ReplacesAdmin && admin != null
                         ? new LoadedPerson { PersonId = AdminPersonId, AliasId = admin.AliasId, AliasGuid = admin.AliasGuid, KnownRelationshipGroupId = admin.KnownRelationshipGroupId, IsRockAdmin = true, FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person }
                         : new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, AliasGuid = Guid.NewGuid(), FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
@@ -277,12 +293,27 @@ namespace RockSampleData.Loader.Loading
 
                 if ( household.Address != null )
                 {
+                    /*
+                        11/19/26 - CLAUDE
+
+                        Rock's address editor saves an address through LocationService.Get, which returns the Location
+                        that already has that street, city, state, and postal code. So families at one address share one
+                        Location, and Rock's duplicate finder scores Address only for people on the same Location.
+                        Jon Smith's duplicate records each had their own copy of his address, so the finder never saw it.
+
+                        Reason: Duplicate records at one address score the way Rock scores them (decision 314).
+                    */
                     var address = household.Address;
-                    var locationId = nextLocationId++;
-                    locations.Rows.Add( locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now );
-                    if ( address.Latitude.HasValue && address.Longitude.HasValue )
+                    var addressKey = string.Join( "|", address.Street1, address.Street2, address.City, address.State, address.PostalCode );
+                    if ( !locationIds.TryGetValue( addressKey, out var locationId ) )
                     {
-                        geo.Rows.Add( locationId, address.Latitude.Value, address.Longitude.Value );
+                        locationId = locationIds[addressKey] = nextLocationId++;
+                        locations.Rows.Add( new object[] { locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now }
+                            .Concat( CheckedAddress.Values( _now ) ).ToArray() );
+                        if ( address.Latitude.HasValue && address.Longitude.HasValue )
+                        {
+                            geo.Rows.Add( locationId, address.Latitude.Value, address.Longitude.Value );
+                        }
                     }
 
                     var isHome = address.Type == "home";
@@ -657,7 +688,7 @@ DROP TABLE #Metaphone;" );
             _db.BulkInsert( "#LocationGeo", geo, keepIdentity: false );
             _db.Execute( @"
 UPDATE [l]
-SET [l].[GeoPoint] = geography::Point( [g].[Latitude], [g].[Longitude], 4326 ), [l].[GeocodedDateTime] = GETDATE()
+SET [l].[GeoPoint] = geography::Point( [g].[Latitude], [g].[Longitude], 4326 )
 FROM [Location] AS [l]
 INNER JOIN #LocationGeo AS [g] ON [g].[Id] = [l].[Id];
 DROP TABLE #LocationGeo;" );

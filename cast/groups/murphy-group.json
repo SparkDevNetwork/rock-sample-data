@@ -6,8 +6,8 @@
   "name": "Murphy Group",
   "type": "small-group",
   "campus": "main",
-  "topic": "Prayer",
-  "description": "We spend most of our time praying for each other, our church, and our city.",
+  "topic": "New to Faith",
+  "description": "New to church or just exploring? Bring your questions; there are no wrong ones.",
   "schedule": {
     "day": "Wednesday",
     "time": "18:00"
@@ -30,8 +30,8 @@
     },
     "ended": {
       "yearsAgo": 3,
-      "month": 3,
-      "day": 21
+      "month": 4,
+      "day": 15
     },
     "reason": "Taking a season off"
   },
@@ -63,8 +63,8 @@
     },
     {
       "state": "Active",
-      "guid": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
-      "name": "Hannah Ellis",
+      "guid": "1E6E66C7-A487-48E6-B064-7F9F4DDE6680",
+      "name": "Sam Hanks",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -75,8 +75,8 @@
     },
     {
       "state": "Active",
-      "guid": "F82915AE-0E40-4827-9E35-17CC897A0320",
-      "name": "Jordan Ellis",
+      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
+      "name": "Craig Lowe",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -87,8 +87,8 @@
     },
     {
       "state": "Active",
-      "guid": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
-      "name": "Luis Ortiz",
+      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
+      "name": "Trish Lowe",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -99,8 +99,8 @@
     },
     {
       "state": "Active",
-      "guid": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
-      "name": "Teresa Ortiz",
+      "guid": "A2DFA3AC-CF66-4E22-877E-21C6BF1F27CA",
+      "name": "Dot Wright",
       "role": "Member",
       "joined": {
         "yearsAgo": 6,
@@ -111,73 +111,73 @@
     },
     {
       "state": "Active",
-      "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0",
-      "name": "Jen Rivera",
+      "guid": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
       "role": "Member",
       "joined": {
-        "yearsAgo": 5,
-        "month": 9,
-        "day": 2
+        "yearsAgo": 6,
+        "month": 1,
+        "day": 14
       },
       "attendancePercent": 65
     },
     {
       "state": "Active",
-      "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC",
-      "name": "Mike Rivera",
+      "guid": "47A42BD0-38A3-49D6-A32A-0FCD5E386CC3",
+      "name": "Tom Miller",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 5,
+        "month": 3,
+        "day": 3
+      },
+      "attendancePercent": 47
+    },
+    {
+      "state": "Active",
+      "guid": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Peggy Carter",
       "role": "Member",
       "joined": {
         "yearsAgo": 5,
         "month": 9,
-        "day": 2
-      },
-      "attendancePercent": 47
-    },
-    {
-      "state": "Active",
-      "guid": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0",
-      "name": "Craig Lowe",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 3
+        "day": 6
       },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "20A2C167-D16E-43B3-A5B0-80CE912589AF",
-      "name": "Trish Lowe",
+      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
+      "name": "Frank Dexter",
       "role": "Member",
       "joined": {
         "yearsAgo": 4,
-        "month": 9,
-        "day": 3
+        "month": 4,
+        "day": 7
       },
       "attendancePercent": 61
     },
     {
       "state": "Active",
-      "guid": "309FCEB5-8420-42EE-B38E-78A8078C04D5",
-      "name": "Elena Alvarez",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 19
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 8
       },
       "attendancePercent": 47
     },
     {
       "state": "Active",
-      "guid": "A584B90D-9EE0-4FEE-8DBF-29A5CF721D6B",
-      "name": "Marco Alvarez",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
       "role": "Member",
       "joined": {
-        "yearsAgo": 4,
-        "month": 9,
-        "day": 19
+        "yearsAgo": 3,
+        "month": 1,
+        "day": 8
       },
       "attendancePercent": 47
     }

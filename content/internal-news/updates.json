@@ -1,0 +1,692 @@
+{
+  "$comment": "The staff homepage's weekly updates (issue 9), written by Daniel Peak, the Director of Communications. Each Monday's update has one feature and one to three staff articles. A feature or article with an 'occasion' runs on the Monday 'weeksBefore' weeks before that occasion's week: 0 is the Monday of its week, and a negative number is a week after it. An occasion is one the message library already dates (README.md), or event:<key> for a calendar event. Mondays with no occasion feature take the next evergreen feature, and articles fill to the week's count from the evergreen ones. A feature's image is an approved event image by event key. An article's image is its author's staff photo; 'author' is a staff member's household/member key. README.md has the rules, and check-news.js checks them.",
+  "features": [
+    {
+      "key": "staff-retreat",
+      "occasion": "event:staff-retreat",
+      "weeksBefore": 1,
+      "title": "Staff Retreat Next Week",
+      "text": [
+        "Our staff retreat is next Wednesday. We will look back at last year, pray together, and set our ministry goals for the year ahead.",
+        "Pack a jacket for the morning session outside. Lunch is provided, and the office closes for the day."
+      ],
+      "image": "staff-retreat"
+    },
+    {
+      "key": "year-end-statements",
+      "occasion": "giving-statement",
+      "weeksBefore": 3,
+      "title": "Year-End Giving Statements",
+      "text": [
+        "Giving statements go out this month. Most givers get theirs by email, and the rest get a printed copy in the mail.",
+        "If someone calls about a statement, take their name and number and send it to the finance team. Please do not read gift amounts over the phone."
+      ],
+      "image": "elder-meeting"
+    },
+    {
+      "key": "easter-planning",
+      "occasion": "easter",
+      "weeksBefore": 5,
+      "title": "Easter Planning Starts Now",
+      "text": [
+        "Easter is six weeks away, and it is our biggest Sunday of the year. Every service at every campus will be full, so every team needs more hands.",
+        "Ministry leads, please send your volunteer needs to your campus pastor by Friday. Invite cards arrive next week."
+      ],
+      "image": "easter"
+    },
+    {
+      "key": "easter-volunteers",
+      "occasion": "easter",
+      "weeksBefore": 2,
+      "title": "Easter Volunteers: Three Weeks Out",
+      "text": [
+        "We still need greeters, parking crew, and kids volunteers for Easter. Check the Group Scheduler for open spots on your teams.",
+        "Thank you for every invite you have made. Many first-time guests on Easter came because a friend asked."
+      ],
+      "image": "easter"
+    },
+    {
+      "key": "holy-week",
+      "occasion": "easter",
+      "weeksBefore": 0,
+      "title": "Holy Week Schedule",
+      "text": [
+        "Good Friday services are at 6:30 PM at every campus, and four campuses hold an egg hunt on Saturday morning. Easter services are at the usual times.",
+        "The office closes at noon on Friday. Have a restful Saturday, because Sunday will be full."
+      ],
+      "image": "good-friday"
+    },
+    {
+      "key": "easter-recap",
+      "occasion": "easter",
+      "weeksBefore": -1,
+      "title": "Easter Recap: Thank You",
+      "text": [
+        "What a Sunday. Our campuses welcomed hundreds of guests, and many of them filled out a connection card.",
+        "Our care team will follow up this week. If you met someone new, add a note to their profile in Rock so the right person reaches out."
+      ],
+      "image": "egg-hunt"
+    },
+    {
+      "key": "baptism-sunday",
+      "occasion": "baptism-sunday",
+      "weeksBefore": 1,
+      "title": "Baptism Sunday Is Coming",
+      "text": [
+        "Baptism Sunday is a week from this Sunday. People sign up through the Baptism Interest form on the website, and a pastor calls each one.",
+        "We need towel volunteers and a few people to help families take photos after each service."
+      ],
+      "image": "baptism-sunday"
+    },
+    {
+      "key": "vbs-volunteers",
+      "occasion": "vbs",
+      "weeksBefore": 8,
+      "title": "VBS Needs Volunteers",
+      "text": [
+        "Vacation Bible School is eight weeks away, and registration is open. We need crew leaders, snack helpers, and a few people who love to run games.",
+        "Students in grades 7 to 12 can serve too. Send anyone who is interested to the kids team."
+      ],
+      "image": "vbs"
+    },
+    {
+      "key": "vbs-week",
+      "occasion": "vbs",
+      "weeksBefore": 0,
+      "title": "VBS Week Is Here",
+      "text": [
+        "VBS starts this week. Expect a full parking lot every morning and a lot of happy noise in the kids wing.",
+        "Please keep the hallways near the kids rooms clear, and use the side door between 8:30 and 9:30."
+      ],
+      "image": "vbs"
+    },
+    {
+      "key": "student-camp",
+      "occasion": "student-camp",
+      "weeksBefore": 1,
+      "title": "Student Camp Next Week",
+      "text": [
+        "Our students leave for camp next week. The buses leave from the Phoenix campus on Monday morning.",
+        "Please pray for the students and leaders. The student team will be out of the office all week."
+      ],
+      "image": "student-camp"
+    },
+    {
+      "key": "mission-trip",
+      "occasion": "mission-trip",
+      "weeksBefore": 0,
+      "title": "Praying for the Mission Team",
+      "text": [
+        "Our high school mission team serves this week. They will help a partner church run a day camp for kids.",
+        "Look for their daily photo updates in the staff chat, and keep them in your prayers."
+      ],
+      "image": "mission-trip"
+    },
+    {
+      "key": "serve-sunday",
+      "occasion": "serve-sunday",
+      "weeksBefore": 0,
+      "title": "Serve Sunday This Week",
+      "text": [
+        "This Sunday team leaders set up tables in the lobby after every service, and new volunteers sign up on the spot.",
+        "Staff, please stop by your teams' tables and help them welcome new volunteers."
+      ],
+      "image": "serve-sunday"
+    },
+    {
+      "key": "group-launch",
+      "occasion": "group-launch",
+      "weeksBefore": 3,
+      "title": "Groups Launch Next Month",
+      "text": [
+        "New small groups launch in about four weeks. Group Finder already lists the new groups, and Small Group Connect is the Sunday before launch.",
+        "If you know someone who is ready to lead, send their name to the groups team. Group Leader Training is ten days before launch."
+      ],
+      "image": "group-connect"
+    },
+    {
+      "key": "commitment-sunday-ahead",
+      "occasion": "commitment-sunday",
+      "weeksBefore": 3,
+      "title": "Built on the Rock: Four Sundays to Go",
+      "text": [
+        "Commitment Sunday for Built on the Rock is four Sundays away. The sermon series starts this Sunday at every campus.",
+        "Commitment cards and envelopes are in each campus office. Online commitments open the same day on the Pledge page."
+      ],
+      "image": "commitment-sunday"
+    },
+    {
+      "key": "commitment-sunday-week",
+      "occasion": "commitment-sunday",
+      "weeksBefore": 0,
+      "title": "Commitment Sunday Is This Week",
+      "text": [
+        "This Sunday every family is invited to make a Built on the Rock commitment. Ushers will collect cards at the end of each service.",
+        "The finance team counts the cards on Monday. Please keep every card sealed and in the locked bags."
+      ],
+      "image": "commitment-sunday"
+    },
+    {
+      "key": "commitment-sunday-thanks",
+      "occasion": "commitment-sunday",
+      "weeksBefore": -1,
+      "title": "Commitment Sunday: Thank You",
+      "text": [
+        "Thank you for a wonderful Commitment Sunday. Families gave with joy, and the pledge totals are now in Rock.",
+        "Each family who made a commitment gets a thank you letter this week. The first progress update goes out next quarter."
+      ],
+      "image": "commitment-sunday"
+    },
+    {
+      "key": "fall-festival",
+      "occasion": "event:fall-festival",
+      "weeksBefore": 1,
+      "title": "Fall Festival in Two Weeks",
+      "text": [
+        "The fall festival is our favorite night to meet neighbors. Four campuses hold one, and we expect hundreds of families.",
+        "We need help with games, the candy trail, and the welcome tent. Bring a friend and a lawn chair."
+      ],
+      "image": "fall-festival"
+    },
+    {
+      "key": "thanksgiving-week",
+      "occasion": "thanksgiving",
+      "weeksBefore": 0,
+      "title": "Thanksgiving Week",
+      "text": [
+        "The office closes Thursday and Friday for Thanksgiving. Thank you for the food drive boxes that filled the lobby all month.",
+        "We are grateful for each of you and the work you do for our church."
+      ],
+      "image": "food-drive"
+    },
+    {
+      "key": "christmas-planning",
+      "occasion": "christmas",
+      "weeksBefore": 6,
+      "title": "Christmas Eve Planning",
+      "text": [
+        "Christmas Eve is about six weeks away. Every campus has services at 3:00, 4:30, and 6:00, and each one needs more greeters, parking crew, and kids volunteers.",
+        "Ministry leads, please send your volunteer needs to your campus pastor by the end of the week."
+      ],
+      "image": "christmas-eve"
+    },
+    {
+      "key": "staff-christmas-party",
+      "occasion": "event:staff-christmas-party",
+      "weeksBefore": 0,
+      "title": "Staff Christmas Party Friday",
+      "text": [
+        "Our staff Christmas party is this Friday night. Spouses are welcome, and dinner starts at 6:30.",
+        "Bring a wrapped gift under 20 dollars if you want to play the gift swap."
+      ],
+      "image": "staff-christmas-party"
+    },
+    {
+      "key": "christmas-week",
+      "occasion": "christmas",
+      "weeksBefore": 0,
+      "title": "Christmas Week Schedule",
+      "text": [
+        "Christmas Eve services run at 3:00, 4:30, and 6:00 at every campus. The office closes from Christmas Eve through New Year's Day.",
+        "Merry Christmas. Thank you for all you have done this year."
+      ],
+      "image": "christmas-eve"
+    }
+  ],
+  "evergreenFeatures": [
+    {
+      "key": "sunday-wins",
+      "title": "Sunday Wins",
+      "text": [
+        "Last Sunday a family who moved here last month checked their kids in for the first time and joined a small group the same week.",
+        "Keep sharing your wins in the staff chat. They remind us why we do this work."
+      ],
+      "image": "all-staff"
+    },
+    {
+      "key": "rock-profile",
+      "title": "Keep Your Rock Profile Current",
+      "text": [
+        "Please check your own profile in Rock. Make sure your photo, phone, and staff bio are up to date.",
+        "Our website pulls staff bios and photos straight from Rock, so a change shows on the site the same day."
+      ],
+      "image": "rock-office-hours"
+    },
+    {
+      "key": "connection-requests",
+      "title": "Close the Loop on Connection Requests",
+      "text": [
+        "When someone asks to serve or join a group, they are waiting for a call from us. Please check your open connection requests each week.",
+        "If a request is past due, call or text the person today, then add a note in Rock."
+      ],
+      "image": "elder-meeting"
+    },
+    {
+      "key": "all-staff",
+      "title": "This Week at All Staff",
+      "text": [
+        "All Staff is Tuesday at 9:00 in the main conference room. We will hear a story from the kids team and review the month's calendar.",
+        "Bring your calendar and one win from your ministry."
+      ],
+      "image": "all-staff"
+    },
+    {
+      "key": "service-planning",
+      "title": "Weekend Service Planning",
+      "text": [
+        "Service planning is Wednesday at 10:00 in the studio. Worship, production, and the campus pastors plan the next three Sundays.",
+        "Send announcement requests to the communications team by Tuesday noon."
+      ],
+      "image": "service-planning"
+    },
+    {
+      "key": "rock-office-hours",
+      "title": "Rock Office Hours",
+      "text": [
+        "Have a question about Rock? Office hours are the third Thursday of each month at 2:00, in the conference room or online.",
+        "Bring a report you want to build or a page you want to change, and we will work on it together."
+      ],
+      "image": "rock-office-hours"
+    },
+    {
+      "key": "prayer-for-our-city",
+      "title": "Praying for Our City",
+      "text": [
+        "This week we are praying for the schools near each campus: the teachers, the staff, and the students.",
+        "If a school near you has a need, tell your campus pastor. A few small groups are ready to help."
+      ],
+      "image": "night-of-worship"
+    },
+    {
+      "key": "invite-cards",
+      "title": "Invite Cards Are In",
+      "text": [
+        "New invite cards for the current sermon series are at the welcome desk of every campus.",
+        "Take a stack for your team. A card in hand makes it easy for anyone to invite a friend."
+      ],
+      "image": "service-planning"
+    },
+    {
+      "key": "volunteer-thanks",
+      "title": "Thank a Volunteer This Week",
+      "text": [
+        "Our volunteers make every Sunday happen. This week, write one handwritten note to a volunteer on your team.",
+        "Thank you cards and stamps are at the front desk."
+      ],
+      "image": "goodyear-load-in"
+    },
+    {
+      "key": "first-time-guests",
+      "title": "Following Up With First-Time Guests",
+      "text": [
+        "Every first-time guest gets a welcome email the Monday after their visit, and a campus pastor calls each family that week.",
+        "If you meet a guest on Sunday, introduce them to someone on their campus team before they leave."
+      ],
+      "image": "starting-point"
+    },
+    {
+      "key": "staff-birthdays",
+      "title": "Celebrate This Month",
+      "text": [
+        "We have a few staff birthdays and work anniversaries this month. Cake is in the break room on Thursday afternoon.",
+        "Take a minute to thank the people who make your week easier."
+      ],
+      "image": "all-staff"
+    },
+    {
+      "key": "background-checks",
+      "title": "Background Check Renewals",
+      "text": [
+        "Every kids and students volunteer renews a background check every two years. Rock shows each team leader whose check expires soon.",
+        "Please check your team this week, and send renewals to the kids team office."
+      ],
+      "image": "safety-training"
+    },
+    {
+      "key": "new-reports",
+      "title": "New Reports in Rock",
+      "text": [
+        "The Leadership reports now include Ready to Lead, a list of people who serve, are in a group, and could lead one.",
+        "Open it under Reports in Rock, and bring questions to Rock office hours."
+      ],
+      "image": "rock-office-hours"
+    },
+    {
+      "key": "weekend-debrief",
+      "title": "Weekend Debrief",
+      "text": [
+        "What worked last Sunday, and what did not? Share one thing in the staff chat by Tuesday noon.",
+        "Service planning reads every note before the Wednesday meeting."
+      ],
+      "image": "service-planning"
+    },
+    {
+      "key": "care-meals",
+      "title": "Meals for Families in Need",
+      "text": [
+        "The care team is setting up meals for two families this month: a new baby and a family facing surgery.",
+        "If your small group can bring a meal, sign up at the care desk."
+      ],
+      "image": "elder-meeting"
+    },
+    {
+      "key": "front-desk",
+      "title": "Front Desk Coverage",
+      "text": [
+        "Our front desk needs help over lunch on Tuesdays and Thursdays. An hour a week makes a big difference.",
+        "Talk to Alisha if you can take a shift."
+      ],
+      "image": "all-staff"
+    },
+    {
+      "key": "group-coaches",
+      "title": "Small Group Coaches",
+      "text": [
+        "Each coach checks in with three to five group leaders a month. A short call or a coffee goes a long way.",
+        "Coaches meet at the next Leader Huddle to share what they hear."
+      ],
+      "image": "leader-huddle"
+    },
+    {
+      "key": "staff-devotional",
+      "title": "Monday Devotional",
+      "text": [
+        "Before the week gets busy, read Psalm 23 and take five quiet minutes.",
+        "We will pray together at the start of All Staff on Tuesday."
+      ],
+      "image": "staff-retreat"
+    }
+  ],
+  "articles": [
+    {
+      "key": "statements-mailed",
+      "occasion": "giving-statement",
+      "weeksBefore": 3,
+      "author": "raman/priya",
+      "title": "From Priya: Statements This Month",
+      "text": "Year-end giving statements go out by the end of January. Givers who chose paper statements get them by mail, and everyone else gets an email with a link."
+    },
+    {
+      "key": "statement-questions",
+      "occasion": "giving-statement",
+      "weeksBefore": -1,
+      "author": "raman/priya",
+      "title": "From Priya: Statement Questions",
+      "text": "Statements are out. If a giver asks about a missing gift, send them to the finance team, and we will check the batch it came in."
+    },
+    {
+      "key": "staff-retreat-plans",
+      "occasion": "event:staff-retreat",
+      "weeksBefore": 1,
+      "author": "holloway/greg",
+      "title": "From Greg: Retreat Goals",
+      "text": "Before the retreat, write down one thing that went well in your ministry last year and one thing you want to change."
+    },
+    {
+      "key": "easter-parking",
+      "occasion": "easter",
+      "weeksBefore": 2,
+      "author": "delgado/ray",
+      "title": "From Ray: Easter Parking Plan",
+      "text": "Easter parking overflows into the school lot next door. Staff, please park there too, and leave the close spots for guests."
+    },
+    {
+      "key": "easter-kids",
+      "occasion": "easter",
+      "weeksBefore": 2,
+      "author": "brooks/rachel",
+      "title": "From Rachel: Easter Kids Check-In",
+      "text": "On Easter we open two extra check-in stations in the lobby. If you can help a new family print their labels, find me at the kids desk."
+    },
+    {
+      "key": "easter-choir",
+      "occasion": "easter",
+      "weeksBefore": 5,
+      "author": "castillo/naomi",
+      "title": "From Naomi: Easter Choir",
+      "text": "The Easter choir rehearses on Thursday nights for the next five weeks. Anyone on staff who sings is welcome to join us."
+    },
+    {
+      "key": "easter-setup",
+      "occasion": "easter",
+      "weeksBefore": 0,
+      "author": "delgado/ray",
+      "title": "From Ray: Easter Setup",
+      "text": "The facilities team sets up the egg hunt on Friday afternoon. Please keep the back field clear after 1:00."
+    },
+    {
+      "key": "easter-production",
+      "occasion": "easter",
+      "weeksBefore": 0,
+      "author": "morrow/kelsey",
+      "title": "From Kelsey: Easter Run Through",
+      "text": "The full Easter run through is Saturday at 4:00. Every campus watches the same video, so the stream team starts at 3:30."
+    },
+    {
+      "key": "baptism-towels",
+      "occasion": "baptism-sunday",
+      "weeksBefore": 1,
+      "author": "navarro/dee",
+      "title": "From Dee: Baptism Follow-Up",
+      "text": "After Baptism Sunday, every person who was baptized gets a call from a pastor and a framed photo. Help us get the photos printed by Wednesday."
+    },
+    {
+      "key": "vbs-checkin",
+      "occasion": "vbs",
+      "weeksBefore": 8,
+      "author": "brooks/rachel",
+      "title": "From Rachel: VBS Check-In",
+      "text": "VBS uses the same kids check-in as Sunday. Families who register online get their labels faster, so point every family to the registration page."
+    },
+    {
+      "key": "vbs-rooms",
+      "occasion": "vbs",
+      "weeksBefore": 1,
+      "author": "delgado/ray",
+      "title": "From Ray: VBS Room Setup",
+      "text": "We turn the kids wing into a jungle on Saturday. Please clear your things out of rooms 101 to 108 by Friday afternoon."
+    },
+    {
+      "key": "vbs-safety",
+      "occasion": "vbs",
+      "weeksBefore": 0,
+      "author": "brooks/rachel",
+      "title": "From Rachel: VBS Safety",
+      "text": "Every VBS volunteer wears a lanyard and has a background check. If you see an adult without a lanyard in the kids wing, walk them to the front desk."
+    },
+    {
+      "key": "camp-packing",
+      "occasion": "student-camp",
+      "weeksBefore": 1,
+      "author": "silva/isaac",
+      "title": "From Isaac: Camp Is Next Week",
+      "text": "Camp is next week. Our student staff will be out all week, so send student questions to the front desk, and we will call back when we return."
+    },
+    {
+      "key": "mission-trip-prayer",
+      "occasion": "mission-trip",
+      "weeksBefore": 0,
+      "author": "silva/isaac",
+      "title": "From Isaac: Mission Team Prayer",
+      "text": "Please pray for our team's safe travel and for the kids they meet at the day camp. We will share stories when we get home."
+    },
+    {
+      "key": "serve-sunday-supplies",
+      "occasion": "serve-sunday",
+      "weeksBefore": 0,
+      "author": "delgado/ray",
+      "title": "From Ray: Serve Sunday Tables",
+      "text": "Serve Sunday tables, banners, and sign-up cards are in the storage room by the loading dock. Please return them by Monday."
+    },
+    {
+      "key": "group-leader-training",
+      "occasion": "group-launch",
+      "weeksBefore": 3,
+      "author": "pierce/jamal",
+      "title": "From Jamal: Leader Training",
+      "text": "Group Leader Training is on the Thursday ten days before launch, at 6:30. Every new leader needs it before their group starts, and coaches are welcome too."
+    },
+    {
+      "key": "commitment-cards",
+      "occasion": "commitment-sunday",
+      "weeksBefore": 0,
+      "author": "raman/priya",
+      "title": "From Priya: Counting the Cards",
+      "text": "The finance team counts commitment cards on Monday morning. Two people count every bag, and the totals go into Rock that afternoon."
+    },
+    {
+      "key": "commitment-progress",
+      "occasion": "commitment-sunday",
+      "weeksBefore": -1,
+      "author": "raman/priya",
+      "title": "From Priya: Pledge Progress",
+      "text": "Pledge progress now shows on the Pledge Analytics page in Rock. Campus pastors can see how their campus is doing any time."
+    },
+    {
+      "key": "festival-setup",
+      "occasion": "event:fall-festival",
+      "weeksBefore": 1,
+      "author": "delgado/ray",
+      "title": "From Ray: Festival Setup",
+      "text": "We set up the fall festival tents on Friday at 3:00. Many hands make it go fast, so stop by if you can."
+    },
+    {
+      "key": "holidays-care",
+      "occasion": "thanksgiving",
+      "weeksBefore": 0,
+      "author": "navarro/dee",
+      "title": "From Dee: Hope for the Holidays",
+      "text": "The holidays are hard for people who are grieving. Hope for the Holidays meets on the first Thursday of December, so invite anyone who lost someone this year."
+    },
+    {
+      "key": "christmas-volunteers",
+      "occasion": "christmas",
+      "weeksBefore": 6,
+      "author": "brooks/rachel",
+      "title": "From Rachel: Christmas Eve Kids",
+      "text": "Christmas Eve kids rooms are open for every service. We need eight more volunteers at each campus, so please ask your teams."
+    },
+    {
+      "key": "year-end-gifts",
+      "occasion": "year-end",
+      "weeksBefore": 1,
+      "author": "raman/priya",
+      "title": "From Priya: Year-End Gifts",
+      "text": "Gifts must arrive or post by December 31 to count for this year. Mailed checks count by their postmark date."
+    },
+    {
+      "key": "christmas-heat",
+      "occasion": "christmas",
+      "weeksBefore": 0,
+      "author": "delgado/ray",
+      "title": "From Ray: Holiday Building Hours",
+      "text": "The buildings close from Christmas Eve after the last service until January 2. The alarm codes do not change."
+    },
+    {
+      "key": "safety-training",
+      "occasion": "event:safety-training",
+      "weeksBefore": 0,
+      "author": "brooks/rachel",
+      "title": "From Rachel: Safety Training Saturday",
+      "text": "Volunteer safety training is this Saturday at 9:00. Every new kids and students volunteer needs it before their first Sunday."
+    }
+  ],
+  "evergreenArticles": [
+    {
+      "key": "checkin-labels",
+      "author": "brooks/rachel",
+      "title": "From Rachel: Check-In Labels",
+      "text": "Kids check-in labels now print allergies in red. If a label looks wrong, reprint it from the kiosk and let the kids desk know."
+    },
+    {
+      "key": "checkin-codes",
+      "author": "brooks/rachel",
+      "title": "From Rachel: Security Codes",
+      "text": "A child goes home only with an adult who shows the matching security code. Please never make an exception, even for a family you know well."
+    },
+    {
+      "key": "lights-out",
+      "author": "delgado/ray",
+      "title": "From Ray: Lights and Doors",
+      "text": "If you are the last one out, check that the side doors are locked and the lights in the worship center are off."
+    },
+    {
+      "key": "room-requests",
+      "author": "delgado/ray",
+      "title": "From Ray: Room Requests",
+      "text": "Please book rooms in Rock at least a week ahead. Last minute requests are hard to set up, and some rooms need chairs moved."
+    },
+    {
+      "key": "ac-filters",
+      "author": "delgado/ray",
+      "title": "From Ray: Air Conditioning Work",
+      "text": "We change the air filters on Thursday. The worship center may run warm for an hour in the afternoon."
+    },
+    {
+      "key": "parking-lot",
+      "author": "delgado/ray",
+      "title": "From Ray: Parking Lot Striping",
+      "text": "The north lot gets new stripes on Saturday. Please park in the south lot on Friday night and Saturday."
+    },
+    {
+      "key": "expense-reports",
+      "author": "raman/priya",
+      "title": "From Priya: Expense Reports",
+      "text": "Expense reports for last month are due Friday. Attach a photo of each receipt, and code each one to your ministry's account."
+    },
+    {
+      "key": "online-giving",
+      "author": "raman/priya",
+      "title": "From Priya: Online Giving",
+      "text": "More than half of our givers now give online. If someone asks how to set up a recurring gift, send them to the Give page."
+    },
+    {
+      "key": "budget-check",
+      "author": "raman/priya",
+      "title": "From Priya: Budget Check-In",
+      "text": "Ministry budget reports for the quarter are in your inbox. Let me know by Friday if anything looks wrong."
+    },
+    {
+      "key": "group-finder",
+      "author": "pierce/jamal",
+      "title": "From Jamal: Group Finder",
+      "text": "Group Finder shows every open group with room. If a group is full, ask the leader to close it, so new people find one with room."
+    },
+    {
+      "key": "student-night",
+      "author": "silva/isaac",
+      "title": "From Isaac: Student Night",
+      "text": "Student Night is every Wednesday at 6:30. We had a record crowd last week, so we are adding a few more small group leaders."
+    },
+    {
+      "key": "worship-team",
+      "author": "castillo/naomi",
+      "title": "From Naomi: New Songs",
+      "text": "We are teaching a new song this month. The lyrics and charts are in the shared drive if your team wants to learn it."
+    },
+    {
+      "key": "stream",
+      "author": "morrow/kelsey",
+      "title": "From Kelsey: Live Stream",
+      "text": "The live stream starts five minutes before each service. If you see a problem during a service, text the production team."
+    },
+    {
+      "key": "care-requests",
+      "author": "navarro/dee",
+      "title": "From Dee: Care Requests",
+      "text": "When someone shares a hard need, enter a prayer request or a note in Rock. The care team checks both every morning."
+    },
+    {
+      "key": "newsletter-deadline",
+      "author": "peak/daniel",
+      "title": "From Daniel: Newsletter Deadline",
+      "text": "Each campus newsletter goes out on Thursday. Send anything you want in it to the communications team by Tuesday at noon."
+    },
+    {
+      "key": "rock-calendar",
+      "author": "marble/alisha",
+      "title": "From Alisha: The Church Calendar",
+      "text": "Every public event needs an entry on the church calendar in Rock. Add yours at least four weeks ahead, so it can go in the newsletters."
+    }
+  ]
+}

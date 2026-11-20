@@ -9,17 +9,17 @@
   "topic": "Money and Generosity",
   "description": "We learn how to manage money well and give freely, together.",
   "schedule": {
-    "day": "Wednesday",
+    "day": "Tuesday",
     "time": "19:00"
   },
   "meetingStyle": {
     "style": "InPerson",
-    "hostHousehold": "bennett"
+    "hostHousehold": "morgan"
   },
   "childCareProvided": false,
-  "capacity": 10,
-  "isPublic": true,
-  "meetsInSummer": true,
+  "capacity": 18,
+  "isPublic": false,
+  "meetsInSummer": false,
   "attendanceHabit": "EveryWeek",
   "lifecycle": {
     "state": "Active",
@@ -29,7 +29,7 @@
       "day": 23
     }
   },
-  "testCase": "Full",
+  "testCase": "Closed",
   "members": [
     {
       "state": "Active",
@@ -45,8 +45,8 @@
     },
     {
       "state": "Active",
-      "guid": "F9D6FA00-A7AE-4122-809E-AB12F5CBC3FD",
-      "name": "Becca Bennett",
+      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
+      "name": "Steve Morgan",
       "role": "Host",
       "joined": {
         "yearsAgo": 1,
@@ -57,20 +57,8 @@
     },
     {
       "state": "Active",
-      "guid": "79557805-4355-43FB-B5D9-D563685F13DE",
-      "name": "Tom Bennett",
-      "role": "Host",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 90
-    },
-    {
-      "state": "Active",
-      "guid": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
-      "name": "Deb Bell",
+      "guid": "9CF4024D-2D36-4F97-89C4-8BE09B39C72A",
+      "name": "David Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -81,8 +69,8 @@
     },
     {
       "state": "Active",
-      "guid": "65B88091-00EE-4E28-9136-42B45E0C7188",
-      "name": "Larry Bell",
+      "guid": "884B43EB-4A3A-47E9-85A4-51D7AE850D61",
+      "name": "Susan Kim",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -90,18 +78,6 @@
         "day": 23
       },
       "attendancePercent": 60
-    },
-    {
-      "state": "Active",
-      "guid": "9C609974-A8E1-4363-8F5E-51F61828E2BA",
-      "name": "Frank Dexter",
-      "role": "Member",
-      "joined": {
-        "yearsAgo": 1,
-        "month": 6,
-        "day": 23
-      },
-      "attendancePercent": 47
     },
     {
       "state": "Active",
@@ -113,7 +89,7 @@
         "month": 6,
         "day": 23
       },
-      "attendancePercent": 55
+      "attendancePercent": 47
     },
     {
       "state": "Active",
@@ -125,12 +101,24 @@
         "month": 6,
         "day": 23
       },
+      "attendancePercent": 55
+    },
+    {
+      "state": "Active",
+      "guid": "309570C0-7196-42DB-A23C-A525E0CDAA75",
+      "name": "Priya Raman",
+      "role": "Member",
+      "joined": {
+        "yearsAgo": 1,
+        "month": 9,
+        "day": 22
+      },
       "attendancePercent": 58
     },
     {
       "state": "Active",
-      "guid": "4CB52244-023C-46BA-8C3A-FA24D9611ADF",
-      "name": "Karen Morgan",
+      "guid": "1267552C-D912-4D89-8A13-E42F376B75F2",
+      "name": "Sunil Raman",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
@@ -140,31 +128,29 @@
       "attendancePercent": 59
     },
     {
-      "state": "Active",
-      "guid": "26ECA7AC-9EF7-403A-B053-C852CBA7DB4C",
-      "name": "Steve Morgan",
+      "state": "Pending",
+      "guid": "C2F7C15E-409D-429C-9D9A-1984A3C42E3F",
+      "name": "Tori Ramos",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 9,
-        "day": 22
+        "daysAgo": 18
       },
       "attendancePercent": 66
     },
     {
       "state": "Inactive",
-      "guid": "3BB26A8B-F004-43E4-82BB-620D1E657AF9",
-      "name": "Nancy Turner",
+      "guid": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6",
+      "name": "Helen Evans",
       "role": "Member",
       "joined": {
         "yearsAgo": 1,
         "month": 9,
-        "day": 18
+        "day": 9
       },
       "left": {
         "yearsAgo": 1,
-        "month": 11,
-        "day": 13
+        "month": 10,
+        "day": 9
       },
       "attendancePercent": 51
     }

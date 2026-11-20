@@ -60,7 +60,7 @@ namespace RockSampleData.Loader.Validation
         /// Returns how many expectations were checked, and a line for each one that does not hold.
         /// </summary>
         /// <param name="parts">The parts that loaded. Expectations of other parts are not checked.</param>
-        /// <param name="anchor">The load's install day, which reminder dates count from. Null is the database server's today.</param>
+        /// <param name="anchor">The load's install day, which reminder dates and the eRA stories count from. Null is the database server's today.</param>
         public static (int Checks, List<string> Failures) Evaluate( RockDatabase db, SampleDataSource source, IReadOnlyCollection<SampleDataPart> parts, DateTime? anchor = null )
         {
             var alertTypeKeys = source.GivingAlertTypes.AlertTypes.ToDictionary( t => t.Guid, t => t.Key );
@@ -155,11 +155,23 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             // The follow-up tasks completed steps started, and who has them (issue 18).
             checks += parts.Contains( SampleDataPart.Steps ) ? CastStepWorkflowExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
+            // Each Cast family's small group memberships fit when it came, and each Cast group pin holds (issue 37).
+            checks += parts.Contains( SampleDataPart.SmallGroups ) ? CastGroupExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+
             checks += parts.Contains( SampleDataPart.Assessments ) ? CastAssessmentExpectations.Check( db, source, guids, failures ) : 0;
+
+            checks += parts.Contains( SampleDataPart.BackgroundChecks ) ? CastBackgroundCheckExpectations.Check( db, source, guids, failures ) : 0;
+
+            checks += parts.Contains( SampleDataPart.Benevolence ) ? CastBenevolenceExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += CheckBusinesses( db, source, parts.Contains( SampleDataPart.Giving ), failures );
 
             checks += CheckPersonAttributes( db, source, failures );
+
+            // The eRA stories follow attendance and giving (decision 327), and the peer network stories follow small
+            // groups and serving teams (decision 332).
+            checks += parts.Contains( SampleDataPart.Attendance ) && parts.Contains( SampleDataPart.Giving ) ? CastEraExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
+            checks += parts.Contains( SampleDataPart.SmallGroups ) && parts.Contains( SampleDataPart.Serving ) ? CastPeerNetworkExpectations.Check( db, source, guids, failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Prayer ) ? CheckPrayerRequests( db, source, failures ) : 0;
 
@@ -199,10 +211,136 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
 
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
+            checks += CheckDuplicates( db, source, guids, failures );
             checks += CheckSignals( db, source, guids, failures );
             checks += CastTagExpectations.Check( db, source, guids, failures );
 
             return (checks, failures);
+        }
+
+        /// <summary>
+        /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
+        /// decision, and the Duplicate Finder lists each open pair (decisions 310 and 311). Each merge
+        /// request is a Person Merge Request that never expires, with its requester, note, and people. Each finished merge
+        /// left the old record's alias on the person, the Merged History line, and the old last name as a previous name when
+        /// it differs (decision 312).
+        /// </summary>
+        private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
+        {
+            var duplicates = source.ReadCastDuplicates();
+            var checks = 0;
+            foreach ( var pair in duplicates.Pairs )
+            {
+                checks++;
+                var name = $"Duplicate pair {pair.Key} ({pair.People[0].Name} and {pair.People[1].Name})";
+                var row = db.Query( @"
+SELECT [pd].[IsConfirmedAsNotDuplicate], [pd].[IgnoreUntilScoreChanges], [pd].[ConfidenceScore]
+FROM [PersonDuplicate] AS [pd]
+INNER JOIN [Person] AS [p1] ON [p1].[PrimaryAliasId] = [pd].[PersonAliasId]
+INNER JOIN [Person] AS [p2] ON [p2].[PrimaryAliasId] = [pd].[DuplicatePersonAliasId]
+WHERE ( [p1].[Guid] = @First AND [p2].[Guid] = @Second ) OR ( [p1].[Guid] = @Second AND [p2].[Guid] = @First )",
+                    P( "@First", guids.Value( pair.People[0].Guid ) ), P( "@Second", guids.Value( pair.People[1].Guid ) ) ).FirstOrDefault();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected Rock's duplicate finder to score the pair, Rock has no such pair" );
+                    continue;
+                }
+
+                var isNotDuplicate = ( bool ) row["IsConfirmedAsNotDuplicate"];
+                var isIgnored = ( bool ) row["IgnoreUntilScoreChanges"];
+                var actual = isNotDuplicate && isIgnored ? "both Not Duplicate and ignored" : isNotDuplicate ? "not-a-duplicate" : isIgnored ? "ignored" : "open";
+                var confidence = Convert.ToDouble( row["ConfidenceScore"] ?? 0d );
+                if ( actual != pair.Decision )
+                {
+                    failures.Add( $"{name}: expected {pair.Decision}, Rock shows {actual}" );
+                }
+                else if ( pair.DecisionValue == DuplicateDecision.Open && confidence <= DuplicatesLoader.FinderListMinimum )
+                {
+                    failures.Add( $"{name}: expected the Duplicate Finder to list it (confidence above {DuplicatesLoader.FinderListMinimum:N0}), Rock scores it {confidence:N1}" );
+                }
+            }
+
+            foreach ( var request in duplicates.MergeRequests )
+            {
+                checks++;
+                var name = $"Merge request {request.Key}";
+                var row = db.Query( @"
+SELECT [es].[Id], [es].[Note], [es].[ExpireDateTime], [dv].[Guid] AS [Purpose], [p].[Guid] AS [Requester]
+FROM [EntitySet] AS [es]
+LEFT JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [es].[EntitySetPurposeValueId]
+LEFT JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [es].[CreatedByPersonAliasId]
+LEFT JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [es].[Guid] = @Guid", P( "@Guid", request.Guid ) ).FirstOrDefault();
+                var people = row == null ? new HashSet<Guid>() : db.Query( @"
+SELECT [p].[Guid]
+FROM [EntitySetItem] AS [i]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [i].[EntityId]
+WHERE [i].[EntitySetId] = @SetId", P( "@SetId", row["Id"] ) ).Select( r => ( Guid ) r["Guid"] ).ToHashSet();
+                var expectedPeople = request.People.Select( p => guids.Rock( p.Guid ) ).ToHashSet();
+                if ( row == null )
+                {
+                    failures.Add( $"{name}: expected a merge request, Rock has none" );
+                }
+                else if ( row["Purpose"] as Guid? != DuplicatesLoader.MergeRequestPurposeGuid || row["ExpireDateTime"] != null )
+                {
+                    failures.Add( $"{name}: expected a Person Merge Request that never expires, so the Merge Requests page lists it" );
+                }
+                else if ( row["Requester"] as Guid? != guids.Rock( request.Requester.Guid ) || ( string ) row["Note"] != request.Note )
+                {
+                    failures.Add( $"{name}: expected {request.Requester.Name}'s request with its note" );
+                }
+                else if ( !people.SetEquals( expectedPeople ) )
+                {
+                    failures.Add( $"{name}: expected {string.Join( ", ", request.People.Select( p => p.Name ) )} in the request, Rock has {people.Count} other people" );
+                }
+            }
+
+            foreach ( var merge in duplicates.Merges )
+            {
+                var name = $"Merge {merge.Key} ({merge.Record.FullName} into {merge.Person.Name})";
+                var alias = db.Query( @"
+SELECT [pa].[AliasPersonId], [p].[Id] AS [PersonId], [p].[Guid] AS [PersonGuid], [p].[LastName], [p].[PrimaryAliasId],
+    ( SELECT COUNT(*) FROM [Person] AS [old] WHERE [old].[Id] = [pa].[AliasPersonId] OR [old].[Guid] = [pa].[AliasPersonGuid] ) AS [OldRecords]
+FROM [PersonAlias] AS [pa]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+WHERE [pa].[AliasPersonGuid] = @OldGuid", P( "@OldGuid", merge.Record.Guid ) ).FirstOrDefault();
+
+                checks++;
+                if ( alias == null || ( Guid ) alias["PersonGuid"] != guids.Rock( merge.Person.Guid ) || alias["AliasPersonId"] == null || Convert.ToInt32( alias["OldRecords"] ) != 0 )
+                {
+                    failures.Add( $"{name}: expected the old record's alias on {merge.Person.Name}, with no Person row left for the old record" );
+                    continue;
+                }
+
+                checks++;
+                var valueName = $"{merge.Record.FullName} [ID: {alias["AliasPersonId"]}]";
+                var historyLines = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [History] AS [h]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [h].[EntityTypeId]
+WHERE [et].[Name] = 'Rock.Model.Person' AND [h].[EntityId] = @PersonId AND [h].[Verb] = @Verb AND [h].[ChangeType] = @ChangeType AND [h].[ValueName] = @ValueName",
+                    P( "@PersonId", alias["PersonId"] ), P( "@Verb", DuplicatesLoader.MergeVerb ), P( "@ChangeType", DuplicatesLoader.RecordChangeType ), P( "@ValueName", valueName ) ) );
+                if ( historyLines != 1 )
+                {
+                    failures.Add( $"{name}: expected one Merged line \"{valueName}\" in {merge.Person.Name}'s History, Rock shows {historyLines}" );
+                }
+
+                if ( !string.Equals( merge.Record.LastName.Trim(), ( ( string ) alias["LastName"] ).Trim(), StringComparison.OrdinalIgnoreCase ) )
+                {
+                    checks++;
+                    var previousNames = Convert.ToInt32( db.Scalar( @"
+SELECT COUNT(*)
+FROM [PersonPreviousName] AS [pn]
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [pn].[PersonAliasId]
+WHERE [pa].[PersonId] = @PersonId AND [pn].[LastName] = @LastName", P( "@PersonId", alias["PersonId"] ), P( "@LastName", merge.Record.LastName.Trim() ) ) );
+                    if ( previousNames != 1 )
+                    {
+                        failures.Add( $"{name}: expected {merge.Record.LastName} once as a previous last name, Rock shows it {previousNames} times" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         /// <summary>
@@ -620,7 +758,9 @@ WHERE [e].[Guid] = @Event
 
         /// <summary>
         /// Checks that each Cast text thread shows in SMS Conversations the way its file says: every text the person sent
-        /// and every staff text, and the thread unread, read, or stopped.
+        /// and every staff text, and the thread unread, read, or stopped. A staff text in the thread is a reply named
+        /// "From: " and the sender, as Rock's SMS medium names one. A class reminder from the same line, such as Starting
+        /// Point's to a Cast person with a generated class step, also shows in the thread but is not part of its story.
         /// </summary>
         private static int CheckThreads( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
@@ -634,7 +774,8 @@ SELECT
     ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] ) AS [FromPerson],
     ( SELECT COUNT(*) FROM [CommunicationResponse] AS [r] WHERE [r].[FromPersonAliasId] = [p].[PrimaryAliasId] AND [r].[RelatedSmsFromSystemPhoneNumberId] = [spn].[Id] AND [r].[IsRead] = 0 ) AS [Unread],
     ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] INNER JOIN [Communication] AS [c] ON [c].[Id] = [cr].[CommunicationId]
-        WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [c].[SmsFromSystemPhoneNumberId] = [spn].[Id] AND [cr].[Status] = 1 AND [c].[IsBulkCommunication] = 0 ) AS [FromStaff],
+        WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [c].[SmsFromSystemPhoneNumberId] = [spn].[Id] AND [cr].[Status] = 1 AND [c].[IsBulkCommunication] = 0
+            AND [c].[Name] LIKE 'From: %' ) AS [FromStaff],
     ( SELECT COUNT(*) FROM [CommunicationRecipient] AS [cr] WHERE [cr].[PersonAliasId] = [p].[PrimaryAliasId] AND [cr].[UnsubscribeLevel] = 1 ) AS [Stops]
 FROM [Person] AS [p]
 CROSS JOIN [SystemPhoneNumber] AS [spn]
@@ -839,8 +980,15 @@ ORDER BY [cr].[UnsubscribeDateTime] DESC", P( "@Guid", guids.Value( unsubscribe.
             {
                 var message = messages[expectation.Message];
                 var isWritten = db.IdByGuid( "AdaptiveMessage", message.Guid ) != null;
-                checks++;
                 var expected = expectation.Adaptation == null ? null : message.Adaptations.First( a => a.Key == expectation.Adaptation );
+
+                // A row is judged only when its card can show: in season, and not cut from the homepage (decision 344).
+                if ( AdaptiveMessagesLoader.NotJudged( db, source, expectation, guids.Value( expectation.Person ), DateTime.Today ) != null )
+                {
+                    continue;
+                }
+
+                checks++;
                 var shown = isWritten ? AdaptiveMessagesLoader.ShownAdaptation( db, message.Guid, guids.Value( expectation.Person ), DateTime.Today ) : null;
                 if ( shown != expected?.Guid )
                 {

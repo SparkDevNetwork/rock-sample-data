@@ -41,18 +41,39 @@ namespace RockSampleData.Builder
             var households = source.ReadHouseholds();
             var groupsFolder = Path.Combine( root, "cast", "groups" );
 
+            // A pinned group keeps the Guid its file has. A new one gets the Guid the planner would give a group with its key.
+            Guid GroupGuid( string key ) => File.Exists( Path.Combine( groupsFolder, $"{key}.json" ) )
+                ? ReadGroupFile( Path.Combine( groupsFolder, $"{key}.json" ) )["guid"].GetValue<Guid>()
+                : new SeededRandom( $"{seed}:small-groups:guid:main:{key}" ).NextGuid();
             var legacy = rules.Cast.Pins.Select( pin => new LegacyGroup(
                 pin.Key,
-                ReadGroupFile( Path.Combine( groupsFolder, $"{pin.Key}.json" ) )["guid"].GetValue<Guid>(),
+                GroupGuid( pin.Key ),
                 pin.Value.Leader == null ? null : PersonGuid( households, pin.Value.Leader ),
-                pin.Value.HostHousehold ) ).ToList();
+                pin.Value.HostHousehold )
+            {
+                Topic = pin.Value.Topic,
+                Name = pin.Value.Name,
+                Description = pin.Value.Description,
+                Online = pin.Value.Online,
+                MemberHouseholds = pin.Value.MemberHouseholds,
+                PendingHouseholds = pin.Value.PendingHouseholds,
+                LaunchesAgo = pin.Value.LaunchesAgo,
+                ReadyToLead = pin.Value.ReadyToLead,
+                Ended = pin.Value.Ended == null ? null : ( SmallGroupTestCase ) Enum.Parse( typeof( SmallGroupTestCase ), pin.Value.Ended )
+            } ).ToList();
 
-            var planner = new SmallGroupPlanner( rules, PlanningClock.ForCast(), seed );
+            // A Cast leader from Ready to Lead must already be on a serving team, not as its leader, since the rosters are hand-picked.
+            var teamMembers = source.ReadCastServingTeams().Values.SelectMany( t => t.Members ).ToList();
+            var volunteers = teamMembers.Where( m => m.Role != "Leader" ).Select( m => m.Guid ).Except( teamMembers.Where( m => m.Role == "Leader" ).Select( m => m.Guid ) ).ToHashSet();
+
+            var planner = new SmallGroupPlanner( rules, PlanningClock.ForCast(), new GroupLaunchCalendar( source.Communications?.Events ), seed );
+            // A campus pastor's family on another campus loads only with that campus (decision 199), so it joins no Cast group.
             var plans = planner.PlanCampus( new CampusPlanRequest
             {
                 Campus = "main",
-                Households = households,
+                Households = households.Where( h => h.CampusSlot == "main" ).ToList(),
                 JoinPercent = ( _, people ) => people.Max( p => rules.Participation.Cast.GetValueOrDefault( p.ConnectionStatus ) ),
+                ReadyToLeadCandidate = p => volunteers.Contains( p.Guid ),
                 TestCases = rules.TestCases.MainCampus,
                 Legacy = legacy
             } );

@@ -12,7 +12,7 @@ Dennis Perry is 67 and recently retired. He started attending after his wife inv
 
 ### Dennis Perry
 
-- Age 67 · married · no email · groups: Foster Group, Russell Group (group archived) · Rock shows Baptism complete
+- Age 67 · married · no email · groups: Rivera Group · Rock shows Baptism complete
 - Person Guid `E21428D1-CF39-4880-8AF3-21BEB38F9CFF`
 
 ## What this family tests

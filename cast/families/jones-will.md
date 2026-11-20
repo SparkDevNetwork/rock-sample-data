@@ -12,7 +12,7 @@ Will Jones is an orchestra conductor who recently started attending and joined a
 
 ### Will (William) Jones
 
-- Age 56 · single · record pending · Conductor, Valley Philharmonic · email wjones@example.org · groups: Lee Group
+- Age 56 · single · record pending · Conductor, Valley Philharmonic · email wjones@example.org · groups: Rivera Group, Jenkins Group (group archived)
 - Person Guid `160A4747-9D65-44DD-97B6-91A0E583C1BC`
 
 ## What this family tests

@@ -14,12 +14,12 @@ David and Susan Kim's son Andrew is 20, in college, and still lives at home.
 
 ### David Kim
 
-- Age 50 · married · email david.kim@example.org · groups: Marble Group
+- Age 50 · married · email david.kim@example.org · groups: Silva Group, Lee Group (left), Murphy Group (group ended)
 - Person Guid `9CF4024D-2D36-4F97-89C4-8BE09B39C72A`
 
 ### Susan Kim
 
-- Age 49 · married · email susan.kim@example.org · groups: Marble Group
+- Age 49 · married · email susan.kim@example.org · groups: Silva Group, Women of the Bible (left), Lee Group (left), Murphy Group (group ended)
 - Person Guid `884B43EB-4A3A-47E9-85A4-51D7AE850D61`
 
 ### Drew (Andrew) Kim
