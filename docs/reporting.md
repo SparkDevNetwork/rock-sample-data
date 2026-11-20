@@ -182,14 +182,19 @@ Person data views
 Active People (F1)
 ├── Adults (F2)
 │   ├── Ready to Belong (N1)                            = F2 + F5 − F7
+│   ├── Attended in the Last 8 Weeks (N7)               = F2 + worship in the last 8 weeks
 │   ├── Ready to Grow (N2)                              = F2 + P1 − P2
 │   ├── Ready to Serve (N3)                             = F2 + P2 − F8
 │   ├── Ready to Lead (N4)                              = F2 + P2 + F8 + F7 − P4
+│   ├── Already Leading (N6)                            = F2 + leads an active group or team
 │   ├── Guests Coming Back (C1)
 │   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
 │   ├── Drifting Adults (C3)
 │   │   └── Newly Missed (C5)                           = C3 + F6 + last visit 90 to 120 days ago
 │   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
+│   ├── Baptized Regular Attenders (C8)                 = F2 + F5 + Baptism step
+│   ├── Serving Without an Equip Step (N8)              = F2 + F8 − P2
+│   ├── Parents of Students (K5)                        = F2 + K4
 │   ├── Women Who Attend (RG1)                          = F2 + F6 + women 25 to 75
 │   ├── Involved Adults (F10)                           = F2 + (worship, F7, F8, or Last Gave)
 │   │   └── Involved Adults Who Never Gave (FN18)  [Finance]  = F10 + Non-Giver stage
@@ -211,6 +216,7 @@ Active People (F1)
 ├── Lead Stage (P4)
 ├── Path Steps in the Last 90 Days (P5)
 ├── Students Attending the Student Service (K3)
+├── Families of Students (K4)  [Family Members transformation]  = F1 + grades 7 to 12
 ├── Baptized This Year (C2)
 ├── First-Time Givers (FN3)  [Finance]
 ├── Lapsed Givers (FN4)  [Finance]
@@ -257,13 +263,13 @@ All data views use Rock's own filter components and selection strings, as `confi
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | F1 | Active People | Person | Record status is Active. Deceased people left out (the data view default) | None. It is the root | No. One indexed column | Every Person view below |
-| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, C1, C3, C4, C7, RG1, F10, FN8, and the New Here sync |
+| F2 | Adults | Person | In F1, and age classification is Adult | F1 | No | N1 to N4, N6 to N8, C1, C3, C4, C7, C8, K5, RG1, F10, FN8, and the New Here sync |
 | F3 | Children | Person | In F1, and age classification is Child | F1 | No | K1 |
 | F4 | Church Family | Person | In F1, and connection status is Connected, Engaged, or Leading | F1 | No | FN8 |
-| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1 and C7 |
+| F5 | Regular Attenders | Person | In F1, and attended a worship service (the Service Attendance group type, as the syncs use) 4 or more times in the last 12 weeks | F1 | **Yes, nightly**, on a named schedule "Nightly at 2 AM" in Rock's Persisted DataView Schedules category | N1, C7, and C8 |
 | F6 | Accepts Mass Email | Person | In F1, email preference is Email Allowed, and email is not blank | F1 | No | C4, C5, RG1, and the New Here and We Miss You syncs |
 | F7 | In a Small Group | Person | In F1, and an active member of an active Small Group, any role | F1 | No. Membership changes should show the same day | N1, N4, N5, F10 |
-| F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, S1, and F10. The Volunteers sync keeps its own roster rule (section 8.2) |
+| F8 | Serving | Person | In F1, and an active member of an active Serving Team, any role | F1 | No | N3, N4, N8, S1, and F10. The Volunteers sync keeps its own roster rule (section 8.2) |
 | F9 | Active Small Groups | Group | Group type is Small Group, and the group is active | None | No | G3 |
 | F10 | Involved Adults | Person | In F2, and any of: attended worship in the last 12 months; in F7; in F8; or the Last Gave attribute is in the last 12 months | F2, F7, F8 | No | X7 (the Christmas at Rock Solid flow) and FN11. A broad "who is part of us" list that later views and reports can share |
 
@@ -286,7 +292,7 @@ Each stage view uses Rock's Steps Taken filter, once for each step program, with
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | P1 | Belong Stage | Person | In F1, and any of: a Complete Starting Point Class or Small Group step; a Complete Student Camp step | F1 | No. Steps are far fewer rows than attendance. Verify times it, and it is persisted only if it proves slow | N2, N5, R19 |
-| P2 | Equip Stage | Person | In F1, and any of: a Complete Baptism or Foundations step; a Complete Follow Jesus step | F1 | No | N2, N3, N4, R20 |
+| P2 | Equip Stage | Person | In F1, and any of: a Complete Baptism or Foundations step; a Complete Follow Jesus step | F1 | No | N2, N3, N4, N8, R20 |
 | P3 | Contribute Stage | Person | In F1, and any of: a Complete Serve or Give step; a Complete Mission Trip step | F1 | No | R21 |
 | P4 | Lead Stage | Person | In F1, and any of: a Complete Lead step; a Complete Student Leader step | F1 | No | N4, R22 |
 | P5 | Path Steps in the Last 90 Days | Person | In F1, and any step in either program completed in the last 90 days | F1 | No | R18 |
@@ -307,9 +313,12 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N1 | Ready to Belong | Person | In F2, in F5 (use persisted), not in F7 | F2, F5, F7 | No. F5 already carries the slow part | R3 |
+| N7 | Attended in the Last 8 Weeks | Person | In F2, and attended a worship service at least once in the last 8 weeks | F2 | No | The Attended in the Last 8 Weeks personalization segment, the last Your Next Step layer before the fallback. Under the next-step views, it catches people who come but fit none of them (decision D-leading-4) |
 | G3 | Small Groups With Room | Group | In F9, and fewer than 12 active members, the church's target size (Rock's member count filter) | F9 | No | R4 |
 | K1 | Kids Checked In Recently | Person | In F3, and checked in to the Nursery/Preschool or Elementary area at least once in the last 4 weeks | F3 | **Yes, every 60 minutes**. Kids staff open it on Sunday, so it should be fresh that afternoon. This is the interval example, beside F5's named schedule | K2, R7 |
 | K3 | Students Attending the Student Service | Person | In F1, grade 7 to 12, and checked in to the Jr High or High School area at least once in the last 12 weeks | F1 | No | R8. The registration views keep their own rules (section 8.2) |
+| K4 | Families of Students | Person | In F1, and in grades 7 to 12, then Rock's Family Members transformation: everyone in a family with such a student | F1 | No | K5 |
+| K5 | Parents of Students | Person | In F2, and in K4 | F2, K4 | No | The Parents of Students personalization segment, Student Camp's layer for parents (decision D-leading-5) |
 
 ### 4.5 Equip (category: Rock Solid Church > Equip)
 
@@ -318,6 +327,8 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | N2 | Ready to Grow | Person | In F2, in P1, not in P2 | F2, P1, P2 | No | R23 |
 | N5 | Belonging a Year, Not Yet Growing | Person | In P1, in F7, a "none" group holding "a Belong step completed in the last 12 months", and not in P2 | P1, F7, P2 | No | R24. The one "stalled" view |
 | C7 | Unbaptized Regular Attenders | Person | In F2, in F5 (use persisted), and a "none" group holding "took the Baptism step" | F2, F5 | No | The Baptism Sunday Invitation flow's audience, through X4 |
+| C8 | Baptized Regular Attenders | Person | In F2, in F5 (use persisted), and took the Baptism step | F2, F5 | No | The Baptized Regular Attenders personalization segment, Baptism Sunday's Who's Your One layer (decision D-leading-5) |
+| N8 | Serving Without an Equip Step | Person | In F2, in F8, not in P2 | F2, F8, P2 | No | The Serving Without an Equip Step personalization segment, a second segment on Take Foundations (decision D-leading-5) |
 | C2 | Baptized This Year | Person | In F1, and the Baptism Date attribute is in the last 12 months | F1 | No | R2 |
 
 ### 4.6 Contribute (category: Rock Solid Church > Contribute)
@@ -331,12 +342,13 @@ Contribute Stage counts the Give step. Rock already shows each Give step on the 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
 | N4 | Ready to Lead | Person | In F2, in P2, in F8, in F7, not in P4 | F2, P2, F8, F7, P4 | No | R25, and X8, the Lead a Group flow's audience. Formed, serving on a team, and in a group, but not yet leading |
+| N6 | Already Leading | Person | In F2, and an active Leader of an active small group or an active serving team (Rock's In Group of Group Type filter, with each type's Leader role) | F2 | No | The Already Leading personalization segment, whose card asks leaders to invite a friend (decision D-leading-1). It reads who leads today, not the Lead step, which stays complete after a person stops leading |
 
 ### 4.8 Re-engage (category: Rock Solid Church > Re-engage)
 
 | # | Name | Entity | Filters | Builds on | Persisted | Used by |
 |---|---|---|---|---|---|---|
-| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, and the We Miss You sync |
+| C3 | Drifting Adults | Person | In F2; 10 or more worship attendances in the last 18 months; and none in the last 90 days. This is the We Miss You rule without the email part | F2 | No | R10, C5, the We Miss You sync, and the Drifting Adults personalization segment, Your Next Step's We Miss You layer (decision D-leading-5) |
 | C5 | Newly Missed | Person | In C3, in F6, and attended worship at least once in the last 120 days. Since C3 already means none in the last 90, this leaves people whose 90 days ran out in the last month | C3, F6 | No | The We Miss You flow's audience, through X3. It builds on C3, not on the We Miss You sync view, because a sync is a consumer, not a source |
 | C6 | Back in the Last 30 Days | Person | In F1, and attended worship at least once in the last 30 days | F1 | No | The We Miss You flow's goal |
 
@@ -406,7 +418,7 @@ The communication flows proposal (`docs/communication-flows-proposal.md` on bran
 | Women Who Attend (Women's Retreat flow audience) | X6 Women Who Attend, Reserved Email | `women-who-attend-reserved-email` | Sample Data | Guards RG1 `women-who-attend` |
 | Involved Adults (Christmas flow audience) | X7 Involved Adults, Reserved Email | `involved-adults-reserved-email` | Sample Data | Guards F10 `involved-adults`. "Gave" uses Rock's Last Gave attribute (question 14) |
 
-The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
+The stage and next-step views have keys too, so a flow can use one as an audience or an Entered Data View goal: `belong-stage`, `equip-stage`, `contribute-stage`, `lead-stage`, `path-steps-last-90-days`, `ready-to-belong`, `ready-to-grow`, `ready-to-serve`, `ready-to-lead`, `already-leading`, `attended-last-8-weeks`, `baptized-regular-attenders`, `serving-without-equip`, `families-of-students`, `parents-of-students`, and `belonging-a-year-not-growing`. For example, a Foundations invitation could go to Ready to Grow, with Equip Stage as its goal.
 
 A Communication Flows category would hold data views by who uses them, not by what they are. Then a care view and a flow view with the same rule would drift apart. Filing by Ministry System keeps one definition, and Rock's data view screen lists every flow and report that uses each one.
 

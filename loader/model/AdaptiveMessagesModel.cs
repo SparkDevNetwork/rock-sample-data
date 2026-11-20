@@ -215,8 +215,36 @@ namespace RockSampleData.Loader.Model
         public List<string> Details { get; set; } = new List<string>();
 
         /// <summary>
-        /// The event key of an approved event image in photos/events/manifest.json, or null for none.
+        /// The event key of an approved event image in photos/events/manifest.json, or null for none. An adaptation
+        /// with no event image may have its own image in photos/messages/manifest.json instead.
         /// </summary>
         public string Image { get; set; }
+    }
+
+    /// <summary>
+    /// The contents of photos/messages/manifest.json: the images made for adaptations that have no event image, from
+    /// photos/message-brief.md. The image agent writes it, so it may be missing, and it may list only some adaptations.
+    /// </summary>
+    internal sealed class MessagePhotoManifest
+    {
+        public List<MessagePhotoEntry> Images { get; set; } = new List<MessagePhotoEntry>();
+    }
+
+    internal sealed class MessagePhotoEntry
+    {
+        /// <summary>
+        /// The file under photos/, for example "messages/giving/first-gift.jpg".
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The message's key in configuration/adaptive-messages.json.
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// The adaptation's key in that message.
+        /// </summary>
+        public string Adaptation { get; set; }
     }
 }

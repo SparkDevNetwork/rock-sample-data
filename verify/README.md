@@ -46,6 +46,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `cast-expectations` | Every Cast giver whose story says what Rock should show still shows it, and so do the Cast's tags and mentions ([validation](../validation/README.md#cast-expectations)). |
 | `invariants` | Every rule in `validation/invariants.sql` holds in the loaded data. |
 | `rock-cleanup` | Rock's own Rock Cleanup job finds nothing to fix in the sample data. |
+| `address-services` | The selection of Rock's Location Services Verify job, judged for every later night, picks no Location the load wrote, so no sample address goes to an address service. It never runs the job. |
 | `person-duplicates` | Rock's own Calculate Person Duplicates job, run as Rock's scheduler runs it, adds, removes, and rescores no duplicate pair, and keeps every Not Duplicate and Ignore decision ([Duplicates](../docs/duplicates.md)). |
 | `sign-in` | Rock's own Database login signs in as `tdecker` and the load's newest confirmed login, and refuses a wrong password. |
 | `data-views` | Rock's own engine runs every data view in the load, the church's and Rock's, without an error. It prints each church view's count and time. |
@@ -55,6 +56,7 @@ A full run takes about 8 minutes, about 3 of them for Full 7. Making a new trust
 | `reports` | Every report column is one Rock reads: a property is one of Rock's reportable fields, an attribute exists, a data select component builds its expression from the stored selection, and a Lava column renders through Rock's Lava engine. |
 | `assessment-scores` | Rock's own five assessment scoring services score every saved answer set, and give each person's latest results exactly the person attribute values the load wrote. Rock's own serializer writes the same answer data ([Assessments](../docs/assessments.md#how-it-is-checked)). |
 | `adaptive-messages` | Rock's own `{% adaptivemessage %}` Lava command shows each Cast person in `configuration/adaptive-messages.json` their adaptation, with its call to action. |
+| `staff-homepage` | Rock's staff homepage block picks this week's update from 52 weekly ones, and Rock's own Lava engine renders it with its feature and articles. Each homepage metric's newest value is its last run and agrees with Rock's own SQL, the block lists the path metrics, and the Quick Links hold the church's links. |
 | `email-sections` | Rock's own save rules accept every email section the load wrote: the model's validation, and the check Rock's email editor runs on a section's markup when staff save it. |
 | `segments` | Rock's own segment update, run on every personalization segment the load wrote, adds and removes nobody. Judged only when today is the anchor. |
 | `signals` | Rock's own top signal rule, run for everyone with a signal, changes no one's top signal, so the Top Person Signal badge shows the flag Rock would. Judged only when today is the anchor. |
@@ -146,6 +148,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `invariants` | The loader wrote data that breaks a rule. Fix the loader, or fix the rule if the rule is wrong. |
 | `rock-cleanup`, "Rock Cleanup was not judged" | Today's date is not the loads' anchor: the run crossed midnight, `--anchor` is not today, or the database server and this machine keep different time zones. Run it again, without `--anchor`. |
 | `rock-cleanup` | The loader skipped something Rock's save hooks set. Fill it in the loader, or accept it in `validation/cleanup-accepted.json` with a reason. |
+| `address-services` | A loaded Location lacks the marks of a checked address. Write it with the marks in `loader/loading/CheckedAddress.cs`. If Rock changed the job's selection, the Rock lock check says so too. |
 | `person-duplicates` | Something changed a person, phone, or address after the load ran Rock's duplicate finder, or a Cast decision did not stick. Each line names the pair and its values before and after. Move the change before the Duplicates step, or fix how `loader/loading/DuplicatesLoader.cs` writes the decision. |
 | `group-sync` | A synced group does not hold exactly what its data view finds in Rock. Fix the view's filters in `configuration/group-syncs.json` or how `loader/loading/DataViewEvaluator.cs` reads them. |
 | `benevolence-workflow-launch` | Rock's workflow left a request without its case worker or reported an error. Fix the actions or Lava in `WriteWorkflow` in `loader/loading/BenevolenceLoader.cs`. |
@@ -160,6 +163,7 @@ It refuses to publish when a package has no receipt, its receipt is for differen
 | `metrics` | The loader's weekly values in `loader/loading/MetricsWriter.cs` no longer follow the stage view's rule, or the view changed shape. A metric can count only a view of active people with any of some steps. |
 | `reports` | Fix the column in `configuration/reporting.json`: the property name, attribute key, or the component's selection. |
 | `adaptive-messages` | A Cast person sees another adaptation. Check their segments' data views and the adaptation order in `configuration/adaptive-messages.json`, and their story. |
+| `staff-homepage` | Each line names what is missing. For an update, check `content/internal-news/updates.json` and `loader/loading/StaffHomepageLoader.cs`. For a metric, compare its newest value with the metric's own SQL in Rock. |
 | `segments` | A segment does not hold exactly what its data view finds in Rock. Fix how `loader/loading/DataViewEvaluator.cs` reads the view's filters. |
 | `email-sections` | Rock would refuse a section's name, summary, or markup. Each line has Rock's message. Fix `content/communications/email-sections.json` or `make-sections.spec.ts`, and run `make-sections.js` again. |
 | `signals` | Rock would give a person another top signal. Fix the order of the types in `configuration/signals.json`, or how `loader/loading/SignalsLoader.cs` picks the top one. |

@@ -1,7 +1,16 @@
 {
-  "$comment": "The text of each adaptation in configuration/adaptive-messages.json, by message key and adaptation key. Each field fills one of Rock's own adaptation attributes: callToAction is Call To Action Text, link is Call To Action Link, summary is Summary, details is Details (one paragraph each), and image is Summary Image, an approved event image from photos/events/manifest.json by event key. An adaptation with no image leaves Summary Image empty until its image brief is done. A link is one of the External Website's routes, or page:<key> for a page in the configuration's 'pages'. README.md has the rules, and check-messages.js checks them.",
+  "$comment": "The text of each adaptation in configuration/adaptive-messages.json, by message key and adaptation key. Each field fills one of Rock's own adaptation attributes: callToAction is Call To Action Text, link is Call To Action Link, summary is Summary, details is Details (one paragraph each), and image is Summary Image, an approved event image from photos/events/manifest.json by event key. An adaptation with no image here gets its own image from photos/messages/manifest.json once the message image brief (photos/message-brief.md) delivers it, and leaves Summary Image empty until then. A link is one of the External Website's routes, or page:<key> for a page in the configuration's 'pages'. README.md has the rules, and check-messages.js checks them.",
   "messages": {
     "your-next-step": {
+      "invite-a-friend": {
+        "callToAction": "Invite a friend",
+        "link": "page:new-here",
+        "summary": "You already help people grow. This month, invite one friend to church, and save them a seat beside you on Sunday.",
+        "details": [
+          "Most people first come to church because a friend asked them. Think of one person who would enjoy a Sunday with you.",
+          "Send them the New Here page for service times and what to expect, then meet them at the welcome tent."
+        ]
+      },
       "lead": {
         "callToAction": "Lead a group",
         "link": "page:small-groups",
@@ -52,6 +61,24 @@
         ],
         "image": "starting-point"
       },
+      "find-your-next-step": {
+        "callToAction": "Find your next step",
+        "link": "/connect/get-connected",
+        "summary": "You're part of Sundays here. Tell us what interests you, and we'll help you find the next step that fits.",
+        "details": [
+          "Groups, classes, and serving teams all start with a short conversation. Fill out the form, and someone from your campus will reach out this week.",
+          "Not sure what fits? That is what the conversation is for."
+        ]
+      },
+      "we-miss-you": {
+        "callToAction": "See service times",
+        "link": "page:new-here",
+        "summary": "We've missed you on Sundays. Life gets full, and that's okay. Your seat is still here whenever you're ready.",
+        "details": [
+          "Services last about an hour, and you can always catch a recent message online first.",
+          "If something hard is going on, a pastor would be glad to talk or pray with you."
+        ]
+      },
       "plan-a-visit": {
         "callToAction": "Plan a visit",
         "link": "page:new-here",
@@ -82,6 +109,16 @@
           "Every commitment counts, whatever its size. Make yours online in a minute."
         ],
         "image": "commitment-sunday"
+      },
+      "see-what-were-building": {
+        "callToAction": "See the plans",
+        "link": "page:calendar",
+        "summary": "Through Built on the Rock, we are building a Student Center and new kids rooms, so the next generation has room to grow.",
+        "details": [
+          "Plans for the Student Center are drawn, and the first kids rooms come next.",
+          "Pray with us for the students and kids who will meet Jesus in these rooms."
+        ],
+        "image": "commitment-sunday"
       }
     },
     "baptism-sunday": {
@@ -94,6 +131,26 @@
           "Sign up, and a pastor will call to talk it through and answer your questions."
         ],
         "image": "baptism-sunday"
+      },
+      "whos-your-one": {
+        "callToAction": "Invite your one",
+        "link": "page:calendar",
+        "summary": "Baptism Sunday is coming. Who's your one? Pray for one friend by name, and invite them to come celebrate with you.",
+        "details": [
+          "Every baptism is a story of someone who invited, prayed, and stayed close. Think of one friend who is far from God, and pray for them every day this month.",
+          "Then invite them to Baptism Sunday. Sit together, and cheer for every story."
+        ],
+        "image": "baptism-sunday"
+      },
+      "come-celebrate": {
+        "callToAction": "Come celebrate",
+        "link": "page:calendar",
+        "summary": "Baptism Sunday is coming. Join us as friends and neighbors share how Jesus changed their lives.",
+        "details": [
+          "Baptisms happen in every service that day. Bring your family and cheer them on.",
+          "Thinking about being baptized yourself? Talk with a pastor after any service."
+        ],
+        "image": "baptism-sunday"
       }
     },
     "student-camp": {
@@ -104,6 +161,26 @@
         "details": [
           "Camp is for students in grades 7 to 12. Your leaders come too, and you ride the buses together.",
           "Payment plans and scholarships are open to anyone who asks."
+        ],
+        "image": "student-camp"
+      },
+      "get-your-student-to-camp": {
+        "callToAction": "Register your student",
+        "link": "page:students",
+        "summary": "Student Camp is a week your student will talk about for years. Spots fill fast, so register early.",
+        "details": [
+          "Camp is for students in grades 7 to 12. Leaders ride the buses with them, and every cabin has a trained adult.",
+          "Payment plans and scholarships are open to any family who asks."
+        ],
+        "image": "student-camp"
+      },
+      "know-a-student": {
+        "callToAction": "Share camp",
+        "link": "page:students",
+        "summary": "Know a student in grades 7 to 12? Student Camp is a great first step into our student ministry. Invite them along.",
+        "details": [
+          "Camp is a week in the pines with great teaching, small groups, and plenty of fun.",
+          "Scholarships are open to anyone who asks, so cost never keeps a student home."
         ],
         "image": "student-camp"
       }

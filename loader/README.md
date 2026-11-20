@@ -19,7 +19,7 @@ dotnet run -- --package ../packages/core-1.zip --connection "Server=localhost;Da
 |---|---|
 | `--package <file>` | The dataset package to load. Required for a load. |
 | `--connection` | Connection string to a fresh Rock database. Required. |
-| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Reminders`, `Steps`, `Assessments`, `Communications`, `Calendar`, and `Registrations`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
+| `--parts` | The parts to load, by name and comma separated, for example `--parts Giving,Notes,Prayer`. The names are `Photos`, `Attendance`, `SmallGroups`, `Serving`, `Giving`, `CheckImages`, `Prayer`, `Notes`, `Reminders`, `BackgroundChecks`, `Benevolence`, `Steps`, `Assessments`, `Communications`, `Calendar`, `Registrations`, and `Content`. The parts they need load too (see [Parts](#parts)). Without it, every part loads except check images. |
 | `--any-rock` | Loads even when the database is on another Rock major release than the package, or its Rock version is unknown, with a warning. For development databases (see [Which Rock a package is for](#which-rock-a-package-is-for)). |
 | `--rock-version` | The database's Rock version, for example `21.0.2`. Without it, the loader reads `RockWeb/bin/Rock.Version.dll` in the `--rock` checkout. |
 | `--anchor` | The date every relative date counts back from (`yyyy-MM-dd`). Defaults to today on the database server (SQL Server's `GETDATE`), the date Rock Cleanup uses for ages (decision 152). Pin it in tests for identical data. |
@@ -68,7 +68,7 @@ The builder writes `SampleDataPackage.MinimumLoaderVersion` into every package. 
 
 Checks 3 to 5 run inside the load's transaction, after the lock. Any failure stops the load before it writes anything. `DatasetLoader.CheckDatabase` runs checks 4 and 5 on their own, so a caller can say what is wrong before anyone presses Load.
 
-The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, background checks, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, family analytics (eRA), prayer, notes, reminders, benevolence, steps, assessments, peer network, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, signals, personal links, tags, logins, duplicates, Cast and business expectations, and check images. Configuration, people, family analytics, peer network, data views, reports, adaptive messages, signals, personal links, tags, logins, and duplicates always run. Family analytics and peer network read the rows the chosen parts wrote, as Rock's jobs would, so with parts left out they find less. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
+The load runs these steps in order: configuration (with the small group, serving, connection, and building campaign setup), people (with business contacts and security roles), photos, Sunday attendance, achievements, small groups, serving, connection requests, background checks, giving (with the pledges, campaign gifts, and refunds), giving analytics, giving alerts, family analytics (eRA), prayer, notes, reminders, benevolence, steps, assessments, peer network, data views, calendar, registrations, person attributes, communications (with the Communication Flows), reports, adaptive messages, content, the staff homepage, signals, personal links, tags, logins, duplicates, Cast and business expectations, and check images. Configuration, people, family analytics, peer network, data views, reports, adaptive messages, the staff homepage, signals, personal links, tags, logins, and duplicates always run. Family analytics and peer network read the rows the chosen parts wrote, as Rock's jobs would, so with parts left out they find less. The Cast and business expectations run only when the caller sets `IsCastExpectationsChecked`: the CLI and the verify tool do, and Rock's block does not, so a person installing sees no internal checks (decision 217). The others belong to [parts](#parts).
 
 ## Parts
 
@@ -76,7 +76,7 @@ A load can choose its parts (decision 121). Church setup and people always load,
 
 | Part | Name | What it adds | Needs |
 |---|---|---|---|
-| `Photos` | Photos | Profile photos for the Cast and some generated families, and photos for the serving opportunities | |
+| `Photos` | Photos | Profile photos for the Cast and some generated families, and photos for the serving opportunities and the campuses | |
 | `Attendance` | Attendance and check-in | Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements | |
 | `SmallGroups` | Small groups | Small groups with leaders, members, meeting places, photos, history, and weekly attendance | |
 | `Serving` | Serving teams | Volunteers on every serving team, with schedules, check-ins, and requests to serve | |
@@ -91,6 +91,7 @@ A load can choose its parts (decision 121). Church setup and people always load,
 | `Communications` | Communications | Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use | Small groups, serving teams, prayer requests, steps |
 | `Calendar` | Calendar events | Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos | |
 | `Registrations` | Event registrations | Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students, kids, and adults who registered, with their payments, payment plans, placements, signed releases, notes, and history, and the data views about registrations | Calendar events |
+| `Content` | Content | Weekly staff updates on Rock's staff homepage for the past year, each with its feature, articles, and images | |
 | `CheckImages` | Check images | Scanned front and back images of recent check gifts | Giving |
 
 `SampleDataParts.WithDependencies` adds the parts the chosen ones need, and a load always calls it. A part needs another only when its rows point at or must agree with that part's rows:
@@ -386,6 +387,8 @@ Households with the same street, city, state, and postal code share one `Locatio
 
 A February 29 birthday uses the nearest leap year, so that person's age can be off by one.
 
+Every address, and every campus's map point, carries the marks Rock's `LocationService.Verify` leaves after its address service standardized and geocoded an address: both attempted dates, both success dates, the service (Smarty Streets), and its result (`loading/CheckedAddress.cs`). Rock's Location Services Verify job sends only addresses without them, so no sample address ever goes to an address service (decision D-addresses-1). Rooms and buildings have no address, so Rock never checks them, and they stay unmarked.
+
 A Cast person's `attributes.Allergy` becomes Rock's Allergy person attribute, which check-in labels print, as Rock saves a text attribute value, with its persisted values left for Rock to fill (decision 204). The people step writes it, before registrations, which skip anyone who already has an allergy, so no person gets two values. Both steps give the value the same Guid, from the person's Guid and the attribute's. The Cast's other values, and every generated person's, load later, in the person attributes step (see [How person attributes load](#how-person-attributes-load)).
 
 ## How person attributes load
@@ -428,6 +431,7 @@ Logins load last, in the always-on Logins step, and only when the load has a pas
 - **Generated households.** When the dataset manifest sets `photos.generatedHouseholdPercent` (Core 3 sets 50), about that share of each campus's generated households get faces from the 120-photo pool. A household gets faces only when one photo ethnicity has an unused face for every member's gender and age band, so a family looks like one family and no face repeats on a campus. In Core 3, these are the companion households at Peoria and Gilbert.
 - **Cast small groups.** After the small groups load, each group in `../photos/groups/manifest.json` gets its photo as the group's photo, stored the way Rock stores a photo uploaded on the group's page (the Default file type). A photo loads only when everyone in it is a member of the group, so a women's or men's group never shows the leader's spouse (decision D-womens-groups-2). Each shows the group's leader and spouse. The original full-group photos in `../photos/groups-full-members/` are never packed or loaded. The configuration step turns on Show Image on Rock's Group Finder page, so the cards show them (decision 62). A package without group photos still loads.
 - **Serving opportunities.** In the photos step, each opportunity in `../photos/opportunities/manifest.json` gets its photo, stored the same way, as the opportunity's photo. Every dataset has all eight, which replace the three Rock ships, and the public Serve page shows them. A package without opportunity photos still loads.
+- **Campuses.** In the photos step, each loaded campus in `../photos/campuses/manifest.json` gets its exterior photo as the image of its Location, stored in Rock's Location Image file type, as Rock's Location Detail block stores one (decision D-campus-photos-1). The builder packs only the dataset's own campuses' photos.
 
 Core 1 loads 175 photos in about a third of a second.
 
@@ -750,11 +754,11 @@ The org chart (decision 202) loads the same way. The church setup adds the units
 `loading/AdaptiveMessagesLoader.cs` writes the church's personalization segments and adaptive messages from `../configuration/adaptive-messages.json`, with each adaptation's text from `../content/adaptive-messages/messages.json`. Its step runs after the Reports step, when every data view is written. The design is in [Adaptive messages](../docs/adaptive-messages.md).
 
 1. **Segments.** Each segment whose data view this load wrote, as Rock's segment editor saves one: active, refreshed daily, last refreshed now, not dirty, and with the editor's empty additional filters, which Rock's segment update needs. A segment built on a Finance view gets Finance's View rule, and Rock's segment Results page gets it too. `loading/DataViewEvaluator.cs` finds the people in each view, and each person goes in by their primary alias, as Rock's Update Personalization Data job puts them. `PersonAliasPersonalization` has no `ForeignKey` column; each row points at a segment that has one.
-2. **Messages.** Each message, in the church's adaptive message category, then its adaptations in order with their segments, dates, saturation, and Rock's adaptation attributes: Call To Action Text and Link, Summary, Details as Rock's structured content, and a copy of an approved event image as Summary Image. A link to `page:key` becomes Rock's `/page/Id` link to that page.
+2. **Messages.** Each message, in the church's adaptive message category, then its adaptations in order with their segments, dates, saturation, and Rock's adaptation attributes: Call To Action Text and Link, Summary, Details as Rock's structured content, and a copy of an approved event image as Summary Image. An adaptation with no event image gets a copy of its own image from `../photos/messages/manifest.json` instead, when the image agent has listed one, and none until then (decision D-leading-3). A link to `page:key` becomes Rock's `/page/Id` link to that page.
 3. **The homepage.** An HTML Content block on the External Website homepage, in Section A, with the AdaptiveMessage Lava command enabled and its Lava from `../content/adaptive-messages/homepage.lava`, with the category's Id filled in (`AdaptiveMessagesLoader.Display.cs`).
 4. **Parts left out.** A segment whose view was not written is skipped, and so is every adaptation that names it, because an adaptation with no segments shows to everyone. A message with no adaptation left is skipped. The Student Camp invitation needs the camp registrations, and the Built on the Rock message needs the campaign.
 
-`AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees.
+`AdaptiveMessagesLoader.ShownAdaptation` follows the rule in Rock's Lava command, so the Cast expectations can check which adaptation each Cast person sees. `AdaptiveMessagesLoader.NotJudged` says why a Cast row is not checked on a day: its adaptation is out of season, or the messages ahead of it fill the homepage's cards. Verify asks the same rule (decisions D-leading-5 and D-leading-6).
 
 ## How signals load
 
@@ -789,6 +793,13 @@ Inside a running Rock, the shared version and each signed-in person's own versio
 4. **The rows.** One `TaggedItem` per person and tag, pointing at the person by Guid, with the tagger as its maker.
 
 The load prints each tag, with its owner for a personal tag, and how many people it holds.
+## Staff homepage
+
+`loading/StaffHomepageLoader.cs` fills Rock's staff homepage from `../configuration/staff-homepage.json`, with the text in `../content/internal-news/updates.json`. See [Staff homepage](../docs/staff-homepage.md).
+
+1. **The weekly updates** (the `Content` part). `generation/StaffUpdatePlanner.cs` picks each of the last 52 Mondays' feature and articles from the church calendar: the message library's occasions, and every calendar event, planned here on its own so the part needs no other. Each image is stored once and shared. Each update is a content channel item saved as Rock's editor saves one, with a global key and a slug by Rock's own rules, its feature attributes, and an Internal Article List matrix with an item per article. Rock's 2018 item becomes the oldest update in place.
+2. **The metric tiles** (always). A year of values for Active Records, Active Families by campus, and Active Connection Requests, on Rock's own schedules, each counting today's active people whose family had come by that day, or the requests open that day. Each metric's last run is its newest value.
+3. **The block and Quick Links** (always). The four Ministry Path metrics join the block's metrics, and the church's links follow Rock's own in the Quick Links block.
 
 ## Duplicates
 

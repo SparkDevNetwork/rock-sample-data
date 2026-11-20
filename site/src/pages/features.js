@@ -29,6 +29,11 @@ const { sectionHead } = require( "../components" );
 const doc = file => `${repoUrl}/blob/main/${file}`;
 
 /**
+ * Names joined as a sentence list: "A and B", or "A, B, and C".
+ */
+const messageList = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
+
+/**
  * A Cast person's name, linked to their household page. The name is plain text when no Cast person has it.
  */
 function person( model, name ) {
@@ -211,7 +216,7 @@ module.exports = function features( { model } ) {
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
             text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
-            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave" ],
+            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Mapped addresses, each marked as checked, so none ever goes to an address service", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
             look: [ html`${person( model, "Jon Smith" )}, with two duplicate records and a merge request`, html`${person( model, "Sarah Simmons" )}'s History, where her old Sarah Jones record was merged`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
             links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) }, { label: "Duplicates", href: doc( "docs/duplicates.md" ) } ]
         },
@@ -329,9 +334,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "adaptive-messages", eyebrow: "Adaptive messages", title: "A next step for each person.", sand: true,
-            text: html`${model.adaptiveMessages.messages.length} adaptive messages, from ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[0].name : "Your Next Step" )} to ${esc( model.adaptiveMessages.messages.length ? model.adaptiveMessages.messages[model.adaptiveMessages.messages.length - 1].name : "Giving" )}, each with versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
-            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp" ],
-            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic` ],
+            text: html`${model.adaptiveMessages.messages.length} adaptive messages, in this order on the homepage: ${esc( messageList( model.adaptiveMessages.messages.map( m => m.name ) ) )}. Each has versions for different people, on ${model.adaptiveMessages.segments.length} personalization segments built on the church's own data views. Rock's adaptivemessage Lava command shows each person the first version that fits, so two people on different stages see different invitations in the same spot. Each segment holds the people Rock's job would put in it on install day.`,
+            checks: [ "A giving message with a layer for each stage of Rock's giving journey", "Leaders of a group or team asked to invite a friend", "Segments on Finance views locked like Finance", "Seasonal versions for Baptism Sunday and Student Camp", "A card for everyone in each message's season", "People who stopped coming hear first that we miss them" ],
+            look: [ "The External Website homepage, signed in as a Cast person", "Rock's Adaptive Messages and Personalization Segments pages", html`${person( model, "Ted Decker" )}, thanked for his scheduled gift and asked to invite a friend`, html`${person( model, "Margaret Carter" )}, invited to make her monthly check automatic`, html`${person( model, "Luis Ortiz" )}, told we miss him before any growth ask` ],
             links: [ { label: "Adaptive messages", href: doc( "docs/adaptive-messages.md" ) } ]
         },
         {
@@ -356,6 +361,16 @@ module.exports = function features( { model } ) {
             links: [ { label: "Tags setup", href: doc( "configuration/README.md#tags" ) } ]
         }
     ];
+
+    // The staff homepage follows the adaptive messages, so the sections keep alternating.
+    const staffHomepage = require( path.join( model.root, "configuration/staff-homepage.json" ) );
+    areas.push( {
+        id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.",
+        text: html`Rock's staff homepage has a staff update for each Monday of the past ${staffHomepage.updates.weeks} weeks, from the Director of Communications, with articles from the staff. They follow the church calendar: Easter planning, VBS volunteers, Commitment Sunday, and year-end statements. The metric tiles show a year of history, and the Quick Links point at the pages staff open most.`,
+        checks: [ "A feature and one to three staff articles every week", "Event images and staff photos, each stored once", "Active Records, Active Families, and Active Connection Requests, with the Ministry Path metrics beside them" ],
+        look: [ "Rock's homepage, signed in as any staff member", "The Prev button, which steps back a week at a time", "The Internal Communications - Homepage content channel" ],
+        links: [ { label: "Staff homepage", href: doc( "docs/staff-homepage.md" ) } ]
+    } );
 
     // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );

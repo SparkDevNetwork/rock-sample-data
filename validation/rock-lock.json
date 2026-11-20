@@ -1010,6 +1010,40 @@
         "loader/loading/CampaignLoader.cs"
       ],
       "sha256": "b769c2049d331de4dfc38cd9ad4e201fc74f2e1c34b1cea608777aecf10e48c5"
+    },
+    {
+      "path": "Rock/Jobs/LocationServicesVerify.cs",
+      "section": "The addresses the job picks",
+      "from": "var addresses = locationService.Queryable()",
+      "to": ".Take( maxRecords )",
+      "why": "Which addresses Rock's Location Services Verify job sends to the address service each night. The loader marks every address so the job picks none, and verify runs this selection on every load.",
+      "mirroredBy": [
+        "loader/loading/CheckedAddress.cs",
+        "verify/Program.cs"
+      ],
+      "sha256": "49bb00d60868cc457d20467e0dd3398e27ed80fd4fc664a44a01f8e976aa30b3"
+    },
+    {
+      "path": "Rock/Model/Core/Location/LocationService.cs",
+      "section": "Verify",
+      "from": "public bool Verify( Location location, bool reVerify )",
+      "to": "public MapCoordinate GetMapCoordinateFromPostalCode",
+      "why": "The dates, service name, and result Rock leaves on a Location after its address service standardized and geocoded it, which the loader writes on every address.",
+      "mirroredBy": [
+        "loader/loading/CheckedAddress.cs"
+      ],
+      "sha256": "69b72b165074e0100a7cd655753342359523f3dd1344ebc1af0a4b2e8bdccff4"
+    },
+    {
+      "path": "Rock/Address/SmartyStreets.cs",
+      "section": "The result of a match",
+      "from": "resultMsg = string.Format( \"RecordType:",
+      "to": "location.Street1 = candidate.delivery_line_1;",
+      "why": "The result text Smarty Streets writes for a matched address, which the loader writes on every address.",
+      "mirroredBy": [
+        "loader/loading/CheckedAddress.cs"
+      ],
+      "sha256": "446b1ff56219b454f38dcabf90609f65cfffa37cb841d5fb2039feb25717c465"
     }
   ]
 }

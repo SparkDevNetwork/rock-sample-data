@@ -155,9 +155,9 @@ dotnet run -- --package ../packages/core-1.zip --login-password "choose-one" --c
   <div class="wrap">
     ${sectionHead( { eyebrow: "After you install", title: "Know which Rock jobs to run.", lede: "Rock's background jobs keep a church's data current. The load already wrote most of what they would have, so most need nothing from you." } )}
     <div class="card-grid">
-      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, eRA, peer networks, the Duplicate Finder, group sync, step program completions, personalization segments, top signals, and what Rock Cleanup sets are filled as if Rock's jobs had run on their schedules. Their next runs change nothing.</p></div>
+      <div class="card reveal"><h3>Already done</h3><p>Giving analytics, eRA, peer networks, the Duplicate Finder, group sync, step program completions, personalization segments, top signals, and what Rock Cleanup sets are filled as if Rock's jobs had run on their schedules. Every address is marked as checked, so none goes to an address service. Their next runs change nothing.</p></div>
       <div class="card reveal"><h3>Run once</h3><p>Rock's analytics tables fill on their job's first scheduled run that night, or run it now.</p></div>
-      <div class="card reveal"><h3>Be careful</h3><p>Turn off Location Services Verify on a sample site, or it sends the sample addresses to an address service each night. Keep real email off, because a few reminders reach Cast staff.</p></div>
+      <div class="card reveal"><h3>Be careful</h3><p>Keep real email off, because a few reminders reach Cast staff. Communication flows keep sending after install, only to reserved addresses.</p></div>
     </div>
     <p class="fine">Every date counts back from install day, so Rock's jobs move the church forward from there. See <a href="${repoUrl}/blob/main/docs/after-install.md">After you install</a> for every Rock job and what it does to the sample data.</p>
   </div>

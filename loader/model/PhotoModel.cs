@@ -106,4 +106,28 @@ namespace RockSampleData.Loader.Model
         /// </summary>
         public string Opportunity { get; set; }
     }
+
+    /// <summary>
+    /// The contents of photos/campuses/manifest.json: one exterior photo per campus.
+    /// </summary>
+    internal sealed class CampusPhotoManifest
+    {
+        public List<CampusPhotoEntry> Images { get; set; } = new List<CampusPhotoEntry>();
+    }
+
+    /// <summary>
+    /// One delivered campus photo.
+    /// </summary>
+    internal sealed class CampusPhotoEntry
+    {
+        /// <summary>
+        /// The file, relative to the photos folder (for example "campuses/phoenix.jpg").
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// The campus key, as in configuration/campuses.json.
+        /// </summary>
+        public string Campus { get; set; }
+    }
 }

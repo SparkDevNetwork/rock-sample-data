@@ -24,7 +24,7 @@ namespace RockSampleData.Loader
     public enum SampleDataPart
     {
         /// <summary>
-        /// Profile photos and serving opportunity photos.
+        /// Profile photos, serving opportunity photos, and campus photos.
         /// </summary>
         Photos,
 
@@ -102,7 +102,12 @@ namespace RockSampleData.Loader
         /// <summary>
         /// Benevolence requests: who asked for help, who worked each request, and what the church gave.
         /// </summary>
-        Benevolence
+        Benevolence,
+
+        /// <summary>
+        /// Church content in Rock's content channels: the weekly staff updates on Rock's staff homepage.
+        /// </summary>
+        Content
     }
 
     /// <summary>
@@ -200,7 +205,7 @@ namespace RockSampleData.Loader
         /// </summary>
         public static IReadOnlyList<SampleDataPartInfo> All { get; } = new[]
         {
-            new SampleDataPartInfo( SampleDataPart.Photos, "Photos", "Profile photos for the Cast and some generated families, and photos for the serving opportunities." ),
+            new SampleDataPartInfo( SampleDataPart.Photos, "Photos", "Profile photos for the Cast and some generated families, and photos for the serving opportunities and the campuses." ),
             new SampleDataPartInfo( SampleDataPart.Attendance, "Attendance and check-in", "Sunday attendance and kids check-in over the whole history, with check-in streaks and achievements." ),
             new SampleDataPartInfo( SampleDataPart.SmallGroups, "Small groups", "Small groups with leaders, members, meeting places, photos, history, and weekly attendance." ),
             new SampleDataPartInfo( SampleDataPart.Serving, "Serving teams", "Volunteers on every serving team, with schedules, check-ins, and requests to serve." ),
@@ -215,6 +220,7 @@ namespace RockSampleData.Loader
             new SampleDataPartInfo( SampleDataPart.Calendar, "Calendar events", "Events on the Public and Internal calendars: holidays, classes, student and kids events, men's and women's events, outreach, and staff meetings, with their occurrences at each campus and their photos." ),
             new SampleDataPartInfo( SampleDataPart.Registrations, "Event registrations", "Registrations for camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve Day, Money Matters, Date Night, and the Women's Retreat, linked to their calendar events and groups, with fees, discounts, and placement groups, and the students who registered for camp, the mission trip, and the fall retreat, with their payments, payment plans, and placements.", SampleDataPart.Calendar ),
             new SampleDataPartInfo( SampleDataPart.Communications, "Communications", "Two years of email, texts, and pushes: weekly newsletters, mass and class messages, SMS conversations, serving reminders, the church's app, and a finished communication flow, with the lists, numbers, and template they use.", SampleDataPart.SmallGroups, SampleDataPart.Serving, SampleDataPart.Prayer, SampleDataPart.Steps ),
+            new SampleDataPartInfo( SampleDataPart.Content, "Content", "Weekly staff updates on Rock's staff homepage for the past year, each with its feature, articles, and images." ),
             new SampleDataPartInfo( SampleDataPart.CheckImages, "Check images", "Scanned front and back images of recent check gifts. This is the slowest part.", SampleDataPart.Giving )
         };
 

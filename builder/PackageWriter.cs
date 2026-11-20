@@ -147,11 +147,40 @@ namespace RockSampleData.Builder
                 }
             }
 
+            // Only the dataset's own campuses' photos, as with addresses and staff photos (decision D-campus-photos-1).
+            if ( repository.Exists( SampleDataSource.CampusPhotoManifestPath ) )
+            {
+                var campusManifest = JsonNode.Parse( repository.ReadText( SampleDataSource.CampusPhotoManifestPath ) ).AsObject();
+                var campusImages = campusManifest["images"].AsArray();
+                foreach ( var image in campusImages.Where( i => !campusKeys.Contains( i["campus"].GetValue<string>() ) ).ToList() )
+                {
+                    campusImages.Remove( image );
+                }
+
+                var campusOptions = new JsonSerializerOptions { WriteIndented = true, NewLine = "\n", Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+                files[SampleDataSource.CampusPhotoManifestPath] = Utf8( campusManifest.ToJsonString( campusOptions ) + "\n" );
+                foreach ( var image in campusImages )
+                {
+                    AddFile( $"photos/{image["file"].GetValue<string>()}" );
+                }
+            }
+
             // Every dataset has the calendar, so every package carries the event photos delivered so far.
             if ( repository.Exists( SampleDataSource.EventPhotoManifestPath ) )
             {
                 AddFile( SampleDataSource.EventPhotoManifestPath );
                 foreach ( var photo in source.ReadEventPhotoManifest().Images )
+                {
+                    AddFile( $"photos/{photo.File}" );
+                }
+            }
+
+            // Every dataset has the adaptive messages, so every package carries the message images delivered so far
+            // (photos/message-brief.md). Until the image agent writes the manifest there are none.
+            if ( repository.Exists( SampleDataSource.MessagePhotoManifestPath ) )
+            {
+                AddFile( SampleDataSource.MessagePhotoManifestPath );
+                foreach ( var photo in source.ReadMessagePhotoManifest().Images )
                 {
                     AddFile( $"photos/{photo.File}" );
                 }
@@ -188,6 +217,7 @@ namespace RockSampleData.Builder
             AddFolder( EmailSectionLibrary.Folder, ".png" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".json" );
             AddFolder( SampleDataSource.AdaptiveMessagesContentFolder, ".lava" );
+            AddFolder( SampleDataSource.InternalNewsFolder, ".json" );
             AddFile( "LICENSE.md" );
 
             // A README that travels with the package: what is in it, what the loader makes from it, and what
@@ -289,6 +319,65 @@ namespace RockSampleData.Builder
                 if ( !files.Exists( $"photos/{photo.File}" ) )
                 {
                     throw new InvalidOperationException( $"{SampleDataSource.EventPhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            // A message image belongs to one adaptation that exists and has no event image (decision D-leading-3).
+            var messageText = source.AdaptiveMessages == null ? null : source.ReadAdaptiveMessageText();
+            var imaged = new HashSet<string>( StringComparer.Ordinal );
+            foreach ( var photo in source.ReadMessagePhotoManifest().Images )
+            {
+                var key = $"{photo.Message} {photo.Adaptation}";
+                var message = source.AdaptiveMessages?.Messages.FirstOrDefault( m => m.Key == photo.Message );
+                if ( message == null || !message.Adaptations.Any( a => a.Key == photo.Adaptation ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has an image for {key}, which is not an adaptation in configuration/adaptive-messages.json." );
+                }
+
+                if ( messageText.Messages.TryGetValue( photo.Message, out var texts ) && texts.TryGetValue( photo.Adaptation, out var text ) && text.Image != null )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has an image for {key}, which already shows the {text.Image} event image in {SampleDataSource.AdaptiveMessageTextPath}. Remove one." );
+                }
+
+                if ( !imaged.Add( key ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} has two images for {key}." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.MessagePhotoManifestPath} lists {photo.File}, but the file is missing." );
+                }
+            }
+
+            // The staff updates read, and each names an event image and a staff photo the package has.
+            if ( source.ReadStaffHomepage() != null )
+            {
+                var news = source.ReadInternalNews();
+                var eventImages = source.ReadEventPhotoManifest().Images.Select( i => i.Event ).ToHashSet( StringComparer.Ordinal );
+                var staffImages = source.ReadStaffPhotoManifest().Images.Select( i => $"{i.Household}/{i.Member}" ).ToHashSet( StringComparer.Ordinal );
+                foreach ( var feature in news.Features.Concat( news.EvergreenFeatures ).Where( f => !eventImages.Contains( f.Image ) ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.InternalNewsPath}: feature {feature.Key} shows event image {feature.Image}, which is not in {SampleDataSource.EventPhotoManifestPath}." );
+                }
+
+                foreach ( var article in news.Articles.Concat( news.EvergreenArticles ).Where( a => !staffImages.Contains( a.Author ) ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.InternalNewsPath}: article {article.Key} is by {article.Author}, who has no staff photo in {SampleDataSource.StaffPhotoManifestPath}." );
+                }
+            }
+
+            // A campus photo belongs to one of the package's campuses, and its file is in the package.
+            foreach ( var photo in source.ReadCampusPhotoManifest().Images )
+            {
+                if ( !campusKeys.Contains( photo.Campus ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.CampusPhotoManifestPath} has a photo for {photo.Campus}, which is not a campus in this dataset." );
+                }
+
+                if ( !files.Exists( $"photos/{photo.File}" ) )
+                {
+                    throw new InvalidOperationException( $"{SampleDataSource.CampusPhotoManifestPath} lists {photo.File}, but the file is missing." );
                 }
             }
 

@@ -6,9 +6,9 @@ It covers Rock 21.0.2 and Rock 20.0.10. Both ship the same 56 jobs, with the sam
 
 ## The short version
 
-1. **Most jobs need nothing from you.** The load already wrote what fifteen of Rock's jobs would have, such as giving analytics, eRA, peer networks, group sync, step program completions, person signals, and the Duplicate Finder. See [Already done by the load](#already-done-by-the-load).
+1. **Most jobs need nothing from you.** The load already wrote what sixteen of Rock's jobs would have, such as giving analytics, eRA, peer networks, group sync, step program completions, person signals, the Duplicate Finder, and checked addresses. See [Already done by the load](#already-done-by-the-load).
 2. **Run Process BI Analytics now** if you want Rock's analytics tables on day one. It is on, but its first run is that night.
-3. **Turn off Location Services Verify** on a sample site. Otherwise it sends the sample addresses to an address service every night. See [Be careful](#be-careful).
+3. **Location Services Verify needs nothing.** The load marks every address as checked, so the job finds no sample address to send to an address service. See [Already done by the load](#already-done-by-the-load).
 4. **Keep real email and texting off** unless you mean to send. Reminders that do send reach only `example.org` and the Cast staff's `rocksolidchurchdemo.com`, a domain Spark owns for the sample church with no mailbox attached.
 
 ## How a sample database ages
@@ -48,8 +48,9 @@ The load writes what these jobs would have written by install day, so running th
 13. **Process Group History.** Groups, members, and meeting places have the history rows Rock writes (decision 38).
 14. **Send Group Schedule Notifications.** Every serving confirmation and reminder the job could send is marked sent, including those for Sundays ahead, so it has nothing to send (decision 165).
 15. **Send Note Notifications.** Every note is marked as notified and approved, so the job never emails staff about old notes (see [Notes](../loader/README.md#notes)).
+16. **Location Services Verify.** Rock ships its Smarty Streets address service turned on, with Spark's managed key, and this job sends up to 1,000 unchecked addresses to it every night. The load marks every home, business, and campus address it writes the way Rock marks one after a successful check, so the job finds nothing to send, on the first night or any later one (decisions D-addresses-1 and D-addresses-2). An address someone adds or changes after install goes to the service as usual.
 
-Verify runs Rock's own job for items 1 to 5, and the code the job calls for items 6 to 9. For items 10 to 15, the load follows Rock's code, but verify does not run the job.
+Verify runs Rock's own job for items 1 to 5, and the code the job calls for items 6 to 9. For items 10 to 15, the load follows Rock's code, but verify does not run the job. For item 16, verify runs the job's selection on every load and fails if it would pick any loaded address, but never runs the job, so verify never calls the address service.
 
 ## Run after install
 
@@ -80,22 +81,18 @@ These jobs can send email, texts, or push, or reach an outside service. The samp
 
 > **Warning:** A message leaves Rock only through the email, SMS, or push transport your Rock uses. On a sample site, leave real transports off, or use a test transport that keeps the mail.
 
-1. **Location Services Verify.** On, every night at 3 AM.
-   - Rock ships its SmartyStreets address service turned on, with Spark's managed key. The load marks no address as checked, so the job sends up to 1,000 sample addresses a night (its Max Records Per Run) to SmartyStreets until it has tried them all.
-   - The addresses are real streets with house numbers that do not exist (content standard 4), so no real home is sent. If SmartyStreets matches one, Rock rewrites the address and moves its map point.
-   - **Turn this job off on a sample site.** Issue [#2](https://github.com/SparkDevNetwork/rock-sample-data/issues/2) would mark each address as already checked, so the job finds no work.
-2. **Registration Reminder.** On, every hour. Past reminders are marked sent (decision 214). Each instance whose reminder date is still ahead sends its reminder email to each registrar when that date comes. A few registrars are Cast staff.
-3. **Event Payment Reminders.** On, weekdays at 9 AM. Each registration with a balance gets a payment reminder on its template's schedule until the instance ends (decision 208). A few go to Cast staff.
-4. **Send Attendance Reminders for Group Type.** On, every day at 4 PM. It emails each small group's leaders on the day the group meets, and again 2 and 4 days later, until someone enters attendance. Nobody enters attendance after install, so leaders get these every week. A few Cast staff lead small groups.
-5. **Process Reminders.** On, weekdays at 6 AM. The load sets each owner's reminder count as the job would, and verify runs the job and finds nothing to change (decision 298). Each run also emails each owner their reminders due. Owners are staff and small group leaders, some of them Cast staff.
-6. **Send Assessment Reminders.** On, every day at 8 AM. Each pending request's last reminder is where the job would have left it (decision 267), so its first run sends only the reminders a church's would. A request still pending gets a reminder every 7 days, for 60 days after it was made.
-7. **Process Communication Flows.** On, every 5 minutes. Open runs send their remaining messages, and recurring flows start new runs on their schedules. Every run reaches only reserved addresses and numbers, because each recurring flow's audience includes a reserved email guard (decision 220, and question 18 in [Data views and reports](reporting.md)).
-8. **Send Communications.** On, every 10 minutes. The scheduled Christmas Eve email waits for its send date (decision 248). Its recipients are all on `example.org` or have no email.
-9. **Group Sync.** Its welcome and exit emails go out only when someone joins or leaves a synced group after install (decision 187).
-10. **Spark Link.** On, every 7 hours. Every Rock sends Spark its organization name, address, public URL, and count of person records. A sample database sends the sample people's count.
-11. **Only if you set them up.** Chat Sync reaches Rock's chat service only when chat is configured. Sync Media reaches a media account only when one is added. Download Payments is off, and the sample's scheduled gifts use Rock's Test Gateway. Send Following Event Notification and Send Following Suggestion Notification email staff, and Communication Queue Alert emails its recipients. All four are off by default, so leave them off. Every follow the load writes is a staff member's, so if Send Following Event Notification is turned on, its notices reach only staff on the sample church's domain (decision D-peers-3).
+1. **Registration Reminder.** On, every hour. Past reminders are marked sent (decision 214). Each instance whose reminder date is still ahead sends its reminder email to each registrar when that date comes. A few registrars are Cast staff.
+2. **Event Payment Reminders.** On, weekdays at 9 AM. Each registration with a balance gets a payment reminder on its template's schedule until the instance ends (decision 208). A few go to Cast staff.
+3. **Send Attendance Reminders for Group Type.** On, every day at 4 PM. It emails each small group's leaders on the day the group meets, and again 2 and 4 days later, until someone enters attendance. Nobody enters attendance after install, so leaders get these every week. A few Cast staff lead small groups.
+4. **Process Reminders.** On, weekdays at 6 AM. The load sets each owner's reminder count as the job would, and verify runs the job and finds nothing to change (decision 298). Each run also emails each owner their reminders due. Owners are staff and small group leaders, some of them Cast staff.
+5. **Send Assessment Reminders.** On, every day at 8 AM. Each pending request's last reminder is where the job would have left it (decision 267), so its first run sends only the reminders a church's would. A request still pending gets a reminder every 7 days, for 60 days after it was made.
+6. **Process Communication Flows.** On, every 5 minutes. Open runs send their remaining messages, and recurring flows start new runs on their schedules. Every run reaches only reserved addresses and numbers, because each recurring flow's audience includes a reserved email guard (decision 220, and question 18 in [Data views and reports](reporting.md)).
+7. **Send Communications.** On, every 10 minutes. The scheduled Christmas Eve email waits for its send date (decision 248). Its recipients are all on `example.org` or have no email.
+8. **Group Sync.** Its welcome and exit emails go out only when someone joins or leaves a synced group after install (decision 187).
+9. **Spark Link.** On, every 7 hours. Every Rock sends Spark its organization name, address, public URL, and count of person records. A sample database sends the sample people's count.
+10. **Only if you set them up.** Chat Sync reaches Rock's chat service only when chat is configured. Sync Media reaches a media account only when one is added. Download Payments is off, and the sample's scheduled gifts use Rock's Test Gateway. Send Following Event Notification and Send Following Suggestion Notification email staff, and Communication Queue Alert emails its recipients. All four are off by default, so leave them off. Every follow the load writes is a staff member's, so if Send Following Event Notification is turned on, its notices reach only staff on the sample church's domain (decision D-peers-3).
 
-Items 2 to 6 reach only `example.org` and the staff domain, so no real person gets them. If your site can send real email, you can still turn them off, or keep its email on a test transport.
+Items 1 to 5 reach only `example.org` and the staff domain, so no real person gets them. If your site can send real email, you can still turn them off, or keep its email on a test transport.
 
 ## Nothing to do yet
 
@@ -141,7 +138,7 @@ Rock 21.0.2 and Rock 20.0.10 ship the same jobs. "On" is the job's state in a ne
 | Group Sync | Yes | Every 20 minutes | [Already done](#already-done-by-the-load) |
 | Index Content Collections | Yes | Daily, 4:45 AM | [Nothing to do](#nothing-to-do-yet) |
 | Job Pulse | Yes | Every minute | [Runs on its own](#runs-on-its-own) |
-| Location Services Verify | Yes | Daily, 3 AM | [Be careful](#be-careful) |
+| Location Services Verify | Yes | Daily, 3 AM | [Already done](#already-done-by-the-load) |
 | Populate Interaction Session Data | Yes | Every 10 minutes | [Runs on its own](#runs-on-its-own) |
 | Process BI Analytics | Yes | Daily, 5 AM | [Run after install](#run-after-install) |
 | Process Communication Flows | Yes | Every 5 minutes | [Be careful](#be-careful) |

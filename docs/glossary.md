@@ -102,6 +102,7 @@ The words this project uses, in alphabetical order.
 | **SMS conversation** | A text thread between one person and one of the church's system phone numbers, as Rock's SMS Conversations screen shows it. |
 | **SMS snippet** | Saved text staff insert in SMS Conversations instead of retyping it, such as service times. A shared snippet shows to every staff member, and a personal one only to its owner. Rock fills in the person's nickname when staff insert it. See [SMS snippets](communications.md#sms-snippets). |
 | **Source** | One anonymous set of measured ratios, labeled `source-1`, `source-2`, and so on. |
+| **Staff update** | A weekly post on Rock's staff homepage: a feature and one to three staff articles, in Rock's Internal Communications - Homepage content channel. See [Staff homepage](staff-homepage.md). |
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Step workflow** | A Rock workflow tied to a step type by a trigger. Rock starts it when a person completes the step, or staff start it by hand from the step. The sample church has three staff follow-up tasks, such as Baptism Follow-Up, which goes to the campus pastor. See [Steps](steps.md#step-workflows). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |

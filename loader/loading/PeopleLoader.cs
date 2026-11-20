@@ -162,7 +162,9 @@ namespace RockSampleData.Loader.Loading
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var aliases = NewTable( "Id:int", "PersonId:int", "AliasPersonId:int", "AliasPersonGuid:guid", "Guid:guid", "ForeignKey:string" );
             var members = NewTable( "Id:int", "IsSystem:bool", "GroupId:int", "GroupTypeId:int", "PersonId:int", "GroupRoleId:int", "GroupMemberStatus:int", "DateTimeAdded:date", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            var locations = NewTable( "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            // Every address carries the marks of a check by Rock's address service, so it never goes to one (decision D-addresses-1).
+            var locations = NewTable( new[] { "Id:int", "Street1:string", "Street2:string", "City:string", "State:string", "PostalCode:string", "Country:string", "IsActive:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" }
+                .Concat( CheckedAddress.Columns ).ToArray() );
             var geo = NewTable( "Id:int", "Latitude:double", "Longitude:double" );
             var groupLocations = NewTable( "Id:int", "GroupId:int", "LocationId:int", "GroupLocationTypeValueId:int", "IsMailingLocation:bool", "IsMappedLocation:bool", "Order:int", "IsOverflowLocation:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var phones = NewTable( "Id:int", "IsSystem:bool", "PersonId:int", "CountryCode:string", "Number:string", "NumberFormatted:string", "FullNumber:string", "NumberTypeValueId:int", "IsMessagingEnabled:bool", "IsUnlisted:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
@@ -306,7 +308,8 @@ namespace RockSampleData.Loader.Loading
                     if ( !locationIds.TryGetValue( addressKey, out var locationId ) )
                     {
                         locationId = locationIds[addressKey] = nextLocationId++;
-                        locations.Rows.Add( locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now );
+                        locations.Rows.Add( new object[] { locationId, address.Street1, address.Street2 ?? ( object ) DBNull.Value, address.City, address.State, address.PostalCode, "US", true, Guid.NewGuid(), _foreignKey, _now, _now }
+                            .Concat( CheckedAddress.Values( _now ) ).ToArray() );
                         if ( address.Latitude.HasValue && address.Longitude.HasValue )
                         {
                             geo.Rows.Add( locationId, address.Latitude.Value, address.Longitude.Value );
@@ -685,7 +688,7 @@ DROP TABLE #Metaphone;" );
             _db.BulkInsert( "#LocationGeo", geo, keepIdentity: false );
             _db.Execute( @"
 UPDATE [l]
-SET [l].[GeoPoint] = geography::Point( [g].[Latitude], [g].[Longitude], 4326 ), [l].[GeocodedDateTime] = GETDATE()
+SET [l].[GeoPoint] = geography::Point( [g].[Latitude], [g].[Longitude], 4326 )
 FROM [Location] AS [l]
 INNER JOIN #LocationGeo AS [g] ON [g].[Id] = [l].[Id];
 DROP TABLE #LocationGeo;" );

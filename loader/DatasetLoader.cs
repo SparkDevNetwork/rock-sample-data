@@ -70,6 +70,8 @@ namespace RockSampleData.Loader
             ("Communications", SampleDataPart.Communications),
             ("Reports", null),
             ("Adaptive messages", null),
+            ("Content", SampleDataPart.Content),
+            ("Staff homepage", null),
             ("Signals", null),
             ("Personal links", null),
             ("Tags", null),
@@ -458,6 +460,9 @@ namespace RockSampleData.Loader
                 photoLoader.Load( people.Households, castHouseholdKeys, photoPercent );
                 log.Write( $"  Opportunity photos: {photoLoader.LoadOpportunityPhotos( connectionSetup.OpportunityIds )}" );
 
+                // Each campus's exterior photo, on its Location (decision D-campus-photos-1).
+                log.Write( $"  Campus photos: {photoLoader.LoadCampusPhotos( configuration.CampusPlans.ToDictionary( c => c.Key, c => c.Value.LocationId ) )}" );
+
                 // Each staff member's staff photo, as their Staff Photo attribute (decision 201).
                 var staffPhotoAttribute = source.Staff?.Attributes.FirstOrDefault( a => a.Key == "StaffPhoto" );
                 if ( staffLoader.HasAttributes && staffPhotoAttribute != null )
@@ -752,6 +757,39 @@ namespace RockSampleData.Loader
             // writes views. A segment whose view this load left out is skipped, with every adaptation that names it.
             steps.Begin( "Adaptive messages" );
             new AdaptiveMessagesLoader( db, source, dates, foreignKey, seed ).Load();
+
+            // Rock's staff homepage. The weekly updates are the Content part. The metric history, the path metrics on
+            // the block, and the Quick Links read whatever rows the load wrote, so they come after every data step and
+            // always run (decisions D-homepage-1 to D-homepage-4).
+            var staffHomepage = source.ReadStaffHomepage();
+            var homepage = staffHomepage == null ? null : new StaffHomepageLoader( db, source, staffHomepage, dates, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+            if ( steps.Begin( "Content" ) )
+            {
+                if ( homepage == null )
+                {
+                    log.Write( "  Skipped (this package has no configuration/staff-homepage.json)" );
+                }
+                else
+                {
+                    homepage.LoadUpdates( people.People, configuration.CampusPlans, calendar.HistoryStart );
+                }
+            }
+
+            steps.Begin( "Staff homepage" );
+            if ( homepage != null )
+            {
+                var (metricCount, valueCount) = homepage.LoadMetrics();
+                log.Write( $"  Homepage metrics: {metricCount} with {valueCount:N0} values" );
+                if ( staffHomepage.PathMetrics && source.Reporting != null )
+                {
+                    log.Write( $"  Path metrics on the homepage: {homepage.AddPathMetrics( source.Reporting.Metrics )}" );
+                }
+
+                if ( staffHomepage.QuickLinks != null )
+                {
+                    log.Write( $"  Quick Links added: {homepage.AddQuickLinks()}" );
+                }
+            }
 
             // The Cast's signals and each campus pastor's Care Team Follow-ups. They read only people and staff.
             steps.Begin( "Signals" );

@@ -1,5 +1,5 @@
 {
-  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names.",
+  "$comment": "The church's adaptive messages (issue 6, slice 1). An adaptive message has several versions, called adaptations, and Rock's adaptivemessage Lava command shows each person the first active adaptation, by its order, whose personalization segments include them. An adaptation with no segments fits everyone, so it goes last as the fallback. Each segment is a person data view from reporting.json, so flows, reports, and messages agree. The loader writes each segment the way Rock's segment editor saves it (refreshed daily, the editor's default) and the people Rock's Update Personalization Data job would put in it on install day, then the messages, their adaptations, and their text from content/adaptive-messages/messages.json. A segment whose view this load did not write is skipped, and so is every adaptation that names it, because an adaptation with no segments would show to everyone. 'security' on a segment follows the consumer rule in docs/reporting.md: a segment built on a Finance view is locked as tightly as Finance. Rock's segment Results page checks no segment's own security, so 'resultsPage' locks it the same way. 'dates' set an adaptation's start and end at load: 'before-baptism-sunday' runs from 'days' before the next baptism Sunday through that Sunday, and 'camp-registration' is the open registration window of the next Student Camp. A message's 'dates' of 'campaign' are the Built on the Rock fund's dates. 'saturation' is Rock's View Saturation: the adaptation steps aside after that many views in that many days. 'pages' are External Website pages that text links may name as page:<key>; the loader links them as /page/<Id>. 'cast' are Cast people whose adaptation every load checks, and verify renders the Lava command for each in real Rock. A row is judged only on a day its adaptation is in season and its message makes the homepage's cards. 'display' adds an HTML Content block that shows the messages, with the adaptivemessage command enabled, to a page: the External Website homepage, in its Section A zone. Its Lava is the content file it names. Rock shows the messages in the order listed here, and the homepage shows at most four cards, one per message, so in the weeks before a baptism Sunday Student Camp, the last message, is cut.",
   "category": "church-adaptive-messages",
   "segmentRefreshMinutes": 1440,
   "pages": {
@@ -38,6 +38,13 @@
   },
   "segments": [
     {
+      "key": "already-leading",
+      "name": "Already Leading",
+      "dataView": "already-leading",
+      "guid": "407E4CB6-BBBD-49C8-B37B-A6DEB3400664",
+      "description": "Adults who lead an active small group or an active serving team today."
+    },
+    {
       "key": "ready-to-lead",
       "name": "Ready to Lead",
       "dataView": "ready-to-lead",
@@ -59,11 +66,32 @@
       "description": "Adults who belong and have not taken an Equip step yet."
     },
     {
+      "key": "serving-without-equip",
+      "name": "Serving Without an Equip Step",
+      "dataView": "serving-without-equip",
+      "guid": "9A7B9E53-25C1-45FE-96B0-97C1F04CA2BA",
+      "description": "Adults on an active serving team who have not taken an Equip step yet."
+    },
+    {
       "key": "ready-to-belong",
       "name": "Ready to Belong",
       "dataView": "ready-to-belong",
       "guid": "690FC5C4-51D6-4F09-A233-11C1FEDCA8E1",
       "description": "Regular attenders who are not in a small group."
+    },
+    {
+      "key": "attended-last-8-weeks",
+      "name": "Attended in the Last 8 Weeks",
+      "dataView": "attended-last-8-weeks",
+      "guid": "1BA3B5E0-01AD-4E2D-9C62-A42712F22BD8",
+      "description": "Adults who came to a worship service in the last 8 weeks."
+    },
+    {
+      "key": "drifting-adults",
+      "name": "Drifting Adults",
+      "dataView": "drifting-adults",
+      "guid": "3AFC5F9B-02E3-476D-AF9E-CE7DBF3DB80B",
+      "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days."
     },
     {
       "key": "guests-coming-back",
@@ -80,11 +108,25 @@
       "description": "Regular attenders who have not taken the Baptism step."
     },
     {
+      "key": "baptized-regular-attenders",
+      "name": "Baptized Regular Attenders",
+      "dataView": "baptized-regular-attenders",
+      "guid": "92F759A4-938F-4D0D-AEC2-FE74656903B0",
+      "description": "Regular attenders who have taken the Baptism step."
+    },
+    {
       "key": "students-attending",
       "name": "Students Attending the Student Service",
       "dataView": "students-attending",
       "guid": "33E20107-A061-47CF-8FEA-478BE46538E7",
       "description": "Students in grades 7 to 12 who checked in to the student service in the last 12 weeks."
+    },
+    {
+      "key": "parents-of-students",
+      "name": "Parents of Students",
+      "dataView": "parents-of-students",
+      "guid": "055444C1-7B25-4B24-BC24-B07A8F37A653",
+      "description": "Adults whose family has a student in grades 7 to 12."
     },
     {
       "key": "built-on-the-rock-pledge-households",
@@ -253,9 +295,29 @@
     {
       "key": "your-next-step",
       "name": "Your Next Step",
-      "description": "One next step on the path for each person, from the stage they have reached. People who fit no stage are invited to plan a visit.",
+      "description": "One next step on the path for each person, from the stage they have reached. People who stopped coming hear first that we miss them, people who already lead are asked to invite a friend, and people who fit no stage are invited to plan a visit.",
       "guid": "2316296B-C84A-4845-A339-340E9925443E",
       "adaptations": [
+        {
+          "key": "we-miss-you",
+          "name": "We Miss You",
+          "segments": [
+            "drifting-adults"
+          ],
+          "guid": "17C5316A-37C1-4D68-A6B6-5AE8146D8300",
+          "saturation": {
+            "views": 2,
+            "days": 30
+          }
+        },
+        {
+          "key": "invite-a-friend",
+          "name": "Invite a Friend",
+          "segments": [
+            "already-leading"
+          ],
+          "guid": "8C17E48E-FC0D-4B4C-805C-ED4713871E9F"
+        },
         {
           "key": "lead",
           "name": "Lead a Group",
@@ -276,7 +338,8 @@
           "key": "grow",
           "name": "Take Foundations",
           "segments": [
-            "ready-to-grow"
+            "ready-to-grow",
+            "serving-without-equip"
           ],
           "guid": "483D9B44-9BD4-40CD-830C-6CDB1448AE58"
         },
@@ -295,6 +358,14 @@
             "guests-coming-back"
           ],
           "guid": "985756FC-DDFA-4885-992D-DD5731577E1E"
+        },
+        {
+          "key": "find-your-next-step",
+          "name": "Find Your Next Step",
+          "segments": [
+            "attended-last-8-weeks"
+          ],
+          "guid": "7F20C4AF-A95C-4BD5-9731-8C9E168B5A19"
         },
         {
           "key": "plan-a-visit",
@@ -332,6 +403,12 @@
             "views": 3,
             "days": 7
           }
+        },
+        {
+          "key": "see-what-were-building",
+          "name": "See What We're Building",
+          "segments": [],
+          "guid": "AC2645F6-A389-4E4C-B7F5-70B3EB280244"
         }
       ]
     },
@@ -356,28 +433,31 @@
             "views": 3,
             "days": 7
           }
-        }
-      ]
-    },
-    {
-      "key": "student-camp",
-      "name": "Student Camp",
-      "description": "An invitation to Student Camp, for students who come to the student service, while camp registration is open.",
-      "guid": "8B08ED64-76ED-4E69-9C36-B9553BB3C712",
-      "adaptations": [
+        },
         {
-          "key": "register",
-          "name": "Register for Camp",
+          "key": "whos-your-one",
+          "name": "Who's Your One",
           "segments": [
-            "students-attending"
+            "baptized-regular-attenders"
           ],
-          "guid": "DC1048A1-8036-4A8A-848F-33AF00919F79",
+          "guid": "C3E0A734-24A1-4B1C-A41D-7BBB409D9EBA",
           "dates": {
-            "rule": "camp-registration"
+            "rule": "before-baptism-sunday",
+            "days": 35
           },
           "saturation": {
             "views": 3,
             "days": 7
+          }
+        },
+        {
+          "key": "come-celebrate",
+          "name": "Come Celebrate",
+          "segments": [],
+          "guid": "5CF28B06-DB05-45C2-A4EF-9B0D105A6DFB",
+          "dates": {
+            "rule": "before-baptism-sunday",
+            "days": 35
           }
         }
       ]
@@ -450,6 +530,53 @@
           "name": "Ways to Give",
           "segments": [],
           "guid": "DF521D63-ACD5-4392-8E36-2E71284DA561"
+        }
+      ]
+    },
+    {
+      "key": "student-camp",
+      "name": "Student Camp",
+      "description": "An invitation to Student Camp, for students who come to the student service, while camp registration is open.",
+      "guid": "8B08ED64-76ED-4E69-9C36-B9553BB3C712",
+      "adaptations": [
+        {
+          "key": "register",
+          "name": "Register for Camp",
+          "segments": [
+            "students-attending"
+          ],
+          "guid": "DC1048A1-8036-4A8A-848F-33AF00919F79",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "get-your-student-to-camp",
+          "name": "Get Your Student to Camp",
+          "segments": [
+            "parents-of-students"
+          ],
+          "guid": "BD62EE3F-BC44-40D9-BA56-75CF0F4BB815",
+          "dates": {
+            "rule": "camp-registration"
+          },
+          "saturation": {
+            "views": 3,
+            "days": 7
+          }
+        },
+        {
+          "key": "know-a-student",
+          "name": "Know a Student",
+          "segments": [],
+          "guid": "7792B0C4-A92B-44D3-9E29-954BDFCC87F6",
+          "dates": {
+            "rule": "camp-registration"
+          }
         }
       ]
     }
@@ -618,8 +745,71 @@
       "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
       "name": "Ted Decker",
       "message": "your-next-step",
-      "adaptation": "plan-a-visit",
-      "reason": "Already leads, so no next-step segment fits him and he sees the fallback."
+      "adaptation": "invite-a-friend",
+      "reason": "Leads the Decker Group, so his next step is to invite a friend."
+    },
+    {
+      "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+      "name": "Pete Foster",
+      "message": "your-next-step",
+      "adaptation": "invite-a-friend",
+      "reason": "Leads the Foster Group and the Prayer Team, so his next step is to invite a friend."
+    },
+    {
+      "person": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A",
+      "name": "Matt Hughes",
+      "message": "your-next-step",
+      "adaptation": "find-your-next-step",
+      "reason": "Comes most Sundays, is in a small group, and serves with the students, but fits no other next-step layer."
+    },
+    {
+      "person": "F24B151A-4679-4066-A52F-78DF11FFEA9A",
+      "name": "Luis Ortiz",
+      "message": "your-next-step",
+      "adaptation": "we-miss-you",
+      "reason": "A regular for seven years who stopped coming about six months ago, so he hears that we miss him before any growth ask."
+    },
+    {
+      "person": "5B54D997-EFD1-4824-B1E1-22F82ED8413A",
+      "name": "Teresa Ortiz",
+      "message": "your-next-step",
+      "adaptation": "we-miss-you",
+      "reason": "A regular for seven years who stopped coming about six months ago, so she hears that we miss her before any growth ask."
+    },
+    {
+      "person": "B71494DB-D809-451A-A950-28898D0FD92C",
+      "name": "Cindy Decker",
+      "message": "baptism-sunday",
+      "adaptation": "whos-your-one",
+      "reason": "Comes every week and was baptized, so before each Baptism Sunday she is asked to pray for one friend and invite them. Judged only in its season."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "baptism-sunday",
+      "adaptation": "come-celebrate",
+      "reason": "Has not come on a Sunday yet, so she sees the invitation to come celebrate. Judged only in its season."
+    },
+    {
+      "person": "9DC608C3-73B3-4BA2-8C85-FF8010F1EBF2",
+      "name": "Sarah Lee",
+      "message": "student-camp",
+      "adaptation": "get-your-student-to-camp",
+      "reason": "Her children Ben and Abigail are students, so she is asked to register them for camp. Judged only while camp registration is open."
+    },
+    {
+      "person": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+      "name": "Margaret Carter",
+      "message": "student-camp",
+      "adaptation": "know-a-student",
+      "reason": "Has no student at home, so she is asked to share camp with one. Judged only while camp registration is open."
+    },
+    {
+      "person": "3E7384C8-9E7A-407D-BE01-54C9A02B281F",
+      "name": "Bri Hall",
+      "message": "built-on-the-rock",
+      "adaptation": "see-what-were-building",
+      "reason": "Has not made a commitment and is not an Involved Adult yet, so she sees the plans with no ask."
     }
   ]
 }
