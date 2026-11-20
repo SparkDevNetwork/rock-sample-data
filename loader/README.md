@@ -297,22 +297,22 @@ The numbers were measured with the CLI: the default seed, 3 years of history, an
 
 Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 
-Each verify receipt records how much database space its load needs (`load.space`), and each card's `databaseSpaceMegabytes` comes from it: the data and log files at their largest, added together, and rounded up to the next 100 MB. The trusted base starts at 392 MB of data and a 520 MB log, so the numbers include the new Rock install. A load runs in one transaction, so the log holds the whole load until it commits. Verify measured these on Rock 21.0.2 on 2026-10-31, on the data in the alpha.17 landing (communication flows and reporting included), with check images:
+Each card's `databaseSpaceMegabytes` is the space a church's install needs: the data and log files at their largest after a load of every part, check images included, added together, and rounded up to the next 100 MB (decision 356). It comes from a load with `IsCastExpectationsChecked` off, as Rock's block loads, on a fresh copy of the trusted base. The trusted base starts at 392 MB of data and a 72 MB log, so the numbers include the new Rock install. A load runs in one transaction, so the log holds the whole load until it commits. Measured on 2026-11-20, on the data in the alpha.18 landing, with check images. Rock 21.0.2 and Rock 20.0.10 agreed to the megabyte:
 
 | Dataset | Data file after the load | Log file after the load | Both | On the card |
 |---|---|---|---|---|
-| Core 1 | 904 MB | 520 MB | 1,424 MB | 1,500 MB, about 1.5 GB |
-| Core 3 | 1,096 MB | 648 MB | 1,744 MB | 1,800 MB, about 1.8 GB |
-| Full 7 | 6,088 MB | 8,200 MB | 14,288 MB | 14,800 MB, about 14 GB |
+| Core 1 | 1,032 MB | 264 MB | 1,296 MB | 1,300 MB, about 1.3 GB |
+| Core 3 | 1,160 MB | 456 MB | 1,616 MB | 1,700 MB, about 1.7 GB |
+| Full 7 | 6,664 MB | 8,392 MB | 15,056 MB | 15,100 MB, about 15 GB |
 
-On 2026-11-17, with person attributes, assessments, refunds, and adaptive messages, Full 7's data file reached 6,280 MB on Rock 21.0.2 and Rock 20.0.10. Its log reached 8,392 MB on Rock 21.0.2 and 8,456 MB on Rock 20.0.10, for 14,736 MB at most. So its card asks for 14,800 MB, never below a measured run. Core 1 and Core 3 measured the same as above on both.
+Each verify receipt records its load's space too (`load.space`), but it reads higher than the card, because it includes check overhead. Verify and the loader CLI turn the Cast expectations on, and two of their checks run Rock's own procedures inside the load's transaction: Rock's eRA procedure and Rock's two peer network procedures. They roll back, but their rows hold log space until the load commits. On 2026-11-19, the same Full 7 package needed 14,928 MB with the checks off and 15,376 MB with them on, about 450 MB more, almost all of it log.
 
 The earlier measurements used a copy of `RockSample-base`, and each install time was about a second longer there. No load finishes on that database now. It is an older Rock whose Create Pledge page has Rock's Obsidian Pledge Entry block in place of block `4898B608-4A08-4C1B-97A7-0500D708B5D2`, the one the campaign setup points at. The shorter times come from the base, not the loader, because the campaign only adds a few statements to the configuration step.
 
-When a change to the data moves a number past 2%, verify fails. Measure again and update the card. One run:
+When a change to the data moves a number past 2%, measure again and update the card. Load the package through the library into a fresh copy of the trusted base, with `IsCastExpectationsChecked` off, then read each file's size from `sys.database_files`. The loader CLI always turns the Cast expectations on, so a CLI load reads like a receipt:
 
 ```
-rock-sample-data-load --package core-1.zip --connection "<a fresh copy of RockSampleVerify-base>" --check-images --rock C:\Development\Rock
+rock-sample-data-load --package core-1.zip --connection "<a fresh copy of RockSampleVerify-base>" --check-images --rock C:\Development\Rock-21
 ```
 
 Copy the base by backup and restore while holding a shared `sp_getapplock` on its name, the lock the verify tool takes, so the copy never catches the base while verify rebuilds it.
