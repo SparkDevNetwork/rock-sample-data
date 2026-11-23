@@ -192,6 +192,131 @@ namespace RockSampleData.Loader.Generation
             return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal, PhoneNumber ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
         }
 
+        /*
+            11/23/26 - CLAUDE
+
+            About 1% of a real church's people have a second record: a connection card, a registration, or a kiosk made
+            one when the person was not found. The second record is Pending, has no birth date, and carries what a form
+            asks for: the name the person goes by and the email or mobile they gave. Rock's duplicate finder scores a
+            pair like this at 12 or more out of 29, a confidence of at least 64, so the Duplicate Finder lists it until
+            staff decide. A person who goes by their first name but whose name has a usual nickname sometimes writes
+            the nickname, which Rock does not match as a first name, so that record shares both the email and the mobile
+            and still scores 13. Staff have merged some records, set some aside with Ignore, and left the rest open.
+            Each person's draws come from their own stream, and the records come after every plan, so nothing else
+            about the Crowd changes.
+
+            Reason: The Duplicate Finder and Rock's merge pages show the Crowd's duplicates, as in a real church
+            (decisions D-crowd-names-4 and D-crowd-names-5).
+        */
+
+        /// <summary>
+        /// Gives about the rules' percent of generated people a second record: a Pending record in a family of its own,
+        /// or, for a merged one, only what Rock's merge left. Only adults with an email or a mobile get one.
+        /// </summary>
+        public CrowdDuplicates GenerateDuplicates( IReadOnlyList<CastHousehold> generated, CrowdDuplicateRules rules )
+        {
+            var duplicates = new CrowdDuplicates();
+            if ( rules == null || rules.PercentOfPeople <= 0 )
+            {
+                return duplicates;
+            }
+
+            var people = generated.Where( h => h.Kind != "business" ).SelectMany( h => h.Members.Select( m => (Household: h, Person: m) ) ).ToList();
+            var eligible = people.Where( x => x.Person.FamilyRole == "adult" && x.Person.RecordStatus == "active" && ( x.Person.Email != null || x.Person.Phones?.Mobile != null ) ).ToList();
+            var chance = eligible.Count == 0 ? 0 : Math.Min( 1, rules.PercentOfPeople / 100 * people.Count / eligible.Count );
+            foreach ( var (household, person) in eligible )
+            {
+                var random = new SeededRandom( $"{_seed}:crowd:duplicate:{person.Key}" );
+                if ( !random.Chance( chance ) )
+                {
+                    continue;
+                }
+
+                var decision = random.Pick( rules.Decisions );
+
+                // A form asks for an email and a phone. Someone with both gives both half the time.
+                var sharesEmail = person.Email != null;
+                var sharesMobile = person.Phones?.Mobile != null;
+                if ( sharesEmail && sharesMobile )
+                {
+                    var roll = random.Between( 0.0, 1.0 );
+                    sharesEmail = roll < 0.8;
+                    sharesMobile = roll < 0.5 || roll >= 0.8;
+                }
+
+                var goesBy = person.NickName ?? person.FirstName;
+                var nickname = _names.Nicknames( person.FirstName ).FirstOrDefault();
+                var writesNickname = person.NickName == null && nickname != null && sharesEmail && sharesMobile && random.Chance( 0.5 ) && !_castNames.Contains( FullName( nickname, person.LastName ) );
+                var key = $"{person.Key}-duplicate";
+                var record = new CastPerson
+                {
+                    Key = $"{key}-0",
+                    Guid = random.NextGuid(),
+                    RecordType = "person",
+                    FirstName = writesNickname ? nickname : goesBy,
+                    LastName = person.LastName,
+                    Gender = person.Gender,
+                    FamilyRole = "adult",
+                    RecordStatus = "pending",
+                    ConnectionStatus = "Prospect",
+                    Email = sharesEmail ? person.Email : null,
+                    EmailIsActive = person.EmailIsActive,
+                    Phones = sharesMobile ? new CastPhones { Mobile = person.Phones.Mobile } : null
+                };
+
+                var original = new CastPersonReference { Guid = person.Guid, Name = FullName( goesBy, person.LastName ) };
+                if ( decision == "merged" )
+                {
+                    duplicates.Merges.Add( new CastMerge
+                    {
+                        Key = key,
+                        Person = original,
+                        Record = new CastMergedRecord { Guid = record.Guid, FirstName = record.FirstName, LastName = record.LastName },
+                        MergedBy = rules.DecidedBy,
+                        Merged = WorkdayAgo( random, rules.MergedDaysAgo ),
+                        RecordCameLater = true
+                    } );
+                    continue;
+                }
+
+                duplicates.Records.Add( new CastHousehold
+                {
+                    Key = key,
+                    Guid = random.NextGuid(),
+                    Name = $"{person.LastName} Family",
+                    Kind = "family",
+                    CampusSlot = household.CampusSlot,
+                    DuplicateOf = household.Key,
+                    Attendance = new CastAttendance { PercentAttended = 0 },
+                    Members = { record }
+                } );
+
+                var isIgnored = decision == "ignored";
+                duplicates.Pairs.Add( new CastDuplicatePair
+                {
+                    Key = key,
+                    People = new List<CastPersonReference> { original, new CastPersonReference { Guid = record.Guid, Name = FullName( record.FirstName, record.LastName ) } },
+                    Decision = isIgnored ? "ignored" : "open",
+                    DecidedBy = isIgnored ? rules.DecidedBy : null,
+                    Decided = isIgnored ? WorkdayAgo( random, rules.DecidedDaysAgo ) : null
+                } );
+            }
+
+            return duplicates;
+        }
+
+        /// <summary>
+        /// A weekday office-hours moment the given number of days before install, from the range's first number to its last.
+        /// </summary>
+        private RelativeDate WorkdayAgo( SeededRandom random, int[] daysAgo )
+        {
+            var days = random.Between( daysAgo[0], daysAgo[1] );
+            var day = _anchor.Date.AddDays( -days ).DayOfWeek;
+            days += day == DayOfWeek.Saturday ? 1 : day == DayOfWeek.Sunday ? 2 : 0;
+            var minutes = random.Between( 8 * 60 + 30, 16 * 60 + 30 );
+            return new RelativeDate { DaysAgo = days, Time = $"{minutes / 60:D2}:{minutes % 60:D2}" };
+        }
+
         /// <summary>
         /// Builds one household with its attendance and giving history.
         /// </summary>
@@ -923,5 +1048,17 @@ namespace RockSampleData.Loader.Generation
                 _ => 1.0
             };
         }
+    }
+
+    /// <summary>
+    /// The Crowd's duplicate records: the Pending records that load as people, each pair's decision, and the merges.
+    /// </summary>
+    internal sealed class CrowdDuplicates
+    {
+        public List<CastHousehold> Records { get; } = new List<CastHousehold>();
+
+        public List<CastDuplicatePair> Pairs { get; } = new List<CastDuplicatePair>();
+
+        public List<CastMerge> Merges { get; } = new List<CastMerge>();
     }
 }

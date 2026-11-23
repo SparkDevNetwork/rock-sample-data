@@ -1,6 +1,6 @@
 {
   "$schema": "./duplicates.schema.json",
-  "$comment": "The Cast's duplicate records and what staff did about them (docs/duplicates.md, decisions 310 to 312 and 314). Every load runs Rock's duplicate finder at its end, then writes each pair's decision. A pair names two Cast people in either order. Dates count back from the install day.",
+  "$comment": "The Cast's duplicate records and what staff did about them (docs/duplicates.md, decisions 310 to 312 and 314), and the rules for the Crowd's (crowd). Every load runs Rock's duplicate finder at its end, then writes each pair's decision. A pair names two Cast people in either order. Dates count back from the install day.",
   "pairs": [
     {
       "key": "tom-and-thomas-miller",
@@ -99,5 +99,13 @@
       "merged": { "yearsAgo": 2, "month": 4, "day": 14, "time": "10:05" },
       "story": "Sarah's first record was Sarah Jones, from when she came with Ben. After she married Jim, she got a second record as Sarah Simmons in his family. Alisha merged the old Sarah Jones record into it. Rock kept the old record's alias, wrote a Merged line in Sarah's History, and saved Jones as her previous last name."
     }
-  ]
+  ],
+  "crowd": {
+    "$comment": "How generated people get a second record (decisions D-crowd-names-4 and D-crowd-names-5). About percentOfPeople of generated people have one, drawn from adults with an email or a mobile. decisions weighs the states: open stays in the Duplicate Finder, ignored was set aside, and merged was merged into the person. decidedBy sets pairs aside and merges records, on a weekday a number of days before install in the given range.",
+    "percentOfPeople": 1,
+    "decisions": { "open": 50, "ignored": 15, "merged": 35 },
+    "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },
+    "decidedDaysAgo": [ 3, 365 ],
+    "mergedDaysAgo": [ 14, 730 ]
+  }
 }

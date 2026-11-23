@@ -1,6 +1,6 @@
 # Duplicates
 
-How duplicate person records work in the sample data, and why. The decisions are 310 to 312, 314, and 313 in [Decisions](decisions.md). The Cast's duplicate stories live in `cast/duplicates.json`.
+How duplicate person records work in the sample data, and why. The decisions are 310 to 312, 314, 313, and D-crowd-names-4 to D-crowd-names-6 in [Decisions](decisions.md). The Cast's duplicate stories, and the rules for the Crowd's, live in `cast/duplicates.json`.
 
 ## The idea
 
@@ -25,9 +25,10 @@ The load runs Rock's procedure itself, as its last step, after every person, pho
 | Dataset | Time | Pairs | Listed in the Duplicate Finder |
 |---|---|---|---|
 | Core 1 | under a second | 9 | 3, all the Cast's |
-| Full 7 | about 11 seconds | about 14,400 | 3, all the Cast's |
+| Core 3 | about a second | 16 | 3, all the Cast's |
+| Full 7 | about 11 seconds | about 14,700 | 112: the Cast's 3 and 109 Crowd duplicates |
 
-Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision 357), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address.
+Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision 357), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address. The pairs above 60 are the real duplicates.
 
 Households with the same address share one Location, as Rock's address editor saves them (decision 314). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
 
@@ -63,12 +64,54 @@ Sarah Simmons's first record was Sarah Jones, from when she came with Ben. After
 
 The merge also deletes the old record's phones and family memberships, so nothing else is left.
 
+## The Crowd's duplicates
+
+About 1% of generated people have a second record (decisions D-crowd-names-4 and D-crowd-names-5). The rules are `crowd` in `cast/duplicates.json`.
+
+A second record is what a connection card, a registration, or a kiosk makes when it does not find someone already in Rock:
+
+1. **Pending.** A Prospect in a family of its own, at the person's campus.
+2. **The name they go by.** Bob, when Robert goes by Bob. Half the people who go by their first name but have a usual nickname write the nickname, when they give both an email and a mobile.
+3. **No birth date,** address, or marital status.
+4. **The email or mobile they gave.** Someone with both gives both half the time, the email alone 30%, and the mobile alone 20%.
+
+Only adults with an email or a mobile get one. A duplicate record takes no part in church life: it never attends, gives, serves, or joins a group or list, and the load gives it no note, tag, step, text, photo, or login (decision D-crowd-names-6). Rock's own jobs and data views still see it.
+
+### How Rock scores them
+
+Rock's confidence works out to 100 times the square root of the score over 29, so a pair needs a score of 11 to pass the Duplicate Finder's 60. A Crowd pair scores these:
+
+| Match | Points |
+|---|---|
+| Email | 4 |
+| Mobile | 4 |
+| First name or nickname | 3 |
+| Last name | 3 |
+| Gender | 1 |
+| Campus | 1 |
+| Last name and the first two letters of the first name | 1 |
+
+One shared contact and the name the person goes by score 12 or 13, a confidence of 64 or 67. A nickname the person never gave Rock does not match the first name, so that record gives both contacts and scores 13 or 14. In Full 7, every Crowd pair scores 12 to 17.
+
+### What staff did
+
+| State | Share | What Rock shows |
+|---|---|---|
+| Open | 50% | The Duplicate Finder lists the person. |
+| Set aside | 15% | Alisha Marble clicked Ignore on a weekday in the last year. Rock shows the pair again if its score changes. |
+| Merged | 35% | Alisha merged the record in the last two years. Its alias is on the person, with the Id just after theirs, since the record was made later, and their History has a Merged line. |
+
+| Dataset | Duplicate records | Open | Set aside | Merged |
+|---|---|---|---|---|
+| Core 1 | none, since it has no Crowd | | | |
+| Core 3 | 1 | 0 | 0 | 1 |
+| Full 7 | 249 | 109 | 40 | 100 |
+
+Counts are at the default seed. Core 3's companions are about 225 people, so 1% is about 2, and the draw gave 1.
+
 ## How it is checked
 
 1. **validate-cast.js** checks `cast/duplicates.json`: every person is a Cast person with that name, each pair is listed once, a decided pair names a staff member and a date, and a merged record's Guid is no Cast person's.
-2. **Cast expectations** (every CLI load and the verify tool) check each pair's decision, that the Duplicate Finder lists each open pair, the merge request, and Sarah's alias, History line, and previous name. A missing pair or a wrong decision fails.
-3. **The verify tool's `person-duplicates` check** runs Rock's own Calculate Person Duplicates job after each load, as its scheduler does, and compares every pair before and after. A pair added, removed, or rescored, or a decision lost, fails. See [Verification](verification.md).
-
-## Not built yet
-
-Crowd duplicates are next ([#42](https://github.com/SparkDevNetwork/rock-sample-data/issues/42)), now that the Crowd has real names: a share of the Crowd with a second, Pending record, often under a nickname, with no birth date and a shared email or mobile. See [Planned work](planned.md).
+2. **Cast expectations** (every CLI load and the verify tool) check each pair's decision, that the Duplicate Finder lists each open pair, the merge request, and Sarah's alias, History line, and previous name. A missing pair or a wrong decision fails. They also check that Rock pairs each Crowd duplicate record with its person, listed above 60 or set aside.
+3. **Invariants** let two people in different families share an email or a number only as duplicate records of one person: the same last name, and a shared contact or one of them a Pending record from a form.
+4. **The verify tool's `person-duplicates` check** runs Rock's own Calculate Person Duplicates job after each load, as its scheduler does, and compares every pair before and after. A pair added, removed, or rescored, or a decision lost, fails. See [Verification](verification.md).

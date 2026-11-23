@@ -35,6 +35,7 @@ The words this project uses, in alphabetical order.
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
 | **Duplicate pair** | Two person records Rock's duplicate finder scores as maybe one person. Staff leave a pair open, mark it Not Duplicate, or Ignore it until its score changes. The Duplicate Finder lists open pairs above a confidence of 60. See [Duplicates](duplicates.md). |
+| **Duplicate record** | A second record for someone already in Rock, made by a form or a kiosk that did not find them. In the Crowd it is Pending, under the name the person goes by, with no birth date and the email or mobile they gave. It takes no part in church life. See [Duplicates](duplicates.md#the-crowds-duplicates). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Email section** | A saved block staff drag into an email in Rock's newer email editor, such as Service Times. Rock keeps its markup, a usage summary, and a thumbnail, and the editor's Sections panel lists it by category. See [Email sections](communications.md#email-sections). |
 | **eRA** | Rock's "estimated regular attender" status for a family that comes or gives regularly. Rock's Family Analytics job sets it each Tuesday, with an eRA step in Rock's Core Steps program. The load fills it as if the job had run every week of the history window, and turns the job on. See [Steps](steps.md#era). |
@@ -55,6 +56,7 @@ The words this project uses, in alphabetical order.
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Merge request** | A merge asked for by someone who cannot merge people. Rock keeps it until someone merges or deletes it, on the Merge Requests page. See [Duplicates](duplicates.md). |
 | **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view. See [Data views and reports](reporting.md). |
+| **Name tables** | The public-domain tables generated people are named from: first names by gender and birth decade, surnames, and nicknames, in `names/`. See [Names](../names/README.md). |
 | **Notification message** | A message in a person's bell in Rock's top bar, which counts the unread ones. A mention in a recent note leaves one for the staff member it mentions, and it opens the note (decision 307). |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Organizational tag** | A tag staff share. It sits in a tag category, whose security decides who can see it and tag people with it, such as Homebound in Care (decision 303). |

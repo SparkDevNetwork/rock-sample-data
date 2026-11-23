@@ -74,24 +74,22 @@ namespace RockSampleData.Loader.Loading
         private const int FinderHour = 3;
 
         private readonly RockDatabase _db;
-        private readonly SampleDataSource _source;
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
 
-        public DuplicatesLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey )
+        public DuplicatesLoader( RockDatabase db, AnchorDates dates, string foreignKey )
         {
             _db = db;
-            _source = source;
             _dates = dates;
             _foreignKey = foreignKey;
         }
 
         /// <summary>
-        /// Writes the finished merges, runs Rock's duplicate finder, then writes the Cast's decisions and merge requests.
+        /// Writes the finished merges, runs Rock's duplicate finder, then writes the decisions and merge requests: the
+        /// Cast's from cast/duplicates.json, and the Crowd's generated duplicates.
         /// </summary>
-        public void Load( PeopleLoader people )
+        public void Load( PeopleLoader people, CastDuplicatesFile duplicates )
         {
-            var duplicates = _source.ReadCastDuplicates();
             WriteMerges( duplicates.Merges, people );
             RunFinder();
             WriteDecisions( duplicates.Pairs, people );
@@ -151,7 +149,9 @@ END",
                     P( "@MergedBy", mergedBy ), P( "@When", when ), P( "@ForeignKey", _foreignKey ) );
             }
 
-            _db.Log.Write( $"  Merges already made: {merges.Count:N0} ({string.Join( ", ", merges.Select( m => $"{m.Record.FullName} into {m.Person.Name}" ) )})" );
+            var crowdMerges = merges.Count( m => m.RecordCameLater );
+            var named = merges.Where( m => !m.RecordCameLater ).Select( m => $"{m.Record.FullName} into {m.Person.Name}" ).Concat( crowdMerges > 0 ? new[] { $"{crowdMerges:N0} Crowd record{( crowdMerges == 1 ? string.Empty : "s" )}" } : Array.Empty<string>() );
+            _db.Log.Write( $"  Merges already made: {merges.Count:N0} ({string.Join( ", ", named )})" );
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ WHERE ( [PersonAliasId] = @First AND [DuplicatePersonAliasId] = @Second ) OR ( [
                     P( "@First", people.People[pair.People[0].Guid].AliasId ), P( "@Second", people.People[pair.People[1].Guid].AliasId ) );
             }
 
-            _db.Log.Write( $"  Cast duplicate decisions: {decided:N0} pairs marked Not Duplicate or ignored" );
+            _db.Log.Write( $"  Duplicate decisions: {decided:N0} pairs marked Not Duplicate or ignored" );
         }
 
         /*

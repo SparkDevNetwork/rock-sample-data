@@ -219,11 +219,16 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
         }
 
         /// <summary>
+        /// Rock's Pending record status.
+        /// </summary>
+        private static readonly Guid PendingRecordStatusGuid = new Guid( "283999EC-7346-42E3-B807-BCE9B2BABB49" );
+
+        /// <summary>
         /// Checks cast/duplicates.json against Rock's tables. Rock's duplicate finder scored each Cast pair, the pair has its
         /// decision, and the Duplicate Finder lists each open pair (decisions 310 and 311). Each merge
         /// request is a Person Merge Request that never expires, with its requester, note, and people. Each finished merge
         /// left the old record's alias on the person, the Merged History line, and the old last name as a previous name when
-        /// it differs (decision 312).
+        /// it differs (decision 312). Each of the Crowd's Pending duplicate records is listed with its person or set aside.
         /// </summary>
         private static int CheckDuplicates( RockDatabase db, SampleDataSource source, CastPersonGuids guids, List<string> failures )
         {
@@ -338,6 +343,33 @@ WHERE [pa].[PersonId] = @PersonId AND [pn].[LastName] = @LastName", P( "@PersonI
                         failures.Add( $"{name}: expected {merge.Record.LastName} once as a previous last name, Rock shows it {previousNames} times" );
                     }
                 }
+            }
+
+            /*
+                11/23/26 - CLAUDE
+
+                The Crowd's duplicate records are generated, so the file does not list them. Every Pending record that is not
+                the Cast's is one, and Rock's finder pairs it with its person, who has the same last name: listed in the
+                Duplicate Finder while open, or set aside.
+
+                Reason: Each Crowd duplicate shows in Rock the way its decision says (decisions D-crowd-names-4 and D-crowd-names-5).
+            */
+            var cast = source.ReadHouseholds().SelectMany( h => h.Members ).Select( m => guids.Rock( m.Guid ) ).ToHashSet();
+            var crowdRecords = db.Query( @"
+SELECT [p].[Guid], [p].[NickName] + ' ' + [p].[LastName] AS [Name], (
+    SELECT MAX( CASE WHEN [pd].[IgnoreUntilScoreChanges] = 1 OR [pd].[ConfidenceScore] > @Minimum THEN 1 ELSE 0 END )
+    FROM [PersonDuplicate] AS [pd]
+    INNER JOIN [PersonAlias] AS [a1] ON [a1].[Id] = [pd].[PersonAliasId]
+    INNER JOIN [PersonAlias] AS [a2] ON [a2].[Id] = [pd].[DuplicatePersonAliasId]
+    INNER JOIN [Person] AS [o] ON [o].[Id] = CASE WHEN [a1].[PersonId] = [p].[Id] THEN [a2].[PersonId] ELSE [a1].[PersonId] END
+    WHERE ( [a1].[PersonId] = [p].[Id] OR [a2].[PersonId] = [p].[Id] ) AND [o].[LastName] = [p].[LastName] AND [pd].[IsConfirmedAsNotDuplicate] = 0 ) AS [Found]
+FROM [Person] AS [p]
+WHERE [p].[RecordStatusValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = @Pending )",
+                P( "@Pending", PendingRecordStatusGuid ), P( "@Minimum", DuplicatesLoader.FinderListMinimum ) ).Where( r => !cast.Contains( ( Guid ) r["Guid"] ) ).ToList();
+            checks += crowdRecords.Count;
+            foreach ( var row in crowdRecords.Where( r => ( r["Found"] as int? ?? 0 ) == 0 ) )
+            {
+                failures.Add( $"Crowd duplicate {row["Name"]}: expected Rock's duplicate finder to pair it with its person, listed above {DuplicatesLoader.FinderListMinimum:N0} or set aside" );
             }
 
             return checks;

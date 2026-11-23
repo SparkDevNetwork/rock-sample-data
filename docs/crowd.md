@@ -18,6 +18,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 12. Every generated person's mobile and every generated business's work phone is a number no one else has, never a Cast number or one of the church's texting numbers. Numbers come from a seeded draw of the reserved 555-0100 to 555-0199 range: the Phoenix codes 602, 480, and 623 first, then the other US geographic codes in `configuration/phones.json`. The Cast and the church already hold most of the 300 Phoenix numbers, so only the first hundred or so generated numbers are in Phoenix. Core 3's companions are mostly in Phoenix. Most of Full 7's Crowd has codes from outside Phoenix, as many people in a growing metro area keep the mobile number from where they used to live (decision 259).
 13. Each campus pastor follows up with six generated adults on their campus who are Connected, Engaged, or Leading, one per household at most, as a Care Team Follow-up signal. One has no end, one ends in the next few weeks, and four ended in the last year, so most profiles show no flag. Each campus draws from its own stream (decision 282). See [How signals load](../loader/README.md#how-signals-load).
 14. Some generated people carry the church's tags, drawn by each tag's rules in `configuration/tags.json`, each person from their own seeded stream. A draw never picks a Cast person, so no Cast story gains a tag it does not tell. Homebound holds 20% of the generated adults 80 and older who live alone, at every campus (decision 304). See [Tags](../configuration/README.md#tags).
+15. About 1% of generated people have a second record, the kind a connection card or a registration makes when it does not find someone: Pending, under the name they go by, with no birth date and the email or mobile they gave. Half stay open in Rock's Duplicate Finder, 15% were set aside, and 35% were merged. A duplicate record takes no part in church life (decisions D-crowd-names-4 to D-crowd-names-6). See [Duplicates](duplicates.md#the-crowds-duplicates).
 
 ## How big the Crowd is
 
@@ -25,16 +26,16 @@ Full 7's manifest (`datasets/full-7.json`) sets how many households each campus 
 
 | Campus | Generated households | People, with the Cast and businesses |
 |---|---|---|
-| Phoenix | 3,450 | 5,338 |
-| Chandler | 2,350 | 3,501 |
-| Gilbert | 2,300 | 3,415 |
-| Peoria | 2,250 | 3,367 |
-| Scottsdale | 2,200 | 3,295 |
-| Goodyear | 2,150 | 3,202 |
-| Tempe | 2,100 | 3,175 |
-| **All seven** | **16,800** | **25,293** |
+| Phoenix | 3,450 | 5,367 |
+| Chandler | 2,350 | 3,518 |
+| Gilbert | 2,300 | 3,436 |
+| Peoria | 2,250 | 3,393 |
+| Scottsdale | 2,200 | 3,312 |
+| Goodyear | 2,150 | 3,223 |
+| Tempe | 2,100 | 3,193 |
+| **All seven** | **16,800** | **25,442** |
 
-Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed.
+Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed. They include 149 Pending duplicate records, each in a family of its own (decision D-crowd-names-4).
 
 ## Personas
 
