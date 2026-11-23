@@ -1,0 +1,58 @@
+{
+  "$comment": "History for the metrics Rock ships (issue 55). Rock's Calculate Metrics job gives a metric a value at each run of its schedule from install week on, so on install day every chart is empty. The loader writes the values Rock's job would have saved at each run of the metric's own schedule in Rock, read from the rows the load wrote, by campus where Rock splits by campus. 'metrics' are the weekly metrics, Baptisms, which runs monthly, and the Tithing Overview metrics, each with 'weeks' of history up to install. 'insights' takes every SQL metric in the four Insights categories, with 'months' of monthly runs. 'serviceEntry' fills the two weekly metrics staff type into Rock's Service Metrics Entry block. A metric with 'sourceSql' gets that SQL in place of Rock's, one string per line, before its history loads. Rock's three homepage metrics are in staff-homepage.json, the four Ministry Path metrics are in reporting.json, and the four hosting metrics stay empty.",
+  "metrics": [
+    { "key": "total-childrens-attendance", "title": "Total Children's Attendance", "guid": "1747F42D-791D-41D5-BFFC-49D6C31B9549", "weeks": 104 },
+    { "key": "total-students-attendance", "title": "Total Students Attendance", "guid": "310E5B92-E744-4E69-A832-9E395191A91C", "weeks": 104 },
+    { "key": "total-volunteer-attendance", "title": "Total Volunteer Attendance", "guid": "4F965AE3-D455-4346-988F-2A2B5E236C0C", "weeks": 104 },
+    { "key": "total-adult-attendance", "title": "Total Adult Attendance", "guid": "0D126800-2FDA-4B34-96FD-9BAE76F3A89A", "weeks": 104 },
+    { "key": "total-weekend-attendance", "title": "Total Weekend Attendance", "guid": "89553EEE-91F3-4169-9D7C-04A17471E035", "weeks": 104 },
+    { "key": "salvations", "title": "Salvations", "guid": "34EA42B9-1142-43DA-8A8B-AA1864A1CA72", "weeks": 104 },
+    { "key": "prayer-requests", "title": "Prayer Requests", "guid": "2B5ECA35-47D8-4690-A8AD-72488485F2B4", "weeks": 104 },
+    { "key": "prayers", "title": "Prayers", "guid": "685B7912-CB17-473B-90C1-2804F221931C", "weeks": 104 },
+    { "key": "giving", "title": "Giving", "guid": "43338E8A-622A-4195-B153-285E570B229D", "weeks": 104 },
+    { "key": "weekly-era-wins", "title": "Weekly eRA Wins", "guid": "D05D685A-9A88-4375-A563-70BB44FBD237", "weeks": 104 },
+    { "key": "weekly-era-losses", "title": "Weekly eRA Losses", "guid": "16A3FF64-31F0-4CFF-B5F4-83EEB69E0C25", "weeks": 104 },
+    {
+      "key": "baptisms",
+      "title": "Baptisms",
+      "guid": "8B63D9D5-A82D-49D4-9AED-2EDBCF60FDEE",
+      "weeks": 104,
+      "$comment": "Rock runs Baptisms on the 1st of each month, and its shipped SQL counts the month that has just begun, up to the day before its last day, so nearly every value is zero. The church's SQL counts the whole month before the run instead, by campus, so each value dated the 1st is the month that just ended.",
+      "sourceSql": [
+        "-- Counts the baptisms in the month before the run. Rock runs this metric on the 1st, so the month that just ended is the one to count.",
+        "DECLARE @STARTDATE DATETIME = DATEADD(mm, DATEDIFF(mm, 0, dbo.RockGetDate()) - 1, 0)",
+        "DECLARE @ENDDATE DATETIME = DATEADD(mm, 1, @STARTDATE)",
+        "DECLARE @BaptismDateAttributeId INT = (SELECT Id FROM dbo.[Attribute] WHERE [Guid] = 'D42763FA-28E9-4A55-A25A-48998D7D7FEF')",
+        "",
+        "SELECT COUNT(*) as Baptisms, p.PrimaryCampusId FROM Person p",
+        "JOIN dbo.[AttributeValue] av",
+        "ON p.[Id] = av.[EntityId]",
+        "WHERE av.[AttributeId] = @BaptismDateAttributeId",
+        "AND CONVERT(date, av.[ValueAsDateTime]) >= @STARTDATE",
+        "AND CONVERT(date, av.[ValueAsDateTime]) < @ENDDATE",
+        "GROUP BY ALL p.[PrimaryCampusId]"
+      ]
+    },
+    { "key": "tithing-percent", "title": "Tithing Overview By Campus (percent)", "guid": "F4951A42-9F71-4CB1-A46E-2A7ED84CD923", "weeks": 52 },
+    { "key": "tithing-households", "title": "Tithing Households Per Campus", "guid": "2B798177-E8F4-46DB-A1D7-308D63CA519A", "weeks": 52 },
+    { "key": "giving-households", "title": "Giving Households Per Campus", "guid": "B5BFAB51-9B46-4E7E-992E-B0119E4D25EC", "weeks": 52 }
+  ],
+  "insights": {
+    "$comment": "Rock's Insights Metrics category and its Gender, Information Completeness, and Age Range subcategories: 26 metrics that count active people by campus on the 1st of each month. Rock keeps no history of a person's fields, so each run counts today's records, less the people who had not come by then, with each person's age on that day.",
+    "months": 12,
+    "categories": [
+      "CEC746EE-76D6-477F-B7CF-374542F92041",
+      "5FAD0855-924D-4837-9E95-097565E87F48",
+      "60702C6D-9C65-4FF1-B0F9-66CC7A88DCEE",
+      "10716347-44BA-44F1-8E82-21C23445EB76"
+    ]
+  },
+  "serviceEntry": {
+    "$comment": "Total Adult Attendance and Salvations have no SQL in Rock. Staff type them into Rock's Service Metrics Entry block, for each campus and service, under the weekend's Sunday. 'enteredAt' is when they finish on Sunday, after the last service, so Monday's Total Weekend Attendance run finds them. The adult count is the people the load has in that service. A salvation is a decision step on a Sunday at the service the person came to ('decisionStepType'), or the decision behind a Baptism step marked Baptized Here ('baptismStepType'): it falls on the last Sunday the person came to a service at least 'minimumDaysBeforeBaptism' and at most 'maximumDaysBeforeBaptism' days before the baptism. Step type keys are in steps.json.",
+    "enteredAt": "13:30",
+    "decisionStepType": "follow-jesus",
+    "baptismStepType": "baptism",
+    "minimumDaysBeforeBaptism": 14,
+    "maximumDaysBeforeBaptism": 182
+  }
+}

@@ -37,7 +37,7 @@ Rock's block shows three metrics Rock ships, and the church adds the four Minist
 
 Each value is the one Rock's Calculate Metrics job would have saved at that run. Rock keeps no history of who was a record when, so a run counts today's active people whose family had come by that day. A family comes with its first check-in, gift, request, or group membership, and a family with none has always been there. Rock's Known Relationships and Peer Network groups do not count, because Rock gives one to every person and the load adds them on install day. Active Families counts each person under the campus Rock Cleanup sets each night, their family's campus. A request counts from the day it was made until the day it was connected or set inactive. Each metric's last run is set, so Rock's job next runs on schedule and does not fill in the past again. Rock's own 2020 values stay.
 
-The Ministry Path metrics are the reporting metrics ([Data views and reports](reporting.md)), so the homepage shows how many people reached each stage this week.
+The Ministry Path metrics are the reporting metrics ([Data views and reports](reporting.md)), so the homepage shows how many people reached each stage this week. Each splits by campus (decision D-metrics-5), and Rock's block adds up a split metric's values from its last run, so each tile shows the church's total.
 
 ## Quick Links
 

@@ -36,13 +36,15 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Person duplicates](#person-duplicates) | Verify tool | Rock's own Calculate Person Duplicates job finds no new pair and keeps every decision. |
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
 | [Data views](#data-views) | Verify tool | Rock's own engine runs every data view in the load without an error. |
-| [Metrics](#metrics) | Verify tool | Each path metric's newest value matches Rock's count of its stage view. |
+| [Metrics](#metrics) | Verify tool | Each path metric's newest values, by campus, match Rock's count of its stage view. |
+| [Rock metrics](#rock-metrics) | Verify tool | Rock's own metric SQL, run as of a past run, gives every value the load wrote for Rock's shipped metrics. |
 | [Access](#access) | Verify tool | Rock's own security check gives every answer in the security walkthroughs, tags included. |
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
 | [Adaptive messages](#adaptive-messages) | Verify tool | Rock's own adaptivemessage Lava command shows each Cast person the adaptation their story gives them. |
 | [Email sections](#email-sections) | Verify tool | Rock's own save rules accept every email section the load wrote. |
 | [Staff homepage](#staff-homepage) | Verify tool | Rock's staff homepage shows this week's update from a year of them, with current metric tiles and the church's Quick Links. |
+| [Calculate Metrics](#calculate-metrics) | Verify tool | Rock's own Calculate Metrics job, run after the load, changes no loaded value and fills in no past run. |
 | [Segments](#segments) | Verify tool | Rock's own segment update finds nothing to add or remove in any personalization segment. |
 | [Signals](#signals) | Verify tool | Rock's own top signal rule gives every person with a signal the flag the load wrote. |
 | [Personal links](#personal-links) | Verify tool | Rock's own bookmark menu shows each person their sections and links in order, and refreshes a cached empty menu. |
@@ -383,6 +385,12 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** The loader writes the items, matrices, and metric values with SQL. Only Rock's own Lava engine and Rock's own metric SQL prove the homepage a staff member opens is full and current.
 
+### Calculate Metrics
+
+**What it does.** Runs Rock's own Calculate Metrics job once, through `verify/rock-runner`, as Rock's scheduler runs it every 15 minutes after install. Every value the load wrote must still be there, unchanged, and any value the job adds must be for a run after its metric's last run. The values it adds are noted.
+
+**Why it's there.** Each metric's last run tells Rock's job where to start. One left too early would make the job's first run after install save copies of past runs, and one left too late would skip a run (decision D-metrics-7).
+
 ### Segments
 
 **What it does.** `verify/rock-runner` runs Rock's own segment update (`PersonalizationSegmentService.UpdatePersonAliasPersonalizationDataForSegment`, what the Update Personalization Data job calls) on every personalization segment, whatever its schedule. Rock evaluates each segment's data view with its real filters and compares it with the segment's people. The check passes when Rock updates every segment the load wrote and adds and removes nobody. Like group sync, it is judged only when today is the loads' anchor.
@@ -463,9 +471,15 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Metrics
 
-**What it does.** For each path metric in `configuration/reporting.json`, reads its newest value and when it was taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value. The SQL count must equal Rock's count of the stage view from the data views check, and the newest value must equal Rock's count less the later ones.
+**What it does.** For each path metric in `configuration/reporting.json`, reads its newest values, one for each campus, and when they were taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value, by the campus Rock's job counts each person under. The SQL count must equal Rock's count of the stage view from the data views check, the newest values must add up to Rock's count less the later ones, and each campus's value must be its own people less its own later ones.
 
-**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest value to Rock's own count proves the loader used the view's rule (decision 234).
+**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest values to Rock's own count proves the loader used the view's rule and Rock's campus split (decisions 234 and D-metrics-5).
+
+### Rock metrics
+
+**What it does.** Checks the history of the metrics Rock ships, from `configuration/rock-metrics.json`. For each SQL metric's newest run, and its newest run at least 90 days before that, it sets the loaded database back to that moment inside a transaction it rolls back: check-ins, prayer requests, prayers, and gifts dated after it are hidden from Rock's queries, and the people are as they were then, by the loader's rule for who was here and how old they were. Then it runs the metric's SQL from Rock's Metric table, with Rock's clock set to the run, and every value must match the load, campus by campus. It also checks that every typed Total Adult Attendance value is the people the load has in that service, and that each such service has a Salvations value.
+
+**Why it's there.** The loader works out each metric's past values itself, because running Rock's SQL once per run would be slow on Full 7. Rock's own SQL is the proof that each value is the one Rock's job would have saved, and setting the database back makes it work on any day, not only a metric's run day (decision D-metrics-7).
 
 ### Access
 

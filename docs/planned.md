@@ -16,6 +16,8 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **Event registrations**: one cancelled mission trip spot with a refunded deposit, financial batch history for registration payments, and the registration emails (confirmations, reminders, payment reminders, and signature receipts) as communication history. Everything else is built: the setup, the students, kids, and adults who registered, their payments, payment plans, wait lists, and placements, the signed camp and mission trip releases, the notes and history, reminders, and data views. See [Event registrations](registrations.md).
 - **Adaptive message view history.** A year of "Viewed" interactions in Rock's Adaptive Messages channel, so each adaptation shows its views and saturation works on install day. The segments, messages, and adaptations are built (see [Adaptive messages](adaptive-messages.md)). It waits for Interaction Data's website sessions.
 
+- **Ministry by Design metrics.** A metric category with metrics for each Ministry System, such as First-Time Guests and Ready to Belong, each by campus with two years of history. Rock's shipped metrics already have history (see [After install](after-install.md#runs-on-its-own)).
+
 - **The church's app:** pages and content for the Rock Solid Church App, which starts as a stub for push notifications. SMS notifications for note mentions wait for it too. Mentions already wait in each staff member's bell in Rock (see [Notes](../loader/README.md#notes)).
 
 ## Installing and quality

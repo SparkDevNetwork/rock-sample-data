@@ -76,6 +76,22 @@ namespace RockSampleData.Loader.Database
         }
 
         /// <summary>
+        /// Marks a point in the transaction that <see cref="RollbackTo"/> can return to, keeping the transaction open.
+        /// </summary>
+        public void Save( string name )
+        {
+            _transaction.Save( name );
+        }
+
+        /// <summary>
+        /// Undoes every change since <see cref="Save"/> marked the point. The transaction stays open.
+        /// </summary>
+        public void RollbackTo( string name )
+        {
+            _transaction.Rollback( name );
+        }
+
+        /// <summary>
         /// Commits the transaction.
         /// </summary>
         public void Commit()

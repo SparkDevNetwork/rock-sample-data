@@ -68,13 +68,6 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid FamilyGroupTypeGuid = new Guid( "790E3215-3B10-442B-AF69-616C0DCB998E" );
 
         /// <summary>
-        /// Rock's Known Relationships and Peer Network group types, which hold every person and say nothing about when a
-        /// family came.
-        /// </summary>
-        private static readonly Guid KnownRelationshipsGroupTypeGuid = new Guid( "E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF" );
-        private static readonly Guid PeerNetworkGroupTypeGuid = new Guid( "8C0E5852-F08F-4327-9AA5-87800A6AB53E" );
-
-        /// <summary>
         /// Rock's file field types, the ones its DeleteBinaryFileAttribute task checks: Audio File, Background Check,
         /// Binary File, File, Image, and Video File.
         /// </summary>
@@ -495,40 +488,11 @@ VALUES ( 0, @AttributeId, @EntityId, @Value, 1, NEWID(), @ForeignKey, @When, @Wh
         }
 
         /// <summary>
-        /// The day each family first came, by family Id: its first check-in, gift, request to serve, or group membership.
-        /// A family with none has always been there, and has no entry. Rock's relationship groups, Known Relationships and
-        /// Peer Network, are left out: Rock makes one for every person, and the load adds each on install day, so they
-        /// would make every family that never checked in, gave, or asked to serve look new today.
+        /// The day each family first came, by family Id (<see cref="Loading.FamilyArrivals"/>).
         /// </summary>
         private Dictionary<int, DateTime?> FamilyArrivals()
         {
-            return _db.Query( @"
-DECLARE @FamilyTypeId INT = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = @FamilyType );
-WITH [Firsts] AS (
-    SELECT [pa].[PersonId], MIN( [a].[StartDateTime] ) AS [At]
-    FROM [Attendance] AS [a] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
-    WHERE [a].[DidAttend] = 1
-    GROUP BY [pa].[PersonId]
-    UNION ALL
-    SELECT [pa].[PersonId], MIN( [t].[TransactionDateTime] )
-    FROM [FinancialTransaction] AS [t] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId]
-    GROUP BY [pa].[PersonId]
-    UNION ALL
-    SELECT [pa].[PersonId], MIN( [r].[CreatedDateTime] )
-    FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
-    GROUP BY [pa].[PersonId]
-    UNION ALL
-    SELECT [gm].[PersonId], MIN( [gm].[DateTimeAdded] )
-    FROM [GroupMember] AS [gm]
-    WHERE [gm].[GroupTypeId] <> @FamilyTypeId
-        AND [gm].[GroupTypeId] NOT IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( @KnownRelationships, @PeerNetwork ) )
-    GROUP BY [gm].[PersonId]
-)
-SELECT [fm].[GroupId], MIN( [f].[At] ) AS [At]
-FROM [GroupMember] AS [fm]
-INNER JOIN [Firsts] AS [f] ON [f].[PersonId] = [fm].[PersonId]
-WHERE [fm].[GroupTypeId] = @FamilyTypeId
-GROUP BY [fm].[GroupId]", P( "@FamilyType", FamilyGroupTypeGuid ), P( "@KnownRelationships", KnownRelationshipsGroupTypeGuid ), P( "@PeerNetwork", PeerNetworkGroupTypeGuid ) )
+            return _db.Query( Loading.FamilyArrivals.Sql, Loading.FamilyArrivals.Parameters() )
                 .ToDictionary( r => ( int ) r["GroupId"], r => r["At"] as DateTime? );
         }
 

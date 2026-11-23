@@ -160,7 +160,8 @@
       "why": "Family Analytics: when a family enters or exits eRA, and what each writes (the flag, the start and end dates, the eRA step, and the history lines), then the giving and attendance count procedures. The loader replays it every week and turns it on with Set Visit Dates off.",
       "mirroredBy": [
         "loader/loading/RockFamilyAnalytics.cs",
-        "loader/loading/FamilyAnalyticsLoader.cs"
+        "loader/loading/FamilyAnalyticsLoader.cs",
+        "loader/loading/RockMetricsLoader.Weekly.cs"
       ],
       "sha256": "696f8655be7fb9334532de665dda197004bda21b9c7054485bb6e30a9e7bd584"
     },
@@ -1044,6 +1045,50 @@
         "loader/loading/CheckedAddress.cs"
       ],
       "sha256": "446b1ff56219b454f38dcabf90609f65cfffa37cb841d5fb2039feb25717c465"
+    },
+    {
+      "path": "Rock/Jobs/CalculateMetrics.cs",
+      "why": "Rock's Calculate Metrics job: which metrics it runs, and that Total Weekend Attendance runs after the others. The loader works out each past run's values in that order.",
+      "mirroredBy": [
+        "loader/loading/RockMetricsLoader.cs",
+        "loader/loading/RockMetricsLoader.Weekly.cs"
+      ],
+      "sha256": "8ad5dcc07618301f966fadf819aab89dbd3a85b20e2ac3d7419adcd6f2edd0cc"
+    },
+    {
+      "path": "Rock/Model/Reporting/Metric/MetricService.cs",
+      "section": "CalculateMetric",
+      "from": "public MetricResult CalculateMetric( int metricId, int commandTimeout, bool isManualRun )",
+      "to": "private static List<MetricValue> GetExistingMetricValues(",
+      "why": "How the job picks the runs after a metric's last run, reads a SQL or data view result, dates each value at its scheduled run, splits a data view by primary campus, saves the partition values, and sets the last run.",
+      "mirroredBy": [
+        "loader/loading/RockMetricsLoader.cs",
+        "loader/loading/RockMetricsLoader.Insights.cs",
+        "loader/loading/MetricsWriter.cs"
+      ],
+      "sha256": "30b90aa48a402859e65f5e0154a3c20918eb428914793a0a55e0768322627c43"
+    },
+    {
+      "path": "Rock.Blocks/Reporting/ServiceMetricsEntry.cs",
+      "section": "Save",
+      "from": "public BlockActionResult Save( ServiceMetricsEntrySaveRequestBag bag )",
+      "to": "private static DateTime? GetFirstScheduledDate( DateTime? weekend, Schedule schedule )",
+      "why": "How staff's typed weekend values are saved: dated the weekend's Sunday, with a campus and a service partition value.",
+      "mirroredBy": [
+        "loader/loading/RockMetricsLoader.ServiceEntry.cs"
+      ],
+      "sha256": "5de80a1ad5cdff62d3fe0e607c8e6a276770ee4e74fa894812cf6bc10b8fe2ed"
+    },
+    {
+      "path": "Rock/Model/CRM/Person/Person.Logic.cs",
+      "section": "GetCampus",
+      "from": "public Campus GetCampus()",
+      "to": "public List<int> GetCampusIds()",
+      "why": "The campus a data view metric with Auto Partition on Primary Campus counts a person under: their primary campus, or else their family's.",
+      "mirroredBy": [
+        "loader/loading/MetricsWriter.cs"
+      ],
+      "sha256": "ec1ce379a5d6971d879ce4920a5e39745bbf2dbb2d4663e007ced7e0f4381a56"
     }
   ]
 }

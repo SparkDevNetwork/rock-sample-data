@@ -148,7 +148,7 @@ function reporting( model ) {
 
 <section class="section" id="ministry-path">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "The path", title: "Every stage, counted every week.", lede: html`Each Ministry by Design stage is a data view built from steps. A person can be in more than one. Every Monday, ${model.metrics.length} Rock Metrics count the stages, with a value for each week since the stage view was made, so a dashboard shows the trend on install day.` } )}
+    ${sectionHead( { eyebrow: "The path", title: "Every stage, counted every week.", lede: html`Each Ministry by Design stage is a data view built from steps. A person can be in more than one. Every Monday, ${model.metrics.length} Rock Metrics count the stages at each campus, with a value for each week since the stage view was made, so a dashboard shows the trend on install day.` } )}
     <div class="card-grid card-grid-four">
       ${model.metrics.map( m => {
         const stage = m.title.replace( / Stage$/, "" );
@@ -365,11 +365,23 @@ module.exports = function features( { model } ) {
     // The staff homepage follows the adaptive messages, so the sections keep alternating.
     const staffHomepage = require( path.join( model.root, "configuration/staff-homepage.json" ) );
     areas.push( {
-        id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.",
+        id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.", sand: true,
         text: html`Rock's staff homepage has a staff update for each Monday of the past ${staffHomepage.updates.weeks} weeks, from the Director of Communications, with articles from the staff. They follow the church calendar: Easter planning, VBS volunteers, Commitment Sunday, and year-end statements. The metric tiles show a year of history, and the Quick Links point at the pages staff open most.`,
         checks: [ "A feature and one to three staff articles every week", "Event images and staff photos, each stored once", "Active Records, Active Families, and Active Connection Requests, with the Ministry Path metrics beside them" ],
         look: [ "Rock's homepage, signed in as any staff member", "The Prev button, which steps back a week at a time", "The Internal Communications - Homepage content channel" ],
         links: [ { label: "Staff homepage", href: doc( "docs/staff-homepage.md" ) } ]
+    } );
+
+    // Rock's shipped metrics follow the staff homepage, whose tiles are metrics too.
+    const rockMetrics = require( path.join( model.root, "configuration/rock-metrics.json" ) );
+    const weeklyYears = Math.round( Math.max( ...rockMetrics.metrics.map( m => m.weeks ) ) / 52 );
+    const tithingWeeks = rockMetrics.metrics.find( m => m.key === "tithing-percent" ).weeks;
+    areas.push( {
+        id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.",
+        text: html`Rock ships its own metrics for weekend attendance, giving, prayer, salvations, baptisms, eRA, tithing, and the people counts behind its Insights page. Each one has history on install day: ${weeklyYears} years of weekly values, ${tithingWeeks} weekly Tithing Overview runs, and ${rockMetrics.insights.months} monthly runs of every Insights metric, by campus and service where Rock splits them. Every value is the one Rock's Calculate Metrics job would have saved, counted from the people, check-ins, gifts, and prayers in the data.`,
+        checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", "The Ministry Path metrics, split by campus" ],
+        look: [ "Tools > Reporting > Metrics, and any metric's chart", "Tools > Weekly Metrics, where staff type the weekend's numbers", "Baptisms, each month's count on the 1st of the next" ],
+        links: [ { label: "Rock's metrics", href: doc( "loader/README.md#rocks-metrics" ) } ]
     } );
 
     // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.

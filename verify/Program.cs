@@ -232,6 +232,8 @@ try
             checks.Add( dataViews );
             stage = "metrics";
             checks.Add( MetricsCheck( sql, database, source, counts ) );
+            stage = "rock-metrics";
+            checks.Add( RockMetricsCheck.Values( sql, database, source ) );
             stage = "flow-audiences";
             checks.Add( FlowAudienceCheck( rock, sql, database, connection, source, anchor, foreignKey, seed ) );
             stage = "access";
@@ -248,6 +250,10 @@ try
             checks.Add( SegmentsCheck( rock, sql, database, foreignKey, anchor ) );
             stage = "staff-homepage";
             checks.Add( StaffHomepageCheck( rock, sql, database, foreignKey, source ) );
+
+            // After every check that reads metric values, because Rock's job may add this period's.
+            stage = "calculate-metrics";
+            checks.Add( RockMetricsCheck.Job( rock, sql, database ) );
             stage = "signals";
             checks.Add( SignalsCheck( rock, sql, database, foreignKey, anchor ) );
             stage = "personal-links";
@@ -529,8 +535,9 @@ static (CheckResult Check, Dictionary<string, int> Counts) DataViewsCheck( RockR
 /// <summary>
 /// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
 /// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
-/// value must be Rock's count of the view today less those people. The same rule read in SQL must also give Rock's count,
-/// so the subtraction uses the view's own rule.
+/// values, one for each campus (decision D-metrics-5), must add up to Rock's count of the view today less those people,
+/// and each campus's must be its own people less its own later ones, by the campus Rock's job counts a person under. The
+/// same rule read in SQL must also give Rock's count, so the subtraction uses the view's own rule.
 /// </summary>
 static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSource source, Dictionary<string, int> counts )
 {
@@ -538,12 +545,13 @@ static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSourc
     var metrics = source.Reporting?.Metrics ?? new List<MetricDefinition>();
     foreach ( var metric in metrics )
     {
-        var latest = sql.Query( database, @"
-SELECT TOP 1 [mv].[YValue], [mv].[MetricValueDateTime]
+        var newest = sql.Query( database, @"
+SELECT [mv].[YValue], [mv].[MetricValueDateTime], [vp].[EntityId] AS [Campus]
 FROM [MetricValue] AS [mv]
 INNER JOIN [Metric] AS [m] ON [m].[Id] = [mv].[MetricId]
-WHERE [m].[Guid] = @Guid
-ORDER BY [mv].[MetricValueDateTime] DESC", new SqlParameter( "@Guid", metric.Guid ) ).FirstOrDefault();
+INNER JOIN [MetricValuePartition] AS [vp] ON [vp].[MetricValueId] = [mv].[Id]
+WHERE [m].[Guid] = @Guid AND [mv].[MetricValueDateTime] = ( SELECT MAX( [MetricValueDateTime] ) FROM [MetricValue] WHERE [MetricId] = [m].[Id] )", new SqlParameter( "@Guid", metric.Guid ) );
+        var latest = newest.Count == 0 ? null : new Dictionary<string, object> { ["YValue"] = newest.Sum( r => ( decimal ) r["YValue"] ), ["MetricValueDateTime"] = newest[0]["MetricValueDateTime"] };
         if ( latest == null || !counts.TryGetValue( metric.DataView, out var rockCount ) )
         {
             problems.Add( $"{metric.Key}: no values, or Rock did not run {metric.DataView}" );
@@ -557,23 +565,27 @@ ORDER BY [mv].[MetricValueDateTime] DESC", new SqlParameter( "@Guid", metric.Gui
             var types = program.StepTypes.Where( t => f.Steps.StepType != null ? t.Key == f.Steps.StepType : f.Steps.Stage == null || t.Stage == f.Steps.Stage );
             return $"( [st].[Guid] = '{program.Statuses.Complete}' AND [t].[Guid] IN ( {string.Join( ", ", types.Select( t => $"'{t.Guid}'" ) )} ) )";
         } ) );
-        var row = sql.Query( database, $@"
-SELECT COUNT(*) AS [Now], SUM( CASE WHEN [First] > @Taken THEN 1 ELSE 0 END ) AS [Later]
+        var campuses = sql.Query( database, $@"
+SELECT [Campus], COUNT(*) AS [Now], SUM( CASE WHEN [First] > @Taken THEN 1 ELSE 0 END ) AS [Later]
 FROM (
-    SELECT MIN( COALESCE( [s].[CompletedDateTime], [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [First]
+    SELECT MIN( COALESCE( [s].[CompletedDateTime], [s].[StartDateTime], [s].[CreatedDateTime] ) ) AS [First], MIN( COALESCE( [p].[PrimaryCampusId], [f].[CampusId] ) ) AS [Campus]
     FROM [Step] AS [s]
     INNER JOIN [StepType] AS [t] ON [t].[Id] = [s].[StepTypeId]
     INNER JOIN [StepStatus] AS [st] ON [st].[Id] = [s].[StepStatusId]
     INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [s].[PersonAliasId]
     INNER JOIN [Person] AS [p] ON [p].[Id] = [pa].[PersonId]
+    LEFT JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]
     INNER JOIN [DefinedValue] AS [status] ON [status].[Id] = [p].[RecordStatusValueId]
     LEFT JOIN [DefinedValue] AS [type] ON [type].[Id] = [p].[RecordTypeValueId]
     WHERE ( {matches} ) AND [p].[IsDeceased] = 0 AND [status].[Guid] = '618F906C-C33D-4FA3-8AEF-E58CB7B63F1E'
         AND ISNULL( [type].[Guid], '00000000-0000-0000-0000-000000000000' ) <> '721300ED-1267-4DA0-B4F2-6C6B5B17B1C5'
-    GROUP BY [pa].[PersonId] ) AS [people]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) ).Single();
-        var now = Convert.ToInt32( row["Now"] );
-        var later = Convert.ToInt32( row["Later"] ?? 0 );
+    GROUP BY [pa].[PersonId] ) AS [people]
+GROUP BY [Campus]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) );
+        var now = campuses.Sum( c => Convert.ToInt32( c["Now"] ) );
+        var later = campuses.Sum( c => Convert.ToInt32( c["Later"] ?? 0 ) );
         var value = Convert.ToInt32( latest["YValue"] );
+        var expected = campuses.Select( c => (Campus: c["Campus"] as int?, Count: Convert.ToInt32( c["Now"] ) - Convert.ToInt32( c["Later"] ?? 0 )) ).Where( c => c.Count > 0 ).ToList();
+        var wrongCampus = expected.FirstOrDefault( c => newest.Where( r => r["Campus"] as int? == c.Campus ).Sum( r => ( decimal ) r["YValue"] ) != c.Count );
         if ( now != rockCount )
         {
             problems.Add( $"{metric.Key}: the stage rule finds {now:N0} people, but Rock's {metric.DataView} finds {rockCount:N0}" );
@@ -581,6 +593,10 @@ FROM (
         else if ( value != rockCount - later )
         {
             problems.Add( $"{metric.Key}: its newest value, {value:N0} on {latest["MetricValueDateTime"]:g}, should be {rockCount - later:N0}: Rock's {rockCount:N0} less {later:N0} who reached the stage since" );
+        }
+        else if ( newest.Count != expected.Count || wrongCampus.Count > 0 )
+        {
+            problems.Add( $"{metric.Key}: its newest values by campus ({string.Join( ", ", newest.Select( r => $"{r["Campus"] ?? "none"}: {r["YValue"]:0}" ) )}) should be {string.Join( ", ", expected.Select( c => $"{c.Campus?.ToString() ?? "none"}: {c.Count}" ) )}" );
         }
         else
         {

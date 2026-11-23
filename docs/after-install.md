@@ -22,7 +22,7 @@ Every date in a load counts back from install day, the anchor (see [Dates and re
 5. **Registrations open and close on their dates,** and their reminders send (see [Be careful](#be-careful)).
 6. **Communication flows keep sending.** Runs that were open at install send their remaining messages, and recurring flows start new runs on their schedules (decision 220).
 7. **The scheduled Christmas Eve email sends** on its date in December (decision 248).
-8. **Metrics add a value** each time their schedule comes around.
+8. **Metrics add a value** each time their schedule comes around. With no new check-ins, gifts, or prayers, the weekly ones fall toward zero.
 9. **Reminders come due.** Staff and leaders' reminders come due on their dates, and pending assessment requests get their reminder emails (see [Be careful](#be-careful)).
 10. **Families leave eRA.** With no new Sundays or gifts, Family Analytics moves families out of eRA on its Tuesday runs, each with an eRA End Date and a completed eRA step.
 11. **Peer scores keep moving.** On the 1st of each month, Calculate Peer Network grows the score of everyone still in a group together and lowers the score of everyone who left.
@@ -65,9 +65,11 @@ These jobs fill something the load leaves empty. Each one says whether it is on 
 These jobs are on. They fill or refresh data on their schedule, with nothing needed from you.
 
 1. **Calculate Metrics.** Every 15 minutes.
-   - The load writes the four Ministry Path metrics with a value for every week (decision 234).
-   - Rock's own metrics have no values from the load. They include weekend attendance, giving, prayer, the tithing overview, and the counts behind Rock's Insights page. Each gets a value at each of its scheduled times from install week on.
-   - **History: none before install week.** A metric that has never run starts at the beginning of the current week. No Rock job fills past weeks, and no issue covers it yet.
+   - The load writes history for the metrics Rock ships: two years of weekly attendance, giving, prayer, salvations, and eRA values, two years of monthly baptisms, and a year of Tithing Overview and Insights runs (decisions D-metrics-1 to D-metrics-6). The three homepage metrics have a year (decision 347), and the four Ministry Path metrics have a value for every week, by campus (decisions 234 and D-metrics-5).
+   - Each metric's last run is its newest run before install, so the job's first value is for the next run after install, and it fills in no past.
+   - **History: full,** except Rock's four hosting metrics, which measure the web server.
+   - Baptisms counts the month before each run on the 1st. The load saves that SQL in place of Rock's, which counts the month just begun, so Rock's own runs continue the same line (decision D-metrics-4).
+   - Weekly eRA Losses is zero every week, and Total Weekend Attendance counts two weeks of children, students, and volunteers, because Rock's own SQL does (decision D-metrics-3).
 2. **Update Persisted DataViews.** Every minute. The load leaves the two persisted views, Regular Attenders and Kids Checked In Recently, for this job, which persists them in its first minute (decision 226).
 3. **Update Persisted Attribute Values.** Every night at 2:15 AM. The load writes each attribute value and leaves Rock's stored display text for this job. Until it runs, Rock works out a value's display text when it shows it.
 4. **Connection Request Workflow Triggers.** Every day at 7 AM. It returns each future follow-up request to Active on its follow-up date.
