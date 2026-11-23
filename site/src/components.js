@@ -25,6 +25,23 @@ function sectionHead( { eyebrow, title, lede, center } ) {
 </div>`;
 }
 
+/**
+ * A Cast person's name, linked to their household page from a top-level page. The name is plain text when no Cast
+ * person has it.
+ */
+function person( model, name ) {
+    const member = [ ...model.people.values() ].find( m => m.displayName === name );
+    return member ? html`<a href="cast/${esc( member.household.key )}.html">${esc( name )}</a>` : esc( name );
+}
+
+/**
+ * The username a Cast person signs in with: Rock's own admin login for the person who replaces Rock's admin, or
+ * their first login. Null when they have none.
+ */
+function signInName( member ) {
+    return member.replacesAdmin ? "admin" : ( member.logins || [] )[0] || null;
+}
+
 function initials( member ) {
     return ( ( member.nickName || member.firstName || "" )[0] || "" ) + ( ( member.lastName || "" )[0] || "" );
 }
@@ -118,4 +135,4 @@ function databaseSpace( dataset ) {
     return gigabytes < 10 ? `about ${gigabytes.toFixed( 1 )} GB` : `about ${Math.round( gigabytes )} GB`;
 }
 
-module.exports = { sectionHead, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials, loadTime, databaseSpace };
+module.exports = { sectionHead, person, signInName, portrait, householdCard, download, zoomable, stageLabels, formatSize, initials, loadTime, databaseSpace };
