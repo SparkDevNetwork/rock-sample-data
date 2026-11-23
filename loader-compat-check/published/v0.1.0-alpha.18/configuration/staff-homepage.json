@@ -1,0 +1,65 @@
+{
+  "$comment": "Rock's staff homepage (the Internal Homepage of the Rock RMS site), issue 9. Rock's Internal Communication View block shows the newest approved item in its content channel whose start date has passed, with the item's feature and one to three articles, then the homepage metrics. 'updates' are the weekly staff updates: one each Monday for 'weeks' weeks, written by 'author' (Daniel Peak) and posted at 'postTime', with the text in content/internal-news/updates.json. The channel's type stores a date without a time, so each update starts at midnight Monday, as Rock's editor saves it. Rock's own 2018 item, 'rockItem', becomes the oldest update in place. Every feature links to 'link'. 'metrics' are the three homepage metrics Rock ships, each with Rock's own schedule: the loader writes a year of the values Rock's Calculate Metrics job would have saved on that schedule. 'pathMetrics' adds the four Ministry Path metrics from reporting.json to the block, after Rock's three. 'quickLinks' adds the church's links to Rock's Quick Links block, after Rock's own.",
+  "updates": {
+    "contentChannel": "78D01959-0EA6-4FE4-B6F8-A3765F0CEDBF",
+    "rockItem": "EB1BF7A6-AFEE-4320-AD23-675EC0CC7C01",
+    "author": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9",
+    "weeks": 52,
+    "postTime": "08:00",
+    "link": "https://sampledata.rockrms.com",
+    "$articleCountsComment": "How many articles an update has, as weights: most have two or three. A week's occasion articles come first.",
+    "articleCounts": {
+      "1": 2,
+      "2": 5,
+      "3": 3
+    }
+  },
+  "block": "879BC5A7-3CE2-43FC-BEDB-B93B0054F417",
+  "metrics": [
+    {
+      "key": "active-records",
+      "guid": "ECB1B552-9A3D-46FC-952B-D57DBC4A329D",
+      "schedule": {
+        "time": "01:00"
+      }
+    },
+    {
+      "key": "active-families",
+      "guid": "491061B7-1834-44DA-8EA1-BB73B2D52AD3",
+      "schedule": {
+        "day": "Monday",
+        "time": "04:00"
+      },
+      "byCampus": true
+    },
+    {
+      "key": "active-connection-requests",
+      "guid": "F0A24208-F8AC-4E04-8309-1A276885F6A6",
+      "schedule": {
+        "time": "01:00"
+      }
+    }
+  ],
+  "pathMetrics": true,
+  "quickLinks": {
+    "content": "007EA905-D5D3-4DC5-AD0B-2C1E3935E452",
+    "links": [
+      {
+        "label": "Church Calendar",
+        "href": "~/web/calendars"
+      },
+      {
+        "label": "My Connection Requests",
+        "href": "~/people/connections/my-connections"
+      },
+      {
+        "label": "Prayer Requests",
+        "href": "~/people/prayer/list"
+      },
+      {
+        "label": "Group Scheduler",
+        "href": "~/people/group-scheduling/scheduler"
+      }
+    ]
+  }
+}
