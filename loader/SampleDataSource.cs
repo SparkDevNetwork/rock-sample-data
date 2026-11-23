@@ -187,6 +187,7 @@ namespace RockSampleData.Loader
             PeerNetwork = Files.Exists( PeerNetworkConfigurationPath ) ? Read<PeerNetworkConfiguration>( PeerNetworkConfigurationPath ) : null;
             BackgroundChecks = Files.Exists( BackgroundChecksConfigurationPath ) ? Read<BackgroundChecksConfiguration>( BackgroundChecksConfigurationPath ) : null;
             Benevolence = Files.Exists( BenevolenceConfigurationPath ) ? Read<BenevolenceConfiguration>( BenevolenceConfigurationPath ) : null;
+            DataIntegrity = Files.Exists( DataIntegrityConfigurationPath ) ? Read<DataIntegrityConfiguration>( DataIntegrityConfigurationPath ) : null;
         }
 
         /// <summary>
@@ -268,6 +269,14 @@ namespace RockSampleData.Loader
         public BenevolenceConfiguration Benevolence { get; }
 
         public const string BenevolenceConfigurationPath = "configuration/benevolence.json";
+
+        /// <summary>
+        /// The designed problems on Rock's Data Integrity pages and the Data Integrity Settings, or null in a package built
+        /// before them, which loads none.
+        /// </summary>
+        public DataIntegrityConfiguration DataIntegrity { get; }
+
+        public const string DataIntegrityConfigurationPath = "configuration/data-integrity.json";
 
         /// <summary>
         /// The church's personalization segments and adaptive messages, or null in a package built before they loaded.

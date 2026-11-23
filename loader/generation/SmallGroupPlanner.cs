@@ -231,6 +231,21 @@ namespace RockSampleData.Loader.Generation
 
                         units.AddRange( people.Except( married.Count == 2 ? married : new List<CastPerson>() ).Select( p => new List<CastPerson> { p } ) );
 
+                        /*
+                            11/23/26 - CLAUDE
+
+                            An inactive household that stopped coming before the earliest day a group can start, such as the
+                            Kellers, can never be a former member. Each ended group still drew a join date for it before
+                            finding that out, which moved every later draw, so adding such a household reshuffled the
+                            Cast's ended groups. It is left out of the units instead.
+
+                            Reason: A household with no possible group changes no one else's (issue 2).
+                        */
+                        if ( isInactive && leaveBy.HasValue && leaveBy.Value < new DateTime( _clock.Anchor.Year - _rules.Membership.StartedYearsAgo.Max, 1, 1 ) )
+                        {
+                            continue;
+                        }
+
                         foreach ( var unitPeople in units )
                         {
                             var adultSince = unitPeople.Max( p => _adultSince[p.Guid] );

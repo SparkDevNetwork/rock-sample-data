@@ -2145,6 +2145,188 @@ if ( fs.existsSync( duplicatesFile ) ) {
     }
 }
 
+/*
+    Pass 9: the Data Integrity stories (configuration/data-integrity.json, docs/data-integrity.md). Every person is a
+    Cast person with that name, and staff where a staff member acts. The Pending records are exactly the Cast's Pending
+    people. A self-inactivation inactivates its whole household with the same reason. A status history ends at each
+    person's status. A couple who shares an email both have it. A failed address is a Cast home.
+*/
+const integrityFile = path.join( castDir, "..", "configuration", "data-integrity.json" );
+let integrityStoryCount = 0;
+if ( fs.existsSync( integrityFile ) ) {
+    const integrity = JSON.parse( fs.readFileSync( integrityFile, "utf8" ) );
+    const owner = "configuration/data-integrity.json";
+    const RECORD_SOURCES = [ "External Website", "Prayer", "Event Registration", "Workflow", "Group Registration", "Giving", "Pledge", "Sign-up", "Check-in", "Family Registration", "Mobile App" ];
+    const SELF_INACTIVATION_REASONS = [ "No Longer Attending", "Moved" ];
+    const STATUSES = [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ];
+    const nameOf = p => `${p.nickName || p.firstName} ${p.lastName}`;
+    const person = ( where, guid, name, mustBeStaff ) => {
+        const entry = people.get( guid );
+        if ( !entry ) {
+            errors.push( `${owner} ${where}: ${guid} is not a Cast person.` );
+            return null;
+        }
+        if ( name !== undefined && name !== nameOf( entry.person ) ) {
+            errors.push( `${owner} ${where}: ${guid} is ${nameOf( entry.person )}, not ${name}.` );
+        }
+        if ( mustBeStaff && !STAFF_GUIDS.has( guid ) ) {
+            errors.push( `${owner} ${where}: ${nameOf( entry.person )} is not on staff in configuration/staff.json.` );
+        }
+        return entry;
+    };
+    const date = ( where, d, needsTime ) => {
+        const isDaysAgo = d && Number.isInteger( d.daysAgo ) && d.daysAgo >= 0;
+        const isYearsAgo = d && Number.isInteger( d.yearsAgo ) && d.yearsAgo >= 1 && Number.isInteger( d.month ) && Number.isInteger( d.day );
+        if ( isDaysAgo === isYearsAgo || ( d.time === undefined ? needsTime : !/^[0-2][0-9]:[0-5][0-9]$/.test( d.time ) ) ) {
+            errors.push( `${owner} ${where}: a date is daysAgo, or yearsAgo (1 or more) with a month and day, ${needsTime ? "and an HH:mm time" : "and an optional HH:mm time"}.` );
+        }
+    };
+    const text = ( where, value, max ) => {
+        if ( typeof value !== "string" || !value.trim() || value.length > max || !isPlainText( value ) ) {
+            errors.push( `${owner} ${where}: plain text of 1 to ${max} characters.` );
+        }
+    };
+    const householdOf = guid => households.find( h => h.data.members.some( m => m.guid === guid ) );
+
+    for ( const key of Object.keys( ( integrity.recordDates || {} ).households || {} ) ) {
+        if ( !households.some( h => h.data.key === key ) ) {
+            errors.push( `${owner} recordDates: ${key} is not a Cast household.` );
+        }
+        date( `recordDates ${key}`, integrity.recordDates.households[key], false );
+    }
+
+    const pendingRecords = ( integrity.pending || {} ).records || [];
+    const pendingPeople = [ ...people.values() ].filter( e => e.person.recordStatus === "pending" ).map( e => e.person.guid );
+    for ( const guid of pendingPeople.filter( g => !pendingRecords.some( r => r.person === g ) ) ) {
+        errors.push( `${owner} pending: ${nameOf( people.get( guid ).person )} is Pending, so name the form that made the record.` );
+    }
+    for ( const record of pendingRecords ) {
+        integrityStoryCount++;
+        const entry = person( `pending ${record.name}`, record.person, record.name, false );
+        if ( entry && entry.person.recordStatus !== "pending" ) {
+            errors.push( `${owner} pending: ${record.name} is not Pending in their household file.` );
+        }
+        if ( record.source !== undefined && !RECORD_SOURCES.includes( record.source ) ) {
+            errors.push( `${owner} pending ${record.name}: source must be one of Rock's Record Sources: ${RECORD_SOURCES.join( ", " )}.` );
+        }
+        if ( ( record.source === undefined ) !== ( record.created === undefined ) || ( record.source !== undefined && !STATUSES.includes( record.connectionStatus ) ) ) {
+            errors.push( `${owner} pending ${record.name}: a record made by a form names its source, when it was made, and the connection status it gave.` );
+        }
+        if ( record.created !== undefined ) {
+            date( `pending ${record.name}`, record.created, true );
+        }
+    }
+
+    for ( const record of ( integrity.selfInactivations || {} ).records || [] ) {
+        integrityStoryCount++;
+        const where = `self-inactivation ${record.name}`;
+        const entry = person( where, record.person, record.name, false );
+        if ( !SELF_INACTIVATION_REASONS.includes( record.reason ) ) {
+            errors.push( `${owner} ${where}: reason must be one Rock's Email Preferences page offers: ${SELF_INACTIVATION_REASONS.join( ", " )}.` );
+        }
+        text( where, record.note, 500 );
+        date( where, record.inactivated, true );
+        const household = entry && householdOf( record.person );
+        const targets = entry && entry.person.familyRole !== "child" ? household.data.members : entry ? [ entry.person ] : [];
+        for ( const t of targets.filter( t => t.recordStatus !== "inactive" || t.recordStatusReason !== record.reason ) ) {
+            errors.push( `${owner} ${where}: ${nameOf( t )} is inactivated with the household, so their file must say inactive with the reason ${record.reason}.` );
+        }
+    }
+
+    for ( const entry of ( integrity.connectionStatusHistory || {} ).people || [] ) {
+        integrityStoryCount++;
+        const changes = entry.changes || [];
+        changes.forEach( ( c, i ) => {
+            const where = `status history ${( entry.people || [] ).map( p => p.name ).join( ", " )}`;
+            if ( !STATUSES.includes( c.from ) || !STATUSES.includes( c.to ) || c.from === c.to || ( i > 0 && changes[i - 1].to !== c.from ) ) {
+                errors.push( `${owner} ${where}: each change runs from one of the church's statuses to another, from where the last one ended.` );
+            }
+            date( where, c.changed, true );
+            person( where, c.by, undefined, true );
+        } );
+        for ( const p of entry.people || [] ) {
+            const found = person( `status history ${p.name}`, p.person, p.name, false );
+            if ( found && changes.length && found.person.connectionStatus !== changes[changes.length - 1].to ) {
+                errors.push( `${owner} status history ${p.name}: the last change ends at ${changes[changes.length - 1].to}, but their file says ${found.person.connectionStatus}.` );
+            }
+        }
+    }
+
+    const reportKeys = new Set();
+    for ( const report of ( integrity.dataErrors || {} ).reports || [] ) {
+        integrityStoryCount++;
+        const where = `data error ${report.key}`;
+        if ( !KEY.test( report.key || "" ) || reportKeys.has( report.key ) ) {
+            errors.push( `${owner} ${where}: key must be unique and lowercase with hyphens.` );
+        }
+        reportKeys.add( report.key );
+        person( where, report.person, report.name, false );
+        person( where, report.reportedBy, undefined, true );
+        date( where, report.reported, true );
+        text( where, report.details, 1000 );
+        if ( ( report.resolved === undefined ) !== ( report.resolution === undefined ) ) {
+            errors.push( `${owner} ${where}: a resolved report has both resolved and resolution, and an open one neither.` );
+        }
+        if ( report.resolved !== undefined ) {
+            date( where, report.resolved, true );
+            text( where, report.resolution, 1000 );
+        }
+        if ( report.fix !== undefined && ( report.resolved === undefined || !report.fix.valueName || !report.fix.newValue ) ) {
+            errors.push( `${owner} ${where}: a fix belongs to a resolved report and names the value and its new text.` );
+        }
+    }
+
+    const photo = integrity.photoRequests || {};
+    if ( photo.requests && photo.requests.length ) {
+        person( "photo requests sender", photo.sender, undefined, true );
+        text( "photo requests message", photo.message, 1000 );
+    }
+    for ( const request of photo.requests || [] ) {
+        integrityStoryCount++;
+        const where = `photo request ${request.name}`;
+        const entry = person( where, request.person, request.name, false );
+        if ( entry && ( !entry.person.email || entry.person.isDeceased || entry.person.recordStatus === "inactive" ) ) {
+            errors.push( `${owner} ${where}: a photo request is an email, so the person is active and has one.` );
+        }
+        date( where, request.sent, true );
+        [ "uploaded", "verified", "optedOut" ].filter( k => request[k] !== undefined ).forEach( k => date( where, request[k], true ) );
+        if ( ( request.uploaded && request.optedOut ) || ( request.verified && !request.uploaded ) ) {
+            errors.push( `${owner} ${where}: a reply is an upload, which may be verified, or an opt-out.` );
+        }
+        if ( entry && request.uploaded && entry.person.photo && entry.person.photo.isOmitted ) {
+            errors.push( `${owner} ${where}: an upload is the person's Cast photo, and they have none.` );
+        }
+    }
+
+    for ( const shared of ( integrity.sharedEmails || {} ).households || [] ) {
+        integrityStoryCount++;
+        const household = households.find( h => h.data.key === shared.household );
+        const adults = household ? household.data.members.filter( m => m.familyRole !== "child" ) : [];
+        if ( adults.length < 2 || adults.some( a => a.email !== shared.email ) || !/@example\.org$/.test( shared.email || "" ) ) {
+            errors.push( `${owner} shared email ${shared.household}: every adult in a Cast household has ${shared.email}, on example.org.` );
+        }
+    }
+
+    for ( const failed of ( integrity.failedAddresses || {} ).households || [] ) {
+        integrityStoryCount++;
+        const household = households.find( h => h.data.key === failed.household );
+        if ( !household || !household.data.address || household.data.address.type !== "home" ) {
+            errors.push( `${owner} failed address ${failed.household}: a failed address is a Cast household's home.` );
+        }
+    }
+    if ( ( integrity.failedAddresses || {} ).households && integrity.failedAddresses.households.length ) {
+        person( "failed addresses lockedBy", integrity.failedAddresses.lockedBy, undefined, true );
+    }
+
+    const RULE_KEYS = [ "core_DataAutomationReactivatePeople", "core_DataAutomationInactivatePeople", "core_DataAutomationUpdateFamilyCampus", "core_DataAutomationAdultChildren",
+        "core_DataAutomationUpdatePersonConnectionStatus", "core_DataAutomationUpdateFamilyStatus" ];
+    for ( const [ key, rule ] of Object.entries( ( integrity.settings || {} ).rules || {} ) ) {
+        if ( !RULE_KEYS.includes( key ) || typeof rule.IsEnabled !== "boolean" ) {
+            errors.push( `${owner} settings ${key}: a rule is one of Rock's six Data Automation settings, with IsEnabled.` );
+        }
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -2157,5 +2339,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs, ${integrityStoryCount} data integrity stories. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

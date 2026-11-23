@@ -1,0 +1,94 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "keller",
+  "guid": "8BBF628D-86F3-4AC5-9499-63E4318F4263",
+  "name": "Keller Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Doug and Pam Keller came for about five years, then started going to a church near their daughter in Mesa ten years ago. Nobody changed their records, so they stayed active. Last month Pam followed the link at the bottom of a church email and said they are no longer involved, with a note.",
+  "testPurposes": [
+    "Self-inactivated record: Pam chose No Longer Attending on Rock's Email Preferences page and wrote a note, which inactivated both of them.",
+    "Old record with nothing in the history window: no attendance, gifts, or groups."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11733 N 40th Pl",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85028",
+    "latitude": 33.593712,
+    "longitude": -111.992904
+  },
+  "attendance": {
+    "persona": "lapsed",
+    "percentAttended": 65,
+    "started": {
+      "yearsAgo": 15,
+      "month": 4,
+      "day": 19
+    },
+    "ended": {
+      "yearsAgo": 10,
+      "month": 5,
+      "day": 21
+    }
+  },
+  "members": [
+    {
+      "key": "doug",
+      "guid": "29D15B31-6662-479E-9626-DBED80637F39",
+      "firstName": "Douglas",
+      "nickName": "Doug",
+      "lastName": "Keller",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 66,
+        "month": 3,
+        "day": 9
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "No Longer Attending",
+      "connectionStatus": "Connected",
+      "email": "doug.keller@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550171"
+      },
+      "photo": {
+        "ethnicity": "white",
+        "isOmitted": true
+      }
+    },
+    {
+      "key": "pam",
+      "guid": "6F8AA474-5586-4012-B0EC-02BA3D7DE18B",
+      "firstName": "Pamela",
+      "nickName": "Pam",
+      "lastName": "Keller",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 63,
+        "month": 11,
+        "day": 2
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "No Longer Attending",
+      "connectionStatus": "Connected",
+      "email": "pam.keller@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550172"
+      },
+      "photo": {
+        "ethnicity": "white",
+        "isOmitted": true
+      }
+    }
+  ]
+}

@@ -76,6 +76,7 @@ namespace RockSampleData.Loader
             ("Personal links", null),
             ("Tags", null),
             ("Logins", null),
+            ("Data integrity", null),
             ("Duplicates", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
@@ -855,6 +856,15 @@ namespace RockSampleData.Loader
 
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
             db.RebuildDeferredIndexes( "History" );
+
+            // The Data Integrity pages' designed problems come after every part that writes people, gifts, groups, and notes,
+            // since a Cast record's date must come before them, and before the attribute value save hook, which fills the
+            // workflow values' person columns.
+            steps.Begin( "Data integrity" );
+            foreach ( var line in new DataIntegrityLoader( db, source, dates, foreignKey ).Load( people, castHouseholdKeys, parts.Contains( SampleDataPart.Photos ) ) )
+            {
+                log.Write( line );
+            }
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
             log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor, familyAnalytics.ProcedureAttributeIds ):N0} values set" );

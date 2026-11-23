@@ -246,7 +246,7 @@ namespace RockSampleData.Loader.Loading
                         loaded.PersonId, false,
                         lookups.RecordType( isBusiness ? BusinessRecordTypeGuid : PersonRecordTypeGuid ),
                         lookups.RecordStatus( person.RecordStatus ),
-                        person.IsDeceased ? lookups.Id( DeceasedReasonGuid ) : ( object ) DBNull.Value,
+                        Value( lookups.RecordStatusReason( person ) ),
                         lookups.ConnectionStatus( person.ConnectionStatus ),
                         person.IsDeceased,
                         person.FirstName, person.NickName ?? person.FirstName, person.MiddleName ?? ( object ) DBNull.Value, person.LastName,
@@ -828,6 +828,38 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
                 "pending" => PendingStatusGuid,
                 _ => ActiveStatusGuid
             } );
+
+            /*
+                11/23/26 - CLAUDE
+
+                Only a deceased person's reason was written, so the Murphys showed inactive with no reason, though their
+                file says Moved. Rock's person profile and its Self Inactivated Individuals report show the reason.
+
+                Reason: An inactive record carries the reason its story gives (issue 2).
+            */
+
+            /// <summary>
+            /// The Record Status Reason value for an inactive person: Deceased for a deceased person, or else their file's
+            /// reason, found by name among Rock's reasons. Null for anyone else.
+            /// </summary>
+            public int? RecordStatusReason( CastPerson person )
+            {
+                if ( person.IsDeceased )
+                {
+                    return Id( DeceasedReasonGuid );
+                }
+
+                if ( person.RecordStatus != "inactive" || string.IsNullOrEmpty( person.RecordStatusReason ) )
+                {
+                    return null;
+                }
+
+                var found = _db.Scalar( "SELECT TOP 1 [Id] FROM [DefinedValue] WHERE [Value] = @Name AND [DefinedTypeId] = ( SELECT [DefinedTypeId] FROM [DefinedValue] WHERE [Guid] = @Deceased )",
+                    P( "@Name", person.RecordStatusReason ), P( "@Deceased", DeceasedReasonGuid ) );
+                return found == null
+                    ? throw new InvalidDataException( $"{person.FirstName} {person.LastName}'s record status reason \"{person.RecordStatusReason}\" is not one of Rock's Record Status Reasons." )
+                    : Convert.ToInt32( found );
+            }
 
             public int ConnectionStatus( string name )
             {

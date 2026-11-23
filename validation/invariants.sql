@@ -170,7 +170,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[RaceValueId] IS NOT NULL OR [p].[EthnicityValueId] IS NOT NULL );
 
 -- check: home-addresses-are-mapped
--- why: Group Finder, campus distance, and maps need a point for every home address.
+-- why: Group Finder, campus distance, and maps need a point for every home address. The one exception is a home Rock's address service could not match, which staff locked so Rock never sends it again (decision D-integrity-4). Rock's Location Editor lists it under Not Geocoded until someone places its pin.
 SELECT COUNT(*)
 FROM [GroupLocation] AS [gl]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
@@ -178,17 +178,21 @@ INNER JOIN [Location] AS [l] ON [l].[Id] = [gl].[LocationId]
 INNER JOIN [DefinedValue] AS [t] ON [t].[Id] = [gl].[GroupLocationTypeValueId]
 WHERE [g].[ForeignKey] = @ForeignKey
     AND [t].[Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC'
-    AND [l].[GeoPoint] IS NULL;
+    AND [l].[GeoPoint] IS NULL
+    AND NOT ( [l].[IsGeoPointLocked] = 1 AND [l].[GeocodedDateTime] IS NULL AND [l].[GeocodeAttemptedResult] IS NOT NULL );
 
 -- check: loaded-addresses-are-checked
--- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point.
+-- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point. The one exception is an address the service could not match (decision D-integrity-4): both attempts and their result, no success dates and no map point, and Location Locked, which Rock's job never sends.
 SELECT COUNT(*)
 FROM [Location] AS [l]
 WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
     AND ( ISNULL( [l].[Street1], '' ) <> '' OR [l].[GeoPoint] IS NOT NULL )
     AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizedDateTime] IS NULL OR [l].[StandardizeAttemptedServiceType] IS NULL
         OR [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodedDateTime] IS NULL OR [l].[GeocodeAttemptedServiceType] IS NULL
-        OR [l].[GeoPoint] IS NULL );
+        OR [l].[GeoPoint] IS NULL )
+    AND NOT ( [l].[IsGeoPointLocked] = 1 AND [l].[StandardizeAttemptedDateTime] IS NOT NULL AND [l].[StandardizeAttemptedServiceType] IS NOT NULL AND [l].[StandardizeAttemptedResult] IS NOT NULL
+        AND [l].[GeocodeAttemptedDateTime] IS NOT NULL AND [l].[GeocodeAttemptedServiceType] IS NOT NULL AND [l].[GeocodeAttemptedResult] IS NOT NULL
+        AND [l].[StandardizedDateTime] IS NULL AND [l].[GeocodedDateTime] IS NULL AND [l].[GeoPoint] IS NULL );
 
 -- check: staff-updates-are-complete
 -- why: Decision 345. Rock's staff homepage shows an update's feature title, text, link, and image, then its one to three articles, each with a title and content, and Rock's save hook gives every item a global key and a slug. An update missing any of them shows a blank part of the homepage.
@@ -1346,10 +1350,11 @@ WHERE [i].[ForeignKey] = @ForeignKey
             AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
 
 -- check: workflow-is-finished-as-rock-leaves-it
--- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started has its own rules (issue 18).
+-- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started (issue 18), or staff started from a person's profile (decisions D-integrity-5 and D-integrity-6), has its own rules.
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
 WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] )
+    AND ISNULL( [w].[EntityTypeId], 0 ) <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
     AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] IS NULL OR [w].[InitiatorPersonAliasId] IS NULL OR [w].[CompletedDateTime] > GETDATE()
         OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NOT NULL ) <> 1
         OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act]
@@ -1361,6 +1366,49 @@ WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflo
             INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
             WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
                 AND [pa].[Id] = [w].[InitiatorPersonAliasId] ) );
+
+-- check: profile-workflow-is-as-rock-leaves-it
+-- why: Decisions D-integrity-5 and D-integrity-6. A workflow staff start from a person's profile, such as Rock's Person Data Error or Photo Request, has that person as its entity and in its Person attribute, and the staff member as its initiator. A completed one has every activity completed when it completed, as Rock's MarkComplete leaves it. An open one waits on exactly one activity, assigned to a person, so it shows in their My Workflows list.
+SELECT COUNT(*)
+FROM [Workflow] AS [w]
+WHERE [w].[ForeignKey] = @ForeignKey AND [w].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    AND ( [w].[InitiatorPersonAliasId] IS NULL
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av]
+            INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
+            WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
+                AND [pa].[PersonId] = [w].[EntityId] )
+        OR ( [w].[Status] = 'Completed' AND ( [w].[CompletedDateTime] IS NULL OR [w].[CompletedDateTime] > GETDATE()
+            OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND ISNULL( [act].[CompletedDateTime], '1900-01-01' ) <> [w].[CompletedDateTime] ) ) )
+        OR ( [w].[Status] = 'Active' AND ( [w].[CompletedDateTime] IS NOT NULL
+            OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NULL AND [act].[AssignedPersonAliasId] IS NOT NULL ) <> 1
+            OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NULL ) <> 1 ) )
+        OR [w].[Status] NOT IN ( 'Active', 'Completed' ) );
+
+-- check: photo-request-reply-has-a-photo
+-- why: Decision D-integrity-6. Rock's Photo Upload page sets the person's photo and puts them in the Photo Request group as Pending, and Verify Photos makes them Active. Verify Photos shows each Pending or Active member's photo, and its reject button deletes it, so a reply with no photo would show a broken image.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] AND [g].[Guid] = '2108EF9C-10DC-4466-973D-D25AAB7818BE'
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [gm].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] IN ( 1, 2 ) AND [p].[PhotoId] IS NULL;
+
+-- check: self-inactivated-record-has-its-note
+-- why: Decision D-integrity-3. Rock's Email Preferences page inactivates a person who says they are no longer involved, with their reason and note, and marks the record Self Inactivated, and Rock's save hook stamps when the status changed. Rock's Self Inactivated Individuals report shows the reason and the notes.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
+    AND [p].[ReviewReasonValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'D539C356-6856-4E94-80B4-8FEA869AF38B' )
+    AND ( [p].[RecordStatusValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' )
+        OR [p].[RecordStatusReasonValueId] IS NULL OR ISNULL( [p].[InactiveReasonNote], '' ) = '' OR ISNULL( [p].[ReviewReasonNote], '' ) = ''
+        OR [p].[RecordStatusLastModifiedDateTime] IS NULL );
+
+-- check: data-automation-rules-are-off
+-- why: Decision D-integrity-7. Each Data Automation rule the load saves is configured and off, so Rock's Data Automation job, which runs every Tuesday at 4 AM, inactivates, moves, and relabels nobody.
+SELECT COUNT(*)
+FROM [Attribute] AS [a]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] LIKE 'core[_]DataAutomation%'
+    AND ISNULL( [a].[DefaultValue], '' ) NOT LIKE '{"IsEnabled":false,%';
 
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.

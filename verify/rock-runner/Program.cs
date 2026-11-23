@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage|data-automation --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -105,10 +105,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates", "group-requirements", "launch-benevolence-workflows", "staff-homepage" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates", "group-requirements", "launch-benevolence-workflows", "staff-homepage", "data-automation" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" or "launch-benevolence-workflows" or "staff-homepage" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage|data-automation --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -154,6 +154,7 @@ namespace RockSampleData.RockRunner
                     "process-reminders" => worker.ProcessReminders(),
                     "process-workflows" => worker.ProcessWorkflows(),
                     "person-duplicates" => worker.PersonDuplicates(),
+                    "data-automation" => worker.DataAutomation(),
                     "launch-step-workflows" => worker.LaunchStepWorkflows( lines ),
                     "group-requirements" => worker.GroupRequirements(),
                     "launch-benevolence-workflows" => worker.LaunchBenevolenceWorkflows( lines ),
@@ -374,6 +375,55 @@ namespace RockSampleData.RockRunner
             var timer = Stopwatch.StartNew();
             RunStoredJob( Activator.CreateInstance( _rock.GetType( "Rock.Jobs.RunSQL", true ) ), new Guid( "C386528C-3AC6-44E8-884E-A57B571B65D5" ) );
             return $"Calculate Person Duplicates ran in {timer.ElapsedMilliseconds} ms";
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            The load saves each Data Automation rule as JSON in its system setting, in the shape of Rock's settings class.
+            A misspelled property would read back as the class default, with no error, so the runner reads each rule with
+            Rock's own class and writes it again with Rock's own serializer. Then it runs Rock's Data Automation job as
+            Rock's scheduler does, every Tuesday at 4 AM. Verify compares both with the load.
+
+            Reason: Rock itself proves the rules read as configured and change nobody (decision D-integrity-7).
+        */
+
+        /// <summary>
+        /// Reads each Data Automation rule with Rock's settings class and writes it back with Rock's serializer, one
+        /// "SETTING key json" line each ("unreadable" when Rock cannot read it), then runs Rock's Data Automation job and
+        /// writes its result after "RESULT".
+        /// </summary>
+        public string DataAutomation()
+        {
+            Start();
+            StartMessageBus();
+            var common = Assembly.Load( "Rock.Common" ).GetType( "Rock.JsonExtensions", true );
+            var fromJson = common.GetMethods( BindingFlags.Public | BindingFlags.Static ).First( m => m.Name == "FromJsonOrNull" && m.IsGenericMethodDefinition );
+            var toJson = common.GetMethod( "ToJson", new[] { typeof( object ) } );
+            var getValue = _rock.GetType( "Rock.Web.SystemSettings", true ).GetMethod( "GetValue", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof( string ) }, null );
+            var rules = new[]
+            {
+                ("core_DataAutomationReactivatePeople", "ReactivatePeople"),
+                ("core_DataAutomationInactivatePeople", "InactivatePeople"),
+                ("core_DataAutomationUpdateFamilyCampus", "UpdateFamilyCampus"),
+                ("core_DataAutomationAdultChildren", "MoveAdultChildren"),
+                ("core_DataAutomationUpdatePersonConnectionStatus", "UpdatePersonConnectionStatus"),
+                ("core_DataAutomationUpdateFamilyStatus", "UpdateFamilyStatus")
+            };
+
+            var lines = new List<string>();
+            foreach ( var (key, className) in rules )
+            {
+                var stored = ( string ) getValue.Invoke( null, new object[] { key } );
+                var settings = string.IsNullOrEmpty( stored ) ? null : fromJson.MakeGenericMethod( _rock.GetType( $"Rock.Utility.Settings.DataAutomation.{className}", true ) ).Invoke( null, new object[] { stored } );
+                lines.Add( $"SETTING\t{key}\t{( settings == null ? "unreadable" : ( string ) toJson.Invoke( null, new[] { settings } ) )}" );
+            }
+
+            var jobType = _rock.GetType( "Rock.Jobs.DataAutomation", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "059DC06D-39F1-4113-A6C3-94622A40F1CE" ) );
+            lines.Add( $"RESULT\t{( ( string ) jobType.GetProperty( "Result" ).GetValue( job ) ?? string.Empty ).Replace( "\r", string.Empty ).Replace( "\n", "; " ).Trim( ' ', ';' )}" );
+            return string.Join( "\n", lines );
         }
 
         /// <summary>

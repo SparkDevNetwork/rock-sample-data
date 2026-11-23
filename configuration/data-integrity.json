@@ -1,0 +1,370 @@
+{
+  "$comment": "Every designed problem on Rock's Tools > Data Integrity pages (docs/data-integrity.md, issue 2). The data is clean on purpose, so each problem here is named, small, and tied to a Cast story. Emails stay on example.org, phones stay reserved, and addresses come from the pool. Dates count back from the install day. People are Cast Guids, with a name for the reader.",
+  "recordDates": {
+    "$comment": "When each Cast person's record was made, which Rock's Pending report and Connection Status Changes report show. A person's record was made on their household's first visit (attendance.started), or for a child born after it, the given number of days after birth. Pending records take the date of the form that made them, below. Every other household with no first visit has a date here: the first thing the load writes for them. A record is never made after the first attendance, gift, group membership, request, or note the load writes for the person, and the Cast expectations check it.",
+    "time": "11:20",
+    "newbornDays": 21,
+    "households": {}
+  },
+  "pending": {
+    "$comment": "Every Cast person whose record is Pending, and the form that made the record. Rock's web forms make a new person Pending and set the form's Record Source, so staff review the record before it counts. Nobody reviewed these, so Rock's Pending Individuals report lists them. A record with no source was made before Rock recorded one.",
+    "records": [
+      {
+        "person": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+        "name": "Jack Harper",
+        "source": "Group Registration",
+        "created": { "yearsAgo": 3, "month": 11, "day": 16, "time": "21:14" },
+        "connectionStatus": "Prospect",
+        "story": "Jack signed up online for the Jenkins Group the night before it started. Rock made his record Pending, as a Prospect. Jamal later marked him Connected, but nobody reviewed the record itself."
+      },
+      {
+        "person": "160A4747-9D65-44DD-97B6-91A0E583C1BC",
+        "name": "Will Jones",
+        "source": "External Website",
+        "created": { "yearsAgo": 4, "month": 9, "day": 12, "time": "20:05" },
+        "connectionStatus": "Prospect",
+        "story": "Will made an account on the church website four years ago, which made his record Pending. He has come since and joined the Jenkins Group, but nobody reviewed his record."
+      },
+      {
+        "person": "52F2BD19-573B-485C-836A-9562389AF2E4",
+        "name": "Dale Tucker",
+        "source": "Group Registration",
+        "created": { "yearsAgo": 3, "month": 11, "day": 16, "time": "12:40" },
+        "connectionStatus": "Prospect",
+        "story": "Dale signed up online for the Jenkins Group the day before Jack did. His record is still Pending."
+      },
+      {
+        "person": "902984C3-BCE1-405A-8A74-416F7D15B288",
+        "name": "John Smith",
+        "source": "External Website",
+        "created": { "yearsAgo": 2, "month": 9, "day": 3, "time": "21:30" },
+        "connectionStatus": "Prospect",
+        "story": "This John Smith made an account on the church website two years ago, which made his record Pending. He comes now and then, and ten days ago he asked online to join the Gilbert Group. His request waits, and so does his record."
+      },
+      {
+        "person": "AAFC133A-F54F-4AFA-A9F3-AD650941B2CE",
+        "name": "John Smith",
+        "source": "Group Registration",
+        "created": { "yearsAgo": 3, "month": 1, "day": 14, "time": "20:12" },
+        "connectionStatus": "Prospect",
+        "story": "Jon once signed up for a small group as John, so Rock made this duplicate record. Jamal's merge request covers it."
+      },
+      {
+        "person": "C966D4EC-C84A-4F70-BA86-90E1F8480831",
+        "name": "John Smith",
+        "source": "Event Registration",
+        "created": { "yearsAgo": 4, "month": 2, "day": 9, "time": "13:15" },
+        "connectionStatus": "Connected",
+        "story": "Jon registered for an event as John, with his home phone typed as a work number. The registration made this duplicate record as Connected, the status the event's template gives new people."
+      },
+      {
+        "person": "077F2901-A51E-43F9-A35A-98CC97C4D465",
+        "name": "Jon Smith",
+        "story": "Jon's own record is older than Rock's Record Source, so it has none. It stayed Pending while his duplicates piled up."
+      }
+    ]
+  },
+  "selfInactivations": {
+    "$comment": "People who chose \"I'm no longer involved\" on Rock's Email Preferences page and wrote a note. Rock inactivates the person with their reason and note and marks the record Self Inactivated for review. An adult in one family inactivates the whole family, as the page's Allow Inactivating Family setting does by default. Rock's Self Inactivated Individuals report lists them. Each person's household file says inactive, with the same reason.",
+    "records": [
+      {
+        "person": "8AF84CC0-CD08-430D-A0D4-04B151AAEB96",
+        "name": "Erin Murphy",
+        "reason": "Moved",
+        "note": "We moved to Columbus for Patrick's job, and we found a church home here. Thank you for eight wonderful years. We miss you all!",
+        "inactivated": { "yearsAgo": 2, "month": 8, "day": 24, "time": "20:47" },
+        "story": "Two months after the Murphys moved to Ohio, Erin followed the link at the bottom of a church email and said they are no longer involved. Rock inactivated Patrick, Erin, and Liam with her note."
+      },
+      {
+        "person": "6F8AA474-5586-4012-B0EC-02BA3D7DE18B",
+        "name": "Pam Keller",
+        "reason": "No Longer Attending",
+        "note": "We've been going to a church near our daughter in Mesa for years now. Please take us off your lists. We're grateful for our time at Rock Solid.",
+        "inactivated": { "daysAgo": 23, "time": "19:32" },
+        "story": "The Kellers stopped coming ten years ago, but their records stayed active. Last month Pam said they are no longer involved, which inactivated Doug and Pam."
+      }
+    ]
+  },
+  "connectionStatusHistory": {
+    "$comment": "Connection status changes staff made on Cast people, which Rock writes to each person's History and its Connection Status Changes report reads. Each change runs from one status to the next, and the last ends at the person's status in their household file. A record made in the report's date range also shows as a new person.",
+    "people": [
+      {
+        "people": [
+          { "person": "93719445-07BF-4B1F-85E5-2838BF66A13B", "name": "Andy Shaw" },
+          { "person": "EA03C61D-F6B3-4B00-8028-5BC86F24CA09", "name": "Lauren Shaw" },
+          { "person": "C7AB4E87-EF23-4B2E-BFD5-BFDCB77FEB1F", "name": "Owen Shaw" },
+          { "person": "8C859873-811C-4050-91B5-C95B7D1F2247", "name": "Ella Shaw" }
+        ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "daysAgo": 150, "time": "09:41" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "The Shaws came most Sundays after their first visit, so Alisha marked the family Connected."
+      },
+      {
+        "people": [ { "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB", "name": "Josh Sanders" } ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "yearsAgo": 1, "month": 7, "day": 14, "time": "10:22" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "Josh kept coming after his first visit, so Alisha marked him Connected."
+      },
+      {
+        "people": [ { "person": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2", "name": "Jack Harper" } ],
+        "changes": [
+          { "from": "Prospect", "to": "Connected", "changed": { "yearsAgo": 2, "month": 3, "day": 8, "time": "11:05" }, "by": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2" }
+        ],
+        "story": "Jamal marked Jack Connected once he came regularly, but left his record Pending."
+      },
+      {
+        "people": [ { "person": "160A4747-9D65-44DD-97B6-91A0E583C1BC", "name": "Will Jones" } ],
+        "changes": [
+          { "from": "Prospect", "to": "Connected", "changed": { "yearsAgo": 2, "month": 5, "day": 19, "time": "10:48" }, "by": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2" }
+        ],
+        "story": "Jamal marked Will Connected."
+      },
+      {
+        "people": [ { "person": "52F2BD19-573B-485C-836A-9562389AF2E4", "name": "Dale Tucker" } ],
+        "changes": [
+          { "from": "Prospect", "to": "Connected", "changed": { "yearsAgo": 2, "month": 2, "day": 2, "time": "15:30" }, "by": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2" }
+        ],
+        "story": "Jamal marked Dale Connected."
+      },
+      {
+        "people": [ { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker" } ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "yearsAgo": 10, "month": 5, "day": 3, "time": "10:15" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" },
+          { "from": "Connected", "to": "Engaged", "changed": { "yearsAgo": 10, "month": 10, "day": 18, "time": "14:02" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" },
+          { "from": "Engaged", "to": "Leading", "changed": { "yearsAgo": 9, "month": 2, "day": 7, "time": "09:30" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "Ted's whole path: he first came on Christmas Eve, came regularly by spring, joined a group that fall, and began leading one the next winter."
+      },
+      {
+        "people": [ { "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker" } ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "yearsAgo": 10, "month": 5, "day": 3, "time": "10:15" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" },
+          { "from": "Connected", "to": "Engaged", "changed": { "yearsAgo": 10, "month": 10, "day": 18, "time": "14:02" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "Cindy moved with Ted until he began leading."
+      },
+      {
+        "people": [
+          { "person": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11", "name": "Derek Ward" },
+          { "person": "AE71B1A1-1FE8-4FA4-AFF2-1ABA57D40592", "name": "Kayla Ward" }
+        ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "yearsAgo": 1, "month": 10, "day": 5, "time": "11:40" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "After the church helped with their electric bill, the Wards came more often, and Alisha marked them Connected."
+      },
+      {
+        "people": [
+          { "person": "29D15B31-6662-479E-9626-DBED80637F39", "name": "Doug Keller" },
+          { "person": "6F8AA474-5586-4012-B0EC-02BA3D7DE18B", "name": "Pam Keller" }
+        ],
+        "changes": [
+          { "from": "Known", "to": "Connected", "changed": { "yearsAgo": 14, "month": 1, "day": 10, "time": "13:25" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "The Kellers were Connected for years before they stopped coming."
+      }
+    ]
+  },
+  "dataErrors": {
+    "$comment": "Rock's Person Data Error workflow, which staff start from a person's profile with Report Data Error. Rock's workflow gives every report to its admin person, Alisha Marble, and waits for her resolution. Open reports wait in her My Workflows list. A resolved report says what she did, and a fix she made is in the person's History.",
+    "reports": [
+      {
+        "key": "harper-pending",
+        "person": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
+        "name": "Jack Harper",
+        "reportedBy": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+        "reported": { "daysAgo": 6, "time": "14:12" },
+        "details": "Jack has been in our small groups for three years, but his record still says Pending. Could someone review it and make it active?",
+        "story": "Jamal noticed Jack's Pending record. It waits for Alisha."
+      },
+      {
+        "key": "thomas-miller-duplicate",
+        "person": "955BF3E9-D38A-4DCB-A6F2-EDF5EC2571C5",
+        "name": "Thomas Miller",
+        "reportedBy": "8A798763-D95F-4EE8-BF7F-FA320226335B",
+        "reported": { "daysAgo": 12, "time": "10:05" },
+        "details": "I think Thomas Miller is our Tom Miller. The connection card has Tom's home phone. Tom moved last spring, so the card may have made a second record.",
+        "story": "Aaron reported the duplicate the Duplicate Finder also lists. It waits for Alisha."
+      },
+      {
+        "key": "ellis-address",
+        "person": "4642FEAD-FFB8-4FB8-A5BD-8F9B67C2D4BA",
+        "name": "Hannah Ellis",
+        "reportedBy": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+        "reported": { "daysAgo": 9, "time": "16:40" },
+        "details": "Hannah says their home doesn't show on the map when she looks for a small group near them. They just moved into a new house, so the street may be too new for the map.",
+        "story": "Ted passed on the Ellises' address, which Rock's address service could not match. It waits for Alisha."
+      },
+      {
+        "key": "hayes-two-emails",
+        "person": "A8CFFC26-2EAA-4B1D-9F1E-54071FD0C29A",
+        "name": "Linda Hayes",
+        "reportedBy": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C",
+        "reported": { "daysAgo": 47, "time": "11:15" },
+        "details": "Linda mentioned she gets two copies of every church email. Can we fix that?",
+        "resolved": { "daysAgo": 45, "time": "09:30" },
+        "resolution": "Bob and Linda share one email address, so each of their records gets its own copy. Linda said that's fine, so I left both records as they are.",
+        "story": "Pete asked about the Hayeses' shared email, and Alisha resolved it with no change."
+      },
+      {
+        "key": "stone-nick-name",
+        "person": "AE45A615-D55E-4749-B2DB-47BBC9FBD885",
+        "name": "Corrie Stone",
+        "reportedBy": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2",
+        "reported": { "daysAgo": 103, "time": "13:20" },
+        "details": "Cora goes by Corrie, but her group's roster says Cora.",
+        "resolved": { "daysAgo": 102, "time": "08:55" },
+        "resolution": "Set her nick name to Corrie.",
+        "fix": { "valueName": "Nick Name", "oldValue": "Cora", "newValue": "Corrie" },
+        "story": "Jamal asked for Corrie's nick name, and Alisha set it the next morning."
+      }
+    ]
+  },
+  "photoRequests": {
+    "$comment": "Rock's Photo Request workflow, which staff start from a person's profile. It emails the person a link to upload a photo or opt out. An upload puts the person in Rock's Photo Request group as Pending until staff verify the photo, which makes them Active. An opt-out makes them Inactive. Rock's Verify Photos page lists the Pending ones. Each upload is the person's own photo in the Cast, dated the day they sent it.",
+    "sender": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+    "message": "We're updating our church photo directory this fall. Please take a minute to upload a recent photo using the button below. Thank you!",
+    "requests": [
+      {
+        "person": "468247EF-7A8B-4E02-9F23-C3BA98C74837",
+        "name": "Bob Hayes",
+        "sent": { "daysAgo": 9, "time": "10:12" },
+        "uploaded": { "daysAgo": 6, "time": "19:48" },
+        "story": "Bob uploaded a photo, which waits for Alisha to verify."
+      },
+      {
+        "person": "727A0988-9147-40E0-96D5-12D90F3C2DDD",
+        "name": "Deb Bell",
+        "sent": { "daysAgo": 9, "time": "10:15" },
+        "uploaded": { "daysAgo": 2, "time": "07:31" },
+        "story": "Deb uploaded a photo, which waits for Alisha to verify."
+      },
+      {
+        "person": "65B88091-00EE-4E28-9136-42B45E0C7188",
+        "name": "Larry Bell",
+        "sent": { "daysAgo": 31, "time": "14:02" },
+        "uploaded": { "daysAgo": 28, "time": "20:16" },
+        "verified": { "daysAgo": 27, "time": "09:05" },
+        "story": "Larry uploaded a photo the first week, and Alisha verified it."
+      },
+      {
+        "person": "9E7DC86C-6680-4E81-A6D1-9C8B496B753C",
+        "name": "Dick Ross",
+        "sent": { "daysAgo": 31, "time": "14:05" },
+        "optedOut": { "daysAgo": 30, "time": "08:44" },
+        "story": "Dick opted out of photo requests."
+      },
+      {
+        "person": "7A3DD18D-BE93-4253-ACE3-B5CB02EDB087",
+        "name": "Peggy Carter",
+        "sent": { "daysAgo": 9, "time": "10:19" },
+        "story": "Peggy has not answered yet."
+      }
+    ]
+  },
+  "sharedEmails": {
+    "$comment": "Married couples who share one email address, as many couples do. Each household file gives both spouses the same email. Rock's Individuals with Duplicate Emails report lists them, and Rock's duplicate finder scores a couple low, because their first names and genders differ, so the Duplicate Finder does not list them.",
+    "households": [
+      { "household": "hayes", "email": "bobandlinda.hayes@example.org", "story": "Bob and Linda Hayes have shared one email address for years." },
+      { "household": "ross", "email": "dickandjoan.ross@example.org", "story": "Dick and Joan Ross share one email address." }
+    ]
+  },
+  "failedAddresses": {
+    "$comment": "Cast home addresses Rock's address service could not match, because each is a new home on a street too new for its data. Rock left the No Match result and no map point. Alisha checked Location Locked on each, which stops Rock from sending the address to the service again (decision 316), so it stays on Rock's Location Editor under Not Geocoded until someone places the pin. The household files keep each home's true map point from the address pool, which Rock never got.",
+    "result": "No Match",
+    "lockedBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+    "households": [
+      { "household": "ellis", "story": "Jordan and Hannah Ellis just moved into a new house." },
+      { "household": "ramirez", "story": "The Ramirez family moved to Phoenix this month, into a new house." }
+    ]
+  },
+  "settings": {
+    "$comment": "Rock's Data Integrity Settings page. Each Data Automation rule is configured the way a church sets it up, and every rule is off (Jon, issue 2 question 1), so Rock's Data Automation job changes no one. Each rule is Rock's own settings class, saved as JSON in its system setting. Where Rock stores a database Id, this file gives the Guid, and the load writes the Id. General keeps Rock's gender auto-fill confidence of 99.9. NCOA's settings are saved with an NCOA run (slice 3).",
+    "rules": {
+      "core_DataAutomationReactivatePeople": {
+        "IsEnabled": false,
+        "IsLastContributionEnabled": true,
+        "LastContributionPeriod": 90,
+        "IsAttendanceInServiceGroupEnabled": true,
+        "AttendanceInServiceGroupPeriod": 90,
+        "IsRegisteredInAnyEventEnabled": true,
+        "RegisteredInAnyEventPeriod": 90,
+        "IsAttendanceInGroupTypeEnabled": true,
+        "AttendanceInGroupType": [ "50FCFB30-F51A-49DF-86F4-2B176EA1820B", "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4" ],
+        "AttendanceInGroupTypeDays": 90,
+        "IsSiteLoginEnabled": true,
+        "SiteLoginPeriod": 90,
+        "IsPrayerRequestEnabled": true,
+        "PrayerRequestPeriod": 90,
+        "IsPersonAttributesEnabled": false,
+        "PersonAttributes": [],
+        "PersonAttributesDays": 90,
+        "IsIncludeDataViewEnabled": false,
+        "IncludeDataView": null,
+        "IsExcludeDataViewEnabled": false,
+        "ExcludeDataView": null,
+        "IsInteractionsEnabled": false,
+        "Interactions": []
+      },
+      "core_DataAutomationInactivatePeople": {
+        "IsEnabled": false,
+        "IsNoLastContributionEnabled": true,
+        "NoLastContributionPeriod": 500,
+        "IsNoAttendanceInGroupTypeEnabled": true,
+        "AttendanceInGroupType": [ "77713830-AE5E-4B1A-94FA-E145DFF85035", "50FCFB30-F51A-49DF-86F4-2B176EA1820B", "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4", "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8", "E3C8F7D6-5CEB-43BB-802F-66C3E734049E", "7A17235B-69AD-439B-BAB0-1A0A472DB96F", "9A88743B-F336-4404-B877-2A623689195D" ],
+        "NoAttendanceInGroupTypeDays": 500,
+        "IsNotRegisteredInAnyEventEnabled": true,
+        "NotRegisteredInAnyEventDays": 500,
+        "IsNoSiteLoginEnabled": true,
+        "NoSiteLoginPeriod": 500,
+        "IsNoPrayerRequestEnabled": true,
+        "NoPrayerRequestPeriod": 500,
+        "IsNoPersonAttributesEnabled": false,
+        "PersonAttributes": [],
+        "NoPersonAttributesDays": 500,
+        "IsNotInDataviewEnabled": false,
+        "NotInDataview": null,
+        "IsNoInteractionsEnabled": false,
+        "NoInteractions": [],
+        "RecordsOlderThan": 180
+      },
+      "core_DataAutomationUpdateFamilyCampus": {
+        "IsEnabled": false,
+        "TimesToTriggerCampusChange": 3,
+        "IsMostFamilyAttendanceEnabled": true,
+        "MostFamilyAttendancePeriod": 90,
+        "IsMostFamilyGivingEnabled": true,
+        "MostFamilyGivingPeriod": 90,
+        "MostAttendanceOrGiving": 2,
+        "IsIgnoreIfManualUpdateEnabled": true,
+        "IgnoreIfManualUpdatePeriod": 90,
+        "IsIgnoreCampusChangesEnabled": false,
+        "IgnoreCampusChanges": [],
+        "ExcludeSchedules": []
+      },
+      "core_DataAutomationAdultChildren": {
+        "IsEnabled": false,
+        "IsOnlyMoveGraduated": true,
+        "AdultAge": 18,
+        "ParentRelationshipId": "6F3FADC4-6320-4B54-9CF6-02EF9586A660",
+        "SiblingRelationshipId": "1D92F0E1-E161-4160-9C63-2D0A901D3C38",
+        "UseSameHomeAddress": true,
+        "UseSameHomePhone": true,
+        "WorkflowTypeIds": [],
+        "MaximumRecords": 200
+      },
+      "core_DataAutomationUpdatePersonConnectionStatus": {
+        "IsEnabled": false,
+        "ConnectionStatusValueIdDataviewIdMapping": {
+          "377B6513-5671-4B8B-A520-BFDA739AFCA6": "9EC7CC67-C084-40DA-926A-28302D59C238"
+        }
+      },
+      "core_DataAutomationUpdateFamilyStatus": {
+        "IsEnabled": false,
+        "GroupStatusValueIdDataviewIdMapping": {}
+      }
+    }
+  }
+}

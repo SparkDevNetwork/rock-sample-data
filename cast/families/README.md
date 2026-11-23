@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 104 hand-designed households and 230 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
+The Cast is 105 hand-designed households and 232 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -108,6 +108,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | [Jenkins Family](jenkins.md) | new | 3 | Engaged | Grandparents raising a grandchild. |
 | [Jones Family](jones-ben.md) | legacy | 2 | Known, Connected | Divorced parent with joint custody; the child belongs to two families. |
 | [Jones Family](jones-will.md) | legacy | 1 | Connected | Pending record that needs review. |
+| [Keller Family](keller.md) | new | 2 | Connected | Self-inactivated record: Pam chose No Longer Attending on Rock's Email Preferences page and wrote a note, which inactivated both of them. |
 | [Kelly Family](kelly.md) | new | 3 | Known | Benevolence request: one month's rent, paid to her landlord. |
 | [Kim Family](kim.md) | new | 3 | Connected | Adult child living at home (adult role in the family). |
 | [Lee Family](lee.md) | new | 8 | Leading, Engaged | Family of eight with kids in every check-in area. |

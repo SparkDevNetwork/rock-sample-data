@@ -275,6 +275,10 @@ try
             stage = "group-requirements";
             checks.Add( GroupRequirementsCheck.Run( rock, sql, database, anchor ) );
 
+            // Rock's Data Automation job runs every Tuesday at 4 AM. With every rule off, it must change nobody.
+            stage = "data-automation";
+            checks.Add( DataAutomationCheck.Run( rock, sql, database, foreignKey ) );
+
             // After every other check of the load, because it clears case workers on this throwaway copy for Rock's
             // workflow to fill again.
             stage = "benevolence-workflow-launch";

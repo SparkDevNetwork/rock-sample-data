@@ -400,6 +400,11 @@ namespace RockSampleData.Loader.Model
 
         public string RecordStatus { get; set; }
 
+        /// <summary>
+        /// The name of an inactive record's Record Status Reason value, such as Moved, or null.
+        /// </summary>
+        public string RecordStatusReason { get; set; }
+
         public bool IsDeceased { get; set; }
 
         public string ConnectionStatus { get; set; }
