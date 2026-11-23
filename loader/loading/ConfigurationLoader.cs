@@ -135,6 +135,7 @@ VALUES ( @Name, @Calendar, @CheckInStart, @CheckInEnd, '2013-05-01', @CategoryId
                         P( "@CategoryId", categoryId ),
                         P( "@Guid", slot.Guid ),
                         P( "@ForeignKey", _foreignKey ) ) );
+                    WriteScheduleDates( id.Value, slot );
                 }
 
                 slotIds[slot.Key] = id.Value;
@@ -142,6 +143,33 @@ VALUES ( @Name, @Calendar, @CheckInStart, @CheckInEnd, '2013-05-01', @CategoryId
 
             _db.Log.Write( $"  Service time slots: {slotIds.Count}" );
             return slotIds;
+        }
+
+        /// <summary>
+        /// The install day. A new slot's schedule dates count from it at midnight, so the same anchor gives the same rows.
+        /// </summary>
+        public DateTime Today { get; init; } = DateTime.Today;
+
+        /// <summary>
+        /// Writes a new slot's ScheduleDate rows, as Rock's Schedule save hook does for each start from two years before
+        /// to two years after (ScheduleService.UpdateScheduleDates), so Rock Cleanup finds nothing to add, as for the
+        /// calendar's schedules (CalendarPlanner). A start counts when the service overlaps the window.
+        /// </summary>
+        private void WriteScheduleDates( int scheduleId, ScheduleSlot slot )
+        {
+            var rows = TableFactory.Create( "ScheduleId:int", "StartDateTime:date", "EndDateTime:date", "StartDateKey:int" );
+            var weekday = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), slot.Day );
+            var time = TimeSpan.Parse( slot.Start );
+            for ( var day = Today.AddYears( -2 ).AddDays( -1 ); day < Today.AddYears( 2 ); day = day.AddDays( 1 ) )
+            {
+                var start = day.Add( time );
+                if ( day.DayOfWeek == weekday && start < Today.AddYears( 2 ) && start.AddMinutes( slot.Minutes ) > Today.AddYears( -2 ) )
+                {
+                    rows.Rows.Add( scheduleId, start, start.AddMinutes( slot.Minutes ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
+                }
+            }
+
+            _db.BulkInsert( "ScheduleDate", rows, keepIdentity: false );
         }
 
         /// <summary>

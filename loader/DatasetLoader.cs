@@ -300,7 +300,7 @@ namespace RockSampleData.Loader
             var steps = new StepRunner( log, parts );
 
             steps.Begin( "Configuration" );
-            var configuration = new ConfigurationLoader( db, source, dataset, foreignKey );
+            var configuration = new ConfigurationLoader( db, source, dataset, foreignKey ) { Today = dates.Anchor.Date };
             configuration.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
