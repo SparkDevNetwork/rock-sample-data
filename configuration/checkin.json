@@ -1,5 +1,5 @@
 {
-  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-8).",
+  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service, and at Student Night on Wednesdays at 6:30 PM. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-8).",
   "template": {
     "name": "Weekly Service Check-in",
     "guid": "FEDD389A-616F-4A53-906C-63D8255631C5"
@@ -118,9 +118,10 @@
     "crawlers-walkers": 12
   },
   "studentFallbackSlot": "sun-1030",
-  "$templateSettingsComment": "Settings of the Weekly Service Check-in template, by Rock attribute key (decision D-checkin-config-3). Supervisor mode is on, so a supervisor PIN opens a kiosk's supervisor screen. A volunteer can check a child out in the Check-in Manager. A person already checked in to a service cannot check in to it again.",
+  "$templateSettingsComment": "Settings of the Weekly Service Check-in template, by Rock attribute key (decision D-checkin-config-3). Supervisor mode is on, so a supervisor PIN opens a kiosk's supervisor screen. A child can be checked out at the kiosk, and a volunteer can check a child out in the Check-in Manager. A person already checked in to a service cannot check in to it again.",
   "templateSettings": {
     "core_checkin_EnableManagerOption": "True",
+    "core_checkin_AllowCheckout_Kiosk": "True",
     "core_checkin_AllowCheckout_Manager": "True",
     "core_checkin_PreventDuplicateCheckin": "True"
   },

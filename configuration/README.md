@@ -166,7 +166,7 @@ The rest of `checkin.json` is set on purpose, the way a church sets up check-in 
 
 | Part | What it sets |
 |---|---|
-| `templateSettings` | The template's own settings, by Rock attribute key: supervisor mode on, checkout in the Check-in Manager, and duplicate check-in prevented. |
+| `templateSettings` | The template's own settings, by Rock attribute key: supervisor mode on, checkout at the kiosk and in the Check-in Manager, and duplicate check-in prevented. |
 | `labels` | Rock's next-gen labels by key. Each area's `labels` lists what it prints: Child, Parent, and Note labels for kids, and a Name Tag for students. `serving.json` gives the Serving Team area a Name Tag too. |
 | `roomSoftThreshold`, `roomFirmThreshold` | Each room's limits, by group, at every campus. Only the two nursery rooms have a firm limit, which no supervisor can override. |
 | A group's `secondRoom` | A second room for a large group. Grades 4-6 meets in the Outpost Room and the Basecamp Room, and its area uses Rock's Balance strategy. A Kids Ministry position serves each room. |
