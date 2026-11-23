@@ -57,6 +57,8 @@ flowchart LR
 | `content/prayer/*` | Text pools for prayer requests, answers, and prayer team comments, checked by `check-pools.js` | People writing sample text |
 | `calibration/profiles/*.json` | Target numbers for everything generated | People adding calibration sources |
 | `addresses/pool.json` | 18,000 placed addresses | Built by `addresses/build-pool.js` |
+| `names/first-names.json`, `names/surnames.json` | The top 200 first names for each gender and birth decade, and the top 2,000 surnames, each with its count | Built by `names/build-names.js` from public-domain data |
+| `names/nicknames.json` | Common nicknames for first names in the tables | People shaping the Crowd |
 | `photos/manifest.json` | Every generated photo and the prompt that made it | The image agent |
 
 ## One load, step by step

@@ -19,8 +19,9 @@
     Reads the repository's own data files into one model for the site. The site never keeps
     a copy of the Cast or the church: every page is built from these files, so it cannot drift.
 
-    Only these folders are read: cast/, configuration/, datasets/, and photos/. Calibration data
-    is never read, so nothing about a calibration source can reach the public site.
+    Only these folders are read: cast/, configuration/, datasets/, photos/, and graphics/, plus the loader
+    version packages need, from loader/packages/SampleDataPackage.cs. Calibration data is never
+    read, so nothing about a calibration source can reach the public site.
 */
 
 const fs = require( "fs" );
@@ -41,6 +42,19 @@ function listJson( relative ) {
 
 function exists( relative ) {
     return fs.existsSync( path.join( root, relative ) );
+}
+
+/**
+ * The oldest loader that can read the packages, read the way release/check-minimum-loader.js reads it (decision 158).
+ */
+function minimumLoaderVersion() {
+    const source = "loader/packages/SampleDataPackage.cs";
+    const match = /MinimumLoaderVersion\s*=\s*"([^"]+)"/.exec( fs.readFileSync( path.join( root, source ), "utf8" ) );
+    if ( !match ) {
+        throw new Error( `${source} has no MinimumLoaderVersion.` );
+    }
+
+    return match[1];
 }
 
 /**
@@ -304,7 +318,8 @@ function load() {
             return { ...e, photo: photo ? path.basename( photo.file ) : null, original: photo ? `${e.key}.png` : null };
         } ) : [],
         registrations: exists( "configuration/registrations.json" ) ? readJson( "configuration/registrations.json" ) : { categories: [], templates: [], instances: [] },
-        stepTypes: exists( "configuration/steps.json" ) ? readJson( "configuration/steps.json" ).programs.flatMap( p => p.stepTypes ) : [],
+        stepTypes: exists( "configuration/steps.json" ) ? readJson( "configuration/steps.json" ).programs.flatMap( p => p.stepTypes.map( t => ( { ...t, program: p.key, programName: p.name } ) ) ) : [],
+        minimumLoaderVersion: minimumLoaderVersion(),
         datasets: Object.fromEntries( listJson( "datasets" ).map( d => [ d.key, d ] ) ),
         counts: {
             households: households.length,

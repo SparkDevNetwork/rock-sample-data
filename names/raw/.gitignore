@@ -1,0 +1,3 @@
+# Downloaded source data (SSA baby names, Census surnames). Never commit it.
+*
+!.gitignore
