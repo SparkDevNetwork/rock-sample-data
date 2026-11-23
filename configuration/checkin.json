@@ -1,5 +1,5 @@
 {
-  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-7).",
+  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-8).",
   "template": {
     "name": "Weekly Service Check-in",
     "guid": "FEDD389A-616F-4A53-906C-63D8255631C5"
@@ -138,7 +138,17 @@
     "schedules": [
       { "name": "4:30 (test)", "guid": "A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE" },
       { "name": "6:00 (test)", "guid": "C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7" }
-    ]
+    ],
+    "volunteerArea": {
+      "$comment": "Volunteer test check-in, in Rock's own test pattern (decision D-checkin-config-7). A Volunteer Test Area under Rock's Volunteer Check-in template, open to anyone, with scheduling off, holds one test group per campus in every room a serving team serves in, on the same two test schedules. It prints a Name Tag, like a real volunteer's. Real teams keep only their real services, so the Group Scheduler, the Schedule Toolbox, and auto-schedule never see a test schedule.",
+      "name": "Volunteer Test Area",
+      "guid": "E3A4419E-62CD-4280-81D4-801078974735",
+      "description": "Is used for testing volunteer check-in when no service is happening. Anyone may check in.",
+      "memberRole": "D33B7CF7-2F0A-4DE6-8456-48E2FE3C529F",
+      "template": { "name": "Volunteer Check-in", "guid": "92435F1D-E525-4FD2-BEC7-4956DC056A2B" },
+      "groupNameFormat": "{campus} Volunteer Test Group",
+      "labels": [ "name-tag" ]
+    }
   },
   "$supervisorsComment": "Each campus's kids check-in supervisor, who opens a kiosk's supervisor screen with the PIN (decision D-checkin-config-3). It is the Cast's kids director where the campus has one: Rachel Brooks at Phoenix and Tina Vu at Chandler. Elsewhere it is the leader of the campus's supervisorTeam. A PIN is a login, so PINs load only when the person installing gives a password, like every other login.",
   "supervisors": [
@@ -152,7 +162,7 @@
   ],
   "supervisorTeam": "kids-ministry",
   "relationships": {
-    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-7). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, each such child gets the same Can check in adult, at least adultMinimumAge, from another attending family at their campus. That adult checks the children in on about checkedInByPercent of their family's Sundays, and comes to that service. The Cast's pairs are in its household files.",
+    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-8). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, each such child gets the same Can check in adult, at least adultMinimumAge, from another attending family at their campus. That adult checks the children in on about checkedInByPercent of their family's Sundays, and comes to that service. The Cast's pairs are in its household files.",
     "crowdChildPercent": 3,
     "childMaximumAge": 12,
     "adultMinimumAge": 25,

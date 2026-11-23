@@ -31,11 +31,12 @@ namespace RockSampleData.Loader.Loading
         Rock's own check-in screens save it: template settings as the template's attribute values, labels as
         RelatedEntity rows from each area to Rock's next-gen labels, room limits on each Location, a second room
         with Rock's Balance strategy on its area, and the Test Group in every kids and student room at every campus
-        on both of Rock's test schedules. Supervisor PINs are logins, so they load in the logins step, only when
-        the person installing gives a password, like every other login.
+        on both of Rock's test schedules. After serving's setup, a volunteer test area does the same for every room a
+        serving team serves in. Supervisor PINs are logins, so they load in the logins step, only when the person
+        installing gives a password, like every other login.
 
         Reason: Check-in should look like a real church's and be testable any day, at any time (decisions
-        D-checkin-config-3 to D-checkin-config-6).
+        D-checkin-config-3 to D-checkin-config-7).
     */
 
     /// <summary>
@@ -130,27 +131,106 @@ WHERE [a].[Key] = @Key AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] 
                 areas.Add( (_source.Serving.GroupType.Guid, servingLabels) );
             }
 
+            return areas.Sum( a => AttachAreaLabels( _db.RequireIdByGuid( "GroupType", a.Guid ), a.Labels ) );
+        }
+
+        /// <summary>
+        /// Attaches labels to one area in order, as Rock's Check-in Areas and Groups block does. Returns how many.
+        /// </summary>
+        private int AttachAreaLabels( int areaId, IReadOnlyList<string> keys )
+        {
             var groupTypeEntityTypeId = _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.GroupType'" );
             var labelEntityTypeId = _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.CheckInLabel'" );
-            var count = 0;
-            foreach ( var (areaGuid, labels) in areas )
+            var order = 0;
+            foreach ( var key in keys )
             {
-                var areaId = _db.RequireIdByGuid( "GroupType", areaGuid );
-                var order = 0;
-                foreach ( var key in labels )
-                {
-                    var label = checkIn.Labels.TryGetValue( key, out var value ) ? value : throw new InvalidDataException( $"configuration/checkin.json has no label \"{key}\"." );
-                    _db.Execute( @"
+                var label = _source.CheckIn.Labels.TryGetValue( key, out var value ) ? value : throw new InvalidDataException( $"configuration/checkin.json has no label \"{key}\"." );
+                _db.Execute( @"
 IF NOT EXISTS ( SELECT 1 FROM [RelatedEntity] WHERE [SourceEntityTypeId] = @SourceTypeId AND [SourceEntityId] = @AreaId AND [TargetEntityTypeId] = @TargetTypeId AND [TargetEntityId] = @LabelId AND [PurposeKey] = @Purpose )
     INSERT INTO [RelatedEntity] ( [SourceEntityTypeId], [SourceEntityId], [TargetEntityTypeId], [TargetEntityId], [PurposeKey], [IsSystem], [Order], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
     VALUES ( @SourceTypeId, @AreaId, @TargetTypeId, @LabelId, @Purpose, 0, @Order, NEWID(), @ForeignKey, GETDATE(), GETDATE() )",
-                        P( "@SourceTypeId", groupTypeEntityTypeId ), P( "@AreaId", areaId ), P( "@TargetTypeId", labelEntityTypeId ),
-                        P( "@LabelId", _db.RequireIdByGuid( "CheckInLabel", label.Guid ) ), P( "@Purpose", AreaCheckInLabelPurposeKey ), P( "@Order", order++ ), P( "@ForeignKey", _foreignKey ) );
-                    count++;
+                    P( "@SourceTypeId", groupTypeEntityTypeId ), P( "@AreaId", areaId ), P( "@TargetTypeId", labelEntityTypeId ),
+                    P( "@LabelId", _db.RequireIdByGuid( "CheckInLabel", label.Guid ) ), P( "@Purpose", AreaCheckInLabelPurposeKey ), P( "@Order", order++ ), P( "@ForeignKey", _foreignKey ) );
+            }
+
+            return keys.Count;
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            Rock ships a test area only for kids and students. Volunteers get the same pattern: a Volunteer Test Area
+            under Rock's Volunteer Check-in template, built like Rock's Check-in Test Area (attendance rule None, no
+            purpose, scheduling off, one Member role), with one test group per campus in every room a serving team
+            serves in, on Rock's two test schedules. A test schedule on a real team's room would put a slot in the
+            Group Scheduler every day, show in the Schedule Toolbox, and let auto-schedule assign volunteers to it.
+
+            Reason: Volunteer check-in can be tested any day, at any time, without touching real scheduling
+            (decision D-checkin-config-7).
+        */
+
+        /// <summary>
+        /// Adds the volunteer test area, linked under Rock's Volunteer Check-in template, and each campus's test group in
+        /// every room a serving team serves in. Runs after serving's setup, which places the teams.
+        /// </summary>
+        public void LoadVolunteerTest( ServingSetup serving )
+        {
+            var test = _source.CheckIn.TestCheckIn;
+            var area = test?.VolunteerArea;
+            if ( area == null )
+            {
+                return;
+            }
+
+            var areaId = _db.IdByGuid( "GroupType", area.Guid ) ?? Convert.ToInt32( _db.Scalar( @"
+INSERT INTO [GroupType] ( [IsSystem], [Name], [Description], [GroupTerm], [GroupMemberTerm], [AllowMultipleLocations], [ShowInGroupList], [ShowInNavigation], [TakesAttendance], [AttendanceRule], [AttendancePrintTo], [Order], [LocationSelectionMode], [IsSchedulingEnabled], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+OUTPUT INSERTED.[Id]
+VALUES ( 0, @Name, @Description, 'Group', 'Member', 1, 0, 0, 1, 0, 0, 0, 0, 0, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
+                P( "@Name", area.Name ), P( "@Description", area.Description ), P( "@Guid", area.Guid ), P( "@ForeignKey", _foreignKey ) ) );
+            var roleId = _db.IdByGuid( "GroupTypeRole", area.MemberRole ) ?? Convert.ToInt32( _db.Scalar( @"
+INSERT INTO [GroupTypeRole] ( [IsSystem], [GroupTypeId], [Name], [Order], [IsLeader], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+OUTPUT INSERTED.[Id]
+VALUES ( 0, @AreaId, 'Member', 0, 0, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
+                P( "@AreaId", areaId ), P( "@Guid", area.MemberRole ), P( "@ForeignKey", _foreignKey ) ) );
+            _db.Execute( "UPDATE [GroupType] SET [DefaultGroupRoleId] = @RoleId WHERE [Id] = @Id", P( "@RoleId", roleId ), P( "@Id", areaId ) );
+            _db.Execute( @"
+IF NOT EXISTS ( SELECT 1 FROM [GroupTypeAssociation] WHERE [GroupTypeId] = @TemplateId AND [ChildGroupTypeId] = @AreaId )
+    INSERT INTO [GroupTypeAssociation] ( [GroupTypeId], [ChildGroupTypeId] ) VALUES ( @TemplateId, @AreaId )",
+                P( "@TemplateId", _db.RequireIdByGuid( "GroupType", area.Template.Guid ) ), P( "@AreaId", areaId ) );
+            if ( area.Labels != null && _source.CheckIn.Labels != null )
+            {
+                AttachAreaLabels( areaId, area.Labels );
+            }
+
+            var scheduleIds = test.Schedules.Select( s => _db.RequireIdByGuid( "Schedule", s.Guid ) ).ToList();
+            var campusNames = _source.Campuses.Campuses.ToDictionary( c => c.Key, c => c.Name );
+            var rooms = 0;
+            foreach ( var (campusKey, plan) in _campusPlans )
+            {
+                var groupGuid = SeededRandom.StableGuid( $"volunteer-test-group:{campusKey}" );
+                var groupId = _db.IdByGuid( "Group", groupGuid ) ?? Convert.ToInt32( _db.Scalar( @"
+INSERT INTO [Group] ( [IsSystem], [GroupTypeId], [CampusId], [Name], [IsSecurityRole], [IsActive], [Order], [IsPublic], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
+OUTPUT INSERTED.[Id]
+VALUES ( 0, @AreaId, @CampusId, @Name, 0, 1, 0, 1, @Guid, @ForeignKey, GETDATE(), GETDATE() )",
+                    P( "@AreaId", areaId ), P( "@CampusId", plan.CampusId ), P( "@Name", area.GroupNameFormat.Replace( "{campus}", campusNames[campusKey] ) ),
+                    P( "@Guid", groupGuid ), P( "@ForeignKey", _foreignKey ) ) );
+
+                foreach ( var roomId in serving.Positions.Where( p => p.Campus == campusKey ).Select( p => p.LocationId ).Distinct().OrderBy( id => id ) )
+                {
+                    var groupLocationId = ConfigurationLoader.EnsureGroupLocation( _db, _foreignKey, groupId, roomId );
+                    foreach ( var scheduleId in scheduleIds )
+                    {
+                        _db.Execute( @"
+IF NOT EXISTS ( SELECT 1 FROM [GroupLocationSchedule] WHERE [GroupLocationId] = @GroupLocationId AND [ScheduleId] = @ScheduleId )
+    INSERT INTO [GroupLocationSchedule] ( [GroupLocationId], [ScheduleId] ) VALUES ( @GroupLocationId, @ScheduleId )",
+                            P( "@GroupLocationId", groupLocationId ), P( "@ScheduleId", scheduleId ) );
+                    }
+
+                    rooms++;
                 }
             }
 
-            return count;
+            _db.Log.Write( $"  Volunteer test check-in: {area.Name} under {area.Template.Name}, a test group at each of {_campusPlans.Count} campuses, in {rooms} serving rooms" );
         }
 
         /// <summary>

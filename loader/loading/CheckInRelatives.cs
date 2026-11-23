@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Loading
         Check-in. The Cast's stories name their pairs, and a Cast line with bringsPercent also brings the child on
         Sundays the child's own family stayed home (decision D-checkin-config-2). In the Crowd, a few families with
         young children get one adult at their campus who may check the children in, and who does on some of their
-        Sundays (decision D-checkin-config-7). Each family draws from its own seeded stream, after people load and
+        Sundays (decision D-checkin-config-8). Each family draws from its own seeded stream, after people load and
         before attendance plans, so no other draw moves.
 
         Reason: A kiosk search and the attendance it records should show the people who really bring children.

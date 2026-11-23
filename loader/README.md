@@ -334,7 +334,7 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:phone-numbers` | The order generated people and businesses take phone numbers in: the Phoenix codes first, then the other codes in `configuration/phones.json` |
 | `{seed}:business-contacts:{campus}` | The order of a campus's families among equals when picking business contacts |
 | `{seed}:attendance:{household guid}` | Which Sundays that family came |
-| `{seed}:check-in-relative:{household guid}` | Whether that generated family's young children get a Can check in adult, and who it is (decision D-checkin-config-7) |
+| `{seed}:check-in-relative:{household guid}` | Whether that generated family's young children get a Can check in adult, and who it is (decision D-checkin-config-8) |
 | `{seed}:relative-check-in:{household guid}` | Which of that family's Sundays the adult checks the children in on, and when the adult arrives at that service |
 | `{seed}:relative-visit:{adult guid}:{household guid}:{date}` | Whether a Cast adult with `bringsPercent` brings that family's children on that Sunday, their arrival, and the day's security code (decision D-checkin-config-2) |
 | `{seed}:giving:{household guid}:{person}:{persona}:{start}` | That giving pattern's gifts |

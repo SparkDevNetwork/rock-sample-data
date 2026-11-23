@@ -20,7 +20,7 @@ namespace RockSampleData.Loader.Model
     /*
         11/23/26 - CLAUDE
 
-        The check-in setup a real church sets on purpose (decisions D-checkin-config-3 to D-checkin-config-7) lives in
+        The check-in setup a real church sets on purpose (decisions D-checkin-config-3 to D-checkin-config-8) lives in
         checkin.json beside the rooms and groups. Every part of it is new in alpha.19, so each is null in an older
         package, and the loader then leaves Rock's check-in as that package left it.
 
@@ -96,6 +96,40 @@ namespace RockSampleData.Loader.Model
         public NamedGuid Group { get; set; }
 
         public List<NamedGuid> Schedules { get; set; } = new List<NamedGuid>();
+
+        /// <summary>
+        /// The church's own volunteer test area, in Rock's test pattern. Null leaves volunteer check-in without one.
+        /// </summary>
+        public VolunteerTestAreaDefinition VolunteerArea { get; set; }
+    }
+
+    /// <summary>
+    /// A check-in area under Rock's Volunteer Check-in template where anyone may check in to serve on the test schedules.
+    /// </summary>
+    internal sealed class VolunteerTestAreaDefinition
+    {
+        public string Name { get; set; }
+
+        public Guid Guid { get; set; }
+
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The Guid of the area's one role, Member, which Rock needs as the area's default role.
+        /// </summary>
+        public Guid MemberRole { get; set; }
+
+        public NamedGuid Template { get; set; }
+
+        /// <summary>
+        /// Each campus's test group name, with {campus} for the campus name.
+        /// </summary>
+        public string GroupNameFormat { get; set; }
+
+        /// <summary>
+        /// The keys of the labels the area prints, from <see cref="CheckInConfiguration.Labels"/>.
+        /// </summary>
+        public List<string> Labels { get; set; }
     }
 
     /// <summary>

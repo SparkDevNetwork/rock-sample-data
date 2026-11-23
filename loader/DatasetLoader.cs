@@ -309,6 +309,7 @@ namespace RockSampleData.Loader
             checkInSetup.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
+            checkInSetup.LoadVolunteerTest( servingSetup );
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             LeaderRequirementSetup.Load( db, source.BackgroundChecks, dates, foreignKey );
             new CampaignLoader( db, source, dates, foreignKey ).Load();
@@ -432,7 +433,7 @@ namespace RockSampleData.Loader
                 people.Load( households );
 
                 // Known relationships, both halves: the Cast's lines and the Crowd's check-in adults, who the attendance
-                // plan follows (decisions D-checkin-config-1, D-checkin-config-2, and D-checkin-config-7).
+                // plan follows (decisions D-checkin-config-1, D-checkin-config-2, and D-checkin-config-8).
                 relatives = CheckInRelatives.Plan( source.CheckIn.Relationships, people.Households, castHouseholdKeys, dates.Anchor, seed );
                 var relationships = new RelationshipsLoader( db, foreignKey );
                 var statedRelationships = RelationshipsLoader.Stated( people.People );

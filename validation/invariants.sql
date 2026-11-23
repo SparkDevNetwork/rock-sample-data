@@ -784,7 +784,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
     AND [a].[CheckInStatus] <> CASE WHEN [a].[EndDateTime] IS NOT NULL THEN 4 WHEN [a].[PresentDateTime] IS NOT NULL THEN 3 ELSE 2 END;
 
 -- check: young-kid-checks-in-with-the-family
--- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions D-checkin-config-2 and D-checkin-config-7). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions D-checkin-config-2 and D-checkin-config-8). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -884,6 +884,45 @@ WHERE [d].[DeviceTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] =
                 INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
                 WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 )
     OPTION ( MAXRECURSION 10 );
+
+-- check: volunteer-test-area-is-in-the-volunteer-template
+-- why: Decision D-checkin-config-7. The Volunteer Test Area sits under Rock's Volunteer Check-in template, so a volunteer kiosk can offer its test groups, the way Rock's Check-in Test Area sits under Weekly Service Check-in.
+SELECT CASE WHEN EXISTS (
+    SELECT 1
+    FROM [GroupTypeAssociation] AS [a]
+    INNER JOIN [GroupType] AS [template] ON [template].[Id] = [a].[GroupTypeId]
+    INNER JOIN [GroupType] AS [area] ON [area].[Id] = [a].[ChildGroupTypeId]
+    WHERE [template].[Guid] = '92435F1D-E525-4FD2-BEC7-4956DC056A2B' AND [area].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735' ) THEN 0 ELSE 1 END;
+
+-- check: volunteer-test-group-in-every-serving-room
+-- why: Decision D-checkin-config-7. Every room a serving team serves in holds its campus's volunteer test group on both test schedules, so volunteer check-in can be tested in any room, any day, at any time.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [gl].[LocationId], [g].[CampusId]
+    FROM [GroupLocation] AS [gl]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' ) AS [room]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [GroupLocation] AS [tgl]
+    INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+    INNER JOIN [GroupType] AS [tgt] ON [tgt].[Id] = [tg].[GroupTypeId]
+    WHERE [tgl].[LocationId] = [room].[LocationId] AND [tg].[CampusId] = [room].[CampusId] AND [tgt].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735'
+        AND ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+            FROM [GroupLocationSchedule] AS [gls]
+            INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+            WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 );
+
+-- check: no-serving-team-room-has-a-test-schedule
+-- why: Decision D-checkin-config-7. Rock's Group Scheduler, Schedule Toolbox, and auto-schedule read every schedule on a team's rooms, so a test schedule there would show a slot every day and let volunteers be scheduled to it. Real teams keep only their real services, and volunteer tests use the Volunteer Test Area.
+SELECT COUNT(*)
+FROM [GroupLocationSchedule] AS [gls]
+INNER JOIN [GroupLocation] AS [gl] ON [gl].[Id] = [gls].[GroupLocationId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4'
+    AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' );
 
 -- check: onsite-gift-on-a-family-sunday
 -- why: Checks and cash go in the offering only on a Sunday the family came (decision 146). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.

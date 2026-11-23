@@ -113,7 +113,7 @@ The words this project uses, in alphabetical order.
 | **Supervisor PIN** | The number that opens a check-in kiosk's supervisor screen, where a volunteer reprints a label or overrides a full room. Rock keeps it as a PIN Authentication login. Each campus's kids check-in supervisor has one (decision D-checkin-config-3). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Tag** | A quick label staff put on a person in Rock, shown in the tag bar on the person's profile. A tag is organizational or personal, and Rock ships one, Staff. See [Tags](../configuration/README.md#tags). |
-| **Test Group** | The one group in Rock's Check-in Test Area. It meets in every kids and student room at every campus on Rock's two test schedules, which are open all day, every day, so check-in can be tested at any time (decision D-checkin-config-6). |
+| **Test Group** | The one group in Rock's Check-in Test Area. It meets in every kids and student room at every campus on Rock's two test schedules, which are open all day, every day, so check-in can be tested at any time (decision D-checkin-config-6). Volunteers have their own, a Volunteer Test Group at each campus in the church's Volunteer Test Area (decision D-checkin-config-7). |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |

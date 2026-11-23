@@ -162,7 +162,7 @@ Each entry in `cast` is one Cast reminder, with its own key and Guid. `owner` is
 
 Check-in uses Rock's built-in Weekly Service Check-in template, its areas, its groups, and their age and grade rules, unchanged. Every campus gets the same building and room names. Kids groups meet at every Sunday service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. Adult worship attendance uses Rock's Service Attendance template, located at each campus with its weekend services.
 
-The rest of `checkin.json` is set on purpose, the way a church sets up check-in (decisions D-checkin-config-3 to D-checkin-config-7):
+The rest of `checkin.json` is set on purpose, the way a church sets up check-in (decisions D-checkin-config-3 to D-checkin-config-8):
 
 | Part | What it sets |
 |---|---|
@@ -170,11 +170,11 @@ The rest of `checkin.json` is set on purpose, the way a church sets up check-in 
 | `labels` | Rock's next-gen labels by key. Each area's `labels` lists what it prints: Child, Parent, and Note labels for kids, and a Name Tag for students. `serving.json` gives the Serving Team area a Name Tag too. |
 | `roomSoftThreshold`, `roomFirmThreshold` | Each room's limits, by group, at every campus. Only the two nursery rooms have a firm limit, which no supervisor can override. |
 | A group's `secondRoom` | A second room for a large group. Grades 4-6 meets in the Outpost Room and the Basecamp Room, and its area uses Rock's Balance strategy. A Kids Ministry position serves each room. |
-| `testCheckIn` | Rock's Check-in Test Area, its Test Group, and its two all-day test schedules. The load puts the Test Group in every kids and student room at every campus, on both schedules, so check-in can be tested any day, at any time. |
+| `testCheckIn` | Rock's Check-in Test Area, its Test Group, and its two all-day test schedules. The load puts the Test Group in every kids and student room at every campus, on both schedules, so check-in can be tested any day, at any time. Its `volunteerArea` does the same for volunteers: a Volunteer Test Area under Rock's Volunteer Check-in template, open to anyone, with one test group per campus in every room a serving team serves in, printing a Name Tag. No real serving team gets a test schedule. |
 | `supervisors`, `supervisorTeam` | Each campus's kids check-in supervisor and PIN. A campus with no Cast kids director uses its Kids Ministry team leader. PINs load only when a login password is given. |
 | `relationships` | The Crowd's check-in adults: about 3% of attending families with a child 12 or younger get one adult from another family who checks the children in on about a third of their Sundays. |
 
-To test check-in, open a kiosk at any campus with the Weekly Service Check-in template and its Check-in Test Area, and search for a family. The Test Group is offered all day, every day. To open the supervisor screen, enter the campus's PIN: 1001 at Phoenix, 1002 at Peoria, 1003 at Gilbert, 1004 at Scottsdale, 1005 at Chandler, 1006 at Goodyear, and 1007 at Tempe.
+To test check-in, open a kiosk at any campus with the Weekly Service Check-in template and its Check-in Test Area, and search for a family. The Test Group is offered all day, every day. To test volunteer check-in, choose the Volunteer Check-in template and its Volunteer Test Area instead, and any person can check in to serve in any serving room. To open the supervisor screen, enter the campus's PIN: 1001 at Phoenix, 1002 at Peoria, 1003 at Gilbert, 1004 at Scottsdale, 1005 at Chandler, 1006 at Goodyear, and 1007 at Tempe.
 
 ## Kids achievements
 
