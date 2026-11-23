@@ -255,7 +255,7 @@ namespace RockSampleData.Loader.Generation
                                 People = unitPeople,
                                 HasYoungKids = hasYoungKids,
                                 HasChildren = hasChildren,
-                                HasHome = household.Address?.Type == "home",
+                                HasHome = household.Address?.Type == "home" && !household.Address.IsUnrecorded,
                                 JoinFrom = started.HasValue && started.Value.AddDays( window.JoinAfterStartDays ) > adultSince ? started.Value.AddDays( window.JoinAfterStartDays ) : adultSince,
                                 LeaveBy = leaveBy
                             };

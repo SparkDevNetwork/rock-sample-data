@@ -1,6 +1,6 @@
 # Data Integrity
 
-How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are D-integrity-1 to D-integrity-13 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
+How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are D-integrity-1 to D-integrity-14 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
 
 ## The idea
 
@@ -191,13 +191,25 @@ Rock's move away check also compares the new home with each campus, but it compa
 
 - **Cast expectations** check every story after each load: each record's date against its first record, each date in the file, each Pending record's form and source, each self-inactivation's reason, notes, and History, each status change, each workflow's state and assignee, each photo reply, each shared email and phone number, each failed address, the NCOA settings and each Cast move, and each rule off.
 - **Invariants** keep the rules Rock's code would: every record has a Record Source and is made before its first record, visit dates are system values in Rock's format, a workflow started from a profile has its person and initiator and waits on one assigned activity, a photo reply has a photo, a self-inactivated record has its note, and each Data Automation rule is off. The address rules allow a failed address only when it is locked, and the phone rule allows a number on two families only when one record is inactive.
-- **Validation** grades the new records a month against source-1's 1.17% of active people.
+- **Validation** grades the new records a month against source-1's 1.17% of active people, and the five shares of adults with each detail.
 - **Invariants for NCOA** check that every processed move has its new Home and its old home as Previous, that a move Rock left for a staff member changed nothing, and that a family that moved away is inactivated with the run's reason and note and has nothing Rock would have inactivated with it.
 - **Verify's family-analytics check** runs Rock's visit dates procedure with the other Family Analytics procedures, and it must change no First Visit or Second Visit.
 - **Verify's data-automation check** reads each rule back with Rock's own settings classes, expects exactly what the load saved, and runs Rock's Data Automation job, which must change no person and no family.
 - **Verify's process-workflows check** runs Rock's Process Workflows job, which leaves the waiting reports at Alisha's form.
 - **`node cast/validate-cast.js`** checks every person, name, and date in `configuration/data-integrity.json`, that the Pending records match the Cast's Pending people, that a self-inactivation's household is inactive with its reason, that a shared number is on the records its households give it, with only one of those households active, and that each NCOA move is a Cast household, inactive with the run's reason only when it moved away.
 
-## What comes next
+## Record completeness
 
-Last, record completeness: Crowd adults leave some details blank at the shares measured at source-1, so about 74.5% have an email, 67.8% a mobile phone, 74.6% a birth date, 59.1% a marital status, and 74.4% a home address. The Cast stays complete.
+A real church's records have gaps, and Rock's reports and data views show them. Generated adults now have source-1's gaps (decision D-integrity-14):
+
+| Detail | Adults who have it | How |
+|---|---|---|
+| Email | 74.5% | Drawn with each person, so nothing emails someone the church cannot reach |
+| Mobile phone | 67.8% | Drawn with each person, so nothing texts someone the church cannot reach |
+| Birth date | 74.6% | The person has an age, but Rock has no birth date |
+| Marital status | 59.1% | Singles already went without one at the measured share. Couples and the singles who have one lose it at the rate that keeps the mix of known statuses, and a couple shares theirs |
+| Home address | 74.4% | The family has a home, but Rock has no home address |
+
+Planning still reads the facts Rock lacks, so a person keeps their age for a class, a spouse to give with, and a home a check is printed with. Rock checks an event's age limits against the birth date it has, so a person with none does not register for an event with age limits, and Marriage Date Night registers only couples Rock has as married. A home Rock does not have is never a small group's meeting place, and NCOA never sends it. Generated children and the Cast stay complete. Validation grades all five shares.
+
+A Crowd duplicate record carries the email or mobile its person gave. Emails and mobiles are drawn before duplicates are made, so a duplicate only ever shares a contact its person has.

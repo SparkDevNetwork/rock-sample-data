@@ -45,14 +45,14 @@ namespace RockSampleData.Loader.Generation
         private static readonly string[] AreaCodes = { "602", "480", "623" };
 
         /// <summary>
-        /// The share of generated adults with an email.
+        /// The share of generated adults with an email: the measured share of adults who have one (decision D-integrity-14).
         /// </summary>
-        private const double EmailShare = 0.8;
+        private double EmailShare => _profile.Number( "people.completeness.adult.pctEmail", 80 ) / 100;
 
         /// <summary>
-        /// The share of generated adults with a mobile phone.
+        /// The share of generated adults with a mobile phone: the measured share (decision D-integrity-14).
         /// </summary>
-        private const double MobileShare = 0.75;
+        private double MobileShare => _profile.Number( "people.completeness.adult.pctMobilePhone", 75 ) / 100;
 
         /// <summary>
         /// Status weights, and the chance a record with that status shows any activity.
@@ -158,6 +158,7 @@ namespace RockSampleData.Loader.Generation
                 households.Add( NewActiveHousehold( i, random, campusKey, campuses[campusKey], sizeWeights, historyYears ) );
             }
 
+            LeaveDetailsUnrecorded( households );
             return households;
         }
 
@@ -180,7 +181,68 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            LeaveDetailsUnrecorded( households );
             return households;
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            A real church's records have gaps. Source-1 has an email for 74.5% of its active adults, a mobile phone for
+            67.8%, a birth date for 74.6%, a marital status for 59.1%, and a home address for 74.4%. Generated adults
+            now have the same gaps. Emails and mobiles are drawn with each person, so nothing plans an email or a text
+            to someone the church cannot reach. A birth date, a marital status, and a home are facts the person has
+            that the church never recorded: planning still reads them, such as an age for a class or a spouse to give
+            with, but Rock gets none. Rock checks an event's age limits against the birth date it has, so a person
+            with none does not register for an age-limited event, and a home Rock does not have is never a small
+            group's meeting place. Single adults already went without a marital status at the measured share, so
+            couples and the singles who have one lose it at the rate that brings all adults to the measured share,
+            and the mix of known statuses holds. A married couple shares theirs. The Cast stays complete. Each
+            household draws from its own stream, so nothing else changes.
+
+            Reason: Rock's reports, data views, and Data Integrity pages show the gaps a real church has (issue 2
+            slice 5, decision D-integrity-14).
+        */
+
+        /// <summary>
+        /// Marks the birth dates, marital statuses, and homes the church never recorded, at the measured shares of adults.
+        /// </summary>
+        private void LeaveDetailsUnrecorded( List<CastHousehold> households )
+        {
+            var adults = households.SelectMany( h => h.Members ).Where( m => m.FamilyRole == "adult" ).ToList();
+            if ( adults.Count == 0 )
+            {
+                return;
+            }
+
+            var birthLoss = 1 - _profile.Number( "people.completeness.adult.pctBirthDate", 100 ) / 100;
+            var homeLoss = 1 - _profile.Number( "people.completeness.adult.pctHomeAddress", 100 ) / 100;
+            var known = adults.Count( m => m.MaritalStatus != null );
+            var maritalLoss = known == 0 ? 0 : Math.Max( 0, 1 - ( _profile.Number( "people.completeness.adult.pctMaritalStatus", 100 ) / 100 * adults.Count / known ) );
+            foreach ( var household in households )
+            {
+                var random = new SeededRandom( $"{_seed}:crowd:completeness:{household.Guid}" );
+                if ( household.Address != null && random.Chance( homeLoss ) )
+                {
+                    household.Address.IsUnrecorded = true;
+                }
+
+                var householdAdults = household.Members.Where( m => m.FamilyRole == "adult" ).ToList();
+                var isCouple = householdAdults.Count( m => string.Equals( m.MaritalStatus, "married", StringComparison.OrdinalIgnoreCase ) ) == 2;
+                var isCoupleUnrecorded = random.Chance( maritalLoss );
+                foreach ( var person in householdAdults )
+                {
+                    if ( person.Birth != null && random.Chance( birthLoss ) )
+                    {
+                        person.Birth.IsUnrecorded = true;
+                    }
+
+                    if ( person.MaritalStatus != null )
+                    {
+                        person.IsMaritalStatusUnrecorded = isCouple ? isCoupleUnrecorded : random.Chance( maritalLoss );
+                    }
+                }
+            }
         }
 
         /// <summary>

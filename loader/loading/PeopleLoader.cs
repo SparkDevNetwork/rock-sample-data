@@ -238,6 +238,7 @@ namespace RockSampleData.Loader.Loading
                     */
                     var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;
+                    loaded.IsBirthDateRecorded = person.Birth?.IsUnrecorded != true;
                     loaded.GraduationYear = isAdult ? fileGraduationYear : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
                     loaded.IsAdult = isAdult;
                     loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive";
@@ -250,11 +251,11 @@ namespace RockSampleData.Loader.Loading
                         lookups.ConnectionStatus( person.ConnectionStatus ),
                         person.IsDeceased,
                         person.FirstName, person.NickName ?? person.FirstName, person.MiddleName ?? ( object ) DBNull.Value, person.LastName,
-                        Value( birthDate?.Day ), Value( birthDate?.Month ), Value( birthDate?.Year ), Value( birthDate ),
-                        birthDate.HasValue ? ( object ) int.Parse( birthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
-                        Value( age ), AnchorDates.AgeBracket( age ),
+                        Value( loaded.RecordedBirthDate?.Day ), Value( loaded.RecordedBirthDate?.Month ), Value( loaded.RecordedBirthDate?.Year ), Value( loaded.RecordedBirthDate ),
+                        loaded.RecordedBirthDate.HasValue ? ( object ) int.Parse( loaded.RecordedBirthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
+                        Value( loaded.RecordedBirthDate.HasValue ? age : null ), AnchorDates.AgeBracket( loaded.RecordedBirthDate.HasValue ? age : null ),
                         person.Gender == "male" ? 1 : person.Gender == "female" ? 2 : 0,
-                        Value( lookups.MaritalStatus( person.MaritalStatus ) ),
+                        Value( person.IsMaritalStatusUnrecorded ? null : lookups.MaritalStatus( person.MaritalStatus ) ),
                         Value( _dates.Resolve( person.Anniversary ) ),
                         Value( isAdult ? fileGraduationYear : loaded.GraduationYear ),
                         Value( givingGroupId ),
@@ -291,7 +292,7 @@ namespace RockSampleData.Loader.Loading
                     familySalutationMembers.Add( SalutationMemberFor( loaded.Cast, isSharedAdult, loaded.Cast.Birth == null ? null : _dates.AgeOn( _dates.BirthDate( loaded.Cast.Birth ) ) ) );
                 }
 
-                if ( household.Address != null )
+                if ( household.Address != null && !household.Address.IsUnrecorded )
                 {
                     /*
                         11/19/26 - CLAUDE
@@ -918,7 +919,18 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
         /// </summary>
         public string GivingId { get; set; }
 
+        /// <summary>
+        /// The person's birth date, which planning reads. Rock has it only when <see cref="IsBirthDateRecorded"/>.
+        /// </summary>
         public DateTime? BirthDate { get; set; }
+
+        public bool IsBirthDateRecorded { get; set; } = true;
+
+        /// <summary>
+        /// The birth date Rock has: null when the church never recorded it. Anything Rock checks against a birth date,
+        /// such as an event's age limits, reads this.
+        /// </summary>
+        public DateTime? RecordedBirthDate => IsBirthDateRecorded ? BirthDate : null;
 
         public int? GraduationYear { get; set; }
 
