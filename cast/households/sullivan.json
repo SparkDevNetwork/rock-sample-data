@@ -170,6 +170,9 @@
       "connectionStatus": "Engaged",
       "phones": {
         "mobile": "6235550132"
+      },
+      "studentNight": {
+        "percentAttended": 50
       }
     },
     {

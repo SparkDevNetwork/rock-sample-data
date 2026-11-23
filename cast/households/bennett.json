@@ -128,7 +128,13 @@
         "day": 17
       },
       "recordStatus": "active",
-      "connectionStatus": "Connected"
+      "connectionStatus": "Connected",
+      "studentNight": {
+        "percentAttended": 75,
+        "started": {
+          "daysAgo": 28
+        }
+      }
     }
   ]
 }

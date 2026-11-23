@@ -10,10 +10,11 @@
   "story": "Valeria Torres comes to the student service and midweek student night with friends. Her parents come at Christmas and Easter.",
   "testPurposes": [
     "Teen who is more engaged than her parents.",
-    "Participant parents with holiday-only attendance."
+    "Participant parents with holiday-only attendance.",
+    "A student who comes to Wednesday Student Night on her own, though her parents seldom come."
   ],
   "reviewNotes": [
-    "Attendance is per household today, so Valeria's weekly student attendance cannot differ from her parents' yet. Per-person attendance is a later builder feature."
+    "Valeria comes to Student Night on most Wednesdays on her own (studentNight). Her Sundays still follow her parents', because only Engaged and Leading students come to the student service without their family."
   ],
   "address": {
     "type": "home",
@@ -94,7 +95,10 @@
       "recordStatus": "active",
       "connectionStatus": "Connected",
       "email": "valeria.torres@example.org",
-      "emailIsActive": true
+      "emailIsActive": true,
+      "studentNight": {
+        "percentAttended": 75
+      }
     }
   ]
 }

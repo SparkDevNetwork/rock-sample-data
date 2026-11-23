@@ -40,7 +40,7 @@ Each request to serve is an Attendance row on the team's occurrence for that roo
 - **History.** Serving history covers the dataset's whole history window, like Sunday attendance. A volunteer served on a Sunday their family came. Otherwise they were often not scheduled at all, since the family planned to be away, or they declined with a reason, never answered, or confirmed and did not come.
 - **The weeks ahead.** The next six weeks mix confirmed (60%), pending (30%), and declined (10%), around a few blackout dates.
 - **Notifications.** A confirmation and a reminder are marked sent only for volunteers Rock's notification job can email, as the job marks them (decision 165). Before install day, only volunteers who confirmed got a reminder. For a Sunday still ahead, both are marked sent for everyone the job can email, so it never emails sample people. No request is dated after install day.
-- **Check-in.** Volunteers check in to serve through Rock's Volunteer Check-in template, whose Serving Team area holds every team. A scheduled volunteer is pre-selected at the kiosk. Every time a volunteer served, they checked in a few minutes before the service.
+- **Check-in.** Volunteers check in to serve through Rock's Volunteer Check-in template, whose Serving Team area holds every team. A scheduled volunteer is pre-selected at the kiosk. Every time a volunteer served, they checked in a few minutes before the service, at their campus's volunteer kiosk, in a check-in session of their own (decisions D-checkin-attendance-1 and D-checkin-attendance-2).
 
 ## Requests to serve
 
@@ -88,7 +88,7 @@ On Full 7, these serving and connection values pass validation: the share of act
 
 Three measures are skipped on purpose, and [tolerances.json](../validation/tolerances.json) says why:
 
-- **Adult check-ins per child check-in.** The sample church's adults check in only to serve. It has no midweek programs, adult classes, or events where adults check in.
+- **Adult check-ins per child check-in.** The sample church's adults check in only to serve. Its only midweek program is Student Night, for students, and it has no adult classes or events where adults check in.
 - **Adult check-in frequency.** Measured from the same adult check-ins.
 - **Team size.** Eight teams per campus make a large campus's teams large, by design.
 
@@ -96,4 +96,4 @@ Still outside tolerance, by a few points: two holiday multipliers for adults (fa
 
 ## Later
 
-- A midweek student night (parked in the [roadmap](roadmap.md)).
+- Wednesday Student Night volunteer positions for the Student Ministry team (issue 39). Students check in on Wednesdays, but the team serves only on Sundays.

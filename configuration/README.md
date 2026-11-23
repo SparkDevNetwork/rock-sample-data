@@ -7,7 +7,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | File | What it defines |
 |---|---|
 | `campuses.json` | Campuses, the datasets each appears in, and which service time slots each offers. |
-| `schedules.json` | The shared Sunday service time slots and the campus schedule types (Weekend Service, Student Service). |
+| `schedules.json` | The shared service time slots, Sunday mornings and Wednesday Student Night, and the campus schedule types (Weekend Service, Student Service). |
 | `accounts.json` | Funds. The General Fund and the Built on the Rock campaign fund have one child account per campus. |
 | `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
 | `connection-statuses.json` | The six connection statuses. |
@@ -21,6 +21,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `prayer.json` | A weight for each of Rock's own prayer categories. Rock ships the categories; none are added or renamed. |
 | `security-roles.json` | How the Cast's role names map to the security roles Rock ships. The sample church adds no roles. |
 | `phones.json` | The area codes of generated phone numbers: the Phoenix codes the Cast and the church use, which generated numbers use up first, then other US geographic codes by state. Every number is 555-0100 to 555-0199, and each generated person and business gets one no one else has (content standard 2, decision 259). |
+| `kiosks.json` | Each campus's check-in kiosks and label printers: kids kiosks, a student kiosk, and a volunteer kiosk, each with a printer, at addresses in 192.0.2.0/24, which no real printer has (decision D-checkin-attendance-1). |
 | `communications.json` | The church's texting numbers, who sends mass emails and texts, who welcomes first-time guests, who approves sends, Rock's communication topics, the branded email template in both of Rock's formats, the communication lists with the rules for who is on them, and the one communication scheduled to send after install. See [Communications](../docs/communications.md#the-setup). |
 | `notes.json` | The six note types on person records, their security, the staff who write notes, and each type's share of generated notes. |
 | `reminders.json` | The reminders staff and leaders set for themselves: Rock's two shipped reminder types, the Cast's hand-written reminders with the state each shows on any install day, the rules for generated reminders, and the notes they use. See [Reminders](#reminders). |

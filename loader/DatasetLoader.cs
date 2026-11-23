@@ -476,10 +476,13 @@ namespace RockSampleData.Loader
             db.DeferIndexRebuild( "Attendance" );
 
             var isAttendanceLoaded = steps.Begin( "Attendance" );
-            var attendance = new AttendanceLoader( db, calendar, dates, configuration, foreignKey, seed );
+
+            // Each campus's kiosks and label printers, given every room check-in set up (decision D-checkin-attendance-1).
+            var devices = new CheckInDevicesLoader( db, source, configuration, foreignKey ).Load();
+            var attendance = new AttendanceLoader( db, calendar, dates, configuration, devices, foreignKey, seed );
             using ( log.TimePart( "Plan attendance" ) )
             {
-                attendance.Plan( people.Households );
+                attendance.Plan( people.Households, castHouseholdKeys );
             }
 
             if ( isAttendanceLoaded )
@@ -521,7 +524,7 @@ namespace RockSampleData.Loader
             // Volunteers serve on the Sundays their family came, so serving follows Sunday attendance.
             if ( steps.Begin( "Serving" ) )
             {
-                new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, configuration.KioskDeviceId, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
+                new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, devices, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
             }
 
             db.RebuildDeferredIndexes( "Attendance" );

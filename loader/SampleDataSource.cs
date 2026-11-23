@@ -144,6 +144,12 @@ namespace RockSampleData.Loader
         public PhoneConfiguration Phones { get; }
 
         /// <summary>
+        /// The check-in kiosks and label printers at each campus, or null in a package built before every campus had its
+        /// own (decision D-checkin-attendance-1), whose check-ins all name Rock's one kiosk.
+        /// </summary>
+        public KiosksConfiguration Kiosks { get; }
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )
@@ -175,6 +181,7 @@ namespace RockSampleData.Loader
             Flows = Files.Exists( FlowsConfigurationPath ) ? Read<FlowsConfiguration>( FlowsConfigurationPath ) : null;
             PersonAttributes = Files.Exists( PersonAttributesConfigurationPath ) ? Read<PersonAttributesConfiguration>( PersonAttributesConfigurationPath ) : null;
             Phones = Files.Exists( PhonesConfigurationPath ) ? Read<PhoneConfiguration>( PhonesConfigurationPath ) : null;
+            Kiosks = Files.Exists( KiosksConfigurationPath ) ? Read<KiosksConfiguration>( KiosksConfigurationPath ) : null;
             Assessments = Files.Exists( AssessmentsConfigurationPath ) ? Read<AssessmentsConfiguration>( AssessmentsConfigurationPath ) : null;
             Refunds = Files.Exists( RefundsConfigurationPath ) ? Read<RefundsConfiguration>( RefundsConfigurationPath ) : null;
             InKindGifts = Files.Exists( InKindGiftsConfigurationPath ) ? Read<InKindGiftsConfiguration>( InKindGiftsConfigurationPath ) : null;
@@ -432,6 +439,8 @@ namespace RockSampleData.Loader
         public const string FlowsConfigurationPath = "configuration/flows.json";
 
         public const string PhonesConfigurationPath = "configuration/phones.json";
+
+        public const string KiosksConfigurationPath = "configuration/kiosks.json";
 
         public const string AdaptiveMessagesConfigurationPath = "configuration/adaptive-messages.json";
 

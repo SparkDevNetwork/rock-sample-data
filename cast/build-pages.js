@@ -294,12 +294,19 @@ function familyPage( h ) {
     if ( h.attendance ) {
         const att = h.attendance;
         lines.push( `- **Attendance:** ${att.persona}, ${att.percentAttended}% of Sundays${att.percentPrimaryService ? `, ${att.percentPrimaryService}% at their usual service` : ""}${att.started ? `, since ${ago( att.started )}` : ""}${att.ended ? `, stopped ${ago( att.ended )}` : ""}.` );
+        if ( att.kidsKiosk ) {
+            lines.push( `- **Kids check-in:** always at kids kiosk ${att.kidsKiosk} at their campus.` );
+        }
     }
     else if ( h.kind === "business" ) {
         lines.push( "- **Attendance:** none. A business does not attend." );
     }
     else {
         lines.push( "- **Attendance:** set by connection status." );
+    }
+    for ( const p of people.filter( x => x.studentNight ) ) {
+        const night = p.studentNight;
+        lines.push( `- **Student Night:** ${p.nickName || p.firstName} checks in on ${night.percentAttended}% of Wednesdays${night.started ? `, since ${ago( night.started )}` : ""}.` );
     }
     for ( const g of h.giving || [] ) {
         lines.push( `- **Giving:** ${describeGiving( g, people )}.` );

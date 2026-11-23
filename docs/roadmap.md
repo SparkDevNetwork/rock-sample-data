@@ -72,6 +72,7 @@ Where the project stands: the team's working list. Update this page whenever som
 - **Benevolence** (issue 21, decisions 350 to 355; see [How benevolence loads](../loader/README.md#how-benevolence-loads)). Three church types beside Rock's own, locked to the benevolence team, with Dee Navarro as case worker. The Cast's four requests match their notes: Ashley Kelly's rent, the Wards' electric bill and groceries, and two waiting as Pending. Generated requests come at about 2 a year for every 1,000 adults, and approved bills have a signed assistance agreement PDF. Each church type starts a workflow when a request is entered, which gives it to Dee and sends no email.
 - **Checked addresses** (issue 54, decisions 315 and 316). Every home, business, and campus address carries the marks Rock leaves after its address service checks an address, so Rock's Location Services Verify job never sends a sample address to one. Verify runs the job's selection on every load, for every later night, without running the job.
 - **Staff homepage** (issue 9, decisions 345 to 349; see [Staff homepage](staff-homepage.md)). Rock's staff homepage has a weekly staff update for each Monday of the past year, posted by Daniel Peak and following the church calendar, with staff articles and shared images, in a new Content part. Rock's three homepage metrics have a year of values, the Ministry Path metrics join them, and the Quick Links have the church's links. Verify renders the homepage with Rock's own Lava engine.
+- **Kiosks, check-in sessions, check-outs, and Student Night** (issues 14 and 39, decisions D-checkin-attendance-1 to D-checkin-attendance-5; see [How the timeline is generated](../loader/README.md#how-the-timeline-is-generated)). Every campus has kids, student, and volunteer kiosks, each with a label printer at an address in 192.0.2.0/24, and Rock's shipped kiosk is Phoenix Kids 1. Each check-in names a kiosk at its own campus and has the check-in session Rock saves, found by the last four digits of a phone. Kids from the nursery through 6th grade are checked out after their service by the adult who checked them in. Students check in at Wednesday Student Night, graded against a student-only Wednesday share. Wednesday volunteer positions (issue 39, slice 3) wait.
 - **Campus photos in Rock** (issue 43, decision 317). Each dataset loads its own campuses' exterior photos as each campus Location's image, in Rock's Location Image file type, so Lava pages and the app can show each building.
 
 ## In progress
@@ -107,7 +108,7 @@ Ideas we agreed on but set aside for later. Move an item into "Next" when we pic
 
 ### Serving
 
-1. **A midweek student night.** Calibration shows about 31% of check-ins on Wednesday, and the sample church has no midweek service. Set aside on 2026-10-19 while serving is built. Student Night is now on the calendar every Wednesday, because Cast stories describe it, but students still check in only on Sunday.
+1. **Wednesday volunteer positions** (issue 39, slice 3). Students check in at Student Night every Wednesday, but the Student Ministry team serves only on Sundays, so Student Night has no scheduled volunteers yet.
 
 ### Steps
 

@@ -49,6 +49,7 @@ Chris and Amanda Sullivan married four years ago. Jake is Chris's son, Madison i
 ## Activity
 
 - **Attendance:** core, 80% of Sundays, since 4 years ago.
+- **Student Night:** Jake checks in on 50% of Wednesdays.
 - **Giving:** **monthly** by Chris Sullivan: $300 General Fund per gift, gives in 92% of periods, started 4 years ago.
 - **Giving:** **bi-weekly** by Amanda Sullivan: $60 General Fund per gift, gives in 88% of periods, started 3 years ago, and Rock shows a bi-weekly gift frequency and the consistent journey stage.
 - **Giving units:** the spouses give separately; each is their own giving unit.

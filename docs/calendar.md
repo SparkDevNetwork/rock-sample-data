@@ -152,4 +152,3 @@ Student Camp, the mission trip, the fall retreat, VBS, Parents' Night Out, Serve
 
 1. **Content channel items.** Rock links the Public calendar to the External Website Ads and Service Bulletin channels. Promoting a few events there would fill the home page rotator.
 2. **Social images.** Rock's Public calendar has Facebook (1200 by 630) and Twitter (440 by 220) image attributes. They could be cropped from the event photos.
-3. **A midweek student check-in.** Student Night is on the calendar because Cast stories describe it, but students check in only on Sunday (see the roadmap).

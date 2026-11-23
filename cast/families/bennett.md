@@ -36,6 +36,7 @@ Tom and Rebecca Bennett both teach. Their son Nick is in eighth grade and plays 
 ## Activity
 
 - **Attendance:** regular, 55% of Sundays, since 4 years ago.
+- **Student Night:** Nick checks in on 75% of Wednesdays, since 28 days ago.
 - **Giving:** **monthly** by Becca Bennett: $150 General Fund per gift, gives in 90% of periods, started 4 years ago.
 - **Giving:** **occasional** by Tom Bennett: $100 General Fund per gift, gives in 80% of periods, started 3 years ago.
 - **Giving units:** the spouses give separately; each is their own giving unit.

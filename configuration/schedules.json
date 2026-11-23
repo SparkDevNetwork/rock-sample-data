@@ -1,5 +1,5 @@
 {
-  "$comment": "Shared service time slots: Sunday 9:00am, 10:30am, and 12:00pm. Every campus uses these same slots; campuses differ only in which slots they offer. The student service meets at Sunday 10:30am at every campus.",
+  "$comment": "Shared service time slots: Sunday 9:00am, 10:30am, and 12:00pm, and Wednesday 6:30pm. Every campus uses these same slots; campuses differ only in which slots they offer. The student service meets at Sunday 10:30am at every campus, and Student Night at Wednesday 6:30pm (decision D-checkin-attendance-4).",
   "category": "Service Times",
   "checkInStartOffsetMinutes": 30,
   "checkInEndOffsetMinutes": 30,
@@ -44,6 +44,15 @@
       "start": "12:00",
       "minutes": 60,
       "rockDefault": true
+    },
+    {
+      "key": "wed-1830",
+      "name": "Wednesday 6:30pm",
+      "guid": "B4A37356-1D92-47F5-A08F-838E4AC53684",
+      "day": "Wednesday",
+      "start": "18:30",
+      "minutes": 120,
+      "rockDefault": false
     }
   ]
 }
