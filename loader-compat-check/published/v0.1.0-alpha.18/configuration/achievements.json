@@ -1,0 +1,90 @@
+{
+  "$comment": "Kids check-in streaks and achievements. One weekly streak type counts every check-in under Rock's Weekly Service Check-in template, and seven achievement types read it. The loader fills in the streaks and attempts Rock would have computed at each check-in. Component is 'consecutive' (Rock's Streaks: Consecutive) or 'accumulative' (Streaks: Accumulative). A null maxAccomplishmentsAllowed means unlimited. An achievement's prerequisite must come before it in the list. Icons are Font Awesome 5 classes that Rock bundles.",
+  "streakType": {
+    "name": "Kids Check-in",
+    "guid": "11D6638D-37B7-43A4-B8E3-295060C71E44",
+    "description": "Weeks a child checked in to kids or student ministry on a Sunday.",
+    "checkInTemplateGuid": "FEDD389A-616F-4A53-906C-63D8255631C5"
+  },
+  "achievementTypes": [
+    {
+      "key": "high-five",
+      "name": "High Five",
+      "guid": "904F7FD2-1009-427F-8237-F5BAD53B370F",
+      "description": "Check in five times. Give yourself a high five!",
+      "component": "accumulative",
+      "target": 5,
+      "maxAccomplishmentsAllowed": 1,
+      "iconCssClass": "fa fa-hand-paper",
+      "highlightColor": "#F2A93B"
+    },
+    {
+      "key": "back-to-back",
+      "name": "Back-to-Back",
+      "guid": "10F0B544-1075-4396-9640-39E4969C69C3",
+      "description": "Check in two weeks in a row.",
+      "component": "consecutive",
+      "target": 2,
+      "maxAccomplishmentsAllowed": null,
+      "iconCssClass": "fa fa-forward",
+      "highlightColor": "#4FB3BF"
+    },
+    {
+      "key": "four-peat",
+      "name": "Four-Peat",
+      "guid": "3EF8598A-7A1A-4562-B781-11175D51FDFC",
+      "description": "Check in four weeks in a row.",
+      "component": "consecutive",
+      "target": 4,
+      "maxAccomplishmentsAllowed": null,
+      "iconCssClass": "fa fa-fire",
+      "highlightColor": "#E8664A"
+    },
+    {
+      "key": "unstoppable",
+      "name": "Unstoppable",
+      "guid": "BED7E096-4886-47F1-85E5-96D82B21EE2E",
+      "description": "Check in ten weeks in a row. Nothing can stop you!",
+      "component": "consecutive",
+      "target": 10,
+      "maxAccomplishmentsAllowed": 1,
+      "iconCssClass": "fa fa-rocket",
+      "highlightColor": "#7B5CC4"
+    },
+    {
+      "key": "25-club",
+      "name": "25 Club",
+      "guid": "7FAF69CF-2514-4B32-998C-752CA595D512",
+      "description": "Check in 25 times. Welcome to the club!",
+      "component": "accumulative",
+      "target": 25,
+      "maxAccomplishmentsAllowed": 1,
+      "iconCssClass": "fa fa-star",
+      "highlightColor": "#3A8FD9"
+    },
+    {
+      "key": "half-century",
+      "name": "Half Century",
+      "guid": "A40004FE-7B3E-4298-B70F-6EF4E8894D22",
+      "description": "Check in 50 times. You are halfway to 100!",
+      "component": "accumulative",
+      "target": 50,
+      "maxAccomplishmentsAllowed": 1,
+      "prerequisite": "25-club",
+      "iconCssClass": "fa fa-award",
+      "highlightColor": "#2BA66A"
+    },
+    {
+      "key": "century-club",
+      "name": "Century Club",
+      "guid": "272811F9-9827-49B5-B5C8-6254A22D9FBB",
+      "description": "Check in 100 times. That is a lot of Sundays!",
+      "component": "accumulative",
+      "target": 100,
+      "maxAccomplishmentsAllowed": 1,
+      "prerequisite": "half-century",
+      "iconCssClass": "fa fa-crown",
+      "highlightColor": "#C9A227"
+    }
+  ]
+}

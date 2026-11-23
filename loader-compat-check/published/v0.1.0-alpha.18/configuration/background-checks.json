@@ -1,0 +1,63 @@
+{
+  "$comment": "Background checks and the requirements that read them (decision 333). Rock's Background Check Required type is met by its 'Background check is still valid' data view (under 18, or Background Checked, a Pass, and a date in the last 1,095 days) and warns from its 'Background check about to expire' view (a Pass older than 1,035 days). The loader writes each person's check, the person attributes Rock's Checkr workflow sets, and the requirement results Rock's Calculate Group Requirements job would save, and verify runs that job to prove it changes nothing.",
+  "requirementTypeGuid": "1C21C346-A861-4A9A-BD6D-BAA7D92419D5",
+  "rules": {
+    "$comment": "Rock's two data views, in days before install day. They are Rock's numbers, not ours. Verify's group-requirements check fails if they ever disagree with Rock.",
+    "validDays": 1095,
+    "warningAfterDays": 1035
+  },
+  "leaderRequirement": {
+    "$comment": "Every active leader of an active small group needs a current background check, and leaders cannot override it (decision 334). Members and hosts do not.",
+    "guid": "9D4B3A8D-BFD6-494A-A241-B0B3BCF2D8CC",
+    "groupTypeGuid": "50FCFB30-F51A-49DF-86F4-2B176EA1820B",
+    "role": "Leader",
+    "addedYearsAgo": 4
+  },
+  "volunteers": {
+    "$comment": "Every adult on a team with the requirement has a passing check from 30 to 900 days ago, the serving rule since decision 73. Under 18s meet Rock's rule by age and have no check.",
+    "checkedDaysAgo": [ 30, 900 ]
+  },
+  "leaders": {
+    "$comment": "Generated small group leaders' checks (decision 335). Current checks are clear of Rock's warning, expiring ones are in its last 60 days, and expired ones are a Pass older than 1,095 days. Cast leaders have a current check unless their file or castWithoutCheck says otherwise. A leader who also serves on a team with the requirement has that team's current check.",
+    "mix": { "current": 85, "expiring": 6, "expired": 5, "never": 4 },
+    "daysAgo": {
+      "current": [ 30, 1030 ],
+      "expiring": [ 1037, 1093 ],
+      "expired": [ 1097, 2190 ]
+    }
+  },
+  "castWithoutCheck": [
+    {
+      "person": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2",
+      "name": "Jerry Wright",
+      "story": "Jerry has led his small group for two years and has never had a background check, so Rock shows his requirement as not met."
+    }
+  ],
+  "$castExpectationsComment": "What Rock shows for each Cast background check story. Every load with background checks checks them: the latest check's result (Pass, Fail, InProgress, or None), whether it is linked to the person's request to serve, and the small group leader requirement's result (Met, MetWithWarning, or NotMet).",
+  "castExpectations": [
+    { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "check": "Pass", "leaderRequirement": "NotMet", "story": "His only check passed 13 years ago, so it no longer counts." },
+    { "person": "1EA811BB-3118-42D1-B020-32A82BC8081A", "name": "Bill Marble", "check": "Pass", "leaderRequirement": "MetWithWarning", "story": "His check runs out in about five weeks." },
+    { "person": "4353F77A-DFD7-4BD5-8CED-ADD2479B2EE2", "name": "Jerry Wright", "check": "None", "leaderRequirement": "NotMet", "story": "He has never had a check." },
+    { "person": "9C609974-A8E1-4363-8F5E-51F61828E2BA", "name": "Frank Dexter", "check": "Fail", "linkedToRequest": true, "story": "The check for his request to serve the kids found a record, which the safety team reviews." },
+    { "person": "1DFFF821-E97C-4324-9883-CF59B5C5BDD6", "name": "Helen Evans", "check": "InProgress", "linkedToRequest": true, "story": "She waits on the check for her request to serve the kids." },
+    { "person": "C5E4C66A-B836-4A8B-AD02-43F841B94BE9", "name": "Daniel Peak", "check": "Pass", "story": "His check passed six years ago." }
+  ],
+  "requests": {
+    "$comment": "People whose request to serve is in the Background Check status have a check linked to the request. Frank Dexter's came back and failed. Everyone else's is still in progress: Checkr's invitation is done and its report is not.",
+    "statusGuid": "720EA71A-18F9-4D6B-B3B5-56D39EA403E3",
+    "requestedDaysAfterStatus": [ 1, 3 ]
+  },
+  "checkr": {
+    "$comment": "Each check row is the one Rock's Checkr provider writes (decision 336): ForeignId 2, Checkr's candidate and document keys, its webhook status, and Record Found when the report says consider. Checkr never sets a response date. The report PDF is the loader's own drawing, stored as a Background Check file and linked as the check's response document.",
+    "packageName": "basic_plus",
+    "packageTitle": "Basic Plus",
+    "requestedDaysBeforeResult": [ 2, 6 ],
+    "searches": [
+      "SSN Trace",
+      "National Criminal Search",
+      "Sex Offender Registry Search",
+      "Global Watchlist Search",
+      "County Criminal Search"
+    ]
+  }
+}
