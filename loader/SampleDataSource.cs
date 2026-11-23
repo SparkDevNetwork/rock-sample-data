@@ -150,6 +150,13 @@ namespace RockSampleData.Loader
         public KiosksConfiguration Kiosks { get; }
 
         /// <summary>
+        /// The Crowd's name tables from names/, read the first time they are needed.
+        /// </summary>
+        public NameTables Names => _names ??= NameTables.Load( Files );
+
+        private NameTables _names;
+
+        /// <summary>
         /// Reads every configuration file.
         /// </summary>
         public SampleDataSource( IPackageFiles files )

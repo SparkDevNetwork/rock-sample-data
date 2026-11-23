@@ -224,7 +224,7 @@ module.exports = function cast( { model, r, relativeTo } ) {
     <div class="split-text reveal">
       <p class="eyebrow">The Crowd</p>
       <h2>And about 25,000 more.</h2>
-      <p>Core 3 and Full 7 add generated households around the Cast. These people give the church its size and its statistics: who lives near which campus, how often people attend, and how giving changes over a year.</p>
+      <p>Core 3 and Full 7 add generated households around the Cast. These people give the church its size and its statistics: who lives near which campus, how often people attend, and how giving changes over a year. Their names follow real name data for each birth decade, so a grandmother is more likely a Linda and a toddler an Olivia.</p>
       <p>Crowd people are never named in tests or documentation. They're there so reports, charts, and searches behave the way they do at a large church.</p>
     </div>
     <div class="split-text reveal">
