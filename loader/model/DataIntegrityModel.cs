@@ -41,6 +41,8 @@ namespace RockSampleData.Loader.Model
 
         public SharedPhones SharedPhones { get; set; } = new SharedPhones();
 
+        public NcoaRun Ncoa { get; set; }
+
         public FailedAddresses FailedAddresses { get; set; } = new FailedAddresses();
 
         public DataIntegritySettings Settings { get; set; } = new DataIntegritySettings();
@@ -307,6 +309,79 @@ namespace RockSampleData.Loader.Model
         public string Household { get; set; }
 
         public string Email { get; set; }
+
+        public string Story { get; set; }
+    }
+
+    /// <summary>
+    /// One NCOA run a staff member imported on Rock's NCOA page, with the settings it saved.
+    /// </summary>
+    internal sealed class NcoaRun
+    {
+        /// <summary>
+        /// When the staff member imported the results. It names its time.
+        /// </summary>
+        public RelativeDate Run { get; set; }
+
+        /// <summary>
+        /// The staff member who imported the results.
+        /// </summary>
+        public Guid ProcessedBy { get; set; }
+
+        /// <summary>
+        /// The person data view Rock sent, by Guid.
+        /// </summary>
+        public Guid PersonDataView { get; set; }
+
+        /// <summary>
+        /// The Record Status Reason a family that moved away gets, by name.
+        /// </summary>
+        public string InactiveReason { get; set; } = "Moved";
+
+        /// <summary>
+        /// A family that moved at least this many miles moved away.
+        /// </summary>
+        public decimal MinimumMoveDistance { get; set; } = 25;
+
+        public bool MarkInvalidAsPrevious { get; set; } = true;
+
+        public bool Mark48MonthAsPrevious { get; set; } = true;
+
+        /// <summary>
+        /// The days between runs Rock's NCOA page suggests.
+        /// </summary>
+        public int RecurrenceInterval { get; set; } = 95;
+
+        public NcoaCrowdMoves Crowd { get; set; } = new NcoaCrowdMoves();
+
+        public List<NcoaCastMove> Cast { get; set; } = new List<NcoaCastMove>();
+    }
+
+    /// <summary>
+    /// The shares of the generated families Rock sent that moved, as percents.
+    /// </summary>
+    internal sealed class NcoaCrowdMoves
+    {
+        public double NearbyFamiliesPct { get; set; }
+
+        public double MovedAwayFamiliesPct { get; set; }
+
+        /// <summary>
+        /// Families where one adult moved out: an adult child, or else the youngest of the adults.
+        /// </summary>
+        public double AdultsMovedOutPct { get; set; }
+    }
+
+    /// <summary>
+    /// A Cast move the NCOA run found: nearby or away for a household, or individual for one adult in it.
+    /// </summary>
+    internal sealed class NcoaCastMove
+    {
+        public string Household { get; set; }
+
+        public Guid? Person { get; set; }
+
+        public string Move { get; set; }
 
         public string Story { get; set; }
     }

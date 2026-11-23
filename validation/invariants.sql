@@ -1440,6 +1440,38 @@ CROSS APPLY (
 ) AS [first]
 WHERE [p].[ForeignKey] = @ForeignKey AND [first].[At] < [p].[CreatedDateTime];
 
+-- check: ncoa-move-is-processed-as-rock-does
+-- why: Decision D-integrity-13. Rock's NCOA processing gives a family that moved a new Home, the mailing address, at the address in the NCOA row, and keeps the old one as Previous. A move Rock left for a staff member changes nothing, and every row is Complete or waits for a staff member, as Rock's import leaves it.
+SELECT COUNT(*)
+FROM [NcoaHistory] AS [n]
+WHERE [n].[ForeignKey] = @ForeignKey
+    AND ( [n].[Processed] NOT IN ( 1, 2 )
+        OR ( [n].[Processed] = 2 AND ( [n].[NcoaType] <> 3 OR NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [n].[FamilyId] AND [gl].[LocationId] = [n].[LocationId]
+            AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC' ) ) ) )
+        OR ( [n].[Processed] = 1 AND [n].[NcoaType] = 3 AND (
+            NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [n].[FamilyId] AND [gl].[LocationId] = [n].[LocationId]
+                AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '853D98F1-6E08-4321-861B-520B4106CFE0' ) )
+            OR NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] INNER JOIN [Location] AS [l] ON [l].[Id] = [gl].[LocationId]
+                WHERE [gl].[GroupId] = [n].[FamilyId] AND [l].[Street1] = [n].[UpdatedStreet1] AND [l].[PostalCode] = [n].[UpdatedPostalCode] AND [gl].[IsMailingLocation] = 1
+                    AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC' ) ) ) ) );
+
+-- check: ncoa-move-away-is-inactivated
+-- why: Decision D-integrity-13. A family Rock's NCOA processing moved at least the minimum distance saved with the run is inactivated with the run's reason and Rock's note, and has nothing Rock's person save hook would have inactivated: no active group membership whose group type follows the person, no open connection request, and no active communication flow.
+SELECT COUNT(*)
+FROM [NcoaHistory] AS [n]
+INNER JOIN [GroupMember] AS [fm] ON [fm].[GroupId] = [n].[FamilyId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [fm].[PersonId]
+CROSS APPLY ( SELECT TRY_CONVERT( DECIMAL( 18, 2 ), JSON_VALUE( [a].[DefaultValue], '$.NcoaSettings.MinimumMoveDistance' ) ) AS [Minimum], TRY_CONVERT( INT, JSON_VALUE( [a].[DefaultValue], '$.NcoaSettings.InactiveRecordReasonId' ) ) AS [ReasonId]
+    FROM [Attribute] AS [a] WHERE [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] = 'core_SparkData' ) AS [s]
+WHERE [n].[ForeignKey] = @ForeignKey AND [n].[NcoaType] = 3 AND [n].[Processed] = 1 AND [n].[MoveDistance] >= [s].[Minimum]
+    AND ( [p].[RecordStatusValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' )
+        OR ISNULL( [p].[RecordStatusReasonValueId], 0 ) <> [s].[ReasonId]
+        OR ISNULL( [p].[InactiveReasonNote], '' ) <> CONCAT( 'Received a Change of Address (NCOA) notice that was for more than ', FORMAT( [s].[Minimum], '0.##' ), ' miles away.' )
+        OR EXISTS ( SELECT 1 FROM [GroupMember] AS [m] INNER JOIN [Group] AS [g] ON [g].[Id] = [m].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [m].[PersonId] = [p].[Id] AND [m].[GroupMemberStatus] <> 0 AND [gt].[IgnorePersonInactivated] = 0 )
+        OR EXISTS ( SELECT 1 FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[ConnectionState] NOT IN ( 1, 3 ) )
+        OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[Status] = 1 ) );
+
 -- check: visit-dates-are-as-rock-writes-them
 -- why: Decision D-integrity-11. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. It also writes an empty First Visit for an adult whose family has no child's check-in. Verify replays the job to show it would change none of them.
 SELECT COUNT(*)

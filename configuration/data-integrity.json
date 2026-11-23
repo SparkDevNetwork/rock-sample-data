@@ -323,8 +323,42 @@
       { "household": "ramirez", "story": "The Ramirez family moved to Phoenix this month, into a new house." }
     ]
   },
+  "ncoa": {
+    "$comment": "One NCOA run, which Alisha imported on Rock's NCOA page. Rock sent every active person with a home address in the Active People data view, as of the run, and kept one NCOA History row for each. Most did not move. A family that moved less than minimumMoveDistance miles got its new home, with the old one kept as Previous. A family that moved farther was also inactivated with inactiveReason and Rock's note. An adult who moved out of a family of two or more, an adult child or else the youngest adult, waits for a staff member on the NCOA Results page. New homes come from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The crowd shares are of the generated families Rock sent. A family moves away only if it has had no check-in or gift for a year and is in no group, list, request, or flow that Rock would inactivate.",
+    "run": { "daysAgo": 41, "time": "14:12" },
+    "processedBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+    "personDataView": "4E6AF4CA-B4B6-4C60-B369-B9955CA552A3",
+    "inactiveReason": "Moved",
+    "minimumMoveDistance": 25,
+    "markInvalidAsPrevious": true,
+    "mark48MonthAsPrevious": true,
+    "recurrenceInterval": 95,
+    "crowd": {
+      "nearbyFamiliesPct": 1.0,
+      "movedAwayFamiliesPct": 0.2,
+      "adultsMovedOutPct": 0.3
+    },
+    "cast": [
+      {
+        "household": "wood",
+        "move": "nearby",
+        "story": "The Woods moved across town and filed a change of address. Rock's NCOA run added their new home and kept the old one as Previous."
+      },
+      {
+        "household": "barlow",
+        "move": "away",
+        "story": "Greg and Diane Barlow retired to Wickenburg, more than 25 miles away. Rock added their new home, kept the old one as Previous, and inactivated them with the reason Moved."
+      },
+      {
+        "household": "kim",
+        "person": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33",
+        "move": "individual",
+        "story": "Andrew Kim moved into an apartment near his college and filed a change of address. His parents stayed, so Rock left the move for a staff member on the NCOA Results page."
+      }
+    ]
+  },
   "settings": {
-    "$comment": "Rock's Data Integrity Settings page. Each Data Automation rule is configured the way a church sets it up, and every rule is off (Jon, issue 2 question 1), so Rock's Data Automation job changes no one. Each rule is Rock's own settings class, saved as JSON in its system setting. Where Rock stores a database Id, this file gives the Guid, and the load writes the Id. General keeps Rock's gender auto-fill confidence of 99.9. NCOA's settings are saved with an NCOA run (slice 3).",
+    "$comment": "Rock's Data Integrity Settings page. Each Data Automation rule is configured the way a church sets it up, and every rule is off (Jon, issue 2 question 1), so Rock's Data Automation job changes no one. Each rule is Rock's own settings class, saved as JSON in its system setting. Where Rock stores a database Id, this file gives the Guid, and the load writes the Id. General keeps Rock's gender auto-fill confidence of 99.9. NCOA's settings are saved with the NCOA run, above.",
     "rules": {
       "core_DataAutomationReactivatePeople": {
         "IsEnabled": false,

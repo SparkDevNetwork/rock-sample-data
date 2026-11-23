@@ -1,6 +1,6 @@
 # Data Integrity
 
-How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are D-integrity-1 to D-integrity-12 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
+How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are D-integrity-1 to D-integrity-13 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
 
 ## The idea
 
@@ -21,7 +21,7 @@ Every page is under Tools > Reporting > Data Integrity.
 | Location Editor | Addresses by street or city, or every address with no map point (Not Geocoded) | Failed addresses (decision D-integrity-4) |
 | Photo Requests | The Photo Request group, and Verify Photos for uploads that wait | Photo requests (decision D-integrity-6) |
 | Data Integrity Settings | Gender auto-fill and the six Data Automation rules | The rules, configured and off (decision D-integrity-7) |
-| NCOA | Results from a National Change of Address run | A later slice |
+| NCOA | A National Change of Address run's settings, and its Results page of moves that wait for a staff member | One NCOA run (decision D-integrity-13) |
 | Connection Status Changes | Connection status changes in a date range, this year by default, and people made in that range | The Cast's status history and everyone's record dates (decisions D-integrity-1, D-integrity-2, and D-integrity-10) |
 
 ## Record dates
@@ -163,18 +163,41 @@ Rock's six Data Automation rules are configured the way a church sets them up, a
 | Update Connection Status | Leading from the Already Leading data view |
 | Update Family Status | Nothing, since Rock's two family statuses have no family views |
 
-General keeps Rock's gender auto-fill confidence of 99.9. Rock's Data Automation job runs every Tuesday at 4 AM. With every rule off, it only fills genders it is sure of, and it finds none to fill. NCOA's settings are saved with an NCOA run, which comes in a later slice.
+General keeps Rock's gender auto-fill confidence of 99.9. Rock's Data Automation job runs every Tuesday at 4 AM. With every rule off, it only fills genders it is sure of, and it finds none to fill. NCOA's settings are saved with the NCOA run, below.
+
+## NCOA
+
+A church runs NCOA (the post office's National Change of Address list) from Rock's NCOA page. It sends its addresses to TrueNCOA and imports the results file, and Rock processes the moves. Alisha imported one run 41 days before install day (decision D-integrity-13). The page kept her settings: the Active People data view, a minimum move distance of 25 miles, the reason Moved, and previous addresses marked for invalid addresses and moves older than 18 months.
+
+Rock sent every active person with a home address, and kept one NCOA History row for each. Most did not move. The moves are:
+
+| Move | How many | What Rock did |
+|---|---|---|
+| A family moved less than 25 miles | The Woods, and 1% of the generated families Rock sent | Added the new home as Home and the mailing address, kept the old one as Previous, and wrote History for the family and each member |
+| A family moved 25 miles or more | The Barlows, and 0.2% of the generated families | The same, and inactivated each member with the reason Moved and Rock's note: "Received a Change of Address (NCOA) notice that was for more than 25 miles away." |
+| An adult moved out of a family of two or more | Andrew Kim, and 0.3% of the generated families: an adult child, or else the youngest adult | Nothing. The move waits on Rock's NCOA Results page for a staff member |
+
+Each new home comes from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The far list holds homes at least 30 miles from every campus, in Wickenburg, Tonopah, Gila Bend, Wittmann, and Aguila. A generated family moves away only if it has had no check-in or gift for a year and has no group, list, request, or flow that Rock would inactivate with it, so nothing else changes.
+
+Rock's move away check also compares the new home with each campus, but it compares meters with miles, so every move past the minimum counts as away. Every far home is far from every campus too, so both readings agree. TrueNCOA gives a move date as a year and month, which Rock does not read, so the rows have no move date, as Rock leaves them.
+
+| Story | Move |
+|---|---|
+| The Woods | Moved across town. Their stories do not depend on their address. |
+| Greg and Diane Barlow | Retired to Wickenburg and stopped coming. A new Cast household with no photos on purpose. |
+| Andrew Kim | Moved into an apartment near his college. Rock still has him at home, and the move waits on the NCOA Results page. |
 
 ## How it is checked
 
-- **Cast expectations** check every story after each load: each record's date against its first record, each date in the file, each Pending record's form and source, each self-inactivation's reason, notes, and History, each status change, each workflow's state and assignee, each photo reply, each shared email and phone number, each failed address, and each rule off.
+- **Cast expectations** check every story after each load: each record's date against its first record, each date in the file, each Pending record's form and source, each self-inactivation's reason, notes, and History, each status change, each workflow's state and assignee, each photo reply, each shared email and phone number, each failed address, the NCOA settings and each Cast move, and each rule off.
 - **Invariants** keep the rules Rock's code would: every record has a Record Source and is made before its first record, visit dates are system values in Rock's format, a workflow started from a profile has its person and initiator and waits on one assigned activity, a photo reply has a photo, a self-inactivated record has its note, and each Data Automation rule is off. The address rules allow a failed address only when it is locked, and the phone rule allows a number on two families only when one record is inactive.
 - **Validation** grades the new records a month against source-1's 1.17% of active people.
+- **Invariants for NCOA** check that every processed move has its new Home and its old home as Previous, that a move Rock left for a staff member changed nothing, and that a family that moved away is inactivated with the run's reason and note and has nothing Rock would have inactivated with it.
 - **Verify's family-analytics check** runs Rock's visit dates procedure with the other Family Analytics procedures, and it must change no First Visit or Second Visit.
 - **Verify's data-automation check** reads each rule back with Rock's own settings classes, expects exactly what the load saved, and runs Rock's Data Automation job, which must change no person and no family.
 - **Verify's process-workflows check** runs Rock's Process Workflows job, which leaves the waiting reports at Alisha's form.
-- **`node cast/validate-cast.js`** checks every person, name, and date in `configuration/data-integrity.json`, that the Pending records match the Cast's Pending people, that a self-inactivation's household is inactive with its reason, and that a shared number is on the records its households give it, with only one of those households active.
+- **`node cast/validate-cast.js`** checks every person, name, and date in `configuration/data-integrity.json`, that the Pending records match the Cast's Pending people, that a self-inactivation's household is inactive with its reason, that a shared number is on the records its households give it, with only one of those households active, and that each NCOA move is a Cast household, inactive with the run's reason only when it moved away.
 
 ## What comes next
 
-Next, one NCOA run, with its settings. Last, record completeness: Crowd adults leave some details blank at the shares measured at source-1, so about 74.5% have an email, 67.8% a mobile phone, 74.6% a birth date, 59.1% a marital status, and 74.4% a home address. The Cast stays complete.
+Last, record completeness: Crowd adults leave some details blank at the shares measured at source-1, so about 74.5% have an email, 67.8% a mobile phone, 74.6% a birth date, 59.1% a marital status, and 74.4% a home address. The Cast stays complete.

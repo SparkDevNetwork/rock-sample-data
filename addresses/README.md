@@ -6,7 +6,7 @@ Sample households live on **real Phoenix-area streets with house numbers that do
 
 | File | What it holds |
 |---|---|
-| `pool.json` | The address pool: 18,000 addresses (3,600 for Phoenix and 2,400 for each other campus), one per line. Committed. |
+| `pool.json` | The address pool: 18,000 addresses (3,600 for Phoenix and 2,400 for each other campus), one per line, and a far list of homes at least 30 miles from every campus. Committed. |
 | `build-pool.js` | Builds the pool from the source data, and with `--cast` gives Cast households their addresses. |
 | `raw/` | Downloaded source data and cached lookups. Git ignores it. |
 
@@ -33,9 +33,13 @@ To limit lookups to the county service (about 1,900 street lookups for the whole
 `node build-pool.js --cast` updates the Cast households:
 
 1. **Legacy households** came with real homes. Each moves to the nearest unused number on the same block, which keeps its neighborhood and distance. The three duplicate Jon Smith records keep sharing one address, because duplicate detection tests depend on it. Other accidental shares (Evans and Simmons, Turner and Richards) are split.
-2. **New households** without an address get one near the main campus, from the same streets the pool uses.
+2. **New households** without an address get one near the main campus, from the same streets the pool uses. A home the Cast already has is taken, so a new household never lands on one.
 
 It only moves an address that matches a real county address point, so running it again changes nothing.
+
+## Far addresses
+
+The pool's `far` list holds homes on residential blocks at least 30 miles from every campus, such as in Wickenburg, Tonopah, and Gila Bend. They are new homes for families an NCOA run finds moved away (issue 2, decision D-integrity-13), so a family that moved there is far from every campus. The list is built last, on its own seeded stream, so it is the same with or without `--cast` and changes nothing above it.
 
 ## Tradeoff
 

@@ -83,7 +83,6 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         private string WriteSettings( DataIntegritySettings settings )
         {
-            var fieldTypeId = _db.RequireIdByGuid( "FieldType", TextFieldTypeGuid );
             var saved = new List<string>();
             foreach ( var rule in settings.Rules )
             {
@@ -113,18 +112,7 @@ namespace RockSampleData.Loader.Loading
                     }
                 }
 
-                var json = node.ToJsonString();
-                var name = Regex.Replace( Regex.Replace( rule.Key, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2" ), @"(\p{Ll})(\P{Ll})", "$1 $2" );
-                var updated = _db.Execute( "UPDATE [Attribute] SET [DefaultValue] = @Value, [ModifiedDateTime] = @Now WHERE [EntityTypeId] IS NULL AND [EntityTypeQualifierColumn] = 'SystemSetting' AND [Key] = @Key",
-                    P( "@Value", json ), P( "@Now", _dates.Anchor ), P( "@Key", rule.Key ) );
-                if ( updated == 0 )
-                {
-                    _db.Execute( @"
-INSERT INTO [Attribute] ( [IsSystem], [FieldTypeId], [EntityTypeQualifierColumn], [EntityTypeQualifierValue], [Key], [Name], [Order], [IsGridColumn], [DefaultValue], [IsMultiValue], [IsRequired], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
-VALUES ( 0, @FieldType, 'SystemSetting', '', @Key, @Name, 0, 0, @Value, 0, 0, @Guid, @Now, @Now, @ForeignKey )",
-                        P( "@FieldType", fieldTypeId ), P( "@Key", rule.Key ), P( "@Name", name ), P( "@Value", json ), P( "@Guid", SeededRandom.StableGuid( $"data-integrity:setting:{rule.Key}" ) ),
-                        P( "@Now", _dates.Anchor ), P( "@ForeignKey", _foreignKey ) );
-                }
+                SaveSystemSetting( rule.Key, node.ToJsonString() );
 
                 var isOn = node["IsEnabled"]?.GetValue<bool>() == true;
                 saved.Add( $"{rule.Key.Replace( "core_DataAutomation", string.Empty )} {( isOn ? "on" : "off" )}" );

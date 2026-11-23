@@ -2149,7 +2149,9 @@ if ( fs.existsSync( duplicatesFile ) ) {
     Pass 9: the Data Integrity stories (configuration/data-integrity.json, docs/data-integrity.md). Every person is a
     Cast person with that name, and staff where a staff member acts. The Pending records are exactly the Cast's Pending
     people. A self-inactivation inactivates its whole household with the same reason. A status history ends at each
-    person's status. A couple who shares an email both have it. A failed address is a Cast home.
+    person's status. A couple who shares an email both have it. A shared number is on its households' records. A
+    failed address is a Cast home. An NCOA move is a Cast household with a home, inactive with the run's reason only
+    when it moved away.
 */
 const integrityFile = path.join( castDir, "..", "configuration", "data-integrity.json" );
 let integrityStoryCount = 0;
@@ -2316,6 +2318,37 @@ if ( fs.existsSync( integrityFile ) ) {
         const activeHouseholds = listed.filter( h => h && h.data.members.some( m => m.recordStatus !== "inactive" ) );
         if ( listed.some( h => !h ) || carriers.length < 2 || listed.some( h => !carriers.some( c => c.household === h ) ) || activeHouseholds.length > 1 ) {
             errors.push( `${owner} shared phone ${shared.number}: at least two records in the listed Cast households carry it, and only one of those households is active.` );
+        }
+    }
+
+    // The NCOA run: a staff member imported it, and each Cast move is a household with a home. A family that moved away
+    // is inactive with the run's reason in its file. An individual move is one adult in a family of two or more.
+    const ncoa = integrity.ncoa;
+    if ( ncoa ) {
+        date( "ncoa run", ncoa.run, true );
+        person( "ncoa processedBy", ncoa.processedBy, undefined, true );
+        for ( const move of ncoa.cast || [] ) {
+            integrityStoryCount++;
+            const where = `ncoa ${move.household}`;
+            const household = households.find( h => h.data.key === move.household );
+            text( where, move.story, 500 );
+            if ( !household || ![ "nearby", "away", "individual" ].includes( move.move ) || !household.data.address ) {
+                errors.push( `${owner} ${where}: a move is nearby, away, or individual, for a Cast household with a home address.` );
+                continue;
+            }
+            const members = household.data.members;
+            if ( move.move === "away" && members.some( m => m.recordStatus !== "inactive" || m.recordStatusReason !== ncoa.inactiveReason ) ) {
+                errors.push( `${owner} ${where}: a family that moved away is inactive with the reason ${ncoa.inactiveReason} in its file.` );
+            }
+            if ( move.move !== "away" && members.some( m => m.recordStatus === "inactive" ) ) {
+                errors.push( `${owner} ${where}: a family that moved nearby, or one adult who moved out, stays active.` );
+            }
+            if ( move.move === "individual" ) {
+                const entry = person( where, move.person, undefined, false );
+                if ( !entry || members.length < 2 || !members.some( m => m.guid === move.person && m.familyRole === "adult" ) ) {
+                    errors.push( `${owner} ${where}: an individual move is one adult of the household, in a family of two or more.` );
+                }
+            }
         }
     }
 

@@ -63,6 +63,7 @@ WHERE [p].[ForeignKey] LIKE 'SampleData:%' OR [p].[Id] = @Admin", P( "@Admin", P
             checks += PhotoRequests( db, config.PhotoRequests, arePhotosLoaded, Find, failures );
             checks += SharedEmails( db, config.SharedEmails, households, failures );
             checks += SharedPhones( db, config.SharedPhones, households, failures );
+            checks += Ncoa( db, config.Ncoa, households, dates, Find, failures );
             checks += FailedAddresses( db, config.FailedAddresses, households, Find, failures );
             checks += Settings( db, config.Settings, failures );
             return checks;
@@ -320,6 +321,77 @@ SELECT [gm].[GroupMemberStatus] FROM [GroupMember] AS [gm] INNER JOIN [Group] AS
                 if ( count != carriers || count < 2 )
                 {
                     failures.Add( $"{string.Join( " and ", entry.Households )}: expected {carriers} records with {entry.Number}, which Rock's Individuals with Duplicate Phone Numbers report lists, Rock shows {count}" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// The NCOA run's settings as Rock's NCOA page saved them, and each Cast move as Rock processed it: a nearby move
+        /// has its new Home and the old one as Previous, a move away also inactivated the family, and an individual move
+        /// waits for a staff member with nothing changed.
+        /// </summary>
+        private static int Ncoa( RockDatabase db, NcoaRun ncoa, List<CastHousehold> households, AnchorDates dates, Func<Guid, Dictionary<string, object>> find, List<string> failures )
+        {
+            if ( ncoa?.Run == null )
+            {
+                return 0;
+            }
+
+            var checks = 1;
+            var json = db.Scalar( "SELECT [DefaultValue] FROM [Attribute] WHERE [EntityTypeId] IS NULL AND [EntityTypeQualifierColumn] = 'SystemSetting' AND [Key] = @Key",
+                P( "@Key", DataIntegrityLoader.SparkDataSettingKey ) ) as string;
+            var settings = json == null ? null : System.Text.Json.Nodes.JsonNode.Parse( json )?["NcoaSettings"];
+            var run = dates.Resolve( ncoa.Run ).Value;
+            if ( settings == null
+                || settings["PersonDataViewId"]?.GetValue<int>() != db.IdByGuid( "DataView", ncoa.PersonDataView )
+                || settings["MinimumMoveDistance"]?.GetValue<decimal>() != ncoa.MinimumMoveDistance
+                || settings["LastRunDate"]?.GetValue<string>() != run.ToString( "yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture )
+                || settings["CurrentReportStatus"]?.GetValue<string>() != "Complete" )
+            {
+                failures.Add( $"NCOA: expected Rock's NCOA settings with the run on {run:yyyy-MM-dd HH:mm}, its data view, and {ncoa.MinimumMoveDistance} miles, Rock shows {json ?? "none"}" );
+            }
+
+            var inactiveId = db.RequireIdByGuid( "DefinedValue", InactiveStatusGuid );
+            foreach ( var move in ncoa.Cast )
+            {
+                var household = households.FirstOrDefault( h => h.Key == move.Household );
+                var members = household?.Members.Select( m => find( m.Guid ) ).Where( p => p != null ).ToList();
+                if ( members == null || members.Count == 0 )
+                {
+                    continue;
+                }
+
+                checks++;
+                var familyId = Convert.ToInt32( db.Scalar( "SELECT TOP 1 [GroupId] FROM [GroupMember] WHERE [PersonId] = @Id AND [GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) ORDER BY [Id]",
+                    P( "@Id", members[0]["Id"] ) ) );
+                var rows = db.Query( @"
+SELECT [pa].[PersonId], [n].[NcoaType], [n].[MoveType], [n].[Processed], [n].[MoveDistance], [n].[UpdatedStreet1]
+FROM [NcoaHistory] AS [n] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [n].[PersonAliasId]
+WHERE [n].[FamilyId] = @Family", P( "@Family", familyId ) ).ToList();
+                var types = db.Query( @"
+SELECT [dv].[Guid], [l].[Street1] FROM [GroupLocation] AS [gl] INNER JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [gl].[GroupLocationTypeValueId] INNER JOIN [Location] AS [l] ON [l].[Id] = [gl].[LocationId]
+WHERE [gl].[GroupId] = @Family", P( "@Family", familyId ) ).ToList();
+                var homes = types.Where( t => ( Guid ) t["Guid"] == new Guid( "8C52E53C-2A66-435A-AE6E-5EE307D9A0DC" ) ).Select( t => ( string ) t["Street1"] ).ToList();
+                var hasPrevious = types.Any( t => ( Guid ) t["Guid"] == new Guid( "853D98F1-6E08-4321-861B-520B4106CFE0" ) );
+                var statuses = members.Select( m => Convert.ToInt32( db.Scalar( "SELECT [RecordStatusValueId] FROM [Person] WHERE [Id] = @Id", P( "@Id", m["Id"] ) ) ) ).ToList();
+                var problem = move.Move switch
+                {
+                    "nearby" or "away" when rows.Count == 0 || rows.Any( r => ( int ) r["NcoaType"] != DataIntegrityLoader.NcoaTypeMove || ( int ) r["Processed"] != DataIntegrityLoader.ProcessedComplete )
+                        => "a processed move on every row Rock kept for the family",
+                    "nearby" or "away" when !hasPrevious || homes.Count != 1 || homes[0] != ( string ) rows[0]["UpdatedStreet1"] => "the new Home and the old one as Previous",
+                    "nearby" when ( decimal ) rows[0]["MoveDistance"] >= ncoa.MinimumMoveDistance || statuses.Any( s => s == inactiveId ) => $"a move under {ncoa.MinimumMoveDistance} miles, with the family still active",
+                    "away" when ( decimal ) rows[0]["MoveDistance"] < ncoa.MinimumMoveDistance || statuses.Any( s => s != inactiveId ) => $"a move of {ncoa.MinimumMoveDistance} miles or more, with the family inactive",
+                    "individual" when rows.Count( r => ( int ) r["NcoaType"] == DataIntegrityLoader.NcoaTypeMove ) != 1
+                        || rows.Any( r => ( int ) r["NcoaType"] == DataIntegrityLoader.NcoaTypeMove && ( ( int ) r["Processed"] != DataIntegrityLoader.ProcessedManualUpdateRequired
+                            || ( int ) r["MoveType"] != DataIntegrityLoader.MoveTypeIndividual || ( move.Person.HasValue && ( int ) r["PersonId"] != ( int ) find( move.Person.Value )["Id"] ) ) )
+                        || hasPrevious => "one individual move that waits for a staff member, with the family's home unchanged",
+                    _ => null
+                };
+                if ( problem != null )
+                {
+                    failures.Add( $"{household.Name}: expected the NCOA run's {move.Move} move as Rock processed it: {problem}" );
                 }
             }
 

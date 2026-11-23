@@ -1,6 +1,6 @@
 # Meet the Cast
 
-The Cast is 105 hand-designed households and 232 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
+The Cast is 106 hand-designed households and 234 people. Most live on the Phoenix campus and are the same in every dataset, so tests and documentation can rely on them by Guid. Each other campus's campus pastor lives on their own campus, and their family is in the datasets that have it.
 
 Each family has its own page with photos, backstories, and what it is used to test. **Featured** families are the ones most used in testing; they have a short bio for each person.
 
@@ -65,6 +65,7 @@ Every photo is AI-generated to look like a casual profile picture. Legacy famili
 | Family | Origin | People | Statuses | Used to test |
 |---|---|---|---|---|
 | [Alvarez Family](alvarez.md) | new | 4 | Connected | Newborn in the nursery and a preschooler, so two check-in areas for one family. |
+| [Barlow Family](barlow.md) | new | 2 | Connected | NCOA move away: a family move more than 25 miles away, which Rock processed and inactivated with the reason Moved and its note. |
 | [Bell Family](bell.md) | new | 2 | Engaged | Greeters on the Phoenix Greeters team. |
 | [Bennett Family](bennett.md) | new | 3 | Connected | Middle school student whose attendance drops in spring. |
 | [Brooks Family](brooks.md) | new | 5 | Engaged, Leading | Three kids across the student and elementary check-in areas. |

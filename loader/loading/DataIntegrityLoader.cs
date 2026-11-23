@@ -115,6 +115,9 @@ namespace RockSampleData.Loader.Loading
             // Record dates come last, since no record is made after the first thing written for its person, these stories included.
             _db.BulkInsert( "History", _history, keepIdentity: false );
             log.InsertRange( 1, WriteRecordDates( config, people.Households, castHouseholdKeys ) );
+
+            // The NCOA run sent the people whose records existed then, so it comes after the record dates.
+            log.AddRange( WriteNcoa( config.Ncoa, people.Households, castHouseholdKeys, people ) );
             return log;
         }
 
