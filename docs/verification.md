@@ -369,7 +369,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 ### Sign-in
 
-**What it does.** After the referee, `verify/rock-runner` signs in through Rock's own Database login, the check Rock's login block makes: the login exists, is confirmed, and Rock accepts the password. It signs in as Ted Decker (`tdecker`) and as the load's newest confirmed login with the test password, and as Ted with a wrong password, which Rock must refuse (decision 180). It runs after the referee, because a sign-in can rewrite a hash at the site's cost setting.
+**What it does.** After the referee, `verify/rock-runner` signs in through Rock's own Database login, the check Rock's login block makes: the login exists, is confirmed, and Rock accepts the password. It signs in as Ted Decker (`tdecker`) and as the load's newest confirmed Database login with the test password, and as Ted with a wrong password, which Rock must refuse (decision 180). A check-in supervisor's PIN is a PIN Authentication login that a kiosk checks, so it is never one of these (decision D-checkin-config-3). It runs after the referee, because a sign-in can rewrite a hash at the site's cost setting.
 
 **Why it's there.** The loader writes the hash with SQL, so only Rock itself can prove the hash is one it accepts, and that a person installing could sign in as the Cast.
 
