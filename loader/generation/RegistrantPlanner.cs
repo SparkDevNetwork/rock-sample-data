@@ -75,6 +75,7 @@ namespace RockSampleData.Loader.Generation
         private readonly Dictionary<(Guid Instance, string Fee, int Item), int> _feeItemsUsed = new Dictionary<(Guid, string, int), int>();
         private readonly Dictionary<(Guid Instance, string Discount), int> _codesUsed = new Dictionary<(Guid, string), int>();
         private readonly ISet<string> _castHouseholdKeys;
+        private readonly NameTables _names;
 
         /// <param name="steps">The steps configuration, or null when the package has none.</param>
         /// <param name="path">The Student Path planned for this load, or null when the package has no steps.</param>
@@ -82,9 +83,11 @@ namespace RockSampleData.Loader.Generation
         /// <param name="households">Every loaded household. A person's family is the household whose family is their primary one.</param>
         /// <param name="castHouseholdKeys">The Cast's household keys, whose registrations lists pin stories.</param>
         /// <param name="reminderDays">The days between payment reminders on a paid template.</param>
-        public RegistrantPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, RegistrantPlans plans, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays )
+        /// <param name="names">The name tables a parent who is not in Rock is named from.</param>
+        public RegistrantPlanner( RegistrationsConfiguration config, StepsConfiguration steps, StudentPath path, RegistrantPlans plans, IReadOnlyList<LoadedHousehold> households, ISet<string> castHouseholdKeys, DateTime anchor, string seed, int reminderDays, NameTables names )
         {
             _config = config;
+            _names = names;
             _castHouseholdKeys = castHouseholdKeys;
             _anchor = anchor.Date;
             _seed = seed;
@@ -1087,9 +1090,9 @@ namespace RockSampleData.Loader.Generation
 
             Camp's emergency contact questions are required, so Rock's form never saves a registration without them.
             A student who registers themselves has no parent in Rock, and some registrars have no phone. Their
-            answers name a parent who is not in Rock, drawn from the Crowd's name lists with the student's last name,
-            and a phone in the reserved 555-0100 to 555-0199 range. The draw is seeded by the student, so the name
-            and the phone answer agree.
+            answers name a parent who is not in Rock, drawn from the Crowd's name tables for a parent born about 30
+            years before the student, with the student's last name, and a phone in the reserved 555-0100 to 555-0199
+            range. The draw is seeded by the student, so the name and the phone answer agree.
 
             Reason: Every required answer is filled, as Rock's form requires.
         */
@@ -1108,7 +1111,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             var random = new SeededRandom( $"{_seed}:emergency-contact:{registrant.Person.Cast.Guid}" );
-            var first = random.Pick( random.Chance( 0.6 ) ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
+            var first = _names.FirstName( random.Chance( 0.6 ), ( registrant.Person.BirthDate?.Year ?? _anchor.Year - 15 ) - 30, random );
             var name = contact == null ? $"{first} {registrant.Person.Cast.LastName}" : NameOf( contact );
             return (name, $"({random.Pick( new[] { "602", "480", "623" } )}) 555-0{random.Between( 100, 199 )}");
         }

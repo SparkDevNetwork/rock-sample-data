@@ -157,7 +157,7 @@ namespace RockSampleData.Loader.Loading
 
             var statusOrder = _source.ConnectionStatuses.Statuses.OrderBy( s => s.Order ).Select( s => s.Name ).ToList();
             var plans = new RegistrantPlans( _dataset, smallGroups, serving, statusOrder, castHouseholdKeys, mainCampusKey, _dates );
-            var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, plans, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays ).Plan( plan );
+            var registrations = new RegistrantPlanner( config, _source.Steps, studentPath, plans, people.Households, castHouseholdKeys, _dates.Anchor, _seed, PaymentReminderDays, _source.Names ).Plan( plan );
             new RegistrantsLoader( _db, _foreignKey, _seed, _dates ).Write( registrations, new RegistrationIds( templates, groupTypes, groupIds, instanceIds, campusPlans, accountId, _db.RequireIdByGuid( "FinancialGateway", config.Gateway ), config.BatchPrefix ) );
             WriteDataViews( config, plan, templates );
             CheckEligibility( config, registrations );

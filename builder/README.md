@@ -34,6 +34,7 @@ A package is a zip of data, never SQL (decision 41). Files keep their paths from
 | `datasets/{key}.json` | The dataset's settings and its [card](../datasets/README.md#the-dataset-card). |
 | `profile.json` | The calibration profile, already resolved from its sources, so a load never blends sources itself. |
 | `addresses/pool.json` | The address pool for the dataset's campuses only. Each campus's list is unchanged, so generated households get the same addresses. |
+| `names/*.json` | The name tables generated people are named from: first names by gender and birth decade, surnames, and nicknames, unchanged. |
 | `photos/manifest.json`, `photos/cast/`, `photos/pool/` | The Cast photos, plus the pool when the dataset gives generated households faces (Core 3). |
 | `photos/messages/manifest.json`, `photos/messages/` | The adaptive message images delivered so far, once the image agent has written the manifest. The builder refuses an entry for an adaptation that does not exist, that has two entries, or that already shows an event image (decision 341). |
 | `content/internal-news/` | The staff homepage's weekly update text. |
