@@ -1,0 +1,103 @@
+{
+  "$comment": "Reminders staff and leaders set for themselves (issue 22, decisions 295 to 298). Rock's two shipped reminder types hold them: a Personal Reminder points at the person's primary alias, and a Group Reminder at the group. Every date counts from the install day, so each Cast reminder is due, upcoming, or complete on any install day. Each owner's ReminderCount is what Rock's Process Reminders job would set: their reminders that are due and not complete.",
+  "personReminderType": "A9BAAA29-F306-4E35-9273-4B299676B252",
+  "groupReminderType": "CF5D8F88-8BF0-4880-88BC-102B2AE6159D",
+  "$castComment": "The Cast's own reminders. owner is the person who set it. A Personal Reminder names the person it is about, and a Group Reminder names the group. set is when it was set. date is when it is due: daysAgo, daysAhead, or beforeNextBaptismSunday (that many days before the next Easter or July baptism Sunday, and never before tomorrow). A repeating reminder repeats everyDays after each time it is completed, as Rock repeats one, and completed says how many times it has been. expect is what Rock shows on any install day: due, upcoming, or complete.",
+  "cast": [
+    {
+      "key": "ted-ashley-rent",
+      "guid": "B2CE6600-DDF3-47EC-8484-70A04D853654",
+      "owner": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "ownerName": "Ted Decker",
+      "person": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "aboutName": "Ashley Kelly",
+      "note": "Rent is due on the first. Check in with Ashley and ask how she and the kids are doing.",
+      "set": { "daysAgo": 280 },
+      "date": { "daysAgo": 1 },
+      "repeat": { "everyDays": 30, "completed": 9 },
+      "expect": "due"
+    },
+    {
+      "key": "ted-josh-story",
+      "guid": "B9065112-20E0-4345-8FF1-943E8201FD2E",
+      "owner": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "ownerName": "Ted Decker",
+      "person": "BDF16E10-F365-431B-ABAD-A0A265A878AB",
+      "aboutName": "Josh Sanders",
+      "note": "Ask Josh to share his story at the next baptism Sunday.",
+      "set": { "daysAgo": 55 },
+      "date": { "beforeNextBaptismSunday": 14 },
+      "expect": "upcoming"
+    },
+    {
+      "key": "bill-marble-group-party",
+      "guid": "A64BE394-65C8-4F5E-BC31-FD7B5D05CE47",
+      "owner": "1EA811BB-3118-42D1-B020-32A82BC8081A",
+      "ownerName": "Bill Marble",
+      "group": "90B2CEDA-AE3A-4C10-A2E1-B987020379AD",
+      "aboutName": "Marble Group",
+      "note": "Pick a night for the group's end-of-season party and send a sign-up for food.",
+      "set": { "daysAgo": 6 },
+      "date": { "daysAhead": 10 },
+      "expect": "upcoming"
+    }
+  ],
+  "$generatedComment": "Reminders for generated people and groups. A staff member sets a reminder about some of the generated people they wrote a note on, the day they wrote it, more often for follow-up and care notes. A generated small group's leader sets group reminders for some active groups. A reminder falls daysAfter its setting. A past one is complete, except that duePercent of those due in the last dueWithinDays are still due. A few repeat, completed each time a few days after it comes due.",
+  "generated": {
+    "person": {
+      "percentOfNotesByType": { "followUp": 30, "pastoral": 18, "counseling": 15, "phone": 10, "personal": 6 },
+      "noteWithinDays": 365,
+      "daysAfter": { "min": 3, "max": 45 },
+      "repeatPercent": 6,
+      "repeatEveryDays": [ 14, 30, 60, 90 ]
+    },
+    "group": {
+      "percentOfGroups": 30,
+      "setWithinDays": 200,
+      "daysAfter": { "min": 3, "max": 40 },
+      "repeatPercent": 20,
+      "repeatEveryDays": [ 7, 14, 30 ]
+    },
+    "repeatTimes": [ null, null, 4, 6, 12 ],
+    "duePercent": 35,
+    "dueWithinDays": 21,
+    "completedDaysLate": { "min": 0, "max": 3 }
+  },
+  "$notesComment": "The note on each generated reminder. {name} is the person's nickname or first name.",
+  "notes": {
+    "person": [
+      "Follow up with {name} on our conversation.",
+      "Call {name} to see how the week went.",
+      "Check in with {name} after Sunday.",
+      "Ask {name} how the family is doing.",
+      "Send {name} a note that we are praying.",
+      "Text {name} to see if they need anything.",
+      "See if {name} would like to grab coffee.",
+      "Invite {name} to visit a small group.",
+      "Ask {name} about serving on a team.",
+      "Check back with {name} on the prayer request.",
+      "Call {name} after the doctor's appointment.",
+      "Follow up with {name} about Starting Point.",
+      "Check on {name} after the move.",
+      "Send {name} the class sign-up link.",
+      "Ask {name} how the new job is going.",
+      "Drop off a meal for {name}.",
+      "Call {name} to set up a time to meet.",
+      "See how {name} is settling in."
+    ],
+    "group": [
+      "Send the group this week's discussion questions.",
+      "Order books for the next study.",
+      "Ask who can host when the next season starts.",
+      "Check on members who missed the last few weeks.",
+      "Plan the end-of-season party.",
+      "Ask who wants to serve together at Serve Day.",
+      "Update the group's meeting place in Rock.",
+      "Remind everyone about childcare sign-up.",
+      "Pick the next study with the group.",
+      "Take attendance for the last two weeks.",
+      "Welcome the new members and send them the schedule.",
+      "Set up a meal train for a member's new baby."
+    ]
+  }
+}

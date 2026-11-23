@@ -1,0 +1,203 @@
+{
+  "$comment": "Benevolence (decisions 350 to 355): who asked the church for help, who worked each request, and what the church gave. Each request is saved the way Rock's Benevolence Request Detail block saves it: the requester's name, email, phones, home address, connection status, and campus copied onto the request, a case worker from RSR - Benevolence, a status, and results with amounts. Requesters are people already in the data. No government ID is ever recorded, and gifts are results on the request, not gifts from a fund.",
+  "types": [
+    {
+      "key": "benevolence",
+      "guid": "B4A7C50B-E399-452E-BA37-1ABD6B15482C",
+      "$comment": "Rock's default type. It keeps its name and description and takes no new requests."
+    },
+    {
+      "key": "rent-utilities",
+      "guid": "A5FC276D-6741-4E19-945D-2AA7500F1361",
+      "name": "Rent and Utilities",
+      "description": "Help with rent, a utility bill, or a deposit, paid straight to the landlord or the utility company."
+    },
+    {
+      "key": "food-essentials",
+      "guid": "A53FC341-12AB-40D7-A8EA-9EF6385B42AD",
+      "name": "Food and Essentials",
+      "description": "Grocery and essentials gift cards, and the food pantry for help that lasts past one week."
+    },
+    {
+      "key": "car-medical",
+      "guid": "78FA2A47-0366-4F26-839B-4B8121191638",
+      "name": "Car and Medical",
+      "description": "A car repair that keeps someone working, or a prescription or medical bill, paid straight to the shop or the provider."
+    }
+  ],
+  "$securityComment": "Rock locks its benevolence pages to RSR - Benevolence and RSR - Rock Administration. Each type is locked to the same two roles, so a request shows only to them on every screen that checks the request, such as a person's Benevolence tab (decision 351).",
+  "security": [
+    { "action": "View", "allow": [ "RSR - Benevolence", "RSR - Rock Administration" ], "denyAllUsers": true },
+    { "action": "Edit", "allow": [ "RSR - Benevolence", "RSR - Rock Administration" ], "denyAllUsers": true }
+  ],
+  "$accessComment": "The security walkthrough's benevolence questions, which verify asks Rock's own security check: Rock's Benevolence page under Finance, and each type a request inherits its security from.",
+  "access": [
+    { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro", "page": "D893CCCC-368A-42CF-B36E-69991128F016", "action": "View", "allowed": true },
+    { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker", "page": "D893CCCC-368A-42CF-B36E-69991128F016", "action": "View", "allowed": true },
+    { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "name": "Pete Foster", "page": "D893CCCC-368A-42CF-B36E-69991128F016", "action": "View", "allowed": false },
+    { "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B", "name": "Dee Navarro", "benevolenceType": "rent-utilities", "action": "Edit", "allowed": true },
+    { "person": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble", "benevolenceType": "car-medical", "action": "Edit", "allowed": true },
+    { "person": "BE66C5D3-F43E-4F9A-BA62-B7C0103BF54C", "name": "Pete Foster", "benevolenceType": "rent-utilities", "action": "View", "allowed": false },
+    { "person": "B71494DB-D809-451A-A950-28898D0FD92C", "name": "Cindy Decker", "benevolenceType": "benevolence", "action": "View", "allowed": false }
+  ],
+  "workflow": {
+    "$comment": "The workflow each church type starts when a request is entered (Rock's Request Started trigger, decision 355). It gives a request with no case worker to the case worker, through Rock's Entity Property Set action, and sends no email. Its work finishes the moment it runs, so it is not persisted and leaves no workflow behind. It was built before the history window, so every loaded request has the case worker it would have set.",
+    "guid": "906A7AD0-49FC-44D4-9998-53B93B0CFB75",
+    "name": "Benevolence Request Started",
+    "description": "Gives a new benevolence request with no case worker to the Care Director. It sends no email.",
+    "category": "church-workflows",
+    "workTerm": "Request",
+    "iconCssClass": "ti ti-heart-handshake",
+    "author": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+    "builtYearsAgo": 4
+  },
+  "caseWorker": {
+    "person": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+    "name": "Dee Navarro",
+    "$comment": "The Care Director works every request. She is in RSR - Benevolence, the role Rock's case worker list reads."
+  },
+  "cast": [
+    {
+      "key": "kelly-rent",
+      "guid": "D68FCC10-9046-4412-A230-8857159FDBF8",
+      "requester": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
+      "name": "Ashley Kelly",
+      "type": "rent-utilities",
+      "requested": { "daysAgo": 270, "time": "09:52" },
+      "enteredBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
+      "decided": { "daysAgo": 268, "time": "15:20" },
+      "decidedBy": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "status": "Approved",
+      "text": "My hours were cut and rent is due on the first. I am short this month and would like help with rent for me and my two kids.",
+      "resultSummary": "The team approved one month's rent, paid straight to her landlord.",
+      "nextSteps": "Shared the dates of the Money Matters budgeting class, which has free childcare.",
+      "results": [
+        { "type": "Provided Financial Assistance", "amount": 1425.00, "summary": "One month's rent, paid to her landlord.", "paid": { "daysAgo": 262, "time": "10:45" } }
+      ],
+      "agreement": true,
+      "story": "Ashley called the office 270 days ago, Ted met with her two days later, and the rent went to her landlord 262 days ago, as her notes and Alisha's email say."
+    },
+    {
+      "key": "ward-bills",
+      "guid": "9B815E0D-73E3-4425-9105-8707A2E1B1CA",
+      "requester": "5EFB0260-BF0A-491F-A4D5-C1205DCECB11",
+      "name": "Derek Ward",
+      "type": "rent-utilities",
+      "requested": { "daysAgo": 599, "time": "10:15" },
+      "enteredBy": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "decided": { "daysAgo": 599, "time": "15:40" },
+      "decidedBy": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4",
+      "status": "Approved",
+      "text": "My hours were cut again and we are behind on bills. The electric bill is past due and groceries are tight for Kayla and the kids.",
+      "resultSummary": "The team paid the electric bill and covered next month's groceries.",
+      "nextSteps": "Pete is meeting with Derek about stress and work. Shared the job board and résumé help night.",
+      "results": [
+        { "type": "Provided Financial Assistance", "amount": 238.17, "summary": "The past-due electric bill, paid to the utility company.", "paid": { "daysAgo": 598, "time": "11:05" } },
+        { "type": "Provided Gift Card", "amount": 300.00, "summary": "Grocery gift cards for next month.", "paid": { "daysAgo": 597, "time": "14:30" } }
+      ],
+      "agreement": true,
+      "story": "Pete met Derek and Kayla after the service 600 days ago, and Ted walked them through the request the next day."
+    },
+    {
+      "key": "flores-car",
+      "guid": "4460FE45-6D6A-4187-A6B8-21679A7F53D0",
+      "requester": "E66BEA83-0D78-4AF1-A48E-BB56731A48E3",
+      "name": "Monica Flores",
+      "type": "car-medical",
+      "requested": { "daysAgo": 3, "time": "11:20" },
+      "enteredBy": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "status": "Pending",
+      "text": "My car's transmission is slipping, and I need it to get the kids to school and get to work. The shop quoted more than I can pay this month.",
+      "story": "Monica called Dee this week. Dee is getting a second quote before the team decides."
+    },
+    {
+      "key": "dawson-groceries",
+      "guid": "1B62C521-9A68-4DB5-80A6-6BBA950B75B9",
+      "requester": "DE3E4484-6818-4919-978A-A2A2EBEFC64A",
+      "name": "Kevin Dawson",
+      "type": "food-essentials",
+      "requested": { "daysAgo": 6, "time": "14:05" },
+      "enteredBy": "BFD61E71-D242-40AA-8D69-46CF6305C90B",
+      "status": "Pending",
+      "text": "I have my kids every other weekend, and money is tight until payday. Could the church help with groceries for our next weekend together?",
+      "story": "Kevin asked after a Sunday he had his kids. Dee has not reached him yet to finish the request."
+    }
+  ],
+  "generated": {
+    "$comment": "About 2 requests a year for every 1,000 active adults in the generated households, over the history window (decision 352). Requesters lean toward people the church knows but who are not yet deeply involved, one request per family. Requests from the last two weeks wait as Pending. Older ones are mostly Approved, some Denied.",
+    "perThousandAdultsPerYear": 2,
+    "requesterWeights": { "Known": 3, "Connected": 3, "Participant": 1, "Engaged": 1, "Leading": 0.3 },
+    "pendingDays": 14,
+    "status": { "Approved": 82, "Denied": 18 },
+    "decidedDaysAfter": [ 1, 6 ],
+    "paidDaysAfterDecision": [ 0, 5 ],
+    "types": { "rent-utilities": 45, "food-essentials": 35, "car-medical": 20 },
+    "agreementTypes": [ "rent-utilities", "car-medical" ]
+  },
+  "$resultsComment": "What the team gives for each type when it approves a request: Rock's result type, its weight, and the amount's range in dollars, or no amount for a referral.",
+  "results": {
+    "rent-utilities": [
+      { "type": "Provided Financial Assistance", "weight": 40, "amount": [ 600, 1500 ], "round": 25, "summary": "Part of this month's rent, paid to the landlord." },
+      { "type": "Provided Financial Assistance", "weight": 60, "amount": [ 90, 350 ], "summary": "The past-due utility bill, paid to the utility company." }
+    ],
+    "food-essentials": [
+      { "type": "Provided Gift Card", "weight": 65, "amount": [ 50, 200 ], "round": 25, "summary": "Grocery gift cards." },
+      { "type": "Referred to Food Pantry", "weight": 35, "summary": "Shared the food pantry hours and walked them over to sign up." }
+    ],
+    "car-medical": [
+      { "type": "Provided Financial Assistance", "weight": 60, "amount": [ 150, 900 ], "summary": "The car repair, paid to the shop." },
+      { "type": "Provided Financial Assistance", "weight": 40, "amount": [ 40, 400 ], "summary": "The prescription, paid to the pharmacy." }
+    ]
+  },
+  "text": {
+    "$comment": "Short pools for generated requests: what the person asked for by type, and what the team wrote when it decided.",
+    "requests": {
+      "rent-utilities": [
+        "Rent is due on the first and I am short after a slow month at work.",
+        "Our electric bill went up with the heat and we got a shutoff notice.",
+        "I was out sick for two weeks without pay and fell behind on rent.",
+        "The water bill is past due after I missed shifts with a sick kid.",
+        "We moved for a new job and need help with the deposit.",
+        "My hours were cut and the gas bill is two months behind."
+      ],
+      "food-essentials": [
+        "Money is tight until my next paycheck and we are low on groceries.",
+        "I lost my job last week and need help with food for my kids.",
+        "We need diapers and formula to get through the month.",
+        "My hours were cut and I could use help with groceries this month.",
+        "We just took in my sister's kids and the grocery bill doubled."
+      ],
+      "car-medical": [
+        "My car needs a new alternator and I need it to get to work.",
+        "I need help with a prescription my insurance does not fully cover.",
+        "The car failed inspection and I drive forty minutes each way to work.",
+        "We have a clinic bill we cannot pay all at once.",
+        "My brakes are going and I drive my kids to school every day."
+      ]
+    },
+    "nextSteps": [
+      "Shared the dates of the Money Matters budgeting class.",
+      "Gave the food pantry schedule.",
+      "Invited them to meet with a volunteer budget coach.",
+      "Shared the job board and résumé help night.",
+      "Connected them with a small group near their home.",
+      "Prayed with them and will check in next month."
+    ],
+    "denied": [
+      "We were not able to help with this request. Shared a list of community agencies.",
+      "The team helped this family earlier this year, so we referred them to a county assistance program.",
+      "We could not reach them to finish the request after several calls.",
+      "The request was larger than the fund allows. Shared other local resources."
+    ]
+  },
+  "agreement": {
+    "$comment": "The assistance agreement each approved rent, utility, car, or medical request has as a document: a one-page PDF the requester signs with the case worker.",
+    "title": "Benevolence Assistance Agreement",
+    "paragraphs": [
+      "{church} is glad to help with the need described below. The help is a gift, not a loan, and there is nothing to repay.",
+      "The church pays the landlord, company, or provider directly. No cash is given to the requester.",
+      "The requester agrees to meet with the case worker once more within 30 days to talk about next steps, such as a budgeting class or other help in the community.",
+      "The church keeps this request private. Only the benevolence team and the church's administrators can see it."
+    ]
+  }
+}
