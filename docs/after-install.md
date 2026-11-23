@@ -65,11 +65,10 @@ These jobs fill something the load leaves empty. Each one says whether it is on 
 These jobs are on. They fill or refresh data on their schedule, with nothing needed from you.
 
 1. **Calculate Metrics.** Every 15 minutes.
-   - The load writes history for the metrics Rock ships: two years of weekly attendance, giving, prayer, salvations, and eRA values, two years of monthly baptisms, and a year of Tithing Overview and Insights runs (decisions D-metrics-1 to D-metrics-6). The three homepage metrics have a year (decision 347), and the four Ministry Path metrics have a value for every week, by campus (decisions 234 and D-metrics-5).
+   - The load writes history for the metrics Rock ships: two years of weekly attendance, giving, prayer, salvations, and eRA values, two years of monthly baptisms, and a year of Tithing Overview and Insights runs (decisions D-metrics-1 to D-metrics-8). The three homepage metrics have a year (decision 347), and the four Ministry Path metrics have a value for every week, by campus (decisions 234 and D-metrics-7).
    - Each metric's last run is its newest run before install, so the job's first value is for the next run after install, and it fills in no past.
    - **History: full,** except Rock's four hosting metrics, which measure the web server.
-   - Baptisms counts the month before each run on the 1st. The load saves that SQL in place of Rock's, which counts the month just begun, so Rock's own runs continue the same line (decision D-metrics-4).
-   - Weekly eRA Losses is zero every week, and Total Weekend Attendance counts two weeks of children, students, and volunteers, because Rock's own SQL does (decision D-metrics-3).
+   - Three metrics run the church's own SQL, which the load saves in place of Rock's, so Rock's own runs continue the same line. Baptisms counts the month before each run on the 1st, where Rock's counts the month just begun. Total Weekend Attendance adds up only that weekend, where Rock's adds up the previous Monday's children, students, and volunteers again. Weekly eRA Losses counts the people who left eRA that week, where Rock's finds no one (decisions D-metrics-4 to D-metrics-6).
 2. **Update Persisted DataViews.** Every minute. The load leaves the two persisted views, Regular Attenders and Kids Checked In Recently, for this job, which persists them in its first minute (decision 226).
 3. **Update Persisted Attribute Values.** Every night at 2:15 AM. The load writes each attribute value and leaves Rock's stored display text for this job. Until it runs, Rock works out a value's display text when it shows it.
 4. **Connection Request Workflow Triggers.** Every day at 7 AM. It returns each future follow-up request to Active on its follow-up date.

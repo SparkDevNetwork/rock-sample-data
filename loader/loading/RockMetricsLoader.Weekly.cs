@@ -40,8 +40,6 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid ServingAreaPurposeGuid = new Guid( "36A554CE-7815-41B9-A435-93F3D52A2828" );
         private static readonly Guid PrayerChannelGuid = new Guid( "3D49FB99-94D1-4F63-B1A2-30D4FEDE11E9" );
         private static readonly Guid PersonAnalyticsCategoryGuid = new Guid( "C1524D2E-3E8F-3D83-45F8-526B749D79F0" );
-        private static readonly Guid CurrentlyAnEraGuid = new Guid( "CE5739C5-2156-E2AB-48E5-1337C38B935E" );
-        private static readonly Guid EraEndDateGuid = new Guid( "4711D67E-7526-9582-4A8E-1CD7BBE1B3A2" );
         private static readonly Guid BaptismDateGuid = new Guid( "D42763FA-28E9-4A55-A25A-48998D7D7FEF" );
 
         /// <summary>
@@ -212,12 +210,35 @@ GROUP BY [ft].[TransactionDateKey], CASE WHEN CAST( [ft].[TransactionDateTime] A
             return values;
         }
 
+        /*
+            11/23/26 - CLAUDE
+
+            Rock's eRA job writes a history line each time a person enters eRA and each time they exit, on the day it sets
+            their eRA Start Date or End Date. So each line is a win or a loss at the runs that saw it, which reads back
+            every entry and exit, not only each person's latest. Rock's shipped Weekly eRA Losses SQL counts people whose
+            Currently an eRA value is false, and the job never saves false: it deletes the value when a family exits. So
+            the load saves the church's SQL for that metric, which counts people whose eRA ended in the week and who are no
+            longer an eRA, and the history counts the exit lines the same way.
+
+            Reason: Every exit shows on the chart, and Rock's own runs after install continue the same line.
+        */
+
         /// <summary>
-        /// Rock's Weekly eRA Wins: people whose eRA began in the window and who were an eRA at the run, by their campus.
-        /// Rock's eRA job writes a history line each time a person enters, on the day it sets their eRA start date, so each
-        /// line is a win at the runs that saw it. Rock's SQL groups by the campus of every person with an attribute value.
+        /// Weekly eRA Wins: people whose eRA began in the window and who were an eRA at the run, by their campus.
         /// </summary>
-        private List<MetricValueRow> EraWins( RockMetric metric )
+        private List<MetricValueRow> EraWins( RockMetric metric ) => EraChanges( metric, "ENTERED" );
+
+        /// <summary>
+        /// Weekly eRA Losses, as the church's SQL counts it: people whose eRA ended in the window and who were no longer an
+        /// eRA at the run, by their campus.
+        /// </summary>
+        private List<MetricValueRow> EraLosses( RockMetric metric ) => EraChanges( metric, "EXITED" );
+
+        /// <summary>
+        /// The people Rock's eRA job moved in or out of eRA in each run's window, from its history lines. Rock's SQL groups
+        /// by the campus of every person with an attribute value.
+        /// </summary>
+        private List<MetricValueRow> EraChanges( RockMetric metric, string verb )
         {
             return Weekly( metric, @"
 SELECT CAST( [h].[CreatedDateTime] AS date ) AS [Day],
@@ -227,37 +248,9 @@ FROM [History] AS [h]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [h].[EntityId]
 WHERE [h].[CategoryId] = ( SELECT [Id] FROM [Category] WHERE [Guid] = @PersonAnalytics )
     AND [h].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Guid] = @PersonEntity )
-    AND [h].[Verb] = 'ENTERED' AND [h].[CreatedDateTime] >= @From AND [h].[CreatedDateTime] < @To
+    AND [h].[Verb] = @Verb AND [h].[CreatedDateTime] >= @From AND [h].[CreatedDateTime] < @To
 GROUP BY CAST( [h].[CreatedDateTime] AS date ), CASE WHEN CAST( [h].[CreatedDateTime] AS time ) > @RunTime THEN 1 ELSE 0 END, [p].[PrimaryCampusId]",
-                PersonAttributeGroups(), g => new[] { g.First }, P( "@PersonAnalytics", PersonAnalyticsCategoryGuid ), P( "@PersonEntity", PersonEntityTypeGuid ) );
-        }
-
-        /*
-            11/23/26 - CLAUDE
-
-            Rock's Weekly eRA Losses SQL counts people whose eRA End Date is in the window and whose Currently an eRA value
-            is false. Rock's eRA job never writes false: when a family exits, it deletes the value. So Rock's SQL finds no
-            one, and its job saves a zero for each campus every week. The loader reads the same rule from the attribute
-            values the load wrote, so it saves the same zeros.
-
-            Reason: Each value is what Rock's own SQL gives. Whether to load real exits instead is a question for Jon.
-        */
-
-        /// <summary>
-        /// Rock's Weekly eRA Losses: people whose eRA ended in the window and whose Currently an eRA value is false.
-        /// </summary>
-        private List<MetricValueRow> EraLosses( RockMetric metric )
-        {
-            return Weekly( metric, @"
-SELECT CAST( [e].[ValueAsDateTime] AS date ) AS [Day], CAST( 0 AS bit ) AS [IsLate], [p].[PrimaryCampusId] AS [First], NULL AS [Second], COUNT(*) AS [Amount]
-FROM [Person] AS [p]
-INNER JOIN [AttributeValue] AS [e] ON [e].[EntityId] = [p].[Id]
-WHERE [e].[AttributeId] = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @EraEndDate )
-    AND [e].[ValueAsDateTime] >= @From AND [e].[ValueAsDateTime] < @To
-    AND EXISTS ( SELECT 1 FROM [AttributeValue] AS [era] WHERE [era].[EntityId] = [p].[Id]
-        AND [era].[AttributeId] = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @CurrentlyAnEra ) AND [era].[ValueAsBoolean] = 0 )
-GROUP BY CAST( [e].[ValueAsDateTime] AS date ), [p].[PrimaryCampusId]",
-                PersonAttributeGroups(), g => new[] { g.First }, P( "@EraEndDate", EraEndDateGuid ), P( "@CurrentlyAnEra", CurrentlyAnEraGuid ) );
+                PersonAttributeGroups(), g => new[] { g.First }, P( "@PersonAnalytics", PersonAnalyticsCategoryGuid ), P( "@PersonEntity", PersonEntityTypeGuid ), P( "@Verb", verb ) );
         }
 
         /*
@@ -326,16 +319,17 @@ GROUP BY CAST( [av].[ValueAsDateTime] AS date ), [p].[PrimaryCampusId]",
             11/23/26 - CLAUDE
 
             Rock 21's Total Weekend Attendance adds up the values of every metric whose measurement is children's,
-            students', volunteer, or adult attendance, dated from seven days before the run through the run's day, by
-            campus and schedule. Rock's job runs it last, after the other weekly metrics, so it sees that Monday's values
-            and the previous Monday's, and the adult counts staff typed on Sunday. The loader adds up the values it just
-            worked out the same way.
+            students', volunteer, or adult attendance, by campus and schedule. Rock's job runs it last on Monday, after the
+            other weekend metrics. Rock's shipped SQL reads values dated from seven days before the run, which holds that
+            Monday's values and the previous Monday's, so it counts each week's children, students, and volunteers twice.
+            The load saves the church's SQL for it, which starts the window six days before the run: that Monday's values
+            and the adult counts staff typed on Sunday. The loader adds up the values it just worked out the same way.
 
-            Reason: Each value is what Rock's own SQL gives from the other metrics' values.
+            Reason: The chart shows each weekend's real total, and Rock's own runs after install continue the same line.
         */
 
         /// <summary>
-        /// Rock's Total Weekend Attendance, from the values of the other weekend metrics.
+        /// Total Weekend Attendance, as the church's SQL counts it, from the values of the other weekend metrics.
         /// </summary>
         private List<MetricValueRow> WeekendTotal( RockMetric metric, List<RockMetric> all )
         {
@@ -359,7 +353,7 @@ GROUP BY CAST( [av].[ValueAsDateTime] AS date ), [p].[PrimaryCampusId]",
             foreach ( var run in metric.Runs )
             {
                 var saved = SavedAfter( run, random );
-                var first = run.Date.AddDays( -7 );
+                var first = run.Date.AddDays( -6 );
                 foreach ( var group in parts.Where( p => p.Day >= first && p.Day <= run.Date && p.There <= run ).GroupBy( p => p.Group ) )
                 {
                     values.Add( new MetricValueRow( run, saved, group.Sum( p => p.Value ), new[] { group.Key.First, group.Key.Second } ) );
