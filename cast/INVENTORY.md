@@ -162,6 +162,8 @@ Every pastor on staff is a man (decision 203). Three households were added for t
 
 The Cast is now 104 households and 230 people. The 9 new people's profile photos were delivered on 2026-10-29, with all 23 staff photos.
 
+On 2026-11-23 the Keller household joined for the Data Integrity stories (issue 2), making 105 households and 232 people. Doug and Pam Keller stopped coming ten years ago and have no photos on purpose.
+
 ## Issues to fix during Cast review
 
 Each household file lists its own `reviewNotes`. The main themes:

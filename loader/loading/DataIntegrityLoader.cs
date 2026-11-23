@@ -38,7 +38,7 @@ namespace RockSampleData.Loader.Loading
         fills the workflow values' person columns.
 
         Reason: Every page under Tools > Data Integrity has realistic work waiting (issue 2, decisions D-integrity-1 to
-        D-integrity-8).
+        D-integrity-9).
     */
 
     /// <summary>
@@ -264,6 +264,16 @@ GROUP BY [r].[PersonId]";
             return db.Query( sql, P( "@PersonType", db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid ) ), P( "@Demographics", db.RequireIdByGuid( "Category", DemographicHistoryCategoryGuid ) ) )
                 .ToDictionary( r => ( int ) r["PersonId"], r => ( DateTime ) r["At"] );
         }
+
+        /*
+            11/23/26 - CLAUDE
+
+            Rock's web forms make a new person Pending and set the form's Record Source, such as Group Registration or
+            External Website, so staff review the record before it counts. The Cast's Pending records each name their form.
+
+            Reason: Rock's Pending Individuals report lists records nobody reviewed, each with where it came from
+            (decision D-integrity-8).
+        */
 
         /// <summary>
         /// Gives each Pending Cast record the Record Source of the form that made it.
