@@ -5,7 +5,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## People and attendance
 
 - **Duplicates in the generated crowd:** about 1% of people with a second, Pending record, often under a nickname, with no birth date and a shared email or mobile, some open, some merged, and some set aside. The Cast's duplicates are built (see [Duplicates](duplicates.md)).
-- **The rest of the Data Integrity area** (issue 2): a created date and Record Source for every generated person, one NCOA run with families who moved nearby, families who moved away, and a few that need a manual update, first and second visit dates from Rock's Set Visit Dates, a few designed shared phone numbers, and record completeness, where Crowd adults leave some details blank at the shares a real church has. The Cast's stories and the Data Automation rules are built (see [Data Integrity](data-integrity.md)).
+- **The rest of the Data Integrity area** (issue 2): one NCOA run with families who moved nearby, families who moved away, and a few that need a manual update, and record completeness, where Crowd adults leave some details blank at the shares a real church has. The Cast's stories, record dates and sources for everyone, visit dates, shared phone numbers, and the Data Automation rules are built (see [Data Integrity](data-integrity.md)).
 - **Check-in relationships,** such as a grandparent who may check in a grandchild, loaded from the Cast's known relationships.
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
 

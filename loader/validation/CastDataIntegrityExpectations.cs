@@ -55,13 +55,14 @@ WHERE [p].[ForeignKey] LIKE 'SampleData:%' OR [p].[Id] = @Admin", P( "@Admin", P
                 .ToDictionary( r => ( Guid ) r["Guid"] );
             Dictionary<string, object> Find( Guid castGuid ) => people.TryGetValue( guids.Rock( castGuid ), out var row ) ? row : null;
 
-            var checks = RecordDates( db, households, people, anchor, failures );
+            var checks = RecordDates( db, config.RecordDates, households, people, dates, failures );
             checks += Pending( db, config.Pending, dates, Find, failures );
             checks += SelfInactivations( db, config.SelfInactivations, households, dates, Find, failures );
             checks += StatusHistory( db, source, config.ConnectionStatusHistory, dates, guids, Find, failures );
             checks += DataErrors( db, config.DataErrors, Find, failures );
             checks += PhotoRequests( db, config.PhotoRequests, arePhotosLoaded, Find, failures );
             checks += SharedEmails( db, config.SharedEmails, households, failures );
+            checks += SharedPhones( db, config.SharedPhones, households, failures );
             checks += FailedAddresses( db, config.FailedAddresses, households, Find, failures );
             checks += Settings( db, config.Settings, failures );
             return checks;
@@ -69,15 +70,17 @@ WHERE [p].[ForeignKey] LIKE 'SampleData:%' OR [p].[Id] = @Admin", P( "@Admin", P
 
         /// <summary>
         /// Every Cast person but Rock's admin has a record date before the install day, and no record of theirs is older.
+        /// A household with a date in the file was made on it.
         /// </summary>
-        private static int RecordDates( RockDatabase db, List<CastHousehold> households, Dictionary<Guid, Dictionary<string, object>> people, DateTime anchor, List<string> failures )
+        private static int RecordDates( RockDatabase db, RecordDatesRule rule, List<CastHousehold> households, Dictionary<Guid, Dictionary<string, object>> people, AnchorDates dates,
+            List<string> failures )
         {
             var cast = households.SelectMany( h => h.Members ).Where( m => !m.ReplacesAdmin && people.ContainsKey( m.Guid ) ).Select( m => people[m.Guid] ).ToList();
             var firstRecords = DataIntegrityLoader.FirstRecords( db, cast.Select( p => ( int ) p["Id"] ) );
             foreach ( var person in cast )
             {
                 var created = ( DateTime ) person["CreatedDateTime"];
-                if ( created > anchor.Date )
+                if ( created > dates.Anchor.Date )
                 {
                     failures.Add( $"{person["Name"]}: expected a record date before the install day, Rock shows {created:yyyy-MM-dd HH:mm}" );
                 }
@@ -87,7 +90,21 @@ WHERE [p].[ForeignKey] LIKE 'SampleData:%' OR [p].[Id] = @Admin", P( "@Admin", P
                 }
             }
 
-            return cast.Count;
+            var checks = cast.Count;
+            foreach ( var household in households.Where( h => rule.Households.ContainsKey( h.Key ) ) )
+            {
+                var expected = dates.Resolve( rule.Households[household.Key] ).Value;
+                foreach ( var person in household.Members.Where( m => people.ContainsKey( m.Guid ) && !m.ReplacesAdmin ).Select( m => people[m.Guid] ) )
+                {
+                    checks++;
+                    if ( ( DateTime ) person["CreatedDateTime"] != expected )
+                    {
+                        failures.Add( $"{person["Name"]}: expected the record date {expected:yyyy-MM-dd HH:mm} from configuration/data-integrity.json, Rock shows {person["CreatedDateTime"]:yyyy-MM-dd HH:mm}" );
+                    }
+                }
+            }
+
+            return checks;
         }
 
         private static int Pending( RockDatabase db, PendingRecords pending, AnchorDates dates, Func<Guid, Dictionary<string, object>> find, List<string> failures )
@@ -276,6 +293,33 @@ SELECT [gm].[GroupMemberStatus] FROM [GroupMember] AS [gm] INNER JOIN [Group] AS
                 if ( count != household.Members.Count( m => m.Email == entry.Email ) || count < 2 )
                 {
                     failures.Add( $"{household.Name}: expected the couple to share {entry.Email}, which Rock's Individuals with Duplicate Emails report lists, Rock shows {count} people with it" );
+                }
+            }
+
+            return checks;
+        }
+
+        /// <summary>
+        /// Each shared number is on exactly the Cast records the household files give it, so Rock's Individuals with
+        /// Duplicate Phone Numbers report lists them.
+        /// </summary>
+        private static int SharedPhones( RockDatabase db, SharedPhones shared, List<CastHousehold> households, List<string> failures )
+        {
+            var checks = 0;
+            foreach ( var entry in shared.Numbers )
+            {
+                var carriers = households.Where( h => entry.Households.Contains( h.Key ) ).SelectMany( h => h.Members )
+                    .Count( m => m.Phones != null && new[] { m.Phones.Home, m.Phones.Mobile, m.Phones.Work }.Contains( entry.Number ) );
+                if ( carriers == 0 )
+                {
+                    continue;
+                }
+
+                checks++;
+                var count = Convert.ToInt32( db.Scalar( "SELECT COUNT( DISTINCT [PersonId] ) FROM [PhoneNumber] WHERE [Number] = @Number", P( "@Number", entry.Number ) ) );
+                if ( count != carriers || count < 2 )
+                {
+                    failures.Add( $"{string.Join( " and ", entry.Households )}: expected {carriers} records with {entry.Number}, which Rock's Individuals with Duplicate Phone Numbers report lists, Rock shows {count}" );
                 }
             }
 

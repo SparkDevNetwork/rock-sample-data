@@ -39,18 +39,20 @@ namespace RockSampleData.Verify
         private const string PeerNetworkJobGuid = "D3172560-0E8C-4E69-A477-56ABC018FEEF";
 
         /// <summary>
-        /// Currently an eRA, eRA Start Date, eRA End Date, and the seven values the count procedures write.
+        /// Currently an eRA, eRA Start Date, eRA End Date, the seven values the count procedures write, and First Visit and
+        /// Second Visit, which the visit dates procedure writes.
         /// </summary>
         private static readonly string[] FamilyAnalyticsAttributeGuids =
         {
             "CE5739C5-2156-E2AB-48E5-1337C38B935E", "A106610C-A7A1-469E-4097-9DE6400FDFC2", "4711D67E-7526-9582-4A8E-1CD7BBE1B3A2",
             "EE5EC76A-D4B9-56B5-4B48-29627D945F10", "02F64263-E290-399E-4487-FC236F4DE81F", "AC11EF53-AE55-79A0-4CAD-43721750E988", "57700E8F-ED11-D787-415A-04DDF411BB10",
-            "AB12B3B0-55B8-D6A5-4C1F-DB9CCB2C4342", "5F4C6462-018E-D19C-4AB0-9843CB21C57E", "45A1E978-DC5B-CFA1-4AF4-EA098A24C914"
+            "AB12B3B0-55B8-D6A5-4C1F-DB9CCB2C4342", "5F4C6462-018E-D19C-4AB0-9843CB21C57E", "45A1E978-DC5B-CFA1-4AF4-EA098A24C914",
+            "655D6FBA-F8C0-4919-9E31-C1C936653555", "D7EA578F-0132-473E-8338-4A48DDB8BF66"
         };
 
         /// <summary>
-        /// Rock's Family Analytics job, as it would run on install day: the job is on with Set Visit Dates off, its eRA
-        /// procedure moves no family in or out, and none of its three procedures changes a value.
+        /// Rock's Family Analytics job, as it would run on install day: the job is on with Set Visit Dates on, its eRA
+        /// procedure moves no family in or out, and none of its four procedures changes a value.
         /// </summary>
         public static CheckResult FamilyAnalytics( SqlServer sql, string database, DateTime anchor )
         {
@@ -66,9 +68,9 @@ FROM [ServiceJob] AS [j]
 LEFT JOIN [Attribute] AS [a] ON [a].[EntityTypeQualifierColumn] = 'Class' AND [a].[EntityTypeQualifierValue] = [j].[Class] AND [a].[Key] = 'SetVisitDates'
 LEFT JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[EntityId] = [j].[Id]
 WHERE [j].[Guid] = '{FamilyAnalyticsJobGuid}'" ).FirstOrDefault();
-            if ( job == null || !( bool ) job["IsActive"] || !string.Equals( job["SetVisitDates"] as string, "False", StringComparison.OrdinalIgnoreCase ) )
+            if ( job == null || !( bool ) job["IsActive"] || string.Equals( job["SetVisitDates"] as string, "False", StringComparison.OrdinalIgnoreCase ) )
             {
-                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates off (decision 325)." );
+                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates on (decisions 325 and D-integrity-11)." );
             }
 
             var guids = string.Join( ", ", FamilyAnalyticsAttributeGuids.Select( g => $"'{g}'" ) );
@@ -85,6 +87,7 @@ BEGIN TRANSACTION;
 INSERT INTO @Era EXEC [dbo].[spCrm_FamilyAnalyticsEraDataset];
 EXEC [dbo].[spCrm_FamilyAnalyticsGiving];
 EXEC [dbo].[spCrm_FamilyAnalyticsAttendance];
+EXEC [dbo].[spCrm_FamilyAnalyticsUpdateVisitDates];
 INSERT INTO @After SELECT [AttributeId], [EntityId], [Value], [ValueAsDateTime], [ValueAsNumeric] FROM [AttributeValue] WHERE [AttributeId] IN ( SELECT [Id] FROM @Attributes );
 ROLLBACK TRANSACTION;
 

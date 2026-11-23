@@ -56,6 +56,7 @@
       "email": "doug.keller@example.org",
       "emailIsActive": true,
       "phones": {
+        "home": "6025550180",
         "mobile": "6235550171"
       },
       "photo": {
@@ -83,6 +84,7 @@
       "email": "pam.keller@example.org",
       "emailIsActive": true,
       "phones": {
+        "home": "6025550180",
         "mobile": "6235550172"
       },
       "photo": {

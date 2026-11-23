@@ -2307,6 +2307,18 @@ if ( fs.existsSync( integrityFile ) ) {
         }
     }
 
+    // A shared number is on at least two Cast records in its households. Across households, all but one household is
+    // inactive: a number the phone company gave a new family after the old one dropped it.
+    for ( const shared of ( integrity.sharedPhones || {} ).numbers || [] ) {
+        integrityStoryCount++;
+        const listed = ( shared.households || [] ).map( key => households.find( h => h.data.key === key ) );
+        const carriers = listed.filter( Boolean ).flatMap( h => h.data.members.filter( m => m.phones && Object.values( m.phones ).includes( shared.number ) ).map( m => ( { household: h, member: m } ) ) );
+        const activeHouseholds = listed.filter( h => h && h.data.members.some( m => m.recordStatus !== "inactive" ) );
+        if ( listed.some( h => !h ) || carriers.length < 2 || listed.some( h => !carriers.some( c => c.household === h ) ) || activeHouseholds.length > 1 ) {
+            errors.push( `${owner} shared phone ${shared.number}: at least two records in the listed Cast households carry it, and only one of those households is active.` );
+        }
+    }
+
     for ( const failed of ( integrity.failedAddresses || {} ).households || [] ) {
         integrityStoryCount++;
         const household = households.find( h => h.data.key === failed.household );

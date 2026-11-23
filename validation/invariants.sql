@@ -109,7 +109,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
 
 -- check: phones-are-not-shared-across-households
--- why: Content standard 2 and decision 259. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+-- why: Content standard 2 and decisions 259 and D-integrity-12. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name and email), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
 SELECT COUNT( DISTINCT [a].[Number] )
 FROM [PhoneNumber] AS [a]
 INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
@@ -120,6 +120,7 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
     AND NOT ( [a].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' )
         AND [b].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' ) )
     AND NOT ( [pa].[LastName] = [pb].[LastName] AND [pa].[Email] = [pb].[Email] )
+    AND ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' ) NOT IN ( [pa].[RecordStatusValueId], [pb].[RecordStatusValueId] )
     AND NOT EXISTS (
         SELECT 1
         FROM [GroupMember] AS [ga]
@@ -1410,6 +1411,49 @@ FROM [Attribute] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey AND [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] LIKE 'core[_]DataAutomation%'
     AND ISNULL( [a].[DefaultValue], '' ) NOT LIKE '{"IsEnabled":false,%';
 
+-- check: person-has-a-record-source
+-- why: Decision D-integrity-10. Every record shows where it came from: the form of a first visit, a first record, or a Pending record, or a mix for records made earlier. Rock's admin person keeps the record Rock made (decision 177).
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE [p].[ForeignKey] = @ForeignKey AND [p].[RecordSourceValueId] IS NULL;
+
+-- check: person-is-made-before-their-first-record
+-- why: Decisions D-integrity-1 and D-integrity-10. Rock writes a check-in, group membership, gift, request, registration, note, login, workflow, or demographic History line for a person only once their record exists, so no record is made after the first of these.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+CROSS APPLY (
+    SELECT MIN( [r].[At] ) AS [At]
+    FROM (
+        SELECT [a].[StartDateTime] AS [At] FROM [Attendance] AS [a] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [gm].[DateTimeAdded] FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [gm].[PersonId] = [p].[Id] AND [g].[IsSecurityRole] = 0 AND [gt].[Guid] NOT IN ( '790E3215-3B10-442B-AF69-616C0DCB998E', 'E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF', 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' )
+        UNION ALL SELECT [t].[TransactionDateTime] FROM [FinancialTransaction] AS [t] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[CreatedDateTime] FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[CreatedDateTime] FROM [RegistrationRegistrant] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[RequestDateTime] FROM [BenevolenceRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [n].[CreatedDateTime] FROM [Note] AS [n] INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] WHERE [n].[EntityId] = [p].[Id] AND [nt].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        UNION ALL SELECT [u].[CreatedDateTime] FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [p].[Id]
+        UNION ALL SELECT [w].[ActivatedDateTime] FROM [Workflow] AS [w] WHERE [w].[EntityId] = [p].[Id] AND [w].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        UNION ALL SELECT [h].[CreatedDateTime] FROM [History] AS [h] WHERE [h].[EntityId] = [p].[Id] AND [h].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+            AND [h].[CategoryId] = ( SELECT [Id] FROM [Category] WHERE [Guid] = '51D3EC5A-D079-45ED-909E-B0AB2FD06835' )
+    ) AS [r]
+) AS [first]
+WHERE [p].[ForeignKey] = @ForeignKey AND [first].[At] < [p].[CreatedDateTime];
+
+-- check: visit-dates-are-as-rock-writes-them
+-- why: Decision D-integrity-11. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. It also writes an empty First Visit for an adult whose family has no child's check-in. Verify replays the job to show it would change none of them.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '655D6FBA-F8C0-4919-9E31-C1C936653555', 'D7EA578F-0132-473E-8338-4A48DDB8BF66' )
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE [p].[ForeignKey] = @ForeignKey
+    AND ( [av].[IsSystem] = 0
+        OR ( [av].[Value] IS NULL AND [av].[ValueAsDateTime] IS NOT NULL )
+        OR ( [av].[Value] IS NOT NULL AND ISNULL( TRY_CONVERT( DATETIME, [av].[Value], 126 ), '1900-01-01' ) <> ISNULL( [av].[ValueAsDateTime], '1900-01-02' ) )
+        OR ( [a].[Guid] = 'D7EA578F-0132-473E-8338-4A48DDB8BF66' AND [av].[Value] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [fv]
+            INNER JOIN [Attribute] AS [fa] ON [fa].[Id] = [fv].[AttributeId] AND [fa].[Guid] = '655D6FBA-F8C0-4919-9E31-C1C936653555'
+            WHERE [fv].[EntityId] = [av].[EntityId] AND [fv].[Value] IS NOT NULL ) ) );
+
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
 SELECT COUNT(*)
@@ -2302,13 +2346,13 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits once its Set Visit Dates setting is on, which the load leaves off (decision 325), and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265). First Visit and Second Visit come only from the visit dates step (decision D-integrity-11).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
 WHERE [av].[ForeignKey] = @ForeignKey
     AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
-    AND [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'FirstVisit', 'SecondVisit', 'core_SpecialNeeds', 'LastDiscRequestDate' );
+    AND [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'core_SpecialNeeds', 'LastDiscRequestDate' );
 
 -- check: adult-attributes-are-on-adults
 -- why: Decisions 253, 256, 257, and 258. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.

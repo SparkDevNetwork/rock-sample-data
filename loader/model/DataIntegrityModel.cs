@@ -39,6 +39,8 @@ namespace RockSampleData.Loader.Model
 
         public SharedEmails SharedEmails { get; set; } = new SharedEmails();
 
+        public SharedPhones SharedPhones { get; set; } = new SharedPhones();
+
         public FailedAddresses FailedAddresses { get; set; } = new FailedAddresses();
 
         public DataIntegritySettings Settings { get; set; } = new DataIntegritySettings();
@@ -63,6 +65,63 @@ namespace RockSampleData.Loader.Model
         /// The day each household with no first visit got its records, by household key.
         /// </summary>
         public Dictionary<string, RelativeDate> Households { get; set; } = new Dictionary<string, RelativeDate>();
+
+        /// <summary>
+        /// How generated households that were coming before the history window got their records.
+        /// </summary>
+        public GeneratedRecordDates Generated { get; set; } = new GeneratedRecordDates();
+
+        /// <summary>
+        /// The Record Source each record gets from how it was made.
+        /// </summary>
+        public RecordSourceRule Sources { get; set; } = new RecordSourceRule();
+    }
+
+    /// <summary>
+    /// Each record's Record Source, by the name of Rock's Record Source value.
+    /// </summary>
+    internal sealed class RecordSourceRule
+    {
+        /// <summary>
+        /// A household that first came with a child under 18 checked the child in.
+        /// </summary>
+        public string FirstVisitWithChildren { get; set; } = "Check-in";
+
+        /// <summary>
+        /// A household of adults filled out the website's connection card on its first visit.
+        /// </summary>
+        public string FirstVisitAdults { get; set; } = "External Website";
+
+        /// <summary>
+        /// A child born after the household's first visit.
+        /// </summary>
+        public string Newborn { get; set; } = "Check-in";
+
+        /// <summary>
+        /// The weight of each source for a record made before the history window, before its first record, or by a note.
+        /// </summary>
+        public Dictionary<string, double> Earlier { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// The weight of each source for a record with nothing else written for it.
+        /// </summary>
+        public Dictionary<string, double> NoRecord { get; set; } = new Dictionary<string, double>();
+    }
+
+    /// <summary>
+    /// The years before the history window that generated records were made in.
+    /// </summary>
+    internal sealed class GeneratedRecordDates
+    {
+        /// <summary>
+        /// The most whole years before the history window a record was made.
+        /// </summary>
+        public int YearsBeforeHistory { get; set; } = 12;
+
+        /// <summary>
+        /// The chance a record goes one more year back, so fewer records come from each earlier year.
+        /// </summary>
+        public double YearWeight { get; set; } = 0.8;
     }
 
     internal sealed class PendingRecords
@@ -248,6 +307,26 @@ namespace RockSampleData.Loader.Model
         public string Household { get; set; }
 
         public string Email { get; set; }
+
+        public string Story { get; set; }
+    }
+
+    /// <summary>
+    /// Phone numbers more than one Cast record carries. The household files give the numbers.
+    /// </summary>
+    internal sealed class SharedPhones
+    {
+        public List<SharedPhone> Numbers { get; set; } = new List<SharedPhone>();
+    }
+
+    internal sealed class SharedPhone
+    {
+        public string Number { get; set; }
+
+        /// <summary>
+        /// The keys of the households whose records carry the number.
+        /// </summary>
+        public List<string> Households { get; set; } = new List<string>();
 
         public string Story { get; set; }
     }

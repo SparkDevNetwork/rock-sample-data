@@ -6,6 +6,8 @@
     "people.pctFemaleByAge",
     "people.familySizeMix",
     "people.adultMaritalMix",
+    "people.newPeoplePerMonthPctOfActive",
+    "people.newPeopleMonthIndex",
     "giving",
     "attendance",
     "engagement.pctAdultRecordsWithAnyActivity",

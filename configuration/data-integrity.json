@@ -1,13 +1,26 @@
 {
   "$comment": "Every designed problem on Rock's Tools > Data Integrity pages (docs/data-integrity.md, issue 2). The data is clean on purpose, so each problem here is named, small, and tied to a Cast story. Emails stay on example.org, phones stay reserved, and addresses come from the pool. Dates count back from the install day. People are Cast Guids, with a name for the reader.",
   "recordDates": {
-    "$comment": "When each Cast person's record was made, which Rock's Pending report and Connection Status Changes report show. A person's record was made on their household's first visit (attendance.started), or for a child born after it, the given number of days after birth. Pending records take the date of the form that made them, below. Every other household with no first visit has a date here: the first thing the load writes for them. A record is never made after the first attendance, gift, group membership, request, or note the load writes for the person, and the Cast expectations check it.",
+    "$comment": "When each person's record was made, which Rock's Pending report and Connection Status Changes report show. A person's record was made on their household's first visit (attendance.started), or for a child born after it, the given number of days after birth. Pending records take the date of the form that made them, below. A Cast household with no first visit takes the date given here by household key, or else the first thing the load writes for it. A record is never made after the first attendance, gift, group membership, request, or note the load writes for the person, and the Cast expectations and an invariant check it.",
     "time": "11:20",
     "newbornDays": 21,
-    "households": {}
+    "households": {},
+    "generated": {
+      "$comment": "Generated households with no first visit. Each month of the history window takes households until its new records reach source-1's rate from the profile, in source-1's months: first households whose first record falls in that month, then households with no record, then households whose first record comes later. The rest were made in the years before the window: at most 12, each year back taking 0.8 of the one after it.",
+      "yearsBeforeHistory": 12,
+      "yearWeight": 0.8
+    },
+    "sources": {
+      "$comment": "Every record's Record Source, by the name of Rock's value. A household that first came with a child under 18 checked the child in, and a household of adults filled out the website's connection card. A record made by its first gift, group sign-up, event registration, connection request, benevolence request, login, or workflow takes that form's source. A child born later was added at check-in. A record made before the history window, before its first record, or by a note draws from the earlier mix. A record with nothing else written for it draws from the noRecord mix. Pending records keep their form's source.",
+      "firstVisitWithChildren": "Check-in",
+      "firstVisitAdults": "External Website",
+      "newborn": "Check-in",
+      "earlier": { "Check-in": 30, "External Website": 20, "Family Registration": 15, "Event Registration": 10, "Group Registration": 10, "Giving": 10, "Prayer": 5 },
+      "noRecord": { "External Website": 60, "Prayer": 25, "Mobile App": 15 }
+    }
   },
   "pending": {
-    "$comment": "Every Cast person whose record is Pending, and the form that made the record. Rock's web forms make a new person Pending and set the form's Record Source, so staff review the record before it counts. Nobody reviewed these, so Rock's Pending Individuals report lists them. A record with no source was made before Rock recorded one.",
+    "$comment": "Every Cast person whose record is Pending, and the form that made the record. Rock's web forms make a new person Pending and set the form's Record Source, so staff review the record before it counts. Nobody reviewed these, so Rock's Pending Individuals report lists them.",
     "records": [
       {
         "person": "9B2CDBBF-9144-4BE4-80EF-05ADA0E63ED2",
@@ -60,7 +73,10 @@
       {
         "person": "077F2901-A51E-43F9-A35A-98CC97C4D465",
         "name": "Jon Smith",
-        "story": "Jon's own record is older than Rock's Record Source, so it has none. It stayed Pending while his duplicates piled up."
+        "source": "External Website",
+        "created": { "yearsAgo": 7, "month": 5, "day": 18, "time": "19:42" },
+        "connectionStatus": "Prospect",
+        "story": "Jon filled out a connection card on the church website years ago, and Rock made his record Pending, as a Prospect. It stayed Pending while his duplicates piled up."
       }
     ]
   },
@@ -127,6 +143,13 @@
           { "from": "Prospect", "to": "Connected", "changed": { "yearsAgo": 2, "month": 2, "day": 2, "time": "15:30" }, "by": "B153DA3D-6E07-415B-8F6F-35C24EFF67F2" }
         ],
         "story": "Jamal marked Dale Connected."
+      },
+      {
+        "people": [ { "person": "077F2901-A51E-43F9-A35A-98CC97C4D465", "name": "Jon Smith" } ],
+        "changes": [
+          { "from": "Prospect", "to": "Engaged", "changed": { "yearsAgo": 5, "month": 3, "day": 22, "time": "10:40" }, "by": "69DC0FDC-B451-4303-BD91-EF17C0015D23" }
+        ],
+        "story": "Alisha marked Jon Engaged once he joined a serving team, but left his record Pending."
       },
       {
         "people": [ { "person": "8FEDC6EE-8630-41ED-9FC5-C7157FD1EAA4", "name": "Ted Decker" } ],
@@ -269,6 +292,26 @@
     "households": [
       { "household": "hayes", "email": "bobandlinda.hayes@example.org", "story": "Bob and Linda Hayes have shared one email address for years." },
       { "household": "ross", "email": "dickandjoan.ross@example.org", "story": "Dick and Joan Ross share one email address." }
+    ]
+  },
+  "sharedPhones": {
+    "$comment": "Phone numbers more than one record carries, as real church data has them. Each household file gives the number. Rock's Individuals with Duplicate Phone Numbers report lists every record with a number another record has. Rock's duplicate finder matches a number only between people of the same gender, so none of these makes a pair in the Duplicate Finder.",
+    "numbers": [
+      {
+        "number": "6025550180",
+        "households": [ "keller", "coleman" ],
+        "story": "Doug and Pam Keller dropped their home phone after they stopped coming, and the phone company later gave the number to the Colemans. The Kellers' inactive records still carry it."
+      },
+      {
+        "number": "6235550143",
+        "households": [ "price" ],
+        "story": "Bill and Cathy Price share one cell phone, so the office typed Bill's number on Cathy's record too."
+      },
+      {
+        "number": "4805550137",
+        "households": [ "rivera" ],
+        "story": "When Michael Rivera registered Joy at check-in, he gave his own cell number, so Joy's record carries it as her mobile."
+      }
     ]
   },
   "failedAddresses": {

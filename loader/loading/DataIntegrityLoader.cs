@@ -68,6 +68,8 @@ namespace RockSampleData.Loader.Loading
         private readonly SampleDataSource _source;
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
+        private readonly ProfileTargets _profile;
+        private readonly DateTime _historyStart;
         private readonly DataTable _history = TableFactory.Create( "IsSystem:bool", "CategoryId:int", "EntityTypeId:int", "EntityId:int", "Caption:string", "Verb:string", "ChangeType:string",
             "ValueName:string", "OldValue:string", "NewValue:string", "OldRawValue:string", "NewRawValue:string", "IsSensitive:bool", "Guid:guid", "CreatedDateTime:date", "ModifiedDateTime:date",
             "CreatedByPersonAliasId:int", "ModifiedByPersonAliasId:int", "ForeignKey:string" );
@@ -75,16 +77,18 @@ namespace RockSampleData.Loader.Loading
         private int _personTypeId;
         private int _historyCategoryId;
 
-        public DataIntegrityLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey )
+        public DataIntegrityLoader( RockDatabase db, SampleDataSource source, AnchorDates dates, string foreignKey, ProfileTargets profile, DateTime historyStart )
         {
             _db = db;
             _source = source;
             _dates = dates;
             _foreignKey = foreignKey;
+            _profile = profile;
+            _historyStart = historyStart;
         }
 
         /// <summary>
-        /// Writes everything in configuration/data-integrity.json for the Cast people this dataset loads. Returns the log lines.
+        /// Writes everything in configuration/data-integrity.json for the people this dataset loads. Returns the log lines.
         /// </summary>
         public List<string> Load( PeopleLoader people, IReadOnlyCollection<string> castHouseholdKeys, bool arePhotosLoaded )
         {
@@ -110,7 +114,7 @@ namespace RockSampleData.Loader.Loading
 
             // Record dates come last, since no record is made after the first thing written for its person, these stories included.
             _db.BulkInsert( "History", _history, keepIdentity: false );
-            log.Insert( 1, WriteRecordDates( config, cast ) );
+            log.InsertRange( 1, WriteRecordDates( config, people.Households, castHouseholdKeys ) );
             return log;
         }
 
@@ -144,126 +148,6 @@ namespace RockSampleData.Loader.Loading
         }
 
         private static object Text( string text ) => string.IsNullOrEmpty( text ) ? DBNull.Value : text;
-
-        /*
-            11/23/26 - CLAUDE
-
-            Every person row carried the load's own time as its created date, so Rock's Pending Individuals report showed
-            each Pending record made on install day, and Rock's Connection Status Changes report listed every person as new.
-            A Cast record is now made on its household's first visit, or for a child born later, three weeks after birth. A
-            Pending record carries the date of the form that made it. A household with no first visit takes the date in the
-            file, or else its first record. And no record is made after its person's first record: a check-in, gift, group
-            membership, request, registration, note, login, workflow, or History line Rock writes as it happens. Rock's
-            admin person keeps the time Rock made it (decision 177). Lines Rock dates by an earlier event, such as a
-            baptism, and communication lists and prayer requests, which other parts date without a first visit, are not
-            first records.
-
-            Reason: The Pending report and the status history read true (decision D-integrity-1).
-        */
-
-        /// <summary>
-        /// Sets each Cast person's created date, and each Cast family's to its first member's.
-        /// </summary>
-        private string WriteRecordDates( DataIntegrityConfiguration config, List<LoadedHousehold> cast )
-        {
-            var rule = config.RecordDates;
-            var pendingDates = config.Pending.Records.Where( r => r.Created != null ).ToDictionary( r => r.Person, r => At( r.Created ) );
-            var latest = _dates.Anchor.Date;
-            var dated = new Dictionary<int, DateTime>();
-            var undated = new List<string>();
-            var firstRecords = FirstRecords( _db, cast.SelectMany( h => h.Members ).Select( m => m.PersonId ) );
-            foreach ( var household in cast )
-            {
-                var own = household.Members.Where( m => household.Cast.Members.Any( c => c.Guid == m.Cast.Guid ) && !m.IsRockAdmin ).ToList();
-                var householdFirst = own.Where( m => firstRecords.ContainsKey( m.PersonId ) ).Select( m => ( DateTime? ) firstRecords[m.PersonId] ).Min();
-                DateTime? first = rule.Households.TryGetValue( household.Cast.Key, out var given ) ? At( given, rule.Time )
-                    : household.Cast.Attendance?.Started != null ? At( household.Cast.Attendance.Started, rule.Time )
-                    : householdFirst;
-                foreach ( var person in own )
-                {
-                    DateTime? created = pendingDates.TryGetValue( person.Cast.Guid, out var formDate ) ? formDate : first;
-                    if ( created.HasValue && person.BirthDate.HasValue && person.BirthDate.Value > created.Value.Date )
-                    {
-                        var added = person.BirthDate.Value.AddDays( rule.NewbornDays ).Add( created.Value.TimeOfDay );
-                        created = added < latest ? added : latest;
-                    }
-
-                    if ( firstRecords.TryGetValue( person.PersonId, out var firstRecord ) && ( !created.HasValue || firstRecord < created.Value ) )
-                    {
-                        created = firstRecord;
-                    }
-
-                    if ( created.HasValue )
-                    {
-                        dated[person.PersonId] = created.Value;
-                    }
-                    else
-                    {
-                        undated.Add( FullName( person ) );
-                    }
-                }
-            }
-
-            foreach ( var batch in dated.Select( ( d, i ) => (d, i) ).GroupBy( x => x.i / 500, x => x.d ) )
-            {
-                var values = string.Join( ", ", batch.Select( d => $"( {d.Key}, '{d.Value:yyyy-MM-ddTHH:mm:ss}' )" ) );
-                _db.Execute( $"UPDATE [p] SET [p].[CreatedDateTime] = CAST( [v].[Created] AS DATETIME ) FROM [Person] AS [p] INNER JOIN ( VALUES {values} ) AS [v] ( [Id], [Created] ) ON [v].[Id] = [p].[Id]" );
-            }
-
-            var familyIds = string.Join( ", ", cast.Select( h => h.FamilyId ) );
-            if ( familyIds.Length > 0 )
-            {
-                _db.Execute( $@"
-UPDATE [g] SET [g].[CreatedDateTime] = [first].[Created]
-FROM [Group] AS [g]
-CROSS APPLY ( SELECT MIN( [p].[CreatedDateTime] ) AS [Created] FROM [GroupMember] AS [gm] INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId] WHERE [gm].[GroupId] = [g].[Id] ) AS [first]
-WHERE [g].[Id] IN ( {familyIds} ) AND [first].[Created] < [g].[CreatedDateTime]" );
-            }
-
-            return undated.Count == 0
-                ? $"  Cast record dates: {dated.Count:N0} people"
-                : $"  Cast record dates: {dated.Count:N0} people. WARNING: no date for {undated.Count:N0}, who keep the load's time: {string.Join( ", ", undated )}";
-        }
-
-        /// <summary>
-        /// The kinds of rows Rock writes for a person as things happen, so the person's record must already exist. Each
-        /// gives a person Id and a time. Communication lists, prayer requests, emails, and History lines Rock dates by an
-        /// earlier event are left out (see WriteRecordDates). {0} is the list of person Ids.
-        /// </summary>
-        internal const string FirstRecordsSql = @"
-SELECT [r].[PersonId], MIN( [r].[At] ) AS [At]
-FROM (
-    SELECT [pa].[PersonId], [a].[StartDateTime] AS [At] FROM [Attendance] AS [a] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
-    UNION ALL SELECT [gm].[PersonId], [gm].[DateTimeAdded] FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
-        WHERE [g].[IsSecurityRole] = 0 AND [gt].[Guid] NOT IN ( '790E3215-3B10-442B-AF69-616C0DCB998E', 'E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF', 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' )
-    UNION ALL SELECT [pa].[PersonId], [t].[TransactionDateTime] FROM [FinancialTransaction] AS [t] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId]
-    UNION ALL SELECT [pa].[PersonId], [r].[CreatedDateTime] FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
-    UNION ALL SELECT [pa].[PersonId], [r].[CreatedDateTime] FROM [RegistrationRegistrant] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId]
-    UNION ALL SELECT [pa].[PersonId], [r].[RequestDateTime] FROM [BenevolenceRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId]
-    UNION ALL SELECT [n].[EntityId], [n].[CreatedDateTime] FROM [Note] AS [n] INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] WHERE [nt].[EntityTypeId] = @PersonType
-    UNION ALL SELECT [u].[PersonId], [u].[CreatedDateTime] FROM [UserLogin] AS [u] WHERE [u].[PersonId] IS NOT NULL
-    UNION ALL SELECT [w].[EntityId], [w].[ActivatedDateTime] FROM [Workflow] AS [w] WHERE [w].[EntityTypeId] = @PersonType
-    UNION ALL SELECT [h].[EntityId], [h].[CreatedDateTime] FROM [History] AS [h] WHERE [h].[EntityTypeId] = @PersonType AND [h].[CategoryId] = @Demographics AND [h].[ValueName] <> 'Person'
-) AS [r]
-WHERE [r].[At] IS NOT NULL AND [r].[PersonId] IN ( {0} )
-GROUP BY [r].[PersonId]";
-
-        /// <summary>
-        /// Each person's first record (see <see cref="FirstRecordsSql"/>), by person Id. A person with none is left out.
-        /// </summary>
-        internal static Dictionary<int, DateTime> FirstRecords( RockDatabase db, IEnumerable<int> personIds )
-        {
-            var ids = personIds.Distinct().ToList();
-            if ( ids.Count == 0 )
-            {
-                return new Dictionary<int, DateTime>();
-            }
-
-            // The Ids go inline: the contract recorder reads every INSERT as a write to a Rock table.
-            var sql = string.Format( FirstRecordsSql, string.Join( ", ", ids ) );
-            return db.Query( sql, P( "@PersonType", db.RequireIdByGuid( "EntityType", PersonEntityTypeGuid ) ), P( "@Demographics", db.RequireIdByGuid( "Category", DemographicHistoryCategoryGuid ) ) )
-                .ToDictionary( r => ( int ) r["PersonId"], r => ( DateTime ) r["At"] );
-        }
 
         /*
             11/23/26 - CLAUDE
