@@ -30,7 +30,7 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 
 ### Grace Fischer
 
-- Age 15 · no email · Rock shows Half Century earned, Century Club in progress
+- Age 15 · no email · Rock shows Half Century earned, Century Club earned
 - Person Guid `E32DD15D-52BA-4979-9653-F88AEBF6F49A`
 
 ## What this family tests
@@ -38,10 +38,12 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 - High school students, including a senior about to graduate.
 - Monthly scheduled giver.
 - Open request to serve that Alisha Marble connects (In Progress).
+- A student at Wednesday Student Night most weeks, whose Wednesday check-ins count toward her Century Club.
 
 ## Activity
 
 - **Attendance:** regular, 58% of Sundays, since 6 years ago.
+- **Student Night:** Grace checks in on 80% of Wednesdays.
 - **Giving:** **monthly** by Mark Fischer: $250 General Fund per gift, gives in 95% of periods, started 5 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 

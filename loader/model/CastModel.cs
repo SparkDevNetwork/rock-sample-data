@@ -198,6 +198,11 @@ namespace RockSampleData.Loader.Model
         public RelativeDate Started { get; set; }
 
         public RelativeDate Ended { get; set; }
+
+        /// <summary>
+        /// The number of the kids kiosk the family always uses at its campus, such as 1 for Phoenix Kids 1. Null draws one.
+        /// </summary>
+        public int? KidsKiosk { get; set; }
     }
 
     /// <summary>
@@ -416,6 +421,11 @@ namespace RockSampleData.Loader.Model
         public bool PrefersText { get; set; }
 
         public CastPhones Phones { get; set; }
+
+        /// <summary>
+        /// A student's Wednesday Student Night habit, or null for a Cast student who never comes (decision 364).
+        /// </summary>
+        public CastStudentNight StudentNight { get; set; }
 
         /// <summary>
         /// This person's known relationships. Only the "business" type loads so far: the person is a
@@ -729,6 +739,17 @@ namespace RockSampleData.Loader.Model
     /// <summary>
     /// A person's phone numbers (10 digits each).
     /// </summary>
+    /// <summary>
+    /// How often a Cast student comes to Wednesday Student Night: the share of Student Nights they check in, from the
+    /// date they started (or the start of the history) while they are in grades 7 to 12.
+    /// </summary>
+    internal sealed class CastStudentNight
+    {
+        public int PercentAttended { get; set; }
+
+        public RelativeDate Started { get; set; }
+    }
+
     internal sealed class CastPhones
     {
         public string Home { get; set; }

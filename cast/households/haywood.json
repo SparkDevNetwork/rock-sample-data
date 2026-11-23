@@ -7,7 +7,7 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "peoria",
-  "story": "Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sonoran Valley University, and their son Isaiah checks in to the Peoria student service.",
+  "story": "Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sonoran Valley University, and their son Isaiah checks in to the Peoria student service and comes to Student Night most Wednesdays.",
   "testPurposes": [
     "Named campus pastor at Peoria, loaded only in datasets with the Peoria campus.",
     "Cast family that lives at a campus other than the main one.",
@@ -139,6 +139,9 @@
       "emailIsActive": true,
       "phones": {
         "mobile": "6235550196"
+      },
+      "studentNight": {
+        "percentAttended": 85
       }
     }
   ]
