@@ -1,0 +1,75 @@
+{
+  "$comment": "Rock's five assessments (docs/assessments.md, decisions 265 to 268). Each request and each result is an Assessment row. A result's answers go in the row, and its scores go in the person's attributes, both from one score by the loader's port of Rock's scoring. The shares are designed, not measured: the sample church uses assessments more than most churches do. Only adults out of high school take one, and no workflow rows are written.",
+  "$adoptedComment": "The day the church began using Rock's assessments. Nothing is requested before it. Staff and leaders who came before took theirs in the weeks after it.",
+  "adopted": {
+    "yearsAgo": 4,
+    "month": 1,
+    "day": 11
+  },
+  "$typesComment": "Rock's five assessment types, by the keys the rest of this file and the Cast use, with Rock's Guids and how many minutes each takes.",
+  "types": [
+    { "key": "disc", "guid": "A5CB2E3D-118A-41F2-972B-325A328B0B54", "minutes": { "min": 6, "max": 15 } },
+    { "key": "spiritual-gifts", "guid": "B8FBD371-6B32-4BE5-872F-51400D16EC5D", "minutes": { "min": 10, "max": 25 } },
+    { "key": "conflict-profile", "guid": "CE7E1986-FDC3-4A3F-9464-26A65D684E29", "minutes": { "min": 5, "max": 12 } },
+    { "key": "emotional-intelligence", "guid": "DE2D65A3-FC36-4472-B5DF-FAD30EEC27A0", "minutes": { "min": 6, "max": 15 } },
+    { "key": "motivators", "guid": "EABE1ABA-4A23-44FF-8C7F-6B71383BED09", "minutes": { "min": 15, "max": 35 } }
+  ],
+  "$staffComment": "Each staff member's supervisor asks them to take all five in their first week, or in the weeks after the church adopted assessments. The one staff member with no supervisor takes them on their own. Staff who started within the last pendingIfStartedWithinDays days have not taken them yet.",
+  "staff": {
+    "types": [ "disc", "spiritual-gifts", "conflict-profile", "emotional-intelligence", "motivators" ],
+    "requestedBy": "supervisor",
+    "dueInDays": 30,
+    "finishWithinDays": 21,
+    "pendingIfStartedWithinDays": 365
+  },
+  "$classesComment": "A class asks everyone in it on its first night, due on its third, when the class talks about the results. The campus pastor sends the request. percentFinished finish within finishWithinDays, and the rest stay pending, so the current class shows requests. A class before the church adopted assessments asks nothing.",
+  "classes": [
+    {
+      "stepType": "starting-point-class",
+      "types": [ "spiritual-gifts" ],
+      "requestOnNight": 1,
+      "dueOnNight": 3,
+      "requestedBy": "campus-pastor",
+      "percentFinished": 85,
+      "finishWithinDays": 14
+    },
+    {
+      "stepType": "foundations",
+      "types": [ "disc", "motivators" ],
+      "requestOnNight": 1,
+      "dueOnNight": 3,
+      "requestedBy": "campus-pastor",
+      "percentFinished": 80,
+      "finishWithinDays": 14
+    }
+  ],
+  "$leadersComment": "Every current small group and serving team leader takes these before they start leading, unless they already have. Jamal Pierce, the Groups Pastor, asks small group leaders, and each campus pastor asks their team leaders.",
+  "leaders": {
+    "types": [ "disc", "conflict-profile" ],
+    "requestedBy": {
+      "small-group": "jamal",
+      "serving": "campus-pastor"
+    },
+    "requestDaysBeforeLeading": { "min": 14, "max": 42 },
+    "dueInDays": 14,
+    "finishWithinDays": 10
+  },
+  "$selfStartedComment": "Each year of the history window, this share of active adults takes one of these on their own, with no request.",
+  "selfStarted": {
+    "types": [ "disc", "spiritual-gifts" ],
+    "percentOfActiveAdultsPerYear": 5
+  },
+  "$leaningsComment": "Every person's answers lean toward a target drawn for them, so results look like real people. A leader's target also leans toward what the role draws on, by role, then type, then dimension. 1 is about one standard deviation.",
+  "leanings": {
+    "small-group-leader": {
+      "spiritual-gifts": { "shepherding": 1.0, "teaching": 0.5, "discipling": 0.5 },
+      "disc": { "I": 0.4, "S": 0.4 },
+      "conflict-profile": { "resolving": 0.6 }
+    },
+    "team-leader": {
+      "spiritual-gifts": { "leadership": 1.0, "administration": 0.6, "service": 0.4 },
+      "disc": { "D": 0.6, "C": 0.3 },
+      "conflict-profile": { "resolving": 0.4, "winning": 0.3 }
+    }
+  }
+}
