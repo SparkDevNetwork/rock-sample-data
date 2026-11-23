@@ -18,8 +18,8 @@
 namespace RockSampleData.Loader.Generation
 {
     /// <summary>
-    /// Spike-only name lists for the crowd (and placeholder streets for when the address pool runs out). The real Crowd uses the Content name lists.
-    /// Names are common across many backgrounds and are picked independently of anything else.
+    /// The short name lists the Crowd used before the name tables (<see cref="NameTables"/>), kept for a package built
+    /// without names/, and placeholder streets for when the address pool runs out.
     /// </summary>
     internal static class CrowdNames
     {

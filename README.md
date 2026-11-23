@@ -193,6 +193,7 @@ Load times and database space are each dataset's `typicalInstallSeconds` and `da
 | [configuration/](configuration/README.md) | The church setup: campuses, service times, funds, check-in, and connection statuses. |
 | [calibration/](calibration/README.md) | Scripts that measure Rock databases, the normalizer, and the profile of target numbers. |
 | [addresses/](addresses/README.md) | The address pool: real streets with house numbers that do not exist. |
+| [names/](names/README.md) | The name tables generated people are named from: first names by birth decade, surnames, and nicknames, from public-domain data. |
 | [photos/](photos/README.md) | The photo rules, the manifest, and the delivered Cast and pool photos. |
 | [graphics/](graphics/README.md) | Reusable church initiative and campaign artwork, beginning with Starting Point. |
 | [builder/](builder/README.md) | The .NET tool that turns this repository into one dataset package per dataset. |

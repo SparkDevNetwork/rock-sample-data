@@ -80,7 +80,7 @@ namespace RockSampleData.Loader.Loading
                 .ToList();
 
             var people = People( households, familySundays, gifts, smallGroupTypeId );
-            var planner = new PrayerPlanner( profile, _seed, historyStart, _dates.Anchor );
+            var planner = new PrayerPlanner( profile, _seed, historyStart, _dates.Anchor, _source.Names );
             var plan = planner.Plan( people, categories, text );
             TeamPersonIds.UnionWith( plan.Team.Select( t => t.Person.PersonId ) );
 
