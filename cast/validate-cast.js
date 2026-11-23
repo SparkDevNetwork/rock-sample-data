@@ -46,7 +46,7 @@ const OTHER_CAMPUS_KEYS = new Set( JSON.parse( fs.readFileSync( path.join( castD
     .filter( c => !c.rockDefault ).map( c => c.key ) );
 const MAIN_CAMPUS_KEY = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.find( c => c.rockDefault ).key;
 
-// Each campus's kiosks, so a household's usual kids kiosk is one its campus has (decision D-checkin-attendance-1).
+// Each campus's kiosks, so a household's usual kids kiosk is one its campus has (decision 360).
 const KIOSKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "kiosks.json" ), "utf8" ) );
 
 const errors = [];
@@ -153,7 +153,7 @@ for ( const { file, data: h } of households ) {
         claimGuid( p.guid, owner );
         people.set( p.guid, { household: h, person: p, file } );
 
-        // Student Night is for students in grades 7 to 12 (decision D-checkin-attendance-5).
+        // Student Night is for students in grades 7 to 12 (decision 364).
         if ( p.studentNight && ( p.familyRole !== "child" || !p.birth || p.birth.age < 11 || p.birth.age > 18 ) ) {
             errors.push( `${owner}: studentNight is only for a child aged 11 to 18, in grades 7 to 12.` );
         }

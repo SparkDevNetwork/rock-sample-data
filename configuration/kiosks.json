@@ -1,5 +1,5 @@
 {
-  "$comment": "Check-in kiosks and label printers at every campus (decision D-checkin-attendance-1). Each campus has kids kiosks, one student kiosk, and one volunteer kiosk, and each kiosk has its own label printer beside it. A family always uses its usual kids kiosk, students the student kiosk, and volunteers the volunteer kiosk. Every address is in 192.0.2.0/24, a block reserved for documentation, so no label ever reaches a real printer.",
+  "$comment": "Check-in kiosks and label printers at every campus (decision 360). Each campus has kids kiosks, one student kiosk, and one volunteer kiosk, and each kiosk has its own label printer beside it. A family always uses its usual kids kiosk, students the student kiosk, and volunteers the volunteer kiosk. Every address is in 192.0.2.0/24, a block reserved for documentation, so no label ever reaches a real printer.",
   "network": "192.0.2.0/24",
   "rock": {
     "$comment": "Rock's shipped kiosk and label printer become the first kids kiosk at this campus and its printer. Rock's self-service kiosk stays as Rock ships it.",

@@ -145,7 +145,7 @@ namespace RockSampleData.Loader
 
         /// <summary>
         /// The check-in kiosks and label printers at each campus, or null in a package built before every campus had its
-        /// own (decision D-checkin-attendance-1), whose check-ins all name Rock's one kiosk.
+        /// own (decision 360), whose check-ins all name Rock's one kiosk.
         /// </summary>
         public KiosksConfiguration Kiosks { get; }
 

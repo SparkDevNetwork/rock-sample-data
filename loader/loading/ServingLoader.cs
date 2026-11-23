@@ -298,7 +298,7 @@ namespace RockSampleData.Loader.Loading
             var declineReason = outcome == Outcome.Declined && declineReasonIds.Count > 0 ? random.Pick( declineReasonIds ) : ( object ) DBNull.Value;
 
             // A volunteer who served usually checked in at their campus's volunteer kiosk a few minutes before the
-            // service, in a session of their own, by their phone (decisions D-checkin-attendance-1 and D-checkin-attendance-2).
+            // service, in a session of their own, by their phone (decisions 360 and 361).
             var checkIn = _config.CheckIn;
             var checkedIn = outcome == Outcome.Attended && kiosk != null && random.Chance( checkIn.CheckInPercent / 100.0 );
             var present = checkedIn ? start.AddMinutes( -random.Between( ( int ) checkIn.ArrivesMinutesEarly.Min, ( int ) checkIn.ArrivesMinutesEarly.Max ) ) : ( object ) DBNull.Value;

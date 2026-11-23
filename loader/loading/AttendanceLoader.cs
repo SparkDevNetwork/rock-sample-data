@@ -60,7 +60,7 @@ namespace RockSampleData.Loader.Loading
         and checkout times draw from streams of their own, never the household's, so every Sunday, room, and security
         code stays as it was.
 
-        Reason: Check-in should look like a real church's (decisions D-checkin-attendance-1 to D-checkin-attendance-3).
+        Reason: Check-in should look like a real church's (decisions 360 to 362).
     */
 
     /// <summary>
@@ -255,7 +255,7 @@ namespace RockSampleData.Loader.Loading
             at the student kiosk with a code of their own. Wednesday check-ins count toward the weekly check-in streak,
             as Rock counts every check-in in the week, but not toward the Student Path, which follows the Sunday service.
 
-            Reason: The church calendar has Student Night every Wednesday (decisions D-checkin-attendance-4 and D-checkin-attendance-5).
+            Reason: The church calendar has Student Night every Wednesday (decisions 363 and 364).
         */
 
         /// <summary>
@@ -759,7 +759,7 @@ namespace RockSampleData.Loader.Loading
             checked them in, a few minutes after the service ends. Students and adults are never checked out. A young kid
             who checked in on their own, because their family has no adult who could come, has no one to check them out.
 
-            Reason: A kids ministry checks each child out to the adult who brought them (decision D-checkin-attendance-3).
+            Reason: A kids ministry checks each child out to the adult who brought them (decision 362).
         */
 
         /// <summary>
@@ -790,7 +790,7 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Who comes to Wednesday Student Night and how often (decision D-checkin-attendance-5).
+        /// Who comes to Wednesday Student Night and how often (decision 364).
         /// </summary>
         private static class StudentNightRules
         {

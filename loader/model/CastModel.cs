@@ -423,7 +423,7 @@ namespace RockSampleData.Loader.Model
         public CastPhones Phones { get; set; }
 
         /// <summary>
-        /// A student's Wednesday Student Night habit, or null for a Cast student who never comes (decision D-checkin-attendance-5).
+        /// A student's Wednesday Student Night habit, or null for a Cast student who never comes (decision 364).
         /// </summary>
         public CastStudentNight StudentNight { get; set; }
 

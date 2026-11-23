@@ -32,7 +32,7 @@ namespace RockSampleData.Loader.Loading
         address is in 192.0.2.0/24, which is reserved for documentation, so a label sent to one never reaches a real
         printer. A package without the file keeps Rock's one kiosk for every check-in, as before.
 
-        Reason: A real church has kiosks at each campus, and each check-in should name one there (decision D-checkin-attendance-1).
+        Reason: A real church has kiosks at each campus, and each check-in should name one there (decision 360).
     */
 
     /// <summary>

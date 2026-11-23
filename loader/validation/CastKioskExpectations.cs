@@ -25,7 +25,7 @@ namespace RockSampleData.Loader.Validation
     /// <summary>
     /// Checks the Cast's check-in stories against the loaded database: a family that names its kids kiosk checked its
     /// kids in there last time, the label went to that kiosk's printer at a reserved address, and the adult who checked
-    /// the kids in checked them out (decisions D-checkin-attendance-1 to D-checkin-attendance-3).
+    /// the kids in checked them out (decisions 360 to 362).
     /// </summary>
     internal static class CastKioskExpectations
     {
@@ -89,7 +89,7 @@ ORDER BY [a].[StartDateTime] DESC", members ).FirstOrDefault();
         /// <summary>
         /// A Cast student with a Student Night habit checks in on Wednesday nights at their campus's student kiosk: since
         /// they started, or on at least half their share of the last 26 Wednesdays. A Cast student without one never comes
-        /// on a Wednesday (decision D-checkin-attendance-5).
+        /// on a Wednesday (decision 364).
         /// </summary>
         private static int CheckStudentNights( RockDatabase db, SampleDataSource source, CastPersonGuids guids, string mainCampus, DateTime anchor, List<string> failures )
         {

@@ -18,7 +18,7 @@
 namespace RockSampleData.Loader.Model
 {
     /// <summary>
-    /// configuration/kiosks.json: the check-in kiosks and label printers at each campus (decision D-checkin-attendance-1).
+    /// configuration/kiosks.json: the check-in kiosks and label printers at each campus (decision 360).
     /// </summary>
     internal sealed class KiosksConfiguration
     {

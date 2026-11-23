@@ -477,7 +477,7 @@ namespace RockSampleData.Loader
 
             var isAttendanceLoaded = steps.Begin( "Attendance" );
 
-            // Each campus's kiosks and label printers, given every room check-in set up (decision D-checkin-attendance-1).
+            // Each campus's kiosks and label printers, given every room check-in set up (decision 360).
             var devices = new CheckInDevicesLoader( db, source, configuration, foreignKey ).Load();
             var attendance = new AttendanceLoader( db, calendar, dates, configuration, devices, foreignKey, seed );
             using ( log.TimePart( "Plan attendance" ) )

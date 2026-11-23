@@ -784,7 +784,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
     AND [a].[CheckInStatus] <> CASE WHEN [a].[EndDateTime] IS NOT NULL THEN 4 WHEN [a].[PresentDateTime] IS NOT NULL THEN 3 ELSE 2 END;
 
 -- check: kiosk-and-printer-addresses-are-reserved
--- why: Decision D-checkin-attendance-1. Every check-in kiosk and label printer, Rock's renamed ones included, has its own address in 192.0.2.0/24, which is reserved for documentation, so a label never reaches a real printer. Each kiosk prints on a printer with such an address.
+-- why: Decision 360. Every check-in kiosk and label printer, Rock's renamed ones included, has its own address in 192.0.2.0/24, which is reserved for documentation, so a label never reaches a real printer. Each kiosk prints on a printer with such an address.
 SELECT ( SELECT COUNT(*)
         FROM [Device] AS [d]
         INNER JOIN [DefinedValue] AS [t] ON [t].[Id] = [d].[DeviceTypeValueId]
@@ -795,7 +795,7 @@ SELECT ( SELECT COUNT(*)
     + ( SELECT COUNT(*) FROM ( SELECT [IPAddress] FROM [Device] WHERE [IPAddress] LIKE '192.0.2.%' GROUP BY [IPAddress] HAVING COUNT(*) > 1 ) AS [x] );
 
 -- check: check-in-kiosk-is-at-its-campus
--- why: Decision D-checkin-attendance-1. Each campus has its own kiosks, and every room a kiosk offers is at its campus. Every check-in names a check-in kiosk at the campus of the check-in, so a campus's check-in history lists only its own kiosks.
+-- why: Decision 360. Each campus has its own kiosks, and every room a kiosk offers is at its campus. Every check-in names a check-in kiosk at the campus of the check-in, so a campus's check-in history lists only its own kiosks.
 WITH [CampusLocation] AS (
     SELECT [c].[Id] AS [CampusId], [c].[LocationId]
     FROM [Campus] AS [c]
@@ -820,7 +820,7 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DeviceId] IS NOT NULL
         OR [k].[AtACampus] <> [k].[Locations] OR [k].[CampusId] <> [k].[LastCampusId] OR [k].[CampusId] <> [a].[CampusId] );
 
 -- check: check-in-has-its-session
--- why: Decision D-checkin-attendance-2. Rock saves a session with every kiosk check-in. Every row checked in at a kiosk points at a session at that kiosk, with the kiosk's address. A security code and its session go together, so a family's kids are one check-in. The search found the family of the person who checked in.
+-- why: Decision 361. Rock saves a session with every kiosk check-in. Every row checked in at a kiosk points at a session at that kiosk, with the kiosk's address. A security code and its session go together, so a family's kids are one check-in. The search found the family of the person who checked in.
 SELECT ( SELECT COUNT(*)
         FROM [Attendance] AS [a]
         LEFT JOIN [AttendanceCheckInSession] AS [s] ON [s].[Id] = [a].[AttendanceCheckInSessionId]
@@ -837,7 +837,7 @@ SELECT ( SELECT COUNT(*)
     + ( SELECT COUNT(*) FROM [AttendanceCheckInSession] AS [s] WHERE [s].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [Attendance] AS [a] WHERE [a].[AttendanceCheckInSessionId] = [s].[Id] ) );
 
 -- check: student-night-is-for-students
--- why: Decisions D-checkin-attendance-4 and D-checkin-attendance-5. The only weekday check-in is Wednesday Student Night, in the Grades 7-8 and Grades 9-12 rooms, on the Student Night schedule. Each student checks in on their own at a student kiosk, and the week of every Student Night has ended by install day.
+-- why: Decisions 363 and 364. The only weekday check-in is Wednesday Student Night, in the Grades 7-8 and Grades 9-12 rooms, on the Student Night schedule. Each student checks in on their own at a student kiosk, and the week of every Student Night has ended by install day.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -854,7 +854,7 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[AttendanceCodeId] IS NOT NULL AND 
         OR [o].[SundayDate] > CAST( GETDATE() AS DATE ) );
 
 -- check: young-kid-is-checked-out-by-who-brought-them
--- why: Decision D-checkin-attendance-3. Kids from the nursery through 6th grade are checked out after their service, the same day, by the adult who checked them in. Students, adults, and volunteers are never checked out, and a kid who checked in on their own has no one to check them out.
+-- why: Decision 362. Kids from the nursery through 6th grade are checked out after their service, the same day, by the adult who checked them in. Students, adults, and volunteers are never checked out, and a kid who checked in on their own has no one to check them out.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]

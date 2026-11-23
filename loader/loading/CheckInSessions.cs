@@ -29,7 +29,7 @@ namespace RockSampleData.Loader.Loading
         it found. A family's kids share one session and one security code, so the loader opens a session with each
         code. A volunteer checking in to serve gets a session of their own.
 
-        Reason: Rock's check-in screens and reports read the session, the kiosk, and the search (decision D-checkin-attendance-2).
+        Reason: Rock's check-in screens and reports read the session, the kiosk, and the search (decision 361).
     */
 
     /// <summary>

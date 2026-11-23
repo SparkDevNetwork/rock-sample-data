@@ -151,7 +151,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += parts.Contains( SampleDataPart.Attendance ) ? CheckAchievements( db, source, guids, failures ) : 0;
 
             // A family's usual kids kiosk, its printer, its kids' check-outs, and the Cast's Student Nights (decisions
-            // D-checkin-attendance-1 to D-checkin-attendance-5).
+            // 360 to 364).
             checks += parts.Contains( SampleDataPart.Attendance ) ? CastKioskExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
             checks += parts.Contains( SampleDataPart.Steps ) ? CheckSteps( db, source, guids, failures ) : 0;
