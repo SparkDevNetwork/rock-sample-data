@@ -124,6 +124,11 @@ namespace RockSampleData.Loader.Model
         public int CheckInPercent { get; set; }
 
         public NumberRange ArrivesMinutesEarly { get; set; }
+
+        /// <summary>
+        /// The keys of the labels the Serving Team area prints, from checkin.json's labels. Null leaves the area's labels as they are.
+        /// </summary>
+        public List<string> Labels { get; set; }
     }
 
     /// <summary>
@@ -238,6 +243,11 @@ namespace RockSampleData.Loader.Model
         public string Room { get; set; }
 
         public string CheckInGroup { get; set; }
+
+        /// <summary>
+        /// True for a position in the check-in group's second room (checkin.json secondRoom) instead of its first.
+        /// </summary>
+        public bool SecondRoom { get; set; }
 
         public int[] Capacity { get; set; }
     }

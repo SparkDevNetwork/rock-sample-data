@@ -53,7 +53,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// Generates Sunday worship attendance for adults and check-in attendance for kids and students.
     /// </summary>
-    internal sealed class AttendanceLoader
+    internal sealed partial class AttendanceLoader
     {
         internal static readonly Guid PhoneSearchTypeGuid = new Guid( "F3F66040-C50F-4D13-9652-780305FFFE23" );
         private const string CodeCharacters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -169,6 +169,7 @@ namespace RockSampleData.Loader.Loading
                 PlanStudentsOnTheirOwn( household );
             }
 
+            PlanRelativesAndSecondRooms();
             SetFirstTimes();
         }
 

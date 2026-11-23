@@ -1,5 +1,5 @@
 {
-  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service.",
+  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-7).",
   "template": {
     "name": "Weekly Service Check-in",
     "guid": "FEDD389A-616F-4A53-906C-63D8255631C5"
@@ -8,6 +8,7 @@
     {
       "name": "Nursery/Preschool Area",
       "guid": "CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8",
+      "labels": [ "child", "parent", "note" ],
       "groups": [
         "nursery",
         "crawlers-walkers",
@@ -17,6 +18,7 @@
     {
       "name": "Elementary Area",
       "guid": "E3C8F7D6-5CEB-43BB-802F-66C3E734049E",
+      "labels": [ "child", "parent", "note" ],
       "groups": [
         "grades-k-1",
         "grades-2-3",
@@ -26,6 +28,7 @@
     {
       "name": "Jr High Area",
       "guid": "7A17235B-69AD-439B-BAB0-1A0A472DB96F",
+      "labels": [ "name-tag" ],
       "groups": [
         "grades-7-8"
       ]
@@ -33,6 +36,7 @@
     {
       "name": "High School Area",
       "guid": "9A88743B-F336-4404-B877-2A623689195D",
+      "labels": [ "name-tag" ],
       "groups": [
         "grades-9-12"
       ]
@@ -79,6 +83,7 @@
       "name": "Grades 4-6",
       "matchBy": "grade",
       "room": "Outpost Room",
+      "secondRoom": "Basecamp Room",
       "schedules": "weekend"
     },
     {
@@ -107,7 +112,52 @@
     "grades-7-8": 60,
     "grades-9-12": 80
   },
+  "$roomFirmThresholdComment": "Firm limits nobody checks a child in past, not even a supervisor (decision D-checkin-config-5). Each nursery room holds at most 12 babies or toddlers. The busiest has held 10 at one service.",
+  "roomFirmThreshold": {
+    "nursery": 12,
+    "crawlers-walkers": 12
+  },
   "studentFallbackSlot": "sun-1030",
+  "$templateSettingsComment": "Settings of the Weekly Service Check-in template, by Rock attribute key (decision D-checkin-config-3). Supervisor mode is on, so a supervisor PIN opens a kiosk's supervisor screen. A volunteer can check a child out in the Check-in Manager. A person already checked in to a service cannot check in to it again.",
+  "templateSettings": {
+    "core_checkin_EnableManagerOption": "True",
+    "core_checkin_AllowCheckout_Manager": "True",
+    "core_checkin_PreventDuplicateCheckin": "True"
+  },
+  "$labelsComment": "Rock's next-gen check-in labels (decision D-checkin-config-4). Each area lists the ones it prints, in order, and serving.json lists the Serving Team area's. Kids get a Child Label, a Note Label for allergies and legal notes, and one Parent Label for the family to show at pickup. Students and volunteers get a Name Tag.",
+  "labels": {
+    "child": { "name": "Child Label", "guid": "9282C162-FD92-4258-89C3-356918714E2C" },
+    "parent": { "name": "Parent Label", "guid": "053E5F25-8D88-4C9C-A42D-774B30E6A427" },
+    "note": { "name": "Note Label", "guid": "2272B545-E254-4377-8B06-3E465A6C8545" },
+    "name-tag": { "name": "Name Tag", "guid": "B275D754-089D-41C3-83E3-F11F303B901B" }
+  },
+  "testCheckIn": {
+    "$comment": "Rock's own test check-in, kept as Rock ships it (decision D-checkin-config-6). Both test schedules run every day and open check-in all day. The load puts the Test Group in every kids and student room at every campus on both schedules, so a kiosk at any campus can check someone in at any time. No loaded attendance uses a test schedule.",
+    "area": { "name": "Check-in Test Area", "guid": "CAAF4F9B-58B9-45B4-AABC-9188347948B7" },
+    "group": { "name": "Test Group", "guid": "CBBBEEE0-DE95-4876-9FEF-5EB68FA67853" },
+    "schedules": [
+      { "name": "4:30 (test)", "guid": "A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE" },
+      { "name": "6:00 (test)", "guid": "C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7" }
+    ]
+  },
+  "$supervisorsComment": "Each campus's kids check-in supervisor, who opens a kiosk's supervisor screen with the PIN (decision D-checkin-config-3). It is the Cast's kids director where the campus has one: Rachel Brooks at Phoenix and Tina Vu at Chandler. Elsewhere it is the leader of the campus's supervisorTeam. A PIN is a login, so PINs load only when the person installing gives a password, like every other login.",
+  "supervisors": [
+    { "campus": "phoenix", "pin": "1001", "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338" },
+    { "campus": "peoria", "pin": "1002" },
+    { "campus": "gilbert", "pin": "1003" },
+    { "campus": "scottsdale", "pin": "1004" },
+    { "campus": "chandler", "pin": "1005", "person": "87A06537-76C2-4100-8408-1CFF4EE55248" },
+    { "campus": "goodyear", "pin": "1006" },
+    { "campus": "tempe", "pin": "1007" }
+  ],
+  "supervisorTeam": "kids-ministry",
+  "relationships": {
+    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-7). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, each such child gets the same Can check in adult, at least adultMinimumAge, from another attending family at their campus. That adult checks the children in on about checkedInByPercent of their family's Sundays, and comes to that service. The Cast's pairs are in its household files.",
+    "crowdChildPercent": 3,
+    "childMaximumAge": 12,
+    "adultMinimumAge": 25,
+    "checkedInByPercent": 33
+  },
   "worship": {
     "$comment": "Adult worship attendance uses Rock's built-in Service Attendance template and its Weekend Service group, located at each campus with that campus's service times.",
     "template": {

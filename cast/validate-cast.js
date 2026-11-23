@@ -59,6 +59,88 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
     errors.push( "household.schema.json photo.ethnicity values do not match photos/ethnicities.json." );
 }
 
+// Known relationships (decision D-checkin-config-1). A Cast line names the role the other person holds in this
+// person's Known Relationships group, and the loader writes Rock's inverse role in the other person's group. So each
+// pair is stated once, on one side. The loader maps exactly these types, and the schema enum must list the same ones.
+const RELATIONSHIP_INVERSES = {
+    "business": null,
+    "can-check-in": "allow-check-in-by",
+    "allow-check-in-by": "can-check-in",
+    "parent": "child",
+    "child": "parent",
+    "grandparent": "grandchild",
+    "grandchild": "grandparent",
+    "step-parent": "step-child",
+    "step-child": "step-parent"
+};
+// Rock marks these roles Can Check-in, so this person's phone search at a kiosk shows the other person.
+const CHECKS_IN_TYPES = new Set( [ "can-check-in", "grandchild" ] );
+const OLDER_TYPES = new Set( [ "parent", "grandparent", "step-parent" ] );
+const YOUNGER_TYPES = new Set( [ "child", "grandchild", "step-child" ] );
+const schemaRelationshipTypes = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.person.properties.relationships.items.properties.type.enum;
+if ( [ ...schemaRelationshipTypes ].sort().join() !== Object.keys( RELATIONSHIP_INVERSES ).sort().join() ) {
+    errors.push( "household.schema.json relationship types do not match the types validate-cast.js and the loader map." );
+}
+
+/**
+ * The household keys a person belongs to: their own, and each household that lists them as a shared member.
+ */
+function familiesOf( guid ) {
+    const families = new Set( [ people.get( guid ).household.key ] );
+    for ( const { data: h } of households ) {
+        if ( ( h.sharedMembers || [] ).some( s => s.guid === guid ) ) {
+            families.add( h.key );
+        }
+    }
+    return families;
+}
+
+/**
+ * The problems with one known relationship line that points at another Cast person (not a business).
+ */
+function relationshipProblems( owner, h, p, r ) {
+    const problems = [];
+    const other = people.get( r.with );
+    const name = `${other.person.nickName || other.person.firstName} ${other.person.lastName}`;
+    if ( !( r.type in RELATIONSHIP_INVERSES ) ) {
+        return [ `${owner}: relationship type "${r.type}" is not one the loader maps (${Object.keys( RELATIONSHIP_INVERSES ).join( ", " )}).` ];
+    }
+    if ( r.with === p.guid ) {
+        return [ `${owner}: relationship "${r.type}" points to the same person.` ];
+    }
+    if ( ( p.relationships || [] ).filter( x => x.with === r.with ).length > 1 && p.relationships.findIndex( x => x.with === r.with ) === p.relationships.indexOf( r ) ) {
+        problems.push( `${owner}: has more than one relationship with ${name}. A pair has one role on each side.` );
+    }
+    const inverse = RELATIONSHIP_INVERSES[ r.type ];
+    if ( ( other.person.relationships || [] ).some( x => x.with === p.guid ) && p.guid < r.with ) {
+        problems.push( `${owner}: the relationship with ${name} is stated on both people. State it once; the loader writes ${inverse ? `"${inverse}"` : "the other half"} on ${name}.` );
+    }
+    if ( other.household.campusSlot !== h.campusSlot ) {
+        problems.push( `${owner}: relationship "${r.type}" points to ${name} on another campus, who does not load in every dataset this person does.` );
+    }
+    const age = p.birth?.age;
+    const otherAge = other.person.birth?.age;
+    if ( age !== undefined && otherAge !== undefined && ( ( OLDER_TYPES.has( r.type ) && otherAge <= age ) || ( YOUNGER_TYPES.has( r.type ) && otherAge >= age ) ) ) {
+        problems.push( `${owner}: "${r.type}" ${name} is ${otherAge}, which does not fit this person's age of ${age}.` );
+    }
+    const isCheckIn = CHECKS_IN_TYPES.has( r.type ) || r.type === "allow-check-in-by";
+    if ( isCheckIn && [ ...familiesOf( p.guid ) ].some( f => familiesOf( r.with ).has( f ) ) ) {
+        problems.push( `${owner}: "${r.type}" ${name} is in the same family, who checks in with this person anyway.` );
+    }
+    if ( r.bringsPercent !== undefined ) {
+        if ( !CHECKS_IN_TYPES.has( r.type ) ) {
+            problems.push( `${owner}: bringsPercent needs a relationship that lets this person check the other in (${[ ...CHECKS_IN_TYPES ].join( ", " )}).` );
+        }
+        if ( other.person.familyRole !== "child" || !( otherAge < 13 ) ) {
+            problems.push( `${owner}: bringsPercent is for a child under 13 who checks in to a kids room, and ${name} is not one.` );
+        }
+        if ( !( h.attendance?.percentAttended > 0 ) || !( other.household.attendance?.percentAttended >= 0 ) ) {
+            problems.push( `${owner}: bringsPercent needs a household that attends and a child's household with an attendance pattern, whose start the visits wait for.` );
+        }
+    }
+    return problems;
+}
+
 // Giving expectations: the allowed values come from the schema, and alert keys from the alert type configuration.
 const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.giving.properties.expect.properties;
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
@@ -257,6 +339,10 @@ for ( const h of households.map( x => x.data ) ) {
             const tags = JSON.parse( fs.readFileSync( file, "utf8" ) );
             text = JSON.stringify( { ...tags, tags: tags.tags.map( t => ( { ...t, owner: undefined } ) ) } ).toUpperCase();
         }
+        // A check-in supervisor loads only with their campus, which the supervisor check below holds them to.
+        if ( path.basename( file ) === "checkin.json" ) {
+            text = JSON.stringify( { ...JSON.parse( fs.readFileSync( file, "utf8" ) ), supervisors: undefined } ).toUpperCase();
+        }
         for ( const [ guid, who ] of campusPeople ) {
             if ( text.includes( guid ) ) {
                 errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
@@ -351,6 +437,37 @@ for ( const h of households.map( x => x.data ) ) {
         if ( e.linkedToRequest && requests.length !== 1 ) {
             errors.push( `configuration/background-checks.json: expects ${e.name}'s check linked to a request, but their file has ${requests.length} active requests in the Background Check status.` );
         }
+    }
+}
+
+// Check-in supervisors (configuration/checkin.json, decision D-checkin-config-3): one PIN per campus, unique digits,
+// and a named supervisor is a Cast person who lives on the campus they supervise. A campus without one uses the
+// leader of its supervisorTeam, a serving team in configuration/serving.json.
+{
+    const checkin = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "checkin.json" ), "utf8" ) );
+    const campuses = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses;
+    const mainKey = campuses.find( c => c.rockDefault ).key;
+    const supervisors = checkin.supervisors || [];
+    const pins = new Set();
+    for ( const s of supervisors ) {
+        const owner = `configuration/checkin.json supervisor for ${s.campus}`;
+        if ( !campuses.some( c => c.key === s.campus ) || supervisors.filter( x => x.campus === s.campus ).length > 1 ) {
+            errors.push( `${owner}: needs a campus key from configuration/campuses.json, once.` );
+        }
+        if ( !/^[0-9]{4,8}$/.test( s.pin || "" ) || pins.has( s.pin ) ) {
+            errors.push( `${owner}: needs its own PIN of 4 to 8 digits, which the kiosk's keypad can enter.` );
+        }
+        pins.add( s.pin );
+        if ( s.person !== undefined ) {
+            const p = people.get( s.person );
+            const campus = p && ( p.household.campusSlot === "main" ? mainKey : p.household.campusSlot );
+            if ( campus !== s.campus ) {
+                errors.push( `${owner}: ${p ? `${p.person.firstName} ${p.person.lastName} lives on ${campus}` : `${s.person} is not a Cast person`}, so they do not load with this campus.` );
+            }
+        }
+    }
+    if ( supervisors.some( s => s.person === undefined ) && !serving.teams.some( t => t.key === checkin.supervisorTeam ) ) {
+        errors.push( `configuration/checkin.json supervisorTeam "${checkin.supervisorTeam}" is not a team in configuration/serving.json.` );
     }
 }
 
@@ -1256,6 +1373,9 @@ for ( const { file, data: h } of households ) {
             }
             else if ( r.type === "business" && people.get( r.with ).person.recordType !== "business" ) {
                 errors.push( `${owner}: relationship "business" points to ${r.with}, which is not a business record.` );
+            }
+            else {
+                errors.push( ...relationshipProblems( owner, h, p, r ) );
             }
         }
         for ( const f of p.follows || [] ) {

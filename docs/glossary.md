@@ -47,6 +47,7 @@ The words this project uses, in alphabetical order.
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **In-kind gift** | A gift of something other than money, such as stock, a vehicle, or a piano. Rock records it with the Non-Cash Asset currency type, one of its Non-Cash Asset Types, a summary, and its fair value. See [Uncommon gifts](uncommon-gifts.md). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
+| **Known relationship** | Rock's link between two people in different families, kept as a role in each person's Known Relationships group, such as Parent and Child. Rock lets the Can check in and Grandchild roles check the other person in, so a kiosk search for that person's family shows the child (decision D-checkin-config-1). |
 | **Launch Sunday** | A Sunday when the church starts new small groups: the second Sunday of September and the third Sunday of January. About a third of the groups started on one of the last four. See [Small groups](small-groups.md#new-groups-and-new-leaders). |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
@@ -109,8 +110,10 @@ The words this project uses, in alphabetical order.
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
 | **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision 206). |
+| **Supervisor PIN** | The number that opens a check-in kiosk's supervisor screen, where a volunteer reprints a label or overrides a full room. Rock keeps it as a PIN Authentication login. Each campus's kids check-in supervisor has one (decision D-checkin-config-3). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Tag** | A quick label staff put on a person in Rock, shown in the tag bar on the person's profile. A tag is organizational or personal, and Rock ships one, Staff. See [Tags](../configuration/README.md#tags). |
+| **Test Group** | The one group in Rock's Check-in Test Area. It meets in every kids and student room at every campus on Rock's two test schedules, which are open all day, every day, so check-in can be tested at any time (decision D-checkin-config-6). |
 | **Test purpose** | The reason a Cast household exists: the features or edge cases it exercises. |
 | **Unsubscribe level** | Where a person unsubscribed from, as Rock records it: All, Bulk, a communication list, or a flow. See [Communications](communications.md#unsubscribes). |
 | **Validation** | Running the calibration scripts on generated data and grading the results against the profile. |

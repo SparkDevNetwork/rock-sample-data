@@ -302,6 +302,11 @@ namespace RockSampleData.Loader
             steps.Begin( "Configuration" );
             var configuration = new ConfigurationLoader( db, source, dataset, foreignKey );
             configuration.Load();
+
+            // Check-in set up on purpose: settings, labels, room limits, second rooms, and test check-in at every campus.
+            // Serving's positions read the second rooms, so it runs first.
+            var checkInSetup = new CheckInSetupLoader( db, source, foreignKey, configuration );
+            checkInSetup.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
@@ -421,11 +426,18 @@ namespace RockSampleData.Loader
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
             SecurityRolesLoader securityRoles;
+            CheckInRelatives relatives;
             using ( log.TimePart( "Write people" ) )
             {
                 people.Load( households );
-                var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
-                log.Write( $"  Business contacts: {contactCount:N0}" );
+
+                // Known relationships, both halves: the Cast's lines and the Crowd's check-in adults, who the attendance
+                // plan follows (decisions D-checkin-config-1, D-checkin-config-2, and D-checkin-config-7).
+                relatives = CheckInRelatives.Plan( source.CheckIn.Relationships, people.Households, castHouseholdKeys, dates.Anchor, seed );
+                var relationships = new RelationshipsLoader( db, foreignKey );
+                var statedRelationships = RelationshipsLoader.Stated( people.People );
+                var generatedRelationships = relationships.Load( relatives.GeneratedRelationships );
+                log.Write( $"  Known relationships: {relationships.Load( statedRelationships ):N0} stated ({statedRelationships.Count( r => r.Type == "business" ):N0} business contacts), {generatedRelationships:N0} generated Can check in pairs" );
 
                 // Cast staff join the security roles their stories give them, all roles Rock ships.
                 securityRoles = new SecurityRolesLoader( db, foreignKey );
@@ -476,7 +488,7 @@ namespace RockSampleData.Loader
             db.DeferIndexRebuild( "Attendance" );
 
             var isAttendanceLoaded = steps.Begin( "Attendance" );
-            var attendance = new AttendanceLoader( db, calendar, dates, configuration, foreignKey, seed );
+            var attendance = new AttendanceLoader( db, calendar, dates, configuration, foreignKey, seed ) { Relatives = relatives };
             using ( log.TimePart( "Plan attendance" ) )
             {
                 attendance.Plan( people.Households );
@@ -851,6 +863,11 @@ namespace RockSampleData.Loader
                 var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.PersonId ).ToHashSet();
                 var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
                 log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
+
+                // Each campus's kids check-in supervisor PIN, a PIN Authentication login (decision D-checkin-config-3).
+                var pins = checkInSetup.PlanSupervisors( people, servingPlans, dates.Anchor );
+                logins.WritePins( pins );
+                log.Write( $"  Check-in supervisor PINs: {pins.Count:N0}" );
             }
 
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );

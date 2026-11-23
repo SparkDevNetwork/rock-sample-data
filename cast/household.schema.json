@@ -405,11 +405,19 @@
         },
         "relationships": {
           "type": "array",
+          "description": "Rock's Known Relationships (decision D-checkin-config-1). Each line names the role the other person holds in this person's group, and the loader writes Rock's inverse role in theirs, so state each pair once, on one side. A business line goes on the contact.",
           "items": {
             "type": "object",
             "required": [ "type", "with" ],
             "additionalProperties": false,
-            "properties": { "type": { "type": "string" }, "with": { "$ref": "#/$defs/guid" } }
+            "properties": {
+              "type": {
+                "enum": [ "business", "can-check-in", "allow-check-in-by", "parent", "child", "grandparent", "grandchild", "step-parent", "step-child" ],
+                "description": "The other person's role in this person's group. can-check-in and grandchild let this person check the other in at a kiosk, as Rock marks those roles Can Check-in."
+              },
+              "with": { "$ref": "#/$defs/guid" },
+              "bringsPercent": { "type": "integer", "minimum": 1, "maximum": 100, "description": "On this share of the Sundays this person came and the child's family did not, after the child's family started coming, this person brings the child and checks them in (decision D-checkin-config-2). Only on can-check-in or grandchild, for a child under 13." }
+            }
           }
         },
         "follows": {

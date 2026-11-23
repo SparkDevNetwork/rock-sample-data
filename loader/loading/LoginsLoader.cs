@@ -33,6 +33,7 @@ namespace RockSampleData.Loader.Loading
     internal sealed class LoginsLoader
     {
         private static readonly Guid DatabaseAuthenticationGuid = new Guid( "4E9B798F-BB68-4C0E-9707-0928D15AB020" );
+        private static readonly Guid PinAuthenticationGuid = new Guid( "1FB5A259-F45C-4857-AF3D-3B9E32DB0EEE" );
         private static readonly Guid PersonActivityHistoryCategoryGuid = new Guid( "0836845E-5ED8-4ABE-8787-3B61EF2F0FA5" );
         private static readonly Guid SecurityRoleGroupTypeGuid = new Guid( "AECE949F-704C-483E-A4FB-93D5E4720C4C" );
         private static readonly Regex BcryptHash = new Regex( @"^\$2[aby]\$\d\d\$[./A-Za-z0-9]{53}$" );
@@ -92,7 +93,24 @@ GROUP BY [pa].[PersonId]", P( "@ForeignKey", _foreignKey ) )
                 throw new ArgumentException( "The login password hash is not a BCrypt hash, the form Rock's Database login stores." );
             }
 
-            var entityTypeId = _db.RequireIdByGuid( "EntityType", DatabaseAuthenticationGuid );
+            Write( logins, DatabaseAuthenticationGuid, passwordHash );
+        }
+
+        /// <summary>
+        /// Writes PIN Authentication logins, whose user name is the PIN and which have no password, and their person
+        /// history. A kiosk's supervisor screen signs in with one (decision D-checkin-config-3).
+        /// </summary>
+        public void WritePins( List<PlannedLogin> logins )
+        {
+            Write( logins, PinAuthenticationGuid, null );
+        }
+
+        /// <summary>
+        /// Writes logins of one authentication provider, each with the same password, and their person history.
+        /// </summary>
+        private void Write( List<PlannedLogin> logins, Guid providerGuid, string password )
+        {
+            var entityTypeId = _db.RequireIdByGuid( "EntityType", providerGuid );
             var providerName = ( string ) _db.Scalar( "SELECT ISNULL( [FriendlyName], [Name] ) FROM [EntityType] WHERE [Id] = @Id", P( "@Id", entityTypeId ) );
             var nextId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [UserLogin]" ) );
 
@@ -102,7 +120,7 @@ GROUP BY [pa].[PersonId]", P( "@ForeignKey", _foreignKey ) )
             foreach ( var login in logins )
             {
                 var id = nextId++;
-                rows.Rows.Add( id, entityTypeId, login.UserName, passwordHash, login.IsConfirmed, Value( login.LastLogin ), Value( login.LastLogin ),
+                rows.Rows.Add( id, entityTypeId, login.UserName, ( object ) password ?? DBNull.Value, login.IsConfirmed, Value( login.LastLogin ), Value( login.LastLogin ),
                     login.Created, DBNull.Value, false, login.Person.PersonId, login.Guid, _foreignKey, login.Created, login.LastLogin ?? login.Created );
                 history.Add( login, id );
             }
