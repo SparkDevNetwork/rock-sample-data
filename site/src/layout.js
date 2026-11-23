@@ -30,6 +30,7 @@ const nav = [
     { key: "church", label: "The Church", href: "church.html" },
     { key: "cast", label: "The Cast", href: "cast.html" },
     { key: "features", label: "Features", href: "features.html" },
+    { key: "reporting", label: "Reporting", href: "reporting.html" },
     { key: "datasets", label: "Datasets", href: "datasets.html" },
     { key: "how", label: "How It's Built", href: "how-its-built.html" },
     { key: "brand", label: "Brand & Downloads", href: "brand.html" },
@@ -127,13 +128,13 @@ ${body}
     <div>
       <h2 class="footer-heading">Explore</h2>
       <ul class="footer-links">
-        ${nav.slice( 0, 4 ).map( n => html`<li><a href="${r( n.href )}">${esc( n.label )}</a></li>` )}
+        ${nav.slice( 0, 5 ).map( n => html`<li><a href="${r( n.href )}">${esc( n.label )}</a></li>` )}
       </ul>
     </div>
     <div>
       <h2 class="footer-heading">Build with it</h2>
       <ul class="footer-links">
-        ${nav.slice( 4 ).map( n => html`<li><a href="${r( n.href )}">${esc( n.label )}</a></li>` )}
+        ${nav.slice( 5 ).map( n => html`<li><a href="${r( n.href )}">${esc( n.label )}</a></li>` )}
         <li><a href="${repoUrl}">Source on GitHub</a></li>
       </ul>
     </div>

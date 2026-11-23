@@ -1,6 +1,6 @@
 # Site
 
-The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the features, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision 80) at [sampledata.rockrms.com](https://sampledata.rockrms.com/). The domain is a CNAME in rockrms.com's DNS (DNSimple) pointing to `sparkdevnetwork.github.io`, set as the custom domain in the repository's Pages settings. The old address, sparkdevnetwork.github.io/rock-sample-data, redirects to it.
+The public site for Rock Sample Data: why the sample data exists, Rock Solid Church, the Cast, the features, the data views and reports, the datasets, how it's built, the brand kit and photo downloads, and how to contribute. GitHub Pages publishes it from `main` (decision 80) at [sampledata.rockrms.com](https://sampledata.rockrms.com/). The domain is a CNAME in rockrms.com's DNS (DNSimple) pointing to `sparkdevnetwork.github.io`, set as the custom domain in the repository's Pages settings. The old address, sparkdevnetwork.github.io/rock-sample-data, redirects to it.
 
 The site is built from the repository's own files, so it never keeps a copy of the Cast or the church. Change a household in `cast/households/`, and its page changes on the next build.
 
@@ -8,7 +8,9 @@ Campus cards use the seven exterior photos in `photos/campuses/manifest.json`. T
 
 The church page has a Staff section, built from `configuration/staff.json`, with a card for each of the 23 staff linking to their household page, and each campus card names its campus pastor. A staff member whose profile photo is still to be made shows a monogram, and their page says the photo is coming soon. Each staff member's household page shows their staff page bio and favorite quote from `configuration/staff.json`, and a staff card shows the staff photo once it is delivered (`photos/staff/manifest.json`). The Staff section's departments match the org chart in `staff.json`. Each campus card lists its campus staff, with their campus version of the staff photo when one exists (`photos/staff/campus/`). Staff photos crop with `object-fit: cover` at each photo's recorded `objectPosition`. The brand page offers every staff photo, campus versions included, as a zip. The church page also has an Initiatives section, and the brand page offers each initiative's artwork as a PNG. Both read every folder in `graphics/initiatives/`, so new artwork appears on the next build. The words for each initiative are in `src/pages/church.js`. A folder with no words there still shows, with its artwork's concept as the text.
 
-The Features page (`src/pages/features.js`) has one short section for each part of Rock the data fills: what is there, where to look, and a link to the deeper page or doc. Each section has its own id, such as `#communication-flows` or `#data-views-and-reports`, and reads its counts from the model, so a feature's session edits only its own section. The jump links at the top list every section. Data views and reports draws its category tree from `configuration/categories.json`, its path cards from the metrics and the steps, and its security list from the `access` rows in `configuration/reporting.json`.
+The Features page (`src/pages/features.js`) has one short section for each part of Rock the data fills: what is there, where to look, and a link to the deeper page or doc. Each section has its own id, such as `#communication-flows` or `#data-views-and-reports`, and reads its counts from the model, so a feature's session edits only its own section. The jump links at the top list every section. Data views and reports is a short section that links to the Reporting page.
+
+The Reporting page (`src/pages/reporting.js`) shows the church's data views and reports in one place. Its layers follow one report, Ready to Serve, down through its data views to the foundations. Its stage cards come from the metrics and the steps each stage view's filter counts, its report cards and lock cards from `configuration/reporting.json` and `configuration/categories.json`, and its Cast cards from the `access` rows in `configuration/reporting.json`, each person's login, and their roles in `configuration/security-roles.json`. The loader version it names is `MinimumLoaderVersion` in `loader/packages/SampleDataPackage.cs`, read the way the release check reads it. It never shows how many people a view finds in a dataset, because only verify receipts hold that, and the site never reads them.
 
 On phones, the top navigation folds behind a Menu button. On tablets, the links wrap onto their own row. Without script, phones get the wrapped row.
 
@@ -24,14 +26,14 @@ That writes the site to `site/dist/` (git ignores it). Open `site/dist/index.htm
 
 ## Publishing
 
-The [Publish site](../.github/workflows/pages.yml) workflow runs the same build and publishes `site/dist` when `main` changes the site, the Cast, the configuration, the photos, the graphics, or the two docs the site reads. To turn it on once, set **Settings > Pages > Source** to **GitHub Actions**.
+The [Publish site](../.github/workflows/pages.yml) workflow runs the same build and publishes `site/dist` when `main` changes the site, the Cast, the configuration, the datasets, the photos, the graphics, the two docs the site reads, or the loader's minimum version file. To turn it on once, set **Settings > Pages > Source** to **GitHub Actions**.
 
 ## What is where
 
 | Path | What it holds |
 |---|---|
 | `build.js` | Copies the photos, builds the downloads and their zips, and writes every page. |
-| `src/data.js` | Reads `cast/`, `configuration/`, `photos/`, and `graphics/` into one model. It never reads `calibration/` (decision 82). |
+| `src/data.js` | Reads `cast/`, `configuration/`, `datasets/`, `photos/`, and `graphics/` into one model, with the loader version packages need from `loader/packages/SampleDataPackage.cs`. It never reads `calibration/` (decision 82). |
 | `src/layout.js` | The header, navigation, and footer every page shares. |
 | `src/components.js` | Shared pieces: section headings, portraits, household cards, downloads, and zoomable photos. |
 | `src/pages/` | One file per page. `cast.js` also writes one page per household. `contribute.js` reads the issue questions and the roadmap from `docs/`. |
