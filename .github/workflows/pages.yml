@@ -9,10 +9,12 @@ on:
       - "site/**"
       - "cast/**"
       - "configuration/**"
+      - "datasets/**"
       - "photos/**"
       - "graphics/**"
       - "docs/contributing.md"
       - "docs/roadmap.md"
+      - "loader/packages/SampleDataPackage.cs"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
