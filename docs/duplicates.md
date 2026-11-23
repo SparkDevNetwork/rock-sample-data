@@ -25,9 +25,9 @@ The load runs Rock's procedure itself, as its last step, after every person, pho
 | Dataset | Time | Pairs | Listed in the Duplicate Finder |
 |---|---|---|---|
 | Core 1 | under a second | 9 | 3, all the Cast's |
-| Full 7 | about 10 seconds | about 76,000 | 4: the Cast's 3 and one Crowd pair |
+| Full 7 | about 11 seconds | about 14,400 | 3, all the Cast's |
 
-Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, often the whole name, since the Crowd's names come from short lists. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database with those names. One Crowd pair shares a name and a birth date and scores above 60, a look-alike any church with those names would see. Every generated email is one person's (decision 313), so no two strangers share an address.
+Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision 357), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address.
 
 Households with the same address share one Location, as Rock's address editor saves them (decision 314). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
 
@@ -71,4 +71,4 @@ The merge also deletes the old record's phones and family memberships, so nothin
 
 ## Not built yet
 
-Crowd duplicates wait for Real Crowd Names ([#42](https://github.com/SparkDevNetwork/rock-sample-data/issues/42)): a share of the Crowd with a second, Pending record, often under a nickname, with no birth date and a shared email or mobile. See [Planned work](planned.md).
+Crowd duplicates are next ([#42](https://github.com/SparkDevNetwork/rock-sample-data/issues/42)), now that the Crowd has real names: a share of the Crowd with a second, Pending record, often under a nickname, with no birth date and a shared email or mobile. See [Planned work](planned.md).

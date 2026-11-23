@@ -35,15 +35,18 @@ namespace RockSampleData.Loader.Generation
         private readonly string _seed;
         private readonly DateTime _start;
         private readonly DateTime _now;
+        private readonly NameTables _names;
 
         /// <param name="start">The first moment requests can be entered.</param>
         /// <param name="now">The install moment: nothing happens at or after it.</param>
-        public PrayerPlanner( ProfileTargets profile, string seed, DateTime start, DateTime now )
+        /// <param name="names">The name tables guests' names come from.</param>
+        public PrayerPlanner( ProfileTargets profile, string seed, DateTime start, DateTime now, NameTables names )
         {
             _profile = profile;
             _seed = seed;
             _start = start;
             _now = now;
+            _names = names;
         }
 
         /// <summary>
@@ -231,16 +234,16 @@ namespace RockSampleData.Loader.Generation
         /// <summary>
         /// A request from someone with no person record: Rock keeps only the name and email they typed.
         /// </summary>
-        private static PlannedPrayerRequest Guest( SeededRandom random, List<int> campuses, DateTime entered )
+        private PlannedPrayerRequest Guest( SeededRandom random, List<int> campuses, DateTime entered )
         {
             var isFemale = random.Chance( 0.6 );
-            var first = random.Pick( isFemale ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
-            var last = random.Pick( CrowdNames.LastNames );
+            var first = _names.AdultFirstName( isFemale, random );
+            var last = _names.Surname( random );
             return new PlannedPrayerRequest
             {
                 FirstName = first,
                 LastName = last,
-                Email = random.Chance( 0.8 ) ? $"{first}.{last}@example.org".ToLowerInvariant() : null,
+                Email = random.Chance( 0.8 ) ? $"{CrowdGenerator.EmailLetters( first )}.{CrowdGenerator.EmailLetters( last )}@example.org" : null,
                 CampusId = random.Pick( campuses ),
                 Entered = entered
             };
