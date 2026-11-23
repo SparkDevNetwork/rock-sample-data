@@ -27,7 +27,7 @@ The load runs Rock's procedure itself, as its last step, after every person, pho
 | Core 1 | under a second | 9 | 3, all the Cast's |
 | Full 7 | about 11 seconds | about 14,400 | 3, all the Cast's |
 
-Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision D-crowd-names-1), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address.
+Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision 357), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address.
 
 Households with the same address share one Location, as Rock's address editor saves them (decision 314). Rock scores Address only for people on the same Location, so Jon Smith's duplicates score their shared home.
 

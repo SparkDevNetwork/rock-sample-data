@@ -31,7 +31,7 @@ namespace RockSampleData.Loader.Generation
         count. Each draw takes exactly one number from the caller's stream, as picking from the old lists did, so every
         later draw in a household stays where it was and only names change.
 
-        Reason: Crowd names follow real name data by birth decade (decision D-crowd-names-1).
+        Reason: Crowd names follow real name data by birth decade (decision 357).
     */
 
     /// <summary>

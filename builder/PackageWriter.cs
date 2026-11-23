@@ -120,7 +120,7 @@ namespace RockSampleData.Builder
             // Only the dataset's campuses' addresses, and only the photos the dataset shows.
             files["addresses/pool.json"] = Utf8( FilterAddressPool( repository.ReadText( "addresses/pool.json" ), campusKeys ) );
 
-            // The name tables every generated person, prayer guest, and parent not in Rock is named from (decision D-crowd-names-1).
+            // The name tables every generated person, prayer guest, and parent not in Rock is named from (decision 357).
             AddFile( NameTables.FirstNamesPath );
             AddFile( NameTables.SurnamesPath );
             AddFile( NameTables.NicknamesPath );

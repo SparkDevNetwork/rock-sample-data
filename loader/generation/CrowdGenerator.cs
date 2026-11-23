@@ -28,7 +28,7 @@ namespace RockSampleData.Loader.Generation
         Every choice is sampled from the resolved profile: family size, ages, gender,
         marital status, how many records show activity, attendance frequency, giving
         cadence, and annual giving. Names come from the name tables in names/ (decision
-        D-crowd-names-1), and addresses from the address pool.
+        357), and addresses from the address pool.
 
         Reason: Measure install speed at scale and give validation enough rows for real statistics.
     */
@@ -97,19 +97,19 @@ namespace RockSampleData.Loader.Generation
         private readonly HashSet<string> _emails;
 
         /// <summary>
-        /// The last number each email name has had: 1 for the plain name, then 2, 3, and so on (decision D-crowd-names-2).
+        /// The last number each email name has had: 1 for the plain name, then 2, 3, and so on (decision 358).
         /// </summary>
         private readonly Dictionary<string, int> _emailNumbers = new Dictionary<string, int>( StringComparer.Ordinal );
 
         private readonly NameTables _names;
 
         /// <summary>
-        /// Every Cast full name, by first name and by nickname, which no generated person may have (decision D-crowd-names-2).
+        /// Every Cast full name, by first name and by nickname, which no generated person may have (decision 358).
         /// </summary>
         private readonly HashSet<string> _castNames;
 
         /// <summary>
-        /// The chance a person whose first name has a usual nickname goes by it (decision D-crowd-names-3).
+        /// The chance a person whose first name has a usual nickname goes by it (decision 359).
         /// </summary>
         private const double NicknameShare = 0.4;
 
@@ -338,7 +338,7 @@ namespace RockSampleData.Loader.Generation
             they were.
 
             Reason: Crowd names never shadow the Cast, and nicknames give Crowd duplicates their usual shape
-            (decisions D-crowd-names-2 and D-crowd-names-3).
+            (decisions 358 and 359).
         */
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace RockSampleData.Loader.Generation
             by, in letters only, so O'Brien gives obrien. The household's stream still takes its old number draw, so
             every later draw stays where it was.
 
-            Reason: Each generated email is one person's, and reads like an address a person chose (decision D-crowd-names-2).
+            Reason: Each generated email is one person's, and reads like an address a person chose (decision 358).
         */
 
         /// <summary>

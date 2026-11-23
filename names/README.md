@@ -1,6 +1,6 @@
 # Names
 
-Generated people get **real first names for their birth decade and real surnames**, drawn by how common each name is. A grandmother born in the 1950s is more likely a Linda or a Susan, and a toddler more likely an Olivia or a Liam. The decisions are D-crowd-names-1 to D-crowd-names-3 in [Decisions](../docs/decisions.md).
+Generated people get **real first names for their birth decade and real surnames**, drawn by how common each name is. A grandmother born in the 1950s is more likely a Linda or a Susan, and a toddler more likely an Olivia or a Liam. The decisions are 357 to 359 in [Decisions](../docs/decisions.md).
 
 ## What is here
 
