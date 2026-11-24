@@ -354,7 +354,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** Checks the history of the metrics Rock ships, from `configuration/rock-metrics.json`. For each SQL metric's newest run, and its newest run at least 90 days before that, it sets the loaded database back to that moment inside a transaction it rolls back: check-ins, prayer requests, prayers, and gifts dated after it are hidden from Rock's queries, the people are as they were then, by the loader's rule for who was here and how old they were, and so are their eRA values. Rock's eRA job writes a history line each time it moves a person in or out of eRA, so the lines give each person's Currently an eRA, eRA Start Date, and eRA End Date at any moment. Then it runs the metric's SQL from Rock's Metric table, with Rock's clock set to the run, and every value must match the load, campus by campus. It also checks that every typed Total Adult Attendance value is the people the load has in that service, and that each such service has a Salvations value. Today's eRA values must be the ones the history lines give, so setting them back rests on Rock's own record. It runs before the [Rock Cleanup referee](#rock-cleanup-referee), so it judges the database as loaded: Rock Cleanup's first-night fixes to Rock's own records, such as a primary campus or an age bracket, would move Rock's Insights counts by a person.
 
-**Why it's there.** The loader works out each metric's past values itself, because running Rock's SQL once per run would be slow on Full 7. Rock's own SQL is the proof that each value is the one Rock's job would have saved, and setting the database back makes it work on any day, not only a metric's run day (decision D-metrics-9). Without the eRA values set back, a person who left eRA, or came back, after a run would drop out of Rock's eRA SQL for that run. On Full 7, a run a quarter back lost up to 8 of a campus's 20 wins that way.
+**Why it's there.** The loader works out each metric's past values itself, because running Rock's SQL once per run would be slow on Full 7. Rock's own SQL is the proof that each value is the one Rock's job would have saved, and setting the database back makes it work on any day, not only a metric's run day (decision 381). Without the eRA values set back, a person who left eRA, or came back, after a run would drop out of Rock's eRA SQL for that run. On Full 7, a run a quarter back lost up to 8 of a campus's 20 wins that way.
 
 ### Rock Cleanup referee
 
@@ -407,7 +407,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** Runs Rock's own Calculate Metrics job once, through `verify/rock-runner`, as Rock's scheduler runs it every 15 minutes after install. Every value the load wrote must still be there, unchanged, and any value the job adds must be for a run after its metric's last run. The values it adds are noted.
 
-**Why it's there.** Each metric's last run tells Rock's job where to start. One left too early would make the job's first run after install save copies of past runs, and one left too late would skip a run (decision D-metrics-9).
+**Why it's there.** Each metric's last run tells Rock's job where to start. One left too early would make the job's first run after install save copies of past runs, and one left too late would skip a run (decision 381).
 
 ### Segments
 
@@ -491,7 +491,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **What it does.** For each path metric in `configuration/reporting.json`, reads its newest values, one for each campus, and when they were taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value, by the campus Rock's job counts each person under. The SQL count must equal Rock's count of the stage view from the data views check, the newest values must add up to Rock's count less the later ones, and each campus's value must be its own people less its own later ones.
 
-**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest values to Rock's own count proves the loader used the view's rule and Rock's campus split (decisions 234 and D-metrics-7).
+**Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest values to Rock's own count proves the loader used the view's rule and Rock's campus split (decisions 234 and 379).
 
 ### Access
 
