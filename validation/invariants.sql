@@ -1752,12 +1752,12 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
 
 -- check: background-check-requirement-agrees-with-check
--- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also an adult whose Pass is older than 1,035 days, and Not Met otherwise. A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+-- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also 18 or older by the birth date Rock has and their Pass is older than 1,035 days, and Not Met otherwise. Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor warned (decision D-integrity-14). A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
 SELECT COUNT(*)
 FROM (
     SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
         CASE
-            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsMinor] = 0 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
+            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsAdult] = 1 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
             ELSE 1
         END AS [Expected]
     FROM [GroupMemberRequirement] AS [gmr]
@@ -1777,6 +1777,7 @@ FROM (
     CROSS APPLY (
         SELECT
             CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [n].[Night] THEN 1 ELSE 0 END AS [IsMinor],
+            CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) <= [n].[Night] THEN 1 ELSE 0 END AS [IsAdult],
             CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) >= DATEADD( DAY, -1095, [n].[Night] ) THEN 1 ELSE 0 END AS [IsValid],
             CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) < DATEADD( DAY, -1035, [n].[Night] ) THEN 1 ELSE 0 END AS [IsOld] ) AS [rule]
     WHERE [gmr].[ForeignKey] = @ForeignKey AND [grt].[Guid] = '1C21C346-A861-4A9A-BD6D-BAA7D92419D5'
