@@ -60,7 +60,7 @@ namespace RockSampleData.Loader.Loading
         {
             var occurrences = _occurrenceIds.ToDictionary( o => o.Value, o => o.Key );
             var adults = Relatives.Visits.Select( v => v.Adult.AliasId ).Concat( Relatives.CheckIns.Select( c => c.Adult.AliasId ) ).ToHashSet();
-            var children = Relatives.CheckIns.SelectMany( c => c.Children ).Select( c => c.AliasId ).ToHashSet();
+            var children = Relatives.CheckIns.SelectMany( c => c.YoungChildren ).Select( c => c.AliasId ).ToHashSet();
 
             // One pass over the planned rows: the service each of these adults was in on each Sunday, and each child's check-ins.
             var services = new Dictionary<int, SortedDictionary<DateTime, int>>();
@@ -96,9 +96,16 @@ namespace RockSampleData.Loader.Loading
                 PlanVisit( visit, services.GetValueOrDefault( visit.Adult.AliasId ) );
             }
 
+            // A family's security code is one check-in session, so whoever checks the children in checks in everyone on it,
+            // an older sibling at the student service included.
+            var codes = checkIns.Values.SelectMany( r => r ).Select( r => ( int ) r["AttendanceCodeId"] ).ToHashSet();
+            var rowsByCode = _attendance.AsEnumerable()
+                .Where( r => r["AttendanceCodeId"] != DBNull.Value && codes.Contains( ( int ) r["AttendanceCodeId"] ) )
+                .GroupBy( r => ( int ) r["AttendanceCodeId"] )
+                .ToDictionary( g => g.Key, g => g.ToList() );
             foreach ( var relative in Relatives.CheckIns )
             {
-                PlanRelativeCheckIns( relative, relative.Children.SelectMany( c => checkIns.GetValueOrDefault( c.AliasId ) ?? new List<DataRow>() ).ToList(), services, occurrences );
+                PlanRelativeCheckIns( relative, relative.YoungChildren.SelectMany( c => checkIns.GetValueOrDefault( c.AliasId ) ?? new List<DataRow>() ).ToList(), rowsByCode, services, occurrences );
             }
         }
 
@@ -152,10 +159,10 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// A generated adult checks the children in on some of their family's Sundays, and is in that service when not
-        /// already in one that day.
+        /// A generated adult checks the children in on some of their family's Sundays, with everyone else on the family's
+        /// security code that day, and is in that service when not already in one that day.
         /// </summary>
-        private void PlanRelativeCheckIns( RelativeCheckIn relative, List<DataRow> rows, Dictionary<int, SortedDictionary<DateTime, int>> services, Dictionary<int, (int Group, int Location, int Schedule, DateTime Date)> occurrences )
+        private void PlanRelativeCheckIns( RelativeCheckIn relative, List<DataRow> rows, Dictionary<int, List<DataRow>> rowsByCode, Dictionary<int, SortedDictionary<DateTime, int>> services, Dictionary<int, (int Group, int Location, int Schedule, DateTime Date)> occurrences )
         {
             var plan = _configuration.CampusPlans[relative.ChildHousehold.CampusKey];
             var random = new SeededRandom( $"{_seed}:relative-check-in:{relative.ChildHousehold.Cast.Guid}" );
@@ -172,7 +179,7 @@ namespace RockSampleData.Loader.Loading
                     continue;
                 }
 
-                foreach ( var row in sunday )
+                foreach ( var row in sunday.Select( r => ( int ) r["AttendanceCodeId"] ).Distinct().SelectMany( code => rowsByCode[code] ) )
                 {
                     row["CheckedInByPersonAliasId"] = relative.Adult.AliasId;
                 }

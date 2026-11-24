@@ -163,7 +163,7 @@
   ],
   "supervisorTeam": "kids-ministry",
   "relationships": {
-    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-8). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, each such child gets the same Can check in adult, at least adultMinimumAge, from another attending family at their campus. That adult checks the children in on about checkedInByPercent of their family's Sundays, and comes to that service. The Cast's pairs are in its household files.",
+    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-8). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, the family's children get one Can check in adult, at least adultMinimumAge, from another attending family at their campus. On about checkedInByPercent of the Sundays the young children came, that adult checks in everyone on the family's security code, and comes to that service. The Cast's pairs are in its household files.",
     "crowdChildPercent": 3,
     "childMaximumAge": 12,
     "adultMinimumAge": 25,

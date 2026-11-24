@@ -40,9 +40,11 @@ namespace RockSampleData.Loader.Loading
     internal sealed record RelativeVisit( LoadedPerson Adult, LoadedHousehold AdultHousehold, LoadedHousehold ChildHousehold, IReadOnlyList<LoadedPerson> Children, int Percent );
 
     /// <summary>
-    /// A generated adult who may check in a generated family's young children, and checks them in on some of their Sundays.
+    /// A generated adult who may check in a generated family's children, and checks them in on some of the Sundays its young
+    /// children came. The family's older children get the relationship too, since one person checks in everyone on the
+    /// family's security code.
     /// </summary>
-    internal sealed record RelativeCheckIn( LoadedPerson Adult, LoadedHousehold ChildHousehold, IReadOnlyList<LoadedPerson> Children, double Percent );
+    internal sealed record RelativeCheckIn( LoadedPerson Adult, LoadedHousehold ChildHousehold, IReadOnlyList<LoadedPerson> Children, IReadOnlyList<LoadedPerson> YoungChildren, double Percent );
 
     /// <summary>
     /// The adults who check in children from another family, which the relationships and attendance steps follow.
@@ -99,11 +101,10 @@ namespace RockSampleData.Loader.Loading
 
             foreach ( var household in generated )
             {
-                var children = household.Members
-                    .Where( m => m.FamilyId == household.FamilyId && !m.IsAdult && m.CanAttend && Age( m ) is >= 0 and var age && age <= crowd.ChildMaximumAge )
-                    .ToList();
+                var children = household.Members.Where( m => m.FamilyId == household.FamilyId && !m.IsAdult && m.CanAttend ).ToList();
+                var youngChildren = children.Where( m => Age( m ) is >= 0 and var age && age <= crowd.ChildMaximumAge ).ToList();
                 var random = new SeededRandom( $"{seed}:check-in-relative:{household.Cast.Guid}" );
-                if ( children.Count == 0 || !random.Chance( crowd.CrowdChildPercent / 100 ) )
+                if ( youngChildren.Count == 0 || !random.Chance( crowd.CrowdChildPercent / 100 ) )
                 {
                     continue;
                 }
@@ -111,7 +112,7 @@ namespace RockSampleData.Loader.Loading
                 var adults = adultsByCampus.GetValueOrDefault( household.CampusKey )?.Where( a => a.FamilyId != household.FamilyId ).ToList();
                 if ( adults is { Count: > 0 } )
                 {
-                    relatives.CheckIns.Add( new RelativeCheckIn( random.Pick( adults ), household, children, crowd.CheckedInByPercent ) );
+                    relatives.CheckIns.Add( new RelativeCheckIn( random.Pick( adults ), household, children, youngChildren, crowd.CheckedInByPercent ) );
                 }
             }
 
