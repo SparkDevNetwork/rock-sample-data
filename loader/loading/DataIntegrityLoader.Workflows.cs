@@ -247,13 +247,15 @@ WHERE [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.
         private int AssignedWorker( List<ActionTypeRow> pendingActions )
         {
             var ids = string.Join( ", ", pendingActions.Select( a => a.Id ) );
-            var aliasGuid = _db.Scalar( $@"
-SELECT TOP 1 [av].[Value]
+            // The alias is the admin's, whose Guid differs from one Rock install to the next, so it is read with the
+            // setting rather than looked up by a Guid the load would then depend on.
+            var aliasId = _db.Scalar( $@"
+SELECT TOP 1 [pa].[Id]
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
-WHERE [av].[EntityId] IN ( {ids} ) AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'EntityTypeId'" ) as string;
-            var aliasId = Guid.TryParse( aliasGuid, out var guid ) ? _db.IdByGuid( "PersonAlias", guid ) : null;
-            return aliasId ?? throw new InvalidOperationException( "Rock's Person Data Error workflow assigns no person, so its reports have no one to wait for." );
+INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( [av].[Value] AS UNIQUEIDENTIFIER )
+WHERE [av].[EntityId] IN ( {ids} ) AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'EntityTypeId'" );
+            return aliasId == null ? throw new InvalidOperationException( "Rock's Person Data Error workflow assigns no person, so its reports have no one to wait for." ) : Convert.ToInt32( aliasId );
         }
 
         /*

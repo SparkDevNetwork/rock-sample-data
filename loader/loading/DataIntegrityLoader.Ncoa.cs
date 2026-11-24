@@ -131,11 +131,11 @@ namespace RockSampleData.Loader.Loading
                 moves[household.FamilyId] = planned ?? throw new InvalidDataException( $"The NCOA run has no address left for {household.Cast.Name}'s {move.Move} move." );
             }
 
-            // The Crowd: families in a seeded order, the moves away first, from the families that qualify.
+            // The Crowd: families in a seeded order. None moves away: steps before this one count people as active,
+            // so only a household inactive from the start of the load, like the Barlows, can move away.
             var generated = families.Keys.Where( id => householdByFamily.TryGetValue( id, out var h ) && !castHouseholdKeys.Contains( h.Cast.Key ) )
                 .OrderBy( id => SeededRandom.StableGuid( $"data-integrity:ncoa:{householdByFamily[id].Cast.Guid}" ) ).ToList();
             int Share( double pct ) => ( int ) Math.Round( pct / 100 * generated.Count );
-            var canMoveAway = FamiliesThatCanMoveAway( generated, run );
             var skipped = 0;
             void Plan( IEnumerable<int> candidates, int count, string kind )
             {
@@ -154,7 +154,6 @@ namespace RockSampleData.Loader.Loading
                 }
             }
 
-            Plan( generated.Where( canMoveAway.Contains ), Share( ncoa.Crowd.MovedAwayFamiliesPct ), "away" );
             Plan( generated.Where( id => MovedOutAdult( families[id] ) != null ), Share( ncoa.Crowd.AdultsMovedOutPct ), "individual" );
             Plan( generated, Share( ncoa.Crowd.NearbyFamiliesPct ), "nearby" );
 
@@ -245,44 +244,6 @@ ORDER BY [gm].[GroupId], [p].[Id]",
                     ( string ) r["Street1"], r["Street2"] as string, r["City"] as string, ( string ) r["State"], r["PostalCode"] as string, r["Latitude"] as double?, r["Longitude"] as double?,
                     r["BirthDate"] as DateTime? ) )
                 .ToList();
-        }
-
-        /// <summary>
-        /// The families that can move away with nothing else changing: no check-in or gift in the year before the run or
-        /// since, and no group membership, open connection request, or communication flow that Rock's person save hook
-        /// would inactivate.
-        /// </summary>
-        private HashSet<int> FamiliesThatCanMoveAway( List<int> familyIds, DateTime run )
-        {
-            var rows = TableFactory.Create( "Id:int" );
-            foreach ( var id in familyIds )
-            {
-                rows.Rows.Add( id );
-            }
-
-            _db.Execute( "CREATE TABLE #NcoaFamilies ( [Id] INT NOT NULL PRIMARY KEY )" );
-            _db.BulkInsert( "#NcoaFamilies", rows, keepIdentity: false );
-            var eligible = _db.Query( @"
-SELECT [f].[Id]
-FROM #NcoaFamilies AS [f]
-WHERE NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [fm] INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [fm].[PersonId]
-        INNER JOIN [Attendance] AS [a] ON [a].[PersonAliasId] = [pa].[Id]
-        WHERE [fm].[GroupId] = [f].[Id] AND [a].[DidAttend] = 1 AND [a].[StartDateTime] >= @YearBefore )
-    AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [fm] INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [fm].[PersonId]
-        INNER JOIN [FinancialTransaction] AS [t] ON [t].[AuthorizedPersonAliasId] = [pa].[Id]
-        WHERE [fm].[GroupId] = [f].[Id] AND [t].[TransactionDateTime] >= @YearBefore )
-    AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [fm] INNER JOIN [GroupMember] AS [m] ON [m].[PersonId] = [fm].[PersonId]
-        INNER JOIN [Group] AS [g] ON [g].[Id] = [m].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
-        WHERE [fm].[GroupId] = [f].[Id] AND [m].[GroupMemberStatus] <> 0 AND [gt].[IgnorePersonInactivated] = 0 )
-    AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [fm] INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [fm].[PersonId]
-        INNER JOIN [ConnectionRequest] AS [r] ON [r].[PersonAliasId] = [pa].[Id]
-        WHERE [fm].[GroupId] = [f].[Id] AND [r].[ConnectionState] NOT IN ( 1, 3 ) )
-    AND NOT EXISTS ( SELECT 1 FROM [GroupMember] AS [fm] INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [fm].[PersonId]
-        INNER JOIN [CommunicationFlowInstanceRecipient] AS [r] ON [r].[RecipientPersonAliasId] = [pa].[Id]
-        WHERE [fm].[GroupId] = [f].[Id] AND [r].[Status] = 1 )", P( "@YearBefore", run.AddYears( -1 ) ) )
-                .Select( r => ( int ) r["Id"] ).ToHashSet();
-            _db.Execute( "DROP TABLE #NcoaFamilies" );
-            return eligible;
         }
 
         /// <summary>

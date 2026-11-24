@@ -324,7 +324,7 @@
     ]
   },
   "ncoa": {
-    "$comment": "One NCOA run, which Alisha imported on Rock's NCOA page. Rock sent every active person with a home address in the Active People data view, as of the run, and kept one NCOA History row for each. Most did not move. A family that moved less than minimumMoveDistance miles got its new home, with the old one kept as Previous. A family that moved farther was also inactivated with inactiveReason and Rock's note. An adult who moved out of a family of two or more, an adult child or else the youngest adult, waits for a staff member on the NCOA Results page. New homes come from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The crowd shares are of the generated families Rock sent. A family moves away only if it has had no check-in or gift for a year and is in no group, list, request, or flow that Rock would inactivate.",
+    "$comment": "One NCOA run, which Alisha imported on Rock's NCOA page. Rock sent every active person with a home address in the Active People data view, as of the run, and kept one NCOA History row for each. Most did not move. A family that moved less than minimumMoveDistance miles got its new home, with the old one kept as Previous. A family that moved farther was also inactivated with inactiveReason and Rock's note. An adult who moved out of a family of two or more, an adult child or else the youngest adult, waits for a staff member on the NCOA Results page. New homes come from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The crowd shares are of the generated families Rock sent. Only the Cast moves away: earlier steps count people before this one, so only a household inactive from the start of the load can.",
     "run": { "daysAgo": 41, "time": "14:12" },
     "processedBy": "69DC0FDC-B451-4303-BD91-EF17C0015D23",
     "personDataView": "4E6AF4CA-B4B6-4C60-B369-B9955CA552A3",
@@ -335,7 +335,6 @@
     "recurrenceInterval": 95,
     "crowd": {
       "nearbyFamiliesPct": 1.0,
-      "movedAwayFamiliesPct": 0.2,
       "adultsMovedOutPct": 0.3
     },
     "cast": [

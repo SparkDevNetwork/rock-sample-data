@@ -364,8 +364,6 @@ namespace RockSampleData.Loader.Model
     {
         public double NearbyFamiliesPct { get; set; }
 
-        public double MovedAwayFamiliesPct { get; set; }
-
         /// <summary>
         /// Families where one adult moved out: an adult child, or else the youngest of the adults.
         /// </summary>

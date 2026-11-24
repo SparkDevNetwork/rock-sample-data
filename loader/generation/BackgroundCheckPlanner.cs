@@ -236,7 +236,7 @@ namespace RockSampleData.Loader.Generation
             var isMinor = IsMinor( person );
             var passed = check?.Completed != null && check.IsPass ? check.Completed.Value : ( DateTime? ) null;
             var isValid = passed.HasValue && passed.Value >= anchor.AddDays( -_config.Rules.ValidDays );
-            var isWarned = !isMinor && passed.HasValue && passed.Value < anchor.AddDays( -_config.Rules.WarningAfterDays );
+            var isWarned = IsAdult( person ) && passed.HasValue && passed.Value < anchor.AddDays( -_config.Rules.WarningAfterDays );
 
             if ( isMinor || isValid )
             {
@@ -252,7 +252,12 @@ namespace RockSampleData.Loader.Generation
             return new RequirementResult { State = 1, Failed = Latest( joined, failedSince ) };
         }
 
-        private bool IsMinor( LoadedPerson person ) => person.BirthDate.HasValue && _dates.AgeOn( person.BirthDate.Value ) < 18;
+        // Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor 18 and
+        // over: the "still valid" view needs their check, and the "about to expire" view never warns them
+        // (decision D-integrity-14).
+        private bool IsMinor( LoadedPerson person ) => person.RecordedBirthDate.HasValue && _dates.AgeOn( person.RecordedBirthDate.Value ) < 18;
+
+        private bool IsAdult( LoadedPerson person ) => person.RecordedBirthDate.HasValue && _dates.AgeOn( person.RecordedBirthDate.Value ) >= 18;
 
         /// <summary>
         /// A Cast leader's check is current. A generated leader's follows the mix: current, expiring, expired, or none.

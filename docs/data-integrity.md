@@ -174,10 +174,10 @@ Rock sent every active person with a home address, and kept one NCOA History row
 | Move | How many | What Rock did |
 |---|---|---|
 | A family moved less than 25 miles | The Woods, and 1% of the generated families Rock sent | Added the new home as Home and the mailing address, kept the old one as Previous, and wrote History for the family and each member |
-| A family moved 25 miles or more | The Barlows, and 0.2% of the generated families | The same, and inactivated each member with the reason Moved and Rock's note: "Received a Change of Address (NCOA) notice that was for more than 25 miles away." |
+| A family moved 25 miles or more | The Barlows | The same, and inactivated each member with the reason Moved and Rock's note: "Received a Change of Address (NCOA) notice that was for more than 25 miles away." |
 | An adult moved out of a family of two or more | Andrew Kim, and 0.3% of the generated families: an adult child, or else the youngest adult | Nothing. The move waits on Rock's NCOA Results page for a staff member |
 
-Each new home comes from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The far list holds homes at least 30 miles from every campus, in Wickenburg, Tonopah, Gila Bend, Wittmann, and Aguila. A generated family moves away only if it has had no check-in or gift for a year and has no group, list, request, or flow that Rock would inactivate with it, so nothing else changes.
+Each new home comes from the address pool: one near the family's campus, or for a move away, one from the pool's far list. The far list holds homes at least 30 miles from every campus, in Wickenburg, Tonopah, Gila Bend, Wittmann, and Aguila. Only the Cast moves away. Steps before the NCOA run count people as active, such as the staff homepage's Active Records and the segments, so only a household inactive from the start of the load, like the Barlows, can move away and keep those counts true.
 
 Rock's move away check also compares the new home with each campus, but it compares meters with miles, so every move past the minimum counts as away. Every far home is far from every campus too, so both readings agree. TrueNCOA gives a move date as a year and month, which Rock does not read, so the rows have no move date, as Rock leaves them.
 
@@ -210,6 +210,6 @@ A real church's records have gaps, and Rock's reports and data views show them. 
 | Marital status | 59.1% | Singles already went without one at the measured share. Couples and the singles who have one lose it at the rate that keeps the mix of known statuses, and a couple shares theirs |
 | Home address | 74.4% | The family has a home, but Rock has no home address |
 
-Planning still reads the facts Rock lacks, so a person keeps their age for a class, a spouse to give with, and a home a check is printed with. Rock checks an event's age limits against the birth date it has, so a person with none does not register for an event with age limits, and Marriage Date Night registers only couples Rock has as married. A home Rock does not have is never a small group's meeting place, and NCOA never sends it. Generated children and the Cast stay complete. Validation grades all five shares.
+Rock's background check views test age against the birth date Rock has too, so a group leader with none needs a current check, and Rock never warns them that it is about to expire. Planning still reads the facts Rock lacks, so a person keeps their age for a class, a spouse to give with, and a home a check is printed with. Rock checks an event's age limits against the birth date it has, so a person with none does not register for an event with age limits, and Marriage Date Night registers only couples Rock has as married. A home Rock does not have is never a small group's meeting place, and NCOA never sends it. Generated children and the Cast stay complete. Validation grades all five shares.
 
 A Crowd duplicate record carries the email or mobile its person gave. Emails and mobiles are drawn before duplicates are made, so a duplicate only ever shares a contact its person has.
