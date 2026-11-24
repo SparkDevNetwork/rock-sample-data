@@ -41,7 +41,7 @@ namespace RockSampleData.Loader.Loading
         each row once.
 
         Reason: Six Cast lines never loaded, so no kiosk showed a child a parent in another family may check in
-        (decision D-checkin-config-1).
+        (decision 365).
     */
 
     /// <summary>

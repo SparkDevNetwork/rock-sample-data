@@ -36,7 +36,7 @@ namespace RockSampleData.Loader.Loading
         installing gives a password, like every other login.
 
         Reason: Check-in should look like a real church's and be testable any day, at any time (decisions
-        D-checkin-config-3 to D-checkin-config-7).
+        367 to 371).
     */
 
     /// <summary>
@@ -166,7 +166,7 @@ IF NOT EXISTS ( SELECT 1 FROM [RelatedEntity] WHERE [SourceEntityTypeId] = @Sour
             Group Scheduler every day, show in the Schedule Toolbox, and let auto-schedule assign volunteers to it.
 
             Reason: Volunteer check-in can be tested any day, at any time, without touching real scheduling
-            (decision D-checkin-config-7).
+            (decision 371).
         */
 
         /// <summary>
@@ -343,7 +343,7 @@ IF NOT EXISTS ( SELECT 1 FROM [GroupLocationSchedule] WHERE [GroupLocationId] = 
             director uses the leader of its Kids Ministry team, the person who runs kids check-in there.
 
             Reason: Supervisor mode is how a check-in volunteer reprints a label or overrides a full room (decision
-            D-checkin-config-3).
+            367).
         */
 
         /// <summary>

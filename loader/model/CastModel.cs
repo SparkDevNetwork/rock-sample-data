@@ -556,7 +556,7 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// On this share of the Sundays this person came and the child's family did not, this person brings the
-        /// child and checks them in (decision D-checkin-config-2). Null for none.
+        /// child and checks them in (decision 366). Null for none.
         /// </summary>
         public int? BringsPercent { get; set; }
     }

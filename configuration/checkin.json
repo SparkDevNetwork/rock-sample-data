@@ -1,5 +1,5 @@
 {
-  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service, and at Student Night on Wednesdays at 6:30 PM. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions D-checkin-config-3 to D-checkin-config-8).",
+  "$comment": "Uses Rock's built-in Weekly Service Check-in template and its age and grade rules unchanged. Every campus gets the same building and room names. Kids groups meet at every service their campus offers. Jr High and High School check in at the Sunday 10:30am student service, and at Student Night on Wednesdays at 6:30 PM. The template's settings, each area's labels, the room limits, the second room, test check-in, the supervisor PINs, and the Crowd's check-in adults are set on purpose (decisions 367 to 372).",
   "template": {
     "name": "Weekly Service Check-in",
     "guid": "FEDD389A-616F-4A53-906C-63D8255631C5"
@@ -112,20 +112,20 @@
     "grades-7-8": 60,
     "grades-9-12": 80
   },
-  "$roomFirmThresholdComment": "Firm limits nobody checks a child in past, not even a supervisor (decision D-checkin-config-5). Each nursery room holds at most 12 babies or toddlers. The busiest has held 10 at one service.",
+  "$roomFirmThresholdComment": "Firm limits nobody checks a child in past, not even a supervisor (decision 369). Each nursery room holds at most 12 babies or toddlers. The busiest has held 10 at one service.",
   "roomFirmThreshold": {
     "nursery": 12,
     "crawlers-walkers": 12
   },
   "studentFallbackSlot": "sun-1030",
-  "$templateSettingsComment": "Settings of the Weekly Service Check-in template, by Rock attribute key (decision D-checkin-config-3). Supervisor mode is on, so a supervisor PIN opens a kiosk's supervisor screen. A child can be checked out at the kiosk, and a volunteer can check a child out in the Check-in Manager. A person already checked in to a service cannot check in to it again.",
+  "$templateSettingsComment": "Settings of the Weekly Service Check-in template, by Rock attribute key (decision 367). Supervisor mode is on, so a supervisor PIN opens a kiosk's supervisor screen. A child can be checked out at the kiosk, and a volunteer can check a child out in the Check-in Manager. A person already checked in to a service cannot check in to it again.",
   "templateSettings": {
     "core_checkin_EnableManagerOption": "True",
     "core_checkin_AllowCheckout_Kiosk": "True",
     "core_checkin_AllowCheckout_Manager": "True",
     "core_checkin_PreventDuplicateCheckin": "True"
   },
-  "$labelsComment": "Rock's next-gen check-in labels (decision D-checkin-config-4). Each area lists the ones it prints, in order, and serving.json lists the Serving Team area's. Kids get a Child Label, a Note Label for allergies and legal notes, and one Parent Label for the family to show at pickup. Students and volunteers get a Name Tag.",
+  "$labelsComment": "Rock's next-gen check-in labels (decision 368). Each area lists the ones it prints, in order, and serving.json lists the Serving Team area's. Kids get a Child Label, a Note Label for allergies and legal notes, and one Parent Label for the family to show at pickup. Students and volunteers get a Name Tag.",
   "labels": {
     "child": { "name": "Child Label", "guid": "9282C162-FD92-4258-89C3-356918714E2C" },
     "parent": { "name": "Parent Label", "guid": "053E5F25-8D88-4C9C-A42D-774B30E6A427" },
@@ -133,7 +133,7 @@
     "name-tag": { "name": "Name Tag", "guid": "B275D754-089D-41C3-83E3-F11F303B901B" }
   },
   "testCheckIn": {
-    "$comment": "Rock's own test check-in, kept as Rock ships it (decision D-checkin-config-6). Both test schedules run every day and open check-in all day. The load puts the Test Group in every kids and student room at every campus on both schedules, so a kiosk at any campus can check someone in at any time. No loaded attendance uses a test schedule.",
+    "$comment": "Rock's own test check-in, kept as Rock ships it (decision 370). Both test schedules run every day and open check-in all day. The load puts the Test Group in every kids and student room at every campus on both schedules, so a kiosk at any campus can check someone in at any time. No loaded attendance uses a test schedule.",
     "area": { "name": "Check-in Test Area", "guid": "CAAF4F9B-58B9-45B4-AABC-9188347948B7" },
     "group": { "name": "Test Group", "guid": "CBBBEEE0-DE95-4876-9FEF-5EB68FA67853" },
     "schedules": [
@@ -141,7 +141,7 @@
       { "name": "6:00 (test)", "guid": "C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7" }
     ],
     "volunteerArea": {
-      "$comment": "Volunteer test check-in, in Rock's own test pattern (decision D-checkin-config-7). A Volunteer Test Area under Rock's Volunteer Check-in template, open to anyone, with scheduling off, holds one test group per campus in every room a serving team serves in, on the same two test schedules. It prints a Name Tag, like a real volunteer's. Real teams keep only their real services, so the Group Scheduler, the Schedule Toolbox, and auto-schedule never see a test schedule.",
+      "$comment": "Volunteer test check-in, in Rock's own test pattern (decision 371). A Volunteer Test Area under Rock's Volunteer Check-in template, open to anyone, with scheduling off, holds one test group per campus in every room a serving team serves in, on the same two test schedules. It prints a Name Tag, like a real volunteer's. Real teams keep only their real services, so the Group Scheduler, the Schedule Toolbox, and auto-schedule never see a test schedule.",
       "name": "Volunteer Test Area",
       "guid": "E3A4419E-62CD-4280-81D4-801078974735",
       "description": "Is used for testing volunteer check-in when no service is happening. Anyone may check in.",
@@ -151,7 +151,7 @@
       "labels": [ "name-tag" ]
     }
   },
-  "$supervisorsComment": "Each campus's kids check-in supervisor, who opens a kiosk's supervisor screen with the PIN (decision D-checkin-config-3). It is the Cast's kids director where the campus has one: Rachel Brooks at Phoenix and Tina Vu at Chandler. Elsewhere it is the leader of the campus's supervisorTeam. A PIN is a login, so PINs load only when the person installing gives a password, like every other login.",
+  "$supervisorsComment": "Each campus's kids check-in supervisor, who opens a kiosk's supervisor screen with the PIN (decision 367). It is the Cast's kids director where the campus has one: Rachel Brooks at Phoenix and Tina Vu at Chandler. Elsewhere it is the leader of the campus's supervisorTeam. A PIN is a login, so PINs load only when the person installing gives a password, like every other login.",
   "supervisors": [
     { "campus": "phoenix", "pin": "1001", "person": "9AA2688D-534C-4FC2-9C7D-DAA224041338" },
     { "campus": "peoria", "pin": "1002" },
@@ -163,7 +163,7 @@
   ],
   "supervisorTeam": "kids-ministry",
   "relationships": {
-    "$comment": "Generated children an adult from another family may check in (decision D-checkin-config-8). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, the family's children get one Can check in adult, at least adultMinimumAge, from another attending family at their campus. On about checkedInByPercent of the Sundays the young children came, that adult checks in everyone on the family's security code, and comes to that service. The Cast's pairs are in its household files.",
+    "$comment": "Generated children an adult from another family may check in (decision 372). In about crowdChildPercent of attending generated families with a child no older than childMaximumAge, the family's children get one Can check in adult, at least adultMinimumAge, from another attending family at their campus. On about checkedInByPercent of the Sundays the young children came, that adult checks in everyone on the family's security code, and comes to that service. The Cast's pairs are in its household files.",
     "crowdChildPercent": 3,
     "childMaximumAge": 12,
     "adultMinimumAge": 25,

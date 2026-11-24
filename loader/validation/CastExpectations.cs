@@ -220,7 +220,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += CastTagExpectations.Check( db, source, guids, failures );
 
             // Each Cast known relationship on both people, each kiosk search that should find a child from another family,
-            // and each child someone brings on Sundays (decisions D-checkin-config-1 and D-checkin-config-2).
+            // and each child someone brings on Sundays (decisions 365 and 366).
             checks += CastCheckInExpectations.Check( db, source, guids, parts.Contains( SampleDataPart.Attendance ), failures );
 
             return (checks, failures);

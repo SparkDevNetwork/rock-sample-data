@@ -868,7 +868,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
     END;
 
 -- check: young-kid-checks-in-with-the-family
--- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions D-checkin-config-2 and D-checkin-config-8). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions 366 and 372). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -903,7 +903,7 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [a].[Attendance
             AND [wg].[Name] = 'Weekend Service' AND [wgt].[Guid] = '235BAE2B-5760-4763-AADF-3938F34BA100' );
 
 -- check: known-relationship-has-its-other-half
--- why: Decision D-checkin-config-1. Rock writes a known relationship as two rows: the other person in the owner's Known Relationships group with the role, and the owner in theirs with the role's inverse, which the role's InverseRelationship attribute names. Profiles on both sides show it, and a kiosk search finds a child only from the side that may check in.
+-- why: Decision 365. Rock writes a known relationship as two rows: the other person in the owner's Known Relationships group with the role, and the owner in theirs with the role's inverse, which the role's InverseRelationship attribute names. Profiles on both sides show it, and a kiosk search finds a child only from the side that may check in.
 SELECT COUNT(*)
 FROM [GroupMember] AS [m]
 INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [m].[GroupRoleId]
@@ -921,7 +921,7 @@ WHERE [m].[ForeignKey] = @ForeignKey AND [m].[PersonId] <> [own].[PersonId]
             AND [backRole].[Guid] = TRY_CAST( [inverse].[Value] AS UNIQUEIDENTIFIER ) );
 
 -- check: test-schedules-have-no-attendance
--- why: Decision D-checkin-config-6. Rock's two test schedules, 4:30 (test) and 6:00 (test), run every day so check-in can be tested at any time. The load records no attendance and no occurrence on them, so a tester's check-ins are the only ones there.
+-- why: Decision 370. Rock's two test schedules, 4:30 (test) and 6:00 (test), run every day so check-in can be tested at any time. The load records no attendance and no occurrence on them, so a tester's check-ins are the only ones there.
 SELECT ( SELECT COUNT(*) FROM [AttendanceOccurrence] AS [o] WHERE [o].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) )
     + ( SELECT COUNT(*)
         FROM [Attendance] AS [a]
@@ -929,7 +929,7 @@ SELECT ( SELECT COUNT(*) FROM [AttendanceOccurrence] AS [o] WHERE [o].[ForeignKe
         WHERE [a].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) );
 
 -- check: test-group-in-every-kids-and-student-room
--- why: Decision D-checkin-config-6. Rock's Check-in Test Area has one Test Group. Every room at every campus that holds a kids or student group of the Weekly Service Check-in template holds the Test Group too, on both test schedules, so a kiosk at any campus can test check-in any day, at any time.
+-- why: Decision 370. Rock's Check-in Test Area has one Test Group. Every room at every campus that holds a kids or student group of the Weekly Service Check-in template holds the Test Group too, on both test schedules, so a kiosk at any campus can test check-in any day, at any time.
 SELECT COUNT(*)
 FROM ( SELECT DISTINCT [gl].[LocationId]
     FROM [GroupLocation] AS [gl]
@@ -945,7 +945,7 @@ WHERE ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
         AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) < 2;
 
 -- check: every-kiosk-offers-the-test-group
--- why: Decision D-checkin-config-6. A check-in kiosk offers the groups in the locations it is assigned, and in their rooms. Every campus's kiosks reach a room that holds the Test Group on both test schedules, so any kiosk can test check-in any day, at any time.
+-- why: Decision 370. A check-in kiosk offers the groups in the locations it is assigned, and in their rooms. Every campus's kiosks reach a room that holds the Test Group on both test schedules, so any kiosk can test check-in any day, at any time.
 WITH [reach] AS (
     SELECT [dl].[DeviceId], [dl].[LocationId]
     FROM [DeviceLocation] AS [dl]
@@ -970,7 +970,7 @@ WHERE [d].[DeviceTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] =
     OPTION ( MAXRECURSION 10 );
 
 -- check: volunteer-test-area-is-in-the-volunteer-template
--- why: Decision D-checkin-config-7. The Volunteer Test Area sits under Rock's Volunteer Check-in template, so a volunteer kiosk can offer its test groups, the way Rock's Check-in Test Area sits under Weekly Service Check-in.
+-- why: Decision 371. The Volunteer Test Area sits under Rock's Volunteer Check-in template, so a volunteer kiosk can offer its test groups, the way Rock's Check-in Test Area sits under Weekly Service Check-in.
 SELECT CASE WHEN EXISTS (
     SELECT 1
     FROM [GroupTypeAssociation] AS [a]
@@ -979,7 +979,7 @@ SELECT CASE WHEN EXISTS (
     WHERE [template].[Guid] = '92435F1D-E525-4FD2-BEC7-4956DC056A2B' AND [area].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735' ) THEN 0 ELSE 1 END;
 
 -- check: volunteer-test-group-in-every-serving-room
--- why: Decision D-checkin-config-7. Every room a serving team serves in holds its campus's volunteer test group on both test schedules, so volunteer check-in can be tested in any room, any day, at any time.
+-- why: Decision 371. Every room a serving team serves in holds its campus's volunteer test group on both test schedules, so volunteer check-in can be tested in any room, any day, at any time.
 SELECT COUNT(*)
 FROM ( SELECT DISTINCT [gl].[LocationId], [g].[CampusId]
     FROM [GroupLocation] AS [gl]
@@ -998,7 +998,7 @@ WHERE NOT EXISTS (
             WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 );
 
 -- check: no-serving-team-room-has-a-test-schedule
--- why: Decision D-checkin-config-7. Rock's Group Scheduler, Schedule Toolbox, and auto-schedule read every schedule on a team's rooms, so a test schedule there would show a slot every day and let volunteers be scheduled to it. Real teams keep only their real services, and volunteer tests use the Volunteer Test Area.
+-- why: Decision 371. Rock's Group Scheduler, Schedule Toolbox, and auto-schedule read every schedule on a team's rooms, so a test schedule there would show a slot every day and let volunteers be scheduled to it. Real teams keep only their real services, and volunteer tests use the Volunteer Test Area.
 SELECT COUNT(*)
 FROM [GroupLocationSchedule] AS [gls]
 INNER JOIN [GroupLocation] AS [gl] ON [gl].[Id] = [gls].[GroupLocationId]
@@ -1841,7 +1841,7 @@ WHERE [e].[PhotoId] IS NOT NULL
 SELECT CASE WHEN EXISTS ( SELECT 1 FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
 
 -- check: login-is-a-database-login-rock-can-check
--- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password. The one other kind is a check-in supervisor's PIN Authentication login, whose user name is the PIN, in digits, with no password (decision D-checkin-config-3).
+-- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password. The one other kind is a check-in supervisor's PIN Authentication login, whose user name is the PIN, in digits, with no password (decision 367).
 SELECT COUNT(*)
 FROM [UserLogin] AS [u]
 LEFT JOIN [EntityType] AS [et] ON [et].[Id] = [u].[EntityTypeId]

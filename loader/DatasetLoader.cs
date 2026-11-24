@@ -433,7 +433,7 @@ namespace RockSampleData.Loader
                 people.Load( households );
 
                 // Known relationships, both halves: the Cast's lines and the Crowd's check-in adults, who the attendance
-                // plan follows (decisions D-checkin-config-1, D-checkin-config-2, and D-checkin-config-8).
+                // plan follows (decisions 365, 366, and 372).
                 relatives = CheckInRelatives.Plan( source.CheckIn.Relationships, people.Households, castHouseholdKeys, dates.Anchor, seed );
                 var relationships = new RelationshipsLoader( db, foreignKey );
                 var statedRelationships = RelationshipsLoader.Stated( people.People );
@@ -868,7 +868,7 @@ namespace RockSampleData.Loader
                 var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
                 log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
 
-                // Each campus's kids check-in supervisor PIN, a PIN Authentication login (decision D-checkin-config-3).
+                // Each campus's kids check-in supervisor PIN, a PIN Authentication login (decision 367).
                 var pins = checkInSetup.PlanSupervisors( people, servingPlans, dates.Anchor );
                 logins.WritePins( pins );
                 log.Write( $"  Check-in supervisor PINs: {pins.Count:N0}" );

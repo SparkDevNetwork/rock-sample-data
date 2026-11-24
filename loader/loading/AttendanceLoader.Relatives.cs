@@ -26,11 +26,11 @@ namespace RockSampleData.Loader.Loading
 
         A last pass, after every family's and student's Sundays, so it never shifts their draws. A Cast adult with
         bringsPercent brings the child's family's young children on some Sundays the adult came and the family did
-        not (decision D-checkin-config-2). A generated "Can check in" adult checks the children in on some of their
+        not (decision 366). A generated "Can check in" adult checks the children in on some of their
         family's Sundays, and comes to the service when not already there, so every young child's check-in is still
-        made by an adult in a service that day (decision D-checkin-config-8). Then each large group's check-ins
+        made by an adult in a service that day (decision 372). Then each large group's check-ins
         alternate between its two rooms in arrival order, the way Rock's Balance strategy fills the emptier room
-        (decision D-checkin-config-5). Rows this pass adds out of date order get their first-time flag from all of the
+        (decision 369). Rows this pass adds out of date order get their first-time flag from all of the
         person's rows at the end, as the student pass's do.
 
         Reason: Who checked a child in, and which room they went to, should match the check-in setup.

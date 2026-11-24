@@ -335,9 +335,9 @@ The loader never draws from one long random stream. Each piece of data gets its 
 | `{seed}:phone-numbers` | The order generated people and businesses take phone numbers in: the Phoenix codes first, then the other codes in `configuration/phones.json` |
 | `{seed}:business-contacts:{campus}` | The order of a campus's families among equals when picking business contacts |
 | `{seed}:attendance:{household guid}` | Which Sundays that family came |
-| `{seed}:check-in-relative:{household guid}` | Whether that generated family's young children get a Can check in adult, and who it is (decision D-checkin-config-8) |
+| `{seed}:check-in-relative:{household guid}` | Whether that generated family's young children get a Can check in adult, and who it is (decision 372) |
 | `{seed}:relative-check-in:{household guid}` | Which of that family's Sundays the adult checks the children in on, and when the adult arrives at that service |
-| `{seed}:relative-visit:{adult guid}:{household guid}:{date}` | Whether a Cast adult with `bringsPercent` brings that family's children on that Sunday, their arrival, and the day's security code (decision D-checkin-config-2) |
+| `{seed}:relative-visit:{adult guid}:{household guid}:{date}` | Whether a Cast adult with `bringsPercent` brings that family's children on that Sunday, their arrival, and the day's security code (decision 366) |
 | `{seed}:kids-kiosk:{household guid}` | Which kids kiosk at its campus that family always uses, unless its Cast file names one |
 | `{seed}:check-out:{household guid}:{date}` | How many minutes after the service that family's kids were checked out that day |
 | `{seed}:student-night:{person guid}` | Whether a generated student is a Student Night regular, and which Wednesdays that student came |
@@ -389,7 +389,7 @@ It also fills in what the [verify tool](../verify/README.md)'s Rock Cleanup refe
 | Inactive families | Rock Cleanup marks a family inactive when every member's record is inactive, then dates it. | The same, dated at install (in the Cast, the Murphys and Jenny Greggs's family). |
 | An alternate Id (`PersonSearchKey`) | The person save hook, for every new person: 7 random hex digits, a dash, and 7 more. | The same, unique among the alternate Ids already in Rock. |
 | Name metaphones (`Metaphone`) | The person save hook queues them for each new first, nick, and last name. | Rock's Double Metaphone code, copied unchanged (`generation/DoubleMetaphone.cs`), for each name Rock does not have yet. SQL Server decides which names are new, as it does for Rock, so its collation matches "Strauß" to "Strauss". The table is keyed by name and shared, so these rows have no `ForeignKey`. |
-| A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Every known relationship goes into these groups, both halves, as Rock's `CreateKnownRelationship` writes it (decision D-checkin-config-1). |
+| A Known Relationship group | Rock Cleanup adds one for every person who owns none, with the person as Owner. | The same, for every person. Every known relationship goes into these groups, both halves, as Rock's `CreateKnownRelationship` writes it (decision 365). |
 
 Households with the same street, city, state, and postal code share one `Location`, the way Rock's address editor saves an address through `LocationService.Get`. Jon Smith's duplicate records share his home, and a home business shares its owner's Location (decision 314).
 

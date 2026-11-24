@@ -23,7 +23,7 @@ using static RockSampleData.Loader.Database.RockDatabase;
 namespace RockSampleData.Loader.Validation
 {
     /// <summary>
-    /// Checks the Cast's known relationships and check-in stories (decisions D-checkin-config-1 and D-checkin-config-2):
+    /// Checks the Cast's known relationships and check-in stories (decisions 365 and 366):
     /// each line shows on both people, a kiosk search for each family that may check in a child from another family
     /// finds the child, and a child someone brings on Sundays has check-ins that person made.
     /// </summary>

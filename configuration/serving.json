@@ -52,7 +52,7 @@
     "attendanceRecordRequired": "PreSelect",
     "checkInPercent": 100,
     "arrivesMinutesEarly": { "min": 5, "max": 30 },
-    "$labelsComment": "The labels the Serving Team area prints, from checkin.json's labels (decision D-checkin-config-4).",
+    "$labelsComment": "The labels the Serving Team area prints, from checkin.json's labels (decision 368).",
     "labels": [ "name-tag" ]
   },
   "scheduling": {

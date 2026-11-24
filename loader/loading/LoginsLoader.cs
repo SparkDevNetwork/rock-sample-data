@@ -98,7 +98,7 @@ GROUP BY [pa].[PersonId]", P( "@ForeignKey", _foreignKey ) )
 
         /// <summary>
         /// Writes PIN Authentication logins, whose user name is the PIN and which have no password, and their person
-        /// history. A kiosk's supervisor screen signs in with one (decision D-checkin-config-3).
+        /// history. A kiosk's supervisor screen signs in with one (decision 367).
         /// </summary>
         public void WritePins( List<PlannedLogin> logins )
         {

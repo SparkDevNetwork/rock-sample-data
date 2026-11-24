@@ -163,7 +163,7 @@ Each entry in `cast` is one Cast reminder, with its own key and Guid. `owner` is
 
 Check-in uses Rock's built-in Weekly Service Check-in template, its areas, its groups, and their age and grade rules, unchanged. Every campus gets the same building and room names. Kids groups meet at every Sunday service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. Adult worship attendance uses Rock's Service Attendance template, located at each campus with its weekend services.
 
-The rest of `checkin.json` is set on purpose, the way a church sets up check-in (decisions D-checkin-config-3 to D-checkin-config-8):
+The rest of `checkin.json` is set on purpose, the way a church sets up check-in (decisions 367 to 372):
 
 | Part | What it sets |
 |---|---|

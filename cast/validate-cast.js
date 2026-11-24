@@ -63,7 +63,7 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
     errors.push( "household.schema.json photo.ethnicity values do not match photos/ethnicities.json." );
 }
 
-// Known relationships (decision D-checkin-config-1). A Cast line names the role the other person holds in this
+// Known relationships (decision 365). A Cast line names the role the other person holds in this
 // person's Known Relationships group, and the loader writes Rock's inverse role in the other person's group. So each
 // pair is stated once, on one side. The loader maps exactly these types, and the schema enum must list the same ones.
 const RELATIONSHIP_INVERSES = {
@@ -456,7 +456,7 @@ for ( const h of households.map( x => x.data ) ) {
     }
 }
 
-// Check-in supervisors (configuration/checkin.json, decision D-checkin-config-3): one PIN per campus, unique digits,
+// Check-in supervisors (configuration/checkin.json, decision 367): one PIN per campus, unique digits,
 // and a named supervisor is a Cast person who lives on the campus they supervise. A campus without one uses the
 // leader of its supervisorTeam, a serving team in configuration/serving.json.
 {

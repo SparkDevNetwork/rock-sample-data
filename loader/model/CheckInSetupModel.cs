@@ -20,7 +20,7 @@ namespace RockSampleData.Loader.Model
     /*
         11/23/26 - CLAUDE
 
-        The check-in setup a real church sets on purpose (decisions D-checkin-config-3 to D-checkin-config-8) lives in
+        The check-in setup a real church sets on purpose (decisions 367 to 372) lives in
         checkin.json beside the rooms and groups. Every part of it is new in alpha.19, so each is null in an older
         package, and the loader then leaves Rock's check-in as that package left it.
 

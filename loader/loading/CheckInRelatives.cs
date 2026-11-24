@@ -26,9 +26,9 @@ namespace RockSampleData.Loader.Loading
         Some children are checked in by an adult from another family: a grandparent, an aunt, a family friend. Rock
         shows such a child on that adult's kiosk search through a Known Relationship whose role Rock marks Can
         Check-in. The Cast's stories name their pairs, and a Cast line with bringsPercent also brings the child on
-        Sundays the child's own family stayed home (decision D-checkin-config-2). In the Crowd, a few families with
+        Sundays the child's own family stayed home (decision 366). In the Crowd, a few families with
         young children get one adult at their campus who may check the children in, and who does on some of their
-        Sundays (decision D-checkin-config-8). Each family draws from its own seeded stream, after people load and
+        Sundays (decision 372). Each family draws from its own seeded stream, after people load and
         before attendance plans, so no other draw moves.
 
         Reason: A kiosk search and the attendance it records should show the people who really bring children.

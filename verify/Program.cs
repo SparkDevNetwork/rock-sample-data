@@ -408,7 +408,7 @@ static CheckResult ClockCheck( SqlServer sql, DateTime anchor )
 /// </summary>
 static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, string foreignKey, string password )
 {
-    // A check-in supervisor's PIN is a PIN Authentication login, which a kiosk checks, not the login page (decision D-checkin-config-3).
+    // A check-in supervisor's PIN is a PIN Authentication login, which a kiosk checks, not the login page (decision 367).
     var newest = sql.Scalar( database, @"
 SELECT TOP 1 [u].[UserName]
 FROM [UserLogin] AS [u]
