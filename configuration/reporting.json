@@ -11,10 +11,19 @@
     {
       "key": "weekly-metrics",
       "name": "Weekly on Monday at 3 AM",
-      "description": "Counts the Ministry Path metrics once a week, after the weekend.",
+      "description": "Counts the church's weekly metrics once a week, after the weekend.",
       "guid": "B7EA69B9-DB53-42ED-A7E0-587993230B25",
       "time": "03:00",
       "weekday": "Monday",
+      "forMetrics": true
+    },
+    {
+      "key": "weekly-visit-metrics",
+      "name": "Weekly on Wednesday at 3 AM",
+      "description": "Counts the metrics that read Rock's visit dates, on Wednesday morning, after Rock's Family Analytics job sets them on Tuesday night.",
+      "guid": "D155A2DE-421A-4298-B5A0-019449BC7022",
+      "time": "03:00",
+      "weekday": "Wednesday",
       "forMetrics": true
     },
     {
@@ -3050,6 +3059,37 @@
         "SELECT COUNT(v.[PersonId]) AS [FirstTimeGuests], c.[Id] AS [CampusId]",
         "FROM [Campus] c",
         "LEFT JOIN [Visits] v ON v.[CampusId] = c.[Id] AND v.[Visit] = 1 AND v.[StartDateTime] >= @Start",
+        "WHERE c.[IsActive] = 1",
+        "GROUP BY c.[Id]"
+      ]
+    },
+    {
+      "key": "second-time-guests",
+      "title": "Second-Time Guests",
+      "description": "How many people came back for a second visit each week, at each campus, from the Second Visit date on each person's profile. It runs on Wednesday, after Rock's Family Analytics job sets visit dates on Tuesday night. If many come once but few come back, the First Contact team looks at how guests are welcomed and followed up.",
+      "category": "ministry-by-design-metrics",
+      "schedule": "weekly-visit-metrics",
+      "iconCssClass": "ti ti-user-check",
+      "guid": "90FCEF28-EAC6-4FCE-885D-17ECEFBDDC9C",
+      "partitionGuid": "66760030-EC7B-4666-A9B9-CE1D6DEB214B",
+      "weeks": 104,
+      "sourceSql": [
+        "-- Counts the people whose Second Visit is in the 7 days before the run, by their campus.",
+        "-- Rock's Family Analytics job sets Second Visit on Tuesday night, so this runs on Wednesday morning.",
+        "DECLARE @End DATETIME = dbo.RockGetDate()",
+        "DECLARE @Start DATETIME = DATEADD(DAY, -7, @End)",
+        "DECLARE @SecondVisit INT = (SELECT [Id] FROM [Attribute] WHERE [Guid] = 'D7EA578F-0132-473E-8338-4A48DDB8BF66')",
+        "",
+        ";WITH [Guests] AS (",
+        "    SELECT COALESCE(p.[PrimaryCampusId], f.[CampusId]) AS [CampusId]",
+        "    FROM [AttributeValue] av",
+        "    INNER JOIN [Person] p ON p.[Id] = av.[EntityId]",
+        "    LEFT JOIN [Group] f ON f.[Id] = p.[PrimaryFamilyId]",
+        "    WHERE av.[AttributeId] = @SecondVisit AND av.[ValueAsDateTime] >= @Start AND av.[ValueAsDateTime] < @End",
+        ")",
+        "SELECT COUNT(g.[CampusId]) AS [SecondTimeGuests], c.[Id] AS [CampusId]",
+        "FROM [Campus] c",
+        "LEFT JOIN [Guests] g ON g.[CampusId] = c.[Id]",
         "WHERE c.[IsActive] = 1",
         "GROUP BY c.[Id]"
       ]

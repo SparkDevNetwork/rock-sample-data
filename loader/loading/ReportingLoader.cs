@@ -147,6 +147,28 @@ namespace RockSampleData.Loader.Loading
 
             var history = new UsageHistoryWriter( _db, _dates, _seed ).Write( InDependencyOrder( _source.Reporting.DataViews ), References, _source.Reporting.Reports );
             _db.Log.Write( $"  Run history: {history.Views} data views and {history.Reports} reports" );
+        }
+
+        /*
+            11/24/26 - CLAUDE
+
+            The church's metrics count the rows every other step wrote, and Second-Time Guests counts the Second Visit
+            dates Rock's Family Analytics procedure writes near the end of the load. So the metrics are written in the
+            Rock metrics step, with Rock's own, after every data step, instead of with the reports.
+
+            Reason: Each metric's history must see every row its SQL or view would see at the run.
+        */
+
+        /// <summary>
+        /// Writes the church's metrics, each with its history, now that every step that writes rows has run.
+        /// </summary>
+        public void WriteMetrics()
+        {
+            if ( !IsLoaded )
+            {
+                _db.Log.Write( "  Metrics: skipped (this package has no configuration/reporting.json)" );
+                return;
+            }
 
             var installed = _dates.Anchor.Date.Add( DateTime.Now.TimeOfDay );
             var schedules = _source.Reporting.NamedSchedules.ToDictionary( s => s.Key, s => (s, _scheduleIds[s.Key]) );

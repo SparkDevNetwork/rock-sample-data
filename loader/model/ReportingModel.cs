@@ -30,9 +30,19 @@ namespace RockSampleData.Loader.Model
         public List<ReportDefinition> Reports { get; set; } = new List<ReportDefinition>();
 
         /// <summary>
-        /// Rock Metrics that count a data view week by week.
+        /// The church's Rock Metrics, each with its history: the Ministry Path metrics and the Ministry by Design metrics.
         /// </summary>
         public List<MetricDefinition> Metrics { get; set; } = new List<MetricDefinition>();
+
+        /// <summary>
+        /// The metric category of the Ministry Path metrics.
+        /// </summary>
+        public const string PathMetricsCategory = "path-metrics";
+
+        /// <summary>
+        /// The Ministry Path metrics, the ones the staff homepage shows beside Rock's own (decision 348).
+        /// </summary>
+        public List<MetricDefinition> PathMetrics => Metrics.Where( m => m.Category == PathMetricsCategory ).ToList();
 
         /// <summary>
         /// The security walkthrough as expectations: what Rock's own security check must answer for a Cast person.

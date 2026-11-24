@@ -797,11 +797,6 @@ namespace RockSampleData.Loader
             {
                 var (metricCount, valueCount) = homepage.LoadMetrics();
                 log.Write( $"  Homepage metrics: {metricCount} with {valueCount:N0} values" );
-                if ( staffHomepage.PathMetrics && source.Reporting != null )
-                {
-                    log.Write( $"  Path metrics on the homepage: {homepage.AddPathMetrics( source.Reporting.Metrics )}" );
-                }
-
                 if ( staffHomepage.QuickLinks != null )
                 {
                     log.Write( $"  Quick Links added: {homepage.AddQuickLinks()}" );
@@ -886,9 +881,16 @@ namespace RockSampleData.Loader
             steps.Begin( "Duplicates" );
             new DuplicatesLoader( db, source, dates, foreignKey ).Load( people );
 
-            // The history of Rock's own metrics. Each value reads the rows the load wrote, the duplicate records and the
-            // attribute values Rock's save hook filled among them, so it comes after every data step and always runs.
+            // The history of the church's metrics and of Rock's own. Each value reads the rows the load wrote, the duplicate
+            // records, Rock's visit dates, and the attribute values Rock's save hook filled among them, so it comes after
+            // every data step and always runs. The path metrics join the staff homepage block once they exist.
             steps.Begin( "Rock metrics" );
+            reporting.WriteMetrics();
+            if ( homepage != null && staffHomepage.PathMetrics && source.Reporting != null )
+            {
+                log.Write( $"  Path metrics on the homepage: {homepage.AddPathMetrics( source.Reporting.PathMetrics )}" );
+            }
+
             var rockMetrics = source.ReadRockMetrics();
             if ( rockMetrics == null )
             {

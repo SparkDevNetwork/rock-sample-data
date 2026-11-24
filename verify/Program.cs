@@ -1305,12 +1305,19 @@ INNER JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[Enti
 WHERE [b].[Guid] = @Block", new SqlParameter( "@Block", homepage.Block ) ) as string ) ?? string.Empty;
     if ( homepage.PathMetrics )
     {
+        // The block lists the path metrics and no other church metric (decision 348).
         foreach ( var metric in source.Reporting?.Metrics ?? new List<MetricDefinition>() )
         {
             var isWritten = sql.Scalar( database, "SELECT 1 FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ) != null;
-            if ( isWritten && !blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase ) )
+            var isListed = blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase );
+            var isPath = metric.Category == ReportingConfiguration.PathMetricsCategory;
+            if ( isWritten && isPath && !isListed )
             {
                 problems.Add( $"The homepage block does not list the {metric.Title} metric." );
+            }
+            else if ( !isPath && isListed )
+            {
+                problems.Add( $"The homepage block lists the {metric.Title} metric, which is not a Ministry Path metric." );
             }
         }
     }

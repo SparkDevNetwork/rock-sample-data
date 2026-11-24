@@ -44,6 +44,7 @@ namespace RockSampleData.Loader.Loading
         private static readonly Guid ActiveRecordGuid = new Guid( "618F906C-C33D-4FA3-8AEF-E58CB7B63F1E" );
         private static readonly Guid SmallGroupTypeGuid = new Guid( "50FCFB30-F51A-49DF-86F4-2B176EA1820B" );
         private static readonly Guid ServingTeamTypeGuid = new Guid( "2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4" );
+        private static readonly Guid SecondVisitGuid = new Guid( "D7EA578F-0132-473E-8338-4A48DDB8BF66" );
 
         private readonly RockDatabase _db;
         private List<int> _campuses;
@@ -64,6 +65,7 @@ namespace RockSampleData.Loader.Loading
             return key switch
             {
                 "first-time-guests" => FirstTimeGuests( runs ),
+                "second-time-guests" => SecondTimeGuests( runs ),
                 "back-in-the-last-30-days" => BackInTheLast30Days( runs ),
                 "benevolence-requests" => BenevolenceRequests( runs ),
                 "group-connection-rate" => RegularAttendersIn( SmallGroupTypeGuid, runs ),
@@ -94,6 +96,34 @@ WHERE [Visit] = 1", P( "@ServingArea", ServingAreaPurposeGuid ) )
                 .Select( r => (Campus: r["CampusId"] as int?, At: ( DateTime ) r["StartDateTime"]) )
                 .ToList();
             return ByCampus( runs, run => firsts.Where( f => f.At >= run.AddDays( -7 ) && f.At < run ).Select( f => f.Campus ) );
+        }
+
+        /*
+            11/24/26 - CLAUDE
+
+            Second-Time Guests reads Rock's own Second Visit, the date on each person's profile. Rock's Family Analytics
+            job writes it once, on Tuesday night, so the metric runs Wednesday morning and counts the 7 days before the
+            run. Every second visit in that window came before the Tuesday job, and a date never changes once written, so
+            each run's value is the people whose Second Visit the load wrote in its window.
+
+            Reason: The count matches what staff see on each profile (decision D-mbd-5).
+        */
+
+        /// <summary>
+        /// The people whose Second Visit is in the 7 days before the run, by their campus: their primary campus, or else
+        /// their family's.
+        /// </summary>
+        private Dictionary<DateTime, List<(int?, decimal)>> SecondTimeGuests( List<DateTime> runs )
+        {
+            var seconds = _db.Query( @"
+SELECT COALESCE( [p].[PrimaryCampusId], [f].[CampusId] ) AS [CampusId], [av].[ValueAsDateTime]
+FROM [AttributeValue] AS [av]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+LEFT JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]
+WHERE [av].[AttributeId] = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @SecondVisit ) AND [av].[ValueAsDateTime] IS NOT NULL", P( "@SecondVisit", SecondVisitGuid ) )
+                .Select( r => (Campus: r["CampusId"] as int?, At: ( DateTime ) r["ValueAsDateTime"]) )
+                .ToList();
+            return ByCampus( runs, run => seconds.Where( s => s.At >= run.AddDays( -7 ) && s.At < run ).Select( s => s.Campus ) );
         }
 
         /// <summary>
