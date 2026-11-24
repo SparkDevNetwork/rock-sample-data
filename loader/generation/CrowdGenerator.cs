@@ -45,12 +45,12 @@ namespace RockSampleData.Loader.Generation
         private static readonly string[] AreaCodes = { "602", "480", "623" };
 
         /// <summary>
-        /// The share of generated adults with an email: the measured share of adults who have one (decision D-integrity-14).
+        /// The share of generated adults with an email: the measured share of adults who have one (decision 396).
         /// </summary>
         private double EmailShare => _profile.Number( "people.completeness.adult.pctEmail", 80 ) / 100;
 
         /// <summary>
-        /// The share of generated adults with a mobile phone: the measured share (decision D-integrity-14).
+        /// The share of generated adults with a mobile phone: the measured share (decision 396).
         /// </summary>
         private double MobileShare => _profile.Number( "people.completeness.adult.pctMobilePhone", 75 ) / 100;
 
@@ -201,7 +201,7 @@ namespace RockSampleData.Loader.Generation
             household draws from its own stream, so nothing else changes.
 
             Reason: Rock's reports, data views, and Data Integrity pages show the gaps a real church has (issue 2
-            slice 5, decision D-integrity-14).
+            slice 5, decision 396).
         */
 
         /// <summary>

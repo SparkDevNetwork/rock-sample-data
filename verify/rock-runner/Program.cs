@@ -402,7 +402,7 @@ namespace RockSampleData.RockRunner
             Rock's own class and writes it again with Rock's own serializer. Then it runs Rock's Data Automation job as
             Rock's scheduler does, every Tuesday at 4 AM. Verify compares both with the load.
 
-            Reason: Rock itself proves the rules read as configured and change nobody (decision D-integrity-7).
+            Reason: Rock itself proves the rules read as configured and change nobody (decision 389).
         */
 
         /// <summary>

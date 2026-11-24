@@ -75,7 +75,7 @@ namespace RockSampleData.Loader.Loading
             General panel's gender auto-fill confidence keeps Rock's 99.9. Verify reads each rule back with Rock's own
             classes and runs Rock's job.
 
-            Reason: Jon chose configured but off (issue 2 question 1, decision D-integrity-7).
+            Reason: Jon chose configured but off (issue 2 question 1, decision 389).
         */
 
         /// <summary>

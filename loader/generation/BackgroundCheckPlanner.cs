@@ -254,7 +254,7 @@ namespace RockSampleData.Loader.Generation
 
         // Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor 18 and
         // over: the "still valid" view needs their check, and the "about to expire" view never warns them
-        // (decision D-integrity-14).
+        // (decision 396).
         private bool IsMinor( LoadedPerson person ) => person.RecordedBirthDate.HasValue && _dates.AgeOn( person.RecordedBirthDate.Value ) < 18;
 
         private bool IsAdult( LoadedPerson person ) => person.RecordedBirthDate.HasValue && _dates.AgeOn( person.RecordedBirthDate.Value ) >= 18;

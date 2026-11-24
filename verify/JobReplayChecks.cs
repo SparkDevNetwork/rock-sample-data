@@ -70,7 +70,7 @@ LEFT JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[Entit
 WHERE [j].[Guid] = '{FamilyAnalyticsJobGuid}'" ).FirstOrDefault();
             if ( job == null || !( bool ) job["IsActive"] || string.Equals( job["SetVisitDates"] as string, "False", StringComparison.OrdinalIgnoreCase ) )
             {
-                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates on (decisions 325 and D-integrity-11)." );
+                problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates on (decisions 325 and 393)." );
             }
 
             /*
@@ -81,7 +81,7 @@ WHERE [j].[Guid] = '{FamilyAnalyticsJobGuid}'" ).FirstOrDefault();
                 load leaves none, and each replay writes them again. Rock reads an empty value as no value, so the
                 comparison does too: a value counts as changed only when its text, date, or number differs.
 
-                Reason: The replay reports what Rock would change, not Rock's own nightly churn (decision D-integrity-11).
+                Reason: The replay reports what Rock would change, not Rock's own nightly churn (decision 393).
             */
             var guids = string.Join( ", ", FamilyAnalyticsAttributeGuids.Select( g => $"'{g}'" ) );
             var rows = sql.Query( database, $@"

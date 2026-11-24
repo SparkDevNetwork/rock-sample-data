@@ -888,7 +888,7 @@ namespace RockSampleData.Loader
                 log.Write( line );
             }
 
-            // Rock's visit dates procedure reads each record's date, so it runs once every record has one (decision D-integrity-11).
+            // Rock's visit dates procedure reads each record's date, so it runs once every record has one (decision 393).
             log.Write( familyAnalytics.WriteVisitDates() );
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).

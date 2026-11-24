@@ -158,7 +158,7 @@ WHERE [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.
             without saving the email and completes the workflow, and Rock then marks every activity complete at that moment.
 
             Reason: Rock's Workflows page under Data Integrity, and Alisha's My Workflows, hold real reports (decision
-            D-integrity-5).
+            387).
         */
 
         /// <summary>
@@ -268,7 +268,7 @@ WHERE [av].[EntityId] IN ( {ids} ) AND [a].[Key] = 'Person' AND [a].[EntityTypeQ
             Verify Photos makes them Active, and the opt-out page makes them Inactive. An upload here is the person's own
             Cast photo, dated the day they sent it, so no new image is needed.
 
-            Reason: Rock's Photo Requests pages and Verify Photos have real people waiting (decision D-integrity-6).
+            Reason: Rock's Photo Requests pages and Verify Photos have real people waiting (decision 388).
         */
 
         /// <summary>

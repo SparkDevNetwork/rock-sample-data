@@ -72,7 +72,7 @@ namespace RockSampleData.Loader.Loading
             or a mix from configuration/data-integrity.json for records made earlier.
 
             Reason: The Pending report and the status history read true, records come at a real church's rate, and each
-            record shows where it came from (decisions D-integrity-1 and D-integrity-10).
+            record shows where it came from (decisions 383 and 392).
         */
 
         /// <summary>

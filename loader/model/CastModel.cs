@@ -171,7 +171,7 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// True when the family lives here but the church never recorded it, so Rock has no home address for them.
-        /// Generated households only (decision D-integrity-14).
+        /// Generated households only (decision 396).
         /// </summary>
         [JsonIgnore]
         public bool IsUnrecorded { get; set; }
@@ -410,7 +410,7 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// True when the church never recorded the marital status, so Rock has none. The person's status still shapes
-        /// their life, such as giving with a spouse. Generated people only (decision D-integrity-14).
+        /// their life, such as giving with a spouse. Generated people only (decision 396).
         /// </summary>
         [JsonIgnore]
         public bool IsMaritalStatusUnrecorded { get; set; }
@@ -758,7 +758,7 @@ namespace RockSampleData.Loader.Model
 
         /// <summary>
         /// True when the church never recorded the birth date, so Rock has none. The person still has an age.
-        /// Generated people only (decision D-integrity-14).
+        /// Generated people only (decision 396).
         /// </summary>
         [JsonIgnore]
         public bool IsUnrecorded { get; set; }

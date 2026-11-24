@@ -1,6 +1,6 @@
 # Data Integrity
 
-How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are D-integrity-1 to D-integrity-14 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
+How the sample data fills Rock's Tools > Data Integrity pages, and why. The decisions are 383 to 396 in [Decisions](decisions.md). Every designed problem lives in `configuration/data-integrity.json`. The work is issue 2.
 
 ## The idea
 
@@ -13,22 +13,22 @@ Every page is under Tools > Reporting > Data Integrity.
 | Page | What it shows | Filled by |
 |---|---|---|
 | Duplicate Finder, Merge Requests | Possible duplicate people, and merges asked for | The Cast's duplicates ([Duplicates](duplicates.md)) |
-| Reports: Pending Individuals | People whose record is Pending, with the day it was made | Pending records (decisions D-integrity-1 and D-integrity-8) |
-| Reports: Self Inactivated Individuals | Inactive people marked Self Inactivated, with their reason and notes | Self-inactivations (decision D-integrity-3) |
-| Reports: Individuals with Duplicate Emails | People who share an email with someone else | Couples who share an email (decision D-integrity-9), and the Cast's duplicates |
-| Reports: Individuals with Duplicate Phone Numbers | People who share a phone number with someone else | Families who share a home phone, the Cast's duplicates, and three designed shared numbers (decision D-integrity-12) |
-| Workflows | Rock's Data Integrity workflows: Person Data Error, Photo Request, DISC Request, and Request Assessment | Person Data Error and Photo Request (decisions D-integrity-5 and D-integrity-6) |
-| Location Editor | Addresses by street or city, or every address with no map point (Not Geocoded) | Failed addresses (decision D-integrity-4) |
-| Photo Requests | The Photo Request group, and Verify Photos for uploads that wait | Photo requests (decision D-integrity-6) |
-| Data Integrity Settings | Gender auto-fill and the six Data Automation rules | The rules, configured and off (decision D-integrity-7) |
-| NCOA | A National Change of Address run's settings, and its Results page of moves that wait for a staff member | One NCOA run (decision D-integrity-13) |
-| Connection Status Changes | Connection status changes in a date range, this year by default, and people made in that range | The Cast's status history and everyone's record dates (decisions D-integrity-1, D-integrity-2, and D-integrity-10) |
+| Reports: Pending Individuals | People whose record is Pending, with the day it was made | Pending records (decisions 383 and 390) |
+| Reports: Self Inactivated Individuals | Inactive people marked Self Inactivated, with their reason and notes | Self-inactivations (decision 385) |
+| Reports: Individuals with Duplicate Emails | People who share an email with someone else | Couples who share an email (decision 391), and the Cast's duplicates |
+| Reports: Individuals with Duplicate Phone Numbers | People who share a phone number with someone else | Families who share a home phone, the Cast's duplicates, and three designed shared numbers (decision 394) |
+| Workflows | Rock's Data Integrity workflows: Person Data Error, Photo Request, DISC Request, and Request Assessment | Person Data Error and Photo Request (decisions 387 and 388) |
+| Location Editor | Addresses by street or city, or every address with no map point (Not Geocoded) | Failed addresses (decision 386) |
+| Photo Requests | The Photo Request group, and Verify Photos for uploads that wait | Photo requests (decision 388) |
+| Data Integrity Settings | Gender auto-fill and the six Data Automation rules | The rules, configured and off (decision 389) |
+| NCOA | A National Change of Address run's settings, and its Results page of moves that wait for a staff member | One NCOA run (decision 395) |
+| Connection Status Changes | Connection status changes in a date range, this year by default, and people made in that range | The Cast's status history and everyone's record dates (decisions 383, 384, and 392) |
 
 ## Record dates
 
 Rock's Pending report shows the day each record was made, and its Connection Status Changes report lists every person made in its range as new. Every person used to carry the load's own time, so both pages showed the whole Cast as new on install day.
 
-Now every record has the date it was made (decisions D-integrity-1 and D-integrity-10):
+Now every record has the date it was made (decisions 383 and 392):
 
 1. A record was made on its household's first visit (`attendance.started`). A child born later was added three weeks after birth.
 2. A Pending record has the date of the form that made it (see below).
@@ -44,7 +44,7 @@ Communication list memberships, prayer requests, and History lines that Rock dat
 
 ## Record sources
 
-Rock's Record Source says where a record came from. Every record has one (decision D-integrity-10), from how it was made:
+Rock's Record Source says where a record came from. Every record has one (decision 392), from how it was made:
 
 | How the record was made | Record Source |
 |---|---|
@@ -58,7 +58,7 @@ Rock's Record Source says where a record came from. Every record has one (decisi
 
 ## Visit dates
 
-Rock's Family Analytics job fills each person's First Visit and Second Visit when its Set Visit Dates setting is on. The load turns it on and writes the visits as the job would leave them (decision D-integrity-11):
+Rock's Family Analytics job fills each person's First Visit and Second Visit when its Set Visit Dates setting is on. The load turns it on and writes the visits as the job would leave them (decision 393):
 
 1. A person whose record is older than the history window, and who comes to services, or an adult whose family's children do, gets the visits they made back then. First Visit is the first Sunday on or after their record's date. Second Visit is one to five weeks later. Both are at the family's service time.
 2. Then the load runs Rock's own visit dates procedure, as of the job's last run. It fills everyone who first came inside the window from their check-ins.
@@ -67,7 +67,7 @@ Rock's procedure gives an adult the first check-in of their family's children, s
 
 ## Pending records
 
-Rock's web forms make a new person Pending, as a Prospect, and set the form's Record Source, so staff review the record before it counts (decision D-integrity-8). Nobody reviewed these:
+Rock's web forms make a new person Pending, as a Prospect, and set the form's Record Source, so staff review the record before it counts (decision 390). Nobody reviewed these:
 
 | Person | Form | Story |
 |---|---|---|
@@ -81,7 +81,7 @@ Jamal also reported Jack's Pending record as a data error, which waits for Alish
 
 ## Self-inactivations
 
-Rock's Email Preferences page lets a person say they are no longer involved, pick a reason, and write a note. Rock inactivates them with the reason and note, and marks the record Self Inactivated for review. An adult in one family inactivates the whole family (decision D-integrity-3).
+Rock's Email Preferences page lets a person say they are no longer involved, pick a reason, and write a note. Rock inactivates them with the reason and note, and marks the record Self Inactivated for review. An adult in one family inactivates the whole family (decision 385).
 
 | Person | Reason | When | Note |
 |---|---|---|---|
@@ -92,7 +92,7 @@ The Kellers are a Cast household that came from 15 to 10 years ago. Nobody chang
 
 ## Connection status history
 
-Staff move people along by connection status, and Rock writes each change to the person's History, which the Connection Status Changes report reads (decision D-integrity-2). Fifteen Cast people have changes:
+Staff move people along by connection status, and Rock writes each change to the person's History, which the Connection Status Changes report reads (decision 384). Fifteen Cast people have changes:
 
 | People | Changes | Who |
 |---|---|---|
@@ -107,7 +107,7 @@ Staff move people along by connection status, and Rock writes each change to the
 
 ## Person Data Error reports
 
-Staff report a problem from a person's profile with Rock's Person Data Error workflow. Rock gives every report to its admin person, who is Alisha Marble, and waits for her resolution (decision D-integrity-5).
+Staff report a problem from a person's profile with Rock's Person Data Error workflow. Rock gives every report to its admin person, who is Alisha Marble, and waits for her resolution (decision 387).
 
 | Person | Reported by | State | What |
 |---|---|---|---|
@@ -119,7 +119,7 @@ Staff report a problem from a person's profile with Rock's Person Data Error wor
 
 ## Photo requests
 
-Staff send Rock's Photo Request workflow from a person's profile. It emails a link to upload a photo or opt out. An upload puts the person in Rock's Photo Request group as Pending until staff verify it on Verify Photos (decision D-integrity-6). Alisha sent five, for the church photo directory:
+Staff send Rock's Photo Request workflow from a person's profile. It emails a link to upload a photo or opt out. An upload puts the person in Rock's Photo Request group as Pending until staff verify it on Verify Photos (decision 388). Alisha sent five, for the church photo directory:
 
 | Person | Reply |
 |---|---|
@@ -132,11 +132,11 @@ An upload is the person's own Cast photo, dated the day they sent it, so no new 
 
 ## Couples who share an email
 
-Bob and Linda Hayes share one email address, and so do Dick and Joan Ross (decision D-integrity-9). Rock's Individuals with Duplicate Emails report lists them. Rock's duplicate finder scores a couple about 36, below the Duplicate Finder's 60, because their first names and genders differ, so the Duplicate Finder does not list them. Each spouse still gets their own copy of each church email.
+Bob and Linda Hayes share one email address, and so do Dick and Joan Ross (decision 391). Rock's Individuals with Duplicate Emails report lists them. Rock's duplicate finder scores a couple about 36, below the Duplicate Finder's 60, because their first names and genders differ, so the Duplicate Finder does not list them. Each spouse still gets their own copy of each church email.
 
 ## Shared phone numbers
 
-Rock's Individuals with Duplicate Phone Numbers report lists every record with a number another record has. Families who share a home phone and the Cast's duplicate records were already there. Three more numbers show common ways a number ends up on two records (decision D-integrity-12):
+Rock's Individuals with Duplicate Phone Numbers report lists every record with a number another record has. Families who share a home phone and the Cast's duplicate records were already there. Three more numbers show common ways a number ends up on two records (decision 394):
 
 | Number on | Story |
 |---|---|
@@ -148,11 +148,11 @@ Rock's duplicate finder matches a number only between people of the same gender,
 
 ## Failed addresses
 
-Rock's address service could not match two new Cast homes, the Ellises' and the Ramirezes', because each street is too new for its data (decision D-integrity-4). Rock saved No Match as both results, with no success dates and no map point. Alisha checked Location Locked on each, which stops Rock's Location Services Verify job from sending the address again after its 200-day retry period. Sample addresses never go to an address service (decision 316). Rock's Location Editor lists both under Not Geocoded, waiting for someone to place the pin.
+Rock's address service could not match two new Cast homes, the Ellises' and the Ramirezes', because each street is too new for its data (decision 386). Rock saved No Match as both results, with no success dates and no map point. Alisha checked Location Locked on each, which stops Rock's Location Services Verify job from sending the address again after its 200-day retry period. Sample addresses never go to an address service (decision 316). Rock's Location Editor lists both under Not Geocoded, waiting for someone to place the pin.
 
 ## Data Integrity Settings
 
-Rock's six Data Automation rules are configured the way a church sets them up, and all are off (decision D-integrity-7, Jon's choice). Each is saved as Rock's settings page saves it: its settings class as JSON in its system setting, with this database's Ids.
+Rock's six Data Automation rules are configured the way a church sets them up, and all are off (decision 389, Jon's choice). Each is saved as Rock's settings page saves it: its settings class as JSON in its system setting, with this database's Ids.
 
 | Rule | Configured |
 |---|---|
@@ -167,7 +167,7 @@ General keeps Rock's gender auto-fill confidence of 99.9. Rock's Data Automation
 
 ## NCOA
 
-A church runs NCOA (the post office's National Change of Address list) from Rock's NCOA page. It sends its addresses to TrueNCOA and imports the results file, and Rock processes the moves. Alisha imported one run 41 days before install day (decision D-integrity-13). The page kept her settings: the Active People data view, a minimum move distance of 25 miles, the reason Moved, and previous addresses marked for invalid addresses and moves older than 18 months.
+A church runs NCOA (the post office's National Change of Address list) from Rock's NCOA page. It sends its addresses to TrueNCOA and imports the results file, and Rock processes the moves. Alisha imported one run 41 days before install day (decision 395). The page kept her settings: the Active People data view, a minimum move distance of 25 miles, the reason Moved, and previous addresses marked for invalid addresses and moves older than 18 months.
 
 Rock sent every active person with a home address, and kept one NCOA History row for each. Most did not move. The moves are:
 
@@ -200,7 +200,7 @@ Rock's move away check also compares the new home with each campus, but it compa
 
 ## Record completeness
 
-A real church's records have gaps, and Rock's reports and data views show them. Generated adults now have source-1's gaps (decision D-integrity-14):
+A real church's records have gaps, and Rock's reports and data views show them. Generated adults now have source-1's gaps (decision 396):
 
 | Detail | Adults who have it | How |
 |---|---|---|

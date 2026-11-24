@@ -37,8 +37,8 @@ namespace RockSampleData.Loader.Loading
         after every part that writes people, gifts, groups, and notes, and before Rock's attribute value save hook, which
         fills the workflow values' person columns.
 
-        Reason: Every page under Tools > Data Integrity has realistic work waiting (issue 2, decisions D-integrity-1 to
-        D-integrity-9).
+        Reason: Every page under Tools > Data Integrity has realistic work waiting (issue 2, decisions 383 to
+        391).
     */
 
     /// <summary>
@@ -159,7 +159,7 @@ namespace RockSampleData.Loader.Loading
             External Website, so staff review the record before it counts. The Cast's Pending records each name their form.
 
             Reason: Rock's Pending Individuals report lists records nobody reviewed, each with where it came from
-            (decision D-integrity-8).
+            (decision 390).
         */
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace RockSampleData.Loader.Loading
             change type Property, value name Connection Status). The line holds the old and new status names and, when both
             are set, their Ids, and it is stamped by the staff member who saved it.
 
-            Reason: The report and each person's History show how Cast people moved along (decision D-integrity-2).
+            Reason: The report and each person's History show how Cast people moved along (decision 384).
         */
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace RockSampleData.Loader.Loading
             Inactive people with that review reason. The household files already say inactive with the reason, so this adds
             what the page wrote and the History lines Rock's save hook writes for it.
 
-            Reason: Rock's Self Inactivated Individuals report shows real people with their own words (decision D-integrity-3).
+            Reason: Rock's Self Inactivated Individuals report shows real people with their own words (decision 385).
         */
 
         /// <summary>
@@ -286,7 +286,7 @@ WHERE [Id] = @Id",
             which the job and Verify both skip. So a staff member locked each one, and it waits on the Location Editor
             under Not Geocoded for someone to place its pin.
 
-            Reason: Rock's Location Editor has real work, and no sample address ever leaves the server (decision D-integrity-4).
+            Reason: Rock's Location Editor has real work, and no sample address ever leaves the server (decision 386).
         */
 
         /// <summary>

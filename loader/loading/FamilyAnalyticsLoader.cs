@@ -362,7 +362,7 @@ WHERE [a].[DidAttend] = 1 AND [fgm].[IsArchived] = 0 AND [fg].[IsArchived] = 0",
 
         /// <summary>
         /// Turns the job on (it ships off) with Set Visit Dates on, which <see cref="WriteVisitDates"/> fills as the job
-        /// would leave them, so its first run changes nothing (decisions 325 and D-integrity-11).
+        /// would leave them, so its first run changes nothing (decisions 325 and 393).
         /// </summary>
         private void TurnOnJob()
         {
@@ -448,7 +448,7 @@ WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [av].[ForeignKey] IS NULL AN
             run as of the job's last run, and the job's first run changes nothing.
 
             Reason: Rock's First Visit and Second Visit show when people really first came (issue 2 slice 6, decision
-            D-integrity-11).
+            393).
         */
 
         /// <summary>

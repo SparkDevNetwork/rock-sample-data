@@ -110,6 +110,6 @@
   "$ruleReasons": {
     "giving.unitAnnualTotalPercentiles.p99": "The sample church is in a building campaign, and its lead pledgers are its largest givers, so the top 1% of giving units give more in a year than at the measured churches. The target stays the measured one, because the generator reads it (decision 113).",
     "communicationDetail.sms.threads": "Part 7 reads thread shapes from a sample of texters, so they move by a few points from one load to the next.",
-    "people.pctFemaleByAge.75+": "About 150 people 75 and older have a birth date in Rock on Full 7, since a quarter of adults have none (decision D-integrity-14), so one person moves the share by about 0.7 points."
+    "people.pctFemaleByAge.75+": "About 150 people 75 and older have a birth date in Rock on Full 7, since a quarter of adults have none (decision 396), so one person moves the share by about 0.7 points."
   }
 }

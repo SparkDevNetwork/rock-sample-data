@@ -24,7 +24,7 @@ namespace RockSampleData.Verify
     /*
         11/23/26 - CLAUDE
 
-        The load saves Rock's six Data Automation rules, configured and off (decision D-integrity-7). Rock reads each from
+        The load saves Rock's six Data Automation rules, configured and off (decision 389). Rock reads each from
         JSON in its system setting, and a property it does not know reads as the class default with no error. So the
         runner reads each rule with Rock's own settings class and writes it back with Rock's own serializer, and the check
         expects exactly what the load saved. Then the runner runs Rock's Data Automation job, as Rock's scheduler runs it

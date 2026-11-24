@@ -214,7 +214,7 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private List<RegistrationDraft> Couples( PlannedRegistrationInstance instance, RegistrantEligibility eligibility, ISet<int> pinned )
         {
-            // An event for married couples registers couples Rock has as married (decision D-integrity-14).
+            // An event for married couples registers couples Rock has as married (decision 396).
             var couples = Households( instance )
                 .Select( h => (Household: h, Couple: Couple( h )) )
                 .Where( c => c.Couple != null && c.Couple.All( p => !p.Cast.IsMaritalStatusUnrecorded && eligibility.Fits( p, instance ) && !pinned.Contains( p.PersonId ) ) )

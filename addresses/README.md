@@ -39,7 +39,7 @@ It only moves an address that matches a real county address point, so running it
 
 ## Far addresses
 
-The pool's `far` list holds homes on residential blocks at least 30 miles from every campus, such as in Wickenburg, Tonopah, and Gila Bend. They are new homes for families an NCOA run finds moved away (issue 2, decision D-integrity-13), so a family that moved there is far from every campus. The list is built last, on its own seeded stream, so it is the same with or without `--cast` and changes nothing above it.
+The pool's `far` list holds homes on residential blocks at least 30 miles from every campus, such as in Wickenburg, Tonopah, and Gila Bend. They are new homes for families an NCOA run finds moved away (issue 2, decision 395), so a family that moved there is far from every campus. The list is built last, on its own seeded stream, so it is the same with or without `--cast` and changes nothing above it.
 
 ## Tradeoff
 

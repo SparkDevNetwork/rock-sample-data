@@ -109,7 +109,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
 
 -- check: phones-are-not-shared-across-households
--- why: Content standard 2 and decisions 259 and D-integrity-12. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name and email), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+-- why: Content standard 2 and decisions 259 and 394. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name and email), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
 SELECT COUNT( DISTINCT [a].[Number] )
 FROM [PhoneNumber] AS [a]
 INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
@@ -171,7 +171,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[RaceValueId] IS NOT NULL OR [p].[EthnicityValueId] IS NOT NULL );
 
 -- check: home-addresses-are-mapped
--- why: Group Finder, campus distance, and maps need a point for every home address. The one exception is a home Rock's address service could not match, which staff locked so Rock never sends it again (decision D-integrity-4). Rock's Location Editor lists it under Not Geocoded until someone places its pin.
+-- why: Group Finder, campus distance, and maps need a point for every home address. The one exception is a home Rock's address service could not match, which staff locked so Rock never sends it again (decision 386). Rock's Location Editor lists it under Not Geocoded until someone places its pin.
 SELECT COUNT(*)
 FROM [GroupLocation] AS [gl]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
@@ -183,7 +183,7 @@ WHERE [g].[ForeignKey] = @ForeignKey
     AND NOT ( [l].[IsGeoPointLocked] = 1 AND [l].[GeocodedDateTime] IS NULL AND [l].[GeocodeAttemptedResult] IS NOT NULL );
 
 -- check: loaded-addresses-are-checked
--- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point. The one exception is an address the service could not match (decision D-integrity-4): both attempts and their result, no success dates and no map point, and Location Locked, which Rock's job never sends.
+-- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point. The one exception is an address the service could not match (decision 386): both attempts and their result, no success dates and no map point, and Location Locked, which Rock's job never sends.
 SELECT COUNT(*)
 FROM [Location] AS [l]
 WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
@@ -1543,7 +1543,7 @@ WHERE [i].[ForeignKey] = @ForeignKey
             AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
 
 -- check: workflow-is-finished-as-rock-leaves-it
--- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started (issue 18), or staff started from a person's profile (decisions D-integrity-5 and D-integrity-6), has its own rules.
+-- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started (issue 18), or staff started from a person's profile (decisions 387 and 388), has its own rules.
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
 WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] )
@@ -1561,7 +1561,7 @@ WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflo
                 AND [pa].[Id] = [w].[InitiatorPersonAliasId] ) );
 
 -- check: profile-workflow-is-as-rock-leaves-it
--- why: Decisions D-integrity-5 and D-integrity-6. A workflow staff start from a person's profile, such as Rock's Person Data Error or Photo Request, has that person as its entity and in its Person attribute, and the staff member as its initiator. A completed one has every activity completed when it completed, as Rock's MarkComplete leaves it. An open one waits on exactly one activity, assigned to a person, so it shows in their My Workflows list.
+-- why: Decisions 387 and 388. A workflow staff start from a person's profile, such as Rock's Person Data Error or Photo Request, has that person as its entity and in its Person attribute, and the staff member as its initiator. A completed one has every activity completed when it completed, as Rock's MarkComplete leaves it. An open one waits on exactly one activity, assigned to a person, so it shows in their My Workflows list.
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
 WHERE [w].[ForeignKey] = @ForeignKey AND [w].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
@@ -1579,7 +1579,7 @@ WHERE [w].[ForeignKey] = @ForeignKey AND [w].[EntityTypeId] = ( SELECT [Id] FROM
         OR [w].[Status] NOT IN ( 'Active', 'Completed' ) );
 
 -- check: photo-request-reply-has-a-photo
--- why: Decision D-integrity-6. Rock's Photo Upload page sets the person's photo and puts them in the Photo Request group as Pending, and Verify Photos makes them Active. Verify Photos shows each Pending or Active member's photo, and its reject button deletes it, so a reply with no photo would show a broken image.
+-- why: Decision 388. Rock's Photo Upload page sets the person's photo and puts them in the Photo Request group as Pending, and Verify Photos makes them Active. Verify Photos shows each Pending or Active member's photo, and its reject button deletes it, so a reply with no photo would show a broken image.
 SELECT COUNT(*)
 FROM [GroupMember] AS [gm]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] AND [g].[Guid] = '2108EF9C-10DC-4466-973D-D25AAB7818BE'
@@ -1587,7 +1587,7 @@ INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
 WHERE [gm].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] IN ( 1, 2 ) AND [p].[PhotoId] IS NULL;
 
 -- check: self-inactivated-record-has-its-note
--- why: Decision D-integrity-3. Rock's Email Preferences page inactivates a person who says they are no longer involved, with their reason and note, and marks the record Self Inactivated, and Rock's save hook stamps when the status changed. Rock's Self Inactivated Individuals report shows the reason and the notes.
+-- why: Decision 385. Rock's Email Preferences page inactivates a person who says they are no longer involved, with their reason and note, and marks the record Self Inactivated, and Rock's save hook stamps when the status changed. Rock's Self Inactivated Individuals report shows the reason and the notes.
 SELECT COUNT(*)
 FROM [Person] AS [p]
 WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
@@ -1597,20 +1597,20 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR [p].[RecordStatusLastModifiedDateTime] IS NULL );
 
 -- check: data-automation-rules-are-off
--- why: Decision D-integrity-7. Each Data Automation rule the load saves is configured and off, so Rock's Data Automation job, which runs every Tuesday at 4 AM, inactivates, moves, and relabels nobody.
+-- why: Decision 389. Each Data Automation rule the load saves is configured and off, so Rock's Data Automation job, which runs every Tuesday at 4 AM, inactivates, moves, and relabels nobody.
 SELECT COUNT(*)
 FROM [Attribute] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey AND [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] LIKE 'core[_]DataAutomation%'
     AND ISNULL( [a].[DefaultValue], '' ) NOT LIKE '{"IsEnabled":false,%';
 
 -- check: person-has-a-record-source
--- why: Decision D-integrity-10. Every record shows where it came from: the form of a first visit, a first record, or a Pending record, or a mix for records made earlier. Rock's admin person keeps the record Rock made (decision 177).
+-- why: Decision 392. Every record shows where it came from: the form of a first visit, a first record, or a Pending record, or a mix for records made earlier. Rock's admin person keeps the record Rock made (decision 177).
 SELECT COUNT(*)
 FROM [Person] AS [p]
 WHERE [p].[ForeignKey] = @ForeignKey AND [p].[RecordSourceValueId] IS NULL;
 
 -- check: person-is-made-before-their-first-record
--- why: Decisions D-integrity-1 and D-integrity-10. Rock writes a check-in, group membership, gift, request, registration, note, login, workflow, or demographic History line for a person only once their record exists, so no record is made after the first of these.
+-- why: Decisions 383 and 392. Rock writes a check-in, group membership, gift, request, registration, note, login, workflow, or demographic History line for a person only once their record exists, so no record is made after the first of these.
 SELECT COUNT(*)
 FROM [Person] AS [p]
 CROSS APPLY (
@@ -1633,7 +1633,7 @@ CROSS APPLY (
 WHERE [p].[ForeignKey] = @ForeignKey AND [first].[At] < [p].[CreatedDateTime];
 
 -- check: ncoa-move-is-processed-as-rock-does
--- why: Decision D-integrity-13. Rock's NCOA processing gives a family that moved a new Home, the mailing address, at the address in the NCOA row, and keeps the old one as Previous. A move Rock left for a staff member changes nothing, and every row is Complete or waits for a staff member, as Rock's import leaves it.
+-- why: Decision 395. Rock's NCOA processing gives a family that moved a new Home, the mailing address, at the address in the NCOA row, and keeps the old one as Previous. A move Rock left for a staff member changes nothing, and every row is Complete or waits for a staff member, as Rock's import leaves it.
 SELECT COUNT(*)
 FROM [NcoaHistory] AS [n]
 WHERE [n].[ForeignKey] = @ForeignKey
@@ -1648,7 +1648,7 @@ WHERE [n].[ForeignKey] = @ForeignKey
                     AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC' ) ) ) ) );
 
 -- check: ncoa-move-away-is-inactivated
--- why: Decision D-integrity-13. A family Rock's NCOA processing moved at least the minimum distance saved with the run is inactivated with the run's reason and Rock's note, and has nothing Rock's person save hook would have inactivated: no active group membership whose group type follows the person, no open connection request, and no active communication flow.
+-- why: Decision 395. A family Rock's NCOA processing moved at least the minimum distance saved with the run is inactivated with the run's reason and Rock's note, and has nothing Rock's person save hook would have inactivated: no active group membership whose group type follows the person, no open connection request, and no active communication flow.
 SELECT COUNT(*)
 FROM [NcoaHistory] AS [n]
 INNER JOIN [GroupMember] AS [fm] ON [fm].[GroupId] = [n].[FamilyId]
@@ -1665,7 +1665,7 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [n].[NcoaType] = 3 AND [n].[Processed] 
         OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[Status] = 1 ) );
 
 -- check: visit-dates-are-as-rock-writes-them
--- why: Decision D-integrity-11. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. The empty First Visit it writes for an adult whose family has no child's check-in is gone, as Rock Cleanup deletes every empty attribute value each night. Verify replays the job to show it would change none of them.
+-- why: Decision 393. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. The empty First Visit it writes for an adult whose family has no child's check-in is gone, as Rock Cleanup deletes every empty attribute value each night. Verify replays the job to show it would change none of them.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '655D6FBA-F8C0-4919-9E31-C1C936653555', 'D7EA578F-0132-473E-8338-4A48DDB8BF66' )
@@ -1752,7 +1752,7 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
 
 -- check: background-check-requirement-agrees-with-check
--- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also 18 or older by the birth date Rock has and their Pass is older than 1,035 days, and Not Met otherwise. Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor warned (decision D-integrity-14). A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+-- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also 18 or older by the birth date Rock has and their Pass is older than 1,035 days, and Not Met otherwise. Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor warned (decision 396). A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
 SELECT COUNT(*)
 FROM (
     SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
@@ -2573,7 +2573,7 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265). First Visit and Second Visit come only from the visit dates step (decision D-integrity-11).
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265). First Visit and Second Visit come only from the visit dates step (decision 393).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
