@@ -75,6 +75,16 @@ namespace RockSampleData.Loader.Loading
         public const string EraProcedure = "spCrm_FamilyAnalyticsEraDataset";
         public const string GivingProcedure = "spCrm_FamilyAnalyticsGiving";
         public const string AttendanceProcedure = "spCrm_FamilyAnalyticsAttendance";
+        public const string VisitDatesProcedure = "spCrm_FamilyAnalyticsUpdateVisitDates";
+
+        /// <summary>
+        /// The First Visit and Second Visit person attributes Rock's visit dates procedure fills.
+        /// </summary>
+        internal static readonly Guid FirstVisitGuid = new Guid( "655D6FBA-F8C0-4919-9E31-C1C936653555" );
+
+        internal static readonly Guid SecondVisitGuid = new Guid( "D7EA578F-0132-473E-8338-4A48DDB8BF66" );
+
+        private DateTime _finalRun;
 
         private readonly RockDatabase _db;
         private readonly AnchorDates _dates;
@@ -160,6 +170,7 @@ namespace RockSampleData.Loader.Loading
             }
 
             var finalRun = runs[runs.Count - 1];
+            _finalRun = finalRun;
             int steps, history;
             using ( _db.Log.TimePart( "Write eRA" ) )
             {
@@ -350,8 +361,8 @@ WHERE [a].[DidAttend] = 1 AND [fgm].[IsArchived] = 0 AND [fg].[IsArchived] = 0",
         }
 
         /// <summary>
-        /// Turns the job on (it ships off) with Set Visit Dates off, so its first run changes nothing: the visit dates wait
-        /// for realistic record dates (decision 325).
+        /// Turns the job on (it ships off) with Set Visit Dates on, which <see cref="WriteVisitDates"/> fills as the job
+        /// would leave them, so its first run changes nothing (decisions 325 and 393).
         /// </summary>
         private void TurnOnJob()
         {
@@ -365,7 +376,7 @@ WHERE [a].[DidAttend] = 1 AND [fgm].[IsArchived] = 0 AND [fg].[IsArchived] = 0",
             _db.Execute( "UPDATE [ServiceJob] SET [IsActive] = 1 WHERE [Id] = @Id", P( "@Id", jobId.Value ) );
 
             // Rock makes a job's settings the first time its scheduler loads the job. Make Set Visit Dates the way Rock
-            // would, with its declared default, and give this job the value False.
+            // would, with its declared default, and give this job the value True.
             var entityTypeId = Convert.ToInt32( _db.Scalar( "SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.ServiceJob'" ) );
             var attributeId = _db.Scalar( @"
 SELECT [Id] FROM [Attribute]
@@ -386,7 +397,7 @@ VALUES ( 0, ( SELECT [Id] FROM [FieldType] WHERE [Guid] = @BooleanFieldType ), @
 
             _db.Execute( @"
 INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [ValueAsBoolean], [Guid], [CreatedDateTime], [ModifiedDateTime], [ForeignKey] )
-VALUES ( 0, @AttributeId, @JobId, 'False', 0, NEWID(), @Now, @Now, @ForeignKey )",
+VALUES ( 0, @AttributeId, @JobId, 'True', 1, NEWID(), @Now, @Now, @ForeignKey )",
                 P( "@AttributeId", attributeId.Value ), P( "@JobId", jobId.Value ), P( "@Now", _dates.Anchor ), P( "@ForeignKey", _foreignKey ) );
         }
 
@@ -421,6 +432,84 @@ UPDATE [av] SET [av].[ForeignKey] = @ForeignKey
 FROM [AttributeValue] AS [av]
 INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
 WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [av].[ForeignKey] IS NULL AND [av].[AttributeId] IN ( {string.Join( ", ", attributeIds )} )", P( "@ForeignKey", _foreignKey ) );
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            Rock's visit dates procedure only fills blanks. It gives a person their own first check-in as First Visit only
+            when it comes within 14 days of their record's date, but it gives every adult the first check-in of the
+            children in their family with no such test, and a Second Visit only after a First Visit it wrote itself. So
+            with only the history window's check-ins, an adult of a family that has come for years would get its first
+            Sunday as First Visit. Now that every record has its date, a person whose record is older than the window and
+            who comes to services, or an adult whose family's children do, gets the visits they made then: First Visit the
+            first Sunday on or after their record's date, and Second Visit one to five weeks later, at the family's service
+            time, written as the procedure writes them. Then Rock's own procedure fills everyone who came inside the window,
+            run as of the job's last run, and the job's first run changes nothing.
+
+            Reason: Rock's First Visit and Second Visit show when people really first came (issue 2 slice 6, decision
+            393).
+        */
+
+        /// <summary>
+        /// Writes the visit dates of people who came before the history window, then runs Rock's visit dates procedure as
+        /// of the job's last run. It needs every record's date, so it runs after them.
+        /// </summary>
+        public string WriteVisitDates()
+        {
+            var firstId = _db.IdByGuid( "Attribute", FirstVisitGuid );
+            var secondId = _db.IdByGuid( "Attribute", SecondVisitGuid );
+            if ( !firstId.HasValue || !secondId.HasValue || _finalRun == default )
+            {
+                return "  Skipped visit dates (Rock's First Visit and Second Visit attributes are missing, or Family Analytics did not run)";
+            }
+
+            // The first Sunday on or after the record's date at the family's service, 9:00, 10:30, or 12:00, and the
+            // family's Sunday one to five weeks later at the same time. 1900-01-07 was a Sunday.
+            var written = _db.Execute( $@"
+WITH [visits] AS (
+    SELECT [p].[Id] AS [PersonId],
+        DATEADD( MINUTE, 540 + 90 * ( ABS( CHECKSUM( [f].[Guid] ) ) % 3 ),
+            CAST( DATEADD( DAY, ( 7 - DATEDIFF( DAY, '19000107', [p].[CreatedDateTime] ) % 7 ) % 7, CAST( [p].[CreatedDateTime] AS DATE ) ) AS DATETIME ) ) AS [First],
+        7 * ( 1 + ABS( CHECKSUM( [f].[Guid], 1 ) ) % 5 ) AS [Gap]
+    FROM [Person] AS [p]
+    INNER JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]
+    WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [p].[CreatedDateTime] < @HistoryStart
+        AND EXISTS ( SELECT 1 FROM [Attendance] AS [a]
+            INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId]
+            INNER JOIN [Person] AS [c] ON [c].[Id] = [pa].[PersonId]
+            WHERE [a].[DidAttend] = 1 AND [o].[GroupId] IN ( SELECT [Id] FROM [dbo].[ufnCheckin_WeeklyServiceGroups]() )
+                AND ( [c].[Id] = [p].[Id] OR ( [p].[AgeClassification] = 1 AND [c].[AgeClassification] = 2 AND [c].[PrimaryFamilyId] = [p].[PrimaryFamilyId] ) ) )
+),
+[rows] AS (
+    SELECT [PersonId], @FirstId AS [AttributeId], [First] AS [At] FROM [visits]
+    UNION ALL SELECT [PersonId], @SecondId, DATEADD( DAY, [Gap], [First] ) FROM [visits]
+)
+INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [ValueAsDateTime], [IsPersistedValueDirty], [Guid], [CreatedDateTime], [ForeignKey] )
+SELECT 1, [r].[AttributeId], [r].[PersonId], CONVERT( VARCHAR( 50 ), [r].[At], 126 ), [r].[At], 1, NEWID(), @Now, @ForeignKey
+FROM [rows] AS [r]
+WHERE NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av] WHERE [av].[AttributeId] = [r].[AttributeId] AND [av].[EntityId] = [r].[PersonId] )",
+                P( "@HistoryStart", _historyStart ), P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ), P( "@Now", _finalRun ), P( "@ForeignKey", _foreignKey ) );
+
+            RunPinned( VisitDatesProcedure, _finalRun );
+
+            // The procedure writes an empty First Visit for an adult whose family has no child's check-in, and Rock
+            // Cleanup deletes every empty attribute value each night (CleanupEmptyAttributeValues), so none is left.
+            _db.Execute( "DELETE FROM [AttributeValue] WHERE [AttributeId] IN ( @FirstId, @SecondId ) AND ( [Value] IS NULL OR LEN( [Value] ) = 0 )",
+                P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ) );
+            _db.Execute( $@"
+UPDATE [av] SET [av].[ForeignKey] = @ForeignKey
+FROM [AttributeValue] AS [av]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE {PeopleLoader.DatasetPersonFilter( "p" )} AND [av].[ForeignKey] IS NULL AND [av].[AttributeId] IN ( @FirstId, @SecondId )",
+                P( "@ForeignKey", _foreignKey ), P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ) );
+            ProcedureAttributeIds = ProcedureAttributeIds.Concat( new[] { firstId.Value, secondId.Value } ).ToList();
+
+            var counts = _db.Query( "SELECT [AttributeId], COUNT(*) AS [People] FROM [AttributeValue] WHERE [ForeignKey] = @ForeignKey AND [AttributeId] IN ( @FirstId, @SecondId ) GROUP BY [AttributeId]",
+                    P( "@ForeignKey", _foreignKey ), P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ) )
+                .ToDictionary( r => ( int ) r["AttributeId"], r => Convert.ToInt32( r["People"] ) );
+            return $"  Visit dates: {counts.GetValueOrDefault( firstId.Value ):N0} first visits and {counts.GetValueOrDefault( secondId.Value ):N0} second visits, {written / 2:N0} people's from before the history window";
         }
 
         /// <summary>

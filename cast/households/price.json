@@ -127,6 +127,9 @@
       "connectionStatus": "Engaged",
       "email": "cathy.price@example.org",
       "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550143"
+      },
       "photo": {
         "ethnicity": "white"
       }

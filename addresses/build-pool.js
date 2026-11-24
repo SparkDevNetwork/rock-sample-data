@@ -510,6 +510,15 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
     // Shared on purpose: the three duplicate Jon Smith records. Every other shared legacy address is split.
     const keepShared = new Set( [ "smith-jon", "smith-john-duplicate-a", "smith-john-duplicate-b" ] );
 
+    // Homes the Cast already has are taken, so a new household never lands on one.
+    for ( const f of files ) {
+        const existing = JSON.parse( fs.readFileSync( path.join( castDir, f ), "utf8" ) ).address;
+        const match = existing && existing.street1.match( /^(\d+)\s+(.+)$/ );
+        if ( match ) {
+            taken.add( `${existing.postalCode}|${match[ 2 ]}|${match[ 1 ]}` );
+        }
+    }
+
     for ( const f of files ) {
         const file = path.join( castDir, f );
         const text = fs.readFileSync( file, "utf8" );
@@ -605,6 +614,46 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
 }
 
 // #endregion Cast
+
+// #region Far addresses
+
+/*
+    Homes far from every campus, for families an NCOA run finds moved away (issue 2). Each is on a residential block
+    at least FAR_MILES from every campus, such as in Wickenburg or Gila Bend, so a family that moved there is far from
+    every campus by any measure. They come last, after the pool and the Cast, so the seeded stream that places those
+    is unchanged, and they start their own stream, so they are the same with or without --cast.
+*/
+const FAR_SEED = 2112026;
+const FAR_MILES = 30;
+const FAR_COUNT = 120;
+const FAR_STREET_BUDGET = 60;
+const FAR_SIDES_PER_STREET = 3;
+
+/**
+ * Seeded street sides at least FAR_MILES from every campus, a few per street, on at most FAR_STREET_BUDGET streets.
+ */
+function pickFarSides( residential, campuses ) {
+    seedState = FAR_SEED;
+    const far = residential.filter( s => campuses.every( c => milesBetween( s, c ) >= FAR_MILES ) );
+    for ( let i = far.length - 1; i > 0; i-- ) {
+        const j = Math.floor( rnd() * ( i + 1 ) );
+        [ far[ i ], far[ j ] ] = [ far[ j ], far[ i ] ];
+    }
+    const perStreet = new Map();
+    const picks = [];
+    for ( const side of far ) {
+        const key = `${side.zip}|${side.street.name}`;
+        const count = perStreet.get( key ) || 0;
+        if ( count >= FAR_SIDES_PER_STREET || ( count === 0 && perStreet.size >= FAR_STREET_BUDGET ) ) {
+            continue;
+        }
+        perStreet.set( key, count + 1 );
+        picks.push( side );
+    }
+    return picks;
+}
+
+// #endregion Far addresses
 
 // #region Main
 
@@ -704,16 +753,14 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
     }
 
     // One address per line keeps the file readable and its diffs small.
-    const lines = [ "{", `  "$comment": "Real streets with house numbers that do not exist, placed with the profile's distance-to-campus pattern. Built by build-pool.js from Census TIGER/Line ranges and county address points. State is always AZ.",`, `  "columns": [ "street1", "city", "postalCode", "latitude", "longitude" ],`, `  "campuses": {` ];
+    const lines = [ "{", `  "$comment": "Real streets with house numbers that do not exist, placed with the profile's distance-to-campus pattern. Built by build-pool.js from Census TIGER/Line ranges and county address points. State is always AZ. far holds homes at least ${FAR_MILES} miles from every campus, for families an NCOA run finds moved away.",`, `  "columns": [ "street1", "city", "postalCode", "latitude", "longitude" ],`, `  "campuses": {` ];
     const campusKeys = Object.keys( pool );
     campusKeys.forEach( ( key, i ) => {
         lines.push( `    "${key}": [` );
         pool[ key ].forEach( ( row, j ) => lines.push( `      ${JSON.stringify( row )}${j < pool[ key ].length - 1 ? "," : ""}` ) );
         lines.push( `    ]${i < campusKeys.length - 1 ? "," : ""}` );
     } );
-    lines.push( "  }", "}" );
-    fs.writeFileSync( path.join( __dirname, "pool.json" ), lines.join( "\n" ) + "\n" );
-    console.log( "Wrote pool.json" );
+    lines.push( "  }," );
 
     if ( doCast ) {
         console.log( "Assigning Cast addresses..." );
@@ -721,6 +768,38 @@ async function assignCast( sides, index, mainCampus, distance, taken, streets ) 
             console.log( `  ${line}` );
         }
     }
+
+    // Far addresses, last, so nothing above changes.
+    const farSides = pickFarSides( residential, campuses );
+    const farKeys = [ ...new Set( farSides.map( s => `${s.zip}|${s.street.name}` ) ) ].filter( k => !lookups.has( k ) );
+    console.log( `Far addresses: looking up ${farKeys.length} more streets...` );
+    for ( const [ k, v ] of await fetchAll( farKeys, 4 ) ) {
+        lookups.set( k, v );
+    }
+    const far = [];
+    for ( const side of farSides ) {
+        if ( far.length >= FAR_COUNT ) {
+            break;
+        }
+        const points = lookups.get( `${side.zip}|${side.street.name}` );
+        const existing = existingOnSide( side, points );
+        if ( existing.filter( p => p[ 4 ] === "RES" ).length < 3 ) {
+            continue;
+        }
+        const number = unusedNumber( side, points, taken, null );
+        if ( number == null ) {
+            continue;
+        }
+        taken.add( `${side.zip}|${side.fullName}|${number}` );
+        const a = toAddress( side, number, existing );
+        far.push( [ a.street1, a.city, a.postalCode, a.latitude, a.longitude ] );
+    }
+    console.log( `  far: ${far.length} of ${FAR_COUNT}` );
+    lines.push( `  "far": [` );
+    far.forEach( ( row, j ) => lines.push( `    ${JSON.stringify( row )}${j < far.length - 1 ? "," : ""}` ) );
+    lines.push( "  ]", "}" );
+    fs.writeFileSync( path.join( __dirname, "pool.json" ), lines.join( "\n" ) + "\n" );
+    console.log( "Wrote pool.json" );
 } )().catch( e => {
     console.error( e );
     process.exit( 1 );

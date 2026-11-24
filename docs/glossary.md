@@ -35,6 +35,7 @@ The words this project uses, in alphabetical order.
 | **Data view** | A saved Rock filter that finds people, such as "adults who first came to worship in the last 6 months". The church's own data views sit under its Rock Solid Church category. See [Configuration](../configuration/README.md#categories). |
 | **Dataset** | One installable set of sample data. |
 | **Date Engaged** | A person attribute the loader adds to Rock's Membership category: the day an Engaged or Leading adult first joined a small group or serving team, or first gave (decision 257). |
+| **Data Automation** | Rock's job, every Tuesday at 4 AM, that reactivates and inactivates people, moves families' campuses, moves adult children to their own families, and updates connection and family statuses by data view, each by a rule on the Data Integrity Settings page. The sample data saves every rule configured and off. See [Data Integrity](data-integrity.md). |
 | **Duplicate pair** | Two person records Rock's duplicate finder scores as maybe one person. Staff leave a pair open, mark it Not Duplicate, or Ignore it until its score changes. The Duplicate Finder lists open pairs above a confidence of 60. See [Duplicates](duplicates.md). |
 | **Eligibility data view** | A data view a registration template names so only the people in it may register. Rock checks it when someone registers. The mission trip's is high school students who attend the student service. See [Event registrations](registrations.md#data-views). |
 | **Email section** | A saved block staff drag into an email in Rock's newer email editor, such as Service Times. Rock keeps its markup, a usage summary, and a thumbnail, and the editor's Sections panel lists it by category. See [Email sections](communications.md#email-sections). |
@@ -54,6 +55,7 @@ The words this project uses, in alphabetical order.
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
 | **Loader** | The library in `loader/` that installs a package into a fresh Rock database, generating every date for the install day. The loader CLI uses it, and Rock uses it through the `SparkDevNetwork.Rock.SampleData.Loader` NuGet package, which also builds for .NET Framework. |
+| **Location Locked** | A setting on a Rock address that stops Rock's address service from checking or moving it. Two Cast homes the service could not match are locked. See [Data Integrity](data-integrity.md). |
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Merge request** | A merge asked for by someone who cannot merge people. Rock keeps it until someone merges or deletes it, on the Merge Requests page. See [Duplicates](duplicates.md). |
@@ -66,6 +68,7 @@ The words this project uses, in alphabetical order.
 | **Pay later** | Registering for a class with no minimum payment and paying nothing yet, as most Money Matters registrants do. The whole balance stays due. |
 | **Payment plan** | A registration's scheduled payments of what is left after the first payment, at a set frequency, ending by the payment deadline. Rock keeps it as a scheduled transaction of type Event Registration. See [Event registrations](registrations.md#payments). |
 | **Pending** | A team member who has connected but is not serving yet. The team leader makes them Active after onboarding. The scheduler only schedules Active members. |
+| **Pending record** | A person record that waits for staff review. Rock's web forms make a new person Pending, and Rock's Pending Individuals report lists them. Not a Pending team member (above). See [Data Integrity](data-integrity.md). |
 | **Persona** | A behavior pattern, such as a weekly giver or a holiday-only attender. |
 | **Peer network** | Rock's score of how well two people likely know each other, from the groups they share and the people they follow, with a trend arrow. Rock's Calculate Peer Network job updates it on the 1st of each month. The sample church has it on for small groups and serving teams. See [Peer network](small-groups.md#peer-network). |
 | **Person attribute** | A value Rock keeps on a person beyond its built-in fields, such as Allergy, School, or Employer. The person profile's Extended Attributes tab shows most of them. |
@@ -99,6 +102,7 @@ The words this project uses, in alphabetical order.
 | **Rotation** | How often a volunteer serves: one of Rock's four schedule templates (every week, every other week, 1st and 3rd, or 2nd and 4th). |
 | **Saturation** | How many messages each adult got in a period. Rock's Communication Saturation report sorts adults into buckets by count. See [Communications](communications.md#message-load-per-person). |
 | **Seed** | The text every random choice starts from. The same seed and anchor give the same data. |
+| **Self Inactivated** | Rock's review reason for a person who said on the Email Preferences page that they are no longer involved. Rock inactivates them with their reason and note, and its Self Inactivated Individuals report lists them. See [Data Integrity](data-integrity.md). |
 | **Serving team** | A group of volunteers with a shared job on Sunday, such as Greeters. Each campus has eight. See [Serving](serving.md). |
 | **Signature** | Proof that Spark made the package index. The release workflow signs it with a key in Azure Key Vault, and the loader reads only an index whose signature matches one of the public keys it carries (decision 172). |
 | **Signed release** | A release form, such as the Student Camp Release, that a registrar signs for each registrant with Rock's own electronic signature, typed, while registering. Rock keeps its text, the typed name, a verification hash, and a PDF. Not the package index's signature. See [Event registrations](registrations.md#release-forms). |

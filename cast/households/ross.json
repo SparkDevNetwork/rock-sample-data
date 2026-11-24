@@ -68,7 +68,7 @@
       },
       "recordStatus": "active",
       "connectionStatus": "Connected",
-      "email": "dick.ross@example.org",
+      "email": "dickandjoan.ross@example.org",
       "emailIsActive": true,
       "phones": {
         "mobile": "4805550152"
@@ -100,7 +100,7 @@
       },
       "recordStatus": "active",
       "connectionStatus": "Connected",
-      "email": "joan.ross@example.org",
+      "email": "dickandjoan.ross@example.org",
       "emailIsActive": true,
       "phones": {
         "mobile": "6025550195"
