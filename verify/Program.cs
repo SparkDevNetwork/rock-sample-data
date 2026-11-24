@@ -209,6 +209,11 @@ try
             // The dataset card was measured at the default seed, so only a default-seed load is held to its numbers.
             var card = seed == new DatasetLoadOptions().Seed ? SampleDataDatasets.Get( dataset ) : null;
             checks.Add( Invariants.Run( sql, database, foreignKey, card, source.Phones, Path.Combine( root, "validation", "invariants.sql" ) ) );
+
+            // Before the referee, so it judges the database as loaded. Rock Cleanup's first-night fixes to Rock's own
+            // records, such as a primary campus or an age bracket, would move Rock's Insights counts by a person or two.
+            stage = "rock-metrics";
+            checks.Add( RockMetricsCheck.Values( sql, database, source ) );
             stage = "rock-cleanup";
             // Rock Cleanup recomputes ages and daily counts for "today", so it can only judge a load anchored to today.
             // Checked before and after, because the job itself takes minutes and the date can change while it runs.
@@ -232,8 +237,6 @@ try
             checks.Add( dataViews );
             stage = "metrics";
             checks.Add( MetricsCheck( sql, database, source, counts, anchor ) );
-            stage = "rock-metrics";
-            checks.Add( RockMetricsCheck.Values( sql, database, source ) );
             stage = "flow-audiences";
             checks.Add( FlowAudienceCheck( rock, sql, database, connection, source, anchor, foreignKey, seed ) );
             stage = "access";

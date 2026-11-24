@@ -878,8 +878,12 @@ namespace RockSampleData.Loader
             }
             else
             {
-                var (rockMetricCount, rockValueCount) = new RockMetricsLoader( db, source, rockMetrics, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed ).Load();
+                var rockMetricsLoader = new RockMetricsLoader( db, source, rockMetrics, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+                var (rockMetricCount, rockValueCount) = rockMetricsLoader.Load();
                 log.Write( $"  Rock metrics: {rockMetricCount} with {rockValueCount:N0} values" );
+
+                // Rock Cleanup's nightly campus average weekend attendance, from the Total Weekend Attendance values.
+                log.Write( $"  Campus average weekend attendance: {rockMetricsLoader.UpdateCampusAverageWeekendAttendance()}" );
             }
 
             /*
