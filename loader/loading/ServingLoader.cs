@@ -63,6 +63,12 @@ namespace RockSampleData.Loader.Loading
         private int _reminderOffsetDays = 2;
         private int? _searchTypeId;
         private CheckInSessions _sessions;
+
+        /// <summary>
+        /// Whether the student services meet in the week that ends on a Sunday, from the attendance plan, so Student Night's
+        /// volunteers serve the nights its students come.
+        /// </summary>
+        public Func<DateTime, bool> StudentServiceRuns { get; init; } = _ => true;
         private Dictionary<int, List<LoadedPerson>> _membersByFamily;
 
         public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed, CheckInDevices devices, DateTime historyStart )
@@ -152,10 +158,20 @@ namespace RockSampleData.Loader.Loading
 
                         var service = member.PreferredService ?? random.Between( 0, services.Count - 1 );
                         var position = member.PreferredPosition ?? Enumerable.Range( 0, positions.Count ).OrderBy( p => load.GetValueOrDefault( (sunday, service, p) ) ).ThenBy( _ => random.Between( 0, 1000 ) ).First();
+
+                        // A weekday service, Student Night, meets on its day in the week that ends on this Sunday, and not in a
+                        // week the student services do not meet. Its week ends by install day or is still ahead, as Student Night's
+                        // check-ins do, and never before the volunteer joined (decision D-student-volunteers-1).
+                        var date = services[service].DateInWeek( sunday );
+                        if ( date != sunday && ( !StudentServiceRuns( sunday ) || ( date <= today && sunday > today ) || date < member.Joined ) )
+                        {
+                            continue;
+                        }
+
                         load[(sunday, service, position)] = load.GetValueOrDefault( (sunday, service, position) ) + 1;
 
-                        var occurrenceId = tables.Occurrence( groupId, positions[position].LocationId, services[service].ScheduleId, sunday, _foreignKey );
-                        var start = sunday.Add( services[service].Start );
+                        var occurrenceId = tables.Occurrence( groupId, positions[position].LocationId, services[service].ScheduleId, date, _foreignKey );
+                        var start = date.Add( services[service].Start );
                         AddRequest( tables, random, occurrenceId, person, campus.CampusId, _devices.Volunteers( campus.Key ), start, outcome, declineReasonIds, member.IsLeader ? null : leaderAliasId );
                     }
                 }
@@ -357,16 +373,16 @@ namespace RockSampleData.Loader.Loading
                 "AttendanceCheckInSessionId:int", "SearchValue:string", "SearchResultGroupId:int" );
 
             /// <summary>
-            /// The team's occurrence for one room, service, and Sunday, added the first time it is needed.
+            /// The team's occurrence for one room, service, and day, added the first time it is needed.
             /// </summary>
-            public int Occurrence( int groupId, int locationId, int scheduleId, DateTime sunday, string foreignKey )
+            public int Occurrence( int groupId, int locationId, int scheduleId, DateTime date, string foreignKey )
             {
-                var key = (groupId, locationId, scheduleId, sunday);
+                var key = (groupId, locationId, scheduleId, date);
                 if ( !_occurrenceIds.TryGetValue( key, out var id ) )
                 {
                     id = NextOccurrenceId++;
                     _occurrenceIds[key] = id;
-                    Occurrences.Rows.Add( id, groupId, locationId, scheduleId, sunday, sunday, int.Parse( sunday.ToString( "yyyyMMdd" ) ), false, Guid.NewGuid(), foreignKey, sunday.AddDays( -14 ), sunday.AddDays( -14 ) );
+                    Occurrences.Rows.Add( id, groupId, locationId, scheduleId, date, SundayCalendar.SundayOnOrAfter( date ), int.Parse( date.ToString( "yyyyMMdd" ) ), false, Guid.NewGuid(), foreignKey, date.AddDays( -14 ), date.AddDays( -14 ) );
                 }
 
                 return id;

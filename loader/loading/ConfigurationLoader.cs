@@ -348,7 +348,7 @@ VALUES ( @Name, @PublicName, @ParentId, @CampusId, @TaxDeductible, @Order, 1, 1,
             var worshipGroupId = WorshipGroupId();
             var placements = 0;
             var slots = _source.Schedules.Slots.ToDictionary( s => s.Key );
-            ServicePlan Service( string slot ) => new ServicePlan( slotIds[slot], TimeSpan.Parse( slots[slot].Start ), slots[slot].Minutes );
+            ServicePlan Service( string slot ) => new ServicePlan( slotIds[slot], TimeSpan.Parse( slots[slot].Start ), slots[slot].Minutes, ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), slots[slot].Day ) );
 
             CheckInGroupIdsByKey = groupIds;
             WorshipGroupIdValue = worshipGroupId;
@@ -374,8 +374,7 @@ VALUES ( @Name, @PublicName, @ParentId, @CampusId, @TaxDeductible, @Order, 1, 1,
                     Services = campus.Schedules.Where( s => s.Type == "weekend" ).Select( s => Service( s.Slot ) ).ToList(),
                     StudentService = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day == "Sunday" ).Select( s => Service( s.Slot ) ).FirstOrDefault()
                         ?? Service( checkIn.StudentFallbackSlot ),
-                    MidweekStudentService = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day != "Sunday" ).Select( s => Service( s.Slot ) ).FirstOrDefault(),
-                    MidweekStudentDay = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day != "Sunday" ).Select( s => ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), slots[s.Slot].Day ) ).FirstOrDefault()
+                    MidweekStudentService = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day != "Sunday" ).Select( s => Service( s.Slot ) ).FirstOrDefault()
                 };
                 CampusPlans[campus.Key] = plan;
 
@@ -573,11 +572,9 @@ namespace RockSampleData.Loader.Loading
         public ServicePlan StudentService { get; set; }
 
         /// <summary>
-        /// The midweek student service (Wednesday Student Night) and its weekday, or null when the campus has none.
+        /// The midweek student service (Wednesday Student Night), or null when the campus has none.
         /// </summary>
         public ServicePlan MidweekStudentService { get; set; }
-
-        public DayOfWeek MidweekStudentDay { get; set; }
 
         /// <summary>
         /// Room location Ids by check-in group key.
@@ -591,7 +588,13 @@ namespace RockSampleData.Loader.Loading
     }
 
     /// <summary>
-    /// One service: its schedule, its start time, and how many minutes it lasts.
+    /// One service: its schedule, its start time, how many minutes it lasts, and its weekday.
     /// </summary>
-    internal sealed record ServicePlan( int ScheduleId, TimeSpan Start, int Minutes );
+    internal sealed record ServicePlan( int ScheduleId, TimeSpan Start, int Minutes, DayOfWeek Day )
+    {
+        /// <summary>
+        /// The day this service meets in the week that ends on a Sunday, as Rock groups a week's attendance.
+        /// </summary>
+        public DateTime DateInWeek( DateTime sunday ) => sunday.AddDays( Day == DayOfWeek.Sunday ? 0 : ( int ) Day - 7 );
+    }
 }

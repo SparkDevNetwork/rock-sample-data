@@ -110,7 +110,7 @@ The words this project uses, in alphabetical order.
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
 | **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts each week a child or student checked in, Student Night included. |
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
-| **Student Night** | The Wednesday 6:30pm student service for grades 7 to 12. Students check in at the student kiosk, on their own. |
+| **Student Night** | The Wednesday 6:30pm student service for grades 7 to 12. Students check in at the student kiosk, on their own, and the Student Ministry team serves there as on Sunday. |
 | **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision 206). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Tag** | A quick label staff put on a person in Rock, shown in the tag bar on the person's profile. A tag is organizational or personal, and Rock ships one, Staff. See [Tags](../configuration/README.md#tags). |

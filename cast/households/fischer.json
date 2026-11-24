@@ -125,6 +125,12 @@
       "emailIsActive": true,
       "phones": {
         "mobile": "6025550183"
+      },
+      "studentNight": {
+        "percentAttended": 60,
+        "started": {
+          "daysAgo": 900
+        }
       }
     },
     {

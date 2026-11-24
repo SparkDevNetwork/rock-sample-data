@@ -524,7 +524,8 @@ namespace RockSampleData.Loader
             // Volunteers serve on the Sundays their family came, so serving follows Sunday attendance.
             if ( steps.Begin( "Serving" ) )
             {
-                new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, devices, calendar.HistoryStart ).Load( servingPlans, people, attendance.FamilySundays );
+                new ServingLoader( db, source.Serving, servingSetup, configuration.CampusPlans, dates, foreignKey, seed, devices, calendar.HistoryStart ) { StudentServiceRuns = attendance.StudentServiceRuns }
+                    .Load( servingPlans, people, attendance.FamilySundays );
             }
 
             db.RebuildDeferredIndexes( "Attendance" );

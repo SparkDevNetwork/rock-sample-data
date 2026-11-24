@@ -232,6 +232,7 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 | `check-in-kiosk-is-at-its-campus` | Decision 360. Every check-in names a check-in kiosk whose rooms are all at the campus of the check-in. |
 | `check-in-has-its-session` | Decision 361. Every kiosk check-in points at a session at that kiosk, with its address. A security code and its session go together, and the search found the family of the person who checked in. |
 | `student-night-is-for-students` | Decisions 363 and 364. The only weekday check-in is Wednesday Student Night, in the student rooms, on its schedule, by the student at a student kiosk, in a week that ended by install day. |
+| `weekday-serving-is-student-night` | Decision D-student-volunteers-1. The only weekday a team serves is Wednesday Student Night: Student Ministry, in the student rooms, on the Student Night schedule, checked in at the volunteer kiosk. |
 | `young-kid-is-checked-out-by-who-brought-them` | Decision 362. Kids from the nursery through 6th grade are checked out the same day by the adult who checked them in. Nobody else is checked out. |
 | `communication-list-members-allow-mass-email` | Nobody who chose "No mass emails" or "Do not email" is on a communication list (decision 133). |
 | `newsletter-members-belong-to-the-campus` | A campus newsletter holds only that campus's adults with an email that is active, or that bounced after they joined. |

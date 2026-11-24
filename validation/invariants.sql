@@ -853,6 +853,23 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[AttendanceCodeId] IS NOT NULL AND 
         OR ISNULL( [d].[Name], '' ) NOT LIKE '% Students'
         OR [o].[SundayDate] > CAST( GETDATE() AS DATE ) );
 
+-- check: weekday-serving-is-student-night
+-- why: Decision D-student-volunteers-1. The only weekday a team serves is Wednesday Student Night: the Student Ministry team, in the student rooms, on the Student Night schedule. Its volunteers check in at the volunteer kiosk, as on Sunday.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Schedule] AS [s] ON [s].[Id] = [o].[ScheduleId]
+LEFT JOIN [Device] AS [d] ON [d].[Id] = [a].[DeviceId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[RequestedToAttend] = 1 AND DATEDIFF( DAY, '19000107', [o].[OccurrenceDate] ) % 7 <> 0
+    AND ( DATEDIFF( DAY, '19000107', [o].[OccurrenceDate] ) % 7 <> 3
+        OR [gt].[Guid] <> '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4'
+        OR [g].[Name] <> 'Student Ministry'
+        OR [s].[Guid] <> 'B4A37356-1D92-47F5-A08F-838E4AC53684'
+        OR [o].[SundayDate] <> DATEADD( DAY, 4, [o].[OccurrenceDate] )
+        OR ( [a].[DeviceId] IS NOT NULL AND ISNULL( [d].[Name], '' ) NOT LIKE '% Volunteers' ) );
+
 -- check: young-kid-is-checked-out-by-who-brought-them
 -- why: Decision 362. Kids from the nursery through 6th grade are checked out after their service, the same day, by the adult who checked them in. Students, adults, and volunteers are never checked out, and a kid who checked in on their own has no one to check them out.
 SELECT COUNT(*)

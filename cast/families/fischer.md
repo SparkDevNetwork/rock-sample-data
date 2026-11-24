@@ -43,6 +43,7 @@ Mark and Julie Fischer have two high schoolers. Ethan is a senior; Grace is a so
 ## Activity
 
 - **Attendance:** regular, 58% of Sundays, since 6 years ago.
+- **Student Night:** Ethan checks in on 60% of Wednesdays, since about 30 months ago.
 - **Student Night:** Grace checks in on 80% of Wednesdays.
 - **Giving:** **monthly** by Mark Fischer: $250 General Fund per gift, gives in 95% of periods, started 5 years ago.
 - **Giving units:** the couple gives together as one giving unit.

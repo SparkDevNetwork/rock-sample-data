@@ -12,6 +12,7 @@
     { "guid": "A8002793-F4F2-425A-B68E-8BE8017EAEAC", "name": "Mike Rivera", "role": "Member" },
     { "guid": "17415CFB-C1A6-422E-B23E-D695BE0171C0", "name": "Jen Rivera", "role": "Member" },
     { "guid": "82309081-A110-496F-8295-CE6A4720D7A8", "name": "Jenny Michaels", "role": "Member" },
-    { "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A", "name": "Matt Hughes", "role": "Member" }
+    { "guid": "CD3CA059-8D9D-40AB-87F0-667ECCAB600A", "name": "Matt Hughes", "role": "Member" },
+    { "guid": "3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33", "name": "Drew Kim", "role": "Member", "joined": { "daysAgo": 133 }, "rotation": "Every Week", "serviceDay": "Wednesday" }
   ]
 }

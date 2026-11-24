@@ -55,7 +55,8 @@ namespace RockSampleData.Loader.Generation
                         foreach ( var member in castTeam.Members )
                         {
                             var (person, household) = castPeople[member.Guid];
-                            teams[castTeam.Team].Members.Add( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader", joinedMonths, ServingBy( readyToLead, person ) ) );
+                            teams[castTeam.Team].Members.Add( WithCastChoices( PlanMember( config, dates, seed, campus, castTeam.Team, person, household, member.Role == "Leader", joinedMonths, ServingBy( readyToLead, person ) ),
+                                member, config, dates, campus, castTeam.Team, person ) );
                         }
                     }
                 }
@@ -202,6 +203,28 @@ namespace RockSampleData.Loader.Generation
                     generatedPeople[leader.Person].Person.ConnectionStatus = rules.BecomeLeaderStatus;
                 }
             }
+        }
+
+        /*
+            11/24/26 - CLAUDE
+
+            A Cast roster can name a volunteer's join date, rotation, and the weekday they serve, such as Drew Kim, who
+            asked to help on Wednesday nights. The planner still makes every draw first, so no other volunteer changes, and
+            the join date never comes before the volunteer was old enough for the team.
+
+            Reason: A Cast story can say when and where someone serves (decision D-student-volunteers-2).
+        */
+
+        /// <summary>
+        /// A Cast volunteer's planned choices, with the join date, rotation, and service day their roster names.
+        /// </summary>
+        private static ServingMemberPlan WithCastChoices( ServingMemberPlan plan, CastServingMember member, ServingConfiguration config, AnchorDates dates, CampusPlan campus, string teamKey, CastPerson person )
+        {
+            var team = config.Teams.Single( t => t.Key == teamKey );
+            var joined = dates.Resolve( member.Joined ) is DateTime named ? new[] { named, dates.AdultSince( person, team.MinimumAge ?? config.Volunteers.MinimumAge ) }.Max().Date : plan.Joined;
+            var services = ServingConfigurationLoader.TeamServices( team, campus );
+            var day = member.ServiceDay == null ? -1 : services.FindIndex( s => s.Day.ToString() == member.ServiceDay );
+            return plan with { Joined = joined, Rotation = member.Rotation ?? plan.Rotation, PreferredService = day >= 0 ? day : plan.PreferredService };
         }
 
         /// <summary>
