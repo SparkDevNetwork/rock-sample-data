@@ -592,7 +592,7 @@ LEFT JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]" ).ToDictionary( r 
 /// <summary>
 /// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
 /// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
-/// values, one for each campus (decision D-metrics-7), must add up to Rock's count of the view today less those people,
+/// values, one for each campus (decision 379), must add up to Rock's count of the view today less those people,
 /// and each campus's must be its own people less its own later ones, by the campus Rock's job counts a person under. The
 /// same rule read in SQL must also give Rock's count, so the subtraction uses the view's own rule.
 /// </summary>
