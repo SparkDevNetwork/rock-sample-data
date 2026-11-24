@@ -48,6 +48,7 @@
     { "path": "communicationDetail.unsubscribesYear.perThousandMassRecipients.Recipient preference", "reason": "Too few unsubscribes to use." }
   ],
   "overrides": [
+    { "path": "attendance.studentCheckInDayMix", "value": { "sunday": 60, "wednesday": 40, "otherDays": 0 }, "reason": "Design choice. The only midweek check-in is Wednesday Student Night, which draws about two-thirds as many students as the Sunday student service (decision 364). The measured Wednesday share counts every check-in, kids included, so it is not a student target." },
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
     { "path": "groups.smallGroups.weightedMedianSize", "value": 12, "reason": "Design choice. Small groups have about 12 members (decision 33)." },
     { "path": "groups.smallGroups.pctLeaders", "value": 8.3, "reason": "Design choice. Each small group has one leader, about 1 in 12 members (decision 33)." },
@@ -165,7 +166,7 @@
     }
   ],
   "notes": [
-    "The sample church has a midweek student service, so a share of check-ins happen on Wednesday.",
+    "The sample church has a midweek student night, so a share of student check-ins happen on Wednesday. It has no midweek kids programs.",
     "Christmas week shows almost no kids check-in, because many churches hold Christmas Eve services without children's ministry.",
     "Dollar amounts (annual totals, gift sizes) should be reviewed as sources are added.",
     "Prayer volume and its monthly pattern come from source-1. Categories, text length, timing, and who asks come from source-2. The prayer team's activity is a design choice, not a measurement (decision 67).",

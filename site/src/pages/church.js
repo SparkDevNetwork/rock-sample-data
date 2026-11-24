@@ -127,7 +127,7 @@ const week = [
     [ "Sunday, 12:00", "Third service", "Phoenix, Chandler, and Tempe add a noon service for later risers and young adults." ],
     [ "Sunday afternoon", "Prayer and follow-up", "The prayer team prays through new requests, and connectors follow up with people who asked to serve." ],
     [ "Sunday to Thursday", "Small groups", "Groups meet in homes, mostly at 7:00 in the evening, through fall and spring seasons and a light summer." ],
-    [ "Wednesday night", "Classes and Student Night", "Starting Point and Foundations classes meet, and Student Night is on the calendar every week. Students still check in only on Sunday." ]
+    [ "Wednesday night", "Classes and Student Night", "Starting Point and Foundations classes meet, and students in grades 7 to 12 check in for Student Night at each campus's student kiosk." ]
 ];
 
 // The calendar's Ministry by Design stages, in path order. The events in each come from configuration/calendar.json.

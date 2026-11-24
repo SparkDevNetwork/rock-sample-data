@@ -23,6 +23,7 @@ using System.Text.Json.Nodes;
 
 using RockSampleData.Loader;
 using RockSampleData.Loader.Generation;
+using RockSampleData.Loader.Loading;
 using RockSampleData.Loader.Model;
 using RockSampleData.Loader.Packages;
 
@@ -61,6 +62,9 @@ namespace RockSampleData.Builder
             {
                 throw new InvalidDataException( $"datasets/{dataset}.json says key {card.Key} and {card.Campuses} campuses, but it is {dataset}, which configuration/campuses.json gives {campusCount} campuses." );
             }
+
+            // Every kiosk's rooms exist and every address is in the reserved block (decision 360).
+            CheckInDevicesLoader.Validate( source.Kiosks, source.CheckIn, source.Campuses.Campuses.Select( c => c.Key ) );
 
             var files = new SortedDictionary<string, byte[]>( StringComparer.Ordinal );
 
