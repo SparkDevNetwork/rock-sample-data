@@ -27,7 +27,7 @@ namespace RockSampleData.Loader.Loading
 
         A data view metric's past weeks need the view as it was at each run, and Rock counts a view only as it is today.
         This replays a person data view at a past moment by walking its own filters. Attendance windows slide back to
-        the run's day, and only steps completed by then count. A filter on a person's fields, such as record status or
+        the run's day, only steps completed by then count, and group membership comes from Rock's group member history. A filter on a person's fields, such as record status or
         adult, reads today's value, since Rock keeps no history of those (decisions 234 and 347), and comes from the
         loader's DataViewEvaluator, which verify holds to Rock's own engine. Each kind of row is read once, so every run
         of every metric is a few lookups. A filter it cannot replay is an error, never a guess.
@@ -44,6 +44,9 @@ namespace RockSampleData.Loader.Loading
         private const string AttendanceFilter = "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter";
         private const string StepsFilter = "Rock.Reporting.DataFilter.Person.StepsTakenFilter";
         private const string PropertyFilter = "Rock.Reporting.DataFilter.PropertyFilter";
+        private const string GroupTypeFilter = "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter";
+
+        private static readonly Dictionary<string, int> MemberStatuses = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase ) { ["Inactive"] = 0, ["Active"] = 1, ["Pending"] = 2 };
 
         private static readonly Guid NamelessRecordTypeGuid = new Guid( "721300ED-1267-4DA0-B4F2-6C6B5B17B1C5" );
 
@@ -51,6 +54,7 @@ namespace RockSampleData.Loader.Loading
         private readonly IReadOnlyDictionary<string, DataViewDefinition> _views;
         private readonly Func<DataViewFilterDefinition, string> _selection;
         private readonly DataViewEvaluator _today;
+        private readonly GroupMembershipHistory _memberships;
         private readonly Dictionary<DataViewFilterDefinition, HashSet<int>> _state = new Dictionary<DataViewFilterDefinition, HashSet<int>>();
         private readonly Dictionary<string, Dictionary<int, List<DateTime>>> _attendance = new Dictionary<string, Dictionary<int, List<DateTime>>>();
         private readonly Dictionary<string, Dictionary<int, DateTime>> _steps = new Dictionary<string, Dictionary<int, DateTime>>();
@@ -66,6 +70,7 @@ namespace RockSampleData.Loader.Loading
             _views = views;
             _selection = selection;
             _today = new DataViewEvaluator( db, today, views, selection );
+            _memberships = new GroupMembershipHistory( db );
         }
 
         /// <summary>
@@ -133,6 +138,7 @@ namespace RockSampleData.Loader.Loading
             {
                 AttendanceFilter => Attended( selection, at ),
                 StepsFilter => Stepped( selection, at ),
+                GroupTypeFilter => InGroupType( selection, at ),
                 PropertyFilter => State( filter ),
                 _ => throw new InvalidDataException( $"The data filter {filter.Component} cannot be replayed for a past week." )
             };
@@ -215,6 +221,29 @@ GROUP BY [pa].[PersonId]" )
 
             var people = People();
             return first.Where( p => p.Value <= at && people.Contains( p.Key ) ).Select( p => p.Key ).ToHashSet();
+        }
+
+        /// <summary>
+        /// Rock's InGroupGroupTypeFilter: group type|roles|member status|group active, read from group member history at the run.
+        /// </summary>
+        private HashSet<int> InGroupType( string selection, DateTime at )
+        {
+            var parts = selection.Split( '|' );
+            if ( parts.Length < 2 )
+            {
+                throw new InvalidDataException( $"The group type filter {selection} needs at least a group type and roles." );
+            }
+
+            var groupTypeId = _db.RequireIdByGuid( "GroupType", Guid.Parse( parts[0] ) );
+            var roles = parts[1].Split( new[] { ',' }, StringSplitOptions.RemoveEmptyEntries ).Select( r => _db.RequireIdByGuid( "GroupTypeRole", Guid.Parse( r ) ) ).ToList();
+            var statusText = parts.ElementAtOrDefault( 2 );
+            int? status = string.IsNullOrWhiteSpace( statusText ) ? null
+                : int.TryParse( statusText, out var number ) ? number
+                : MemberStatuses.TryGetValue( statusText, out var named ) ? named
+                : throw new InvalidDataException( $"{statusText} is not a group member status." );
+            bool? isActive = parts.ElementAtOrDefault( 3 ) is string active && bool.TryParse( active, out var value ) ? value : null;
+            var people = People();
+            return _memberships.MembersAt( groupTypeId, roles, status, isActive, at ).Where( people.Contains ).ToHashSet();
         }
 
         /// <summary>

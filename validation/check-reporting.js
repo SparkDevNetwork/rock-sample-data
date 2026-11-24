@@ -222,10 +222,11 @@ for ( const report of reporting.reports || [] ) {
 }
 
 // A view whose past weeks the loader can replay (loader/loading/ViewHistory.cs): every filter, through the views it
-// points at, is an attendance count, a steps filter, or a filter on a person's fields.
+// points at, is an attendance count, a steps filter, group membership, or a filter on a person's fields.
 const replayable = new Set( [
     "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
     "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+    "Rock.Reporting.DataFilter.Person.InGroupGroupTypeFilter",
     "Rock.Reporting.DataFilter.PropertyFilter"
 ] );
 function canReplay( view, seen = new Set() ) {
