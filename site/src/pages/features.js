@@ -59,6 +59,7 @@ module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
     const signals = require( path.join( model.root, "configuration/signals.json" ) );
+    const checkIn = require( path.join( model.root, "configuration/checkin.json" ) );
     const personalLinks = require( path.join( model.root, "configuration/personal-links.json" ) );
     const tags = require( path.join( model.root, "configuration/tags.json" ) ).tags;
     const tagCategories = model.categories.filter( c => c.entityType === "Rock.Model.Tag" );
@@ -102,6 +103,13 @@ module.exports = function features( { model } ) {
             checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "Kids, student, and volunteer kiosks at every campus, each with a label printer at an address no real printer has", "A check-in session for every check-in, found by the last four digits of a phone", "Kids checked out after their service by the adult who brought them", "Wednesday Student Night for grades 7 to 12", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
             look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday, who always check in at Phoenix Kids 1`, html`${person( model, "Grace Fischer" )} at Student Night most Wednesdays`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
+        },
+        {
+            id: "check-in-setup", eyebrow: "Check-in setup", title: "Check-in you can test any day.",
+            text: html`Check-in is set up the way a church sets it up, and Rock's own test check-in reaches every kids and student room at every campus. Its two test schedules are open all day, every day, so a kiosk can check someone in at any time. A Volunteer Test Area does the same for every room a serving team serves in. Each of the ${checkIn.supervisors.length} campuses has a kids check-in supervisor with a PIN.`,
+            checks: [ "Child, Parent, and Note labels for kids, and a Name Tag for students and volunteers", "Firm limits in the nursery, and Grades 4-6 balanced across two rooms", "Supervisor mode, checkout at the kiosk and in the Check-in Manager, and duplicate check-in prevention", "Volunteer test check-in in every serving room, with no test slots in the Group Scheduler", "Grandparents and other adults who may check in a child from another family" ],
+            look: [ html`A kiosk search for ${person( model, "Karen Morgan" )}, which shows her grandchildren, Mason and Chloe Kelly`, html`${person( model, "Craig Lowe" )}, who may check in his daughter Madison`, "The Test Group in Rock's Check-in Test Area, at any kiosk", "Each campus's Volunteer Test Group, under Volunteer Check-in", "The kiosk's supervisor screen, with the campus PIN" ],
+            links: [ { label: "Check-in setup and PINs", href: doc( "configuration/README.md#check-in" ) } ]
         },
         {
             id: "groups-and-serving", eyebrow: "Groups and serving", title: "Groups that meet, and teams that serve.", sand: true,
