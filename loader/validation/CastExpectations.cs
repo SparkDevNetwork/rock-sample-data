@@ -216,6 +216,9 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             checks += CheckAdaptiveMessages( db, source, guids, parts, failures );
 
             checks += CheckDuplicates( db, source, guids, failures );
+
+            // The Data Integrity pages' Cast stories: record dates, Pending forms, self-inactivations, status history, workflows, and settings.
+            checks += CastDataIntegrityExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), parts.Contains( SampleDataPart.Photos ), failures );
             checks += CheckSignals( db, source, guids, failures );
             checks += CastTagExpectations.Check( db, source, guids, failures );
 

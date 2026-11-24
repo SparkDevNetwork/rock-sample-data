@@ -1,0 +1,91 @@
+{
+  "$schema": "../household.schema.json",
+  "schemaVersion": 1,
+  "key": "barlow",
+  "guid": "DB947A80-A666-4E3A-8C13-CE03E12DEEC8",
+  "name": "Barlow Family",
+  "kind": "family",
+  "origin": "new",
+  "campusSlot": "main",
+  "story": "Greg and Diane Barlow came for about seven years. They retired to Wickenburg in the summer and stopped coming, and nobody changed their records. The church's NCOA run found their change of address more than 25 miles away, so Rock moved them to their new home, kept the old one as Previous, and inactivated them with the reason Moved.",
+  "testPurposes": [
+    "NCOA move away: a family move more than 25 miles away, which Rock processed and inactivated with the reason Moved and its note.",
+    "Old home kept as a Previous address, with Rock's NCOA History lines."
+  ],
+  "address": {
+    "type": "home",
+    "street1": "11735 N 40th Pl",
+    "city": "Phoenix",
+    "state": "AZ",
+    "postalCode": "85028",
+    "latitude": 33.593737,
+    "longitude": -111.992898
+  },
+  "attendance": {
+    "persona": "lapsed",
+    "percentAttended": 55,
+    "started": {
+      "yearsAgo": 7,
+      "month": 9,
+      "day": 9
+    },
+    "ended": {
+      "daysAgo": 150
+    }
+  },
+  "members": [
+    {
+      "key": "greg",
+      "guid": "974FB0A8-3C13-4106-9B6C-DA09AE314EE7",
+      "firstName": "Gregory",
+      "nickName": "Greg",
+      "lastName": "Barlow",
+      "gender": "male",
+      "familyRole": "adult",
+      "birth": {
+        "age": 66,
+        "month": 3,
+        "day": 14
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "Moved",
+      "connectionStatus": "Connected",
+      "email": "greg.barlow@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550130"
+      },
+      "photo": {
+        "ethnicity": "white",
+        "isOmitted": true
+      }
+    },
+    {
+      "key": "diane",
+      "guid": "1F88B279-059C-484F-AAD4-469155D2C0FA",
+      "firstName": "Diane",
+      "lastName": "Barlow",
+      "gender": "female",
+      "familyRole": "adult",
+      "birth": {
+        "age": 64,
+        "month": 10,
+        "day": 27
+      },
+      "maritalStatus": "married",
+      "recordStatus": "inactive",
+      "recordStatusReason": "Moved",
+      "connectionStatus": "Connected",
+      "email": "diane.barlow@example.org",
+      "emailIsActive": true,
+      "phones": {
+        "mobile": "6235550131"
+      },
+      "photo": {
+        "ethnicity": "white",
+        "isOmitted": true
+      }
+    }
+  ]
+}

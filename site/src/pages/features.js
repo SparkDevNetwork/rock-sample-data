@@ -86,7 +86,7 @@ module.exports = function features( { model } ) {
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
             text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
-            checks: [ "Families, single parents, and children shared between two homes", "Crowd names from real name data for each birth decade, and nicknames such as Bob for Robert", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Mapped addresses, each marked as checked, so none ever goes to an address service", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
+            checks: [ "Families, single parents, and children shared between two homes", "Crowd names from real name data for each birth decade, and nicknames such as Bob for Robert", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Addresses each marked as checked, or locked when the address service could not match them, so none ever goes to one", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
             look: [ html`${person( model, "Jon Smith" )}, with two duplicate records and a merge request`, html`${person( model, "Sarah Simmons" )}'s History, where her old Sarah Jones record was merged`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
             links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) }, { label: "Duplicates", href: doc( "docs/duplicates.md" ) } ]
         },
@@ -296,7 +296,18 @@ module.exports = function features( { model } ) {
         links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
     };
 
-    const sections = [ ...areas, reportingArea, metricsArea, assessmentsArea, remindersArea ];
+    // Data integrity comes after reminders, which are on sand, so the page keeps alternating.
+    const integrity = require( path.join( model.root, "configuration/data-integrity.json" ) );
+    const openReports = integrity.dataErrors.reports.filter( r => !r.resolved );
+    const dataIntegrityArea = {
+        id: "data-integrity", eyebrow: "Data integrity", title: "Work waiting on every Data Integrity page.",
+        text: html`The data is clean on purpose, so each of Rock's Data Integrity pages gets a small, named set of problems, each tied to a Cast story: ${integrity.pending.records.length} Pending records with the forms that made them, ${integrity.selfInactivations.records.length} people who said they are no longer involved, ${integrity.dataErrors.reports.length} data error reports, ${integrity.photoRequests.requests.length} photo requests, ${integrity.sharedPhones.numbers.length} phone numbers on more than one record, Cast homes the address service could not match, and an NCOA run with families who moved nearby and away. Every record has the day it was made and a Record Source, and Rock's ${Object.keys( integrity.settings.rules ).length} Data Automation rules are configured and off.`,
+        checks: [ "Every record dated the day it was made, with new records at a real church's monthly rate, so the Pending report and Connection Status Changes read true", "A Record Source on every record, from the form or visit that made it", "First Visit and Second Visit as Rock's Family Analytics job leaves them", "Self Inactivated records with each person's own note", "Connection status changes staff made, in each person's History", "Couples who share an email, on the Duplicate Emails report", "A recycled landline, a shared cell, and a child carrying a parent's number, on the Duplicate Phone Numbers report", "An NCOA run Rock processed: new homes with the old ones kept as Previous, a family that moved away inactivated, and an adult child's move waiting on the Results page", "Generated adults with a real church's gaps: no email, mobile, birth date, marital status, or home address for some", "Failed addresses that Location Locked keeps from ever going to an address service", "Data Automation rules that Rock itself reads back, and a job that changes nobody" ],
+        look: [ html`${openReports.length} reports waiting in ${person( model, "Alisha Marble" )}'s My Workflows, signed in as <code>admin</code>`, html`${person( model, "Jack Harper" )}'s record, Pending for three years`, html`The <a href="cast/keller.html">Kellers</a> on the Self Inactivated Individuals report`, "Verify Photos, with two uploads waiting", "The Location Editor's Not Geocoded list" ],
+        links: [ { label: "Data Integrity", href: doc( "docs/data-integrity.md" ) } ]
+    };
+
+    const sections = [ ...areas, reportingArea, metricsArea, assessmentsArea, remindersArea, dataIntegrityArea ];
 
     return {
         file: "features.html",

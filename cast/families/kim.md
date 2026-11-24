@@ -2,7 +2,7 @@
 
 New household · 3 people · Phoenix campus · [source](../households/kim.json)
 
-David and Susan Kim's son Andrew is 20, in college, and still lives at home.
+David and Susan Kim's son Andrew is 20 and in college. He moved into an apartment near campus this fall, but Rock still has him at home: the church's NCOA run found his change of address and left it for a staff member to review.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -30,6 +30,7 @@ David and Susan Kim's son Andrew is 20, in college, and still lives at home.
 ## What this family tests
 
 - Adult child living at home (adult role in the family).
+- NCOA individual move that waits for a staff member on Rock's NCOA Results page.
 - Monthly giver.
 - An adult son at home gives on his own (his own giving unit).
 - Open request to serve that Alisha Marble connects (No Contact).

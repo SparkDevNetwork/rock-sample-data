@@ -5,7 +5,7 @@ Every piece of data in this repository follows these rules. Read them before you
 ## Everything is fictional
 
 1. **People, churches, and organizations are fictional.** Employers and businesses use invented names, for example Sonorell Systems or Cholla Creek Hardware. Never name a real church.
-2. **Phones use the reserved range** 555-0100 to 555-0199, which is fictional in every area code. The Cast and the church's texting numbers use Phoenix-area codes (602, 480, 623). Generated people and businesses may use any US geographic area code in `configuration/phones.json`, never a toll-free or special-use code. Each person's number is unique unless the story says it is shared: within a household (for example, a couple's home phone), as an office's main line, or between duplicate records of one person.
+2. **Phones use the reserved range** 555-0100 to 555-0199, which is fictional in every area code. The Cast and the church's texting numbers use Phoenix-area codes (602, 480, 623). Generated people and businesses may use any US geographic area code in `configuration/phones.json`, never a toll-free or special-use code. Each person's number is unique unless the story says it is shared: within a household (for example, a couple's home phone), as an office's main line, between duplicate records of one person, or with an inactive household whose old number the phone company gave to a new family.
 3. **Emails use `example.org`.** Staff of the sample church use `rocksolidchurchdemo.com`.
 4. **Addresses use real streets with house numbers that do not exist.** No made-up number may match a real address on any street with that name in that ZIP code. Only `addresses/build-pool.js` makes addresses.
 
